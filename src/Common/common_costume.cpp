@@ -7,6 +7,7 @@
 #include "common_reputation.h"
 #include "common_reputation_internal.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
+#include "common_flplusplus.h"      // port-only character_detail_scale
 
 #include "common_ini.h"
 #include "common_misc.h"
@@ -320,6 +321,13 @@ void DetailSwitchTable::read_from_ini(INI_Reader* Reader)
         {
             float Key = Reader->get_value_float(0);
             float Value = Reader->get_value_float(1);
+#ifdef FREELANCER_FLPLUSPLUS
+            // Port-only (flplusplus character_detail_scale, the get_value_float(1) call at
+            // 0x062fefb1): the switch distance times the scale.
+            float const Scale = FlplusplusGetConfig().CharacterDetailScale;
+            if (FlplusplusScaleApplies(Scale))
+                Value = static_cast<float>(static_cast<double>(Reader->get_value_float(1)) * Scale);
+#endif
             add_table_entry(Key, Value);
         }
         else if (Reader->is_value("fovx"))

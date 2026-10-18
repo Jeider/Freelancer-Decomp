@@ -13,6 +13,9 @@
 #ifdef FREELANCER_JFLP
 #include "globals.h"               // g_display, G_RenderMgrWindow, RenderMgrCreateBuffers
 #endif
+#ifdef FREELANCER_FLPLUSPLUS
+#include "flplusplus.h"            // FlplusplusTakeScreenShot
+#endif
 #include "hud_command_dispatch.h"
 #include "nn_pause.h"              // NnPauseOpen (FUN_004a75c0)
 #include "render/IRenderPipeline.h"
@@ -118,6 +121,10 @@ void SetClientQuitRequested(bool bQuit)
 
 int TakeClientScreenShot()
 {
+#ifdef FREELANCER_FLPLUSPLUS
+    // Port-only (flplusplus detours FUN_00425170 with OnScreenshot): PNG, named by the time.
+    return FlplusplusTakeScreenShot();
+#endif
     // FUN_00425170.
     char ShotDir[0x104];
     if (!GetScreenShotPath(ShotDir))

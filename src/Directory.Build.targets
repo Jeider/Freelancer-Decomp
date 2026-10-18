@@ -67,6 +67,13 @@
       <PreprocessorDefinitions>FREELANCER_JFLP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <!-- Port-only flplusplus.dll behaviour (docs/flplusplus.md): the client and Common.dll (save /
+       screenshot folders, character detail, flplusplus.ini). -->
+  <ItemDefinitionGroup Condition="'$(FreelancerFlplusplus)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_FLPLUSPLUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup Condition="'$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='freelancer'">
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Freelancer.Diagnostics.xml">
       <Context>PropertySheet</Context>

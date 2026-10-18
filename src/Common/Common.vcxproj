@@ -107,6 +107,7 @@
     <ClInclude Include="..\include\common_iustategraph.h" />
     <ClInclude Include="..\include\common_idea.h" />
     <ClInclude Include="..\include\common_misc.h" />
+    <ClInclude Include="..\include\common_flplusplus.h" />
     <ClInclude Include="..\include\common_behavior.h" />
     <ClInclude Include="..\include\common_dockbehavior.h" />
     <ClInclude Include="..\include\common_buzzbehavior.h" />
@@ -300,6 +301,7 @@
     <ClCompile Include="common_repairmanager.cpp" />
     <ClCompile Include="common_thrustmanager.cpp" />
     <ClCompile Include="common_misc.cpp" />
+    <ClCompile Include="common_flplusplus.cpp" />
     <ClCompile Include="common_file.cpp" />
     <ClCompile Include="common_heap.cpp" />
     <ClCompile Include="common_damagelist.cpp" />

@@ -73,6 +73,9 @@
 #include <new>
 #include <vector>
 #include <windows.h>
+#ifdef FREELANCER_FLPLUSPLUS
+#include "common_flplusplus.h" // port-only lod_scale (render distance)
+#endif
 
 // ============================================================================
 // Retail chain (listing-verified entry points):
@@ -2605,6 +2608,12 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
         {
             Geometry::Sphere Query;
             Query.Radius = kObjDbFillRange;
+#ifdef FREELANCER_FLPLUSPLUS
+            // Port-only (flplusplus patch_lodranges: DAT_00613ec8 = 10000 * lod_scale).
+            float const LodScale = FlplusplusGetConfig().LodScale;
+            if (FlplusplusScaleApplies(LodScale))
+                Query.Radius = kObjDbFillRange * LodScale;
+#endif
             float const* const CamPos = Camera->GetPosition();
             Query.Center.x = CamPos[0];
             Query.Center.y = CamPos[1];

@@ -49,6 +49,14 @@ Retail: the info card and `FUN_00484090` have no stats for Power / Engine / Scan
 
 Port with the define: the jflp.dll v1.27 behaviour in `nn_inventory.cpp`, `dealer_equip_stats.cpp`, `hud_target.cpp`, `misc_util.cpp`, `ids_strings.cpp`, `chat_text_input.cpp`, `main_command_handler.cpp`, `player_behavior.cpp`, `page_server_select.cpp`, `hud_status_core.cpp`, `Common/common_csteering.cpp`. The sector swap is applied to both `%Z` branches (jflp swaps only the override branch). Compiled, not yet run.
 
+## Client / Common: flplusplus.dll behaviour (FLPLUSPLUS, 2026-10-18)
+
+Status: OPEN — intentional port-only features, requested in the Jeider/Freelancer-Decomp fork. Owner: that fork's maintainer; freelancer.exe / Client and Common.dll. Removal condition: only an explicit instruction of the owner. Every change is under `FREELANCER_FLPLUSPLUS` (`FreelancerFlplusplus`); at 0 the client and Common.dll are retail (Common.dll then also lacks the `FlplusplusGetConfig` export). Description and patch table: [../flplusplus.md](../flplusplus.md).
+
+Retail: saves in `My Games\Freelancer`, BMP screenshots in `Pictures\FreelancerShots`; fixed LOD ranges, object query radius 10000 (`DAT_00613ec8`), pbubble and character detail distances; no wheel scrolling in lists (slot 18 `FUN_0053f330` returns false); texture group override `0x80`; the low-machine dialog; no private fonts; no FLSpew timestamps.
+
+Port with the define: the settings of `bin\flplusplus.ini` (Common `common_flplusplus.cpp`), `common_misc.cpp`, `common_costume.cpp`, `common_textrender.cpp`, and in the client `flplusplus.cpp`, `main.cpp`, `main_command_handler.cpp`, `win3d.cpp`, `ui_scroll.cpp`, `ship_view_control.cpp`, `client_cliobj.cpp`, `space_scene_obj_draw.cpp`, `effect_type_info.cpp`, `engine_init.cpp`. Screenshots are taken from the pipeline, not from the GDI desktop as the plugin does; the wheel value is compared by sign. Compiled, not yet run.
+
 ## SoundManager / SoundStreamer: Fraunhofer ACM (decode only) (SOUND-ACM-DECODE-ONLY, 2026-10-10)
 
 Status: OPEN — intentional deviation at the owner's direct request. Owner: Giperion; SoundManager.dll / SoundStreamer.dll. Removal condition: only an explicit instruction from Giperion; do not close on a routine retail-conformance audit.

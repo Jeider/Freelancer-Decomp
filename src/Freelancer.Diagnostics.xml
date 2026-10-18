@@ -58,6 +58,12 @@
     <EnumValue Name="0" DisplayName="Off" />
     <EnumValue Name="1" DisplayName="On" />
   </EnumProperty>
+  <EnumProperty Name="FreelancerFlplusplus" DisplayName="flplusplus.dll behaviour"
+                Category="Features" Default="0"
+                Description="Not in the original game (TheStarport's flplusplus.dll): settings in flplusplus.ini next to freelancer.exe (LOD / render distance, pbubble and character detail scales, save and screenshot folders, ship preview zoom), private fonts from DATA\FONTS\fonts.ini [FontFiles], PNG screenshots, FLSpew timestamps, mouse wheel scrolling of lists and texts (FREELANCER_FLPLUSPLUS, client and Common.dll; docs/flplusplus.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
   <EnumProperty Name="FreelancerJflp" DisplayName="jflp.dll behaviour"
                 Category="Features" Default="0"
                 Description="Not in the original game (Jason Hood's jflp.dll): stats for powerplants, engines, scanners, tractor beams and armor; sector letter first; Alt+Enter toggles windowed mode; roll in mouse flight; 8-way strafe; server info of other versions; the first weapon group active in space (FREELANCER_JFLP, client and Common.dll; docs/jflp.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">

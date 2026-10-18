@@ -127,6 +127,12 @@ public:
     void Update() override;                                        // slot 11 LAB_00584740
     void Draw() override;                                          // slot 13 LAB_00584470
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override; // slot 42 LAB_005864c0
+#ifdef FREELANCER_FLPLUSPLUS
+    // Port-only (flplusplus ShipPreviewWindowScroll in slot 18, 0x005e4c14): the wheel moves
+    // the cached view translation z (+0x3ec, camera +0x64) by ship_preview_scrolling_speed --
+    // a zoom that lasts until the camera is placed again. Always false, as the plugin's.
+    bool Slot18(int Value) override;
+#endif
 
     // FUN_00583b90 -- clear the selection and the drag state; frame nothing.
     void Reset();

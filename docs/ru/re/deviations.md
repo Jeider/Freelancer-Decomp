@@ -49,6 +49,14 @@ Retail: в инфокарте и `FUN_00484090` нет статистики Powe
 
 Порт с define: поведение jflp.dll v1.27 в `nn_inventory.cpp`, `dealer_equip_stats.cpp`, `hud_target.cpp`, `misc_util.cpp`, `ids_strings.cpp`, `chat_text_input.cpp`, `main_command_handler.cpp`, `player_behavior.cpp`, `page_server_select.cpp`, `hud_status_core.cpp`, `Common/common_csteering.cpp`. Перестановка букв сектора сделана в обеих ветках `%Z` (jflp меняет только ветку с override). Собрано, не запускалось.
 
+## Клиент / Common: поведение flplusplus.dll (FLPLUSPLUS, 2026-10-18)
+
+Статус: OPEN — намеренные возможности порта, добавлены по запросу в форке Jeider/Freelancer-Decomp. Владелец: мейнтейнер этого форка; freelancer.exe / Client и Common.dll. Условие снятия: только явное указание владельца. Все изменения под `FREELANCER_FLPLUSPLUS` (`FreelancerFlplusplus`); при 0 клиент и Common.dll — retail (в Common.dll тогда нет и экспорта `FlplusplusGetConfig`). Описание и таблица патчей: [../flplusplus.md](../flplusplus.md).
+
+Retail: сохранения в `My Games\Freelancer`, BMP-скриншоты в `Изображения\FreelancerShots`; фиксированные дальности LOD, радиус выборки объектов 10000 (`DAT_00613ec8`), дальности pbubble и детализации персонажей; колесо в списках не работает (слот 18 `FUN_0053f330` возвращает false); группа текстур `0x80`; диалог о слабом компьютере; нет приватных шрифтов и меток времени в FLSpew.
+
+Порт с define: настройки из `bin\flplusplus.ini` (Common `common_flplusplus.cpp`), `common_misc.cpp`, `common_costume.cpp`, `common_textrender.cpp`, а в клиенте `flplusplus.cpp`, `main.cpp`, `main_command_handler.cpp`, `win3d.cpp`, `ui_scroll.cpp`, `ship_view_control.cpp`, `client_cliobj.cpp`, `space_scene_obj_draw.cpp`, `effect_type_info.cpp`, `engine_init.cpp`. Скриншот снимается с конвейера, а не с рабочего стола через GDI, как у плагина; колесо сравнивается по знаку. Собрано, не запускалось.
+
 ## SoundManager / SoundStreamer: Fraunhofer ACM (decode only) (SOUND-ACM-DECODE-ONLY, 2026-10-10)
 
 Статус: ЖИВО — намеренное отклонение по прямому запросу владельца. Владелец: Giperion; SoundManager.dll / SoundStreamer.dll. Условие снятия: только явное указание Giperion; не закрывать при обычном аудите соответствия retail.

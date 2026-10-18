@@ -389,9 +389,17 @@ static struct FDefaultStandardFontsInit
 {
     FDefaultStandardFontsInit()
     {
+#ifdef FREELANCER_FLPLUSPLUS
+        // Port-only (flplusplus graphics::init, "\b" over the string at Common+0x143dc0): an
+        // installed Vibrocentric font would be taken over Agency FB and break the interface.
+        static const char* const Names[4] = {
+            "\b", "\b", "Arial Unicode MS", "Arial Unicode MS"
+        };
+#else
         static const char* const Names[4] = {
             "Vibrocentric", "Vibrocentric", "Arial Unicode MS", "Arial Unicode MS"
         };
+#endif
         static const unsigned long Sizes[4] = { 16, 18, 22, 26 };
         for (int i = 0; i < GMaxFontIndices; ++i)
         {

@@ -122,6 +122,15 @@ public:
 
     // FUN_00595dd0 — FLD +0x3c8.
     float GetValue() const { return Value_; }
+
+#ifdef FREELANCER_FLPLUSPLUS
+    // Port-only (flplusplus / adoxa WheelScroll): one held-arrow repeat step of the UICycle
+    // draw (LAB_00597560, which WheelScroll calls with +0x3b8 = the direction and +0x3bc = -1)
+    // -- up (bUp) or down by +0x3d0, clamp, relayout, notify the parent -- without the draw.
+    void WheelStep(bool bUp);
+    // Win3D +0x6c bit 1, which WheelScroll tests before scrolling.
+    bool IsShown() const { return (Flags & 2) != 0; }
+#endif
     // FUN_00597550 (RET 4) — +0x42c = the byte argument; no relayout.
     void SetHorizontal(bool bHorizontal) { bHorizontal_ = bHorizontal; }
 

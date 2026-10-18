@@ -509,6 +509,7 @@
     <ClCompile Include="Client\nn_scanner.cpp" />
     <ClCompile Include="Client\nn_text_scratch.cpp" />
     <ClCompile Include="Client\main_command_handler.cpp" />
+    <ClCompile Include="Client\flplusplus.cpp" />
     <ClCompile Include="Client\menu_keymap.cpp" />
     <ClCompile Include="Client\screen_quad_state.cpp" />
     <ClCompile Include="Client\connect_flow.cpp" />

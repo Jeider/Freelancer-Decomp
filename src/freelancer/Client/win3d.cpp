@@ -33,6 +33,9 @@
 #include "render/IRenderPipeline.h"
 #include "render/shading.h"
 #include "x86math.h"
+#ifdef FREELANCER_FLPLUSPLUS
+#include "flplusplus.h"           // port-only mouse wheel scrolling (WheelScroll)
+#endif
 
 #include <math.h>
 #include <stdint.h>
@@ -505,11 +508,22 @@ void Win3D::Slot17()
     // FUN_00401e90: RET.
 }
 
+#ifdef FREELANCER_FLPLUSPLUS
+bool Win3D::Slot18(int Value)
+{
+    // Port-only (flplusplus / adoxa WheelScroll, which put Window_Wheel into slot 18 of ten
+    // vftables): those classes scroll their own or an ancestor's bar.
+    if (FlplusplusHasWheelScroll(this))
+        return FlplusplusWindowWheel(this, Value);
+    return false; // FUN_0053f330
+}
+#else
 bool Win3D::Slot18(int /*Value*/)
 {
     // FUN_0053f330: XOR AL,AL / RET 4.
     return false;
 }
+#endif
 
 bool Win3D::MouseEvent(FWin3DMouseEvent const* Event)
 {

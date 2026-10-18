@@ -10,6 +10,9 @@
 #include "common_misc.h" // ICamera
 #include "dacom.h"
 #include "perf_options.h" // GetPerfGenericEffectPerf (DAT_006129c8)
+#ifdef FREELANCER_FLPLUSPLUS
+#include "common_flplusplus.h" // port-only pbubble_scale
+#endif
 
 #include <string.h>
 
@@ -209,6 +212,18 @@ bool LoadEffectTypeSection(INI_Reader* Reader)
                 // strictly below near.
                 Current->PbubbleNear = Reader->get_value_float(0);
                 Current->PbubbleFar = Reader->get_value_float(1);
+#ifdef FREELANCER_FLPLUSPLUS
+                // Port-only (flplusplus patch_pbubble: both reads at 0x004fd82c / 0x004fd839
+                // times pbubble_scale).
+                float const Scale = FlplusplusGetConfig().PbubbleScale;
+                if (FlplusplusScaleApplies(Scale))
+                {
+                    Current->PbubbleNear = static_cast<float>(
+                        static_cast<double>(Reader->get_value_float(0)) * Scale);
+                    Current->PbubbleFar = static_cast<float>(
+                        static_cast<double>(Reader->get_value_float(1)) * Scale);
+                }
+#endif
                 if (Current->PbubbleFar < Current->PbubbleNear)
                 {
                     FDUMP(0x100002, "%s(%d) : WARNING:General:%s", kSourceFile, 0xc1,

@@ -21,6 +21,9 @@
 #include "ship_camera_params.h"
 #include "vis_effect_arch.h"
 #include "widescreen.h"      // port-only Hor+ factor (jflp LOD range scale)
+#ifdef FREELANCER_FLPLUSPLUS
+#include "common_flplusplus.h" // port-only lod_scale
+#endif
 
 #include <cstddef>
 #include <cmath>
@@ -130,6 +133,14 @@ namespace Archetype
                 while (!Reader->is_value_empty(Index) && Index < 8)
                 {
                     Node->Ranges[Index] = Reader->get_value_float(Index);
+#ifdef FREELANCER_FLPLUSPLUS
+                    // Port-only (flplusplus patch_lodranges: FMUL [lod_scale] after the read at
+                    // 0x00402383). The plugin's patch also drops the 8-range cap; it stays here.
+                    float const LodScale = FlplusplusGetConfig().LodScale;
+                    if (FlplusplusScaleApplies(LodScale) && LodScale != 1.0f)
+                        Node->Ranges[Index] = static_cast<float>(
+                            static_cast<double>(Reader->get_value_float(Index)) * LodScale);
+#endif
                     Index += 1;
                 }
                 float* TermSlot = reinterpret_cast<float*>(
@@ -844,7 +855,11 @@ namespace Archetype
                 bRestoreGroup = true;
                 // 0x0041ad6c: JGE -- a negative arg (the -1 every caller passes) becomes 0x80.
                 if (GroupOverride < 0)
+#ifdef FREELANCER_FLPLUSPLUS
+                    GroupOverride = 0x2000; // port-only, flplusplus "texture size bug fix" (0x0041ad6f)
+#else
                     GroupOverride = 0x80;
+#endif
 
                 // 0x0041ad84 slot 4 (+0x10) GetGenericSlot(4, &saved); 0x0041ad94 slot 3 (+0x0c)
                 // SetGenericSlot(4, group).

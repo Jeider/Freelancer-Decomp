@@ -11,5 +11,6 @@
     <FreelancerHudStatusView>1</FreelancerHudStatusView>
     <FreelancerHudInventoryView>1</FreelancerHudInventoryView>
     <FreelancerJflp>1</FreelancerJflp>
+    <FreelancerFlplusplus>1</FreelancerFlplusplus>
   </PropertyGroup>
 </Project>

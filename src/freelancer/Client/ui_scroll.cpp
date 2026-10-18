@@ -1097,6 +1097,24 @@ void UiCycle::Draw()
     RepeatTimer_ = kCycleRepeatInterval;
 }
 
+#ifdef FREELANCER_FLPLUSPLUS
+void UiScroll::WheelStep(bool bUp)
+{
+    // The step half of UiCycle::Draw above for DragPart_ 0 (up) / 1 (down).
+    if (bUp)
+        Value_ = static_cast<float>(static_cast<double>(Value_) - Step_);
+    else
+        Value_ = static_cast<float>(static_cast<double>(Step_) + Value_);
+    if (bStepMode_)
+        RangeMax_ = static_cast<float>(static_cast<double>(RangeMax_) - 1.0);
+    ClampValues();
+    if (bStepMode_)
+        RangeMax_ = static_cast<float>(static_cast<double>(RangeMax_) + 1.0);
+    Relayout();
+    NotifyParent();
+}
+#endif
+
 bool UiCycle::MouseEvent(FWin3DMouseEvent const* Event)
 {
     // LAB_00597760 (RET 4): outside the box -> WinControl FUN_005a0650; a press (kind 2) on an

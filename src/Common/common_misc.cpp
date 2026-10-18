@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "common_misc.h"
+#include "common_flplusplus.h" // port-only flplusplus.ini (save / screenshot folders)
 #include "x86math.h" // I3DMathEngine
 #include "common_reputation.h" // Reputation::Vibe::FreeDynamic (CleanUpDatabases)
 #include "readfile.h"      // IFileSystem, FFileSystemDesc (DAEngine_create_filesystem)
@@ -1003,22 +1004,72 @@ bool __cdecl GetUserLocalDataPath(char* const Dest)
     return AppendAndEnsureDir(Dest, "Freelancer");
 }
 
+#ifdef FREELANCER_FLPLUSPLUS
+namespace
+{
+    // Port-only (flplusplus savegame.cpp / screenshot.cpp, which detour both exports): the
+    // folder next to the game (EXE\..\<Local>) or the named folder in the shell folder.
+    bool FlplusplusFolder(char* const Dest, bool bInDirectory, char const* Local, int CsIdl,
+                          char const* Parent, char const* Name)
+    {
+        if (bInDirectory)
+        {
+            char Exe[kPathChars];
+            GetModuleFileNameA(nullptr, Exe, kPathChars);
+            char Drive[_MAX_DRIVE];
+            char Dir[_MAX_DIR];
+            _splitpath(Exe, Drive, Dir, nullptr, nullptr);
+            char Joined[kPathChars];
+            _makepath(Joined, Drive, Dir, nullptr, nullptr);
+            strncat(Joined, "..\\", kPathChars - strlen(Joined) - 1);
+            strncat(Joined, Local, kPathChars - strlen(Joined) - 1);
+            if (_fullpath(Dest, Joined, kPathChars) == nullptr)
+            {
+                *Dest = '\0';
+                return false;
+            }
+            if (_access(Dest, 0) == 0 || _mkdir(Dest) == 0)
+                return true;
+            *Dest = '\0';
+            return false;
+        }
+        if (!FillSpecialFolder(Dest, CSIDL_FLAG_CREATE | CsIdl))
+            return false;
+        if (Parent != nullptr && !AppendAndEnsureDir(Dest, Parent))
+            return false;
+        return AppendAndEnsureDir(Dest, Name);
+    }
+}
+#endif
+
 bool __cdecl GetUserDataPath(char* const Dest)
 {
+#ifdef FREELANCER_FLPLUSPLUS
+    FFlplusplusConfig const& Config = FlplusplusGetConfig();
+    return FlplusplusFolder(Dest, Config.bSaveInDirectory, "SAVE", CSIDL_PERSONAL, "My Games",
+                            Config.SaveFolderName);
+#else
     // listing 06302fa0 — CSIDL 0x8005, "My Games" then "Freelancer"
     if (!FillSpecialFolder(Dest, CSIDL_FLAG_CREATE | CSIDL_PERSONAL))
         return false;
     if (!AppendAndEnsureDir(Dest, "My Games"))
         return false;
     return AppendAndEnsureDir(Dest, "Freelancer");
+#endif
 }
 
 bool __cdecl GetScreenShotPath(char* const Dest)
 {
+#ifdef FREELANCER_FLPLUSPLUS
+    FFlplusplusConfig const& Config = FlplusplusGetConfig();
+    return FlplusplusFolder(Dest, Config.bScreenshotsInDirectory, "SCREENSHOTS",
+                            CSIDL_MYPICTURES, nullptr, Config.ScreenshotsFolderName);
+#else
     // listing 063030b0 — CSIDL 0x8027, subdir "FreelancerShots"
     if (!FillSpecialFolder(Dest, CSIDL_FLAG_CREATE | CSIDL_MYPICTURES))
         return false;
     return AppendAndEnsureDir(Dest, "FreelancerShots");
+#endif
 }
 
 void __cdecl DAEngine_create_filesystem(char const* Path, IFileSystem** Out,

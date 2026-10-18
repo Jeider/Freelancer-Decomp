@@ -772,7 +772,13 @@ bool InitializeEngine(const FClientCommandLine* CommandLine)
         FHudWideText WarningText;
         WarningText.Text = nullptr;
         WarningText.Capacity = 0;
+#ifdef FREELANCER_FLPLUSPLUS
+        // Port-only (flplusplus graphics::init: 0x005b16fc TEST AL,AL -> XOR, "disable
+        // unsupported video dialog"): the warning is built but never shown.
+        if (!BuildLowMachineWarning(&WarningText) || true)
+#else
         if (!BuildLowMachineWarning(&WarningText))
+#endif
         {
             WideTextFree(&WarningText);
         }

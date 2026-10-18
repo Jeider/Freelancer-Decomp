@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "client_cliobj.h"     // FlushMaterialCache (FUN_0041b150)
+#ifdef FREELANCER_FLPLUSPLUS
+#include "flplusplus.h"        // port-only flplusplus start-up
+#endif
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 #include "client_frame_tick.h"
 #include "client_ime_focus.h" // ReleaseClientIMEFocus (FUN_005641d0)
@@ -767,6 +770,11 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE /*prev*/, LPSTR cmd, int /*show
         LoadStartupConfig(&g_display, &CommandLine);
         ErrorHandler::activate(g_display.ini_path.c_str(), ClientAssertHandler);
         OpenSpewLog();
+#ifdef FREELANCER_FLPLUSPLUS
+        // Port-only (flplusplus init_patches, at plugin load): FLSpew timestamps and the
+        // private fonts of DATA\FONTS\fonts.ini [FontFiles].
+        FlplusplusStartup(g_display.data_path.c_str());
+#endif
         // FUN_005a82d0(&CommandLine, ini path): [Freelancer] local_server / AppGUID, [ListServer]
         // hostname / port and [Login] name / pwd / char into the connect context. The command
         // line argument is not read.

@@ -38,6 +38,9 @@
 #include "render/IRenderPipeline.h"
 #include "render/rendcomp.h"
 #include "x86math.h"
+#ifdef FREELANCER_FLPLUSPLUS
+#include "common_flplusplus.h" // ship_preview_scrolling_speed / _inverse
+#endif
 
 #include <math.h>
 #include <string.h>
@@ -606,6 +609,24 @@ void ShipViewControl::SetPosition(float const* NewPosition)
     // Slot 5 is LAB_004b5020, Win3D's own copy of three dwords -- not WinControl's FUN_005a0880.
     Win3D::SetPosition(NewPosition);
 }
+
+#ifdef FREELANCER_FLPLUSPLUS
+bool ShipViewControl::Slot18(int Value)
+{
+    // Port-only (flplusplus shippreviewscroll.cpp): up adds the speed, down takes it off; the
+    // inverse option negates the speed. The plugin compares the wheel value with 1 / -1; the
+    // port takes its sign, so a multi-notch value scrolls too.
+    FFlplusplusConfig const& Config = FlplusplusGetConfig();
+    float Speed = Config.ShipPreviewScrollingSpeed;
+    if (Config.bShipPreviewScrollingInverse)
+        Speed = -Speed;
+    if (Value > 0)
+        Camera.ViewPos[2] += Speed;
+    else if (Value < 0)
+        Camera.ViewPos[2] -= Speed;
+    return false;
+}
+#endif
 
 bool ShipViewControl::Slot6(unsigned A)
 {
