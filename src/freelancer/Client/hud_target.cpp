@@ -860,7 +860,13 @@ void NavMapSectorName(Vector const* Pos, wchar_t* Out)
     wchar_t ColumnText[0x10];
     GetIdsStringWWithRawFallback(0x515 + Row, RowText, 0x10);
     GetIdsStringWWithRawFallback(0x506 + Column, ColumnText, 0x10);
+#ifdef FREELANCER_JFLP
+    // Port-only (jflp.dll ADDR_LETTER1a/b, the two buffer pushes swapped): the column letter
+    // first, "SECTOR C4".
+    _swprintf(Out, Format, ColumnText, RowText);
+#else
     _swprintf(Out, Format, RowText, ColumnText);
+#endif
 }
 
 unsigned HudObjectKindIds(unsigned TypeBits)
@@ -988,7 +994,11 @@ bool HudTradelaneCaption(CSimple const* Object, wchar_t* Out, int Capacity)
         return false;
     }
     wcscpy(Out, Text);
+#ifdef FREELANCER_JFLP
+    wcscat(Out, L"\x2013>"); // port-only (jflp.dll ADDR_ARROW): DAT_005cef58 with an en dash
+#else
     wcscat(Out, L"->"); // DAT_005cef58
+#endif
     GetIdsStringWWithRawFallback(Second, Text, 0xff);
     if (static_cast<int>(wcslen(Text)) + FirstLength >= Capacity)
     {

@@ -40,4 +40,28 @@
     <EnumValue Name="0" DisplayName="Off" />
     <EnumValue Name="1" DisplayName="On" />
   </EnumProperty>
+  <EnumProperty Name="FreelancerHudTargetView" DisplayName="Target HUD: target view with the contact list"
+                Category="Features" Default="0"
+                Description="Not in the original game (the HudTarget.dll plugin): the expanded target panel shows the target view and its details in every mode, without the 'Switch to target' button (FREELANCER_HUD_TARGET_VIEW, client only; docs/hud_plugins.md). Off builds the retail panel. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
+  <EnumProperty Name="FreelancerHudStatusView" DisplayName="Status HUD: own ship view"
+                Category="Features" Default="0"
+                Description="Not in the original game (the HudStatus.dll plugin): the expanded status panel draws the player's ship with its damage colours, like the target view (FREELANCER_HUD_STATUS_VIEW, client only; docs/hud_plugins.md). Off builds the retail panel. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
+  <EnumProperty Name="FreelancerHudInventoryView" DisplayName="Inventory: ship view mode"
+                Category="Features" Default="0"
+                Description="Not in the original game (the HudInventory.dll plugin): a toggle in the inventory swaps the item list for the ship with its equipment and free hardpoints, which can be picked and mounted on; ship views frame the hull to fill the preview; per-ship framing in DATA\INTERFACE\HudInventory.ini (FREELANCER_HUD_INVENTORY_VIEW, client only; docs/hud_plugins.md). Off builds the retail inventory. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
+  <EnumProperty Name="FreelancerJflp" DisplayName="jflp.dll behaviour"
+                Category="Features" Default="0"
+                Description="Not in the original game (Jason Hood's jflp.dll): stats for powerplants, engines, scanners, tractor beams and armor; sector letter first; Alt+Enter toggles windowed mode; roll in mouse flight; 8-way strafe; server info of other versions; the first weapon group active in space (FREELANCER_JFLP, client and Common.dll; docs/jflp.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
 </Rule>

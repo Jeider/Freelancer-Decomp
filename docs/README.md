@@ -15,6 +15,8 @@ your own installation of Freelancer (see [Local layout](#local-layout)).
 | You want to… | Read |
 |--------------|------|
 | Know what is configurable, and where each INI file is read | [ini/README.md](ini/README.md) — reference of every INI file, section and key the code reads |
+| Get the big picture first | [ARCHITECTURE.md](ARCHITECTURE.md) — layers, start-up, client/server split, source tree, build system |
+| Make a change | [../CONTRIBUTING.md](../CONTRIBUTING.md) — what is expected of a port, a deviation, a port-only feature |
 | Understand how the modules fit together | [re/dll_inventory.md](re/dll_inventory.md) — one table of every DLL, its role and its source directory |
 | Call into another module / find out what an interface slot is | [re/cross_dll_protocol.md](re/cross_dll_protocol.md) — the method |
 | See what the port does differently from retail | [re/deviations.md](re/deviations.md) — the ledger of known divergences; [re/substitutions.md](re/substitutions.md) explains the concept of "substitution" |
@@ -30,7 +32,7 @@ your own installation of Freelancer (see [Local layout](#local-layout)).
 | Audio | [audio](re/audio.md) |
 | Scripting | [thorn](re/thorn.md) (scene scripts, Lua 3.2) · [thorn_thn_format](re/thorn_thn_format.md) (`.thn` file format) |
 | Game data and logic | [common](re/common.md) · [common_archetype](re/common_archetype.md) · [common_physys](re/common_physys.md) · [content](re/content.md) · [mission script format](re/content_mission_script.md) · [mission opcodes](re/content_mission_opcodes.md) |
-| Client executable | [freelancer](re/freelancer.md) · [freelancer_cliobj](re/freelancer_cliobj.md) · [equip_fx_factory](re/equip_fx_factory.md) · [dealer_equip_stats](re/dealer_equip_stats.md) · [options_screen](re/options_screen.md) · [hd_edition](hd_edition.md) (widescreen) · [walk_mode](walk_mode.md) (port-only walking in bases; `FreelancerWalkMode`) |
+| Client executable | [freelancer](re/freelancer.md) · [freelancer_cliobj](re/freelancer_cliobj.md) · [equip_fx_factory](re/equip_fx_factory.md) · [dealer_equip_stats](re/dealer_equip_stats.md) · [options_screen](re/options_screen.md) · [hd_edition](hd_edition.md) (widescreen) · [walk_mode](walk_mode.md) (port-only walking in bases; `FreelancerWalkMode`) · [hud_plugins](hud_plugins.md) (target / status / inventory views from the HudTarget, HudStatus, HudInventory plugins) · [jflp](jflp.md) (jflp.dll behaviour; `FreelancerJflp`) |
 | Server / network | [server](re/server.md) (Server.dll, FLServer, SP connection, remote DLLs) · [rpclocal](re/rpclocal.md) (local RPC packet protocol) |
 | Build and CRT | [crt_compat](re/crt_compat.md) (modern CRT/STL vs. the retail VC6 runtime) · [refactoring](re/refactoring.md) (code rules) |
 

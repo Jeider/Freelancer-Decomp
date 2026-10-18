@@ -16,6 +16,8 @@ Freelancer Decomp — это переписанный с нуля по исхо�
 | Вы хотите… | Читать |
 |--------------|------|
 | Узнать, что настраивается и где читается каждый INI-файл | [ini/README.md](ini/README.md) — справочник по каждому INI-файлу, секции и ключу, которые читает код |
+| Сначала увидеть общую картину | [ARCHITECTURE.md](ARCHITECTURE.md) — слои, запуск, разделение клиент/сервер, дерево исходников, сборка |
+| Внести изменение | [../../CONTRIBUTING.ru.md](../../CONTRIBUTING.ru.md) — что ожидается от порта, отклонения, собственной возможности порта |
 | Понять, как модули связаны между собой | [re/dll_inventory.md](re/dll_inventory.md) — единая таблица всех DLL, их ролей и каталогов исходников |
 | Вызвать другой модуль / выяснить, что такое слот интерфейса | [re/cross_dll_protocol.md](re/cross_dll_protocol.md) — методика |
 | Увидеть, чем порт отличается от retail | [re/deviations.md](re/deviations.md) — реестр известных расхождений; [re/substitutions.md](re/substitutions.md) объясняет понятие «подстановка» |
@@ -31,7 +33,7 @@ Freelancer Decomp — это переписанный с нуля по исхо�
 | Звук | [audio](re/audio.md) |
 | Скрипты | [thorn](re/thorn.md) (сценарные скрипты, Lua 3.2) · [thorn_thn_format](re/thorn_thn_format.md) (формат файлов `.thn`) |
 | Игровые данные и логика | [common](re/common.md) · [common_archetype](re/common_archetype.md) · [common_physys](re/common_physys.md) · [content](re/content.md) · [формат миссионных скриптов](re/content_mission_script.md) · [опкоды миссий](re/content_mission_opcodes.md) |
-| Исполняемый файл клиента | [freelancer](re/freelancer.md) · [freelancer_cliobj](re/freelancer_cliobj.md) · [equip_fx_factory](re/equip_fx_factory.md) · [dealer_equip_stats](re/dealer_equip_stats.md) · [options_screen](re/options_screen.md) · [hd_edition](hd_edition.md) (широкоформатный экран) · [walk_mode](walk_mode.md) (ходьба по базам, только порт; `FreelancerWalkMode`) |
+| Исполняемый файл клиента | [freelancer](re/freelancer.md) · [freelancer_cliobj](re/freelancer_cliobj.md) · [equip_fx_factory](re/equip_fx_factory.md) · [dealer_equip_stats](re/dealer_equip_stats.md) · [options_screen](re/options_screen.md) · [hd_edition](hd_edition.md) (широкоформатный экран) · [walk_mode](walk_mode.md) (ходьба по базам, только порт; `FreelancerWalkMode`) · [hud_plugins](hud_plugins.md) (виды цели / статуса / инвентаря из плагинов HudTarget, HudStatus, HudInventory) · [jflp](jflp.md) (поведение jflp.dll; `FreelancerJflp`) |
 | Сервер / сеть | [server](re/server.md) (Server.dll, FLServer, SP-подключение, удалённые DLL) · [rpclocal](re/rpclocal.md) (протокол локальных RPC-пакетов) |
 | Сборка и CRT | [crt_compat](re/crt_compat.md) (современные CRT/STL против среды выполнения retail на VC6) · [refactoring](re/refactoring.md) (правила кода) |
 

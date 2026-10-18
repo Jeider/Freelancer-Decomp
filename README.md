@@ -6,7 +6,8 @@ DLLs, built from source with a modern Visual Studio. Every module the game loads
 
 You need your own copy of Freelancer: the game data (`DATA`) is not part of this repository.
 
-Russian: [README.ru.md](README.ru.md). Documentation: [docs/README.md](docs/README.md).
+Russian: [README.ru.md](README.ru.md). Documentation: [docs/README.md](docs/README.md),
+architecture overview: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), contributing: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Building and running
 
@@ -47,6 +48,8 @@ property page *Freelancer diagnostics*), or `/p:<Name>=0|1` on the MSBuild comma
 | `FreelancerWidescreenSupport` | 1 | Widescreen (Hor+) display modes and HUD layout |
 | `FreelancerWalkMode` | 1 | Walking through base rooms as Trent ([docs/walk_mode.md](docs/walk_mode.md)) |
 | `FreelancerRp9` | 0 | `RP9.dll`, a Direct3D 9 renderer with volumetric nebulae ([docs/re/rp9.md](docs/re/rp9.md)); needs the [DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812) and `DirectX9` in `bin\DACOM.INI` |
+| `FreelancerHudTargetView` / `FreelancerHudStatusView` / `FreelancerHudInventoryView` | 1 | Target view next to the contact list, own-ship view in the status panel, ship view mode in the inventory (from the HudTarget / HudStatus / HudInventory plugins; [docs/hud_plugins.md](docs/hud_plugins.md)) |
+| `FreelancerJflp` | 1 | jflp.dll behaviour: equipment stats, "Sector C4", Alt+Enter windowed toggle, roll in mouse flight, 8-way strafe, server info of other versions ([docs/jflp.md](docs/jflp.md)) |
 | `FreelancerBetaLabel` | 0 | The "Beta" label in the corner of the screen |
 | `FreelancerEnableTickProfile` | 0 | On-screen frame profiler |
 

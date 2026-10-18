@@ -45,6 +45,28 @@
       <PreprocessorDefinitions>FREELANCER_WALK_MODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <!-- Port-only HUD plugin behaviour (docs/hud_plugins.md): only the client reads the defines. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerHudTargetView)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_HUD_TARGET_VIEW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(FreelancerHudStatusView)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_HUD_STATUS_VIEW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(FreelancerHudInventoryView)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_HUD_INVENTORY_VIEW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Port-only jflp.dll behaviour (docs/jflp.md): the client and Common.dll (8-way strafe). -->
+  <ItemDefinitionGroup Condition="'$(FreelancerJflp)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_JFLP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup Condition="'$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='freelancer'">
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Freelancer.Diagnostics.xml">
       <Context>PropertySheet</Context>

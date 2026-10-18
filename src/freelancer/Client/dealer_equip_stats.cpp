@@ -400,6 +400,127 @@ namespace
         EmitIntStatWithUnit(OutRdl, 0x6d5, Explosion->Radius, 0x6df, bEmitLabels, bEmitValues);
     }
 
+#ifdef FREELANCER_JFLP
+    // Port-only: jflp.dll's Stats (Jason Hood; Stats_Hook on the five classes it added to the
+    // jump table at 0x004840c9), docs/jflp.md. The lines go to the shared line buffer and leave
+    // through the retail tail 0x004854c0 (append Len chars). MultiCruise is not loadable in the
+    // port, so the engine's cruise speed line stays blank as jflp leaves it without that DLL.
+    struct FJflpStats
+    {
+        unsigned char Flags; // 1 labels, 2 values, 4 "n/a"
+        unsigned Len;
+    };
+
+    // jflp get_stat_line: the label, the value (or "n/a") and its suffix, then '\n'.
+    void JflpStatLine(FJflpStats& Stats, unsigned NameIds, wchar_t const* Value, unsigned SuffixIds)
+    {
+        if ((Stats.Flags & 1) != 0)
+            Stats.Len += GetIdsStringWWithRawFallback(NameIds, G_DealerStatLine + Stats.Len, 128);
+        if ((Stats.Flags & 2) != 0)
+        {
+            if ((Stats.Flags & 4) != 0)
+            {
+                wcscpy(G_DealerStatLine + Stats.Len, L"n/a");
+                Stats.Len += 3;
+            }
+            else
+            {
+                wcscpy(G_DealerStatLine + Stats.Len, Value);
+                Stats.Len += static_cast<unsigned>(wcslen(Value));
+                if (SuffixIds != 0)
+                    Stats.Len +=
+                        GetIdsStringWWithRawFallback(SuffixIds, G_DealerStatLine + Stats.Len, 128);
+            }
+        }
+        G_DealerStatLine[Stats.Len++] = L'\n';
+    }
+
+    void JflpStatInt(FJflpStats& Stats, unsigned NameIds, float Value, unsigned SuffixIds)
+    {
+        wchar_t Text[32];
+        _snwprintf(Text, 31, L"%d", FtolTrunc(Value));
+        Text[31] = L'\0';
+        JflpStatLine(Stats, NameIds, Text, SuffixIds);
+    }
+
+    void BuildJflpStats(RenderDisplayList& OutRdl, Archetype::Equipment* Equip, bool bEmitLabels,
+                        bool bEmitValues)
+    {
+        FJflpStats Stats;
+        Stats.Flags = static_cast<unsigned char>((bEmitLabels ? 1 : 0) | (bEmitValues ? 2 : 0));
+        Stats.Len = 0;
+
+        // An item name with a non-breaking space shows its values as "n/a".
+        if (bEmitValues)
+        {
+            wchar_t Name[128];
+            Name[0] = L'\0';
+            GetIdsStringWWithRawFallback(Equip->IdsName, Name, 128);
+            Name[127] = L'\0';
+            if (wcschr(Name, L'\x00a0') != nullptr)
+                Stats.Flags |= 4;
+        }
+
+        wchar_t Text[32];
+        switch (Equip->get_class_type())
+        {
+        case Archetype::AClassPower:
+        {
+            Archetype::Power const* const Power = static_cast<Archetype::Power const*>(Equip);
+            JflpStatInt(Stats, 1758, Power->Capacity, 0);         // Energy Capacity
+            JflpStatInt(Stats, 1753, Power->ChargeRate, 0);       // Regeneration Rate
+            G_DealerStatLine[Stats.Len++] = L'\n';
+            JflpStatInt(Stats, 1698, Power->ThrustCapacity, 0);   // Thrust Capacity
+            JflpStatInt(Stats, 1753, Power->ThrustChargeRate, 0); // Regeneration Rate
+            break;
+        }
+        case Archetype::AClassEngine:
+        {
+            Archetype::Engine const* const Engine = static_cast<Archetype::Engine const*>(Equip);
+            float const TopSpeed =
+                (Engine->LinearDrag != 0.0f) ? Engine->ThrustMultiplier / Engine->LinearDrag : 0.0f;
+            JflpStatInt(Stats, 945, TopSpeed, 1760);                            // Top Speed
+            JflpStatInt(Stats, 1699, TopSpeed * Engine->ReverseFraction, 1760); // Reverse Speed
+            JflpStatInt(Stats, 1755, Engine->PowerDrawFactor, 0);               // Energy Drain
+            G_DealerStatLine[Stats.Len++] = L'\n'; // the MultiCruise "Cruise Speed" line
+            _snwprintf(Text, 31, L"%.2f", static_cast<double>(Engine->CruiseChargeTime));
+            Text[31] = L'\0';
+            JflpStatLine(Stats, 1762, Text, 1764);                       // Cruise Charge Time
+            JflpStatInt(Stats, 1763, Engine->CruisePowerUsage, 0);      // Cruise Power Drain
+            break;
+        }
+        case Archetype::AClassScanner:
+        {
+            Archetype::Scanner const* const Scanner = static_cast<Archetype::Scanner const*>(Equip);
+            JflpStatInt(Stats, 1745, Scanner->RadarRange, 1759);     // Range
+            JflpStatInt(Stats, 1697, Scanner->CargoScanRange, 1759); // Cargo Scan Range
+            break;
+        }
+        case Archetype::AClassTractor:
+        {
+            Archetype::Tractor const* const Tractor = static_cast<Archetype::Tractor const*>(Equip);
+            JflpStatInt(Stats, 1745, Tractor->MaxLength, 1759);  // Range
+            JflpStatInt(Stats, 1696, Tractor->ReachSpeed, 1760); // Extend Speed
+            break;
+        }
+        case Archetype::AClassArmor:
+        {
+            Archetype::Armor const* const Armor = static_cast<Archetype::Armor const*>(Equip);
+            _snwprintf(Text, 31, L"%.0f%%", static_cast<double>((Armor->HitPtsScale - 1.0f) * 100.0f));
+            Text[31] = L'\0';
+            JflpStatLine(Stats, 1695, Text, 0); // Armor Improvement
+            break;
+        }
+        default:
+            break;
+        }
+
+        G_DealerStatLine[Stats.Len] = L'\0';
+        AppendTextMaybeXmlRdl(G_DealerStatLine, Stats.Len, OutRdl, false);
+        ClearLine();
+    }
+#endif
+
     void BuildDefaultNewline(RenderDisplayList& OutRdl)
     {
         wcscpy(G_DealerStatLine, L"\n");
@@ -451,6 +572,15 @@ void BuildDealerEquipmentStatText(RenderDisplayList& OutRdl, unsigned ArchId, bo
         BuildCounterMeasureStats(OutRdl, static_cast<Archetype::CounterMeasure*>(Equip),
                                  bEmitLabels, bEmitValues);
         break;
+#ifdef FREELANCER_JFLP
+    case Archetype::AClassPower:
+    case Archetype::AClassEngine:
+    case Archetype::AClassScanner:
+    case Archetype::AClassTractor:
+    case Archetype::AClassArmor:
+        BuildJflpStats(OutRdl, Equip, bEmitLabels, bEmitValues); // port-only, jflp.dll Stats
+        break;
+#endif
     default:
         BuildDefaultNewline(OutRdl);
         break;

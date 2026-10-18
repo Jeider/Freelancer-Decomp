@@ -20,6 +20,7 @@
 #include "render/shading.h"
 #include "ship_camera_params.h"
 #include "vis_effect_arch.h"
+#include "widescreen.h"      // port-only Hor+ factor (jflp LOD range scale)
 
 #include <cstddef>
 #include <cmath>
@@ -1232,6 +1233,19 @@ namespace Archetype
         static float const kArchLodFarCutoff = 15000.0f;
         static double const kArchLodRangeScale = 0.700208;
 
+        // The range scale as applied. Port-only (jflp.dll v1.27 FOVX_LOD): with the Hor+
+        // widescreen camera the tangent of the widened 35 degree half-angle, so the levels
+        // switch where they do on a 4:3 screen of the same height.
+        double ArchLodRangeScale()
+        {
+#if defined(FREELANCER_JFLP) && defined(FREELANCER_WIDESCREEN_SUPPORT)
+            return kArchLodRangeScale *
+                   WidescreenHorPlusScale(static_cast<long long>(G_RenderSurfaceWidth));
+#else
+            return kArchLodRangeScale;
+#endif
+        }
+
         // FUN_00401ed0 (cdecl, returns AL = 1 on every path), listing-traced
         // 0x00401ed0..0x00402174 -- the LOD ranges of one mesh onto the renderer. The callback
         // IEngine slot 21 (EnumerateArchetypeChildren) calls with (parent, child, 0, context),
@@ -1296,7 +1310,7 @@ namespace Archetype
             Match->Unk28 = 1;
             float PriorScaled = static_cast<float>(static_cast<double>(Raw[0]) *
                                                    static_cast<double>(Ctx->DistanceScale) *
-                                                   kArchLodRangeScale);
+                                                   ArchLodRangeScale());
             int Cap = Ctx->MinSpecCap;
             if (Cap > LodCount)
                 Cap = LodCount;
@@ -1357,7 +1371,7 @@ namespace Archetype
                     Range * static_cast<double>(Ctx->DistanceScale) >
                         static_cast<double>(kArchLodFarCutoff))
                     Range = static_cast<double>(Index) + static_cast<double>(kArchLodFarCutoff);
-                float const CurrentScaled = static_cast<float>(kArchLodRangeScale * Range);
+                float const CurrentScaled = static_cast<float>(ArchLodRangeScale() * Range);
                 if (Range > static_cast<double>(Ctx->MaxDistance))
                     Ctx->MaxDistance = static_cast<float>(Range);
                 DALib::Renderer->SetArchetypeLodRange(MeshHandle, Index, PriorScaled, CurrentScaled);

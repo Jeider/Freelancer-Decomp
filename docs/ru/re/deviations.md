@@ -33,6 +33,22 @@ Retail знает только 4:3: страница настроек держи
 
 Известные остатки: полноэкранные 2D-элементы помимо загрузочной картинки растягиваются; рисование внутри угловых окон, считающее пиксели от ширины поверхности без камеры, не сдвигается; порог LOD в `RendComp` (ширина вьюпорта / XScale) на широком экране выбирает чуть более грубый LOD, чем 4:3 той же высоты.
 
+## Клиент: поведение плагинов HudTarget / HudStatus / HudInventory (HUD-PLUGINS, 2026-10-18)
+
+Статус: OPEN — намеренные возможности порта, добавлены по запросу в форке Jeider/Freelancer-Decomp. Владелец: мейнтейнер этого форка; freelancer.exe / Client. Условие снятия: только явное указание владельца. Все изменения — под `FREELANCER_HUD_TARGET_VIEW`, `FREELANCER_HUD_STATUS_VIEW` или `FREELANCER_HUD_INVENTORY_VIEW`; при трёх свойствах, равных 0, клиент совпадает с retail. Описание, таблица патчей и данные: [../hud_plugins.md](../hud_plugins.md).
+
+Retail: HUD_Target показывает вид цели только в режиме 1 (`0x004e3ce0`), двойной клик в списке контактов переключает в него (`0x004cfe75`), Update переставляет контролы панели между режимами (`0x004e1f85..0x004e215c`); слот 14 HUDItem у HUD_Status — пустой `FUN_00401e90` из HUD_Target_Base (vftable `0x005d85f4`); NN_Inventory ищет по имени `ShipView_Toggle` / `Shipview_Frame` / `ShipView_DamageBar` / `ShipView_Name` (`0x0047b976..`), но не создаёт их, его вызовы в `0x0047a790` / `0x0047dde2` ведут в пустой `LAB_0053e4a0`, ShipViewControl хранит поля наведения `+0x4f0` / `+0x4f8` и маркеры точек крепления `+0x538`, которые никто не читает и не рисует; `SetInstance` при фиксированной дистанции ставит камеру на 14 (`0x005855c2`).
+
+Порт с этими define: `hud_contact_list.cpp`, `hud_target_panel.cpp` (байтовые патчи HudTarget.dll в виде исходника), `hud_status_core.cpp` (`HUD_Status::Slot14`), `nn_inventory.cpp` / `ship_view_control.cpp` (хуки HudInventory.dll; Draw / Update / MouseEvent вида корабля перенесены из ShipViewControl бета-freelancer.exe от 16.09.2002, vftable `0x005cc0fc`, который читает сохранённое в retail состояние наведения и выделения). Известные отличия от плагинов и беты перечислены в документе о возможности; ничего из этого ещё не собиралось и не запускалось.
+
+## Клиент / Common: поведение jflp.dll (JFLP, 2026-10-18)
+
+Статус: OPEN — намеренные возможности порта, добавлены по запросу в форке Jeider/Freelancer-Decomp. Владелец: мейнтейнер этого форка; freelancer.exe / Client и Common.dll. Условие снятия: только явное указание владельца. Все изменения под `FREELANCER_JFLP` (`FreelancerJflp`); при 0 клиент и Common.dll — retail. Описание, таблица патчей и что не перенесено: [../jflp.md](../jflp.md).
+
+Retail: в инфокарте и `FUN_00484090` нет статистики Power / Engine / Scanner / Tractor / Armor; сектор пишется «4C» (`FUN_0048dc10`, `%Z`); стрелка `L"->"` (`DAT_005cef58`); `USER_FULLSCREEN` зарегистрирована, но не обрабатывается (`0x005b2497`); управление мышью шлёт крен 0 (`0x004c7f10`); `CStrafeEngine` знает четыре направления (`0x062bb9a8`); строки серверов другой версии не выбираются (`0x005711a1`); при выходе в космос группа 0 либо сохраняется и становится текущей, либо активируется (`0x004db6a4`).
+
+Порт с define: поведение jflp.dll v1.27 в `nn_inventory.cpp`, `dealer_equip_stats.cpp`, `hud_target.cpp`, `misc_util.cpp`, `ids_strings.cpp`, `chat_text_input.cpp`, `main_command_handler.cpp`, `player_behavior.cpp`, `page_server_select.cpp`, `hud_status_core.cpp`, `Common/common_csteering.cpp`. Перестановка букв сектора сделана в обеих ветках `%Z` (jflp меняет только ветку с override). Собрано, не запускалось.
+
 ## SoundManager / SoundStreamer: Fraunhofer ACM (decode only) (SOUND-ACM-DECODE-ONLY, 2026-10-10)
 
 Статус: ЖИВО — намеренное отклонение по прямому запросу владельца. Владелец: Giperion; SoundManager.dll / SoundStreamer.dll. Условие снятия: только явное указание Giperion; не закрывать при обычном аудите соответствия retail.

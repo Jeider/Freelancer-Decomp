@@ -74,5 +74,8 @@ Desktop.ini
 !/EBUEula.dll
 !/EXE/gundll.dll
 
+# Third-party plugin packs kept locally as a porting reference (docs/hud_plugins.md).
+plugins/
+
 # Throwaway RE scratch: per-investigation emulators, listing dumps, audit dumps.
 tools/_*

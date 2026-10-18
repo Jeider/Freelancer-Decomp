@@ -2094,6 +2094,11 @@ void NnInventory::Slot45()
         }
     }
 
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    // Port-only (HudInventory.dll hooks 0x0047921d): the ship view mode's controls.
+    CreateShipViewModeControls();
+#endif
+
     // 0047921d..00479227: docked (DAT_0066873c, the LocationController's current base) -- no
     // jettison controls.
     if (GetClientLocationCurrentBase() != 0)
@@ -2492,7 +2497,13 @@ intptr_t NnInventory::SetProperty(int Msg, uintptr_t A, uintptr_t B)
     case 0x15:
         // 0047a314: the ship view picked an instance -- select the row of its hardpoint and
         // clear the dealer's selection.
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+        // Port-only (HudInventory.dll redirects the call at 0x0047a32a): find the row of the
+        // hardpoint across the filter pages and scroll it into view.
+        PickShipViewHardpoint(Ship.ShipView->GetHardpointOfInstance(static_cast<long>(A)));
+#else
         SelectHardpoint(Ship.ShipView->GetHardpointOfInstance(static_cast<long>(A))); // FUN_00585e20
+#endif
         if (Dealer != nullptr)
             Dealer->ClearSelection();
         break;
@@ -3913,6 +3924,17 @@ void NnInventory::ShowInfoCard(unsigned ArchId, unsigned Ids)
             case Archetype::AClassCounterMeasure:
                 bTwoColumn = true;
                 break;
+#ifdef FREELANCER_JFLP
+            // Port-only (jflp.dll ADDR_STATS1: the table from class 0xb, stats_bool_index):
+            // the five classes jflp gives stats to.
+            case Archetype::AClassPower:
+            case Archetype::AClassEngine:
+            case Archetype::AClassScanner:
+            case Archetype::AClassTractor:
+            case Archetype::AClassArmor:
+                bTwoColumn = true;
+                break;
+#endif
             default:
                 break;
             }
@@ -3936,7 +3958,14 @@ void NnInventory::ShowInfoCard(unsigned ArchId, unsigned Ids)
                     RdlAppendNode(Labels, Style.Clone());
                 }
                 LoadIdsIntoRdl(0x6e1, Labels);
+#ifdef FREELANCER_JFLP
+                // Port-only (jflp.dll ADDR_STATSNL1: DAT_005d0a08 L"\n\n" for DAT_005d0254): a
+                // blank line after "Stats", here and in pane 3.
+                AppendTextMaybeXmlRdl(L"\n\n", static_cast<unsigned>(wcslen(L"\n\n")), Labels,
+                                      false);
+#else
                 AppendTextMaybeXmlRdl(L"\n", static_cast<unsigned>(wcslen(L"\n")), Labels, false);
+#endif
                 {
                     StyleNode Style(0x9ca4);
                     RdlAppendNode(Labels, Style.Clone());
@@ -3952,7 +3981,12 @@ void NnInventory::ShowInfoCard(unsigned ArchId, unsigned Ids)
                     StyleNode Style(0x9ca4);
                     RdlAppendNode(Values, Style.Clone());
                 }
+#ifdef FREELANCER_JFLP
+                AppendTextMaybeXmlRdl(L"\n\n", static_cast<unsigned>(wcslen(L"\n\n")), Values,
+                                      false); // port-only, jflp.dll ADDR_STATSNL2
+#else
                 AppendTextMaybeXmlRdl(L"\n", static_cast<unsigned>(wcslen(L"\n")), Values, false);
+#endif
                 BuildDealerEquipmentStatText(Values, ArchId, false, true); // FUN_00484090(,,0,1)
                 InfoCardValues->SetScrollOrigin(0, 0);
                 InfoCardValues->ClearContent();
@@ -4010,8 +4044,16 @@ void NnInventory::UpdateRowVisibility(int Count)
     for (int Row = 0; Row < kNnInventoryRows; ++Row)
     {
         // 0047f413..0047f43a: past the end of the list (unsigned compare) or all hidden.
-        bool const bHide =
+        // Retail stores the result twice, [ESP+0x11] (bHideRow) and [ESP+0x10] (bHide).
+        bool const bHideRow =
             static_cast<unsigned>(FirstRow + Row) >= static_cast<unsigned>(Count) || bHideAll;
+        bool bHide = bHideRow;
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+        // Port-only (HudInventory.dll hooks 0x0047f43f): the ship view mode hides the row's
+        // texts and its view frame; the damage bar, the equip toggle and the mesh keep bHideRow.
+        if (!bHide)
+            bHide = Field4e2 != 0;
+#endif
 
         // 0047f43f..0047f457: the price columns also hide while the partner dealer is hidden.
         bool bHidePrice = bHide;
@@ -4053,7 +4095,7 @@ void NnInventory::UpdateRowVisibility(int Count)
         if (ItemGoodDeal[Row] != nullptr)
             ItemGoodDeal[Row]->SetProperty(1, HidePriceValue, 0);
         if (ItemDamage[Row] != nullptr)
-            ItemDamage[Row]->SetProperty(1, bHide ? 1 : 0, 0);
+            ItemDamage[Row]->SetProperty(1, bHideRow ? 1 : 0, 0); // [ESP+0x11]
         if (CargoMissionText[Row] != nullptr)
             CargoMissionText[Row]->SetProperty(1, bHide ? 1 : 0, 0);
 
@@ -4062,7 +4104,7 @@ void NnInventory::UpdateRowVisibility(int Count)
         // inventory while the player is in space.
         if (EquipToggle[Row] != nullptr)
         {
-            if (bHide || Mode == 4 || Mode == 1)
+            if (bHideRow || Mode == 4 || Mode == 1) // [ESP+0x11]
                 EquipToggle[Row]->SetProperty(1, 1, 0);
             if (bDealerMode != 0)
             {
@@ -4078,13 +4120,19 @@ void NnInventory::UpdateRowVisibility(int Count)
         // 0047f5c4..0047f657: the view / button / mesh trio.
         if (ItemView[Row] != nullptr && ItemButton[Row] != nullptr && ItemMesh[Row] != nullptr)
         {
-            uintptr_t const HideValue = bHide ? 1 : 0;
+            uintptr_t const HideValue = bHideRow ? 1 : 0; // BL = [ESP+0x11]
             ItemButton[Row]->SetProperty(1, 0, 0);
             ItemMesh[Row]->SetProperty(1, HideValue, 0);
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+            // Port-only (HudInventory.dll hooks the call at 0x0047f611): the frame goes with
+            // bHide -- hidden in the ship view mode.
+            ItemView[Row]->SetProperty(1, bHide ? 1 : 0, 0);
+#else
             ItemView[Row]->SetProperty(1, 0, 0);
+#endif
             ItemView[Row]->SetProperty(2, HideValue, 0);
             ItemButton[Row]->SetProperty(2, HideValue, 0);
-            if (bHide)
+            if (bHideRow)
             {
                 ItemView[Row]->SetProperty(3, 0, 0);
                 ItemButton[Row]->SetProperty(3, 0, 0);
@@ -4216,6 +4264,11 @@ void NnInventory::RefreshItemList(EquipDescList const* List, int Arg2, unsigned 
         FormatGroupedNumber(ToolTipText, static_cast<int>(GetPlayerCreditsRetail()), 0x476); // FUN_004779a0(,FUN_004c4ce0(),)
         PlayerCash->SetProperty(0x1d, reinterpret_cast<uintptr_t>(ToolTipText), 0);
     }
+
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    // Port-only (HudInventory.dll hooks 0x0047d576): follow the ship view toggle.
+    UpdateShipViewMode();
+#endif
 
     // 0047d576..0047d59e: docked at a base (DAT_0066873c > 0, JBE), FUN_0043a510 on
     // DAT_00668708 finds the base's market ([ESP+0x14]); otherwise none. Every use below tests
@@ -4500,6 +4553,10 @@ void NnInventory::RefreshItemList(EquipDescList const* List, int Arg2, unsigned 
 
     // 0047ddc5..0047dde2: LAB_0053e4a0 (`RET 4`) on &+0x330 with (+0x4e1 ? 0 : +0x4e2) -- a
     // no-op.
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    // Port-only (HudInventory.dll redirects the call at 0x0047dde2): show or hide the view.
+    PlaceShipView(Field4e1 != 0 ? 0 : Field4e2);
+#endif
 
     // 0047dde7..0047de77: the jettison button needs a selected, unmounted, lootable item with
     // no mission flag and no pending transfer (+0x914), and not the ammo stand-in.
@@ -4793,3 +4850,171 @@ void NnInventoryOpenShipDealer(int Index, FNnInventoryResultFn ResultFn, void* R
     // on the way out (0x00477c95..0x00477cce).
     NnInventoryOpenDealer(2, ResultFn, ResultArg, Good->Info.GoodId);
 }
+
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+// -------------------------------------------------------------------------------------------
+// Port-only: the HudInventory.dll plugin's ship view mode (docs/hud_plugins.md). The values
+// and the call order follow the plugin (HudInventory.dpr, checked against both builds of the
+// DLL). Retail binds every control created here (BindControls 0x0047b976..) and keeps the
+// calls at 0x0047a790 / 0x0047dde2 into the empty LAB_0053e4a0, but creates none of them.
+// -------------------------------------------------------------------------------------------
+void NnInventory::CreateShipViewModeControls()
+{
+    // InventoryInit.
+    {
+        float const Position[3] = {0.367f, 0.185f, 0.0f};
+        float const HalfExtents[3] = {0.012f, 0.012f, 0.0f};
+        // Tool tips IDS 3026 "Ship View" / 3027 "Ship Inventory".
+        CreateToggleButtonControl("ShipView_Toggle", "Interface\\neuronet\\inventory\\gotoship.3db",
+                                  "Interface\\neuronet\\inventory\\gotoinven.3db",
+                                  "ui_shipview_select", nullptr, Position, nullptr, HalfExtents,
+                                  0, 0, 0, 0, 0xbd2, 0xbd3); // FUN_005a0fb0
+    }
+    {
+        float const Position[3] = {-0.182f, -0.009f, 0.0f};
+        float const HalfExtents[3] = {0.138f, 0.17f, 0.0f};
+        CreateWireStaticControl("Shipview_Frame", Position, HalfExtents, 0, 0, 0,
+                                0); // FUN_005a0d60
+    }
+    {
+        // The empty mesh path DAT_005c865c and DAT_00679bac for both colours, as
+        // NN_Dealer's "TransferItemDamage"; tool tip IDS 1085 "Ship Hull Health".
+        float const Position[3] = {-0.182f, -0.175f, 0.0f};
+        float const HalfExtents[3] = {0.137f, 0.005f, 0.0f};
+        CreateCargoBarControl("ShipView_DamageBar", "", Position, nullptr, HalfExtents, 1, 0x43d,
+                              G_NnPaletteArgb_679bac, G_NnPaletteArgb_679bac); // FUN_005a1080
+    }
+    {
+        // Centred (Dword358 = 1).
+        float const Position[3] = {-0.182f, -0.145f, 0.0f};
+        CreateTextControl("ShipView_Name", "SubHeader", Position, nullptr, 0.252f, 0.016f, 1.4f, 0,
+                          1, 0, 0); // FUN_005a0e30
+    }
+    {
+        // Tool tip IDS 3012 "View Ship Infocard".
+        float const Position[3] = {0.3975f, 0.185f, 0.0f};
+        float const HalfExtents[3] = {0.012f, 0.012f, 0.0f};
+        CreateButtonControl("ShipView_Info", "Interface\\NeuroNet\\Inventory\\question.3db",
+                            nullptr, "ui_open_infocard", nullptr, Position, nullptr, HalfExtents,
+                            0, 1, 0, 0, 0xbc4, 0, 0); // FUN_005a0c90
+    }
+    HudInventoryReloadConfig(true); // "if Debug then Load"
+
+    // InventoryCreate: the view's selection and hover cleared, its behaviour switched.
+    ShipViewControl* const View = static_cast<ShipViewControl*>(FindChild("ShipView_Control"));
+    if (View == nullptr)
+        return;
+    View->SelHpClass = 0;
+    View->SelWeapon = nullptr;
+    View->SelShield = nullptr;
+    View->SelInstance = -1;
+    View->Field4f0 = -1;
+    View->MountHardpoint = nullptr;
+    View->TipHardpoint = nullptr;
+    View->bInventoryView = true;
+}
+
+void NnInventory::UpdateShipViewMode()
+{
+    // InventoryPressShipView.
+    if (Ship.Toggle == nullptr)
+        return;
+    int State = 0;
+    Ship.Toggle->SetProperty(0x2f, reinterpret_cast<uintptr_t>(&State), 0);
+    Field4e2 = static_cast<unsigned char>(State);
+    if (Field4e2 == 0)
+    {
+        Field4e0 = 0;
+        Field4e1 = 0;
+    }
+    PlaceShipView(Field4e2);
+}
+
+void NnInventory::PlaceShipView(unsigned char Show)
+{
+    // InventoryPlaceShipView. Only bit 0 counts: +0x4e2 may carry more bits.
+    uintptr_t const Hide = static_cast<uintptr_t>((Show & 1) ^ 1);
+    if (Ship.NameText != nullptr)
+        Ship.NameText->SetProperty(1, Hide, 0);
+    if (Ship.Frame != nullptr)
+        Ship.Frame->SetProperty(1, Hide, 0);
+    if (Ship.DamageBar != nullptr)
+        Ship.DamageBar->SetProperty(1, Hide, 0);
+    if (Ship.ShipView == nullptr)
+        return;
+    Ship.ShipView->SelInstance = -1;
+    Ship.ShipView->SetProperty(1, Hide, 0);
+    // The list was rebuilt (a mount, a shot, a sale...) and the selection restored: the
+    // selected item's instance on the view is looked up again.
+    if (SelectedItem == nullptr)
+        return;
+    Ship.ShipView->SelInstance =
+        Ship.ShipView->GetInstanceOnHardpoint(SelectedItem->Hardpoint); // FUN_00585e80
+}
+
+void NnInventory::PickShipViewHardpoint(char const* Hardpoint)
+{
+    // InventoryPickShipViewEx. The plugin tests a trade mode at its own +0x978, which only a
+    // dealer window has (a plain NN_Inventory is 0x974 bytes); the port reads the dealer's.
+    if (Dealer != nullptr && Dealer->TradeMode == 1)
+        return;
+    int const SavedIndex = SelectedIndex;
+    SelectedItem = nullptr;
+    SelectedIndex = 0;
+    ShowQuantityControls(false); // FUN_004795f0
+    EquipDesc* Item = GetSelectedItem(); // FUN_0047e790
+    char const* const Wanted = (Hardpoint != nullptr) ? Hardpoint : "";
+    if (Item == nullptr || _stricmp(Item->Hardpoint != nullptr ? Item->Hardpoint : "", Wanted) != 0)
+    {
+        int const SavedMode = Mode;
+        int const SavedFirstRow = FirstRow;
+        // The page of the hardpoint's group: weapons, equipment, cargo bay.
+        Ship.ShipView->CollectHpTypes(Hardpoint); // FUN_00586560
+        int Page = -1;
+        if (Ship.ShipView->HasHpTypeGroup(0)) // FUN_00586800
+            Page = 0;
+        else if (Ship.ShipView->HasHpTypeGroup(1))
+            Page = 2;
+        else if (Ship.ShipView->HasHpTypeGroup(2))
+            Page = 3;
+        if (Page >= 0)
+            SetMode(Page, true); // FUN_0047f240
+        SelectRow(-1, 1);        // FUN_0047e0e0
+        Update();
+        FirstRow = 0;
+        int Row = 0;
+        for (;;)
+        {
+            SelectRow(Row, 1);
+            Item = GetSelectedItem();
+            if (Item != nullptr &&
+                _stricmp(Item->Hardpoint != nullptr ? Item->Hardpoint : "", Wanted) == 0)
+                break;
+            ++Row;
+            if (Row == kNnInventoryRows)
+            {
+                ++FirstRow;
+                Row = 0;
+            }
+            if (FirstRow >= Field3c8)
+            {
+                // Not listed: the previous page, selection and scroll back (the page without
+                // SetMode, as the plugin).
+                Mode = SavedMode;
+                SelectedIndex = SavedIndex;
+                FirstRow = SavedFirstRow;
+                break;
+            }
+        }
+    }
+    else
+    {
+        // Already selected: point the view at it again (FUN_004c6a50).
+        bool const bFull = Dealer == nullptr || Dealer->TradeMode == 2 || Dealer->TradeMode == 3;
+        Ship.ShowItem(Item, NnItemFilterMode(Item->ArchId) != 0, bFull ? 1 : 0);
+        FirstRow = 0;
+    }
+    if (InventoryScroll != nullptr)
+        InventoryScroll->SetProperty(0x38, static_cast<uintptr_t>(FirstRow), 0);
+}
+#endif // FREELANCER_HUD_INVENTORY_VIEW

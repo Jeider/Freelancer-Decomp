@@ -468,6 +468,36 @@ void CStrafeEngine::SetStrafe(StrafeDir Dir)
     // Ghidra @ 0x5b940
     if (Dir != CurrentStrafe)
     {
+#ifdef FREELANCER_JFLP
+        // Port-only (jflp.dll SetStrafe, called at 0x062bb949): a direction across the held
+        // one makes a diagonal -- 5 left+up, 6 left+down, 7 right+up, 8 right+down.
+        int Combined = static_cast<int>(Dir);
+        if (Combined != StrafeNone)
+        {
+            switch (CurrentStrafe)
+            {
+            case StrafeLeft:
+                if (Combined > 2)
+                    Combined += 2;
+                break;
+            case StrafeRight:
+                if (Combined > 2)
+                    Combined += 4;
+                break;
+            case StrafeUp:
+                if (Combined < 3)
+                    Combined = Combined * 2 + 3;
+                break;
+            case StrafeDown:
+                if (Combined < 3)
+                    Combined = Combined * 2 + 4;
+                break;
+            default:
+                break;
+            }
+        }
+        Dir = static_cast<StrafeDir>(Combined);
+#endif
         CurrentStrafe = Dir;
         if (Dir != StrafeNone)
         {
@@ -512,7 +542,30 @@ void CStrafeEngine::do_simulation_controller(IVP_Event_Sim* EventSim, IVP_U_Vect
 
     Matrix const& Ori = OwnerShip->Orientation;
     Vector Dir;
+#ifdef FREELANCER_JFLP
+    // Port-only (jflp.dll: the jump table at 0x062bb9b6 widened to 8 entries, 0x062bb9a8 CMP 7):
+    // a diagonal pushes the up / down force, then goes on as left / right -- two full pushes
+    // for one power drain.
+    int const Strafe = static_cast<int>(CurrentStrafe);
+    if (Strafe >= 5 && Strafe <= 8)
+    {
+        float const Sign = (Strafe == 5 || Strafe == 7) ? 1.0f : -1.0f; // up / down
+        float const UpForce = OwnerShip->shiparch()->StrafeForce;
+        Vector UpPush;
+        UpPush.x = Sign * Ori.E[0][1] * UpForce;
+        UpPush.y = Sign * Ori.E[1][1] * UpForce;
+        UpPush.z = Sign * Ori.E[2][1] * UpForce;
+        push(UpPush, EventSim->delta_time);
+    }
+    StrafeDir Side = CurrentStrafe;
+    if (Strafe == 5 || Strafe == 6)
+        Side = StrafeLeft;
+    else if (Strafe == 7 || Strafe == 8)
+        Side = StrafeRight;
+    switch (Side)
+#else
     switch (CurrentStrafe)
+#endif
     {
     case StrafeLeft:
         Dir.x = -Ori.E[0][0];

@@ -836,7 +836,13 @@ intptr_t HUD_ContactList::SetProperty(int Msg, uintptr_t A, uintptr_t B)
                 A == reinterpret_cast<uintptr_t>(NameTexts[Row]))
             {
                 SelectEntry(static_cast<int>(ScrollPos) + Row);
+#ifdef FREELANCER_HUD_TARGET_VIEW
+                // Port-only (HudTarget.dll, 0x004cfe75 PUSH 1 -> PUSH 0): the target view is
+                // shown in every mode, so the double click keeps the contact list.
+                static_cast<HudTarget*>(G_HudTargetPanel)->SetMode(0); // FUN_004e5460
+#else
                 static_cast<HudTarget*>(G_HudTargetPanel)->SetMode(1); // FUN_004e5460
+#endif
                 PlayOrRewindUiSoundSlot(0);
                 return 1;
             }

@@ -936,8 +936,15 @@ void PageServerSelect::FillRow(unsigned Row, FServerInfo const* Server)
     // payload a fresh ServerRowData (FUN_00571280) taken by FUN_00575520, the creation
     // reference dropped (FUN_00599980). No null test on the row, as retail.
     FUiFastTableRow* const RowRecord = ServerTable->GetRow(Row);
+#ifdef FREELANCER_JFLP
+    // Port-only (jflp.dll ADDR_SELECT, MOV AL,1): every row selectable, so the details of a
+    // server of another version can be read; connecting stays refused (Update, 0xf002).
+    RowRecord->bSelectable = 1;
+    RowRecord->bHoverable = 1;
+#else
     RowRecord->bSelectable = bVersionMatch ? 1 : 0;
     RowRecord->bHoverable = bVersionMatch ? 1 : 0;
+#endif
     ServerRowData* const Data = new ServerRowData(*Server);
     RowRecord->Payload.Assign(Data);
     Data->Release();
@@ -1063,6 +1070,12 @@ bool PageServerSelect::Slot23(unsigned Msg, unsigned A, unsigned B)
         FServerInfo const* const Server = GetSelectedServer();
         if (Server == nullptr)
             return true;
+#ifdef FREELANCER_JFLP
+        // Port-only (jflp.dll ConnectDbl_Hook on the call at 0x00571aea): no connect to a
+        // server of another version.
+        if (Server->Version != static_cast<unsigned>(g_client.packed_version))
+            return true;
+#endif
         if (!ConnectToServer(Server))
             return true;
         BeginLeave(); // FUN_00571fc0
@@ -1287,7 +1300,20 @@ void PageServerSelect::Update()
             RefreshListStatus();
         }
         unsigned SelectedRow = 0;
-        if (!ServerTable->GetSelectedRow(&SelectedRow) && SelectedServerId == 0xffffffffu)
+        bool bNoConnect =
+            !ServerTable->GetSelectedRow(&SelectedRow) && SelectedServerId == 0xffffffffu;
+#ifdef FREELANCER_JFLP
+        // Port-only (jflp.dll Connect_Hook on the call at 0x0056f778): a selected server of
+        // another version takes the "nothing selected" branch at 0x0056f78a.
+        if (!bNoConnect)
+        {
+            FServerInfo const* const Selected = GetSelectedServer();
+            if (Selected != nullptr &&
+                Selected->Version != static_cast<unsigned>(g_client.packed_version))
+                bNoConnect = true;
+        }
+#endif
+        if (bNoConnect)
         {
             Connect->Flags = static_cast<unsigned char>(Connect->Flags & 0xfe);
             Connect->bInteractive = 0;

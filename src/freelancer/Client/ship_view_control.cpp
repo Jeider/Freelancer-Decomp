@@ -16,6 +16,13 @@
 #include "hud_element_list.h"  // HudMatrixRotationY / RotateRows12 / RotateRows01
 #include "hud_target.h"        // FHudInstanceBounds, HudInverseTransformPoint
 #include "nn_ui_pulse.h"       // G_HudChromeColorRgba (DAT_00679bb4)
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+#include "input_manager.h"        // GetClientSoftwareCursor (DAT_00616840 / DAT_00616844)
+#include "menu_ui_init.h"         // PlayUiSoundSlot (FUN_00564570)
+#include "nn_tooltip.h"           // NnToolTipHideGlobal (FUN_004be390)
+#include "tooltip_hover.h"       // FToolTipHoverInfo, NnToolTipFeedHover (FUN_004be370)
+#include "win3d_engine_submit.h"  // SubmitWin3DTintedEngineInstanceWrapped (FUN_00434630)
+#endif
 #include "win3d_immediate.h"
 #include "win3d_render.h"      // Win3DApplyCamera (FUN_00422950)
 #include "win_factory.h"
@@ -358,6 +365,12 @@ void ShipViewControl::Reset()
     Instance = -1;
     SelInstance = -1;
     Field4f0 = -1;
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    MountHardpoint = nullptr; // beta +0x4d4 / +0x4d8 / +0x524 / ViewFlags bit 1
+    TipHardpoint = nullptr;
+    bInventoryMountSound = false;
+    bInventoryToolTip = false;
+#endif
     DragLast[0] = 0.0f;
     DragLast[1] = 0.0f;
     DragLast[2] = 0.0f;
@@ -523,6 +536,10 @@ void ShipViewControl::Init(float const* NewRotSpeed, float const* NewOffset, flo
 void ShipViewControl::Draw()
 {
     // LAB_00584470.
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    if (bInventoryView)
+        ApplyInventoryModelOverride(); // port-only (HudInventory.dll ShipViewLoad)
+#endif
     Win3D::Draw(); // FUN_0059e5c0 -- the children; no WinControl mesh
     if (Instance == -1)
         return;
@@ -568,6 +585,11 @@ void ShipViewControl::Draw()
     Pipe->SetRenderState(D3DRS_ZENABLE, 0);
     Pipe->SetRenderState(D3DRS_ZFUNC, 8);
     Pipe->SetRenderState(D3DRS_ZWRITEENABLE, 0);
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    // Port-only: the beta Draw's equipment and markers sit here (0x0057a550..0x0057a696).
+    if (bInventoryView)
+        DrawInventoryEquipment();
+#endif
     Win3DDisable(0xb71);
 
     // 0x0058463f..0x00584684: the Win3D camera and the saved viewport back, white ambient.
@@ -597,7 +619,19 @@ bool ShipViewControl::Slot6(unsigned A)
            ScreenRect[3] < Height;
 }
 
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
 void ShipViewControl::Update()
+{
+    // Port-only (HudInventory.dll vftable +0x2c): the retail Update, then the hover pass.
+    UpdateRetail();
+    if (bInventoryView)
+        UpdateInventoryHover();
+}
+
+void ShipViewControl::UpdateRetail()
+#else
+void ShipViewControl::Update()
+#endif
 {
     // LAB_00584740 -- no base Update call.
     if (ClientMeshHolderHasInstance(&ShipHolder)) // FUN_00420d60
@@ -941,8 +975,15 @@ void ShipViewControl::SetInstance(long NewInstance, bool bFixedDistance)
     Distance = sqrtf(ExtentCentre.Y * ExtentCentre.Y + ExtentCentre.Z * ExtentCentre.Z +
                      ExtentCentre.X * ExtentCentre.X) +
                Distance;
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    // Port-only (HudInventory.dll ShipViewDistance hooks 0x005855ba and jumps past the fixed
+    // case -- Adoxa's 74 -> EB at 0x005855c0): every ship view frames its hull to fill the
+    // preview, the fixed distance 14 is never taken. The plugin adds its Distance (0) first.
+    (void)bFixedDistance;
+#else
     if (bFixedDistance)
         Distance = 14.0f;
+#endif
 
     PlaceCamera(1); // FUN_00585630
     ScreenRect[3] = 0;
@@ -1033,6 +1074,11 @@ bool ShipViewControl::LoadMesh(char const* Path, char const* MaterialPath, bool 
         ClientUiMeshHolderRelease(&ShipHolder); // FUN_0059eee0
         // 0x005858c0..0x005858cd: FUN_0059ec80(Path, MaterialPath, 0).
         ClientMeshLoadFromPath(&ShipHolder, Path, MaterialPath, false);
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+        // Port-only: the key of the plugin's ship = entries (it hashes the engine's archetype
+        // name of the framed instance, which is this path).
+        ModelPathId = CreateID(Path);
+#endif
         // 0x005858d2..0x005858e9: FUN_004482b0(+0x334) -- the player ship's damaged parts.
         if (bDpConnect)
             GfShipApplyCollisionDamage(ShipHolder.EngineInstance);
@@ -1605,3 +1651,652 @@ WinControl* WinControl::CreateShipViewControl(char const* Name, float const* Rot
     }
     return static_cast<WinControl*>(Created);
 }
+
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+// -------------------------------------------------------------------------------------------
+// Port-only: the inventory's ship view mode (docs/hud_plugins.md). Its behaviour is the beta
+// client's ShipViewControl (Freelancer beta, freelancer.exe of 2002-09-16, vftable 0x005cc0fc):
+// retail keeps the state that code read -- the hover (+0x4f0), the selected item (+0x4fc ..
+// +0x508), ViewFlags bits 4 / 5 and Color4c4, all still written by NN_Inventory -- but not the
+// code. Beta addresses are marked "beta"; the beta layout is retail's from +0x388 on, minus
+// 0x20. The HudInventory.dll plugin rebuilt the same mode on retail; from it come only the
+// HudInventory.ini model overrides and the large-ship picking, marked "plugin".
+// -------------------------------------------------------------------------------------------
+namespace
+{
+    // HudInventory.ini [HudInventory] ship = <path>, center, x, y, z, radius, r
+    struct FInventoryModelOverride
+    {
+        unsigned ShipId; // CreateID of the path
+        float Radius;    // applied when >= 1
+        float Center[3];
+        bool bCenter;    // the "center" group had all three values
+    };
+
+    std::vector<FInventoryModelOverride> G_InventoryModels;
+    FInventoryModelOverride const* G_InventoryModelLast = nullptr;
+    bool G_bInventoryConfigLoaded = false;
+    bool G_bInventoryConfigDebug = false;
+
+    float const kInventoryDefFactor = 0.45f;        // plugin Deffactor
+    float const kInventoryEquipSlack = 0.6f;        // beta 0x0057bfb3, FHudSpherePick::Test slack
+    float const kInventoryHardpointReach = 0.9f;    // beta 0x0057c4bd
+    float const kInventoryMarkerDepth = -0.05f;     // beta DAT_005cc1b8
+    float const kInventoryMarkerScale = 1.2f;       // beta DAT_005c1d2c, for the stock mesh
+    float const kInventoryGrey = 128.0f / 255.0f;   // beta 0x3f008081
+    float G_InventoryMarkerScale = kInventoryMarkerScale; // port-only "mountpoint_size"
+
+    // The plugin's read_parameters: one "radius, r" or "center, x, y, z" group at Index.
+    bool ReadInventoryModelParameters(INI_Reader& Reader, unsigned& Index,
+                                      FInventoryModelOverride& Out)
+    {
+        unsigned const Key = CreateID(Reader.get_value_string(Index));
+        if (Key == CreateID("radius"))
+        {
+            ++Index;
+            Out.Radius = static_cast<float>(Reader.get_value_float(Index));
+            ++Index;
+            return true;
+        }
+        if (Key == CreateID("center"))
+        {
+            ++Index;
+            Out.bCenter = Reader.get_num_parameters() > Index;
+            Out.Center[0] = static_cast<float>(Reader.get_value_float(Index));
+            ++Index;
+            Out.Center[1] = static_cast<float>(Reader.get_value_float(Index));
+            ++Index;
+            Out.Center[2] = static_cast<float>(Reader.get_value_float(Index));
+            ++Index;
+            return true;
+        }
+        return false;
+    }
+
+    // The plugin's Load: DATA\INTERFACE\HudInventory.ini, relative to the exe directory, plus
+    // the port's "mountpoint_size" (the marker scale; 0.7 suits the plugin's own mesh).
+    void LoadInventoryConfig()
+    {
+        G_InventoryModelLast = nullptr;
+        G_InventoryModels.clear();
+        G_InventoryMarkerScale = kInventoryMarkerScale;
+        G_bInventoryConfigLoaded = true;
+        INI_Reader Reader;
+        if (!Reader.open("../data/interface/HudInventory.ini", false))
+            return;
+        while (Reader.read_header())
+        {
+            if (!Reader.is_header("HudInventory"))
+                continue;
+            while (Reader.read_value())
+            {
+                if (!G_bInventoryConfigDebug && Reader.is_value("debug"))
+                {
+                    G_bInventoryConfigDebug = Reader.get_value_bool(0);
+                    continue;
+                }
+                if (Reader.is_value("mountpoint_size"))
+                {
+                    float const Size = static_cast<float>(Reader.get_value_float(0));
+                    if (Size > 0.0f)
+                        G_InventoryMarkerScale = Size;
+                    continue;
+                }
+                if (!Reader.is_value("ship"))
+                    continue;
+                FInventoryModelOverride Entry = {};
+                Entry.ShipId = CreateID(Reader.get_value_string(0));
+                unsigned Index = 1;
+                if (!ReadInventoryModelParameters(Reader, Index, Entry))
+                    continue;
+                while (ReadInventoryModelParameters(Reader, Index, Entry))
+                {
+                }
+                bool bReplaced = false;
+                for (size_t Slot = 0; Slot < G_InventoryModels.size(); ++Slot)
+                {
+                    if (G_InventoryModels[Slot].ShipId == Entry.ShipId)
+                    {
+                        G_InventoryModels[Slot] = Entry;
+                        bReplaced = true;
+                        break;
+                    }
+                }
+                if (!bReplaced)
+                    G_InventoryModels.push_back(Entry);
+            }
+        }
+        Reader.close();
+    }
+
+    IInstanceTransform* InventoryTransformOf(long Instance)
+    {
+        if (Instance == -1)
+            return nullptr;
+        void* Out = nullptr;
+        DALib::Engine->GetInstanceTransformObject(HandleOf(Instance), &Out);
+        if (Out == nullptr || Out == reinterpret_cast<void*>(static_cast<intptr_t>(-1)))
+            return nullptr;
+        return static_cast<IInstanceTransform*>(Out);
+    }
+
+    float InventoryRadiusOf(long Instance)
+    {
+        IInstanceTransform* const Transform = InventoryTransformOf(Instance);
+        if (Transform == nullptr)
+            return 0.0f;
+        float Radius = 0.0f;
+        float Centre[3];
+        Transform->GetExtra(HandleOf(Instance), &Radius, Centre);
+        return Radius;
+    }
+
+    unsigned InventoryColorOf(unsigned char const* Rgba)
+    {
+        unsigned Color;
+        memcpy(&Color, Rgba, sizeof(Color));
+        return Color;
+    }
+
+    // beta 0x0057c412..0x0057c4ad / 0x0057c6d5..0x0057c761: the hardpoint's position in the
+    // world, through the transform of the instance it belongs to (math +0x28).
+    void InventoryHardpointWorld(HardpointSummary const* Summary, int Index, FVector& Out)
+    {
+        long const AttachPoint = Summary->get_instance(Index);
+        // The beta asserts "attachPoint != INVALID_INSTANCE_INDEX" (ShipViewControl.cpp 0x6c6).
+        FTransform Xform;
+        memcpy(&Xform, DALib::Engine->GetInstanceTransform(HandleOf(AttachPoint)), sizeof(Xform));
+        FVector Local;
+        memcpy(&Local, &Summary->get_info(Index).Position, sizeof(Local));
+        GetShipViewMath()->TransformXform(Out, Xform, Local);
+    }
+
+    // beta 0x0057c7ab..0x0057c8e0: a marker faces the camera at a constant size on screen --
+    // the camera's rotation transposed (FUN_00440b00 / FUN_00440a80 / FUN_00440ad0), scaled by
+    // the point's view depth * -0.05 * the marker scale (math +0x10).
+    void InventoryMarkerOrientation(ICamera* View, FVector const& Point, FTransform& Out)
+    {
+        I3DMathEngine* const Math = GetShipViewMath();
+        FTransform ViewXform;
+        memcpy(&ViewXform, View->GetViewTransform(), sizeof(ViewXform)); // camera slot 0x40
+        FVector ViewPoint;
+        Math->TransformXform(ViewPoint, ViewXform, Point);
+        float const Depth = ViewPoint.Z * kInventoryMarkerDepth;
+        float const* const Eye = View->GetOrientation(); // camera slot 0x10, this + 4
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            for (int Column = 0; Column < 3; ++Column)
+                Out.Rotation.D[Row][Column] = Eye[Column * 3 + Row];
+        }
+        Out.Translation = Point;
+        Math->Scale(Out.Rotation, Out.Rotation, Depth * G_InventoryMarkerScale);
+    }
+
+    // beta FUN_0041ca40 (thiscall on the pick, RET 8): Pick reset (+0x50 = -1, +0x54 = +0x58 =
+    // 0), then a hit when the ray passes within Size of Point -- and, for a positive +0x18, when
+    // Point also lies within Size + (+0x18) of the ray origin. Setup leaves +0x18 at -1.
+    bool InventoryHitPoint(FHudSpherePick& Pick, FVector const& Point, float Size)
+    {
+        Pick.Field50 = -1;
+        Pick.HitCount = 0;
+        Pick.BestKey = 0.0f;
+        float const Dx = Point.X - Pick.Origin.X;
+        float const Dy = Point.Y - Pick.Origin.Y;
+        float const Dz = Point.Z - Pick.Origin.Z;
+        float const T = Dz * Pick.Dir.Z + Dy * Pick.Dir.Y + Dx * Pick.Dir.X;
+        float const Ex = T * Pick.Dir.X - Dx;
+        float const Ey = T * Pick.Dir.Y - Dy;
+        float const Ez = T * Pick.Dir.Z - Dz;
+        float const Miss2 = Ez * Ez + Ey * Ey + Ex * Ex;
+        if (Size * Size < Miss2)
+            return false;
+        if (Pick.Field18 <= 0.0f)
+            return true;
+        float const Reach = Size + Pick.Field18;
+        float const Dist2 = Dx * Dx + Dz * Dz + Dy * Dy;
+        return !(Reach * Reach < Dist2);
+    }
+
+    // beta 0x0057af1f..0x0057af4f and its siblings: the tool tip record FUN_004a5180 is fed
+    // with (FUN_004be370 here) -- a key that changes with the thing under the mouse, an IDS.
+    void FeedInventoryToolTip(int Key, int Ids)
+    {
+        FToolTipHoverInfo Info;
+        Info.Ids = Key;
+        Info.IdsAlt = Ids;
+        NnToolTipFeedHover(&Info);
+    }
+
+    void SetInventoryMarkerColor(FClientMeshHolder* Marker, unsigned char const* Rgba)
+    {
+        // beta 0x0057c94f..0x0057ca0c: the bytes into the holder's +0x14 / +0x18 / +0x1c / +0x24.
+        Marker->UserFloats[0] = static_cast<float>(Rgba[0]) * 0.0039215689f;
+        Marker->UserFloats[1] = static_cast<float>(Rgba[1]) * 0.0039215689f;
+        Marker->UserFloats[2] = static_cast<float>(Rgba[2]) * 0.0039215689f;
+        Marker->UserFloats[4] = static_cast<float>(Rgba[3]) * 0.0039215689f;
+    }
+}
+
+void HudInventoryReloadConfig(bool bOnlyWhenDebug)
+{
+    if (!bOnlyWhenDebug || G_bInventoryConfigDebug)
+        LoadInventoryConfig();
+}
+
+void ShipViewControl::ApplyInventoryModelOverride()
+{
+    // The plugin's ShipViewLoad: the hull's radius and position from its ship = entry.
+    if (!G_bInventoryConfigLoaded)
+        LoadInventoryConfig();
+    if (Instance == -1 || G_InventoryModels.empty())
+        return;
+    if (InstanceOf(ShipHolder.EngineInstance) != Instance)
+        return;
+    IInstanceTransform* const Transform = InventoryTransformOf(Instance);
+    if (Transform == nullptr)
+        return;
+    if (G_InventoryModelLast == nullptr || G_InventoryModelLast->ShipId != ModelPathId)
+    {
+        G_InventoryModelLast = nullptr;
+        for (size_t Index = 0; Index < G_InventoryModels.size(); ++Index)
+        {
+            if (G_InventoryModels[Index].ShipId == ModelPathId)
+            {
+                G_InventoryModelLast = &G_InventoryModels[Index];
+                break;
+            }
+        }
+    }
+    if (G_InventoryModelLast == nullptr)
+        return;
+    // Plain stores into the instance transform (its Extra and Matrix[9..11]), as the plugin's.
+    if (G_InventoryModelLast->Radius >= 1.0f)
+    {
+        float OldRadius = 0.0f;
+        float Centre[3];
+        Transform->GetExtra(HandleOf(Instance), &OldRadius, Centre);
+        Transform->SetExtra(HandleOf(Instance), G_InventoryModelLast->Radius, Centre);
+    }
+    if (G_InventoryModelLast->bCenter)
+        Transform->SetPosition(HandleOf(Instance), G_InventoryModelLast->Center);
+}
+
+float ShipViewControl::GetInventoryPickFactor() const
+{
+    // Plugin ShipViewFactor: the hull radius / 45, at least 0.45. The stock flyable ships
+    // (radius up to ~14) stay at 0.45, where the beta's values apply unchanged.
+    float Factor = InventoryRadiusOf(Instance) / 45.0f;
+    if (Factor < kInventoryDefFactor)
+        Factor = kInventoryDefFactor;
+    return Factor;
+}
+
+float ShipViewControl::GetInventoryEquipmentScale(long Mesh) const
+{
+    // Plugin ShipViewDrawMounted: on a hull of radius 80+ the smallest equipment is drawn
+    // scaled up to stay visible and pickable. The beta draws at 1.
+    if (GetInventoryPickFactor() / kInventoryDefFactor <= 4.0f)
+        return 1.0f;
+    float const MeshRadius = InventoryRadiusOf(Mesh);
+    if (MeshRadius <= 0.0f)
+        return 1.0f;
+    float const Scale = InventoryRadiusOf(Instance) / MeshRadius;
+    return (Scale >= 150.0f) ? Scale / 100.0f : 1.0f;
+}
+
+void ShipViewControl::SetupInventoryPick(FHudSpherePick& Pick)
+{
+    // beta 0x0057bf10..0x0057bf7e: the ray from the view camera through the software cursor
+    // (DAT_0061b7b4 / DAT_0061b7b8; retail DAT_00616840 / DAT_00616844).
+    ICamera* const ViewCamera = AsCamera(&Camera);
+    int CursorX = 0;
+    int CursorY = 0;
+    int CursorZ = 0;
+    GetClientSoftwareCursor(&CursorX, &CursorY, &CursorZ);
+    FVector RayEnd;
+    ViewCamera->Unproject(&RayEnd.X, static_cast<float>(CursorX), static_cast<float>(CursorY));
+    float const* const CameraPos = ViewCamera->GetPosition();
+    RayEnd.X += CameraPos[0];
+    RayEnd.Y += CameraPos[1];
+    RayEnd.Z += CameraPos[2];
+    Pick.Setup(reinterpret_cast<FVector const*>(CameraPos), &RayEnd); // FUN_00422bc0
+}
+
+bool ShipViewControl::InventoryItemFits(int HpClass, Archetype::Equipment const* Weapon,
+                                        Archetype::Equipment const* Shield) const
+{
+    // beta 0x0057c33d..0x0057c414: HpTypes (CollectHpTypes of the hardpoint) hold the class
+    // itself, a hp type of the selected gun (class 4) or of the selected shield generator
+    // (classes 5..8).
+    if (HasHpType(HpClass))
+        return true;
+    if (HpClass == 4 && Weapon != nullptr)
+    {
+        Archetype::Gun const* const Gun = static_cast<Archetype::Gun const*>(Weapon);
+        int const Count = Gun->get_number_of_hp_types();
+        for (int Type = 0; Type < Count; ++Type)
+        {
+            if (HasHpType(Gun->get_hp_type_by_index(Type)))
+                return true;
+        }
+    }
+    if (Shield != nullptr && HpClass >= 5 && HpClass <= 8)
+    {
+        Archetype::ShieldGenerator const* const Generator =
+            static_cast<Archetype::ShieldGenerator const*>(Shield);
+        int const Count = Generator->get_number_of_hp_types();
+        for (int Type = 0; Type < Count; ++Type)
+        {
+            if (HasHpType(Generator->get_hp_type_by_index(Type)))
+                return true;
+        }
+    }
+    return false;
+}
+
+bool ShipViewControl::IsInventoryPageHardpoint() const
+{
+    // beta FUN_0057d740(Mode) behind "Mode == 0 || Mode == 1": the hardpoint belongs to the
+    // page shown -- weapons (0) or equipment (1).
+    return (Mode == 0 || Mode == 1) && HasHpTypeGroup(Mode);
+}
+
+long ShipViewControl::PickInventoryEquipment()
+{
+    // beta FUN_0057bef0 (RET 4; its argument, the selected hp class, is not read): the mounted
+    // item the mouse ray hits within 0.6 of its part spheres, of every page.
+    if (Visuals == nullptr)
+        return -1;
+    FHudSpherePick Pick(1); // FUN_00422ba0
+    SetupInventoryPick(Pick);
+    float const Factor = GetInventoryPickFactor();
+    long Hit = -1;
+    for (int Index = 0; Index < Visuals->Count; ++Index)
+    {
+        long const Mesh = Visuals->GetInstance(Index); // FUN_00457f00
+        if (Mesh == -1)
+            continue;
+        if (Factor <= 2.0f / 3.0f)
+        {
+            if (Pick.Test(HandleOf(Mesh), kInventoryEquipSlack)) // FUN_00422e30
+                Hit = Mesh;
+            continue;
+        }
+        // Plugin: from hull radius 30 on the part spheres are too small to aim at; one point
+        // per item, its origin, picked within the factor.
+        FTransform Xform;
+        memcpy(&Xform, DALib::Engine->GetInstanceTransform(HandleOf(Mesh)), sizeof(Xform));
+        if (InventoryHitPoint(Pick, Xform.Translation, Factor))
+            Hit = Mesh;
+    }
+    return Hit;
+}
+
+char const* ShipViewControl::PickInventoryHardpoint(int HpClass,
+                                                    Archetype::Equipment const* Weapon,
+                                                    Archetype::Equipment const* Shield)
+{
+    // beta FUN_0057c1e0 (RET 0xc): the free hardpoint under the mouse (within 0.9 of it) --
+    // of the page shown when HpClass is 0, else one the selected item fits.
+    if (Visuals == nullptr || Visuals->Summary == nullptr)
+        return nullptr;
+    HardpointSummary* const Summary = Visuals->Summary;
+    FHudSpherePick Pick(1);
+    SetupInventoryPick(Pick);
+    // Plugin: the reach grows with the hull (the factor over its 0.45 floor).
+    float const Reach = kInventoryHardpointReach * GetInventoryPickFactor() / kInventoryDefFactor;
+    char const* Hit = nullptr;
+    for (int Index = 0; Index < Visuals->Count; ++Index)
+    {
+        if (Visuals->GetInstance(Index) != -1)
+            continue;
+        char const* const Name = Summary->get_name(Index);
+        CollectHpTypes(Name); // FUN_00586560 (beta FUN_0057d4a0)
+        bool const bShown = (HpClass == 0) ? HasHpTypeGroup(Mode)
+                                           : InventoryItemFits(HpClass, Weapon, Shield);
+        if (!bShown)
+            continue;
+        FVector Point;
+        InventoryHardpointWorld(Summary, Index, Point);
+        if (InventoryHitPoint(Pick, Point, Reach))
+            Hit = Name;
+    }
+    return Hit;
+}
+
+void ShipViewControl::UpdateInventoryHover()
+{
+    // beta 0x0057ae3c..0x0057b148, after the retail Update's rotation and screen rect.
+    if ((ViewFlags & 0x20) != 0)
+    {
+        // An item selected in the list: a free hardpoint it fits first, else the equipment.
+        MountHardpoint = PickInventoryHardpoint(SelHpClass, SelWeapon, SelShield);
+        Field4f0 = (MountHardpoint != nullptr) ? -1 : PickInventoryEquipment();
+        if (MountHardpoint == nullptr)
+        {
+            bInventoryMountSound = false;
+        }
+        else if (!bInventoryMountSound)
+        {
+            // beta FUN_005575d0(0): once per hardpoint entered.
+            bInventoryMountSound = true;
+            PlayUiSoundSlot(0); // ui_select_item
+        }
+    }
+    else
+    {
+        MountHardpoint = nullptr;
+        Field4f0 = PickInventoryEquipment();
+        bInventoryMountSound = false;
+    }
+
+    // 0x0057aed3..0x0057b148: the tool tip -- the item's name, else the caption of the
+    // hardpoint's type, else "Weapon / Equipment Hardpoint (empty)" (IDS 1078 / 1079). Beta
+    // ViewFlags bit 1 is bInventoryToolTip here.
+    bool const bHadToolTip = bInventoryToolTip;
+    bInventoryToolTip = false;
+    TipHardpoint = nullptr;
+    int const Key = static_cast<int>(reinterpret_cast<intptr_t>(this));
+    if (Field4f0 != -1 && Visuals != nullptr)
+    {
+        // FUN_0057d1e0: the archetype on the hovered instance's hardpoint.
+        for (int Index = 0; Index < Visuals->Count; ++Index)
+        {
+            if (Visuals->GetInstance(Index) != Field4f0)
+                continue;
+            Archetype::Equipment const* const Equip = Archetype::GetEquipment(Visuals->ArchIds[Index]);
+            if (Equip != nullptr)
+            {
+                FeedInventoryToolTip(Field4f0, Equip->IdsName);
+                bInventoryToolTip = true;
+            }
+            break;
+        }
+    }
+    else
+    {
+        TipHardpoint = PickInventoryHardpoint(0, nullptr, nullptr);
+        if (TipHardpoint != nullptr)
+        {
+            CollectHpTypes(TipHardpoint);
+            if (!HpTypes.empty())
+            {
+                for (int Row = 0; Row < 0x3c; ++Row)
+                {
+                    if (G_ShipViewHpTypeCaptions[Row].HpType != HpTypes[0])
+                        continue;
+                    int const Ids = G_ShipViewHpTypeCaptions[Row].Ids;
+                    FeedInventoryToolTip(Key + Ids, Ids);
+                    bInventoryToolTip = true;
+                    break;
+                }
+            }
+            if (!bInventoryToolTip && (Mode == 0 || Mode == 1))
+            {
+                int const Ids = (Mode == 0) ? 0x436 : 0x437;
+                FeedInventoryToolTip(Key + Ids, Ids);
+                bInventoryToolTip = true;
+            }
+        }
+    }
+    if (bHadToolTip && !bInventoryToolTip)
+        NnToolTipHideGlobal(); // beta FUN_004a51f0
+}
+
+void ShipViewControl::DrawInventoryTinted(long Mesh, unsigned char const* Rgba)
+{
+    // beta FUN_0042dce0(camera, instance, 1, colour, 1, 1.0f, 0); retail FUN_00434630.
+    unsigned char Color[4];
+    memcpy(Color, Rgba, sizeof(Color));
+    SubmitWin3DTintedEngineInstanceWrapped(AsCamera(&Camera), HandleOf(Mesh), 1, Color, 1,
+                                           GetInventoryEquipmentScale(Mesh), 0);
+}
+
+void ShipViewControl::DrawInventoryPageEquipment()
+{
+    // beta FUN_0057ce00: every mounted item of the page shown, tinted in rect_color.
+    HardpointSummary* const Summary = Visuals->Summary;
+    for (int Index = 0; Index < Visuals->Count; ++Index)
+    {
+        long const Mesh = Visuals->GetInstance(Index);
+        if (Mesh == -1)
+            continue;
+        CollectHpTypes(Summary->get_name(Index));
+        if (IsInventoryPageHardpoint())
+            DrawInventoryTinted(Mesh, RectColor);
+    }
+}
+
+void ShipViewControl::PlaceInventoryMarkers(bool bItem, std::vector<FClientMeshHolder*>& Out)
+{
+    // bItem: beta FUN_0057c520(SelHpClass, SelWeapon, SelShield, SelInstance) -- nothing without
+    // a class; the free hardpoints the item fits, plus grey ones of the page it does not.
+    // Otherwise FUN_0057ca30: the free hardpoints of the page. A marker under the mouse pulses.
+    if (bItem && SelHpClass == 0)
+        return;
+    HardpointSummary* const Summary = Visuals->Summary;
+    ShipViewPipeline()->SetRenderState(D3DRS_ZENABLE, 0);
+    Win3DDisable(0xde1); // FUN_00421ed0
+    ICamera* const ViewCamera = AsCamera(&Camera);
+    for (int Index = 0; Index < Visuals->Count; ++Index)
+    {
+        if (Visuals->GetInstance(Index) != -1)
+            continue;
+        char const* const Name = Summary->get_name(Index);
+        CollectHpTypes(Name);
+        bool bGrey = false;
+        if (bItem && !InventoryItemFits(SelHpClass, SelWeapon, SelShield))
+        {
+            if (!IsInventoryPageHardpoint())
+                continue;
+            bGrey = true;
+        }
+        else if (!bItem && !IsInventoryPageHardpoint())
+        {
+            continue;
+        }
+
+        // The beta takes the next marker of its own pool (+0x504, count +0x510); retail keeps
+        // one per hardpoint (LoadEquipment).
+        if (Index >= static_cast<int>(MountHolders.size()))
+            continue;
+        FClientMeshHolder* const Marker = MountHolders[Index];
+        if (Marker == nullptr || InstanceOf(Marker->EngineInstance) == -1)
+            continue;
+        FVector Point;
+        InventoryHardpointWorld(Summary, Index, Point);
+        FTransform Orientation;
+        InventoryMarkerOrientation(ViewCamera, Point, Orientation);
+        DALib::Engine->SetInstancePosition(Marker->EngineInstance, &Point);          // +0x8c
+        DALib::Engine->SetInstanceOrientation(Marker->EngineInstance, &Orientation); // +0x94
+        DALib::Engine->UpdateInstance(Marker->EngineInstance, 0, nullptr);           // +0x6c
+        Out.push_back(Marker);
+
+        if (bGrey)
+        {
+            Marker->UserFloats[0] = kInventoryGrey;
+            Marker->UserFloats[1] = kInventoryGrey;
+            Marker->UserFloats[2] = kInventoryGrey;
+            Marker->UserFloats[4] = 1.0f;
+        }
+        else if (Name == (bItem ? MountHardpoint : TipHardpoint))
+        {
+            unsigned long Pulsed = 0;
+            NnUiPulseBlendFromArgb(&Pulsed, InventoryColorOf(Color4c4)); // beta FUN_00542210
+            SetInventoryMarkerColor(Marker, reinterpret_cast<unsigned char const*>(&Pulsed));
+        }
+        else
+        {
+            SetInventoryMarkerColor(Marker, Color4c4);
+        }
+    }
+}
+
+void ShipViewControl::DrawInventoryEquipment()
+{
+    // beta 0x0057a550..0x0057a696, in Draw's camera with z off, before its last
+    // FUN_00421ed0(0xb71).
+    if (Visuals == nullptr || Visuals->Summary == nullptr)
+        return;
+    DrawInventoryPageEquipment(); // FUN_0057ce00
+
+    // 0x0057a564..0x0057a602: the hovered item pulses in Color4c4, the selected one (bit 4)
+    // shows it steadily unless it is the hovered one.
+    if (Field4f0 != -1)
+    {
+        unsigned long Pulsed = 0;
+        NnUiPulseBlendFromArgb(&Pulsed, InventoryColorOf(Color4c4)); // beta FUN_00542210
+        DrawInventoryTinted(Field4f0, reinterpret_cast<unsigned char const*>(&Pulsed));
+    }
+    if ((Field4f0 == -1 || SelInstance != Field4f0) && (ViewFlags & 0x10) != 0 &&
+        SelInstance != -1)
+    {
+        DrawInventoryTinted(SelInstance, Color4c4);
+    }
+
+    // 0x0057a605..0x0057a696: the markers, then all of them under a white ambient.
+    std::vector<FClientMeshHolder*> Markers;
+    PlaceInventoryMarkers((ViewFlags & 0x20) != 0, Markers);
+    EngineLightClearRegisteredList(); // FUN_004101e0
+    unsigned char const White[3] = {0xff, 0xff, 0xff};
+    EngineLightSetAmbientRgbBytes(White);
+    ICamera* const ViewCamera = AsCamera(&Camera);
+    for (size_t Index = 0; Index < Markers.size(); ++Index)
+    {
+        DALib::Renderer->RenderInstance(ViewCamera, Markers[Index]->EngineInstance, 1.0f, 0u,
+                                        nullptr, nullptr);
+    }
+}
+
+bool ShipViewControl::MouseEvent(FWin3DMouseEvent const* Event)
+{
+    if (!bInventoryView)
+        return WinControl::MouseEvent(Event); // retail slot 19: JMP FUN_005a0650
+
+    // beta LAB_0057a860. Its left press is (1, 2); retail encodes it (-1, 2).
+    Win3D* const Owner = GetParent();
+    WinControl* const OwnerControl = (Owner != nullptr) ? Owner->AsWinControl() : nullptr;
+    if (Event->Field0 == -1 && Event->Field1 == 2)
+    {
+        if (Field4f0 != -1)
+        {
+            // Select the hovered item; the inventory brings its row up.
+            ViewFlags |= 0x10;
+            SelInstance = Field4f0;
+            if (OwnerControl != nullptr)
+                OwnerControl->SetProperty(0x15, static_cast<uintptr_t>(Field4f0), 0);
+        }
+        if (MountHardpoint != nullptr && OwnerControl != nullptr)
+        {
+            // Mount the selected item on the hovered hardpoint.
+            OwnerControl->SetProperty(0x16, reinterpret_cast<uintptr_t>(MountHardpoint),
+                                      reinterpret_cast<uintptr_t>(this));
+        }
+    }
+    // 0x0057a90a..0x0057a93e: on (x, 3) the beta also sends its parent (0x26, this, hover),
+    // the click message NN_Inventory matches against its buttons; retail's matches none of
+    // them for the ship view, so it is not sent.
+    WinControl::MouseEvent(Event); // beta FUN_00597470
+    return true;
+}
+#endif // FREELANCER_HUD_INVENTORY_VIEW

@@ -42,7 +42,12 @@ namespace
 
     wchar_t const kTargetSpace[] = L" ";         // DAT_005cef90
     wchar_t const kTargetUnknown[] = L" ????";   // u" ????" 0x005cef84
+#ifdef FREELANCER_JFLP
+    // Port-only (jflp.dll ADDR_ARROW): an en dash (U+2013) instead of the hyphen-minus.
+    wchar_t const kTargetArrow[] = L"\x2013>";
+#else
     wchar_t const kTargetArrow[] = L"->";        // DAT_005cef58 via PTR_DAT_0061155c
+#endif
 
     // DAT_0066d4e0 -- the 0x400-byte send buffer BinaryRDLWriter fills before SubmitChat.
     char G_ChatSendBuffer[0x400];

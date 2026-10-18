@@ -22,6 +22,8 @@
 #include "space_letterbox.h"
 #include "win3d.h" // Win3DGetHover (FUN_0059daa0)
 
+#include <string.h>
+
 namespace
 {
     // 0x0051eac1 and every other camera in the file use the same eight: a BaseWatcher stores a
@@ -39,6 +41,25 @@ namespace
     float G_MouseFlightHoldTimer = 0.0f;    // _DAT_00673550 -- seconds accumulated this hold
     bool G_MouseFlightEngaged = false;      // DAT_00673554 -- latched true once forwarded
     bool G_MouseFlightButtonTrigger = false;// DAT_00673555 -- OnMouseFlightRawMessage's one-shot
+#ifdef FREELANCER_JFLP
+    // Port-only (jflp.dll Roll_Hook): the roll mouse flight sends, the immediate at 0x004c7f14.
+    float G_JflpMouseFlightRoll = 0.0f;
+
+    // Roll_Hook on the call at 0x004c7940: a direction of (-0, -0, z) -- the keyboard steering
+    // with only the roll keys held -- keeps z; any other direction clears it.
+    void JflpCaptureRoll(float X, float Y, float Z)
+    {
+        unsigned BitsX;
+        unsigned BitsY;
+        memcpy(&BitsX, &X, sizeof(BitsX));
+        memcpy(&BitsY, &Y, sizeof(BitsY));
+        G_JflpMouseFlightRoll = (BitsX == 0x80000000u && BitsY == 0x80000000u) ? Z : 0.0f;
+    }
+
+    // The behavior-manager tail of FUN_004c78d0, without the capture: retail mouse flight has
+    // its own inlined copy (0x004c7eab..0x004c7f18), which the hook does not see.
+    void SetPlayerBehaviorDirectionGatedNoCapture(float X, float Y, float Z);
+#endif
     float G_MouseFlightOriginX = 0.0f;      // _DAT_00673558 -- cursor X latched at timer==0
     float G_MouseFlightOriginY = 0.0f;      // _DAT_0067355c -- cursor Y latched at timer==0 (same
                                              // invert-aware reading as every other cursor Y below)
@@ -236,7 +257,24 @@ float GetLastPlayerThrottle()
     return G_PlayerThrottle;
 }
 
+#ifdef FREELANCER_JFLP
 void SetPlayerBehaviorDirectionGated(float X, float Y, float Z)
+{
+    bool const bDirIsZero = (X == 0.0f) && (Y == 0.0f);
+    if (bDirIsZero || (!HudStatusIsTurretView() && !HudStatusIsRearView()))
+    {
+        if (PlayerBehaviorManager() != nullptr)
+            JflpCaptureRoll(X, Y, Z); // port-only, jflp.dll Roll_Hook
+    }
+    SetPlayerBehaviorDirectionGatedNoCapture(X, Y, Z);
+}
+
+namespace
+{
+void SetPlayerBehaviorDirectionGatedNoCapture(float X, float Y, float Z)
+#else
+void SetPlayerBehaviorDirectionGated(float X, float Y, float Z)
+#endif
 {
     // 0x004c78d0..0x004c790c: X and Y both compare equal to zero (TEST AH,0x44: NaN is not
     // zero), OR -- read only when they do not -- the HUD_Status bytes DAT_00674aa0+0x5b9 (turret
@@ -255,6 +293,9 @@ void SetPlayerBehaviorDirectionGated(float X, float Y, float Z)
         }
     }
 }
+#ifdef FREELANCER_JFLP
+} // namespace
+#endif
 
 bool GetPlayerEngineCruiseActive()
 {
@@ -409,7 +450,12 @@ void UpdateMouseFlightDirection()
         // 0x004c7eab..0x004c7f18: both zero (TEST AH,0x44 / JP|JNP: ordered-equal), or the
         // HUD_Status turret / rear view bytes clear -> the behavior manager's direction
         // {x, y, 0}. That is FUN_004c78d0's body, inlined here byte for byte.
+#ifdef FREELANCER_JFLP
+        // Port-only (jflp.dll): the roll of the roll keys instead of 0.
+        SetPlayerBehaviorDirectionGatedNoCapture(NormX, NormY, G_JflpMouseFlightRoll);
+#else
         SetPlayerBehaviorDirectionGated(NormX, NormY, 0.0f);
+#endif
 
         // 0x004c7f20: DAT_00673554 = 1.
         G_MouseFlightEngaged = true;

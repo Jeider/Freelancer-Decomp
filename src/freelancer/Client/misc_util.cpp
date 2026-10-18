@@ -390,8 +390,14 @@ int FmtStrSprintf(FmtStr const* Fmt, wchar_t* Dest, int DestChars)
                     break;
                 MiscUtilAppendIds(&Cursor, End, 0x331b);
                 MiscUtilAppendIds(&Cursor, End, 1);
+#ifdef FREELANCER_JFLP
+                // Port-only: the letter first, as jflp.dll does in the branch below.
+                MiscUtilAppendIds(&Cursor, End, ((ZoneId >> 3) & 7) + 0x506);
+                MiscUtilAppendIds(&Cursor, End, (ZoneId & 7) + 0x514);
+#else
                 MiscUtilAppendIds(&Cursor, End, (ZoneId & 7) + 0x514);
                 MiscUtilAppendIds(&Cursor, End, ((ZoneId >> 3) & 7) + 0x506);
+#endif
                 break;
             }
             if (Zone != nullptr)
@@ -409,8 +415,15 @@ int FmtStrSprintf(FmtStr const* Fmt, wchar_t* Dest, int DestChars)
                 break;
             MiscUtilAppendIds(&Cursor, End, static_cast<unsigned>(Variant * 200) + 0x50fa0);
             MiscUtilAppendIds(&Cursor, End, 1);
+#ifdef FREELANCER_JFLP
+            // Port-only (jflp.dll ADDR_LETTER2a/b, the pushes at 0x0041d1e6 / 0x0041d250
+            // swapped): the column letter before the row digit.
+            MiscUtilAppendIds(&Cursor, End, ((ZoneId >> 3) & 7) + 0x506);
+            MiscUtilAppendIds(&Cursor, End, (ZoneId & 7) + 0x514);
+#else
             MiscUtilAppendIds(&Cursor, End, (ZoneId & 7) + 0x514);
             MiscUtilAppendIds(&Cursor, End, ((ZoneId >> 3) & 7) + 0x506); // FUN_0041d5b0 call
+#endif
             break;
         }
 

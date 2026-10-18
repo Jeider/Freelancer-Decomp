@@ -32,6 +32,9 @@
 #include "player_behavior.h" // GetPlayerObjRW (the DAT_00679744 - 8 read, FUN_0054baf0)
 #include "star_sys.h"        // StarSysGetFogColor (FUN_005552e0)
 #include "widescreen.h"      // port-only Hor+ (FREELANCER_WIDESCREEN_SUPPORT)
+#ifdef FREELANCER_JFLP
+#include "win3d.h"           // Win3DGetCamera (DAT_0067dbf8), jflp's WinCamera test
+#endif
 
 #include "dacom.h"
 #include "common_csys.h"     // Acquire3DMathEngine (FUN_005b73e0)
@@ -174,7 +177,18 @@ namespace
             // half-angle times DAT_005c77f4. Its quotient by the live aspect (+0xa0) is stored
             // as a float local and the unrounded one feeds FPATAN for +0x9c; the X plane and
             // XScale use the unrounded tangent, the Y plane and YScale the stored float.
+#ifdef FREELANCER_JFLP
+            // Port-only (jflp.dll Fovx_Hook on the atof at 0x0040f617): fovx is always the
+            // default -- 54.432 for the Win3D camera DAT_0067dbf8, 70 for the rest -- unless the
+            // value is non-zero and ends in '!' ("fovx = 70!"). jflp then widens it for the
+            // surface (calc_fovx); here the Hor+ factor below does that, so the 4:3 angle stays.
+            double FullFovX = atof(Value);
+            if (FullFovX == 0.0 || strchr(Value, '!') == nullptr)
+                FullFovX = (Cam == Win3DGetCamera()) ? 54.432 : 70.0;
+            const double HalfFovX = FullFovX * kFullFovToHalf;
+#else
             const double HalfFovX = atof(Value) * kFullFovToHalf;
+#endif
             Cam->HalfFovXDeg = static_cast<float>(HalfFovX);
             double TanX = tan(HalfFovX * static_cast<double>(kDegreesToRadians));
 #ifdef FREELANCER_WIDESCREEN_SUPPORT

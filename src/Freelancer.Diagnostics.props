@@ -7,5 +7,9 @@
     <FreelancerWidescreenSupport>1</FreelancerWidescreenSupport>
     <FreelancerRp9>0</FreelancerRp9>
     <FreelancerWalkMode>1</FreelancerWalkMode>
+    <FreelancerHudTargetView>1</FreelancerHudTargetView>
+    <FreelancerHudStatusView>1</FreelancerHudStatusView>
+    <FreelancerHudInventoryView>1</FreelancerHudInventoryView>
+    <FreelancerJflp>1</FreelancerJflp>
   </PropertyGroup>
 </Project>

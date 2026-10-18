@@ -196,6 +196,24 @@ public:
     // to the filter mode of that hardpoint's type first; the previous selection is restored
     // when no row matches.
     void SelectHardpoint(char const* Name);
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    // Port-only, the HudInventory.dll plugin (docs/hud_plugins.md): the ship view mode of the
+    // inventory -- a toggle swaps the item list for the ship view with its hardpoints.
+    // InventoryInit / InventoryCreate (hook 0x0047921d): the ShipView_Toggle / Shipview_Frame /
+    // ShipView_DamageBar / ShipView_Name / ShipView_Info controls BindControls looks up, then
+    // the ShipView_Control switched to the plugin's behaviour.
+    void CreateShipViewModeControls();
+    // InventoryPressShipView (hook 0x0047d576): +0x4e2 = the toggle's state (slot 42 0x2f);
+    // off clears +0x4e0 / +0x4e1; then PlaceShipView(+0x4e2).
+    void UpdateShipViewMode();
+    // InventoryPlaceShipView (the call at 0x0047dde2): show (bit 0 of Show) or hide the name,
+    // the frame, the damage bar and the view; re-point the view's selected instance at the
+    // selected item's hardpoint.
+    void PlaceShipView(unsigned char Show);
+    // InventoryPickShipView (the call at 0x0047a32a): select the row of the item on Hardpoint,
+    // switching the filter page to the hardpoint's group and scrolling to it.
+    void PickShipViewHardpoint(char const* Hardpoint);
+#endif
     // FUN_0047e650 -- the jettison button: drop the selected unmounted item at once when it is a
     // single one, otherwise open the quantity controls.
     void JettisonSelected();

@@ -50,6 +50,7 @@
 // offsets from +0x4c8 on are retail's for reference only (no retail ABI, AGENTS.md).
 
 #include "wincontrol_base.h"
+#include "win3d.h"
 
 #include "space_camera.h"
 
@@ -64,6 +65,7 @@
 
 struct FEngineLight;
 struct FEquipVisualSet;
+struct FHudSpherePick;
 
 namespace Archetype
 {
@@ -95,6 +97,13 @@ int ShipViewHpTypeClass(int HpType);
 int ShipViewHpTypeTableCount();
 // FUN_00584720 -- DAT_00615240[Index].HpType, 0 outside 0..0x3b.
 int ShipViewHpTypeTableType(int Index);
+
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+// Port-only (HudInventory.dll Load): read DATA\INTERFACE\HudInventory.ini again -- always, or
+// with bOnlyWhenDebug only while its "debug = true" is set (the plugin's reload on every
+// inventory open). The first ship view draw loads it once in any case.
+void HudInventoryReloadConfig(bool bOnlyWhenDebug);
+#endif
 
 class ShipViewControl : public WinControl
 {
@@ -182,6 +191,52 @@ public:
     // FUN_00587070 (RET 4) -- &+0x560[Index], null out of range.
     FShipViewHpEntry const* GetHardpointListEntry(int Index) const;
 
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    // Port-only (docs/hud_plugins.md): the inventory's ship view mode -- the mounted equipment
+    // and the free hardpoints, both pickable -- after the beta client's ShipViewControl
+    // (freelancer.exe of 2002-09-16, vftable 0x005cc0fc), whose state retail still keeps:
+    // Field4f0 the hovered item (-1: none), SelHpClass .. SelInstance and ViewFlags bits 4 / 5
+    // the selection NN_Inventory sets, Color4c4 the highlight. bInventoryView marks the
+    // inventory's own ShipView_Control (the beta skipped this only with +0x4f9 bit 0).
+
+    // beta LAB_0057a860 (slot 19): a left press selects the hovered item (parent message 0x15)
+    // and mounts the selected item on the hovered hardpoint (0x16); always true.
+    bool MouseEvent(FWin3DMouseEvent const* Event) override;
+    // LAB_00584740 -- the retail Update, which Update runs first.
+    void UpdateRetail();
+    // beta 0x0057ae3c..0x0057b148 (slot 11's tail): hover pick, mount sound, tool tip.
+    void UpdateInventoryHover();
+    // Plugin: the HudInventory.ini ship = entries (radius / centre of the framed hull),
+    // applied before every draw.
+    void ApplyInventoryModelOverride();
+    // beta 0x0057a550..0x0057a696 (slot 13): the page's equipment, hover and selection tinted,
+    // then the hardpoint markers.
+    void DrawInventoryEquipment();
+    // beta FUN_0057ce00.
+    void DrawInventoryPageEquipment();
+    // beta FUN_0042dce0 (retail FUN_00434630) in the view camera.
+    void DrawInventoryTinted(long Mesh, unsigned char const* Rgba);
+    // beta FUN_0057c520 (bItem) / FUN_0057ca30: place and colour the markers to draw.
+    void PlaceInventoryMarkers(bool bItem, std::vector<FClientMeshHolder*>& Out);
+    // beta FUN_0057bef0: the mounted item under the mouse, -1 for none.
+    long PickInventoryEquipment();
+    // beta FUN_0057c1e0: the free hardpoint under the mouse -- of the page for HpClass 0,
+    // else one the item fits; null for none.
+    char const* PickInventoryHardpoint(int HpClass, Archetype::Equipment const* Weapon,
+                                       Archetype::Equipment const* Shield);
+    // beta 0x0057c33d..0x0057c414: the item fits the hardpoint whose HpTypes were collected.
+    bool InventoryItemFits(int HpClass, Archetype::Equipment const* Weapon,
+                           Archetype::Equipment const* Shield) const;
+    // beta FUN_0057d740(Mode) for Mode 0 / 1: the collected hardpoint is on the page shown.
+    bool IsInventoryPageHardpoint() const;
+    // beta 0x0057bf10..0x0057bf7e: the mouse ray.
+    void SetupInventoryPick(FHudSpherePick& Pick);
+    // Plugin ShipViewFactor: the hull radius / 45, at least 0.45 (large-ship picking).
+    float GetInventoryPickFactor() const;
+    // Plugin: the draw scale of an item on a hull of radius 80+.
+    float GetInventoryEquipmentScale(long Mesh) const;
+#endif
+
     ID_String ShipId;                          // +0x32c
     FClientMeshHolder ShipHolder;              // +0x330
     float ObjectOrientation[9];                // +0x358
@@ -225,6 +280,16 @@ public:
     std::vector<int> HpTypes;                  // +0x54c
     unsigned char Byte55c;                     // +0x55c -- ctor 0
     std::vector<FShipViewHpEntry> HpList;      // +0x560
+
+#ifdef FREELANCER_HUD_INVENTORY_VIEW
+    // Port-only, past the retail layout (see the methods above).
+    bool bInventoryView = false;
+    bool bInventoryMountSound = false;     // beta +0x524
+    bool bInventoryToolTip = false;        // beta ViewFlags bit 1
+    unsigned ModelPathId = 0;              // CreateID of the hull LoadMesh loaded
+    char const* MountHardpoint = nullptr;  // beta +0x4d4 -- the click mounts here
+    char const* TipHardpoint = nullptr;    // beta +0x4d8 -- under the mouse, no item selected
+#endif
 
 private:
     ShipViewControl(ShipViewControl const&) = delete;

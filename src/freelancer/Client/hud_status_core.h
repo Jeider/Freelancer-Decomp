@@ -169,6 +169,12 @@ public:
     // HUDItem slot 13 LAB_004db120 (RET 4) -- SetProperty(1, bHide, 0) on the weapon rows and
     // the scroll bar (while Field5a0), then on ViewPanel and CloseButton.
     void Slot13(bool bHide) override;
+#ifdef FREELANCER_HUD_STATUS_VIEW
+    // Port-only (HudStatus.dll writes it into the retail vftable slot 0x005d85f4, which is
+    // HUD_Target_Base's empty FUN_00401e90): the player ship's damage view, drawn by
+    // HudTargetBase::Draw right after ViewPanel.
+    void Slot14() override;
+#endif
 
     // WinControl slot 19 LAB_004db8f0 (RET 4) -- a right click (-1, 2) on a sub-target toggles
     // that launcher.

@@ -10,6 +10,9 @@
 #include "DALib.h"
 #include "common_misc.h" // GetScreenShotPath
 #include "dacom.h"
+#ifdef FREELANCER_JFLP
+#include "globals.h"               // g_display, G_RenderMgrWindow, RenderMgrCreateBuffers
+#endif
 #include "hud_command_dispatch.h"
 #include "nn_pause.h"              // NnPauseOpen (FUN_004a75c0)
 #include "render/IRenderPipeline.h"
@@ -17,6 +20,7 @@
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 namespace
 {
@@ -78,6 +82,19 @@ namespace
             // caseD_cb (005b2470): FUN_00425170, falls into caseD_15's `MOV AL,1`.
             TakeClientScreenShot();
             return true;
+#ifdef FREELANCER_JFLP
+        case kUserFullscreen:
+        {
+            // Port-only (jflp.dll ToggleFullScreen, wired through table byte 005b2497 = 0x33):
+            // the current mode with the fullscreen flag (+0x25) flipped, through FUN_004249c0
+            // into the options object.
+            DisplaySettings NewMode;
+            memcpy(&NewMode, &g_display, sizeof(NewMode));
+            NewMode.fullscreen = static_cast<char>(NewMode.fullscreen ^ 1);
+            RenderMgrCreateBuffers(G_RenderMgrWindow, &NewMode, &g_display);
+            return true;
+        }
+#endif
         default:
             // USER_FULLSCREEN (0x17) is registered but its table byte (005b2497 = 4) sends it to
             // the shared `XOR AL,AL` arm (005b247a), like every unlisted id.

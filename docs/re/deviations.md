@@ -33,6 +33,22 @@ The port with the define:
 
 Known leftovers: full-screen 2D elements other than the loading picture are stretched; drawing inside corner windows that counts pixels from the surface width without a camera is not shifted; the LOD threshold in `RendComp` (viewport width / XScale) picks a slightly coarser LOD on a wide screen than 4:3 of the same height.
 
+## Client: HudTarget / HudStatus / HudInventory plugin behaviour (HUD-PLUGINS, 2026-10-18)
+
+Status: OPEN — intentional port-only features, requested in the Jeider/Freelancer-Decomp fork. Owner: that fork's maintainer; freelancer.exe / Client. Removal condition: only an explicit instruction of the owner. Every change is under `FREELANCER_HUD_TARGET_VIEW`, `FREELANCER_HUD_STATUS_VIEW` or `FREELANCER_HUD_INVENTORY_VIEW`; with the three properties at 0 the client is retail. Description, patch table and data: [../hud_plugins.md](../hud_plugins.md).
+
+Retail: HUD_Target shows the target view only in mode 1 (`0x004e3ce0`), a contact-list double click switches to it (`0x004cfe75`), Update swaps the panel's controls between the modes (`0x004e1f85..0x004e215c`); HUD_Status's HUDItem slot 14 is HUD_Target_Base's empty `FUN_00401e90` (vftable `0x005d85f4`); NN_Inventory binds `ShipView_Toggle` / `Shipview_Frame` / `ShipView_DamageBar` / `ShipView_Name` (`0x0047b976..`) without creating them, its calls at `0x0047a790` / `0x0047dde2` go into the empty `LAB_0053e4a0`, ShipViewControl keeps hover fields `+0x4f0` / `+0x4f8` and the mount-point markers `+0x538` that nothing reads or draws; `SetInstance` puts a fixed-distance camera at 14 (`0x005855c2`).
+
+Port with the defines: `hud_contact_list.cpp`, `hud_target_panel.cpp` (the HudTarget.dll byte patches as source), `hud_status_core.cpp` (`HUD_Status::Slot14`), `nn_inventory.cpp` / `ship_view_control.cpp` (the HudInventory.dll hooks; the ship view's Draw / Update / MouseEvent ported from the 2002-09-16 beta freelancer.exe's ShipViewControl, vftable `0x005cc0fc`, which reads the retail-kept hover / selection state). Known differences from the plugins and the beta are listed in the feature document; nothing of it has been compiled or run yet.
+
+## Client / Common: jflp.dll behaviour (JFLP, 2026-10-18)
+
+Status: OPEN — intentional port-only features, requested in the Jeider/Freelancer-Decomp fork. Owner: that fork's maintainer; freelancer.exe / Client and Common.dll. Removal condition: only an explicit instruction of the owner. Every change is under `FREELANCER_JFLP` (`FreelancerJflp`); at 0 the client and Common.dll are retail. Description, patch table and what is not ported: [../jflp.md](../jflp.md).
+
+Retail: the info card and `FUN_00484090` have no stats for Power / Engine / Scanner / Tractor / Armor; sectors read "4C" (`FUN_0048dc10`, `%Z`); the arrow is `L"->"` (`DAT_005cef58`); `USER_FULLSCREEN` is registered but unhandled (`0x005b2497`); mouse flight sends roll 0 (`0x004c7f10`); `CStrafeEngine` knows four directions (`0x062bb9a8`); server rows of another version are not selectable (`0x005711a1`); on entering space group 0 is either stored+made current or activated (`0x004db6a4`).
+
+Port with the define: the jflp.dll v1.27 behaviour in `nn_inventory.cpp`, `dealer_equip_stats.cpp`, `hud_target.cpp`, `misc_util.cpp`, `ids_strings.cpp`, `chat_text_input.cpp`, `main_command_handler.cpp`, `player_behavior.cpp`, `page_server_select.cpp`, `hud_status_core.cpp`, `Common/common_csteering.cpp`. The sector swap is applied to both `%Z` branches (jflp swaps only the override branch). Compiled, not yet run.
+
 ## SoundManager / SoundStreamer: Fraunhofer ACM (decode only) (SOUND-ACM-DECODE-ONLY, 2026-10-10)
 
 Status: OPEN — intentional deviation at the owner's direct request. Owner: Giperion; SoundManager.dll / SoundStreamer.dll. Removal condition: only an explicit instruction from Giperion; do not close on a routine retail-conformance audit.

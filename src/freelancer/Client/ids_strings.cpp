@@ -363,8 +363,14 @@ int FormatFmtStrMadLib(FmtStr const* Fmt, wchar_t* Dest, int DestChars, bool bIn
                     {
                         AppendIdsStringOrWarn(&Cursor, End, 0x331b);
                         AppendIdsStringOrWarn(&Cursor, End, 1);
+#ifdef FREELANCER_JFLP
+                        // Port-only: the letter first, as jflp.dll does in the branch below.
+                        AppendIdsStringOrWarn(&Cursor, End, ((Zone >> 3) & 7) + 0x506);
+                        AppendIdsStringOrWarn(&Cursor, End, (Zone & 7) + 0x514);
+#else
                         AppendIdsStringOrWarn(&Cursor, End, (Zone & 7) + 0x514);
                         AppendIdsStringOrWarn(&Cursor, End, ((Zone >> 3) & 7) + 0x506);
+#endif
                     }
                 }
                 else
@@ -377,8 +383,15 @@ int FormatFmtStrMadLib(FmtStr const* Fmt, wchar_t* Dest, int DestChars, bool bIn
                     {
                         AppendIdsStringOrWarn(&Cursor, End, Override * 0xc8 + 0x50fa0);
                         AppendIdsStringOrWarn(&Cursor, End, 1);
+#ifdef FREELANCER_JFLP
+                        // Port-only (jflp.dll ADDR_LETTER3a/b, the pushes at 0x004baee8 /
+                        // 0x004baf52 swapped): the column letter before the row digit.
+                        AppendIdsStringOrWarn(&Cursor, End, ((Zone >> 3) & 7) + 0x506);
+                        AppendIdsStringOrWarn(&Cursor, End, (Zone & 7) + 0x514);
+#else
                         AppendIdsStringOrWarn(&Cursor, End, (Zone & 7) + 0x514);
                         AppendIdsStringOrWarn(&Cursor, End, ((Zone >> 3) & 7) + 0x506);
+#endif
                     }
                 }
             }

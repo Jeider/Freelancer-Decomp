@@ -738,10 +738,13 @@ void HudTarget::Slot14()
     {
         return;
     }
+#ifndef FREELANCER_HUD_TARGET_VIEW
+    // Port-only switch (HudTarget.dll, 0x004e3ce0 JNZ -> NOP): the view is drawn in every mode.
     if (Mode != 1)
     {
         return;
     }
+#endif
 
     // 0x004e3ce6: the GL viewport saved (FUN_00422390, GL_VIEWPORT), the view camera pointed at
     // the object (FUN_004e70e0, the fixed orbit when option 0xc is set, shifted -0.0125 screens).
@@ -1324,8 +1327,12 @@ void HudTarget::Update()
         }
     }
 
+#ifndef FREELANCER_HUD_TARGET_VIEW
     if (Mode != ShownMode)
+#endif
     {
+        // Port-only switch (HudTarget.dll, 0x004e1f91 JZ -> NOP NOP): ShownMode no longer
+        // follows Mode below, so the switch buttons are refreshed every frame.
         ContactListButton->SetProperty(0xc, Mode == 0 ? 1 : 0, 0);
         TargetButton->SetProperty(0xc, Mode == 1 ? 1 : 0, 0);
         FormationButton->SetProperty(0xc, Mode == 2 ? 1 : 0, 0);
@@ -1343,7 +1350,14 @@ void HudTarget::Update()
         }
     }
 
+#ifdef FREELANCER_HUD_TARGET_VIEW
+    // Port-only (HudTarget.dll, 0x004e203e JZ -> NOP JMP and 0x004e20ff JZ -> JMP): both mode
+    // transitions below are skipped, so the expanded panel keeps the target details (name,
+    // sub-target, rank, the sub-target and trade buttons) next to the contact / formation list.
+    if (false)
+#else
     if (bExpanded != 0 && Mode != 1)
+#endif
     {
         if (ShownMode == 1)
         {
@@ -1367,7 +1381,11 @@ void HudTarget::Update()
         return;
     }
 
+#ifdef FREELANCER_HUD_TARGET_VIEW
+    if (false)
+#else
     if (bExpanded != 0 && ShownMode != 1)
+#endif
     {
         ShownMode = Mode;
         SetFlagBits(ShipName);
@@ -1507,7 +1525,13 @@ void HudTarget::OnScaleFinished()
         SetFlagBits(ContactListButton);
         SetFlagBits(TargetButton);
         SetFlagBits(NextEnemyButton);
+#ifdef FREELANCER_HUD_TARGET_VIEW
+        // Port-only (HudTarget.dll, 0x004e36da OR -> XOR): the second write clears the bits the
+        // first one set -- "Switch to target" is hidden, the view is always there.
+        ClearFlagBits(TargetButton);
+#else
         SetFlagBits(TargetButton); // retail sets +0x63c twice (0x004e36c2 / 0x004e36d4)
+#endif
         FormationButton->SetProperty(1, bFormationAvailable == 0 ? 1 : 0, 0);
         ContactListButton->SetProperty(0xc, Mode == 0 ? 1 : 0, 0);
         TargetButton->SetProperty(0xc, Mode == 1 ? 1 : 0, 0);

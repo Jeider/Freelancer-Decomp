@@ -11,6 +11,18 @@
     <FreelancerRp9 Condition="'$(FreelancerRp9)'==''">0</FreelancerRp9>
     <!-- Port-only walk mode in base rooms (docs/walk_mode.md), FREELANCER_WALK_MODE; off by default. -->
     <FreelancerWalkMode Condition="'$(FreelancerWalkMode)'==''">0</FreelancerWalkMode>
+    <!-- Port-only HUD_Target layout of the HudTarget.dll plugin (docs/hud_plugins.md),
+         FREELANCER_HUD_TARGET_VIEW; off by default. -->
+    <FreelancerHudTargetView Condition="'$(FreelancerHudTargetView)'==''">0</FreelancerHudTargetView>
+    <!-- Port-only ship view in HUD_Status of the HudStatus.dll plugin (docs/hud_plugins.md),
+         FREELANCER_HUD_STATUS_VIEW; off by default. -->
+    <FreelancerHudStatusView Condition="'$(FreelancerHudStatusView)'==''">0</FreelancerHudStatusView>
+    <!-- Port-only ship view mode of NN_Inventory from the HudInventory.dll plugin
+         (docs/hud_plugins.md), FREELANCER_HUD_INVENTORY_VIEW; off by default. -->
+    <FreelancerHudInventoryView Condition="'$(FreelancerHudInventoryView)'==''">0</FreelancerHudInventoryView>
+    <!-- Port-only behaviour of Jason Hood's jflp.dll (docs/jflp.md), FREELANCER_JFLP in the
+         client and Common.dll; off by default. -->
+    <FreelancerJflp Condition="'$(FreelancerJflp)'==''">0</FreelancerJflp>
     <PlatformToolset>v143</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <CharacterSet>MultiByte</CharacterSet>

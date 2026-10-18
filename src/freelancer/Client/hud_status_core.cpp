@@ -45,6 +45,11 @@
 #include "ui_scroll.h"
 #include "win3d.h"
 #include "x86math.h"
+#ifdef FREELANCER_HUD_STATUS_VIEW
+#include "part_cache.h"       // PartCacheDraw (FUN_00406510)
+#include "win3d_immediate.h"  // Win3DGetViewport (FUN_00422390), Win3DSetViewportRect (FUN_00421620)
+#include "win3d_render.h"     // Win3DApplyCamera (FUN_00422950)
+#endif
 
 #include <math.h>
 #include <cstdio>
@@ -680,6 +685,36 @@ void HUD_Status::Slot13(bool bHide)
     ViewPanel->SetProperty(1, Hide, 0);
     CloseButton->SetProperty(1, Hide, 0);
 }
+
+#ifdef FREELANCER_HUD_STATUS_VIEW
+void HUD_Status::Slot14()
+{
+    // Port-only, from HudStatus.dll (0x00418d90): HUD_Target::Slot14's part-cache branch
+    // (FUN_004e3c90 0x004e3ce6..0x004e3ed2) for the status panel's view object, the player ship.
+    // Gated by option 0xa ("HUD") rather than 0xb, always the fixed orbit, no wire sphere, no
+    // scan sweep and no sub-target bracket.
+    if (GetGameOption(kGameOptHud) == 0)
+    {
+        return;
+    }
+    IObjRW* const View = ObjRwFromWatchable(const_cast<Watchable*>(ViewObject.target()));
+    if (View == nullptr)
+    {
+        return;
+    }
+
+    int SavedViewport[4];
+    Win3DGetViewport(0xba2, SavedViewport);
+    SetupViewCamera(true, -0.0125f);
+    ColourViewParts();
+    PartCacheDraw(&PartCache, AsCamera(&ViewCamera),
+                  reinterpret_cast<FTransform const*>(&View->get_transform()));
+
+    Win3DApplyCamera(AsCamera(Win3DGetCamera()));
+    Win3DSetViewportRect(SavedViewport[0], SavedViewport[1], SavedViewport[2], SavedViewport[3],
+                         "E:\\FL\\Scratch\\Source\\Client\\space\\HUD_Target.cpp", 0x642);
+}
+#endif
 
 bool HUD_Status::Create(Win3D* NewParent, void* Data)
 {
@@ -1535,6 +1570,14 @@ void HUD_Status::Update()
         if (Byte500 != 0 && ObjRwFromWatchable(const_cast<Watchable*>(ViewObject.target())) != nullptr)
         {
             Byte500 = 0;
+#ifdef FREELANCER_JFLP
+            // Port-only (jflp.dll ADDR_WG1/WG2, from Whiskas): group 0 is also made current and
+            // activated when it exists, and activated after being stored.
+            if (G_WeaponGroups.FindGroupIndex(0) == -1) // FUN_004f5540
+                G_WeaponGroups.StoreActive(0);          // FUN_004f5580
+            G_WeaponGroups.SetCurrent(0);               // FUN_004f6180
+            G_WeaponGroups.Activate(0);                 // FUN_004f5920
+#else
             if (G_WeaponGroups.FindGroupIndex(0) == -1) // FUN_004f5540
             {
                 G_WeaponGroups.StoreActive(0);          // FUN_004f5580
@@ -1544,6 +1587,7 @@ void HUD_Status::Update()
             {
                 G_WeaponGroups.Activate(0);             // FUN_004f5920
             }
+#endif
         }
 
         // 0x004db6be..0x004db6f0: with a live HUDItem target, the rest runs once Field588 (plus
