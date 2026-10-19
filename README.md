@@ -77,21 +77,3 @@ The source code of Freelancer Decomp is released into the public domain under
 the vendored libraries under `src\` (`src\zlib\vendor`, `src\qhull\vendor`) keep their own
 licenses, and the retail files (`EBUEula.dll`, `EULA.RTF`, `EXE\gundll.dll`) and the game data
 remain the property of their respective owners.
-
-## Support the project
-
-If you would like to support the work on Freelancer Decomp, donations are welcome:
-
-| Currency (network) | Address |
-|---|---|
-| USDT (BEP20) | `0x3bedb75137d850b8f24a42f488459a6a94489105` |
-| USDT (TRC20) | `TZA2s2A7m8rCuXgDsMJs7XhyoZmX7BBc6j` |
-| Bitcoin (BTC) | `1JooBx2a86hNhqdU7uYiKAfxaHVHBqD1wV` |
-| ETH (ERC20) | `0x3bedb75137d850b8f24a42f488459a6a94489105` |
-
-Send only the currency listed on a line, over the network listed next to it.
-
-## Contacts
-
-- Discord: `@Giperion`
-- Email: [gipdereline@gmail.com](mailto:gipdereline@gmail.com)
