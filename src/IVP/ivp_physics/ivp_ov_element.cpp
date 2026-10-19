@@ -1244,15 +1244,53 @@ IVP_Mindist_Manager::~IVP_Mindist_Manager()
     // :0635041b-:06350445 -- ~IVP_U_Vector of +0x0c (the member's destructor).
 }
 
+// TEMP collision diagnostics (remove): broadphase counters, dumped to ivpdiag.txt every 2 s.
+extern "C" __declspec(dllimport) unsigned long __stdcall GetTickCount(void);
+namespace
+{
+    struct FIvpDiag
+    {
+        unsigned Calls, Reentrant, NoElement, Touching, BothStatic, SameCore, CoreFlags, Filtered,
+            Existing, NewPartners, Claimed, Unclaimed, Delegators, MovableCalls;
+        float MinBound, MaxBound;
+    } G_IvpDiag = {};
+    unsigned long G_IvpDiagLast = 0;
+
+    void IvpDiagFlush()
+    {
+        unsigned long const Now = GetTickCount();
+        if (Now - G_IvpDiagLast < 2000)
+            return;
+        G_IvpDiagLast = Now;
+        if (FILE* F = std::fopen("ivpdiag.txt", "a"))
+        {
+            FIvpDiag const& D = G_IvpDiag;
+            std::fprintf(F, "t=%lu calls %u reentrant %u noelem %u movable %u touching %u bothstatic %u samecore %u coreflags %u filtered %u existing %u new %u claimed %u unclaimed %u delegators %u bound %.1f..%.1f\n",
+                         Now, D.Calls, D.Reentrant, D.NoElement, D.MovableCalls, D.Touching, D.BothStatic, D.SameCore,
+                         D.CoreFlags, D.Filtered, D.Existing, D.NewPartners, D.Claimed, D.Unclaimed,
+                         D.Delegators, D.MinBound, D.MaxBound);
+            std::fclose(F);
+        }
+        G_IvpDiag = FIvpDiag();
+    }
+}
+
 void IVP_Mindist_Manager::RecheckOvElement(IVP_Real_Object* Object)
 {
+    IvpDiagFlush();
+    ++G_IvpDiag.Calls;
+    if ((Object->flags & 0x7u) != 0)
+        ++G_IvpDiag.MovableCalls;
     // :0634ebed-:0634ec0f -- a 128-slot stack vector with its buffer inline
     // right behind the header, which is exactly IVP_U_Vector_Fixed.
     IVP_U_Vector_Fixed<IVP_OV_Element, 128> TouchingElements;
 
     IVP_OV_Element* Element = Object->ov_element; // :0634ec1e
     if (Element == nullptr)                       // :0634ec31 -> LAB_0634f10b
+    {
+        ++G_IvpDiag.NoElement;
         return;                                   // retail only runs the vector destructor here.
+    }
 
     IVP_OV_Tree_Manager* Tree = environment->ov_tree_manager; // :0634ec37
     IVP_Core* Core = Object->core; // :0634ec3d
@@ -1274,6 +1312,7 @@ void IVP_Mindist_Manager::RecheckOvElement(IVP_Real_Object* Object)
 
     if (InListenerCallback != 0) // :0634ec81 -> LAB_0634f0e1
     {
+        ++G_IvpDiag.Reentrant;
         // Re-entrant path: we are inside the +0x2c listener's own callback, so
         // do the bare minimum -- re-file at the core's own radius, collecting
         // nothing, and re-key the hull entry with a pure epsilon bias.
@@ -1318,6 +1357,11 @@ void IVP_Mindist_Manager::RecheckOvElement(IVP_Real_Object* Object)
     // :0634ecd1-:0634ecfe. Re-file, then re-key the hull entry with the
     // difference between the new extrapolated radius and the core's own.
     const float NewRadius = Tree->insert_ov_element(Element, Bound, Bound, &TouchingElements);
+    G_IvpDiag.Touching += TouchingElements.n_elems;
+    if (G_IvpDiag.MinBound == 0.0f || Bound < G_IvpDiag.MinBound)
+        G_IvpDiag.MinBound = Bound;
+    if (Bound > G_IvpDiag.MaxBound)
+        G_IvpDiag.MaxBound = Bound;
     Element->InsertIntoHullManager(HullMgr, NewRadius - Core->UpperLimitRadius);
 
     // ---- build an open-addressed index of the EXISTING collision records ----
@@ -1412,12 +1456,18 @@ void IVP_Mindist_Manager::RecheckOvElement(IVP_Real_Object* Object)
 
         // :0634ee64-:0634ee6e -- at least one of the two has to be movable.
         if ((Object->flags & 0x7u) == 0 && (OtherObj->flags & 0x7u) == 0)
+        {
+            ++G_IvpDiag.BothStatic;
             continue;
+        }
 
         // :0634ee74-:0634ee80 -- objects sharing an original core never
         // collide with each other.
         if (Object->original_core == OtherObj->original_core)
+        {
+            ++G_IvpDiag.SameCore;
             continue;
+        }
 
         // :0634ee86-:0634eecb -- two asymmetric core-flag gates. 0x300 and 0xc
         // are two disjoint pairs of state bits; a 0x300 object refuses both a
@@ -1430,21 +1480,33 @@ void IVP_Mindist_Manager::RecheckOvElement(IVP_Real_Object* Object)
         if ((FlagsA & 0x300u) != 0)
         {
             if ((OtherObj->core->Flags & 0x300u) != 0)
+            {
+                ++G_IvpDiag.CoreFlags;
                 continue;
+            }
             if ((CoreA->Flags & 0x300u) != 0 && (OtherObj->core->Flags & 0x0cu) != 0)
+            {
+                ++G_IvpDiag.CoreFlags;
                 continue;
+            }
         }
         if ((FlagsA & 0x0cu) != 0)
         {
             if ((OtherObj->core->Flags & 0x300u) != 0)
+            {
+                ++G_IvpDiag.CoreFlags;
                 continue;
+            }
         }
 
         // :0634eed1-:0634eedd -- and finally the environment's own pairwise
         // filter.
         // Slot 0 (`CALL [EDX]`), IVP_Collision_Filter::check_objects_for_collision_detection.
         if (PairFilter->check_objects_for_collision_detection(Object, OtherObj) == 0)
+        {
+            ++G_IvpDiag.Filtered;
             continue;
+        }
 
         // :0634eee3-:0634ef39 -- look the partner up in the table. The lookup
         // key is the partner pointer itself, because the build-side XOR above
@@ -1467,6 +1529,7 @@ void IVP_Mindist_Manager::RecheckOvElement(IVP_Real_Object* Object)
         {
             // LAB_0634efaf -- no record yet, remember the partner.
             NewPartners.Add(OtherObj); // :0634efaf-:0634efd5
+            ++G_IvpDiag.NewPartners;
             continue;
         }
 
@@ -1489,6 +1552,7 @@ void IVP_Mindist_Manager::RecheckOvElement(IVP_Real_Object* Object)
             SwapCollisionSlots(&Element->collision_fvector, KeptCount, Found); // :0634ef99
         }
         ++KeptCount; // :0634efa6
+        ++G_IvpDiag.Existing;
     }
 
     // :0634eff1-:0634f018 -- everything past the cursor is no longer in range.
@@ -1505,6 +1569,8 @@ void IVP_Mindist_Manager::RecheckOvElement(IVP_Real_Object* Object)
     for (int32_t B = static_cast<int32_t>(NewPartners.n_elems) - 1; B >= 0; --B)
     {
         IVP_Real_Object* NewObj = NewPartners.elems[B]; // :0634f02a-:0634f02e
+        G_IvpDiag.Delegators = environment->vector_12c.n_elems;
+        bool bClaimedDiag = false;
         for (int32_t D = static_cast<int32_t>(environment->vector_12c.n_elems) - 1; D >= 0; --D)
         {
             IVP_Collision_Delegator_Root* Delegator =
@@ -1512,8 +1578,15 @@ void IVP_Mindist_Manager::RecheckOvElement(IVP_Real_Object* Object)
             IVP_Collision* Claimed =
                 Delegator->delegate_collisions_for_object(Object, NewObj); // :0634f054 (`CALL [EDX+0x14]`, slot 5)
             if (Claimed != nullptr)             // :0634f057/:0634f059
+            {
+                bClaimedDiag = true;
                 break;
+            }
         }
+        if (bClaimedDiag)
+            ++G_IvpDiag.Claimed;
+        else
+            ++G_IvpDiag.Unclaimed;
     }
 
     // :0634f061-:0634f0df -- teardown, in retail's own order.

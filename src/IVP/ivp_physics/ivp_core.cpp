@@ -201,7 +201,7 @@ void __fastcall FUN_063465a0(IVP_Core* Core)
     else
     {
         // `SHL ECX,0x18; CMP ECX,0x8000000; JLE skip` -- signed.
-        if (static_cast<int32_t>(Core->MovementState << 24) > 0x08000000)
+        if (static_cast<int8_t>(Core->MovementState & 0xffu) > 8) // low byte; see ivp_ledge_sweep_solver.cpp Init
         {
             Core->MovementState = (Core->MovementState & 0xffffff08u) | 0x8u;
         }

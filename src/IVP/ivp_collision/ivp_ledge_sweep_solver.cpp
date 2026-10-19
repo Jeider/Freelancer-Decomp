@@ -68,6 +68,10 @@
 // side as retail's mask/jump pair (unordered sets C3, C2 and C0).
 // ============================================================================
 
+#include <cstdio> // TEMP collision diagnostics
+// TEMP collision diagnostics (remove): per-sample trace of SearchContactTime while set.
+static FILE* G_SweepTrace = nullptr;
+extern int G_IvpTraceEstimator; // ivp_mindist_limiter.cpp
 #include "ivp_ledge_sweep_solver.h"
 
 #include "../ivp_physics/ivp_real_object.h"
@@ -298,6 +302,9 @@ int IVP_Ledge_Sweep_Evaluator::SearchContactTime(float Threshold,
     // when Distance > Threshold (march); the FALL-THROUGH is Distance <=
     // Threshold (or unordered), which is an immediate hit at the interval
     // start.
+    if (G_SweepTrace)
+        std::fprintf(G_SweepTrace, "  SCT enter d %.4f thr %.4f cur %.5f+%.5f end %.5f+%.5f slot %d imax %.6f\n",
+                     Distance, Threshold, CurTimeBase, CurTimeOffset, EndTimeBase, EndTimeOffset, StartSlot, IMaxRelativeSpeed);
     if (!(Distance > Threshold))
     {
         OutTime->time_base = CurTimeBase;
@@ -330,6 +337,8 @@ int IVP_Ledge_Sweep_Evaluator::SearchContactTime(float Threshold,
         // interval, so no contact can occur inside it.
         if (RemainingExt + Step > 0.0)
         {
+            if (G_SweepTrace)
+                std::fprintf(G_SweepTrace, "  SCT exit overshoot remaining %.6f step %.6f\n", RemainingExt, Step);
             return 0;
         }
 
@@ -399,6 +408,8 @@ int IVP_Ledge_Sweep_Evaluator::SearchContactTime(float Threshold,
         // fills param_7 first too but holds it in EDI. The stored pointer is
         // always the cache's own inline storage for that slot:
         // `LEA EAX,[ESI*0x40 + EBX + 0x68]`.
+        const bool bDiagFreshA = CacheA->FrameAtSlot[Slot] == nullptr;
+        const bool bDiagFreshB = CacheB->FrameAtSlot[Slot] == nullptr;
         if (CacheA->FrameAtSlot[Slot] == nullptr)
         {
             CacheA->FrameAtSlot[Slot] = &CacheA->FrameStorage[Slot];
@@ -421,6 +432,17 @@ int IVP_Ledge_Sweep_Evaluator::SearchContactTime(float Threshold,
         // :0636966c FST dword, then :06369670 FCOMP on the unrounded value.
         const double NewDistanceExt = Evaluate(FrameA, CacheB->FrameAtSlot[Slot]);
         const float NewDistance = (float)(NewDistanceExt);
+        if (G_SweepTrace)
+        {
+            const IVP_U_Matrix* const Fa = CacheA->FrameAtSlot[Slot];
+            const IVP_U_Matrix* const Fb = CacheB->FrameAtSlot[Slot];
+            std::fprintf(G_SweepTrace, "  SCT sample slot %d steps %d t %.5f+%.5f d %.4f | A fresh %d flags 0x%x vv (%.2f %.2f %.2f) | B fresh %d flags 0x%x vv (%.2f %.2f %.2f) | A psi %.5f+%.5f speed (%.1f %.1f %.1f)\n",
+                         Slot, StepCount, NewTimeBase, NewTimeOffset, NewDistanceExt,
+                         (int)bDiagFreshA, CacheA->Object->flags, Fa->vv.k[0], Fa->vv.k[1], Fa->vv.k[2],
+                         (int)bDiagFreshB, CacheB->Object->flags, Fb->vv.k[0], Fb->vv.k[1], Fb->vv.k[2],
+                         CacheA->Core->TimeOfLastPsi.time_base, CacheA->Core->TimeOfLastPsi.time_offset,
+                         CacheA->Core->DeltaWorldFCore.x, CacheA->Core->DeltaWorldFCore.y, CacheA->Core->DeltaWorldFCore.z);
+        }
 
         // :06369676 TEST AH,0x41 / :06369679 JNZ LAB_063696ab -- taken when
         // NewDistance <= Threshold (or unordered), i.e. the bracket
@@ -444,8 +466,12 @@ int IVP_Ledge_Sweep_Evaluator::SearchContactTime(float Threshold,
             // landed strictly past the end.
             if ((((double)(CurTimeBase) - EndTimeBase) + CurTimeOffset) - EndTimeOffset > 0.0)
             {
+                if (G_SweepTrace)
+                    std::fprintf(G_SweepTrace, "  SCT exit refined-past-end refined %.5f+%.5f\n", CurTimeBase, CurTimeOffset);
                 return 0;
             }
+            if (G_SweepTrace)
+                std::fprintf(G_SweepTrace, "  SCT exit HIT %.5f+%.5f\n", CurTimeBase, CurTimeOffset);
 
             OutTime->time_base = CurTimeBase;
             OutTime->time_offset = CurTimeOffset;
@@ -456,6 +482,8 @@ int IVP_Ledge_Sweep_Evaluator::SearchContactTime(float Threshold,
         // in this function's header comment.
         if (Slot == 0x14)
         {
+            if (G_SweepTrace)
+                std::fprintf(G_SweepTrace, "  SCT exit slot20\n");
             return 0;
         }
 
@@ -756,7 +784,10 @@ void IVP_Sweep_Frame_Cache::Init(FIVP_Sweep_Cache_Source *Source)
     // :0635dea5-:0635deb0. Literal transcription of the shift-and-signed-
     // compare, not the (int8_t)(flags) >= 8 form it reduces to, so that the
     // listing and the port line up instruction for instruction.
-    const int32_t ShiftedFlags = static_cast<int32_t>(this->Object->flags << 24);
+    // (int32)(x << 24) against N << 24 is a signed compare of the low byte; written as
+    // (int8_t)x so MSVC v145 cannot fold it into a compare of the whole dword (it did:
+    // `cmp dword [flags], 8`, which made every collision-enabled body (flags 0x1xx) static).
+    const int32_t ShiftedFlags = static_cast<int32_t>(static_cast<int8_t>(this->Object->flags & 0xffu)) << 24;
 
     IVP_U_Matrix *const PreparedFrame = &Source->Frame;
 
@@ -782,6 +813,17 @@ void IVP_Sweep_Frame_Cache::Init(FIVP_Sweep_Cache_Source *Source)
     // :0635dec6/:0635dec9 and :0635deea/:0635deec -- both paths end with the
     // same store, and retail really does emit it twice.
     this->Field_0x10 = Source->Field_0x00;
+    if (G_IvpTraceEstimator != 0)
+    {
+        if (FILE* F = std::fopen("ivpdiag.txt", "a"))
+        {
+            std::fprintf(F, "  INIT cache %p object %p flags 0x%x shifted 0x%x moving %d slot0 %p slot1 %p slot3 %p source %p frame %p\n",
+                         (void*)this, (void*)this->Object, this->Object->flags, (unsigned)ShiftedFlags,
+                         (int)(ShiftedFlags < 0x08000000), (void*)this->FrameAtSlot[0], (void*)this->FrameAtSlot[1],
+                         (void*)this->FrameAtSlot[3], (void*)Source, (void*)PreparedFrame);
+            std::fclose(F);
+        }
+    }
 }
 
 // ============================================================================
@@ -798,6 +840,7 @@ void IVP_Sweep_Frame_Cache::Init(FIVP_Sweep_Cache_Source *Source)
 // 2026-10-08 (claude-code:cmn-phy2): this file's second, lazily-built copy of
 // the block is gone; the accessors keep their names and read the global.
 #include "../ivp_physics/ivp_mindist_settings.h"
+#include <cstdio> // TEMP collision diagnostics
 
 namespace
 {
@@ -1418,16 +1461,62 @@ void IVP_Sweep_Estimator_Context::EstimateLedgeVertexVsLedgeFaceContact(
     float KnownDistance = CombinedRadius + LedgeMindist->SeparationGap;
     const float Threshold = Ramp + CombinedRadius;
 
+    // TEMP collision diagnostics (remove): the known gap against the distance the evaluator
+    // measures through the slot-0 frames, for the first 300 vertex/face estimates.
+    static int S_VfDiag = 0;
+    const double DiagD0 = VertexFace.Evaluate(CacheA.FrameAtSlot[0], CacheB.FrameAtSlot[0]);
+    double DiagDEnd = 0.0;
+    float DiagEndPos[3] = {};
+    {
+        IVP_Time EndTime;
+        EndTime.time_base = this->NextBase;
+        EndTime.time_offset = this->NextOffset;
+        IVP_U_Matrix EndA;
+        IVP_U_Matrix EndB;
+        CacheA.Object->get_m_world_f_object_at_transform(EndTime, &EndA);
+        CacheB.Object->get_m_world_f_object_at_transform(EndTime, &EndB);
+        DiagDEnd = VertexFace.Evaluate(&EndA, &EndB);
+        DiagEndPos[0] = EndA.vv.k[0];
+        DiagEndPos[1] = EndA.vv.k[1];
+        DiagEndPos[2] = EndA.vv.k[2];
+    }
+    const float DiagKnown = KnownDistance;
     // :0635dc22-:0635dc2b. End-of-interval arguments come from OutEvent*, not
     // from Next* -- at this point the two are still equal, but see below.
-    if (VertexFace.SearchContactTimeFromContact(
+    if (G_IvpTraceEstimator != 0)
+        G_SweepTrace = std::fopen("ivpdiag.txt", "a");
+    const int DiagHit = VertexFace.SearchContactTimeFromContact(
             Threshold, InnerThreshold,
             this->NowBase, this->NowOffset,
             this->OutEventBase, this->OutEventOffset,
             &CacheA, &CacheB, &KnownDistance,
-            reinterpret_cast<IVP_Time *>(&this->OutEventBase)) != 0)
+            reinterpret_cast<IVP_Time *>(&this->OutEventBase));
+    if (G_SweepTrace)
+    {
+        std::fclose(G_SweepTrace);
+        G_SweepTrace = nullptr;
+    }
+    if (DiagHit != 0)
     {
         this->OutCode = 0x20;
+    }
+    if (G_IvpTraceEstimator != 0)
+    {
+        ++S_VfDiag;
+        if (FILE* F = std::fopen("ivpdiag.txt", "a"))
+        {
+            const IVP_U_Matrix* const Fa = CacheA.FrameAtSlot[0];
+            const IVP_U_Matrix* const Fb = CacheB.FrameAtSlot[0];
+            std::fprintf(F, "VF known %.4f eval0 %.4f evalEnd %.4f FaEnd (%.1f %.1f %.1f) thr %.4f inner %.4f speed %.3f now %.5f+%.5f end %.5f+%.5f hit %d | A (%.2f %.2f %.2f) B (%.2f %.2f %.2f) n (%.3f %.3f %.3f) | Fa vv (%.1f %.1f %.1f) Fb vv (%.1f %.1f %.1f)\n",
+                         DiagKnown, DiagD0, DiagDEnd, DiagEndPos[0], DiagEndPos[1], DiagEndPos[2], Threshold, InnerThreshold, VertexFace.MaxRelativeSpeed,
+                         this->NowBase, this->NowOffset, this->NextBase, this->NextOffset, DiagHit,
+                         VertexFace.PointA.k[0], VertexFace.PointA.k[1], VertexFace.PointA.k[2],
+                         VertexFace.Anchor.k[0], VertexFace.Anchor.k[1], VertexFace.Anchor.k[2],
+                         VertexFace.Normal.k[0], VertexFace.Normal.k[1], VertexFace.Normal.k[2],
+                         Fa != nullptr ? Fa->vv.k[0] : 0.0f, Fa != nullptr ? Fa->vv.k[1] : 0.0f, Fa != nullptr ? Fa->vv.k[2] : 0.0f,
+                         Fb != nullptr ? Fb->vv.k[0] : 0.0f, Fb != nullptr ? Fb->vv.k[1] : 0.0f, Fb != nullptr ? Fb->vv.k[2] : 0.0f);
+            std::fclose(F);
+        }
     }
 
     // ---- Pass 2: the edge fan around that same vertex of A -------------------

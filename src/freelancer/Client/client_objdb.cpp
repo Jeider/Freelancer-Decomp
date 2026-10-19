@@ -20,7 +20,11 @@
 #include "server_connect.h"   // GetLocalServerInterface (DAT_0067ecd0)
 #include "star_sys.h"
 #include "x86math.h"          // I3DMathEngine::MatrixToQuaternion
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
+#include <cmath>
 #include <cstdarg>
 #include <cstddef>
 #include <cstdint>
@@ -877,12 +881,90 @@ namespace
     I3DMathEngine* G_RemotePhysMathEngine = nullptr;
 }
 
+#ifdef FREELANCER_FLSHARP
+// Port-only (FLSharp better_updates, update.cpp): the client sends SPObjUpdate at most every
+// 40 ms (750 ms in a trade lane) and at least every 2 s, plus when the ship turned past a
+// threshold or engine kill toggled; an update held back by the minimum interval goes out as
+// soon as it allows. Retail sends on every CheckForSync hit, which floods the server at high
+// frame rates and makes ships jitter. The throttle (+0x28, sent as 0 by retail) is filled in.
+namespace
+{
+    float const kFlsMinSyncInterval = 0.04f;
+    float const kFlsMinSyncIntervalLane = 0.75f;
+    float const kFlsMaxSyncInterval = 2.0f;
+    float const kFlsRotationCheckInterval = 0.25f;
+    float const kFlsDefaultTurnThreshold = 30.0f;
+
+    bool G_FlsSendAsap = true;
+    bool G_FlsEngineKillLast = false;
+    float G_FlsTurnThreshold = kFlsDefaultTurnThreshold;
+    float G_FlsElapsed = 0.0f;
+    Quaternion G_FlsLastOrientation;
+
+    bool FlsEngineKilled(CShip* Ship)
+    {
+        CEEngine const* const Engine =
+            CEEngine::cast(Ship->EquipManager.FindFirst(EquipTypeEngine));
+        return Engine != nullptr && !Engine->IsActive();
+    }
+
+    // Degrees between two orientations.
+    float FlsAngleBetween(Quaternion const& A, Quaternion const& B)
+    {
+        float Dot = A.w * B.w + A.x * B.x + A.y * B.y + A.z * B.z;
+        if (Dot > 1.0f)
+            Dot = 1.0f;
+        else if (Dot < -1.0f)
+            Dot = -1.0f;
+        return acosf(fabsf(Dot)) * 2.0f * (180.0f / 3.14159265f);
+    }
+
+    bool FlsShouldSend(CShip* Ship, Quaternion const& Orientation, bool bEngineKillToggled,
+                       bool bSyncResult)
+    {
+        if (bSyncResult || bEngineKillToggled || G_FlsElapsed >= kFlsMaxSyncInterval)
+            return true;
+        return G_FlsElapsed >= kFlsRotationCheckInterval &&
+               FlsAngleBetween(G_FlsLastOrientation, Orientation) >= G_FlsTurnThreshold;
+    }
+}
+
+void ClientObjDb_FlsharpResetUpdates(CShip* Ship)
+{
+    // FLSharp Update::PostInitDealloc_Hook (0x0054b8b9): force an update, and take the turn
+    // threshold from the ship's turn rate (multiplayer only).
+    if (SinglePlayer() || !FlsharpFeatureEnabled("better_updates"))
+        return;
+    G_FlsEngineKillLast = false;
+    G_FlsElapsed = kFlsMaxSyncInterval;
+    G_FlsSendAsap = true;
+    G_FlsTurnThreshold = kFlsDefaultTurnThreshold;
+    if (Ship == nullptr || Ship->shiparch() == nullptr)
+        return;
+    Archetype::Ship const* const Arch = Ship->shiparch();
+    float const Drag = (Arch->AngularDragX + Arch->AngularDragY) / 2.0f;
+    float const Torque = (Arch->SteeringTorqueX + Arch->SteeringTorqueY) / 2.0f;
+    float const Radius = Ship->get_radius();
+    if (Drag <= 0.0f || Torque <= 0.0f || Radius <= 0.0f)
+        return;
+    float const MaxTurnSpeed = (Torque / Drag) * (180.0f / 3.14159265f);
+    float const Threshold = 15.0f * sqrtf(MaxTurnSpeed) / sqrtf(Radius);
+    if (Threshold < kFlsDefaultTurnThreshold)
+        G_FlsTurnThreshold = Threshold;
+}
+#endif
+
 void ClientObjDb_UpdateRemotePhysics(float Dt)
 {
     // FUN_00541580 (cdecl, plain RET; caller 0x0054b16d in the space frame).
     // 0x0054158c..0x00541594: single player -> nothing.
     if (SinglePlayer())
         return;
+#ifdef FREELANCER_FLSHARP
+    bool const bBetterUpdates = FlsharpFeatureEnabled("better_updates");
+    if (bBetterUpdates)
+        G_FlsElapsed += Dt;
+#endif
 
     // 0x0054159a..0x005416ab: every node of DAT_00678a30, head DAT_00678a34.
     std::list<FRemotePhysBlock*>::iterator It = G_RemotePhysBlocks.begin();
@@ -908,6 +990,30 @@ void ClientObjDb_UpdateRemotePhysics(float Dt)
 
         // 0x005415f6..0x00541609: CheckForSync(position, position, orientation) -- the ship's
         // +0x2c position passed twice. False -> next node.
+#ifdef FREELANCER_FLSHARP
+        if (bBetterUpdates)
+        {
+            // FLSharp CRemotePhysicsSimulation::CheckForSync_Hook (0x00541602).
+            bool const bEngineKilled = FlsEngineKilled(Ship);
+            bool const bEngineKillToggled = bEngineKilled != G_FlsEngineKillLast;
+            G_FlsEngineKillLast = bEngineKilled;
+            bool const bSyncResult = Block->Simulation.CheckForSync(
+                Ship->WorldPosition, Ship->WorldPosition, Orientation);
+            float const MinInterval =
+                Ship->is_using_tradelane() ? kFlsMinSyncIntervalLane : kFlsMinSyncInterval;
+            if (G_FlsElapsed < MinInterval)
+            {
+                if (!G_FlsSendAsap)
+                    G_FlsSendAsap =
+                        FlsShouldSend(Ship, Orientation, bEngineKillToggled, bSyncResult);
+                continue;
+            }
+            if (!G_FlsSendAsap &&
+                !FlsShouldSend(Ship, Orientation, bEngineKillToggled, bSyncResult))
+                continue;
+        }
+        else
+#endif
         if (!Block->Simulation.CheckForSync(Ship->WorldPosition, Ship->WorldPosition,
                                             Orientation))
             continue;
@@ -927,8 +1033,25 @@ void ClientObjDb_UpdateRemotePhysics(float Dt)
         Info.Pad_0x2d[0] = 0;
         Info.Pad_0x2d[1] = 0;
         Info.Pad_0x2d[2] = 0;
+#ifdef FREELANCER_FLSHARP
+        if (bBetterUpdates)
+        {
+            // FLSharp IServerImpl::SPObjUpdate_Hook (0x0054167c): +0x28 is the throttle, 0
+            // under engine kill.
+            float const Throttle = G_FlsEngineKillLast ? 0.0f : Ship->get_throttle();
+            memcpy(&Info.Field_0x28, &Throttle, sizeof(Throttle));
+        }
+#endif
         static_cast<IServer*>(GetLocalServerInterface())->SPObjUpdate(Info,
                                                                        GetPlayerConnectionId());
+#ifdef FREELANCER_FLSHARP
+        if (bBetterUpdates)
+        {
+            G_FlsElapsed = 0.0f;
+            G_FlsSendAsap = false;
+            G_FlsLastOrientation = Orientation;
+        }
+#endif
 
         // 0x00541682..0x00541698: the simulation's vt+0x4 RemoteUpdate(position, orientation,
         // the Timestamp just sent -- re-read from the info as a double).

@@ -19,6 +19,9 @@
 #include "win_factory.h"
 
 #include "common_text.h"
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -424,6 +427,13 @@ bool ServerFilterDialogRun(Win3D* Parent, ServerFilter* Filter)
     {
         if (!PumpMessages(&ExitCode))
             return false;
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp server_filter_speed_fix, the dialog's slot 13 at 0x005e2120): retail
+        // never ticks the frame timer here, so the delta of the frame that opened the dialog is
+        // reused until it closes -- a stutter then runs the game fast. Tick it (FUN_005b2360).
+        if (FlsharpFeatureEnabled("server_filter_speed_fix"))
+            UpdateClientTiming();
+#endif
         double const Delta = GetClientFrameTimeCapped(); // FUN_0042d680
         Win3DUpdateAll(Delta);                           // FUN_0059e080
         CallClientStateUpdateSlot(static_cast<float>(Delta));

@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "menu_keymap_config.h"
+#ifdef FREELANCER_DBG_OPTIONS
+#include "dbg_options.h" // port-only beta DBG_OPTIONS window
+#endif
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
 #endif
@@ -610,6 +613,10 @@ void UnregisterAcceleratorGroup(char const* GroupNickname)
 
 bool KeyMapRouteInputMessage(unsigned Message, unsigned Wparam, unsigned Lparam)
 {
+#ifdef FREELANCER_DBG_OPTIONS
+    if (DbgOptionsHandleKey(Message, Wparam))
+        return true;
+#endif
 #ifdef FREELANCER_WALK_MODE
     if (BaseWalkHandleKey(Message, Wparam))
         return true;

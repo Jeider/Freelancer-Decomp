@@ -17,6 +17,9 @@
 #include "client_objdb.h"           // ClientObjDb_FindObject (FUN_005416c0)
 #include "hud_status_core.h"        // HudSampleShieldHitPoints (FUN_004d4b50)
 #include "hud_target.h"             // HudObjectVisitFlags (FUN_004d4d00), HudObjectTypeIds
+#ifdef FREELANCER_FLSHARP
+#include "player_spawn.h"           // GetPlayerWaypointRetail (waypoint_name_fixes)
+#endif
                                     // (FUN_004d4d50), GetObjectIdsName (FUN_005472a0),
                                     // GetShipPilotName (FUN_005472d0), NavMapSectorName
                                     // (FUN_0048dc10), FHudWideText
@@ -49,6 +52,9 @@
                                     // Reputation::get_info_card
 #include "common_text.h"            // RenderDisplayList, StyleNode
 #include "common_universe.h"        // Universe::get_system, ISystem, IZone, FSystemObject
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <list>
 #include <stdio.h>
@@ -612,7 +618,13 @@ void NnHelp::ShowObjectInfo(IObjRW* Object)
     AppendStyle(Card, 0x9ca4);
 
     // 0x004755b7..0x004755c7
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp waypoint_name_fixes, GetSimpleVisitedValue_Hook at 0x004755b8).
+    unsigned char const Visit = static_cast<unsigned char>(
+        HudObjectVisitFlags(Target) | (FlsharpIsKnownWaypoint(Target) ? 1 : 0));
+#else
     unsigned char const Visit = HudObjectVisitFlags(Target); // [ESP+0x17]
+#endif
     G_NnTextScratchB[0] = L'\0';
     wchar_t Name[0x80]; // [ESP+0x48]
 
@@ -632,7 +644,11 @@ void NnHelp::ShowObjectInfo(IObjRW* Object)
         int const Capacity = G_NnTextScratchCapacity;
 
         // 0x00475676..0x004756d4: the name as the title (upper case).
+#ifdef FREELANCER_FLSHARP
+        IdsIntoOrEmpty(FlsharpObjectIdsName(Target), Name, 0x80);
+#else
         IdsIntoOrEmpty(GetObjectIdsName(Target), Name, 0x80);
+#endif
         wcscat(G_NnTextScratchB, Name);
         CharUpperW(G_NnTextScratchB);
         Title->SetProperty(0x1d, reinterpret_cast<uintptr_t>(G_NnTextScratchB), 0);
@@ -710,7 +726,15 @@ void NnHelp::ShowObjectInfo(IObjRW* Object)
             if ((static_cast<unsigned>(Target->ObjectClass) & 0x503u) == 0x503u)
             {
                 CShip const* const Ship = static_cast<CShip const*>(Target);
+#ifdef FREELANCER_FLSHARP
+                // Port-only (FLSharp blank_faction_fix, the call at 0x00475950): fc_uk_grp
+                // (ids 197510, no name) reads "None" (ids 3022).
+                unsigned Group = Ship->get_group_name();
+                if (Group == 197510u && FlsharpFeatureEnabled("blank_faction_fix"))
+                    Group = 3022u;
+#else
                 unsigned const Group = Ship->get_group_name();
+#endif
                 if (Group != 0)
                 {
                     GetIdsStringWWithRawFallback(0x456, G_NnTextScratchA, Capacity);
@@ -746,12 +770,43 @@ void NnHelp::ShowObjectInfo(IObjRW* Object)
                 {
                     GetIdsStringWWithRawFallback(0x465, G_NnTextScratchA, Capacity);
                     wcscat(G_NnTextScratchB, G_NnTextScratchA);
+#ifdef FREELANCER_FLSHARP
+                    // Port-only (FLSharp waypoint_name_fixes, swprintf_Hook at 0x00475a6c):
+                    // "PLAYER WAYPOINT n" -- a space, and the waypoint's own number (+0x14)
+                    // rather than its list index + 1.
+                    FPlayerWaypointRecord const* const Record =
+                        GetPlayerWaypointRetail(WaypointIndex);
+                    if (FlsharpFeatureEnabled("waypoint_name_fixes"))
+                        _swprintf(G_NnTextScratchA, L" %d\n",
+                                  Record != nullptr ? Record->AutoId : WaypointIndex + 1);
+                    else
+#endif
                     FormatPercentLine(G_NnTextScratchA, WaypointIndex + 1);
                     wcscat(G_NnTextScratchB, G_NnTextScratchA);
                 }
                 else
                 {
+#ifdef FREELANCER_FLSHARP
+                    // Port-only (FLSharp waypoint_name_fixes, GetMissionObjective_Hook at
+                    // 0x00475a94): the index is 0 here, right only for story waypoints; take
+                    // the first numbered stop (kind 0xa) so random missions show theirs too.
+                    FBestPathWaypoint* Waypoint = nullptr;
+                    if (FlsharpFeatureEnabled("waypoint_name_fixes"))
+                    {
+                        for (int I = 0; FBestPathWaypoint* const Each = BestPathGetWaypoint(I); ++I)
+                        {
+                            if ((Each->Field_0x18 & 0xfu) == 0xau)
+                            {
+                                Waypoint = Each;
+                                break;
+                            }
+                        }
+                    }
+                    if (Waypoint == nullptr)
+                        Waypoint = BestPathGetWaypoint(WaypointIndex);
+#else
                     FBestPathWaypoint* const Waypoint = BestPathGetWaypoint(WaypointIndex);
+#endif
                     if (Waypoint != nullptr)
                     {
                         FmtStrSprintf(&Waypoint->Marker, G_NnTextScratchA, Capacity);

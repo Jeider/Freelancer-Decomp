@@ -42,6 +42,11 @@ HUD_Status* GetHudStatus();
 // 0x004c870f / 0x004c8722 (HUD_Steer::Render) and the camera code at 0x00549e30..: the bytes
 // +0x5b9 / +0x5ba of DAT_00674aa0, read without a null test, as retail does.
 bool HudStatusIsTurretView();
+#ifdef FREELANCER_FLSHARP
+// Port-only (FLSharp flight_controls_fix): set the auto-level toggle state (DAT_00612700) that
+// the HUD's auto-level event flips, without sending it to the behaviour.
+void HudStatusSetAutoLevelState(bool bOn);
+#endif
 bool HudStatusIsRearView();
 
 // DAT_00674b04 -- the one HUD_Target (the target panel, W3-C). Its ctor FUN_004e08b0 writes it

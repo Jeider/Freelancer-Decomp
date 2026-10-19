@@ -59,6 +59,9 @@
 #include "DALib.h"
 #include "dacom.h"                  // FDUMP
 #include "engine/engbase.h"
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <math.h>
 #include <stdint.h>
@@ -863,7 +866,13 @@ void HudTarget::Slot15()
     wchar_t SubName[0x100];   // [ESP+0x128]
 
     // 0x004e4094..0x004e4134: an unvisited solar shows only its type caption.
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp waypoint_name_fixes, IsSimpleUnvisited_Hook at 0x004e4094): a
+    // waypoint is never "unvisited".
+    if (HudIsUnvisitedSolar(Simple) && !FlsharpIsKnownWaypoint(Simple))
+#else
     if (HudIsUnvisitedSolar(Simple)) // FUN_004d4c70
+#endif
     {
         SubName[0] = 0;
         if (GetIdsStringWWithRawFallback(HudObjectTypeIds(Simple), IdsText, 0x80) == 0) // FUN_004d4d50

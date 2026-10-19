@@ -90,6 +90,103 @@
 // keep (and the second copy in ivp_ledge_sweep_solver.cpp) are gone; the
 // accessors below keep their names and read the global.
 #include "../ivp_physics/ivp_mindist_settings.h"
+#include <cstdio> // TEMP collision diagnostics
+#include <unordered_map> // TEMP collision diagnostics
+
+// TEMP collision diagnostics (remove): which branch IVP_RescheduleCollisionEvent leaves by,
+// and how many impacts run. Appended to ivpdiag.txt every 2 s.
+extern "C" __declspec(dllimport) unsigned long __stdcall GetTickCount(void);
+namespace
+{
+    struct FEventDiag
+    {
+        unsigned Calls, Far, Slow, Horizon, LazyFlag, EstimatorZero, PastPsi, Enqueued, Impacts;
+        float MinGap, MinClosing, MaxClosing;
+        float MinPsi = 1.0e30f, MaxPsi = -1.0e30f, Dt = 0.0f;
+        unsigned EstZero[16] = {};
+        unsigned EstHit[16] = {};
+        float EstZeroMinGap[16] = {};
+    } G_EventDiag = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0e30f, 1.0e30f, -1.0e30f};
+    unsigned long G_EventDiagLast = 0;
+
+    void EventDiagFlush()
+    {
+        unsigned long const Now = GetTickCount();
+        if (Now - G_EventDiagLast < 2000)
+            return;
+        G_EventDiagLast = Now;
+        if (FILE* F = std::fopen("ivpdiag.txt", "a"))
+        {
+            FEventDiag const& D = G_EventDiag;
+            std::fprintf(F, "EVT calls %u far %u slow %u horizon %u lazyflag %u estzero %u pastpsi %u enqueued %u impacts %u mingap %.3f closing %.3f..%.3f psi %.5f..%.5f dt %.5f\n",
+                         D.Calls, D.Far, D.Slow, D.Horizon, D.LazyFlag, D.EstimatorZero, D.PastPsi, D.Enqueued,
+                         D.Impacts, D.MinGap, D.MinClosing, D.MaxClosing, D.MinPsi, D.MaxPsi, D.Dt);
+            std::fprintf(F, "EST");
+            for (int K = 0; K < 16; ++K)
+                if (D.EstZero[K] != 0 || D.EstHit[K] != 0)
+                    std::fprintf(F, " [%d] zero %u hit %u zmingap %.3f", K, D.EstZero[K], D.EstHit[K], D.EstZeroMinGap[K]);
+            std::fprintf(F, "\n");
+            std::fclose(F);
+        }
+        G_EventDiag = FEventDiag{0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0e30f, 1.0e30f, -1.0e30f};
+    }
+
+    // Per-mindist history of the last 8 scheduling decisions, logged when it goes invalid.
+    struct FMdHist
+    {
+        float Gap[8];
+        float Closing[8];
+        char Branch[8];
+        int Count;
+    };
+    std::unordered_map<const void*, FMdHist> G_MdHist;
+}
+// Read by the vertex/face estimator (ivp_ledge_sweep_solver.cpp): trace this call.
+int G_IvpTraceEstimator = 0;
+int G_IvpTraceBudget = 40;
+namespace
+{
+    int G_MdHistLogged = 0;
+
+    void MdRecord(const void* Mindist, float Gap, float Closing, char Branch)
+    {
+        if (G_MdHist.size() > 50000)
+            G_MdHist.clear();
+        FMdHist& H = G_MdHist[Mindist];
+        const int I = H.Count & 7;
+        H.Gap[I] = Gap;
+        H.Closing[I] = Closing;
+        H.Branch[I] = Branch;
+        ++H.Count;
+    }
+
+    void MdDumpInvalid(const IVP_Ledge_Mindist* M)
+    {
+        auto It = G_MdHist.find(M);
+        if (It == G_MdHist.end())
+            return;
+        if (G_MdHistLogged < 60)
+        {
+            ++G_MdHistLogged;
+            if (FILE* F = std::fopen("ivpdiag.txt", "a"))
+            {
+                const FMdHist& H = It->second;
+                std::fprintf(F, "INVALID mindist %p shapes %d/%d gap-now %.3f state 0x%x history(old->new):", (const void*)M,
+                             (int)M->synapse[0].status, (int)M->synapse[1].status, M->SeparationGap, M->StateFlags);
+                const int Total = H.Count < 8 ? H.Count : 8;
+                for (int K = Total - 1; K >= 0; --K)
+                {
+                    const int I = (H.Count - 1 - K) & 7;
+                    std::fprintf(F, " [%c g %.3f c %.1f]", H.Branch[I], H.Gap[I], H.Closing[I]);
+                }
+                std::fprintf(F, "\n");
+                std::fclose(F);
+            }
+        }
+        G_MdHist.erase(It);
+    }
+}
+
 
 namespace
 {
@@ -1365,6 +1462,8 @@ void IVP_UpdatePairRecordContactFrame(IVP_Contact_Point* Candidate)
 // ---------------------------------------------------------------------------
 void IVP_Ledge_Mindist::do_impact()
 {
+    ++G_EventDiag.Impacts;
+    MdRecord(this, SeparationGap, 0.0f, 'I');
     IVP_Real_Object* const ObjA = synapse[0].l_obj;
     IVP_Real_Object* const ObjB = synapse[1].l_obj;
     IVP_Environment* const Env = ObjA->environment;
@@ -1626,6 +1725,7 @@ void IVP_Mindist_Base::GetLedges(const IVP_Compact_Ledge* Out[2]) const
 // mindist is their stack argument (`PUSH ESI`).
 void IVP_Ledge_Mindist::exact_mindist_went_invalid(IVP_Mindist_Manager* Manager)
 {
+    MdDumpInvalid(this);
     Manager->DetachMindist(this);          // :0634e9db FUN_0634fec0
     Manager->insert_invalid_mindist(this); // :0634e9e3 FUN_0634e960
 }
@@ -2021,7 +2121,7 @@ void IVP_Mindist_Manager::insert_exact_mindist(IVP_Ledge_Mindist* Mindist)
     }
     // (coreB->MovementState | coreA->MovementState) << 24, signed `< 0x21000000`.
     const int32_t Movement = static_cast<int32_t>(
-        (Mindist->synapse[1].l_obj->core->MovementState | Mindist->synapse[0].l_obj->core->MovementState) << 24); // :0634eaaf-:0634eac9
+        static_cast<int8_t>((Mindist->synapse[1].l_obj->core->MovementState | Mindist->synapse[0].l_obj->core->MovementState) & 0xffu)) * 0x1000000; // :0634eaaf-:0634eac9 (low byte, see ivp_ledge_sweep_solver.cpp Init)
     IVP_RescheduleCollisionEvent(Mindist, (Movement < 0x21000000) ? 1 : 0, 0); // :0634eacc-:0634eadb (SETL)
 }
 
@@ -2450,6 +2550,10 @@ void IVP_Mindist_Manager::recalc_all_exact_mindists_events()
 
 void IVP_RescheduleCollisionEvent(IVP_Ledge_Mindist* This, int32_t RearmWhenFar, int32_t EventMode)
 {
+    EventDiagFlush();
+    ++G_EventDiag.Calls;
+    if (This->SeparationGap < G_EventDiag.MinGap)
+        G_EventDiag.MinGap = This->SeparationGap;
     // 1. :0634f328-:0634f358. `XOR EAX,0x100` flips bit 8 only, so the two
     //    indices are always i and i^1 -- the pair of embedded synapse slots,
     //    addressed as this + 0x28 + index*0x1c.
@@ -2496,6 +2600,8 @@ void IVP_RescheduleCollisionEvent(IVP_Ledge_Mindist* This, int32_t RearmWhenFar,
 
     if (!(CoarseThreshold >= (double)(Gap)))
     {
+        ++G_EventDiag.Far;
+        MdRecord(This, Gap, 0.0f, 'F');
         // 5. :0634f3ee-:0634f41e. Too far to schedule anything this step; if
         //    the caller asked for it, re-arm the hull-distance watchdog so the
         //    pair wakes up once the objects have closed by that much.
@@ -2528,6 +2634,10 @@ void IVP_RescheduleCollisionEvent(IVP_Ledge_Mindist* This, int32_t RearmWhenFar,
     const double RotTermI = sqrt(1.001f - SpinI * SpinI) * CoreI->BoundingRadius;                                     // :0634f4a7-:0634f4b3
     const double RotTermJ = sqrt(1.001f - (double)(SpinJ) * SpinJ) * CoreJ->BoundingRadius;               // :0634f4b9-:0634f4cd
     const float ClosingBound = (float)((RotTermI + RotTermJ) + RelativeSpeed); // :0634f4d3-:0634f4d9, local_2c
+    if (ClosingBound < G_EventDiag.MinClosing)
+        G_EventDiag.MinClosing = ClosingBound;
+    if (ClosingBound > G_EventDiag.MaxClosing)
+        G_EventDiag.MaxClosing = ClosingBound;
 
     // 7. :0634f4dd-:0634f551. HORIZON TEST. The four environment time words
     //    are dword copies into the context (+0x18..+0x24). DAT_063a53d8 == 1e-10f.
@@ -2539,17 +2649,35 @@ void IVP_RescheduleCollisionEvent(IVP_Ledge_Mindist* This, int32_t RearmWhenFar,
     // :0634f4e3-:0634f52c: `FCOMP MinRate; TEST AH,1; JZ` -- not-less goes on;
     // less or unordered re-tests against 1e-10f and returns on C0 again.
     if (!(ClosingBound >= IVP_ToleranceMinRate()) && !(ClosingBound >= 1.0e-10f))
+    {
+        ++G_EventDiag.Slow;
+        MdRecord(This, Gap, ClosingBound, 'S');
         return; // nothing is approaching fast enough to matter
+    }
 
     // :0634f532-:0634f551: horizon kept on the stack, `FCOMP gap; TEST AH,0x41;
     // JNZ` returns on <= or unordered; only horizon > gap goes on.
     const double Horizon = (((((double)(NextHi) - NowHi) + NextLo) - NowLo) * ClosingBound) + ToleranceValue;
+    {
+        const float PsiLead = (float)((((double)(NextHi) - NowHi) + NextLo) - NowLo);
+        if (PsiLead < G_EventDiag.MinPsi) G_EventDiag.MinPsi = PsiLead;
+        if (PsiLead > G_EventDiag.MaxPsi) G_EventDiag.MaxPsi = PsiLead;
+        G_EventDiag.Dt = Env->delta_time;
+    }
     if (!(Horizon > (double)(Gap)))
+    {
+        ++G_EventDiag.Horizon;
+        MdRecord(This, Gap, ClosingBound, 'H');
         return;
+    }
 
     // 8. :0634f557-:0634f5a6.
     if ((FlagsAfterDequeue & 0x3000u) == 0x1000u)
+    {
+        ++G_EventDiag.LazyFlag;
+        MdRecord(This, Gap, ClosingBound, 'L');
         return;
+    }
 
     // `TEST ECX,0x3fc00000` clears CF, so the `JBE` at :0634f579 is a plain JZ.
     if ((FlagsAfterDequeue & 0x3fc00000u) != 0)
@@ -2601,10 +2729,46 @@ void IVP_RescheduleCollisionEvent(IVP_Ledge_Mindist* This, int32_t RearmWhenFar,
     Ctx.OutEventBase = 0.0f;
     Ctx.OutEventOffset = 0.0f;
 
+    {
+        // Trace only an approaching pair: its previous recorded gap is >= 0.2 m larger.
+        G_IvpTraceEstimator = 0;
+        auto It = G_MdHist.find(This);
+        if (G_IvpTraceBudget > 0 && It != G_MdHist.end() && It->second.Count > 0)
+        {
+            const float PrevGap = It->second.Gap[(It->second.Count - 1) & 7];
+            if (PrevGap - Gap >= 0.2f)
+            {
+                --G_IvpTraceBudget;
+                G_IvpTraceEstimator = 1;
+                if (FILE* F = std::fopen("ivpdiag.txt", "a"))
+                {
+                    std::fprintf(F, "APPROACH mindist %p prevgap %.3f gap %.3f closing %.2f relspeed %.2f index %d\n",
+                                 (const void*)This, PrevGap, Gap, ClosingBound, RelativeSpeed, ShapeJ + ShapeI * 4);
+                    std::fclose(F);
+                }
+            }
+        }
+    }
     IVP_InvokeSweepEstimator(ShapeJ + ShapeI * 4, &Ctx); // :0634f5e5-:0634f5ea
+    G_IvpTraceEstimator = 0;
 
+    {
+        const int DiagIndex = (ShapeJ + ShapeI * 4) & 15;
+        if (Ctx.OutCode == 0)
+        {
+            if (G_EventDiag.EstZero[DiagIndex] == 0 || Gap < G_EventDiag.EstZeroMinGap[DiagIndex])
+                G_EventDiag.EstZeroMinGap[DiagIndex] = Gap;
+            ++G_EventDiag.EstZero[DiagIndex];
+        }
+        else
+            ++G_EventDiag.EstHit[DiagIndex];
+    }
     if (Ctx.OutCode == 0) // :0634f5f8-:0634f5fa
+    {
+        ++G_EventDiag.EstimatorZero;
+        MdRecord(This, Gap, ClosingBound, 'Z');
         return;
+    }
 
     // 10. :0634f600-:0634f933. RESULT POST-PROCESSING. DAT_063a5610 == 1e-6f
     //     (.rdata bd 37 86 35).
@@ -2684,7 +2848,11 @@ void IVP_RescheduleCollisionEvent(IVP_Ledge_Mindist* This, int32_t RearmWhenFar,
         //     TEST AH,1; JZ` returns on not-less (>= 0); less or unordered
         //     enqueues.
         if (((((double)(EventHi) - Env->next_psi_time_base) + EventLo) - Env->next_psi_time_offset) >= 0.0)
+        {
+            ++G_EventDiag.PastPsi;
+            MdRecord(This, Gap, ClosingBound, 'P');
             return;
+        }
     }
 
     // 12. :0634f964-:0634f99d. ENQUEUE, then fold the estimator's out-code into
@@ -2693,6 +2861,8 @@ void IVP_RescheduleCollisionEvent(IVP_Ledge_Mindist* This, int32_t RearmWhenFar,
     //     is ((EventHi - TimeBaseHi) + EventLo) - TimeBaseLo on the stack,
     //     spilled once (:0634f967-:0634f978, MakeEventKey), and the receiver of
     //     FUN_06362f90 is the POINTER at manager+0x08 (`MOV ECX,[EBP+0x8]`).
+    ++G_EventDiag.Enqueued;
+    MdRecord(This, Gap, ClosingBound, 'E');
     This->EventQueueHandle = static_cast<int32_t>(
         Env->sim_unit_manager->EnqueueEvent(This, EventHi, EventLo));
     const uint32_t S = This->StateFlags;

@@ -46,6 +46,9 @@
 #include "../include/dacom.h"                  // FDUMP
 #include "../include/rpc_iclient.h"            // IClient slots 91 / 92 / 97 / 98
 #include "../include/msvcrt_compat.h"          // MsvcrtAtoi (retail MSVCRT.DLL atoi wraps)
+#ifdef FREELANCER_FLSHARP
+#include "../include/common_flsharp.h" // port-only FLSharp feature switches
+#endif
 
 #include <windows.h>
 #include <cstdint>
@@ -460,6 +463,12 @@ bool __cdecl PlayerData_LoadSaveRecord(PlayerData& Slot, char const* Path,
                 }
                 // .text:06d47668 -- no null test on GetShip.
                 Archetype::Ship const* Ship = Archetype::GetShip(Record.ShipArchetype);
+#ifdef FREELANCER_FLSHARP
+                // Port-only (FLSharp save_crash_fix, .text:06d4766e): a save naming an
+                // unknown ship no longer crashes the save scan at startup.
+                if (Ship == nullptr && FlsharpFeatureEnabled("save_crash_fix"))
+                    continue;
+#endif
                 Ship->get_undamaged_collision_group_list(Record.CollisionGroups);
                 Ship->get_undamaged_collision_group_list(Record.BaseCollisionGroups);
                 continue;

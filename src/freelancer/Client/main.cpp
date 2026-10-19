@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "client_cliobj.h"     // FlushMaterialCache (FUN_0041b150)
+#ifdef FREELANCER_DBG_OPTIONS
+#include "dbg_options.h" // port-only beta DBG_OPTIONS window
+#endif
 #ifdef FREELANCER_FLPLUSPLUS
 #include "flplusplus.h"        // port-only flplusplus start-up
 #endif
@@ -557,6 +560,9 @@ namespace
         ClearEffectShapesFiles(); // FUN_004f73b0 (0x005b2290)
         UiScrollClearShapes(); // FUN_00595400
         ShutdownClientTickProfile(); // CLIENT-BETA-LABEL: release cached atlas owners first
+#ifdef FREELANCER_DBG_OPTIONS
+        DbgOptionsShutdown();
+#endif
         FontShutdown(); // FUN_004174a0 (0x005b229a)
         ShutdownRichText();
         ShutdownDebrisArchDb(); // FUN_00530fa0 (0x005b22a5)

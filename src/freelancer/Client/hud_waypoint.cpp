@@ -30,6 +30,10 @@
 #include "common_universe.h"        // Archetype::GetSolarID
 
 #include "dacom.h"                  // FDUMP
+#ifdef FREELANCER_FLSHARP
+#include "character_select_equip.h" // GetPlayerStarSystemIdRetail (DAT_00673354)
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <math.h>
 #include <stdio.h>
@@ -320,6 +324,13 @@ void HUD_Waypoint::Render(FSpaceCamera* /*Camera*/, float DeltaSeconds)
             FPlayerWaypointRecord* const Record = GetPlayerWaypointRetail(i);
             if (Record == nullptr)
                 continue;
+#ifdef FREELANCER_FLSHARP
+            // Port-only (FLSharp waypoint_fixes, GetWaypoint_Hook at 0x004f4141): a waypoint in
+            // another system is never "reached" by the coordinates here.
+            if (Record->SystemId != GetPlayerStarSystemIdRetail() &&
+                FlsharpFeatureEnabled("waypoint_fixes"))
+                continue;
+#endif
             if (Distance(Player->get_position(), Record->Pos) < kUserPickDistance)
             {
                 QueueWaypointVoice(G_VoiceObjectiveReached);

@@ -21,6 +21,9 @@
 #include "engine_light.h"           // ScaleVec3 (FUN_00411d60)
 #include "player_behavior.h"        // GetPlayerObjRW (FUN_0054baf0)
 #include "player_spawn.h"           // IsPlayerShipId (FUN_00548eb0)
+#ifdef FREELANCER_FLSHARP
+#include "hud_waypoint.h"           // GetHudWaypoint (FlsharpObjectIdsName)
+#endif
 #include "space_camera.h"           // AsCamera
 #include "star_sphere.h"            // Win3DIdentityRotation3x3 (FUN_004215b0)
 #include "win3d_immediate.h"        // Win3DSetViewport (FUN_00422610), FUN_00422910
@@ -38,6 +41,9 @@
 
 #include "DALib.h"
 #include "engine/engbase.h"
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <math.h>
 #include <stdlib.h>
@@ -1008,6 +1014,30 @@ bool HudTradelaneCaption(CSimple const* Object, wchar_t* Out, int Capacity)
     return true;
 }
 
+#ifdef FREELANCER_FLSHARP
+bool FlsharpIsKnownWaypoint(CObject const* Object)
+{
+    if (Object == nullptr ||
+        (static_cast<unsigned>(Object->ObjectClass) & 0x303u) != 0x303u ||
+        !FlsharpFeatureEnabled("waypoint_name_fixes"))
+        return false;
+    return static_cast<CSolar const*>(Object)->is_waypoint();
+}
+
+unsigned FlsharpObjectIdsName(CObject const* Object)
+{
+    unsigned const Name = GetObjectIdsName(Object);
+    if (Name != 1090 || !FlsharpIsKnownWaypoint(Object))
+        return Name;
+    unsigned char bUser = 0;
+    int Index = 0;
+    HUD_Waypoint* const Waypoint = GetHudWaypoint();
+    if (Waypoint != nullptr && Waypoint->GetWaypointEntry(&bUser, &Index) && bUser == 0)
+        return 1091;
+    return Name;
+}
+#endif
+
 bool HudBuildObjectCaption(CSimple const* Object, FHudWideText* Out, int Mode,
                            bool bFactionShortName)
 {
@@ -1018,7 +1048,11 @@ bool HudBuildObjectCaption(CSimple const* Object, FHudWideText* Out, int Mode,
     // 0x004e811f..0x004e8165: the type bits, the ids_name, an empty line, and the watch-list
     // byte (+0xa8) of the object's client gameobj when TypeBits & 0xfdff.
     unsigned const TypeBits = Object->TypeBits;
+#ifdef FREELANCER_FLSHARP
+    unsigned const Name = FlsharpObjectIdsName(Object); // FUN_005472a0 (0x004e8131)
+#else
     unsigned const Name = GetObjectIdsName(Object); // FUN_005472a0
+#endif
     Line[0] = 0;
     unsigned char bWatched = 0;
     FClientGameobj* const Gameobj = ClientObjDb_FindObject(Object->Id, 0); // FUN_005416c0

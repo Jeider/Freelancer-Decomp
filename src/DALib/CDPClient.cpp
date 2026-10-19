@@ -11,6 +11,22 @@
 #include "dalib_net.h"
 #include "CDPNetCodec.h"
 
+#ifdef FREELANCER_FLSHARP
+// Port-only: an FLSharp.ini switch next to the exe (on unless "false"). DALib does not link
+// Common.dll, so it reads the file itself.
+bool DalibFlsharpFeatureEnabled(const char* Name)
+{
+    char Path[MAX_PATH];
+    GetModuleFileNameA(nullptr, Path, MAX_PATH);
+    char* const Slash = strrchr(Path, '\\');
+    if (Slash != nullptr)
+        strcpy(Slash + 1, "FLSharp.ini");
+    char Value[16] = {};
+    GetPrivateProfileStringA("FLSharp", Name, "true", Value, sizeof(Value), Path);
+    return !(_stricmp(Value, "false") == 0 || strcmp(Value, "0") == 0);
+}
+#endif
+
 // .data:065ca120 is seeded at DLL load by the static initializer LAB_065c19c0 (__xc table entry
 // .data:065ca004): CALL timeGetTime; MOV [065ca120],EAX.
 unsigned long CDPClient::m_dwLastMsgReceivedTime = timeGetTime();
@@ -70,7 +86,13 @@ CDPClient::~CDPClient()
     if (Client != nullptr)
     {
         Client->CancelAsyncOperation(0, 0x8000);
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp post_game_deadlock_fix, DALib .text:065c2215 / 065c230c /
+        // 065c27ac): DPNCLOSE_IMMEDIATE, so Close no longer takes ~45 seconds.
+        Client->Close(DalibFlsharpFeatureEnabled("post_game_deadlock_fix") ? 1 : 0);
+#else
         Client->Close(0);
+#endif
         Client->Release();
         Client = nullptr;
     }
@@ -100,7 +122,13 @@ void CDPClient::Cleanup()
     if (Client != nullptr)
     {
         Client->CancelAsyncOperation(0, 0x8000);
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp post_game_deadlock_fix, DALib .text:065c2215 / 065c230c /
+        // 065c27ac): DPNCLOSE_IMMEDIATE, so Close no longer takes ~45 seconds.
+        Client->Close(DalibFlsharpFeatureEnabled("post_game_deadlock_fix") ? 1 : 0);
+#else
         Client->Close(0);
+#endif
         Client->Release();
         Client = nullptr;
     }
@@ -177,7 +205,13 @@ void CDPClient::Close()
     if (Client != nullptr)
     {
         Client->CancelAsyncOperation(0, 0x8000);
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp post_game_deadlock_fix, DALib .text:065c2215 / 065c230c /
+        // 065c27ac): DPNCLOSE_IMMEDIATE, so Close no longer takes ~45 seconds.
+        Client->Close(DalibFlsharpFeatureEnabled("post_game_deadlock_fix") ? 1 : 0);
+#else
         Client->Close(0);
+#endif
     }
 }
 

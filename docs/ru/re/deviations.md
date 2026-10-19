@@ -57,6 +57,22 @@ Retail: сохранения в `My Games\Freelancer`, BMP-скриншоты в
 
 Порт с define: настройки из `bin\flplusplus.ini` (Common `common_flplusplus.cpp`), `common_misc.cpp`, `common_costume.cpp`, `common_textrender.cpp`, а в клиенте `flplusplus.cpp`, `main.cpp`, `main_command_handler.cpp`, `win3d.cpp`, `ui_scroll.cpp`, `ship_view_control.cpp`, `client_cliobj.cpp`, `space_scene_obj_draw.cpp`, `effect_type_info.cpp`, `engine_init.cpp`. Скриншот снимается с конвейера, а не с рабочего стола через GDI, как у плагина; колесо сравнивается по знаку. Собрано, не запускалось.
 
+## Клиент / Common / Server / EngBase / alchemy / DALib: исправления FLSharp.dll (FLSHARP, 2026-10-18)
+
+Статус: OPEN — намеренные возможности порта, добавлены по запросу в форке Jeider/Freelancer-Decomp. Владелец: мейнтейнер этого форка; freelancer.exe / Client, Common.dll, Server.dll, EngBase.dll, alchemy.dll, DALib.dll. Условие снятия: только явное указание владельца. Все изменения под `FREELANCER_FLSHARP` (`FreelancerFlsharp`) и переключаются во время работы файлом `bin\FLSharp.ini` (отсутствующий ключ — включено); при 0 модули — retail (в Common.dll тогда нет и экспорта `FlsharpFeatureEnabled`). Описание и таблица патчей: [../flsharp.md](../flsharp.md).
+
+Retail: ошибки, которые исправляет FLSharp, — переключатели управления, сохраняющиеся между появлениями корабля; падения на модифицированных сейвах, в комнатах торговцев, в фильтре серверов, при отсутствующей DLL контроллера и при поиске по рампе alchemy; отключённые анимации оружия; вспышка только на первом стволе; пустые тексты фракции, ёмкости щита и путевых точек; зависание DirectPlay после выхода из игры; кик за повторную покупку корабля; нельзя встать в строй к враждебному члену группы; SPObjUpdate на каждое срабатывание CheckForSync с тягой 0.
+
+Порт с define: исправления FLSharp, включённые в `FLSharp.ini` мода, в `player_spawn.cpp`, `nn_load_save.cpp`, `nn_help.cpp`, `dealer_equip_stats.cpp`, `hud_waypoint.cpp`, `nn_navmap_input.cpp`, `hud_target.cpp`, `hud_target_panel.cpp`, `cli_projectile_fx.cpp`, `nn_dealer.cpp`, `nn_ship_trader.cpp`, `nav_bar.cpp`, `page_server_select.cpp`, `server_filter_dialog.cpp`, `client_objdb.cpp`, Common `common_flsharp.cpp` / `common_formationbehavior.cpp`, Server `server_savegame.cpp` / `server_classes.cpp` / `IServerImpl.cpp`, `EngBase.cpp`, `alchemy_ramp.cpp`, DALib `CDPClient.cpp` / `CGunWrapper.cpp` (последний во время работы меняет семь байт retail `gundll.dll`, только если там байты retail). Собрано, не запускалось.
+
+## Клиент / Common: окно DBG_OPTIONS беты и [OUTLINES] (DBG-OPTIONS, 2026-10-19)
+
+Статус: OPEN — намеренная возможность порта, добавлена по запросу в форке Jeider/Freelancer-Decomp. Владелец: мейнтейнер этого форка; freelancer.exe / Client и Common.dll. Условие снятия: только явное указание владельца. Все изменения под `FREELANCER_DBG_OPTIONS` (`FreelancerDbgOptions`); при 0 клиент и Common.dll — retail (в Common.dll тогда нет и экспортов `DbgOutline*`). Описание: [../dbg_options.md](../dbg_options.md).
+
+Retail: таблица опций (`FUN_005792b0`, 71 строка) только читается; окно, которое её редактировало, и все потребители `[OUTLINES]` удалены, команд кеймапа `DBG_*` нет.
+
+Порт с define: `dbg_options.cpp` (окно по Ctrl+Shift+O через `KeyMapRouteInputMessage`, рисуется в конце кадра; контуры после эффектов в `SpaceObjDrawPass`), Common `common_dbg_outlines.cpp` (рёбра IVP-оболочек, физические сферы и фантомы). `HOTSPOTS` не перенесено. Собрано, не запускалось.
+
 ## SoundManager / SoundStreamer: Fraunhofer ACM (decode only) (SOUND-ACM-DECODE-ONLY, 2026-10-10)
 
 Статус: ЖИВО — намеренное отклонение по прямому запросу владельца. Владелец: Giperion; SoundManager.dll / SoundStreamer.dll. Условие снятия: только явное указание Giperion; не закрывать при обычном аудите соответствия retail.

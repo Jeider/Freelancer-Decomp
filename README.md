@@ -51,6 +51,8 @@ property page *Freelancer diagnostics*), or `/p:<Name>=0|1` on the MSBuild comma
 | `FreelancerHudTargetView` / `FreelancerHudStatusView` / `FreelancerHudInventoryView` | 1 | Target view next to the contact list, own-ship view in the status panel, ship view mode in the inventory (from the HudTarget / HudStatus / HudInventory plugins; [docs/hud_plugins.md](docs/hud_plugins.md)) |
 | `FreelancerJflp` | 1 | jflp.dll behaviour: equipment stats, "Sector C4", Alt+Enter windowed toggle, roll in mouse flight, 8-way strafe, server info of other versions ([docs/jflp.md](docs/jflp.md)) |
 | `FreelancerFlplusplus` | 1 | flplusplus.dll behaviour: `flplusplus.ini` (LOD / render distance, save and screenshot folders, ship preview zoom), private fonts from `fonts.ini [FontFiles]`, PNG screenshots, FLSpew timestamps, mouse wheel in lists ([docs/flplusplus.md](docs/flplusplus.md)) |
+| `FreelancerFlsharp` | 1 | FLSharp.dll fixes switched by `FLSharp.ini`: flight control toggles on spawn, weapon animations, flash on every barrel, waypoint and dealer fixes, crash fixes (saves, dealers, server filter, alchemy), post-game deadlock, ship re-buy kick, smoother multiplayer updates ([docs/flsharp.md](docs/flsharp.md)) |
+| `FreelancerDbgOptions` | 1 | The beta's debug options window on Ctrl+Shift+O, with the `[OUTLINES]` drawing of collision hulls, physical spheres, shields and phantoms ([docs/dbg_options.md](docs/dbg_options.md)) |
 | `FreelancerBetaLabel` | 0 | The "Beta" label in the corner of the screen |
 | `FreelancerEnableTickProfile` | 0 | On-screen frame profiler |
 

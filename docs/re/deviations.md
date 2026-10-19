@@ -57,6 +57,22 @@ Retail: saves in `My Games\Freelancer`, BMP screenshots in `Pictures\FreelancerS
 
 Port with the define: the settings of `bin\flplusplus.ini` (Common `common_flplusplus.cpp`), `common_misc.cpp`, `common_costume.cpp`, `common_textrender.cpp`, and in the client `flplusplus.cpp`, `main.cpp`, `main_command_handler.cpp`, `win3d.cpp`, `ui_scroll.cpp`, `ship_view_control.cpp`, `client_cliobj.cpp`, `space_scene_obj_draw.cpp`, `effect_type_info.cpp`, `engine_init.cpp`. Screenshots are taken from the pipeline, not from the GDI desktop as the plugin does; the wheel value is compared by sign. Compiled, not yet run.
 
+## Client / Common / Server / EngBase / alchemy / DALib: FLSharp.dll fixes (FLSHARP, 2026-10-18)
+
+Status: OPEN — intentional port-only features, requested in the Jeider/Freelancer-Decomp fork. Owner: that fork's maintainer; freelancer.exe / Client, Common.dll, Server.dll, EngBase.dll, alchemy.dll, DALib.dll. Removal condition: only an explicit instruction of the owner. Every change is under `FREELANCER_FLSHARP` (`FreelancerFlsharp`) and is switched at run time by `bin\FLSharp.ini` (a missing key is on); at 0 the modules are retail (Common.dll then also lacks the `FlsharpFeatureEnabled` export). Description and patch table: [../flsharp.md](../flsharp.md).
+
+Retail: the bugs FLSharp fixes -- the flight control toggles kept across a spawn, crashes on modded saves, in the dealer rooms, the server filter, a missing controller DLL and the alchemy ramp scan; disabled weapon animations; the flash on one barrel only; blank faction / shield capacity / waypoint texts; the post-game DirectPlay deadlock; the ship re-buy kick; no formation with hostile group members; SPObjUpdate on every CheckForSync hit with throttle 0.
+
+Port with the define: the FLSharp fixes the mod's `FLSharp.ini` turns on, in `player_spawn.cpp`, `nn_load_save.cpp`, `nn_help.cpp`, `dealer_equip_stats.cpp`, `hud_waypoint.cpp`, `nn_navmap_input.cpp`, `hud_target.cpp`, `hud_target_panel.cpp`, `cli_projectile_fx.cpp`, `nn_dealer.cpp`, `nn_ship_trader.cpp`, `nav_bar.cpp`, `page_server_select.cpp`, `server_filter_dialog.cpp`, `client_objdb.cpp`, Common `common_flsharp.cpp` / `common_formationbehavior.cpp`, Server `server_savegame.cpp` / `server_classes.cpp` / `IServerImpl.cpp`, `EngBase.cpp`, `alchemy_ramp.cpp`, DALib `CDPClient.cpp` / `CGunWrapper.cpp` (which also patches seven bytes of the retail `gundll.dll` at run time, only when they are the retail ones). Compiled, not yet run.
+
+## Client / Common: the beta's DBG_OPTIONS window and [OUTLINES] (DBG-OPTIONS, 2026-10-19)
+
+Status: OPEN — intentional port-only feature, requested in the Jeider/Freelancer-Decomp fork. Owner: that fork's maintainer; freelancer.exe / Client and Common.dll. Removal condition: only an explicit instruction of the owner. Every change is under `FREELANCER_DBG_OPTIONS` (`FreelancerDbgOptions`); at 0 the client and Common.dll are retail (Common.dll then also lacks the `DbgOutline*` exports). Description: [../dbg_options.md](../dbg_options.md).
+
+Retail: the option table (`FUN_005792b0`, 71 rows) is only ever read; the window that edited it and every `[OUTLINES]` consumer were removed, and there are no `DBG_*` keymap commands.
+
+Port with the define: `dbg_options.cpp` (the window on Ctrl+Shift+O through `KeyMapRouteInputMessage`, drawn at the end of the frame; the outlines after the effects in `SpaceObjDrawPass`), Common `common_dbg_outlines.cpp` (IVP hull edges, physical and phantom spheres). `HOTSPOTS` is not ported. Compiled, not yet run.
+
 ## SoundManager / SoundStreamer: Fraunhofer ACM (decode only) (SOUND-ACM-DECODE-ONLY, 2026-10-10)
 
 Status: OPEN — intentional deviation at the owner's direct request. Owner: Giperion; SoundManager.dll / SoundStreamer.dll. Removal condition: only an explicit instruction from Giperion; do not close on a routine retail-conformance audit.

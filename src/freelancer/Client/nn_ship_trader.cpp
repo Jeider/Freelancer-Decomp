@@ -33,6 +33,9 @@
 #include "common_goods.h"
 #include "common_misc.h"            // SinglePlayer
 #include "common_text.h"            // RenderDisplayList, StyleNode
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <list>
 #include <stdio.h>
@@ -502,6 +505,16 @@ bool NnShipTrader::Create(Win3D* NewParent, void* Data)
     return Win3D::Create(NewParent, Data);      // FUN_004b5060
 }
 
+#ifdef FREELANCER_FLSHARP
+namespace
+{
+    // Port-only (FLSharp print_rep_requirements, NN_ShipTrader::StoreShipRepRequirement): each
+    // row's required reputation as a percentage, kept in step with the rows. FLSharp grows the
+    // 0x448-byte object for it; there is one ship dealer, so a side table does here.
+    int G_FlsRowRepPercent[3] = {0, 0, 0};
+}
+#endif
+
 void NnShipTrader::RefreshRows()
 {
     // FUN_004b93f0. 004b93fc..004b941b: the rank level and the market.
@@ -518,6 +531,9 @@ void NnShipTrader::RefreshRows()
         float const MinLevel = ClientMarketGetMinLevel(Market, GoodId); // FUN_00438160
         float const MinRep = ClientMarketGetMinRep(Market, GoodId);     // FUN_004381c0
         RowRequiredLevels[Row] = static_cast<int>(MinLevel);
+#ifdef FREELANCER_FLSHARP
+        G_FlsRowRepPercent[Row] = static_cast<int>(MinRep * 100.0f); // 0x004b9462
+#endif
 
         // 004b9465..004b9495: a known level (0..0x3e6) below the requirement (FILD / FCOMP,
         // TEST AH,5 / JP: no jump is "below") -- in single player the row is locked by rank, and
@@ -571,6 +587,12 @@ void NnShipTrader::RefreshRows()
             int const IndexTemp = RowIndices[Row];
             RowIndices[Row] = RowIndices[Row + 1];
             RowIndices[Row + 1] = IndexTemp;
+#ifdef FREELANCER_FLSHARP
+            // FLSharp SwapShips_Hook (0x004b9545).
+            int const RepTemp = G_FlsRowRepPercent[Row];
+            G_FlsRowRepPercent[Row] = G_FlsRowRepPercent[Row + 1];
+            G_FlsRowRepPercent[Row + 1] = RepTemp;
+#endif
             bSorted = false;
         }
     }
@@ -901,6 +923,17 @@ void NnShipTrader::SelectRow(int Row)
     else if (Status == 2)
     {
         // 004b900a..004b904d: reputation (ids 0x61c).
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp print_rep_requirements, PrintShipRepRequirement_Hook at
+        // 0x004b9010): the ids formatted with the row's required reputation percentage.
+        if (FlsharpFeatureEnabled("print_rep_requirements") && Selected >= 0 && Selected < 3)
+        {
+            GetIdsStringWWithRawFallback(0x61c, G_NnTextScratchA, G_NnTextScratchCapacity);
+            swprintf(G_NnTextScratchB, 0x1000, G_NnTextScratchA, G_FlsRowRepPercent[Selected]);
+            ErrorHelp->SetProperty(0x1d, PointerArg(G_NnTextScratchB), 0);
+        }
+        else
+#endif
         ErrorHelp->SetProperty(0x1e, 0x61c, 0);
         ErrorHelp->SetProperty(1, 0, 0);
         BuyButton->SetProperty(1, 1, 0);

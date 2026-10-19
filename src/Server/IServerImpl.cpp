@@ -33,6 +33,9 @@
 #include "../include/common_animdb.h"     // AnimDB::Update (FUN_06d10320)
 #include "../include/server_createinfo.h" // FShipCreateRequest, Server_Acquire3DMathEngine (PlayerLaunch)
 #include "../include/x86math.h"           // I3DMathEngine (PlayerLaunch)
+#ifdef FREELANCER_FLSHARP
+#include "../include/common_flsharp.h"    // port-only FLSharp feature switches
+#endif
 #include <windows.h>
 #include <mmsystem.h>
 #include <cmath>
@@ -3243,6 +3246,12 @@ unsigned int Server_ControllerCreate(const char* dll_path, const char* instance_
     if (hMod == nullptr) {
         FDUMP(0x100001, "%s(%d) : *** ERROR: failed create DLL instance '%s' (make sure file exists)\n",
               "E:\\FL\\Scratch\\Source\\Server\\dlls.cpp", 0xa7, dll_path);
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp freelancer_dll_crash_fix, 06d43d6b / 06d43e6d -> 06d43f54):
+        // retail goes on and calls CreateInstance through a NULL module, which crashes.
+        if (FlsharpFeatureEnabled("freelancer_dll_crash_fix"))
+            return 0;
+#endif
     }
 
     FControllerNode* node = (FControllerNode*)malloc(sizeof(FControllerNode));

@@ -42,6 +42,9 @@
 #include "common_misc.h"            // SinglePlayer
 #include "common_tstring.h"
 #include "common_universe.h"
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <list>
 #include <stdio.h>
@@ -738,6 +741,9 @@ void NnDealer::Update()
             // 00480402..004806d0: how many can be bought / taken.
             MaxCount = Field38c;
             float RankRequired = 0.0f; // [ESP+0x1c]
+#ifdef FREELANCER_FLSHARP
+            float FlsFeelingRequired = 0.0f; // the [ESP+0x24] FLSharp reads at reason 6
+#endif
             // [ESP+0x18]: GetMaxBuyCount writes it; on the ship dealer's path retail leaves it
             // uninitialised unless a cap below sets it -- the port starts it at 0 (no message).
             int Reason = 0;
@@ -759,6 +765,9 @@ void NnDealer::Update()
                         RankRequired = ClientMarketGetMinLevel(Market, GoodId); // FUN_00438160
                         int const Rank = GetPlayerRankLevelRetail();            // FUN_004c55d0
                         float const FeelingRequired = ClientMarketGetMinRep(Market, GoodId); // FUN_004381c0
+#ifdef FREELANCER_FLSHARP
+                        FlsFeelingRequired = FeelingRequired;
+#endif
 
                         // 00480491..004804de: in single player, a rank in 0..0x3e6 below the
                         // requirement (FILD / FCOMP, TEST AH,5 + JP: only "less" is taken) --
@@ -878,7 +887,23 @@ void NnDealer::Update()
                 case 3: ShowErrorText(0x480, 0); break;
                 case 4: ShowErrorText(0x490, 0); break;
                 case 5: ShowErrorText(0x61b, static_cast<int>(RankRequired)); break; // ftol
-                case 6: ShowErrorText(0x61c, 0); break;
+                case 6:
+#ifdef FREELANCER_FLSHARP
+                    // Port-only (FLSharp print_rep_requirements, 0x00480739 / 0x0047fe86): the
+                    // required reputation as a percentage (-100..100) is the format argument,
+                    // printed even when it is 0; an ids with %d shows it.
+                    if (FlsharpFeatureEnabled("print_rep_requirements"))
+                    {
+                        ShowErrorText(0x61c, 0);
+                        GetIdsStringWWithRawFallback(0x61c, G_NnTextScratchA, G_NnTextScratchCapacity);
+                        swprintf(G_NnTextScratchB, 0x1000, G_NnTextScratchA,
+                                 static_cast<int>(FlsFeelingRequired * 100.0f));
+                        ErrorHelp->SetProperty(0x1d, reinterpret_cast<uintptr_t>(G_NnTextScratchB), 0);
+                        break;
+                    }
+#endif
+                    ShowErrorText(0x61c, 0);
+                    break;
                 case 7: ShowErrorText(0x637, 0); break;
                 case 8: ShowErrorText(0x63f, 0); break;
                 case 9: ShowErrorText(0x3a4, 0); break;

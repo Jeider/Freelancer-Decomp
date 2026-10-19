@@ -33,6 +33,14 @@
 #include "space_camera.h"
 #include "space_scene_load.h"
 #include "star_sys.h"
+#ifdef FREELANCER_FLSHARP
+#include "common_iface.h"       // IBehaviorManager +0xf9, GetBehaviorManager
+#include "common_systemmanager.h" // ThrustManager::bAutoLevel
+#include "hud_status_core.h"    // HudStatusSetAutoLevelState
+#include "player_behavior.h"    // GetPlayerObjRW
+#include "space_app.h"          // G_SpaceApp.ThirdPerson
+#include "common_flsharp.h"
+#endif
 
 #include <cstddef>
 #include <list>
@@ -473,6 +481,29 @@ FClientShipGameobj* SpawnPlayerShip()
     static_cast<IServer*>(GetLocalServerInterface())
         ->PlayerLaunch(G_PlayerCharacterId, G_PlayerConnectionId);
 
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp flight_controls_fix, on the free at 0x0054b8b9): after loading a game
+    // or launching, the camera's level toggle (third-person camera +0x13c, FLSharp's "rotation
+    // lock") and the HUD's auto-level state (DAT_00612700) can disagree with the new ship's
+    // behaviour, and roll / mouse flight then misbehave. Take both from the behaviour manager
+    // (+0xf9, Sys->Thrust auto level), or their defaults (on) without one.
+    if (FlsharpFeatureEnabled("flight_controls_fix"))
+    {
+        IBehaviorManager const* const Manager =
+            GetBehaviorManager(static_cast<IObjRW*>(GetPlayerObjRW()));
+        if (Manager != nullptr && Manager->Sys != nullptr)
+        {
+            G_SpaceApp.ThirdPerson.bCameraLevelEnabled = Manager->LevelCameraFlag;
+            HudStatusSetAutoLevelState(Manager->Sys->Thrust.bAutoLevel != 0);
+        }
+        else
+        {
+            G_SpaceApp.ThirdPerson.bCameraLevelEnabled = 1;
+            HudStatusSetAutoLevelState(true);
+        }
+    }
+    ClientObjDb_FlsharpResetUpdates(Ship);
+#endif
     // 0x0054b877..0x0054b8e1: the locals' destructors (list, vector) run on scope exit.
     return Go;
 }

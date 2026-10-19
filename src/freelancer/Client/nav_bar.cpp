@@ -46,6 +46,9 @@
 #include "dacom.h"                  // FDUMP
 #include "engine/engbase.h"
 #include "x86math.h"
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -739,6 +742,10 @@ void NavBar::Update()
             {
                 bFadingIn = 0;
                 SetClientMouseCursorDrawFlag(1);
+#ifdef FREELANCER_FLSHARP
+                // Port-only (FLSharp dealer_crash_fix, SetHotspot_Hook on 0x0043e9ca).
+                if (Current != nullptr || !FlsharpFeatureEnabled("dealer_crash_fix"))
+#endif
                 SelectRoomButton(Current);
             }
         }
@@ -1163,7 +1170,14 @@ void NavBar::CameraToDesk()
     // FUN_0043ffa0. Current is not null-tested.
     FNavBarButton* const Button = Current;
     FRoomRuntime* const Room = CurrentRoomRuntime();
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp dealer_crash_fix, GetRoomHotspot_Hook at 0x0043ffb6): no Current
+    // reads as no hotspot.
+    RoomButtonInfo const* const Hotspot =
+        (Button == nullptr && FlsharpFeatureEnabled("dealer_crash_fix")) ? nullptr : Button->Hotspot;
+#else
     RoomButtonInfo const* const Hotspot = Button->Hotspot;
+#endif
     bool bDefaultCamera = true;
     if (Hotspot != nullptr && Hotspot->RoomSwitch != nullptr)
     {
@@ -1660,6 +1674,19 @@ void NavBar::OnButtonClicked(FNavBarButton* Button)
     }
 }
 
+// The dealer camera tracks of ActivateButton (0x004417e7 / 0x00441862).
+static bool NavBarTrackDealerCamera(FRoomRuntime* Room, char const* Camera, NavBar* Bar)
+{
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp dealer_menu_open_fix, DealerOpenCamera::StartAnimation_Hook): a move
+    // already running answers "started" instead of "failed". Retail's failure on a quick
+    // double click left the camera up with the dealer menu never opening until a redock.
+    if (RoomControlGetField1338(Room) != 0 && FlsharpFeatureEnabled("dealer_menu_open_fix"))
+        return true;
+#endif
+    return RoomControlTrackCamera(Room, Camera, &NavBar::ScriptDone, Bar, nullptr);
+}
+
 void NavBar::ActivateButton(FNavBarButton* From, FNavBarButton* To)
 {
     // FUN_00441700 (RET 8).
@@ -1698,7 +1725,7 @@ void NavBar::ActivateButton(FNavBarButton* From, FNavBarButton* To)
         NnMainButtonOnModalOpen();
         NotifyServiceWindows();
         RoomControlSetField1340(Room, 1);
-        if (RoomControlTrackCamera(Room, "Camera_Track_1", &NavBar::ScriptDone, this, nullptr))
+        if (NavBarTrackDealerCamera(Room, "Camera_Track_1", this))
         {
             SetClientMouseCursorDrawFlag(0);
             ToggleDealerTabs(true);
@@ -1720,7 +1747,7 @@ void NavBar::ActivateButton(FNavBarButton* From, FNavBarButton* To)
         if (VirtualRoom.size() != 0 && To->Hotspot->Behavior == 5)
             Camera = "Camera_Trader_Wide";
         RoomControlSetField1340(Room, 1);
-        if (!RoomControlTrackCamera(Room, Camera, &NavBar::ScriptDone, this, nullptr))
+        if (!NavBarTrackDealerCamera(Room, Camera, this))
         {
             OnButtonClicked(Current);
             return;
@@ -1894,7 +1921,13 @@ bool NavBar::CharacterClicked(FCharacterObject* Character, int Role)
         return false;
 
     // 0x00441d24..0x00441e88: the click held until the walk ends (Update), the room entered.
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp dealer_crash_fix, 0x00441d28): while the room transition runs (the
+    // software cursor still hidden) the click is not held, which crashed retail.
+    bCharacterPending = FlsharpFeatureEnabled("dealer_crash_fix") ? GetClientMouseCursorDrawFlag() : 1;
+#else
     bCharacterPending = 1;
+#endif
     PendingCharacter = Character;
     if (Found->Hotspot != nullptr && Found->Hotspot->StateRead != 0)
     {

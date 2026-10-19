@@ -1455,8 +1455,43 @@ static unsigned long DACOM_API TypedBindMap(FTypedChannel* This, unsigned long* 
     return Bytes == 0x1C ? 1 : 0;
 }
 
+#ifdef FREELANCER_FLSHARP
+// Port-only (FLSharp weapon_anim_fix, EngAnimation::SetModel_Hook on the call at
+// 0x0661b83f): FLSharp.ini next to the exe, "weapon_anim_fix" (on unless "false").
+static bool FlsharpWeaponAnimFixEnabled()
+{
+    static int s_State = -1;
+    if (s_State < 0)
+    {
+        char Path[MAX_PATH];
+        GetModuleFileNameA(nullptr, Path, MAX_PATH);
+        char* const Slash = strrchr(Path, '\\');
+        if (Slash != nullptr)
+            strcpy(Slash + 1, "FLSharp.ini");
+        char Value[16] = {};
+        GetPrivateProfileStringA("FLSharp", "weapon_anim_fix", "true", Value, sizeof(Value), Path);
+        s_State = (_stricmp(Value, "false") == 0 || strcmp(Value, "0") == 0) ? 0 : 1;
+    }
+    return s_State != 0;
+}
+#endif
+
 static unsigned long DACOM_API TypedBindMapType1(FScalarTypedChannel* This, unsigned long* Map, void* Bind)
 {
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp weapon_anim_fix): retail binds a gun's animation channel to the gun's
+    // own model, where it never plays; bind it to the topmost object model (type 0, parent at
+    // +0x10) -- the ship hull -- instead.
+    if (Bind != nullptr && FlsharpWeaponAnimFixEnabled())
+    {
+        for (unsigned char* Model = static_cast<unsigned char*>(Bind); Model != nullptr;
+             Model = *reinterpret_cast<unsigned char**>(Model + 0x10))
+        {
+            if (*reinterpret_cast<unsigned long*>(Model) == 0)
+                Bind = Model;
+        }
+    }
+#endif
     const unsigned long bBound = TypedBindMap(This, Map, Bind);
     if (bBound != 0)
     {

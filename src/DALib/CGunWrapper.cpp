@@ -12,6 +12,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef FREELANCER_FLSHARP
+bool DalibFlsharpFeatureEnabled(const char* Name); // CDPClient.cpp
+#endif
+
 namespace
 {
     // gundll.dll's class id and interface ids -- retail .data:065ca034 / 065ca024 / 065ca054 /
@@ -76,6 +80,38 @@ namespace
         Context->Browser = nullptr;
         Context->bEmpty = true;
     }
+
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp post_game_deadlock_fix, IDirectPlay8Client::Close_Hook): cancel
+    // every async operation, then close with DPNCLOSE_IMMEDIATE (1).
+    HRESULT __stdcall GunDllCloseImmediate(IDirectPlay8Client* Client)
+    {
+        Client->CancelAsyncOperation(0, DPNCANCEL_ALL_OPERATIONS);
+        return Client->Close(1);
+    }
+
+    // gundll.dll +0x302ef `MOV ECX,[EAX]; PUSH ESI; PUSH EAX; CALL [ECX+0x38]` (Close(0)) ->
+    // `PUSH EAX; CALL GunDllCloseImmediate; NOP`. Only when the bytes are the retail ones.
+    void PatchGunDllClose(HMODULE GunDll)
+    {
+        if (GunDll == nullptr)
+            return;
+        unsigned char* const Site = (unsigned char*)GunDll + 0x302ef;
+        static const unsigned char Retail[] = {0x8b, 0x08, 0x56, 0x50, 0xff, 0x51, 0x38};
+        if (IsBadReadPtr(Site, sizeof(Retail)) || memcmp(Site, Retail, sizeof(Retail)) != 0)
+            return;
+        DWORD OldProtect = 0;
+        if (!VirtualProtect(Site, sizeof(Retail), PAGE_EXECUTE_READWRITE, &OldProtect))
+            return;
+        Site[0] = 0x50;
+        Site[1] = 0xe8;
+        const long Rel = (long)((unsigned char*)&GunDllCloseImmediate - (Site + 6));
+        memcpy(Site + 2, &Rel, sizeof(Rel));
+        Site[6] = 0x90;
+        VirtualProtect(Site, sizeof(Retail), OldProtect, &OldProtect);
+        FlushInstructionCache(GetCurrentProcess(), Site, sizeof(Retail));
+    }
+#endif
 
     // Retail FUN_065c5a90 -- the worker thread. Releases only when COM initialised (S_OK or
     // S_FALSE); frees the block in every case.
@@ -161,6 +197,25 @@ CGunWrapper::~CGunWrapper()
     Host = nullptr;
     Browser = nullptr;
 
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp post_game_deadlock_fix, CreateThread at .text:065c598e): release on
+    // this thread instead of a worker. A worker still in FreeLibrary after the game's exit
+    // never returns, and Shutdown then waits on it forever. gundll's DirectPlay Close is
+    // made immediate first, so the release does not stall the main thread.
+    if (DalibFlsharpFeatureEnabled("post_game_deadlock_fix"))
+    {
+        if (!Context->bEmpty)
+            PatchGunDllClose(Context->Module);
+        GunReleaseThread(Context);
+        if (ServerName != nullptr)
+        {
+            free(ServerName);
+            ServerName = nullptr;
+        }
+        Field_0x08 = 0;
+        return;
+    }
+#endif
     DWORD ThreadId = 0;
     const HANDLE Thread = CreateThread(nullptr, 0, &GunReleaseThread, Context, CREATE_SUSPENDED, &ThreadId);
     if (Thread == nullptr)

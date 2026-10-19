@@ -23,6 +23,15 @@
 #include "dacom.h"               // FDUMP
 #include "common_goods.h"        // FindHardpoint_PS / HardpointInfo
 #include "common_physys.h"       // Collision::CalcCollisionDamage
+#include "common_ivp_real_object.h" // TEMP collision diagnostics
+#include "../../IVP/ivp_utility/ivp_math.h" // TEMP collision diagnostics
+#ifdef FREELANCER_DBG_OPTIONS
+#include "common_dbg_outlines.h" // TEMP collision diagnostics
+#endif
+#include "../../IVP/ivp_physics/ivp_mindist.h" // TEMP collision diagnostics
+#include "../../IVP/ivp_physics/ivp_core.h" // TEMP collision diagnostics
+#include "../../IVP/ivp_physics/ivp_ov_element.h" // TEMP collision diagnostics
+#include "../../IVP/ivp_collision/ivp_collision.h" // TEMP collision diagnostics
 #include "effect_type_info.h"    // EffectTypeWithinPerf (FUN_004fd570)
 #include "engine/engbase.h"
 #include "fade_to_black.h"       // SetFadeImmediate (FUN_00412070)
@@ -3032,6 +3041,170 @@ void FClientShipGameobj::update(float Dt)
         {
             SDisableCollide = GetGameOption(kGameOptDisableCollide);
             Ship->enable_collisions_r(SDisableCollide == 0);
+        }
+        // TEMP collision diagnostics (remove): every 2 s, the IVP state of the player's ship
+        // and of every ship / solar / asteroid within 3 km.
+        static DWORD SLastCollDiag = 0;
+        if (GetTickCount() - SLastCollDiag > 2000)
+        {
+            SLastCollDiag = GetTickCount();
+            auto Dump = [](char const* Tag, CObject* Obj, float Dist) {
+                IVP_Real_Object const* const Body = Obj->BodyPtr;
+                PhySys::PhyCollisionStateManager const* const Mgr = Obj->CollisionStateMgr;
+                unsigned const Intruders =
+                    Mgr != nullptr ? *reinterpret_cast<unsigned const*>(reinterpret_cast<char const*>(Mgr) + 8) : 0xffffffffu;
+                unsigned const PhType =
+                    Mgr != nullptr ? *(reinterpret_cast<unsigned char const*>(Mgr) + 0x10) : 0xffu;
+                FDUMP(0x100002, "COLLDIAG %s class 0x%x obj %p dist %.0f body %p flags 0x%x phantom %p mgr %p intruders %d phtype %u actual %d sysid %u grp '%.8s'\n",
+                      Tag, (unsigned)Obj->ObjectClass, (void*)Obj, Dist, Body,
+                      Body != nullptr ? Body->flags : 0u, Body != nullptr ? Body->first_child : nullptr,
+                      Mgr, (int)Intruders, PhType,
+                      Mgr != nullptr ? (int)Mgr->get_actual_collision_state() : -1,
+                      Obj->PhysicsSystemId, Body != nullptr ? Body->name : "");
+#ifdef FREELANCER_DBG_OPTIONS
+                // Hull vs. model: the world AABB of the PHYS WIRES geometry, against the object's
+                // position, orientation and its model's engine extent.
+                struct FBox
+                {
+                    float Min[3] = {1e30f, 1e30f, 1e30f};
+                    float Max[3] = {-1e30f, -1e30f, -1e30f};
+                    int Lines = 0;
+                    int Spheres = 0;
+                    float SphereR = 0.0f;
+                    void Add(float const* P)
+                    {
+                        for (int K = 0; K < 3; ++K)
+                        {
+                            if (P[K] < Min[K]) Min[K] = P[K];
+                            if (P[K] > Max[K]) Max[K] = P[K];
+                        }
+                    }
+                } Box;
+                DbgOutlineCollisionHull(Obj,
+                    [](void* C, float const* A, float const* B) {
+                        FBox* const Bx = static_cast<FBox*>(C);
+                        Bx->Add(A);
+                        Bx->Add(B);
+                        ++Bx->Lines;
+                    },
+                    [](void* C, float const* Ce, float R) {
+                        FBox* const Bx = static_cast<FBox*>(C);
+                        float const Lo[3] = {Ce[0] - R, Ce[1] - R, Ce[2] - R};
+                        float const Hi[3] = {Ce[0] + R, Ce[1] + R, Ce[2] + R};
+                        Bx->Add(Lo);
+                        Bx->Add(Hi);
+                        ++Bx->Spheres;
+                        Bx->SphereR = R;
+                    },
+                    &Box);
+                Vector const& Pos = Obj->get_position();
+                float ModelRadius = 0.0f;
+                float ModelCentre[3] = {};
+                if (Obj->EngineInstanceId != -1)
+                    DALib::Engine->GetInstanceExtent(reinterpret_cast<void*>(Obj->EngineInstanceId), 0, &ModelRadius, ModelCentre);
+                float const* const R = reinterpret_cast<float const*>(&Obj->Orientation);
+                if (Box.Lines > 0 || Box.Spheres > 0)
+                {
+                    float const Cw[3] = {(Box.Min[0] + Box.Max[0]) * 0.5f - Pos.x, (Box.Min[1] + Box.Max[1]) * 0.5f - Pos.y,
+                                         (Box.Min[2] + Box.Max[2]) * 0.5f - Pos.z};
+                    // The hull centre in the object's own axes (Orientation^T * world offset).
+                    float const Cl[3] = {R[0] * Cw[0] + R[3] * Cw[1] + R[6] * Cw[2], R[1] * Cw[0] + R[4] * Cw[1] + R[7] * Cw[2],
+                                         R[2] * Cw[0] + R[5] * Cw[1] + R[8] * Cw[2]};
+                    FDUMP(0x100002, "COLLDIAG   hull lines %d spheres %d (r %.1f) size %.1f x %.1f x %.1f centre-pos world (%.1f %.1f %.1f) local (%.1f %.1f %.1f) | model r %.1f centre (%.1f %.1f %.1f)\n",
+                          Box.Lines, Box.Spheres, Box.SphereR, Box.Max[0] - Box.Min[0], Box.Max[1] - Box.Min[1],
+                          Box.Max[2] - Box.Min[2], Cw[0], Cw[1], Cw[2], Cl[0], Cl[1], Cl[2], ModelRadius,
+                          ModelCentre[0], ModelCentre[1], ModelCentre[2]);
+                }
+                float Wr[9] = {};
+                float Wo[3] = {};
+                if (DbgOutlineBodyTransform(Obj, Wr, Wo))
+                {
+                    FDUMP(0x100002, "COLLDIAG   ivp origin-pos (%.2f %.2f %.2f) rows (%.3f %.3f %.3f | %.3f %.3f %.3f | %.3f %.3f %.3f) obj rows (%.3f %.3f %.3f | %.3f %.3f %.3f | %.3f %.3f %.3f)\n",
+                          Wo[0] - Pos.x, Wo[1] - Pos.y, Wo[2] - Pos.z,
+                          Wr[0], Wr[1], Wr[2], Wr[3], Wr[4], Wr[5], Wr[6], Wr[7], Wr[8],
+                          R[0], R[1], R[2], R[3], R[4], R[5], R[6], R[7], R[8]);
+                }
+#endif
+            };
+            Dump("player", Ship, 0.0f);
+            if (Ship->BodyPtr != nullptr && Ship->BodyPtr->core != nullptr)
+            {
+                const IVP_Core* const Core = Ship->BodyPtr->core;
+                static Vector SLastPos = {};
+                Vector const& P = Ship->get_position();
+                FDUMP(0x100002, "COLLDIAG   player core speed (%.2f %.2f %.2f) delta (%.2f %.2f %.2f) pos-moved-in-2s (%.1f %.1f %.1f) core %p\n",
+                      Core->Speed.x, Core->Speed.y, Core->Speed.z,
+                      Core->DeltaWorldFCore.x, Core->DeltaWorldFCore.y, Core->DeltaWorldFCore.z,
+                      P.x - SLastPos.x, P.y - SLastPos.y, P.z - SLastPos.z, (const void*)Core);
+                SLastPos = P;
+            }
+            if (Ship->BodyPtr != nullptr)
+            {
+                // The player's mindists: valid and invalid synapse lists, with the other side
+                // and the gap of the first few.
+                int Valid = 0;
+                int Invalid = 0;
+                for (IVP_Synapse_Real* S = Ship->BodyPtr->synapse_list_head; S != nullptr && Valid < 1000; S = S->next)
+                {
+                    IVP_Ledge_Mindist* const M = S->get_mindist();
+                    if (Valid < 6 && M != nullptr)
+                    {
+                        IVP_Real_Object* const A = M->synapse[0].l_obj;
+                        IVP_Real_Object* const B = M->synapse[1].l_obj;
+                        IVP_Real_Object* const Other = A == Ship->BodyPtr ? B : A;
+                        FDUMP(0x100002, "COLLDIAG   syn status %d mindist %p other %p ('%.8s') gap %.2f radii %.2f flags 0x%x\n",
+                              (int)S->status, (void*)M, (void*)Other, Other != nullptr ? Other->name : "",
+                              M->SeparationGap, M->CombinedRadius, M->StateFlags);
+                    }
+                    ++Valid;
+                }
+                for (IVP_Synapse_Real* S = Ship->BodyPtr->invalid_synapse_list_head; S != nullptr && Invalid < 1000; S = S->next)
+                    ++Invalid;
+                FDUMP(0x100002, "COLLDIAG   player synapses valid %d invalid %d ov %p\n", Valid, Invalid,
+                      (void*)Ship->BodyPtr->ov_element);
+                if (IVP_OV_Element* const Ov = Ship->BodyPtr->ov_element)
+                {
+                    int const Count = static_cast<int>(Ov->collision_fvector.n_elems);
+                    int Shown = 0;
+                    for (int I = 0; I < Count && Shown < 8; ++I)
+                    {
+                        IVP_Collision* const C = Ov->collision_fvector.elems[I];
+                        if (C == nullptr)
+                            continue;
+                        IVP_Real_Object* Pair[2] = {};
+                        C->get_objects(Pair);
+                        IVP_Real_Object* const Other = Pair[0] == Ship->BodyPtr ? Pair[1] : Pair[0];
+                        IVP_Ledge_Mindist* const M = dynamic_cast<IVP_Ledge_Mindist*>(C);
+                        IVP_Complex_Mindist* const X = dynamic_cast<IVP_Complex_Mindist*>(C);
+                        FDUMP(0x100002, "COLLDIAG   coll[%d/%d] %s other '%.8s' gap %.2f radii %.2f state 0x%x qhandle %d children %d syn %d/%d\n",
+                              I, Count, X != nullptr ? "complex" : M != nullptr ? "ledge" : "other",
+                              Other != nullptr ? Other->name : "",
+                              M != nullptr ? M->SeparationGap : -1.0f, M != nullptr ? M->CombinedRadius : -1.0f,
+                              M != nullptr ? M->StateFlags : 0u,
+                              *reinterpret_cast<int const*>(reinterpret_cast<char const*>(C) + 4),
+                              X != nullptr ? static_cast<int>(X->Children.n_elems) : -1,
+                              M != nullptr ? (int)M->synapse[0].status : -1, M != nullptr ? (int)M->synapse[1].status : -1);
+                        ++Shown;
+                    }
+                }
+            }
+            CObject::Class const Classes[] = {CObject::ClassShip, CObject::ClassSolar, CObject::ClassAsteroid};
+            int Logged = 0;
+            for (CObject::Class const Class : Classes)
+            {
+                for (CObject* Obj = CObject::FindFirst(Class); Obj != nullptr && Logged < 12; Obj = CObject::FindNext())
+                {
+                    if (Obj == Ship)
+                        continue;
+                    Vector const& P = Obj->get_position();
+                    Vector const& Q = Ship->get_position();
+                    float const D = std::sqrt((P.x - Q.x) * (P.x - Q.x) + (P.y - Q.y) * (P.y - Q.y) + (P.z - Q.z) * (P.z - Q.z));
+                    if (D > 3000.0f)
+                        continue;
+                    Dump("near", Obj, D);
+                    ++Logged;
+                }
+            }
         }
     }
 

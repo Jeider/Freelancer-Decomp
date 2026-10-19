@@ -1234,9 +1234,21 @@ GENRESULT FTextureLibrary::LoadDdsTexture(IFileSystem* FileSystem, const char* N
     unsigned int UploadFormat = SourceFormat;
     for (unsigned long Level = 0; Level < Levels; ++Level)
     {
-        // Retail divides the linear byte size by the WIDTH block count.
-        const unsigned long Pitch = bPitch ? (Header[0x58 / 4] >> 3) * Cursor.Width
-            : Cursor.Bytes / ((Cursor.Width + 3) >> 2);
+        // Retail divides the linear byte size by the WIDTH block count (0x06ec0142), which is
+        // the block-row pitch only for square levels. Retail's D3DX8 inside RP8 does not read
+        // the pitch of a DXTn source; the D3DX the port links does, so a 128x64 DXT1 sign got
+        // pitch 128 instead of 256 and every other block row came out of the wrong place
+        // (striped). The port passes the real block-row pitch: blocks across * block size.
+        unsigned long Pitch;
+        if (bPitch)
+            Pitch = (Header[0x58 / 4] >> 3) * Cursor.Width;
+        else
+        {
+            unsigned long BlocksAcross = (Cursor.Width + 3) >> 2;
+            if (BlocksAcross == 0)
+                BlocksAcross = 1;
+            Pitch = BlocksAcross * MinimumBlock;
+        }
         if (Pipeline->SetTextureLevelData(Handle, Level, Cursor.Width, Cursor.Height, Pitch,
                                           &UploadFormat, Cursor.Pixels, nullptr, nullptr) < 0)
         {

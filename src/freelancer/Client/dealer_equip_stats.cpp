@@ -15,6 +15,9 @@
 
 #include "common_archetype.h"
 #include "common_goods.h"
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <cstdio>
 #include <cstring>
@@ -228,6 +231,19 @@ namespace
         const HpAttachmentType Hp = Gen->get_hp_type();
         EmitClassAndLevel(OutRdl, Hp, bEmitLabels, bEmitValues);
 
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp shield_capacity_fix, the ftol at 0x0048505b): the online capacity,
+        // max_capacity - ftol(offline_threshold * max_capacity), at least 0.
+        if (FlsharpFeatureEnabled("shield_capacity_fix"))
+        {
+            float Capacity = Gen->MaxCapacity -
+                             static_cast<float>(static_cast<long>(Gen->OfflineThreshold * Gen->MaxCapacity));
+            if (Capacity < 0.0f)
+                Capacity = 0.0f;
+            EmitIntStat(OutRdl, 0x6d8, Capacity, bEmitLabels, bEmitValues);
+        }
+        else
+#endif
         EmitIntStat(OutRdl, 0x6d8, Gen->MaxCapacity, bEmitLabels, bEmitValues);
         EmitIntStat(OutRdl, 0x6d9, Gen->RegenerationRate, bEmitLabels, bEmitValues);
         EmitIntStat(OutRdl, 0x6da, Gen->RebuildPowerDraw, bEmitLabels, bEmitValues);

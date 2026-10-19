@@ -48,6 +48,9 @@
 #include "dacom.h"
 #include "render/IRenderPipeline.h"
 #include "render/shading.h"
+#ifdef FREELANCER_DBG_OPTIONS
+#include "dbg_options.h" // port-only beta DBG_OPTIONS window
+#endif
 
 #include <float.h>
 #include <stdio.h>
@@ -139,6 +142,9 @@ namespace
 
         // Intentional port-only addition: CLIENT-BETA-LABEL, removal only by Giperion.
         DrawClientTickProfile();
+#ifdef FREELANCER_DBG_OPTIONS
+        DbgOptionsDrawWindow();
+#endif
 
         // 0x0042508f..0x0042509a: Pipeline slot 0xe8 (EndScene); EAX is not read.
         FramePipeline()->EndScene();

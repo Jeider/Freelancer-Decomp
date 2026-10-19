@@ -301,7 +301,12 @@ namespace AlchemyImpl
                                   kDefaultPoolSize,
                                   kDefaultPoolSize,
                                   kDefaultPoolSize,
-                                  static_cast<unsigned char>(kDefaultUseMaterialBatcher)};
+                                  // DAT_06257919 is 0 in the retail image; only
+                                  // SetUseMaterialBatcher (0x06202454) writes it. The ini read's
+                                  // default of 1 is discarded with the value, so nothing seeds
+                                  // it. Starting at 1 ran the batch flush in the menu THN, where
+                                  // the client never calls SetUseMaterialBatcher.
+                                  0};
 
     FAppearancePool G_PoolBasic = {};
     FAppearancePool G_PoolParticle = {};

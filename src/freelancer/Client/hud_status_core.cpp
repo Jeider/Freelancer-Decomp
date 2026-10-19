@@ -1975,6 +1975,18 @@ namespace
     // auto-avoidance toggles OnEvent 0x3e / 0x3d flip. Nothing else in the PE touches them.
     unsigned char G_StatusAutoLevel = 1;
     unsigned char G_StatusAutoAvoidance = 0;
+}
+
+#ifdef FREELANCER_FLSHARP
+void HudStatusSetAutoLevelState(bool bOn)
+{
+    // Port-only (FLSharp flight_controls_fix): DAT_00612700 resynced with the behaviour.
+    G_StatusAutoLevel = bOn ? 1 : 0;
+}
+#endif
+
+namespace
+{
 
     // FUN_00544d00 (thiscall on the player's IObjRW, RET 4; Client\space\ship.cpp, whose only
     // caller is FUN_004de4c0) -- the ship's first tractor (FindFirst 0x100000) pulls in every

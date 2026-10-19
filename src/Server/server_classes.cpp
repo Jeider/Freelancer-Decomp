@@ -31,6 +31,9 @@
 #include "../include/rpc_iclient.h"
 #include "../include/rpc_iclient_args.h" // FServerSetReputationInfo / FPayloadServerActivateObject (add_player MP walk)
 #include "../include/md5hash.h"      // MD5HASH_API: Server exports its implicit members like retail
+#ifdef FREELANCER_FLSHARP
+#include "../include/common_flsharp.h" // port-only FLSharp feature switches
+#endif
 #include <windows.h>
 #include <mmsystem.h>
 #include <cstdlib>
@@ -982,6 +985,32 @@ namespace {
     // layout and `It->second.Type` is the `enum TransactionType` this reads.
     // The transaction-type filter here (0 or 2) is the same "the base sells
     // it" test pub::Market::GetCommoditiesForSale applies at .text:06d12ec4.
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp ship_buy_kick_fix): does a ship package the base sells list ArchId
+    // in any of its addon lists?
+    bool BaseShipPackageCarries(BaseData const& Data, unsigned int ArchId) {
+        for (std::map<unsigned int, MarketGoodInfo>::const_iterator It = Data.Market.begin();
+             It != Data.Market.end(); ++It) {
+            if (It->second.Type != TransactionBuyAndSell &&
+                It->second.Type != TransactionSaleOnly)
+                continue;
+            GoodInfo const* Good = GoodList::find_by_id(It->second.GoodId);
+            if (Good == nullptr || Good->Category != (unsigned)GoodCategoryShip)
+                continue;
+            std::vector<EquipDesc> const* const Lists[3] = {&Good->AddonLow, &Good->AddonMid,
+                                                            &Good->AddonHigh};
+            for (int L = 0; L < 3; ++L) {
+                for (std::vector<EquipDesc>::const_iterator E = Lists[L]->begin();
+                     E != Lists[L]->end(); ++E) {
+                    if (E->ArchId == ArchId)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+#endif
+
     bool PlayerData_EquipmentNotSoldOnBase(PlayerData const& Slot) {
         // .text:06d4fd3d / .text:06d4fd57 / .text:06d4fd73 -- all three bail with AL=0.
         if (Slot.current_base == 0)
@@ -1057,6 +1086,16 @@ namespace {
                     continue; // .text:06d4ffc8 -- sold here, nothing to explain.
                 }
             }
+#ifdef FREELANCER_FLSHARP
+            // Port-only (FLSharp ship_buy_kick_fix, .text:06d4feeb): re-buying the ship the
+            // player already flies keeps the snapshot's archetype, so the new package's
+            // equipment looked cheated and the player was kicked on launch. An item one of
+            // the base's ship packages carries counts as sold here.
+            if (bShipUnchanged && Slot.ship_archetype != 0 &&
+                BaseShipPackageCarries(Data, ArchId) &&
+                FlsharpFeatureEnabled("ship_buy_kick_fix"))
+                continue;
+#endif
 
             // .text:06d4ff08 .. .text:06d4ff6e -- how much the snapshot accounted
             // for versus how much is actually on board. Retail's per-node filter is

@@ -18,6 +18,9 @@
 #include "common_iface.h" // IObjInspect / IObjRW / ObjInspectOf / ObjRwFromWatchable
 #include "x86math.h"      // I3DMathEngine::TransformMatrix (+0x2c), FVector, FMatrix
 #include "common_pathfind.h"
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h" // port-only FLSharp feature switches
+#endif
 
 #include <cmath>
 #include <cstdint>
@@ -259,6 +262,16 @@ EvaluateResult FormationBehavior::evaluate(unsigned int Context)
     (void)ObjInspectOf(Target)->get_attitude_towards(Attitude, Owner);   // 062cc37f slot 0x68
     if (Attitude > -0.6f)
         return EvalBlocked;                                         // EAX = 1
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp hostile_group_formation, get_attitude_towards_Hook at +0x6c37c): a
+    // hostile player who is in the owner player's group (the group ids were matched at
+    // 062cc2b1 above) still takes formation.
+    if (OwnShip != nullptr && TargetShip != nullptr &&
+        *(reinterpret_cast<unsigned char const*>(OwnShip) + 0x2bd) != 0 &&
+        *(reinterpret_cast<unsigned char const*>(TargetShip) + 0x2bd) != 0 &&
+        FlsharpFeatureEnabled("hostile_group_formation"))
+        return EvalBlocked;
+#endif
     return EvalSkip;
 }
 

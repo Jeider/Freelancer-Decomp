@@ -135,6 +135,7 @@
     <ClInclude Include="Client\mission_briefing.h" />
     <ClInclude Include="Client\client_frame_tick.h" />
     <ClInclude Include="Client\client_tick_profile.h" />
+    <ClInclude Include="Client\dbg_options.h" />
     <ClInclude Include="Client\widescreen.h" />
     <ClInclude Include="Client\connect_handshake.h" />
     <ClInclude Include="Client\connect_lists.h" />
@@ -348,6 +349,7 @@
     <ClCompile Include="Client\mission_briefing.cpp" />
     <ClCompile Include="Client\client_frame_tick.cpp" />
     <ClCompile Include="Client\client_tick_profile.cpp" />
+    <ClCompile Include="Client\dbg_options.cpp" />
     <ClCompile Include="Client\connect_handshake.cpp" />
     <ClCompile Include="Client\connect_lists.cpp" />
     <ClCompile Include="Client\login_mgr.cpp" />

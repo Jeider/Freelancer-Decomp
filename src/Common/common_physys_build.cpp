@@ -154,13 +154,44 @@ namespace
     }
 }
 
+// TEMP collision diagnostics (remove): ledges before / after the detached-part filter.
+namespace
+{
+    struct FLedgeDiag
+    {
+        unsigned Calls, Before, After, FirstClientData, FirstPartInst;
+    } G_LedgeDiag = {};
+    DWORD G_LedgeDiagLast = 0;
+}
+
 // 06285f10..06285f9d: the base query (0634ab90) with the same six arguments, then the filter.
 void PhySys::PhySurfaceManager::get_all_ledges_within_radius(const float* Center3, float Radius, void* Param3,
                                                              void* Param4, void* Param5,
                                                              IVP_SurfaceManager_OutList* OutList)
 {
     IVP_SurfaceManager_Polygon::get_all_ledges_within_radius(Center3, Radius, Param3, Param4, Param5, OutList);
+    ++G_LedgeDiag.Calls;
+    G_LedgeDiag.Before += OutList->Count;
+    if (OutList->Count > 0 && G_LedgeDiag.Calls < 50)
+    {
+        IVP_Compact_Ledge const* const First = (IVP_Compact_Ledge const*)OutList->Elems[0];
+        G_LedgeDiag.FirstClientData = (unsigned)First->ClientData;
+        G_LedgeDiag.FirstPartInst = (unsigned)Owner->part_to_inst((unsigned)First->ClientData);
+    }
     PhySys_DropDetachedLedges(Owner, OutList);
+    G_LedgeDiag.After += OutList->Count;
+    if (GetTickCount() - G_LedgeDiagLast > 2000)
+    {
+        G_LedgeDiagLast = GetTickCount();
+        if (FILE* F = fopen("ivpdiag.txt", "a"))
+        {
+            fprintf(F, "LEDGES calls %u before %u after %u sample clientdata 0x%x part_to_inst 0x%x\n",
+                    G_LedgeDiag.Calls, G_LedgeDiag.Before, G_LedgeDiag.After,
+                    G_LedgeDiag.FirstClientData, G_LedgeDiag.FirstPartInst);
+            fclose(F);
+        }
+        G_LedgeDiag = FLedgeDiag();
+    }
 }
 
 // 06285fa0..06286012: the base query (0634ac50), then the filter.

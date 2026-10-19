@@ -95,6 +95,10 @@ void ClientObjDb_ProcessCollisions();
 // (DAT_00678a30) advances its time and CRemotePhysicsSimulation by Dt; a ship CheckForSync
 // flags is sent to the server (IServer::SPObjUpdate) and fed back through RemoteUpdate.
 void ClientObjDb_UpdateRemotePhysics(float Dt);
+#ifdef FREELANCER_FLSHARP
+// Port-only (FLSharp better_updates): reset the update pacing for a freshly launched ship.
+void ClientObjDb_FlsharpResetUpdates(CShip* Ship);
+#endif
 // FUN_005416c0 (cdecl) -- the Gameobj whose get_id is ObjectId: Kind 0 searches buckets
 // 1, 4, 5, 6, 7, 2 in that order, any other Kind searches only that bucket. Null for an id
 // with no bits under 0x3fffffff.

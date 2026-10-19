@@ -48,6 +48,31 @@
 #include <cstring>
 #include <new>
 #include <vector>
+#ifdef FREELANCER_FLSHARP
+#include <map>
+
+#include "common_flsharp.h" // port-only FLSharp feature switches
+
+namespace
+{
+    // Port-only (FLSharp flash_particle_fix): the flashes of barrels 1..n-1 per launcher.
+    std::map<FCliLauncherFx const*, std::vector<void*>>& FlsharpExtraMuzzleMap()
+    {
+        static std::map<FCliLauncherFx const*, std::vector<void*>> s_Map;
+        return s_Map;
+    }
+
+    std::vector<void*>& FlsharpExtraMuzzleEffects(FCliLauncherFx const* Launcher)
+    {
+        return FlsharpExtraMuzzleMap()[Launcher];
+    }
+
+    // The launcher's teardown of +0x28 for each extra flash (FLSharp's three clean-up hooks):
+    // optionally detached first (the destructor's FUN_004f7d20 with an identity frame),
+    // killed (vtable +4) and released (FUN_004f7a90).
+    void FlsharpReleaseExtraMuzzleEffects(FCliLauncherFx const* Launcher, bool bDetach);
+}
+#endif
 
 namespace
 {
@@ -905,9 +930,32 @@ void FCliLauncherFx::PlayFireSound(Vector const* Pos, int ShotCount)
     // 0x0052cf58..0x0052cf78: an idle voice starts on the archetype (vtable +0x58, 0), a
     // playing one is rewound (vtable +0x64, 0).
     if (!FireVoice->IsActive())
-        FireVoice->Start(OneShotSoundArch, 0);
+    {
+        unsigned char const bStarted = FireVoice->Start(OneShotSoundArch, 0);
+        // TEMP diagnostics (silent guns in the port, 2026-10-18): the first shots' voice state.
+        static int G_FireSoundTrace = 0;
+        if (G_FireSoundTrace < 30)
+        {
+            ++G_FireSoundTrace;
+            FVec3 Listener = {};
+            if (DALib::Sound != nullptr)
+                DALib::Sound->GetListenerPosition(reinterpret_cast<FVector*>(&Listener));
+            float MaxDist = -1.0f;
+            FireVoice->GetMaxDistance(&MaxDist);
+            float Att = 0.0f;
+            FireVoice->GetAttenuation(&Att);
+            FDUMP(0x100002,
+                  "FIRESND trace: arch %p file '%s' shots %d started %d active %d att %g max %g "
+                  "pos (%g %g %g) listener (%g %g %g)",
+                  OneShotSoundArch, Arch->GetFileName() ? Arch->GetFileName() : "?", ShotCount,
+                  bStarted, FireVoice->IsActive(), Att, MaxDist, Pos->x, Pos->y, Pos->z,
+                  Listener.X, Listener.Y, Listener.Z);
+        }
+    }
     else
+    {
         FireVoice->SetStartOffset(0);
+    }
 }
 
 namespace
@@ -1195,6 +1243,48 @@ void CliLauncherPlayMuzzleFx(FCliLauncherFx* Launcher)
         ParticleEffectRelease(Effect);
         Launcher->MuzzleEffect = nullptr;
     }
+
+#ifdef FREELANCER_FLSHARP
+    // Port-only (FLSharp flash_particle_fix, PlayAllFlashParticles at 0x0052d1b4): the same
+    // flash on every further barrel. The extra effects live beside the launcher (FLSharp
+    // reuses +0x28 as an array), replaced here and released with +0x28's.
+    if (FlsharpFeatureEnabled("flash_particle_fix"))
+    {
+        std::vector<void*>& Extra = FlsharpExtraMuzzleEffects(Launcher);
+        for (size_t Index = 0; Index < Extra.size(); ++Index)
+        {
+            if (Extra[Index] == nullptr)
+                continue;
+            FParticleEffect* const Prior = static_cast<FParticleEffect*>(Extra[Index]);
+            ParticleEffectCleanupAlchemy(Prior);
+            ParticleEffectArmDeath(Prior);
+            ParticleEffectRelease(Prior);
+        }
+        Extra.clear();
+        unsigned const Barrels = Launch->GetProjectilesPerFire();
+        for (unsigned BarrelIndex = 1; BarrelIndex < Barrels; ++BarrelIndex)
+        {
+            CELauncher::Barrel const* const More = Launch->GetBarrelInfo(BarrelIndex);
+            if (More == nullptr || More->EngineIndex == -1)
+                continue;
+            FParticleEffect* const Flash = ParticleEffectCreate();
+            if (Flash == nullptr)
+                continue;
+            FTransform MoreXform;
+            MatrixCopyFromCommon(&MoreXform.Rotation, More->Orient);
+            MoreXform.Translation.X = More->Position.x;
+            MoreXform.Translation.Y = More->Position.y;
+            MoreXform.Translation.Z = More->Position.z;
+            ParticleEffectAttach(Flash, Launcher->Host, More->EngineIndex, &MoreXform);
+            if (ParticleEffectStart(Flash, EffectArch) == 0)
+            {
+                ParticleEffectRelease(Flash);
+                continue;
+            }
+            Extra.push_back(Flash);
+        }
+    }
+#endif
 }
 
 int CliShipActivateEquip(void* AdjustorThis, unsigned short const* HardpointId,
@@ -1884,6 +1974,9 @@ FCliLauncherFx::~FCliLauncherFx()
         EffectRelease(Effect);
         MuzzleEffect = nullptr;
     }
+#ifdef FREELANCER_FLSHARP
+    FlsharpReleaseExtraMuzzleEffects(this, true); // port-only, FLSharp flash_particle_fix
+#endif
     // 0x0052cb73..0x0052cba4: the munition explosion (FUN_00536170), the const effect arch
     // (FUN_0040e990), then the one-shot and dry-fire sound archetypes (slot 4, +0x10) -- each
     // only when set; none of the pointers is cleared.
@@ -1938,7 +2031,37 @@ void FCliLauncherFx::DropOnDestroying()
         EffectRelease(Effect);
         MuzzleEffect = nullptr;
     }
+#ifdef FREELANCER_FLSHARP
+    FlsharpReleaseExtraMuzzleEffects(this, false); // port-only, FLSharp flash_particle_fix
+#endif
 }
+
+#ifdef FREELANCER_FLSHARP
+namespace
+{
+    void FlsharpReleaseExtraMuzzleEffects(FCliLauncherFx const* Launcher, bool bDetach)
+    {
+        std::map<FCliLauncherFx const*, std::vector<void*>>& Map = FlsharpExtraMuzzleMap();
+        std::map<FCliLauncherFx const*, std::vector<void*>>::iterator const It = Map.find(Launcher);
+        if (It == Map.end())
+            return;
+        for (size_t Index = 0; Index < It->second.size(); ++Index)
+        {
+            FEffectBase* const Effect = static_cast<FEffectBase*>(It->second[Index]);
+            if (Effect == nullptr)
+                continue;
+            if (bDetach)
+            {
+                FTransform const Identity = IdentityTransform();
+                EffectAttach(Effect, nullptr, -1, &Identity);
+            }
+            Effect->Kill();
+            EffectRelease(Effect);
+        }
+        Map.erase(It);
+    }
+}
+#endif
 
 void FCliLauncherFx::notify(Event Code, void* Param)
 {
@@ -2134,6 +2257,21 @@ namespace
         Archetype::Launcher const* const LaunchArch =
             static_cast<Archetype::Launcher const*>(Launch->EquipArch());
         char const* const UseAnimation = LaunchArch->UseAnimation.Value;
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp weapon_anim_fix, IAnimation2::Open_Hook at 0x0052c8c2): a name
+        // with a leading '_' plays (without the '_') on the parent ship -- its archetype's
+        // script and its root instance -- e.g. a hull-mounted gun's animation in the ship model.
+        if (UseAnimation[0] == '_' && Launch->Owner != nullptr &&
+            FlsharpFeatureEnabled("weapon_anim_fix"))
+        {
+            CObject* const Parent = Launch->Owner;
+            Wrapper->AnimJointIndex.Value = static_cast<int>(DALib::Anim->PlayScript(
+                AsOpaqueDword(Parent->get_archetype()->AnimIndex),
+                AsOpaqueDword(static_cast<int>(Parent->EngineInstanceId)), UseAnimation + 1,
+                nullptr, nullptr));
+        }
+        else
+#endif
         if (UseAnimation[0] != '\0')
         {
             int const ScriptIndex = LaunchArch->AnimIndex;
@@ -2170,6 +2308,16 @@ namespace
             Wrapper->OneShotSoundArch = LookupClientSoundArch(OneShotSound);
             if (Wrapper->OneShotSoundArch != nullptr)
                 AcquireClientSoundArch(Wrapper->OneShotSoundArch);
+        }
+        {
+            // TEMP diagnostics (silent guns in the port, 2026-10-18).
+            static int G_LauncherSoundTrace = 0;
+            if (G_LauncherSoundTrace < 40)
+            {
+                ++G_LauncherSoundTrace;
+                FDUMP(0x100002, "FIRESND launcher: munition 0x%08x one_shot_sound id 0x%08x arch %p",
+                      Munition->Nickname.Id, OneShotSound->Id, Wrapper->OneShotSoundArch);
+            }
         }
 
         // 0x0052c95f..0x0052c9d2: its const_effect (+0x58); non-empty -> FUN_0040f080 into

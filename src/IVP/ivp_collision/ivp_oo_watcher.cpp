@@ -17,6 +17,7 @@
 
 #include <cstddef>
 #include <cstdlib>
+#include <cstdio> // TEMP collision diagnostics
 
 static_assert(offsetof(IVP_Synapse_OO, HullPoolSlot) == 0x04, "IVP_Synapse_OO+0x04");
 static_assert(offsetof(IVP_Synapse_OO, object) == 0x08, "IVP_Synapse_OO+0x08");
@@ -125,9 +126,39 @@ IVP_OO_Watcher::~IVP_OO_Watcher()
     delegator->collision_is_going_to_be_deleted_event(this);                       // :06369d33-:06369d39
 }
 
+// TEMP collision diagnostics (remove): OO watcher counters, appended to ivpdiag.txt.
+extern "C" __declspec(dllimport) unsigned long __stdcall GetTickCount(void);
+namespace
+{
+    struct FOoDiag
+    {
+        unsigned Events, ZeroResult, Created;
+        unsigned long MindistsTotal;
+        float MinRadius, MaxRadius, MinR0, MaxR0;
+    } G_OoDiag = {};
+    unsigned long G_OoDiagLast = 0;
+
+    void OoDiagFlush()
+    {
+        unsigned long const Now = GetTickCount();
+        if (Now - G_OoDiagLast < 2000)
+            return;
+        G_OoDiagLast = Now;
+        if (FILE* F = std::fopen("ivpdiag.txt", "a"))
+        {
+            FOoDiag const& D = G_OoDiag;
+            std::fprintf(F, "OO t=%lu events %u created %u zero %u mindists %lu scan %.3f..%.3f r0 %.3f..%.3f\n", Now,
+                         D.Events, D.Created, D.ZeroResult, D.MindistsTotal, D.MinRadius, D.MaxRadius, D.MinR0, D.MaxR0);
+            std::fclose(F);
+        }
+        G_OoDiag = FOoDiag();
+    }
+}
+
 // FUN_06369a10 (.text:06369a10-06369b1a, plain RET).
 void IVP_OO_Watcher::hull_limit_exceeded_event()
 {
+    OoDiagFlush();
     IVP_Real_Object* Object0 = synapses[0].object;          // :06369a17
     IVP_Environment* Environment = Object0->environment;    // :06369a1a
     IVP_Real_Object* Object1 = synapses[1].object;          // :06369a21
@@ -142,9 +173,23 @@ void IVP_OO_Watcher::hull_limit_exceeded_event()
     // :06369a3c-:06369a6a -- FUN_0634e0b0(obj0, obj1, (float)(R0 + R1),
     // &mindists, 0, 0, 0, 0, delegator = this+0x14), cdecl (ADD ESP,0x24).
     const float ScanRadius = (float)((double)(Range0) + Range1); // FLD / FADD / FSTP float
+    const unsigned DiagBefore = mindists.n_elems;
     IVP_Create_Exact_Mindists(Object0, Object1, ScanRadius, &mindists,
                               nullptr, nullptr, nullptr, nullptr,
                               static_cast<IVP_Collision_Delegator*>(this));
+    ++G_OoDiag.Events;
+    G_OoDiag.Created += mindists.n_elems - DiagBefore;
+    G_OoDiag.MindistsTotal += mindists.n_elems;
+    if (mindists.n_elems == 0)
+        ++G_OoDiag.ZeroResult;
+    if (G_OoDiag.Events == 1 || ScanRadius < G_OoDiag.MinRadius)
+        G_OoDiag.MinRadius = ScanRadius;
+    if (ScanRadius > G_OoDiag.MaxRadius)
+        G_OoDiag.MaxRadius = ScanRadius;
+    if (G_OoDiag.Events == 1 || Range0 < G_OoDiag.MinR0)
+        G_OoDiag.MinR0 = Range0;
+    if (Range0 > G_OoDiag.MaxR0)
+        G_OoDiag.MaxR0 = Range0;
 
     // :06369a6f-:06369a75 -- the time pair is read once, from obj0's
     // environment, and used for both sides.

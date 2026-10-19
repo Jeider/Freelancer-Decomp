@@ -32,6 +32,9 @@
 #include "win_factory.h"       // WinFactoryCreate (FUN_0059db20)
 
 #include "common_text.h"
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -971,6 +974,12 @@ bool PageServerSelect::Slot23(unsigned Msg, unsigned A, unsigned B)
             SetToolTipsEnabled(false);
             if (!ServerFilterDialogRun(this, &Filter))
                 exit(0);
+#ifdef FREELANCER_FLSHARP
+            // Port-only (FLSharp server_filter_crash_fix, 0x00571592): the page may have been
+            // torn down while the dialog ran; no table -> nothing to re-enable or rebuild.
+            if (ServerTable == nullptr && FlsharpFeatureEnabled("server_filter_crash_fix"))
+                return false;
+#endif
             SetToolTipsEnabled(true);
             RebuildTable();
             return false;

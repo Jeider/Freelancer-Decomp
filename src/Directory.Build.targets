@@ -74,6 +74,18 @@
       <PreprocessorDefinitions>FREELANCER_FLPLUSPLUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <!-- Port-only beta DBG_OPTIONS window and [OUTLINES] drawing (docs/dbg_options.md). -->
+  <ItemDefinitionGroup Condition="'$(FreelancerDbgOptions)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_DBG_OPTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Port-only FLSharp.dll fixes (docs/flsharp.md): the client, Common, Server, EngBase, alchemy and DALib. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerFlsharp)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='Server' or '$(MSBuildProjectName)'=='EngBase' or '$(MSBuildProjectName)'=='alchemy' or '$(MSBuildProjectName)'=='DALib')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_FLSHARP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup Condition="'$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='freelancer'">
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Freelancer.Diagnostics.xml">
       <Context>PropertySheet</Context>

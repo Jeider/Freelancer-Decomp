@@ -53,6 +53,8 @@ English: [README.md](README.md). Документация: [docs/ru/README.md](d
 | `FreelancerHudTargetView` / `FreelancerHudStatusView` / `FreelancerHudInventoryView` | 1 | Вид цели рядом со списком контактов, вид своего корабля в панели статуса, режим вида корабля в инвентаре (из плагинов HudTarget / HudStatus / HudInventory; [docs/ru/hud_plugins.md](docs/ru/hud_plugins.md)) |
 | `FreelancerJflp` | 1 | Поведение jflp.dll: статистика оборудования, «Sector C4», Alt+Enter для оконного режима, крен при управлении мышью, стрейф в 8 направлениях, информация о серверах других версий ([docs/ru/jflp.md](docs/ru/jflp.md)) |
 | `FreelancerFlplusplus` | 1 | Поведение flplusplus.dll: `flplusplus.ini` (LOD / дальность прорисовки, папки сохранений и скриншотов, зум превью корабля), приватные шрифты из `fonts.ini [FontFiles]`, PNG-скриншоты, метки времени в FLSpew, колесо мыши в списках ([docs/ru/flplusplus.md](docs/ru/flplusplus.md)) |
+| `FreelancerFlsharp` | 1 | Исправления FLSharp.dll, переключаемые `FLSharp.ini`: переключатели управления при появлении корабля, анимации оружия, вспышка на всех стволах, исправления путевых точек и торговцев, падения (сейвы, торговцы, фильтр серверов, alchemy), зависание после выхода, кик за повторную покупку корабля, плавные обновления в мультиплеере ([docs/ru/flsharp.md](docs/ru/flsharp.md)) |
+| `FreelancerDbgOptions` | 1 | Окно отладочных опций беты по Ctrl+Shift+O с отрисовкой `[OUTLINES]`: оболочки столкновений, физические сферы, щиты и фантомы ([docs/ru/dbg_options.md](docs/ru/dbg_options.md)) |
 | `FreelancerBetaLabel` | 0 | Надпись «Beta» в углу экрана |
 | `FreelancerEnableTickProfile` | 0 | Экранный профайлер кадра |
 

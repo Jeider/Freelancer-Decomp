@@ -40,6 +40,9 @@
 #include "common_text.h"             // FmtStr, RenderDisplayList, StyleNode
 #include "common_universe.h"
 #include "dacom.h"                   // FDUMP
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <stdint.h>
 #include <string.h>
@@ -237,7 +240,15 @@ intptr_t NeuroNetNavMap::SetProperty(int Msg, uintptr_t A, uintptr_t B)
         // waypoint at the clicked item (not a waypoint marker) or point.
         if (BestPathHasText()) // FUN_004c58e0
             return 1;
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp waypoint_fixes, GetHighlightedObject_Hook at 0x00493a00): the
+        // player's own marker (kind 2) is not a waypoint target.
+        FNavMapItem* Item = ItemAt(ClickMapPos, 0);
+        if (Item != nullptr && Item->Kind == 2 && FlsharpFeatureEnabled("waypoint_fixes"))
+            Item = nullptr;
+#else
         FNavMapItem* const Item = ItemAt(ClickMapPos, 0);
+#endif
         if (Item != nullptr && Item->Kind != 3 && Item->Kind != 4)
         {
             ClickMapPos[0] = Item->Position[0];
@@ -264,7 +275,14 @@ intptr_t NeuroNetNavMap::SetProperty(int Msg, uintptr_t A, uintptr_t B)
     {
         // 0x00493b16..0x00493c21: ask the server for a route from the player (in its own
         // system's scale) to the clicked item (its id as the tag) or point.
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp waypoint_fixes, the same hook at 0x00493b21).
+        FNavMapItem* Item = ItemAt(ClickMapPos, 0);
+        if (Item != nullptr && Item->Kind == 2 && FlsharpFeatureEnabled("waypoint_fixes"))
+            Item = nullptr;
+#else
         FNavMapItem* const Item = ItemAt(ClickMapPos, 0);
+#endif
         unsigned TargetId = 0;
         if (Item != nullptr && Item->Kind != 3 && Item->Kind != 4)
         {

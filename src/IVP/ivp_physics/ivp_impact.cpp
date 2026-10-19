@@ -184,7 +184,7 @@ void IVP_Mindist_Do_Impact(IVP_Ledge_Mindist* Mindist, IVP_Real_Object* ObjA, IV
     IVP_Core* const CoreB = ObjB->core;
     IVP_Core* const CoreA = ObjA->core;
     IVP_Simulation_Unit* const SimUnitNotDestroy =
-        (static_cast<int32_t>(ObjA->flags << 24) < 0x08000000) ? CoreB->OwningSimUnit : CoreA->OwningSimUnit;
+        (static_cast<int8_t>(ObjA->flags & 0xffu) < 8) /* low byte; see ivp_ledge_sweep_solver.cpp Init */ ? CoreB->OwningSimUnit : CoreA->OwningSimUnit;
 
     IVP_ListManager* Fs;
     int32_t HavingNewDist;
@@ -358,7 +358,7 @@ void IVP_Impact_System::recalc_pair_dists_except(IVP_ListManager_CorePairEntry* 
 // ---------------------------------------------------------------------------
 void IVP_Impact_System::synchronize_core_if_simulated(IVP_Core* Core)
 {
-    if (static_cast<int32_t>(Core->MovementState << 24) < 0x08000000)
+    if (static_cast<int8_t>(Core->MovementState & 0xffu) < 8) // low byte; see ivp_ledge_sweep_solver.cpp Init
     {
         Core->recalc_interpolated_frame(); // FUN_06347240 (Ipion synchronize_with_rot_z)
     }

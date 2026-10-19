@@ -573,7 +573,7 @@ void IVP_Calc_Next_PSI_Solver::set_transformation(const IVP_U_Quat* Rotation, co
         Hull->InnerValueAtLastEdit = (float)((double)(Distance) + Hull->InnerValueAtLastEdit);
 
         // :06351dcc-:06351dec -- an object whose movement state byte is >= 8.
-        if (static_cast<int32_t>(Object->flags << 24) >= 0x08000000)
+        if (static_cast<int8_t>(Object->flags & 0xffu) >= 8) // low byte; see ivp_ledge_sweep_solver.cpp Init
         {
             IVP_Real_Object_Free_Cache_Object(Object); // :06351dda FUN_0634d510 (cdecl)
             Object->recalc_exact_mindists();           // :06351de5 FUN_063454b0

@@ -617,7 +617,7 @@ void IVP_Simulation_Unit_Revive_If_Sleeping(IVP_Simulation_Unit* Unit, IVP_Envir
             break;
         }
         IVP_Core* const Core = Unit->Cores.elems[Index];
-        if (static_cast<int32_t>(Core->MovementState << 24) < 0x08000000)
+        if (static_cast<int8_t>(Core->MovementState & 0xffu) < 8) // low byte; see ivp_ledge_sweep_solver.cpp Init
         {
             continue;
         }

@@ -17,9 +17,34 @@
 #include <cstring>
 #include <new>
 
+#ifdef FREELANCER_FLSHARP
+#include <windows.h>
+#endif
+
+#ifdef FREELANCER_FLSHARP
+// Port-only: FLSharp.ini next to the exe, "alchemy_crash_fix" (on unless "false").
+static bool FlsharpAlchemyCrashFixEnabled()
+{
+    static int s_State = -1;
+    if (s_State < 0)
+    {
+        char Path[MAX_PATH];
+        GetModuleFileNameA(nullptr, Path, MAX_PATH);
+        char* const Slash = strrchr(Path, '\\');
+        if (Slash != nullptr)
+            strcpy(Slash + 1, "FLSharp.ini");
+        char Value[16] = {};
+        GetPrivateProfileStringA("FLSharp", "alchemy_crash_fix", "true", Value, sizeof(Value), Path);
+        s_State = (_stricmp(Value, "false") == 0 || strcmp(Value, "0") == 0) ? 0 : 1;
+    }
+    return s_State != 0;
+}
+#endif
+
 // alchemy.dll -- the keyed ramps. Every body below names the retail address it was
 // ported from; the class layouts and the shared key container are described in
 // alchemy_ramp.h, the interface slots in alchemy_types.h ("Keyed ramps").
+
 namespace AlchemyImpl
 {
     namespace
@@ -937,8 +962,17 @@ namespace AlchemyImpl
             return TTraits::EvalChild(Keys_.At(Last).Value, InnerTime);
 
         int Index = 0;
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp alchemy_crash_fix, alchemy.dll +0x6FDD / +0x778D / +0x7F4C):
+        // when no key bounds OuterTime (a NaN time) retail runs Index up to Last and then
+        // reads key Last + 1 past the end. Stop the scan one key earlier.
+        const int ScanEnd = FlsharpAlchemyCrashFixEnabled() ? Last - 1 : Last;
+        while (Index < ScanEnd && !(OuterTime < Keys_.At(Index + 1).Time))
+            ++Index;
+#else
         while (Index < Last && !(OuterTime < Keys_.At(Index + 1).Time))
             ++Index;
+#endif
 
         if (Mode_ == 0)
             return TTraits::EvalChild(Keys_.At(Index).Value, InnerTime);
@@ -1233,8 +1267,17 @@ namespace AlchemyImpl
         }
 
         int Index = 0;
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp alchemy_crash_fix, alchemy.dll +0x6FDD / +0x778D / +0x7F4C):
+        // when no key bounds OuterTime (a NaN time) retail runs Index up to Last and then
+        // reads key Last + 1 past the end. Stop the scan one key earlier.
+        const int ScanEnd = FlsharpAlchemyCrashFixEnabled() ? Last - 1 : Last;
+        while (Index < ScanEnd && !(OuterTime < Keys_.At(Index + 1).Time))
+            ++Index;
+#else
         while (Index < Last && !(OuterTime < Keys_.At(Index + 1).Time))
             ++Index;
+#endif
 
         if (Mode_ == 0)
         {
@@ -1324,8 +1367,17 @@ namespace AlchemyImpl
             return Keys_.At(Last).Value->EvalPacked(InnerTime);
 
         int Index = 0;
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp alchemy_crash_fix, alchemy.dll +0x6FDD / +0x778D / +0x7F4C):
+        // when no key bounds OuterTime (a NaN time) retail runs Index up to Last and then
+        // reads key Last + 1 past the end. Stop the scan one key earlier.
+        const int ScanEnd = FlsharpAlchemyCrashFixEnabled() ? Last - 1 : Last;
+        while (Index < ScanEnd && !(OuterTime < Keys_.At(Index + 1).Time))
+            ++Index;
+#else
         while (Index < Last && !(OuterTime < Keys_.At(Index + 1).Time))
             ++Index;
+#endif
 
         if (Mode_ == 0)
             return Keys_.At(Index).Value->EvalPacked(InnerTime);

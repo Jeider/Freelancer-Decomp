@@ -58,6 +58,18 @@
     <EnumValue Name="0" DisplayName="Off" />
     <EnumValue Name="1" DisplayName="On" />
   </EnumProperty>
+  <EnumProperty Name="FreelancerDbgOptions" DisplayName="Beta debug options window"
+                Category="Features" Default="0"
+                Description="Not in the original game (the 2002 beta's DBG_OPTIONS window): Ctrl+Shift+O opens the debug option table, and its [OUTLINES] entries draw collision hulls, physical spheres, shields and phantoms in space (FREELANCER_DBG_OPTIONS, client and Common.dll; docs/dbg_options.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
+  <EnumProperty Name="FreelancerFlsharp" DisplayName="FLSharp.dll fixes"
+                Category="Features" Default="0"
+                Description="Not in the original game (BC46's FLSharp.dll): bug fixes and improvements of the client and server, ported one by one (FREELANCER_FLSHARP, client, Common.dll and Server.dll; docs/flsharp.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
   <EnumProperty Name="FreelancerFlplusplus" DisplayName="flplusplus.dll behaviour"
                 Category="Features" Default="0"
                 Description="Not in the original game (TheStarport's flplusplus.dll): settings in flplusplus.ini next to freelancer.exe (LOD / render distance, pbubble and character detail scales, save and screenshot folders, ship preview zoom), private fonts from DATA\FONTS\fonts.ini [FontFiles], PNG screenshots, FLSpew timestamps, mouse wheel scrolling of lists and texts (FREELANCER_FLPLUSPLUS, client and Common.dll; docs/flplusplus.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">

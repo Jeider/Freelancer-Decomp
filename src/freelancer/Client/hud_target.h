@@ -214,6 +214,16 @@ extern I3DMathEngine* G_HudObjectsMath;
 // 0x004ecbf1, 0x004eced5.
 unsigned GetObjectIdsName(CObject const* Object);
 
+#ifdef FREELANCER_FLSHARP
+// Port-only (FLSharp waypoint_name_fixes): with the switch on, true for a CSolar that
+// is_waypoint() -- such solars count as visited, so they are not "Unknown Object".
+bool FlsharpIsKnownWaypoint(CObject const* Object);
+// Port-only (FLSharp waypoint_name_fixes, GetCShipOrCEqObjName_Hook at 0x00475676 /
+// 0x004e8131): GetObjectIdsName, but a mission (non-player) waypoint reads "Mission Waypoint"
+// (ids 1091) instead of "Waypoint" (1090).
+unsigned FlsharpObjectIdsName(CObject const* Object);
+#endif
+
 // FUN_005472d0 (cdecl; retail Client\space\ship.cpp) -- Out = "" (DAT_005c8ce0), then for a
 // ship ((class & 0x503) == 0x503) the pilot name (CShip::get_pilot_name) when there is one, or
 // Out cleared when there is none. Returns wcslen(Out->Text), 0 without a buffer. Callers:

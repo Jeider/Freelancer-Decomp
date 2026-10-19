@@ -1965,6 +1965,19 @@ GENRESULT DACOM_API FMaterial::Teardown(void* Context)
         return GR_OK;
     }
 
+    // FUN_06eb8170 (DetailMapMaterial vtable 0x06ed1bc0 +4): the stage-1 table, both stages'
+    // texture transforms off and stage 1 back on UV set 1 -- Bind left stage 1 on UV set 0
+    // with the TileRate matrix, which otherwise scales the next material's stage-1 texture
+    // (Et, detail, env map). Context is not read; COLORVERTEX is not reset.
+    if (BindKind == BindDetailMap)
+    {
+        ApplyDetailTable(Pipeline, GDetailMapTable_06ed1b2c, true, 1);
+        Pipeline->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, 0);
+        Pipeline->SetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, 0);
+        Pipeline->SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 1);
+        return GR_OK;
+    }
+
     // FUN_06eb50a0 resets all six stage-1 states before inspecting Context.
     if (BindKind == BindBtDetail)
         ApplyDetailTable(Pipeline, GBindTable_06ed1514, true, 1);

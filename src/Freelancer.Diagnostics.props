@@ -12,5 +12,7 @@
     <FreelancerHudInventoryView>1</FreelancerHudInventoryView>
     <FreelancerJflp>1</FreelancerJflp>
     <FreelancerFlplusplus>1</FreelancerFlplusplus>
+    <FreelancerFlsharp>1</FreelancerFlsharp>
+    <FreelancerDbgOptions>1</FreelancerDbgOptions>
   </PropertyGroup>
 </Project>

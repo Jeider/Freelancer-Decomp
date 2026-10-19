@@ -25,6 +25,8 @@
 #include "../ivp_utility/ivp_core_trap.h"   // IVP_CoreTrap (retail's `MOV dword ptr [0],0`)
 #include "../ivp_utility/ivp_malloc.h"      // ivp_malloc_aligned / ivp_free_aligned (06343fc0 / 06343ff0)
 #include "../ivp_utility/ivp_u_bigvector.h" // IVP_U_BigVector_Grow (0635d3e0)
+#include <cstdio> // TEMP collision diagnostics
+#include <cstring> // TEMP collision diagnostics
 
 // Forward declaration
 
@@ -2708,8 +2710,60 @@ void IVP_Real_Object::recheck_mindists_of_other_cores()
 //     &QWorldFCore, &PosWorldFCore, bOptimizeForRepeatedCalls) (06351b90).
 // IVP_U_Quat::set_mult_inv_quat (ivp_math.h) reproduces 06351190's own term order
 // and x87 spills.
+// TEMP collision diagnostics (remove): beams per body, appended to ivpdiag.txt every 2 s.
+extern "C" __declspec(dllimport) unsigned long __stdcall GetTickCount(void);
+namespace
+{
+    struct FBeamDiag
+    {
+        char Name[9];
+        unsigned Count;
+        unsigned Optimized;
+    };
+    FBeamDiag G_BeamDiag[32];
+    int G_BeamDiagUsed = 0;
+    unsigned long G_BeamDiagLast = 0;
+}
+
 void IVP_Real_Object::beam_object_to_new_position(const IVP_U_Quat* RotationWs, const IVP_U_Point* PositionWs, int32_t bOptimizeForRepeatedCalls)
 {
+    {
+        int Slot = -1;
+        for (int I = 0; I < G_BeamDiagUsed; ++I)
+            if (std::strncmp(G_BeamDiag[I].Name, name, 8) == 0)
+            {
+                Slot = I;
+                break;
+            }
+        if (Slot < 0 && G_BeamDiagUsed < 32)
+        {
+            Slot = G_BeamDiagUsed++;
+            std::memset(G_BeamDiag[Slot].Name, 0, sizeof(G_BeamDiag[Slot].Name));
+            std::strncpy(G_BeamDiag[Slot].Name, name, 8);
+            G_BeamDiag[Slot].Count = 0;
+            G_BeamDiag[Slot].Optimized = 0;
+        }
+        if (Slot >= 0)
+        {
+            ++G_BeamDiag[Slot].Count;
+            if (bOptimizeForRepeatedCalls)
+                ++G_BeamDiag[Slot].Optimized;
+        }
+        const unsigned long Now = GetTickCount();
+        if (Now - G_BeamDiagLast > 2000)
+        {
+            G_BeamDiagLast = Now;
+            if (FILE* F = std::fopen("ivpdiag.txt", "a"))
+            {
+                std::fprintf(F, "BEAM");
+                for (int I = 0; I < G_BeamDiagUsed; ++I)
+                    std::fprintf(F, " '%.8s' %u (opt %u)", G_BeamDiag[I].Name, G_BeamDiag[I].Count, G_BeamDiag[I].Optimized);
+                std::fprintf(F, "\n");
+                std::fclose(F);
+            }
+            G_BeamDiagUsed = 0;
+        }
+    }
     IVP_Core* const Core = core;
     IVP_U_Quat QWorldFCore = *RotationWs;
     IVP_U_Point PosWorldFCore = *PositionWs;

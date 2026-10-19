@@ -32,6 +32,9 @@
 #include "common_server.h"         // IServer::SaveGame
 #include "common_universe.h"       // Universe::get_system
 #include "dacom.h"                 // FDUMP
+#ifdef FREELANCER_FLSHARP
+#include "common_flsharp.h"     // port-only FLSharp feature switches
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -977,6 +980,13 @@ void NnLoadSave::SelectSave(int Index)
     if (Info->ShipArchetype != 0)
     {
         Archetype::Ship const* const Ship = Archetype::GetShip(Info->ShipArchetype);
+#ifdef FREELANCER_FLSHARP
+        // Port-only (FLSharp save_crash_fix, GetShipIdsName_Hook at 0x00487ebf): a save naming
+        // an unknown ship shows IDS 0 instead of crashing.
+        if (Ship == nullptr && FlsharpFeatureEnabled("save_crash_fix"))
+            InfoValues[3]->SetProperty(0x1e, 0, 0);
+        else
+#endif
         InfoValues[3]->SetProperty(0x1e, static_cast<uintptr_t>(Ship->IdsName), 0);
     }
     else

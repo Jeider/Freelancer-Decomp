@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "space_scene_obj_draw.h"
+#ifdef FREELANCER_DBG_OPTIONS
+#include "dbg_options.h" // port-only beta DBG_OPTIONS window
+#endif
 
 #include "alchemy.h"
 #include "beam_effect.h"
@@ -2753,6 +2756,10 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
         // 0x0051c7d4..0x0051c7d8: GameCamera slot 0x50 (no arguments) -- FUN_0051c8b0, or the
         // empty 0x00401e90 on FirstPerson. Port camera slots take `this` explicitly (__stdcall).
         ((FGameCamera*)Cam)->ScaleEnvironmentEffects();
+#ifdef FREELANCER_DBG_OPTIONS
+        // Port-only: the beta's [OUTLINES] (FUN_005167a0) over the finished scene.
+        DbgOutlinesDraw(Camera);
+#endif
     }
 
     // 0x0051c7db..0x0051c7ed: Pipeline vt+0xf0 (0x8b, -1).
