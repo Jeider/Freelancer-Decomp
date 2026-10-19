@@ -8,6 +8,9 @@
 // 0x062fa980 and the per-map teardowns up to 0x062fbe10) plus LoadExplosion 0x0630bd60 /
 // FreeExplosions 0x0630c080. Declared in common_archetype.h (namespace Archetype).
 #include "common_archetype.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#endif
 #include "common_cliobj.h" // Archetype::ICliObjFactory
 #include "common_id.h"     // ID_String, CreateID
 #include "common_ini.h"    // INI_Reader
@@ -691,6 +694,12 @@ int __cdecl Archetype::LoadAsteroids(char const* Path, ICliObjFactory* Factory)
                 Factory->Create(5, &Companion);                // 062fa19c..062fa1b4
 
             DynamicAsteroid* Record = new DynamicAsteroid(Companion); // 062fa1b6..062fa1e4
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's dynastex.dll (docs/adoxa.md; patched at 062fa1e4): hit_pts
+            // defaults to 0, so an asteroid without the key still breaks on the first hit.
+            if (PORT_PLUGIN_ON("dynastex"))
+                Record->HitPts = 0.0f;
+#endif
             while (Reader.read_value())                        // 062fa1ef..062fa224: result ignored
                 Record->read(Reader);
             if (GDynamicAsteroidDb.Insert(Record, Record->Nickname, "DynamicAsteroid"))

@@ -5,6 +5,11 @@
 // Author: Giperion.
 
 #include "hud_status_core.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "port_plugins.h"     // port-only mod plugins (Invisibility)
+#include "cli_projectile_fx.h"  // CliShipActivateEquip
+#include "player_spawn.h"      // GetPlayerConnectionId
+#endif
 
 #include "character_select_equip.h"
 #include "client_gameobj.h"
@@ -654,6 +659,12 @@ HUD_Status::HUD_Status(INI_Reader& /*Reader*/)
     {
         RegisterEvent(kStatusCommandIds[Index]);
     }
+#ifdef FREELANCER_MOD_PLUGINS
+    // Port-only, the mod's Invisibility.dll (docs/mod_plugins.md): USER_CLOAK (0x8e), a keymap
+    // command retail defines but never handles.
+    if (PORT_PLUGIN_ON("Invisibility"))
+        RegisterEvent(0x8e);
+#endif
 }
 
 HUD_Status::~HUD_Status()
@@ -2331,6 +2342,25 @@ bool HUD_Status::OnEvent(unsigned MsgId)
     case 0x6f:
         TractorInAllLoot(); // 0x004dbae3, FUN_004de4c0
         return true;
+
+#ifdef FREELANCER_MOD_PLUGINS
+    case 0x8e:
+    {
+        // Port-only, the mod's Invisibility.dll: toggle the cloaking device. The plugin hid this
+        // behind Ctrl + the collect-loot key (0x004dbae3), flipped a private flag (so its first
+        // press switched off) and called the local server directly (single player only); here
+        // it is its own rebindable command, toggled from the device's real state through the
+        // client's activate path (CliShipActivateEquip, which also tells the server).
+        CEquip* const Cloak = Ship->EquipManager.FindFirst(EquipTypeCloak);
+        if (Cloak != nullptr && !Cloak->IsDestroyed())
+        {
+            unsigned short const Id = Cloak->Id;
+            CliShipActivateEquip(static_cast<IObjAffect*>(Player), &Id, Cloak->IsActive() ? 0 : 1,
+                                 static_cast<int>(GetPlayerConnectionId()));
+        }
+        return true;
+    }
+#endif
 
     case 0x8f:
     {

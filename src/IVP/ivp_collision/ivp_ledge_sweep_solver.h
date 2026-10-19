@@ -889,7 +889,7 @@ namespace IVP_LedgeSweepEvaluatorsDeferred
                                (double)(Moment.k[1]) * MeasureB.k[1]) +
                               (double)(MeasureB.k[0]) * Moment.k[0]) +
                              EvaluatorFloat(EvaluatorThis, 0x14);
-        if (Value < Limit)
+        if (!(Value >= Limit)) // 0635da0b TEST AH,1 / JE: unordered also takes Value
         {
             return (float)(Value); // 0635d9fe FST dword, reloaded at 0635da0d
         }

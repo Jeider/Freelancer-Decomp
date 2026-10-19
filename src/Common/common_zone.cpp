@@ -22,6 +22,7 @@
 //   TEST 0x44 / JP  taken when ST != src or unordered
 
 #include "common_zone.h"
+#include "adoxa_healing.h" // port-only adoxa healing
 #include "common_archetype.h" // CacheString
 
 #include "common_csys.h"  // Acquire3DMathEngine (FUN_06391cf0)
@@ -1938,7 +1939,8 @@ bool ZONE::HasPhysicalEffect() const
 {
     if (PhysicalEffect < 0)
     {
-        if (DragModifier < 1.0f || Interference > 0.0f || Damage > 0.0f)
+        // healing.dll (0633ad42): a negative damage counts as an effect.
+        if (DragModifier < 1.0f || Interference > 0.0f || Damage > 0.0f || (HEALING_ON() && Damage < 0.0f))
             PhysicalEffect = 1;
         else
         {

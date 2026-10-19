@@ -49,7 +49,8 @@
 #include "render/IRenderPipeline.h"
 #include "render/shading.h"
 #ifdef FREELANCER_DBG_OPTIONS
-#include "dbg_options.h" // port-only beta DBG_OPTIONS window
+#include "dbg_options.h"
+#include "dbg_console.h" // port-only beta console
 #endif
 
 #include <float.h>
@@ -144,6 +145,7 @@ namespace
         DrawClientTickProfile();
 #ifdef FREELANCER_DBG_OPTIONS
         DbgOptionsDrawWindow();
+        DbgConsoleDraw();
 #endif
 
         // 0x0042508f..0x0042509a: Pipeline slot 0xe8 (EndScene); EAX is not read.

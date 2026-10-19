@@ -10,6 +10,9 @@
 #include "DALib.h"
 #include "dacom.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail's MSVCRT.DLL atoi wraps, the UCRT saturates
+#ifdef FREELANCER_LANGUAGE
+#include "port_config.h" // port-only language data overlay
+#endif
 
 #include <ctype.h>
 #include <stdio.h>
@@ -513,8 +516,59 @@ INI_Reader::~INI_Reader()
     // text one -- the member destructors, in reverse declaration order.
 }
 
+#ifdef FREELANCER_LANGUAGE
+namespace
+{
+    // Port-only (docs/language.md): port.ini [Language.<code>] data_overlay = one or more
+    // folders (comma separated, relative to the exe) laid out like DATA. An ini under ..\DATA\
+    // that exists in an overlay is read from there instead -- the per-language mission and
+    // system inis the mod otherwise copies over DATA before each start.
+    char const* LanguageOverlayPath(char const* Path, char* Buffer, unsigned BufferSize)
+    {
+        static char S_Overlays[1024];
+        static int S_bRead = 0;
+        if (!S_bRead)
+        {
+            S_bRead = 1;
+            PortLanguageString("data_overlay", "", S_Overlays, sizeof(S_Overlays));
+        }
+        if (S_Overlays[0] == '\0' || Path == nullptr)
+            return Path;
+        // "..\data\<rest>" (either slash, any case).
+        if (!(Path[0] == '.' && Path[1] == '.' && (Path[2] == '\\' || Path[2] == '/') &&
+              _strnicmp(Path + 3, "data", 4) == 0 && (Path[7] == '\\' || Path[7] == '/')))
+            return Path;
+        char const* const Rest = Path + 8;
+        char const* Cursor = S_Overlays;
+        while (*Cursor != '\0')
+        {
+            char const* End = strchr(Cursor, ',');
+            if (End == nullptr)
+                End = Cursor + strlen(Cursor);
+            while (Cursor < End && (*Cursor == ' ' || *Cursor == '\t'))
+                ++Cursor;
+            unsigned Length = static_cast<unsigned>(End - Cursor);
+            while (Length != 0 && (Cursor[Length - 1] == ' ' || Cursor[Length - 1] == '\t'))
+                --Length;
+            if (Length != 0 && _snprintf(Buffer, BufferSize, "%.*s\\%s", static_cast<int>(Length), Cursor, Rest) > 0)
+            {
+                Buffer[BufferSize - 1] = '\0';
+                if (GetFileAttributesA(Buffer) != INVALID_FILE_ATTRIBUTES)
+                    return Buffer;
+            }
+            Cursor = *End != '\0' ? End + 1 : End;
+        }
+        return Path;
+    }
+}
+#endif
+
 bool INI_Reader::open(char const* Path, bool bFatal)
 {
+#ifdef FREELANCER_LANGUAGE
+    char OverlayBuffer[MAX_PATH];
+    Path = LanguageOverlayPath(Path, OverlayBuffer, sizeof(OverlayBuffer));
+#endif
     // .text:0630f9b0. A local FileMap opens the file (FileMap::open inlined: close, name =
     // Path with no null check, CreateFileA / CreateFileMappingA / GetFileSize / MapViewOfFile,
     // Cursor = 0). Failure: FatalErrorFn(200, Path) when bFatal (called through the DALib

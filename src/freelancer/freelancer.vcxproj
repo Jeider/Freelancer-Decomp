@@ -62,6 +62,9 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <!-- Port: retail is not large-address-aware; a 4 GB address space keeps repeated save loads
+           from exhausting it (64 MB TGA mip allocations failed on the second load). -->
+      <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(ProjectDir)..\bin;$(ProjectDir)..\..\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>dacom.lib;DALib.lib;Common.lib;imeui.lib;ole32.lib;gdi32.lib;user32.lib;advapi32.lib;shell32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -136,6 +139,7 @@
     <ClInclude Include="Client\client_frame_tick.h" />
     <ClInclude Include="Client\client_tick_profile.h" />
     <ClInclude Include="Client\dbg_options.h" />
+    <ClInclude Include="Client\dbg_console.h" />
     <ClInclude Include="Client\widescreen.h" />
     <ClInclude Include="Client\connect_handshake.h" />
     <ClInclude Include="Client\connect_lists.h" />
@@ -350,6 +354,7 @@
     <ClCompile Include="Client\client_frame_tick.cpp" />
     <ClCompile Include="Client\client_tick_profile.cpp" />
     <ClCompile Include="Client\dbg_options.cpp" />
+    <ClCompile Include="Client\dbg_console.cpp" />
     <ClCompile Include="Client\connect_handshake.cpp" />
     <ClCompile Include="Client\connect_lists.cpp" />
     <ClCompile Include="Client\login_mgr.cpp" />

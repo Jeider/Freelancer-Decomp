@@ -7,6 +7,9 @@
 // Retail NN_Dealer -- see nn_dealer.h for the class, its vftable and layout.
 
 #include "nn_dealer.h"
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa_api.h" // AmmoLimit
+#endif
 
 #include "client_base_market.h"     // GetClientLocationBaseMarket (FUN_0043a510), the market
                                     // queries FUN_00438060 / 00438160 / 004381c0 / 00438220
@@ -1904,7 +1907,11 @@ int NnDealer::GetMaxBuyCount(unsigned GoodId, int* OutReason)
     {
         if (*OutReason != 0)
             return Count;
+#ifdef FREELANCER_ADOXA
+        int Room = AdoxaAmmoLimit(ArchId); // AmmoLimit.dll (0x00483a72)
+#else
         int Room = MAX_PLAYER_AMMO;
+#endif
         EquipDesc const* const Carried = Inventory->Ship.Loadout.find_matching_cargo(ArchId, 0, 1.0f);
         if (Carried != nullptr)
             Room -= Carried->Count;

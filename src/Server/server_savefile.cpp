@@ -10,6 +10,9 @@
 // and layout evidence; this file carries the evidence for the behaviour.
 
 #include "../include/server_savefile.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "../include/port_config.h" // port-only mod server patches
+#endif
 
 #include <windows.h>
 #include <cstring>
@@ -208,6 +211,13 @@ void SaveGame_Writer::ReadBackAndEncode() {
 }
 
 void SaveGame_Writer::RewriteEncoded() {
+#ifdef FREELANCER_MOD_PLUGINS
+    // Port-only: [ModServer] plain_saves. The mod's server.dll reopens the save with "rt"
+    // (.rdata:06d6b314) instead of "wb" at its three rewrite sites, so the FLS1 copy is never
+    // written and the plain text stays.
+    if (PortConfigInt("ModServer", "plain_saves", 0) != 0)
+        return;
+#endif
     // PlayerDB::create_restart_file .text:06d5398f .. .text:06d539e5 (and its
     // copy at .text:06d53a37 .. .text:06d53a8d).
     File = fopen(Path.c_str(), "wb");                   // .text:06d539a2, .rdata:06d6b4e4

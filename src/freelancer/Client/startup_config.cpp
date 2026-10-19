@@ -9,6 +9,9 @@
 #include "common_ini.h"
 #include "dacom.h"
 #include "game_options.h"
+#ifdef FREELANCER_LANGUAGE
+#include "port_config.h" // port-only language switch
+#endif
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -47,7 +50,16 @@ void LoadStartupConfig(DisplaySettings* Options, const FClientCommandLine* Comma
         Options->options[GGameOptionDescs[Row].Index] = GGameOptionDescs[Row].DefaultValue;
 
     // 0x005621e2..0x00562215.
+#ifdef FREELANCER_LANGUAGE
+    // Port-only (docs/language.md): port.ini [Language.<code>] freelancer_ini, e.g. the mod's
+    // Freelan_en.ini -- what its byte-patched Freelancer_en.exe hardcoded instead.
+    char LanguageIni[0x104];
+    PortLanguageString("freelancer_ini", "Freelancer.ini", LanguageIni, sizeof(LanguageIni));
+    Options->ini_path.Length = CopyBoundedString(Options->ini_path.Text, 0x104,
+                                                 LanguageIni[0] != '\0' ? LanguageIni : "Freelancer.ini");
+#else
     Options->ini_path.Length = CopyBoundedString(Options->ini_path.Text, 0x104, "Freelancer.ini");
+#endif
     Options->data_path.Length = CopyBoundedString(Options->data_path.Text, 0x104, "..\\Data");
 
     // 0x00562225..0x00562265, in retail's store order.

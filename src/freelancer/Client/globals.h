@@ -181,6 +181,12 @@ float GetClientFrameDeltaSeconds();
 double GetClientFrameTimeCapped();      // FUN_0042d680 — 0.0 while paused
 double GetClientFrameTimeRaw();         // FUN_0042d6a0 — 0.0 while paused
 double GetClientElapsedTime();          // FUN_0042d660 — not pause-gated
+#ifdef FREELANCER_DBG_OPTIONS
+// Port-only (the beta console, dbg_console.cpp): the single-player time scale and the fps cap.
+float GetClientTimeScale();
+void SetClientTimeScale(float Scale);
+float GetClientFpsCap();
+#endif
 unsigned GetClientFrameCount();         // FUN_0042d6e0
 unsigned long GetClientFrameTimestampMs(); // FUN_0042d670
 void PushClientTimingPause();           // FUN_0042d6c0

@@ -64,6 +64,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <!-- Port: retail is not large-address-aware; see freelancer.vcxproj. -->
+      <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>dacom.lib;DALib.lib;Common.lib;Server.lib;RemoteClient.lib;imm32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <!-- Retail FLServer.exe's 71-name export table: forwarders to Server/DALib/Common plus

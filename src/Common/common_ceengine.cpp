@@ -8,6 +8,19 @@
 // Declared in common_cequip.h; helpers shared with the sibling TUs are in
 // common_cequip_internal.h (namespace CmnCequip).
 #include "common_cequip.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "common_mod_plugins_api.h" // port-only MultiCruise
+#endif
+
+// Port-only, the mod's MultiCruise.dll (docs/mod_plugins.md): each engine cruises at its own
+// cruise_speed. The plugin wrote the engine's speed into the global CRUISING_SPEED from
+// GetCruiseDrag (062963e0), so every ship shared whichever engine was asked last; here each
+// reader asks its own engine.
+#ifdef FREELANCER_MOD_PLUGINS
+#define ENGINE_CRUISING_SPEED(Arch) ModEngineCruiseSpeed(Arch)
+#else
+#define ENGINE_CRUISING_SPEED(Arch) EngineEquipConsts::CRUISING_SPEED
+#endif
 #include "x86math.h"
 
 #include "common_animdb.h"  // AnimDB::Add/Rem (common_animdb.cpp)
@@ -323,7 +336,7 @@ bool CEEngine::EngageCruise(bool Engage, bool Instant)
         // (get_linear_drag() * CRUISING_SPEED), kept on the FPU stack, FSTP float into +0x4c.
         float const Thrust = EngineArch->ThrustMultiplier;
         double const Drag = (double)(OwnerShipOrNull(Owner)->get_linear_drag()) *
-                            EngineEquipConsts::CRUISING_SPEED;
+                            ENGINE_CRUISING_SPEED(EngineArch);
         CruiseChargeRate = (float)(
             (double)(EngineEquipConsts::CRUISE_ACCEL_TIME) * Thrust / Drag);
         // 06296319: Elapsed FCOMP 0.0, TEST AH,0x1 / JNZ: less or unordered -> wakeup only;
@@ -433,7 +446,7 @@ float CEEngine::GetPowerDraw(float Throttle) const
 float CEEngine::GetCruiseThrust(float LinearDrag) const
 {
     return (float)((double)(OwnerShipOrNull(Owner)->get_linear_drag()) *
-                              EngineEquipConsts::CRUISING_SPEED * LinearDrag);
+                              ENGINE_CRUISING_SPEED(EngineArch()) * LinearDrag);
 }
 
 // Listing 0x36420: FLD [arch+0x7c]; RET
@@ -522,7 +535,7 @@ void CEEngine::do_simulation_controller(IVP_Event_Sim* EventSim, IVP_U_Vector<IV
             // 062964e8..0629651b: the throttle is read before the call; one FSTP at the end.
             float const Throttle = Ship->Throttle;
             Force = (float)((double)(OwnerShipOrNull(Owner)->get_linear_drag()) *
-                                       EngineEquipConsts::CRUISING_SPEED * Throttle * Ramp);
+                                       ENGINE_CRUISING_SPEED(EngineArch) * Throttle * Ramp);
         }
         PowerRate = EngineArch->CruisePowerUsage;
     }

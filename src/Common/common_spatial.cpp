@@ -23,6 +23,13 @@
 
 #include "x87_trig.h" // X87Tan (BspPartition::QueryFrustum, 063314eb FPTAN)
 
+// Retail constructs the node pool (static initializer 0632e830, .CRT$XCU slot 063ea5a4) before
+// the universe object (06336a90), so the universe maps -- whose SYSTEM destructors FreeSpatial
+// their zone trees into this pool -- are destroyed first at DLL detach. Keep that order
+// regardless of the project's compile order.
+#pragma warning(suppress : 4073)
+#pragma init_seg(lib)
+
 // DACOM.DLL!stricmp (Common IAT 0639902c), src/Common/common_dacom_stricmp.cpp.
 int CallDacomStricmp(const char* Left, const char* Right);
 

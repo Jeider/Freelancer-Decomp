@@ -3752,10 +3752,10 @@ static const FMaterialTypeSpec kMaterialTypes[] = {
     {"DcDtEcOcOtTwo", "SinglePassTwoMaterial", BindDcDt, SubmitDcDtTwo},
     {"DcDtEt", "DcDtEt", BindDcDtEt, SubmitKernel},
     {"EcEt", "EcEt", BindEcEt, SubmitKernel},
-    {"EcEtTwo", "EcEtTwo", BindEcEt, SubmitKernel},
+    {"EcEtTwo", "EcEtTwo", BindEcEt, SubmitBtDetailTwo}, // Submit 06eb8d90: kernel + flipped back-face pass
     {"AtmosphereMaterial", "AtmosphereMaterial", BindAtmosphere, SubmitAtmosphere},
     {"Nebula", "Nebula", BindNebula, SubmitKernel},
-    {"NebulaTwo", "NebulaTwo", BindNebula, SubmitKernel},
+    {"NebulaTwo", "NebulaTwo", BindNebula, SubmitBtDetailTwo}, // Submit 06ebc970: kernel + flipped back-face pass
     {"NullMaterial", "NullMaterial", BindNull, SubmitNull},
     {"LightMap", "LightMap", BindLightMap, SubmitLightMap},
     {"DetailMapMaterial", "DetailMapMaterial", BindDetailMap, SubmitKernel},

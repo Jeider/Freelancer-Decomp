@@ -39,6 +39,12 @@ namespace
     // DAT_00610a0c — busy-wait fps cap; .data ships 200.0f and both writers (00558a14 /
     // 00558a57) take it from COMMON.DLL::RtcSlider.
     float G_FpsCap = 200.0f;
+#ifdef FREELANCER_DBG_OPTIONS
+    // Port-only: the beta's TimeScale (beta .data 0x005f9290, default 1.0, set by the console's
+    // TimeScale/ts command): the capped dt is multiplied by it in single player (beta timer
+    // 0x00427bf0), so the whole local simulation and the UI run slower or faster.
+    float G_TimeScale = 1.0f;
+#endif
     // DAT_00610a08 — dt clamp, .data ships 1.0f and nothing in the PE ever writes it, so the
     // capped and raw dt only diverge on frames longer than a whole second.
     const float kMaxFps = 1.0f;
@@ -66,6 +72,10 @@ namespace
         // 0042d7e3: FCOM + TEST AH,5 + JNP — keep Dt only when Dt < Max (C0 alone), take Max
         // otherwise, including the unordered case (C0|C2|C3 -> even parity -> no jump).
         G_FrameDtCapped = (Dt < MaxFrameSeconds) ? Dt : MaxFrameSeconds;
+#ifdef FREELANCER_DBG_OPTIONS
+        if (G_TimeScale != 1.0f && SinglePlayer())
+            G_FrameDtCapped *= G_TimeScale;
+#endif
 
         G_ElapsedTime += G_FrameDtCapped;
         G_FrameCount += 1;
@@ -218,3 +228,20 @@ void SetClientFpsCap(float Fps)
     // RtcSlider::get_default_fps_cap (00558a57, leaving it) with a plain FSTP; no test.
     G_FpsCap = Fps;
 }
+
+#ifdef FREELANCER_DBG_OPTIONS
+float GetClientTimeScale()
+{
+    return G_TimeScale;
+}
+
+void SetClientTimeScale(float Scale)
+{
+    G_TimeScale = Scale;
+}
+
+float GetClientFpsCap()
+{
+    return G_FpsCap;
+}
+#endif

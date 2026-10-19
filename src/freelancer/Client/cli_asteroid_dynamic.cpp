@@ -5,6 +5,11 @@
 // Author: Giperion.
 
 #include "cli_asteroid_dynamic.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#include <cstdlib>
+#include <map>
+#endif
 
 #include "DALib.h"
 #include "cli_asteroid_med.h"       // CliAsteroidSlot1bcBody (LAB_005250f0)
@@ -114,8 +119,31 @@ FCliDynamicAsteroidGameobj::FCliDynamicAsteroidGameobj(FCliDynamicAsteroid* Owne
     Nickname.Id = 0;
 }
 
+#ifdef FREELANCER_ADOXA
+namespace
+{
+    // Port-only, adoxa's dynastex.dll (docs/adoxa.md): a dynamic asteroid's hit_pts. Health is
+    // rolled (+-10%) each time the asteroid is placed; the player's shots take their munition's
+    // hull_damage off it, and only a shot that empties it breaks the asteroid.
+    struct FDynastexHealth
+    {
+        float HitPts;
+        float Health;
+    };
+
+    std::map<FCliDynamicAsteroidGameobj const*, FDynastexHealth>& DynastexHealth()
+    {
+        static std::map<FCliDynamicAsteroidGameobj const*, FDynastexHealth> S_Health;
+        return S_Health;
+    }
+}
+#endif
+
 FCliDynamicAsteroidGameobj::~FCliDynamicAsteroidGameobj()
 {
+#ifdef FREELANCER_ADOXA
+    DynastexHealth().erase(this); // hooked destructor slot (.rdata:005dce38)
+#endif
     // FUN_00525140 (this = the CBase sub-object, so +0xb4 / +0xb0 / +0xb8 / +0xac there are
     // the gameobj's +0xc0 / +0xbc / +0xc4 / +0xb8).
     if (Companion[2] != nullptr)
@@ -176,6 +204,21 @@ void FCliDynamicAsteroidGameobj::Slot194(void const* A, void const* B, FClientGa
     if (OtherObj == nullptr || (static_cast<unsigned>(OtherObj->ObjectClass) & 7u) != 7u)
         return;
 
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's dynastex.dll (0x005254d2): a shot that leaves health over 0 is absorbed.
+    if (PORT_PLUGIN_ON("dynastex"))
+    {
+        std::map<FCliDynamicAsteroidGameobj const*, FDynastexHealth>::iterator const Found =
+            DynastexHealth().find(this);
+        if (Found != DynastexHealth().end())
+        {
+            Found->second.Health -=
+                static_cast<Archetype::Munition const*>(OtherObj->get_archetype())->HullDamage;
+            if (Found->second.Health > 0.0f)
+                return;
+        }
+    }
+#endif
     // 0x005254de..0x005254e3: own slot 108 at A.
     Slot1b0(static_cast<Vector const*>(A));
 
@@ -742,7 +785,20 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
         // 0x00525ee1..0x00525f55: an empty slot gets a new gameobj (FUN_00526650); both
         // conditions below only warn.
         if (This->SlotPtrs[Index] == nullptr)
+        {
             This->SlotPtrs[Index] = CliDynamicAsteroidSpawn(This);
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's dynastex.dll (0x00525eec): remember the archetype's hit_pts.
+            if (This->SlotPtrs[Index] != nullptr && This->SlotPtrs[Index]->GetObject() != nullptr &&
+                PORT_PLUGIN_ON("dynastex"))
+            {
+                FDynastexHealth Entry;
+                Entry.HitPts = This->SlotPtrs[Index]->GetObject()->get_archetype()->HitPts;
+                Entry.Health = Entry.HitPts;
+                DynastexHealth()[This->SlotPtrs[Index]] = Entry;
+            }
+#endif
+        }
         if (This->SlotPtrs[Index] == nullptr)
         {
             FDUMP(0x100002, "%s(%d) : *** WARNING: %s", kCliAsteroidSourceFile, 0x986,
@@ -823,6 +879,19 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
             }
         }
 
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's dynastex.dll (0x0052610e): fresh health, +-10%, on every placement.
+        {
+            std::map<FCliDynamicAsteroidGameobj const*, FDynastexHealth>::iterator const Found =
+                DynastexHealth().find(This->SlotPtrs[Index]);
+            if (Found != DynastexHealth().end())
+            {
+                float Variance = Found->second.HitPts * 0.1f;
+                Variance = 2.0f * Variance * static_cast<float>(rand()) / RAND_MAX - Variance;
+                Found->second.Health = Found->second.HitPts + Variance;
+            }
+        }
+#endif
         // 0x00526101..0x0052611b.
         This->SlotPtrs[Index]->bPlaced = 1;
         This->SlotPtrs[Index]->bActive = 1;

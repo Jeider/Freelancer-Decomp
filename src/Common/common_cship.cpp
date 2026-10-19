@@ -6,6 +6,12 @@
 
 // CShip (retail CShip.cpp), FAnimScriptRef and the CShip-only helpers.
 #include "common_cobject.h"
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa_api.h" // AmmoLimit
+#endif
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa.h" // port-only LaneSpeed
+#endif
 #include "common_cobject_internal.h" // CmnCobject::RotateWorldToObjectSpace, GetObjectDbCollisionGroup
 #include "x86math.h"
 #include "x87_trig.h"   // retail's inline FSIN / FCOS (CShip::generate_follow_offset)
@@ -581,7 +587,11 @@ int CShip::get_ammo_capacity_remaining(unsigned EquipArchId) const
     // 0x10000); the FIRST item whose Arch(+0xc)->Nickname id (+0x8) equals the id answers:
     // class (vtable +0x10) not 0x1f/0x20/0x21 -> -1; count (+0x28) > Limit (signed JG) -> 0,
     // else Limit - count. No such item -> Limit.
+#ifdef FREELANCER_ADOXA
+    int const Limit = AdoxaAmmoLimit(EquipArchId); // AmmoLimit.dll (062b3224)
+#else
     int const Limit = MAX_PLAYER_AMMO;
+#endif
     if (EquipArchId == 0)
         return -1;
 
@@ -990,6 +1000,31 @@ float CShip::get_tradelane_speed()
     return 0.0f;
 }
 
+#ifdef FREELANCER_ADOXA
+namespace
+{
+    // Port-only, adoxa's EquipDrag.dll: armour and external equipment (traverser mask
+    // 0x1001fe3) add their linear_drag; a shield generator only while active. Never below 0.
+    void AddAdoxaEquipDrag(CEquipManager const& Equipment, float& Drag)
+    {
+        if (!PORT_PLUGIN_ON("EquipDrag"))
+            return;
+        CEquipTraverser Walk(0x1001fe3);
+        while (CEquip const* const Equip = Equipment.Traverse(Walk))
+        {
+            if (Equip->Type == 0x200 && !Equip->IsActive())
+                continue;
+            std::map<unsigned, float>::const_iterator const Found =
+                AdoxaEquipDrags().find(Equip->Arch->Nickname.Id);
+            if (Found != AdoxaEquipDrags().end())
+                Drag += Found->second;
+        }
+        if (Drag < 0.0f)
+            Drag = 0.0f;
+    }
+}
+#endif
+
 int CShip::go_tradelane(IObjInspect const* EntranceRing, IObjInspect const* ExitRing,
                         IObjRW* TradelaneObj, bool bFastExit, float Speed)
 {
@@ -997,6 +1032,21 @@ int CShip::go_tradelane(IObjInspect const* EntranceRing, IObjInspect const* Exit
     // IAction base (+0x10, or 0) goes to ActionDB::add with no null test (062b19c1..062b19db);
     // returns 0.
     bUsingTradelane = 1;
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's LaneSpeed.dll (docs/adoxa.md): the player's lane runs at the entrance
+    // ring archetype's lane_speed (else the retail 2500). NPCs keep the last value, as there.
+    if (PORT_PLUGIN_ON("LaneSpeed") && is_player() && EntranceRing != nullptr)
+    {
+        G_AdoxaLaneSpeed = 2500.0f;
+        if (CObject const* const Ring = EntranceRing->cobject())
+        {
+            std::map<unsigned, float>::const_iterator const Found =
+                AdoxaLaneSpeeds().find(Ring->get_archetype()->Nickname.Id);
+            if (Found != AdoxaLaneSpeeds().end())
+                G_AdoxaLaneSpeed = Found->second;
+        }
+    }
+#endif
     Actions.add(new LaneAction(EntranceRing, ExitRing, TradelaneObj, bFastExit, Speed));
     return 0;
 }
@@ -1182,6 +1232,9 @@ double CShip::get_linear_drag() const
         else
             TotalDrag = (float)((double)(Engine->GetLinearDrag()) + TotalDrag);
     }
+#ifdef FREELANCER_ADOXA
+    AddAdoxaEquipDrag(EquipManager, TotalDrag); // 062b378c
+#endif
 
     if (ZoneAtA4 != nullptr)
         return (double)ZoneAtA4->GetDragModifier() * TotalDrag;   // ZONE 0633ad70, 062b379a-062b379d
@@ -1880,6 +1933,9 @@ int CShip::update(float Dt, unsigned Flags)
             Drag = (float)(EngineDrag + Drag);
         }
 
+#ifdef FREELANCER_ADOXA
+        AddAdoxaEquipDrag(EquipManager, Drag); // 062b0ee1
+#endif
         // 062b0ee1..062b0ef4: the zone's drag modifier (IZone slot +0x58) scales it.
         if (ZoneAtA4 != nullptr)
             Drag = (float)((double)(ZoneAtA4->GetDragModifier()) * Drag);

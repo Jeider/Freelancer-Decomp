@@ -9,6 +9,18 @@
 // phase B.
 
 #include "common_archetype.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "port_plugins.h" // port-only mod plugins
+#include "common_mod_plugins_api.h"
+#include <set>
+#endif
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#include "common_adoxa_api.h"
+#include "common_adoxa.h"
+#include <cstdlib>
+#include <map>
+#endif
 #include "common_archetype_internal.h"
 
 #include "common_cobject.h" // CollisionGroupDesc (get_undamaged_collision_group_list)
@@ -30,6 +42,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+
+#ifdef FREELANCER_MOD_PLUGINS
+std::set<unsigned>& ModInterceptorGuns();
+#endif
 
 namespace Archetype
 {
@@ -274,6 +290,18 @@ namespace Archetype
         if (Launcher::read(Reader))
             return true;
 
+#ifdef FREELANCER_MOD_PLUGINS
+        // Port-only, the mod's Interceptor.dll (docs/mod_plugins.md): interceptor = true lets
+        // the gun fire in cruise. The plugin read only DATA\EQUIPMENT\gun_equip.ini (a file the
+        // mod does not have); every [Gun] is read here.
+        if (PORT_PLUGIN_ON("Interceptor") && Reader.is_value("interceptor"))
+        {
+            if (Reader.get_value_bool(0) && Nickname.Id != 0)
+                ModInterceptorGuns().insert(Nickname.Id);
+            return true;
+        }
+#endif
+
         if (Reader.is_value("dispersion_angle"))
         {
             // 062f6406: FMUL float [DAT_0639d210] on the unrounded get_value_float result
@@ -475,6 +503,24 @@ namespace Archetype
     {
         if (Equipment::read(Reader))
             return true;
+
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's AmmoLimit.dll (docs/adoxa.md; 062f6e97): ammo_limit = <n> | *<f> | /<f>
+        // (scales MAX_PLAYER_AMMO), after the nickname.
+        if (PORT_PLUGIN_ON("ammolimit") && Nickname.Id != 0 && Reader.is_value("ammo_limit"))
+        {
+            char const* const Limit = Reader.get_value_string(0);
+            int Value;
+            if (*Limit == '*')
+                Value = static_cast<int>(MAX_PLAYER_AMMO * std::atof(Limit + 1));
+            else if (*Limit == '/')
+                Value = static_cast<int>(MAX_PLAYER_AMMO / std::atof(Limit + 1));
+            else
+                Value = std::atoi(Limit);
+            AdoxaAmmoLimits()[Nickname.Id] = Value;
+            return true;
+        }
+#endif
 
         if (Reader.is_value("lifetime"))
         {
@@ -999,3 +1045,32 @@ namespace Archetype
         return Count != 0 ? Count : 0x17;
     }
 }
+
+#ifdef FREELANCER_ADOXA
+std::map<unsigned, int>& AdoxaAmmoLimits()
+{
+    static std::map<unsigned, int> S_Limits;
+    return S_Limits;
+}
+
+int __cdecl AdoxaAmmoLimit(unsigned AmmoArchId)
+{
+    if (!PORT_PLUGIN_ON("ammolimit"))
+        return MAX_PLAYER_AMMO;
+    std::map<unsigned, int>::const_iterator const Found = AdoxaAmmoLimits().find(AmmoArchId);
+    return Found != AdoxaAmmoLimits().end() ? Found->second : MAX_PLAYER_AMMO;
+}
+#endif
+
+#ifdef FREELANCER_MOD_PLUGINS
+std::set<unsigned>& ModInterceptorGuns()
+{
+    static std::set<unsigned> S_Guns;
+    return S_Guns;
+}
+
+bool __cdecl ModGunIsInterceptor(unsigned GunArchId)
+{
+    return PORT_PLUGIN_ON("Interceptor") && ModInterceptorGuns().count(GunArchId) != 0;
+}
+#endif

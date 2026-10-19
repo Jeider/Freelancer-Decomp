@@ -15,6 +15,7 @@
 // Bullet has no field of its own (operator new(0x60) in FUN_06d099e0).
 
 #include "../include/server_gameobject.h"
+#include "../include/adoxa_healing.h" // port-only adoxa healing
 #include "../include/server_sysdb.h"       // StarSystem::explode / munition_collision / find_object
 #include "../include/server_createinfo.h"  // Server_Acquire3DMathEngine (FUN_06d5ff70)
 #include "../include/x86math.h"            // I3DMathEngine::TransformMatrix
@@ -505,7 +506,7 @@ bool Guided::destroy(int Kind, unsigned int ObjId)
     if (!(static_cast<double>(Explosion->Radius) > Epsilon))
         return true;
     if (!(static_cast<double>(Explosion->Impulse) > Epsilon) &&
-        !(static_cast<double>(Explosion->HullDamage) > Epsilon) &&
+        !HEALING_DAMAGES(Explosion->HullDamage, Epsilon) &&
         !(static_cast<double>(Explosion->EnergyDamage) > Epsilon))
         return true;
 

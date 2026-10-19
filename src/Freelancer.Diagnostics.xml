@@ -64,6 +64,24 @@
     <EnumValue Name="0" DisplayName="Off" />
     <EnumValue Name="1" DisplayName="On" />
   </EnumProperty>
+  <EnumProperty Name="FreelancerAdoxa" DisplayName="adoxa's plugins"
+                Category="Features" Default="0"
+                Description="Not in the original game (Jason Hood's plugins): the behaviour of burn, chklootvol, criticalhit, DamagePerFire, dock_key, EquipDrag, healing, JumpOutPt, LaneSpeed, moors, ShieldOffline, storyfactions, AmmoLimit, MatchJob, MatchPlayer, callsign, engclass, territory, HudShift, TurretZoom, NoNavMap, navmapxy, scroller, numeric and console, each switched in port.ini [Plugins] (FREELANCER_ADOXA, client, Common.dll, Server.dll and Content.dll; docs/adoxa.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
+  <EnumProperty Name="FreelancerModPlugins" DisplayName="Other mod plugins"
+                Category="Features" Default="0"
+                Description="Not in the original game: the behaviour of AnimKey, MultiCruise, Invisibility, Interceptor and PowerDamage, each switched in port.ini [Plugins] (FREELANCER_MOD_PLUGINS; docs/mod_plugins.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
+  <EnumProperty Name="FreelancerLanguage" DisplayName="Language switch"
+                Category="Features" Default="0"
+                Description="Not in the original game: port.ini [Language] (or -lang:xx on the command line) picks the client ini, resources.dll, plugin texts and per-language data overlays, so one build runs every language (FREELANCER_LANGUAGE, client and Common.dll; docs/language.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
   <EnumProperty Name="FreelancerFlsharp" DisplayName="FLSharp.dll fixes"
                 Category="Features" Default="0"
                 Description="Not in the original game (BC46's FLSharp.dll): bug fixes and improvements of the client and server, ported one by one (FREELANCER_FLSHARP, client, Common.dll and Server.dll; docs/flsharp.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">

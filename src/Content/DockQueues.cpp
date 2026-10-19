@@ -10,6 +10,12 @@
 // the TU's other dynamic initializers (the dock lists, LAB_06f6bb10, LAB_06f6eec0). The
 // dock-type tests read the last four (GIdCanUseBerths .. GIdCanUseLargeMoors).
 #include "ContentStaticIds.h"
+#ifdef FREELANCER_ADOXA
+#include "../include/port_plugins.h" // port-only adoxa plugins
+#include "../include/server_playerdb.h" // Players (dock_key)
+#include "common_ini.h"
+#include <map>
+#endif
 
 #include "DockQueues.h"
 
@@ -788,6 +794,72 @@ int __cdecl TryStartDocking(unsigned int SystemId, unsigned int const* ShipId,
 //   - DropPlayersLockedOutOfGate(ship, target); ChooseDockTerminal; not 4 -> that.
 //   - 4: TerminalInfo of the chosen terminal (result unused); the target's motion
 //     (GetMotion failing -> 4); |linear| or |angular| above 0.01 (DAT_06fb7a88) -> 3, else 4.
+#ifdef FREELANCER_ADOXA
+namespace
+{
+    // Port-only, adoxa's dock_key.dll v1.01 (docs/adoxa.md; hooked at 06f6c958): DATA\dock_key.ini
+    // [locked_docks] key = <equipment>, docks = <dock>..., mounted = <bool> (default true: the key
+    // must be mounted). A locked dock opens for a player whose ship carries its key. The plugin
+    // read the first player's equipment for every ship; here it is the docking player's.
+    struct FDockKey
+    {
+        unsigned Key;
+        bool bMounted;
+    };
+
+    std::map<unsigned, FDockKey> const& DockKeys()
+    {
+        static std::map<unsigned, FDockKey> S_Keys;
+        static bool S_bRead = false;
+        if (!S_bRead)
+        {
+            S_bRead = true;
+            INI_Reader Reader;
+            if (Reader.open("..\\DATA\\dock_key.ini", false))
+            {
+                while (Reader.read_header())
+                {
+                    if (!Reader.is_header("locked_docks"))
+                        continue;
+                    FDockKey Key = {0, true};
+                    while (Reader.read_value())
+                    {
+                        if (Reader.is_value("key"))
+                            Key.Key = CreateID(Reader.get_value_string(0));
+                        else if (Reader.is_value("mounted"))
+                            Key.bMounted = Reader.get_value_bool(0);
+                        else if (Reader.is_value("docks") && Key.Key != 0)
+                        {
+                            for (int Index = Reader.get_num_parameters(); --Index >= 0;)
+                                S_Keys[CreateID(Reader.get_value_string(Index))] = Key;
+                        }
+                    }
+                }
+                Reader.close();
+            }
+        }
+        return S_Keys;
+    }
+
+    bool DockKeyUnlocks(unsigned DockId, FContentPlayerState const* Player)
+    {
+        if (Player == nullptr)
+            return false;
+        std::map<unsigned, FDockKey>::const_iterator const Found = DockKeys().find(DockId);
+        if (Found == DockKeys().end())
+            return false;
+        unsigned const PlayerId = Player->PlayerId;
+        std::list<EquipDesc> const& Items = Players[PlayerId].equipment.Items;
+        for (std::list<EquipDesc>::const_iterator It = Items.begin(); It != Items.end(); ++It)
+        {
+            if (It->ArchId == Found->second.Key && (!Found->second.bMounted || It->bEquipped != 0))
+                return true;
+        }
+        return false;
+    }
+}
+#endif
+
 int __cdecl CheckDockPermission(std::vector<unsigned int> const* ClassIds, int const* ShipRep,
                                 unsigned int const* ShipId, Vector const* Position,
                                 unsigned int const* DockTargetId, int* DockIndex)
@@ -797,7 +869,14 @@ int __cdecl CheckDockPermission(std::vector<unsigned int> const* ClassIds, int c
     if (Player != nullptr)
         bPlayerMayDock = Player->CanDockAt(*DockTargetId);
 
+#ifdef FREELANCER_ADOXA
+    bool bLocked = IsGateLockedForShip(*ShipId, *DockTargetId);
+    if (bLocked && PORT_PLUGIN_ON("dock_key") && DockKeyUnlocks(*DockTargetId, Player))
+        bLocked = false;
+    if (bLocked || (Player != nullptr && !bPlayerMayDock))
+#else
     if (IsGateLockedForShip(*ShipId, *DockTargetId) || (Player != nullptr && !bPlayerMayDock))
+#endif
     {
         if (Player != nullptr)
         {

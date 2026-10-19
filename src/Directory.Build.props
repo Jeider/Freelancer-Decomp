@@ -32,6 +32,15 @@
     <!-- Port-only beta DBG_OPTIONS window and its [OUTLINES] drawing (docs/dbg_options.md),
          FREELANCER_DBG_OPTIONS in the client and Common.dll; off by default. -->
     <FreelancerDbgOptions Condition="'$(FreelancerDbgOptions)'==''">0</FreelancerDbgOptions>
+    <!-- Port-only behaviour of adoxa's plugins (docs/adoxa.md), FREELANCER_ADOXA in the client,
+         Common.dll, Server.dll and Content.dll; each plugin is switched in port.ini [Plugins]. -->
+    <FreelancerAdoxa Condition="'$(FreelancerAdoxa)'==''">0</FreelancerAdoxa>
+    <!-- Port-only behaviour of other mod plugins (AnimKey, MultiCruise, Invisibility, Interceptor,
+         PowerDamage; docs/mod_plugins.md), FREELANCER_MOD_PLUGINS; off by default. -->
+    <FreelancerModPlugins Condition="'$(FreelancerModPlugins)'==''">0</FreelancerModPlugins>
+    <!-- Port-only language switch (docs/language.md): port.ini [Language] picks the client ini,
+         resources.dll and per-language data overlays, FREELANCER_LANGUAGE; off by default. -->
+    <FreelancerLanguage Condition="'$(FreelancerLanguage)'==''">0</FreelancerLanguage>
     <PlatformToolset>v143</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <CharacterSet>MultiByte</CharacterSet>

@@ -12,6 +12,7 @@
 // spawner (StarSystem FUN_06d092c0) allocates 0x60.
 
 #include "../include/server_gameobject.h"
+#include "../include/adoxa_healing.h" // port-only adoxa healing
 #include "../include/server_sysdb.h"   // StarSystem::explode / find_object
 #include "../include/common_misc.h"    // SUBOBJ_ID_NONE, DamageList
 #include "../include/common_id.h"      // ID_String::IsEmpty
@@ -186,7 +187,7 @@ bool CounterMeasure::destroy(int Kind, unsigned int ObjId)
             if (Explosion != nullptr &&
                 static_cast<double>(Explosion->Radius) > Epsilon &&
                 (static_cast<double>(Explosion->Impulse) > Epsilon ||
-                 static_cast<double>(Explosion->HullDamage) > Epsilon ||
+                 HEALING_DAMAGES(Explosion->HullDamage, Epsilon) ||
                  static_cast<double>(Explosion->EnergyDamage) > Epsilon))
             {
                 // .text:06ce648f-06ce64ed: {own id (vt+0x20), the raw object's

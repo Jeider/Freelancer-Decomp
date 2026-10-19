@@ -5,6 +5,10 @@
 // Author: Giperion.
 
 #include "client_gameobj.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#include "vis_effect_arch.h" // FindEffectArch (burn)
+#endif
 
 #include "DALib.h"
 #include "cli_projectile_fx.h"   // CliEffectListClear / FCliEquipFirePacket / fire-host ports
@@ -3332,6 +3336,31 @@ void FClientShipGameobj::update(float Dt)
         // identity transform, through DAT_00674c60, into the companion and the effect list.
         ID_String BurnEffect;
         BurnEffect.Id = CreateID("atmosphere_burn");
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's burn.dll (docs/adoxa.md): the ship type's own effect,
+        // atmosphere_burn_<type>, when the effect exists.
+        if (PORT_PLUGIN_ON("burn"))
+        {
+            char const* TypeBurn = nullptr;
+            switch (Ship->TypeBits)
+            {
+            case 0x010000: TypeBurn = "atmosphere_burn_fighter"; break;
+            case 0x020000: TypeBurn = "atmosphere_burn_freighter"; break;
+            case 0x040000: TypeBurn = "atmosphere_burn_gunboat"; break;
+            case 0x080000: TypeBurn = "atmosphere_burn_cruiser"; break;
+            case 0x100000: TypeBurn = "atmosphere_burn_transport"; break;
+            case 0x200000: TypeBurn = "atmosphere_burn_capital"; break;
+            case 0x400000: TypeBurn = "atmosphere_burn_mining"; break;
+            default: break;
+            }
+            if (TypeBurn != nullptr)
+            {
+                unsigned const TypeId = CreateID(TypeBurn);
+                if (FindEffectArch(&TypeId) != nullptr)
+                    BurnEffect.Id = TypeId;
+            }
+        }
+#endif
         FTransform Local;
         for (int Row = 0; Row < 3; ++Row)
         {

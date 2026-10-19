@@ -6,10 +6,14 @@
 
 #include "client_cliobj.h"     // FlushMaterialCache (FUN_0041b150)
 #ifdef FREELANCER_DBG_OPTIONS
-#include "dbg_options.h" // port-only beta DBG_OPTIONS window
+#include "dbg_options.h"
+#include "dbg_console.h" // port-only beta console
 #endif
 #ifdef FREELANCER_FLPLUSPLUS
 #include "flplusplus.h"        // port-only flplusplus start-up
+#ifdef FREELANCER_LANGUAGE
+#include "port_config.h" // port-only language switch
+#endif
 #endif
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 #include "client_frame_tick.h"
@@ -562,6 +566,7 @@ namespace
         ShutdownClientTickProfile(); // CLIENT-BETA-LABEL: release cached atlas owners first
 #ifdef FREELANCER_DBG_OPTIONS
         DbgOptionsShutdown();
+        DbgConsoleShutdown();
 #endif
         FontShutdown(); // FUN_004174a0 (0x005b229a)
         ShutdownRichText();
@@ -751,7 +756,14 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE /*prev*/, LPSTR cmd, int /*show
         CoInitialize(nullptr);
         atexit(ClientAtExitTeardown);
         g_client.instance = instance;
+#ifdef FREELANCER_LANGUAGE
+        // Port-only (docs/language.md): port.ini [Language.<code>] resources, e.g. resour_en.dll.
+        char LanguageResources[MAX_PATH];
+        PortLanguageString("resources", "resources.dll", LanguageResources, sizeof(LanguageResources));
+        g_client.resources = LoadLibraryA(LanguageResources[0] != '\0' ? LanguageResources : "resources.dll");
+#else
         g_client.resources = LoadLibraryA("resources.dll");
+#endif
         RegisterIdsResourceModule(g_client.resources); // FUN_0057d800
 
         unsigned int Major;

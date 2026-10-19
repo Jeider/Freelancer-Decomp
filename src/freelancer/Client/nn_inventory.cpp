@@ -7,6 +7,9 @@
 // Retail NN_Inventory -- see nn_inventory.h for the class, its vftable and layout.
 
 #include "nn_inventory.h"
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa_api.h" // AmmoLimit
+#endif
 
 #include "cargo_bar_control.h"      // ToolTipHoverInit / SetCaption
 #include "client_base_market.h"     // GetClientLocationBaseMarket (FUN_0043a510), ClientMarketGetPrice
@@ -1582,7 +1585,11 @@ void NnInventory::BuyFromDealer(int Count)
             // 0047edfc..0047ee45: at most MAX_PLAYER_AMMO less the ammo carried
             // (find_matching_cargo(ammo, 0, 1.0f) on +0x34c); a positive count goes into the
             // hold (FUN_004c4230).
+#ifdef FREELANCER_ADOXA
+            int Room = AdoxaAmmoLimit(Good->FreeAmmoArchId); // AmmoLimit.dll (0x0047ee02)
+#else
             int Room = MAX_PLAYER_AMMO;
+#endif
             EquipDesc const* const Carried =
                 Ship.Loadout.find_matching_cargo(Good->FreeAmmoArchId, 0, 1.0f);
             if (Carried != nullptr)
@@ -1737,7 +1744,11 @@ int NnInventory::GetMarketPackagePrice(unsigned GoodId)
     // 0047f1d9..0047f22c: n capped by MAX_PLAYER_AMMO less the ammo already carried
     // (find_matching_cargo(ammo archetype, 0, 1.0f) on the owner's loadout), then the ammo's
     // price n times.
+#ifdef FREELANCER_ADOXA
+    int Room = AdoxaAmmoLimit(Good->FreeAmmoArchId); // AmmoLimit.dll (0x0047f1e1)
+#else
     int Room = MAX_PLAYER_AMMO;
+#endif
     EquipDesc const* const Carried =
         Owner->Ship.Loadout.find_matching_cargo(Good->FreeAmmoArchId, 0, 1.0f);
     if (Carried != nullptr)

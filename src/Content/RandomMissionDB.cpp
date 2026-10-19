@@ -5,6 +5,10 @@
 // Author: Giperion.
 
 #include "RandomMissionDB.h"
+#ifdef FREELANCER_ADOXA
+#include "../include/common_adoxa_api.h" // port-only moors berth query
+#include <algorithm>
+#endif
 
 #include "RandomMission.h"
 #include "RandomMissionObject.h"
@@ -764,6 +768,16 @@ bool __cdecl FindShipClassByMembers(unsigned int* OutShipClassId,
     return false;
 }
 
+#ifdef FREELANCER_ADOXA
+// Port-only, adoxa's moors.dll (its Use_Berths): an unknown ship has no properties, so no berths.
+static bool __cdecl AdoxaContentBerthQuery(unsigned int ShipArchId)
+{
+    std::vector<unsigned int> Properties;
+    GetShipMissionProperties(ShipArchId, &Properties);
+    return std::find(Properties.begin(), Properties.end(), GIdCanUseBerths) != Properties.end();
+}
+#endif
+
 // FUN_06f584d0 (06f584d0-06f587c9). [Ship] nickname / mission_property; runs once.
 void __cdecl LoadShipMissionProperties(INI_Reader* Reader)
 {
@@ -803,6 +817,9 @@ void __cdecl LoadShipMissionProperties(INI_Reader* Reader)
 
     // 06f587b3: set after the header loop, also when the file had no header at all.
     GbRmShipMissionPropertiesLoaded = true;
+#ifdef FREELANCER_ADOXA
+    AdoxaSetBerthQuery(&AdoxaContentBerthQuery);
+#endif
 }
 
 // FUN_06f587d0: unknown ship -> false; else append each property once and return true.

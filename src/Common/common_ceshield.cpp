@@ -8,6 +8,9 @@
 // Declared in common_cequip.h; helpers shared with the sibling TUs are in
 // common_cequip_internal.h (namespace CmnCequip).
 #include "common_cequip.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#endif
 #include "x86math.h"
 
 #include "common_animdb.h"  // AnimDB::Add/Rem (common_animdb.cpp)
@@ -720,3 +723,12 @@ void CEShield::SetFate(DamageEntry::SubObjFate FateValue)
     // Listing 0x8d730 (ICF-shared): RET 0x4.
     (void)FateValue;
 }
+
+#ifdef FREELANCER_ADOXA
+bool CEShield::IsActive() const
+{
+    if (PORT_PLUGIN_ON("ShieldOffline") && Owner != nullptr && Owner->HitPts == 0.0f)
+        return false;
+    return CEquip::IsActive();
+}
+#endif

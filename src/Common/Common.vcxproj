@@ -67,6 +67,7 @@
     <ClInclude Include="..\include\common_dataconfig.h" />
     <ClInclude Include="common_geometry_internal.h" />
     <ClInclude Include="common_cobject_internal.h" />
+    <ClInclude Include="common_adoxa.h" />
     <ClInclude Include="common_cequip_internal.h" />
     <ClInclude Include="common_goods_internal.h" />
     <ClInclude Include="common_archetype_internal.h" />
@@ -110,6 +111,8 @@
     <ClInclude Include="..\include\common_flplusplus.h" />
     <ClInclude Include="..\include\common_flsharp.h" />
     <ClInclude Include="..\include\common_dbg_outlines.h" />
+    <ClInclude Include="..\include\port_config.h" />
+    <ClInclude Include="..\include\common_adoxa_api.h" />
     <ClInclude Include="..\include\common_behavior.h" />
     <ClInclude Include="..\include\common_dockbehavior.h" />
     <ClInclude Include="..\include\common_buzzbehavior.h" />
@@ -306,6 +309,7 @@
     <ClCompile Include="common_flplusplus.cpp" />
     <ClCompile Include="common_flsharp.cpp" />
     <ClCompile Include="common_dbg_outlines.cpp" />
+    <ClCompile Include="port_config.cpp" />
     <ClCompile Include="common_file.cpp" />
     <ClCompile Include="common_heap.cpp" />
     <ClCompile Include="common_damagelist.cpp" />

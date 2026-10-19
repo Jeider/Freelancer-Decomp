@@ -8,6 +8,11 @@
 // Listing: freelancer.exe.txt 0x00484090–0x004854d8. Table: docs/re/dealer_equip_stats.md
 
 #include "dealer_equip_stats.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "common_mod_plugins_api.h" // port-only MultiCruise
+#include "port_plugins.h"
+#endif
+#include "adoxa_healing.h" // port-only adoxa healing
 
 #include "ids_rdl.h"
 #include "ids_strings.h"
@@ -222,6 +227,10 @@ namespace
 
     float EnergyFromHullAndEnergy(float Hull, float Energy)
     {
+        // healing.dll (0x0048423e / 0x0048464b / 0x00484b85): |hull part| + energy, rounded
+        // to nearest by FISTP instead of truncated.
+        if (HEALING_ON())
+            return static_cast<float>(std::nearbyint(std::fabs(Hull * ShieldEquipConsts::HULL_DAMAGE_FACTOR) + Energy));
         return Hull * ShieldEquipConsts::HULL_DAMAGE_FACTOR + Energy;
     }
 
@@ -498,6 +507,12 @@ namespace
             JflpStatInt(Stats, 945, TopSpeed, 1760);                            // Top Speed
             JflpStatInt(Stats, 1699, TopSpeed * Engine->ReverseFraction, 1760); // Reverse Speed
             JflpStatInt(Stats, 1755, Engine->PowerDrawFactor, 0);               // Energy Drain
+#ifdef FREELANCER_MOD_PLUGINS
+            // Port-only, the mod's MultiCruise.dll: jflp's "Cruise Speed: %d m/s" line.
+            if (PORT_PLUGIN_ON("MultiCruise"))
+                JflpStatInt(Stats, 1703, ModEngineCruiseSpeed(Engine), 1760);  // Cruise Speed
+            else
+#endif
             G_DealerStatLine[Stats.Len++] = L'\n'; // the MultiCruise "Cruise Speed" line
             _snwprintf(Text, 31, L"%.2f", static_cast<double>(Engine->CruiseChargeTime));
             Text[31] = L'\0';

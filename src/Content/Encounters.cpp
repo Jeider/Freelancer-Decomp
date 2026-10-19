@@ -9,6 +9,10 @@
 //   TU32      06efe100-06efe8e0  LoadContentGameTables / UnloadContentGameTables
 
 #include "Encounters.h"
+#ifdef FREELANCER_ADOXA
+#include "../include/port_plugins.h" // port-only adoxa plugins
+#include "common_server.h"        // pub::Player::GetRank (MatchPlayer)
+#endif
 #include "BaseSupport.h"
 #include "BaseDB.h"
 #include "GenericScripts.h"
@@ -224,7 +228,20 @@ bool FZonePopulation::ParseValue(INI_Reader* Reader, FSystemInfo* InSystem, FSys
     {
         // 06ef9047-06ef9077: "encounter = id, level, chance".
         unsigned int const EncounterId = CreateID(Reader->get_value_string(0));
+#ifdef FREELANCER_ADOXA
+        int Level = static_cast<int>(Reader->get_value_float(1));           // ftol
+        // Port-only, adoxa's MatchPlayer.dll (docs/adoxa.md; 06ef9066): the encounter level is
+        // raised to half of player 1's rank, when the system loads.
+        if (PORT_PLUGIN_ON("MatchPlayer"))
+        {
+            int Rank = 0;
+            pub::Player::GetRank(1u, Rank);
+            if (Level < Rank / 2)
+                Level = Rank / 2;
+        }
+#else
         int const Level = static_cast<int>(Reader->get_value_float(1));     // ftol
+#endif
         float const Chance = Reader->get_value_float(2);
 
         // 06ef907b-06ef90b3: the system's parameters for that id, bound to this zone and

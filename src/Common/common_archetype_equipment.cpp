@@ -10,6 +10,15 @@
 // common_archetype.cpp (retail Archetype.cpp, one TU) in CMN-SPLIT phase B.
 
 #include "common_archetype.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "port_plugins.h" // port-only mod plugins
+#include "common_mod_plugins_api.h"
+#include "common_goods.h"
+#include <map>
+#endif
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa.h" // port-only adoxa plugins
+#endif
 #include "common_archetype_internal.h"
 
 #include "common_cobject.h" // CollisionGroupDesc (get_undamaged_collision_group_list)
@@ -30,6 +39,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+
+#ifdef FREELANCER_MOD_PLUGINS
+namespace
+{
+    std::map<unsigned, float>& ModCruiseSpeeds()
+    {
+        static std::map<unsigned, float> S_Speeds;
+        return S_Speeds;
+    }
+}
+
+float __cdecl ModEngineCruiseSpeed(Archetype::Engine const* Engine)
+{
+    if (Engine != nullptr && PORT_PLUGIN_ON("MultiCruise"))
+    {
+        std::map<unsigned, float>::const_iterator const Found = ModCruiseSpeeds().find(Engine->Nickname.Id);
+        if (Found != ModCruiseSpeeds().end())
+            return Found->second;
+    }
+    return EngineEquipConsts::CRUISING_SPEED;
+}
+#endif
 
 namespace Archetype
 {
@@ -68,6 +99,20 @@ namespace Archetype
     {
         if (Root::read(Reader))
             return true;
+
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's EquipDrag.dll (docs/adoxa.md; hooked at 062f426a): linear_drag on
+        // any equipment (after the nickname). Engine, Mine and CounterMeasure keep reading their
+        // own linear_drag too, so the key is only consumed here for the other classes.
+        if (PORT_PLUGIN_ON("EquipDrag") && Nickname.Id != 0 && Reader.is_value("linear_drag"))
+        {
+            AdoxaEquipDrags()[Nickname.Id] = Reader.get_value_float(0);
+            unsigned const Class = static_cast<unsigned>(get_class_type());
+            if (Class != static_cast<unsigned>(AClassEngine) && Class != static_cast<unsigned>(AClassMine) &&
+                Class != static_cast<unsigned>(AClassCounterMeasure))
+                return true;
+        }
+#endif
 
         if (Reader.is_value("inherit"))
         {
@@ -629,6 +674,15 @@ namespace Archetype
     {
         if (Equipment::read(Reader))
             return true;
+
+#ifdef FREELANCER_MOD_PLUGINS
+        // Port-only, the mod's MultiCruise.dll (docs/mod_plugins.md; 062f51b8): cruise_speed.
+        if (PORT_PLUGIN_ON("MultiCruise") && Reader.is_value("cruise_speed"))
+        {
+            ModCruiseSpeeds()[Nickname.Id] = Reader.get_value_float(0);
+            return true;
+        }
+#endif
 
         if (Reader.is_value("power_usage"))
         {
@@ -1512,3 +1566,11 @@ namespace Archetype
         return HpTypeNone;
     }
 }
+
+#ifdef FREELANCER_ADOXA
+std::map<unsigned, float>& AdoxaEquipDrags()
+{
+    static std::map<unsigned, float> S_Drags;
+    return S_Drags;
+}
+#endif

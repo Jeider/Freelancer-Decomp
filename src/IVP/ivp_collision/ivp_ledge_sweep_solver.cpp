@@ -787,7 +787,7 @@ void IVP_Sweep_Frame_Cache::Init(FIVP_Sweep_Cache_Source *Source)
     // (int32)(x << 24) against N << 24 is a signed compare of the low byte; written as
     // (int8_t)x so MSVC v145 cannot fold it into a compare of the whole dword (it did:
     // `cmp dword [flags], 8`, which made every collision-enabled body (flags 0x1xx) static).
-    const int32_t ShiftedFlags = static_cast<int32_t>(static_cast<int8_t>(this->Object->flags & 0xffu)) << 24;
+    const int32_t ShiftedFlags = static_cast<int32_t>(static_cast<int8_t>(this->Object->flags & 0xffu)) * 0x1000000;
 
     IVP_U_Matrix *const PreparedFrame = &Source->Frame;
 

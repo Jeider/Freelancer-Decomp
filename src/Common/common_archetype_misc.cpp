@@ -8,6 +8,16 @@
 // common_archetype.cpp (retail Archetype.cpp, one TU) in CMN-SPLIT phase B.
 
 #include "common_archetype.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "port_plugins.h" // port-only mod plugins
+#include "common_mod_plugins_api.h"
+#include <set>
+#endif
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa.h" // port-only adoxa plugins
+#include "common_adoxa_api.h"
+#include <cstdlib>
+#endif
 #include "common_archetype_internal.h"
 
 #include "common_cobject.h" // CollisionGroupDesc (get_undamaged_collision_group_list)
@@ -28,6 +38,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+
+#ifdef FREELANCER_MOD_PLUGINS
+namespace Archetype
+{
+    struct Explosion;
+}
+std::set<Archetype::Explosion const*>& ModForcedEnergyExplosions();
+#endif
 
 namespace Archetype
 {
@@ -272,6 +290,65 @@ namespace Archetype
             InnardsDebrisNum = Reader.get_value_float(0);
             return true;
         }
+#ifdef FREELANCER_MOD_PLUGINS
+        // Port-only, the mod's PowerDamage.dll (docs/mod_plugins.md): force_energy_damage = true
+        // keeps this explosion's energy damage when [ModServer] no_energy_damage switches it off.
+        // The plugin read only DATA\EQUIPMENT\weapon_equip.ini; every [Explosion] is read here.
+        if (PORT_PLUGIN_ON("PowerDamage") && Reader.is_value("force_energy_damage"))
+        {
+            if (Reader.get_value_bool(0))
+                ModForcedEnergyExplosions().insert(this);
+            return true;
+        }
+#endif
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's criticalhit.dll (docs/adoxa.md), on retail's unknown-key path
+        // (0630bb21): critical_hit = <percent>, <multiplier>.
+        if (PORT_PLUGIN_ON("criticalhit") && Reader.is_value("critical_hit"))
+        {
+            float Probability = Reader.get_value_float(0) / 100.0f;
+            if (Probability > 0.0f && !Reader.is_value_empty(1))
+            {
+                if (Probability > 1.0f)
+                    Probability = 1.0f;
+                float const Multiplier = Reader.get_value_float(1);
+                if (Multiplier != 1.0f && !(Multiplier < 0.0f))
+                    AdoxaCriticalHits()[this] = std::make_pair(Probability, Multiplier);
+            }
+        }
+#endif
         return true;
     }
 }
+
+#ifdef FREELANCER_ADOXA
+std::map<Archetype::Explosion const*, std::pair<float, float>>& AdoxaCriticalHits()
+{
+    static std::map<Archetype::Explosion const*, std::pair<float, float>> S_Hits;
+    return S_Hits;
+}
+
+float __cdecl AdoxaCriticalHitMultiplier(Archetype::Explosion const* Explosion)
+{
+    if (!PORT_PLUGIN_ON("criticalhit"))
+        return 1.0f;
+    std::map<Archetype::Explosion const*, std::pair<float, float>>::const_iterator const Found =
+        AdoxaCriticalHits().find(Explosion);
+    if (Found != AdoxaCriticalHits().end() && rand() / (RAND_MAX + 1.0f) < Found->second.first)
+        return Found->second.second;
+    return 1.0f;
+}
+#endif
+
+#ifdef FREELANCER_MOD_PLUGINS
+std::set<Archetype::Explosion const*>& ModForcedEnergyExplosions()
+{
+    static std::set<Archetype::Explosion const*> S_Explosions;
+    return S_Explosions;
+}
+
+bool __cdecl ModExplosionForcesEnergyDamage(Archetype::Explosion const* Explosion)
+{
+    return PORT_PLUGIN_ON("PowerDamage") && ModForcedEnergyExplosions().count(Explosion) != 0;
+}
+#endif

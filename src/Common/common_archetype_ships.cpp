@@ -8,6 +8,9 @@
 // common_archetype.cpp (retail Archetype.cpp, one TU) in CMN-SPLIT phase B.
 
 #include "common_archetype.h"
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa.h" // port-only LaneSpeed
+#endif
 #include "common_archetype_internal.h"
 
 #include "common_cobject.h" // CollisionGroupDesc (get_undamaged_collision_group_list)
@@ -900,6 +903,14 @@ namespace Archetype
         // Retail 062f3470..062f357d. No "inherit" case: LoadSolar handles that key before calling
         // read() (062f3705). The three string keys use the no-argument get_value_string
         // (06310b70, the whole value), not the indexed one.
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's LaneSpeed.dll: lane_speed (after the nickname) is taken first.
+        if (PORT_PLUGIN_ON("LaneSpeed") && Reader.is_value("lane_speed"))
+        {
+            AdoxaLaneSpeeds()[Nickname.Id] = Reader.get_value_float(0);
+            return true;
+        }
+#endif
         if (EqObj::read(Reader))
             return true;
 

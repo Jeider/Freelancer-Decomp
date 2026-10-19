@@ -80,6 +80,24 @@
       <PreprocessorDefinitions>FREELANCER_DBG_OPTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <!-- Port-only adoxa plugins (docs/adoxa.md): the client, Common, Server and Content. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerAdoxa)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='Server' or '$(MSBuildProjectName)'=='Content')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_ADOXA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Port-only mod plugins (docs/mod_plugins.md): the client, Common, Server and Content. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerModPlugins)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='Server' or '$(MSBuildProjectName)'=='Content')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_MOD_PLUGINS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Port-only language switch (docs/language.md): the client and Common. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerLanguage)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_LANGUAGE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <!-- Port-only FLSharp.dll fixes (docs/flsharp.md): the client, Common, Server, EngBase, alchemy and DALib. -->
   <ItemDefinitionGroup Condition="'$(FreelancerFlsharp)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='Server' or '$(MSBuildProjectName)'=='EngBase' or '$(MSBuildProjectName)'=='alchemy' or '$(MSBuildProjectName)'=='DALib')">
     <ClCompile>

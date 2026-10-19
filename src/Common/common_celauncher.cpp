@@ -8,6 +8,12 @@
 // Declared in common_cequip.h; helpers shared with the sibling TUs are in
 // common_cequip_internal.h (namespace CmnCequip).
 #include "common_cequip.h"
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa.h" // port-only adoxa plugins
+#include "common_adoxa_api.h"
+#include <cmath>
+#include <map>
+#endif
 #include "x86math.h"
 
 #include "common_animdb.h"  // AnimDB::Add/Rem (common_animdb.cpp)
@@ -240,11 +246,74 @@ FireResult CELauncher::Fire(Vector const& Target)
     return Result;
 }
 
+#ifdef FREELANCER_ADOXA
+namespace
+{
+    struct FFireDamage
+    {
+        unsigned short SubObjId;
+        float HitPts;
+        DamageEntry::SubObjFate Fate;
+    };
+
+    std::multimap<CObject const*, FFireDamage>& FireDamage()
+    {
+        static std::multimap<CObject const*, FFireDamage> S_Damage;
+        return S_Damage;
+    }
+}
+
+bool __cdecl AdoxaTakeFireDamage(CObject const* Ship, DamageList& Out)
+{
+    std::multimap<CObject const*, FFireDamage>& Damage = FireDamage();
+    std::multimap<CObject const*, FFireDamage>::iterator Entry = Damage.lower_bound(Ship);
+    std::multimap<CObject const*, FFireDamage>::iterator const End = Damage.upper_bound(Ship);
+    if (Entry == End)
+        return false;
+    for (; Entry != End; ++Entry)
+        Out.add_damage_entry(Entry->second.SubObjId, Entry->second.HitPts, Entry->second.Fate);
+    Damage.erase(Ship);
+    return true;
+}
+#endif
+
 void CELauncher::ConsumeFireResources()
 {
     int Count = (int)(CountLauncherBarrels(*this));
     DrawAmmoFromCargo(Count);
     DrawPower(Count);
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's DamagePerFire.dll (docs/adoxa.md; hooked at 06299623): every shot wears
+    // the launcher by its damage_per_fire. <= 1: that fraction of the current hit points
+    // (destroyed below 1); < 2: (fraction * 100 + 1) shots of the archetype's hit_pts; else
+    // that many hit points. Negative values make a destroyed launcher disappear, not debris.
+    // The damage goes to the server's next tick of the ship (AdoxaTakeFireDamage).
+    float const PerFire = LauncherArch()->DamagePerFire;
+    if (PerFire != 0.0f && Owner != nullptr && PORT_PLUGIN_ON("DamagePerFire"))
+    {
+        FFireDamage Entry;
+        Entry.SubObjId = Id;
+        Entry.HitPts = HitPts;
+        float Minimum = 0.0f;
+        float const Wear = std::fabs(PerFire);
+        if (Wear <= 1.0f)
+        {
+            Entry.HitPts -= Entry.HitPts * Wear;
+            Minimum = 1.0f;
+        }
+        else if (Wear < 2.0f)
+            Entry.HitPts -= LauncherArch()->HitPts / ((Wear - 1.0f) * 100.0f + 1.0f);
+        else
+            Entry.HitPts -= Wear;
+        if (Entry.HitPts < Minimum)
+            Entry.HitPts = 0.0f;
+        // adoxa's FATE_NONE / FATE_DEBRIS (2) / FATE_DISAPPEAR (3).
+        Entry.Fate = Entry.HitPts != 0.0f ? DamageEntry::SubObjFate::None
+                   : PerFire < 0.0f      ? static_cast<DamageEntry::SubObjFate>(3)
+                                         : static_cast<DamageEntry::SubObjFate>(2);
+        FireDamage().insert(std::make_pair(static_cast<CObject const*>(Owner), Entry));
+    }
+#endif
 }
 
 void CELauncher::ComputeLaunchInfo(std::vector<ProjLaunchInfo>& Out, Vector const& Target) const

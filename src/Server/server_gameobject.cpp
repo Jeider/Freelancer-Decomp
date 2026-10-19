@@ -11,6 +11,18 @@
 // ===========================================================================
 
 #include "../include/server_gameobject.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "../include/port_plugins.h" // port-only mod server patches
+#include "../include/common_mod_plugins_api.h"
+#endif
+#include "../include/adoxa_healing.h" // port-only adoxa healing
+#ifdef FREELANCER_ADOXA
+#include "../include/port_plugins.h" // port-only adoxa plugins
+#include "../include/common_adoxa_api.h"
+#include "../include/common_ini.h"
+#include "../include/common_id.h"
+#include <map>
+#endif
 #include "../include/common_timing.h"  // Timing::read
 #include "../include/server_sysdb.h"   // StarSystem::on_object_destroyed (GameObject::destroy)
 #include "../include/common_misc.h"    // SUBOBJ_ID_NONE (Ship::allocate_equip_id)
@@ -788,10 +800,13 @@ bool GameObject::damage_hull(float Amount, DamageList& Damage)
 
     // .text:06ceecf4 .. 06ceed3d
     float NewHitPts = Current;
-    if (Amount > 0.0f)
+    // healing.dll (06ceed08 / 06ceed1d): a negative amount repairs, up to the archetype's hit_pts.
+    if (Amount > 0.0f || (HEALING_ON() && Amount < 0.0f))
     {
         float const Left = Current - Amount;
         NewHitPts = (Left > 0.0f) ? Left : 0.0f;
+        if (HEALING_ON() && Left > 0.0f && !(Left <= csimple()->get_archetype()->HitPts))
+            NewHitPts = csimple()->get_archetype()->HitPts;
     }
     else if (Amount < 0.0f)
     {
@@ -2592,7 +2607,7 @@ void EqObj::explode()
     if (!(static_cast<double>(Blast->Radius) > 0.0001))
         return;
     if (!(static_cast<double>(Blast->Impulse) > 0.0001) &&
-        !(static_cast<double>(Blast->HullDamage) > 0.0001) &&
+        !HEALING_DAMAGES(Blast->HullDamage, 0.0001) &&
         !(static_cast<double>(Blast->EnergyDamage) > 0.0001))
         return;
 
@@ -2979,6 +2994,30 @@ void EqObj::munition_hit(FMunitionImpact const& Hit, DamageList& Damage)
     damage_power(Munition->EnergyDamage, Damage);                  // vt +0x21c
 }
 
+#ifdef FREELANCER_MOD_PLUGINS
+namespace
+{
+    // Port-only (docs/mod_plugins.md): the mod's patched server.dll, as port.ini [ModServer]
+    // switches. no_energy_damage: damage_power is `RET 8` (06ceafc0) -- no energy damage at all,
+    // except from explosions PowerDamage.dll forces (G_bModForceEnergyDamage, set around its
+    // call in explosion_hit_power). full_explosion_hull_damage: the hull band test (06ce960c
+    // `JP +0x0c` -> `JP +0`) always gives band 3.
+    bool ModNoEnergyDamage()
+    {
+        static bool const S_bOn = PortConfigInt("ModServer", "no_energy_damage", 0) != 0;
+        return S_bOn;
+    }
+
+    bool ModFullExplosionHullDamage()
+    {
+        static bool const S_bOn = PortConfigInt("ModServer", "full_explosion_hull_damage", 0) != 0;
+        return S_bOn;
+    }
+
+    bool G_bModForceEnergyDamage = false;
+}
+#endif
+
 // +0x20c -- .text:06ce94b0 (RET 0xc).
 void EqObj::munition_hit_shield(CEShield* Shield, Archetype::Munition const* Munition, DamageList& Out)
 {
@@ -2986,7 +3025,9 @@ void EqObj::munition_hit_shield(CEShield* Shield, Archetype::Munition const* Mun
     // FPU, ONE rounding at 06ce94d5 FSTP float; then 06ce94df FMUL float Total
     // on the unrounded CEShield::GetWeaponModifier (Munition+0x88) and 06ce94eb
     // FSTP float into damage_shield's argument.
-    float const Total = (float)((double)Munition->HullDamage * ShieldEquipConsts::HULL_DAMAGE_FACTOR
+    // healing.dll (06ce94b4): shields take |hull_damage|.
+    double const HullDamage = HEALING_ON() ? std::fabs(Munition->HullDamage) : Munition->HullDamage;
+    float const Total = (float)(HullDamage * ShieldEquipConsts::HULL_DAMAGE_FACTOR
                                 + Munition->EnergyDamage);
     damage_shield(Shield, (float)(Shield->GetWeaponModifier(Munition->WeaponType) * Total), Out);   // vt +0x214
 }
@@ -3045,14 +3086,25 @@ void EqObj::explosion_hit_hull(ExplosionDamageEvent const& Blast, DamageList& Ou
     double const Dz = static_cast<double>(Blast.Position.z) - Center.z;
     double const Distance = ((Dz * Dz + Dx * Dx) + Dy * Dy) - static_cast<double>(Radius) * Radius;
 
+#ifdef FREELANCER_MOD_PLUGINS
+    int const Band = ModFullExplosionHullDamage() ? 3 : EqObj_ExplosionBand(Distance, RadiusSq, Middle, Inner);
+#else
     int const Band = EqObj_ExplosionBand(Distance, RadiusSq, Middle, Inner);
+#endif
     if (Band == 0)
         return;
 
     // .text:06ce9643 .. 06ce9673 -- (float)(Band * 1/3 * HullDamage), times the
     // archetype's explosion_resistance (Root+0x28).
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's criticalhit.dll: the 1/3 step (06ce964c) times the critical roll.
+    float const Amount = static_cast<float>(static_cast<double>(Band) *
+                                            ((1.0f / 3.0f) * AdoxaCriticalHitMultiplier(Blast.Explosion)) *
+                                            Blast.Explosion->HullDamage);
+#else
     float const Amount = static_cast<float>(static_cast<double>(Band) * (1.0f / 3.0f) *
                                             Blast.Explosion->HullDamage);
+#endif
     damage_hull(Ce->get_archetype()->ExplosionResistance * Amount, Out);   // vt +0x1b0
 }
 
@@ -3150,8 +3202,15 @@ void EqObj::explosion_hit_power(ExplosionDamageEvent const& Blast, DamageList& O
 
     // .text:06ce9a50 .. 06ce9a7c -- ((Band * 1/3) * EnergyDamage) * resistance.
     float const Resistance = Ce->get_archetype()->ExplosionResistance;
+#ifdef FREELANCER_MOD_PLUGINS
+    // PowerDamage.dll (06ce9a7c): a forced explosion runs damage_power's real body.
+    G_bModForceEnergyDamage = ModExplosionForcesEnergyDamage(Blast.Explosion);
+#endif
     damage_power(static_cast<float>(static_cast<double>(Band) * (1.0f / 3.0f) *
                                     Blast.Explosion->EnergyDamage * Resistance), Out);   // vt +0x21c
+#ifdef FREELANCER_MOD_PLUGINS
+    G_bModForceEnergyDamage = false;
+#endif
 }
 
 // +0x204 -- .text:06ce9a90 (RET 8). True when any functioning shield was met.
@@ -3192,7 +3251,8 @@ bool EqObj::explosion_hit_shield(ExplosionDamageEvent const& Blast, DamageList& 
         // .text:06ce9bd7 .. 06ce9c16 -- (float)((Hull * HULL_DAMAGE_FACTOR +
         // Energy) * (Band * 1/3)), times the shield's explosion_resistance.
         float const Amount = static_cast<float>(
-            (static_cast<double>(Blast.Explosion->HullDamage) * ShieldEquipConsts::HULL_DAMAGE_FACTOR +
+            ((HEALING_ON() ? std::fabs(static_cast<double>(Blast.Explosion->HullDamage))  // healing.dll (06ce9bbe)
+                           : static_cast<double>(Blast.Explosion->HullDamage)) * ShieldEquipConsts::HULL_DAMAGE_FACTOR +
              Blast.Explosion->EnergyDamage) *
             (static_cast<double>(Band) * (1.0f / 3.0f)));
         damage_shield(static_cast<CEShield*>(const_cast<CEquip*>(Equip)),
@@ -3441,7 +3501,8 @@ bool EqObj::damage_hull(float Amount, DamageList& Damage)
 {
     // .text:06cea3a0 .. 06cea3b2 -- only a positive amount is scaled
     // (TEST AH,0x41 / JNZ skips <= and unordered).
-    if (Amount > 0.0f)
+    // healing.dll (06cea3af): a negative amount is scaled too.
+    if (Amount > 0.0f || (HEALING_ON() && Amount < 0.0f))
     {
         // .text:06cea3b8 .. 06cea43c -- a player's current ship takes the
         // player's difficulty scale (PlayerData+0x3c4).
@@ -3476,7 +3537,8 @@ bool EqObj::damage_equip(CEquip* Equip, float Damage, DamageList& Out)
         Current = Equip->GetHitPoints();                           // vt +0x3c
     float NewHitPts = Current;
 
-    if (Damage > 0.0f)
+    // healing.dll (06cea513): a negative amount repairs the same way.
+    if (Damage > 0.0f || (HEALING_ON() && Damage < 0.0f))
     {
         // .text:06cea51c .. 06cea5e4 -- an attached equip of an OWNED object
         // divides by PLAYER_ATTACHED_EQUIP_HIT_PTS_SCALE and, when this is the
@@ -3494,6 +3556,9 @@ bool EqObj::damage_equip(CEquip* Equip, float Damage, DamageList& Out)
         // .text:06cea5e4 .. 06cea5fe -- floored at 0 (TEST AH,0x41 / JNZ).
         double const Left = Current - Applied;  // adj stays on the x87 stack
         NewHitPts = (Left > 0.0) ? static_cast<float>(Left) : 0.0f;
+        // healing.dll (06cea5f1): and capped at the archetype's hit_pts.
+        if (HEALING_ON() && Left > 0.0 && !(Left <= Equip->Arch->HitPts))
+            NewHitPts = Equip->Arch->HitPts;
     }
     else if (Damage < 0.0f)
     {
@@ -3639,7 +3704,8 @@ bool EqObj::damage_group(CArchGroup* Group, float Damage, DamageList& Out)
         Current = Group->GetHitPoints();
     float NewHitPts = Current;
 
-    if (Damage > 0.0f)
+    // healing.dll (06ceab23): a negative amount repairs the same way.
+    if (Damage > 0.0f || (HEALING_ON() && Damage < 0.0f))
     {
         // .text:06ceab2c .. 06ceab74 -- armour's hit_pts_scale divides first:
         // 06ceab67 FLD [Arch+0x70] / 06ceab6a FDIVR Damage, and the quotient
@@ -3665,6 +3731,13 @@ bool EqObj::damage_group(CArchGroup* Group, float Damage, DamageList& Out)
         }
         double const Left = Current - Applied;  // adj stays on the x87 stack
         NewHitPts = (Left > 0.0) ? static_cast<float>(Left) : 0.0f;
+        // healing.dll (06ceac35): and capped at the group's maximum.
+        if (HEALING_ON() && Left > 0.0)
+        {
+            double const Max = Group->GetMaxHitPoints();
+            if (Max < Left)
+                NewHitPts = static_cast<float>(Max);
+        }
     }
     else if (Damage < 0.0f)
     {
@@ -3729,6 +3802,10 @@ bool EqObj::damage_group(CArchGroup* Group, float Damage, DamageList& Out)
 // +0x21c -- .text:06ceafc0 (RET 8).
 bool EqObj::damage_power(float Damage, DamageList& Out)
 {
+#ifdef FREELANCER_MOD_PLUGINS
+    if (ModNoEnergyDamage() && !G_bModForceEnergyDamage)
+        return false;
+#endif
     if (Damage == 0.0f)
         return false;
 
@@ -4958,7 +5035,8 @@ void Ship::tick_zone_damage(float Dt)
         float const Rate = Zone->GetDamage();                          // .text:06d0118e
         // .text:06d01191 FCOM 0.0f (.rdata:06d65188) / TEST AH,0x41 / JNZ:
         // skip when Rate <= 0.
-        if (Rate > 0.0f)
+        // healing.dll (06d01199): a negative rate repairs.
+        if (Rate > 0.0f || (HEALING_ON() && Rate < 0.0f))
         {
             // .text:06d0119e FMUL [EDI+0xa8] / .text:06d011a4 FMUL dt /
             // .text:06d011a8 FADD [ESI+0xbc] / .text:06d011ae FSTP [ESI+0xbc]
@@ -4984,7 +5062,8 @@ void Ship::tick_zone_damage(float Dt)
     float const Ratio = AccumulatedDamage / static_cast<CEqObj*>(Raw)->get_total_max_hit_pts();
     // .text:06d01204 FCOMP 0.01f (.rdata:06d6708c = 0x3c23d70a) /
     // TEST AH,0x41 / JNZ -> return when Ratio <= 0.01.
-    if (Ratio <= 0.01f)
+    // healing.dll (06d0120a): |Ratio|.
+    if ((HEALING_ON() ? std::fabs(Ratio) : Ratio) <= 0.01f)
         return;
 
     // .text:06d01219 .. 06d01250 -- a DamageList built inline on the stack:
@@ -5010,7 +5089,8 @@ bool Ship::apply_damage_ratio(float Ratio, DamageList& Damage)
 
     // .text:06d012e3 FLD Ratio / .text:06d012e8 FCOMP 1.0f (.rdata:06d65520) /
     // TEST AH,0x41 / JNZ LAB_06d01331 when Ratio <= 1.0.
-    if (Ratio > 1.0f)
+    // healing.dll (06d012e3): |Ratio|.
+    if ((HEALING_ON() ? std::fabs(Ratio) : Ratio) > 1.0f)
     {
         // .text:06d01308 CALL FUN_06ce6870 -- `[ECX+0x10]`, nulled unless
         // (ObjectClass & 0x103) == 0x103, i.e. ceqobj(); .text:06d0130f
@@ -5301,6 +5381,16 @@ bool Ship::update(float Dt)
         // CObject::update.
 
         tick_jettison(Dt);                                      // .text:06d014b7
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's DamagePerFire.dll (hooked on this call): the launcher wear the
+        // ship's shots queued in Common goes in through apply_damage_list (vt +0x188).
+        if (PORT_PLUGIN_ON("DamagePerFire"))
+        {
+            DamageList FireWear;
+            if (AdoxaTakeFireDamage(Object, FireWear))
+                apply_damage_list(FireWear);
+        }
+#endif
         tick_zone_damage(Dt);                                   // .text:06d014bf
         return true;                                            // .text:06d014c5
     }
@@ -6270,6 +6360,56 @@ static I3DMathEngine* GSolarMathEngine = nullptr;
 //   anything else (.text:06d03111):
 //     FDUMP(0x100001, "%s(%d) : *** ERROR: %s", Solar.cpp, 0xeb, ...);
 //     OutPos = {35000, 0, 35000}, OutOrient = identity.
+#ifdef FREELANCER_ADOXA
+namespace
+{
+    // Port-only, adoxa's JumpOutPt.dll (docs/adoxa.md): DATA\UNIVERSE\JumpOutPt.ini
+    // [JumpOutPt] <gate nickname | default> = X radius, Y radius, Z offset[, degrees].
+    struct FJumpOutPt
+    {
+        float X;
+        float Y;
+        float Z;
+        int Angle; // rand() units (0..32767 per turn); -1 = random
+    };
+
+    FJumpOutPt const& JumpOutPtFor(unsigned GateId)
+    {
+        static FJumpOutPt S_Default = {500.0f, 500.0f, -350.0f, -1};
+        static std::map<unsigned, FJumpOutPt> S_Points;
+        static bool S_bRead = false;
+        if (!S_bRead)
+        {
+            S_bRead = true;
+            INI_Reader Reader;
+            if (Reader.open("..\\data\\universe\\JumpOutPt.ini", false))
+            {
+                while (Reader.read_header())
+                {
+                    if (!Reader.is_header("JumpOutPt"))
+                        continue;
+                    while (Reader.read_value())
+                    {
+                        FJumpOutPt Point;
+                        Point.X = Reader.get_value_float(0);
+                        Point.Y = Reader.get_value_float(1);
+                        Point.Z = Reader.get_value_float(2);
+                        Point.Angle = Reader.is_value_empty(3) ? -1 : Reader.get_value_int(3) * 32768 / 360;
+                        if (Reader.is_value("default"))
+                            S_Default = Point;
+                        else
+                            S_Points[CreateID(Reader.get_name_ptr())] = Point;
+                    }
+                }
+                Reader.close();
+            }
+        }
+        std::map<unsigned, FJumpOutPt>::const_iterator const Found = S_Points.find(GateId);
+        return Found != S_Points.end() ? Found->second : S_Default;
+    }
+}
+#endif
+
 void Solar::ChooseSystemArrivalLocation(GameObject* Arriving, Vector& OutPos, Matrix& OutOrient)
 {
     (void)Arriving;   // pushed by both callers, never read
@@ -6278,6 +6418,30 @@ void Solar::ChooseSystemArrivalLocation(GameObject* Arriving, Vector& OutPos, Ma
     if ((TypeBits & 0x40u) != 0 || (TypeBits & 0x800u) != 0)
     {
         Transform const Xform = reinterpret_cast<Transform const&>(get_orientation());
+#ifdef FREELANCER_ADOXA
+        double RadiusX = 500.0;
+        double RadiusY = 500.0;
+        float OffsetZ = -350.0f;
+        int Random;
+        if (PORT_PLUGIN_ON("JumpOutPt"))
+        {
+            FJumpOutPt const& Point = JumpOutPtFor(get_id());
+            RadiusX = Point.X;
+            RadiusY = Point.Y;
+            OffsetZ = Point.Z;
+            Random = Point.Angle >= 0 ? Point.Angle : rand();
+        }
+        else
+        {
+            Random = rand();
+        }
+        double const Angle = static_cast<double>(static_cast<float>(Random) * 3.0517578125e-05f)
+                           * 6.2831854820251465;
+        Vector Local;
+        Local.x = static_cast<float>(cos(Angle) * RadiusX);
+        Local.y = static_cast<float>(sin(Angle) * RadiusY);
+        Local.z = OffsetZ;
+#else
         int const Random = rand();
         double const Angle = static_cast<double>(static_cast<float>(Random) * 3.0517578125e-05f)
                            * 6.2831854820251465;
@@ -6285,6 +6449,7 @@ void Solar::ChooseSystemArrivalLocation(GameObject* Arriving, Vector& OutPos, Ma
         Local.x = static_cast<float>(cos(Angle) * 500.0);
         Local.y = static_cast<float>(sin(Angle) * 500.0);
         Local.z = -350.0f;
+#endif
         if (GSolarMathEngine == nullptr)
             GSolarMathEngine = Server_Acquire3DMathEngine();
         Vector Out;

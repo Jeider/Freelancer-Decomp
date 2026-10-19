@@ -10,6 +10,9 @@
 // CMN-SPLIT stage 1 (2026-10-14): split out of common_iface.cpp unchanged.
 
 #include "common_iface.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#endif
 #include "common_behavior.h"
 #include "common_aisteer.h"
 #include "common_cobjdb.h"
@@ -1249,6 +1252,11 @@ bool IObjInspectImpl::has_dock_hardpoints() const
         unsigned const Type = It->Type;
         if (Type == 1 || Type == 6 || Type == 7)
             return true;
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's moors.dll (062c08a8): the moors (3..5) are dock points too.
+        if (Type >= 3 && Type <= 5 && PORT_PLUGIN_ON("moors"))
+            return true;
+#endif
     }
     return false;
 }

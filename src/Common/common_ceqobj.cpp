@@ -6,6 +6,10 @@
 
 // CEqObj (retail CEqObj.cpp) and CEqObj::DockAnimInfo.
 #include "common_cobject.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#include "common_adoxa_api.h"
+#endif
 #include "x86math.h"
 
 #include "common_cobjdb.h"
@@ -981,6 +985,22 @@ bool CEqObj::launch_pos(Vector& OutPos, Matrix& OutOrient, int HardpointIndex) c
         // 062aa9bc-062aa9de: HardpointPosition(instance, sphere+0x04 name, &OutPos, &OutOrient).
         char const* HpName = Arch->DockingSpheres[(unsigned)HardpointIndex].HardpointName.c_str();
         HardpointPosition(this->EngineInstanceId, HpName, &OutPos, &OutOrient);
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's moors.dll (062aa9de): launching from a moor (dock type 4 or 5)
+        // turns the ship round to face away from it (rows 0 and 2 negated).
+        if (PORT_PLUGIN_ON("moors"))
+        {
+            unsigned const Type = Arch->DockingSpheres[(unsigned)HardpointIndex].Type;
+            if (Type == 4 || Type == 5)
+            {
+                for (int Col = 0; Col < 3; ++Col)
+                {
+                    OutOrient.E[0][Col] = -OutOrient.E[0][Col];
+                    OutOrient.E[2][Col] = -OutOrient.E[2][Col];
+                }
+            }
+        }
+#endif
 
         // 062aa9e3-062aaa3b: Col1 = column 1 of the hardpoint orientation (float copies);
         // W = (float)cos(A), A = DAT_0639e2d8 (double, float pi/2); the scale
@@ -1619,3 +1639,20 @@ void CEqObj::notify(INotify::Event EventParam, void* Context)
     if (Notify != nullptr)
         Notify->notify(EventParam, Context);
 }
+
+#ifdef FREELANCER_ADOXA
+namespace
+{
+    FAdoxaBerthQuery G_AdoxaBerthQuery = nullptr;
+}
+
+void __cdecl AdoxaSetBerthQuery(FAdoxaBerthQuery Query)
+{
+    G_AdoxaBerthQuery = Query;
+}
+
+bool __cdecl AdoxaShipCanUseBerths(unsigned ShipArchId)
+{
+    return G_AdoxaBerthQuery == nullptr || G_AdoxaBerthQuery(ShipArchId);
+}
+#endif

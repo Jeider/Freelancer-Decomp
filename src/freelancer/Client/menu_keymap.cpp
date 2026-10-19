@@ -6,7 +6,8 @@
 
 #include "menu_keymap_config.h"
 #ifdef FREELANCER_DBG_OPTIONS
-#include "dbg_options.h" // port-only beta DBG_OPTIONS window
+#include "dbg_options.h"
+#include "dbg_console.h" // port-only beta console
 #endif
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
@@ -614,6 +615,8 @@ void UnregisterAcceleratorGroup(char const* GroupNickname)
 bool KeyMapRouteInputMessage(unsigned Message, unsigned Wparam, unsigned Lparam)
 {
 #ifdef FREELANCER_DBG_OPTIONS
+    if (DbgConsoleHandleMessage(Message, Wparam))
+        return true;
     if (DbgOptionsHandleKey(Message, Wparam))
         return true;
 #endif

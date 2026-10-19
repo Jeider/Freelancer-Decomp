@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <new>
 #include <vector>
 #include <d3dx8tex.h>
 
@@ -390,8 +391,13 @@ namespace
         const int Width = (short)ReadU16(Blob, 12);
         const int Height = (short)ReadU16(Blob, 14);
         const unsigned long Pitch = ((TextureFormatDescriptor(*OutFormat)->BitsPerPixel + 7) >> 3) * Width;
-        unsigned char* Pixels = new unsigned char[Height * Pitch];
+        // Port: retail's VC6 operator new returned NULL here (and then faulted in memcpy); the
+        // UCRT one throws std::bad_alloc, which movie.dll's CRT filter turns into a silent
+        // ExitProcess(3). Fail the mip instead.
+        unsigned char* Pixels = new (std::nothrow) unsigned char[Height * Pitch];
         *OutPixels = Pixels;
+        if (Pixels == nullptr)
+            return false;
         const unsigned char* Source = Blob + Blob[0] + 18;
         if (Type == 1)
             Source += ((short)ReadU16(Blob, 3) +
@@ -1424,7 +1430,12 @@ GENRESULT FTextureLibrary::LoadTgaTexture(IFileSystem* FileSystem, const char* N
         unsigned long UploadFormat = 0;
         unsigned char Palette[256 * (0xff >> 3)]; // Byte-sized palette depth: at most 31 bytes/entry.
         unsigned char* Pixels = nullptr;
-        DecodeTgaTexture(Blob, &UploadFormat, Palette, &Pixels);
+        if (!DecodeTgaTexture(Blob, &UploadFormat, Palette, &Pixels) || Pixels == nullptr)
+        {
+            // Port: see DecodeTgaTexture -- out of memory skips the mip instead of exiting.
+            TextureTgaWarning(0x11b, "load_tga_mips: %s: out of memory decoding mip %d", Name, Skip);
+            continue;
+        }
         const int Width = (short)ReadU16(Blob, 12);
         const int Height = (short)ReadU16(Blob, 14);
         const unsigned long Pitch = ((TextureFormatDescriptor(UploadFormat)->BitsPerPixel + 7) >> 3) * Width;

@@ -8,6 +8,13 @@
 // LootProps.h.
 
 #include "LootProps.h"
+#ifdef FREELANCER_ADOXA
+#include "../include/port_plugins.h" // port-only adoxa plugins
+#include "ContentInternal.h"     // OpenContentDataIni
+#include "common_ini.h"
+#include "common_server.h"
+#include <vector>
+#endif
 #include "BaseDB.h"
 #include "BaseSupport.h"        // FBaseVisit, FBaseVendorOffer
 #include "Cargo.h"              // GetVibeFeelingMask (FUN_06f35140)
@@ -28,6 +35,83 @@
 #include <utility>
 #include <vector>
 
+
+#ifdef FREELANCER_ADOXA
+namespace
+{
+    // Port-only, adoxa's MatchJob.dll (docs/adoxa.md; hooked at 06f046eb): the job board's
+    // difficulty range is raised to the player's rank by DATA\MISSIONS\RankDiffSP.ini (single
+    // player) or RankDiffMP.ini: [RankDiffDB] rank_diff = <rank>, <min>, <max>; the last row
+    // whose rank the player has reached lifts min and max (never lowers them).
+    struct FRankDiff
+    {
+        int Rank;
+        float MinDifficulty;
+        float MaxDifficulty;
+    };
+
+    std::vector<FRankDiff> const& RankDiffs()
+    {
+        static std::vector<FRankDiff> S_Rows;
+        static bool S_bRead = false;
+        if (!S_bRead)
+        {
+            S_bRead = true;
+            INI_Reader Reader;
+            if (OpenContentDataIni(pub::SinglePlayer() ? "missions\\RankDiffSP.ini" : "missions\\RankDiffMP.ini",
+                                   &Reader))
+            {
+                while (Reader.read_header())
+                {
+                    if (!Reader.is_header("RankDiffDB"))
+                        continue;
+                    while (Reader.read_value())
+                    {
+                        if (!Reader.is_value("rank_diff"))
+                            continue;
+                        FRankDiff Row;
+                        Row.Rank = Reader.get_value_int(0);
+                        Row.MinDifficulty = Reader.get_value_float(1);
+                        Row.MaxDifficulty = Reader.get_value_float(2);
+                        S_Rows.push_back(Row);
+                    }
+                }
+                Reader.close();
+            }
+        }
+        return S_Rows;
+    }
+
+    void AdoxaMatchJobDifficulty(unsigned int PlayerId, float& MinDifficulty, float& MaxDifficulty)
+    {
+        std::vector<FRankDiff> const& Rows = RankDiffs();
+        if (Rows.empty())
+            return;
+        int Rank = 0;
+        if (pub::SinglePlayer())
+            pub::Player::GetRank(PlayerId, Rank);
+        else
+        {
+            int Rep = 0;
+            float RankF = 0.0f;
+            pub::Player::GetRep(PlayerId, Rep);
+            pub::Reputation::GetRank(Rep, RankF);
+            Rank = static_cast<int>(RankF);
+        }
+        for (int Index = static_cast<int>(Rows.size()); --Index >= 0;)
+        {
+            if (Rank >= Rows[Index].Rank)
+            {
+                if (Rows[Index].MinDifficulty > MinDifficulty)
+                    MinDifficulty = Rows[Index].MinDifficulty;
+                if (Rows[Index].MaxDifficulty > MaxDifficulty)
+                    MaxDifficulty = Rows[Index].MaxDifficulty;
+                break;
+            }
+        }
+    }
+}
+#endif
 namespace
 {
     // Retail DAT_06fd05ec..DAT_06fd05f8: vector<FLootProps>, built by 06f04c20 and
@@ -355,8 +439,16 @@ namespace
                         Request.OfferGroup = static_cast<int>(Picked->first);
                         Request.Difficulty = 0.0f;
                         // 06f046e6-06f046f0: FUN_06f4ad60(State, min, max), FSTP float.
+#ifdef FREELANCER_ADOXA
+                        float MinDifficulty = PickedType->MinDifficulty;
+                        float MaxDifficulty = PickedType->MaxDifficulty;
+                        if (PORT_PLUGIN_ON("MatchJob"))
+                            AdoxaMatchJobDifficulty(State->PlayerId, MinDifficulty, MaxDifficulty);
+                        Request.Difficulty = PickRmMissionDifficulty(State, MinDifficulty, MaxDifficulty);
+#else
                         Request.Difficulty = PickRmMissionDifficulty(
                             State, PickedType->MinDifficulty, PickedType->MaxDifficulty);
+#endif
 
                         bool bKept = false;
                         // 06f046f4-06f04706: FLD 0.0 / FCOMP difficulty / TEST AH,0x44 / JP

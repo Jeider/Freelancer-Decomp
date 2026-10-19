@@ -5,6 +5,12 @@
 // Author: Giperion.
 
 #include "../include/common_server.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "../include/port_config.h" // port-only mod server patches
+#endif
+#ifdef FREELANCER_ADOXA
+#include "../include/port_plugins.h" // port-only adoxa plugins
+#endif
 #include "../include/server_iserverimpl.h"   // IServerImpl, Server
 #include "../include/server_cobject.h"
 #include "../include/server_gameobject.h"
@@ -3553,7 +3559,13 @@ static void StarSystem_UpdateNearShips(StarSystem* Sys, float Step)
         if (Ship == nullptr)
             continue;
         FScanSphere Sphere;
+#ifdef FREELANCER_MOD_PLUGINS
+        // Port-only: [ModServer] update_radius (the mod's server.dll: 100000).
+        static float const S_UpdateRadius = PortConfigFloat("ModServer", "update_radius", 10000.0f);
+        Sphere.Radius = S_UpdateRadius;
+#else
         Sphere.Radius = 10000.0f;       // DAT_06d88af0 = 0x461c4000
+#endif
         Sphere.Center = Ship->get_position();
         Partition->QuerySphere(reinterpret_cast<Geometry::Sphere const*>(&Sphere),
                                reinterpret_cast<FSpatialQueryResult*>(&Scan));
@@ -3932,7 +3944,13 @@ static unsigned int StarSystem_Update(StarSystem* Sys, float Dt)
                     }
 
                     // .text:06d0c24c MOV AL,[EBX+0x1c] -- the land byte.
+#ifdef FREELANCER_ADOXA
+                    // Port-only, adoxa's moors.dll: a player's ship docking without the land
+                    // byte (at a moor) lands as well.
+                    if (Node->Entry.bLand || (PORT_PLUGIN_ON("moors") && Obj->is_player()))
+#else
                     if (Node->Entry.bLand)
+#endif
                     {
                         // .text:06d0c257 .. .text:06d0c28e -- every player in
                         // the system is told (FLPACKET_SERVER_LAND, and the

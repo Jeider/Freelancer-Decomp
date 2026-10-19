@@ -8,6 +8,9 @@
 // Declared in common_cequip.h. Retail re-derives the watched traveller (`head ? head - 8 : 0`)
 // at every use; TradelaneObj() is that expression, and nothing between two uses changes it.
 #include "common_cequip.h"
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa.h" // port-only LaneSpeed
+#endif
 #include "x86math.h"
 
 #include "common_cobject.h"
@@ -205,7 +208,11 @@ void LaneAction::InitializeApproach()
         // DAT_0639f410 (80.0f) / DAT_0639f3cc (2500.0f).
         TransitRamp = 1.0f;
         TransitElapsed = 3.0f;
+#ifdef FREELANCER_ADOXA
+        TransitRampTarget = 80.0f / G_AdoxaLaneSpeed;
+#else
         TransitRampTarget = 80.0f / 2500.0f;
+#endif
     }
     else
     {
@@ -229,7 +236,11 @@ void LaneAction::InitializeApproach()
         // (DAT_0639f3cc) times that, times g -- all on the FPU, rounded once by FST +0xf0 and
         // FSTP +0xec.
         double const Refine = 1.5 - (((double)Guess * Guess) * SpeedSq) * 0.5;
+#ifdef FREELANCER_ADOXA
+        double const Ramp = ((SpeedSq / G_AdoxaLaneSpeed) * Refine) * Guess;
+#else
         double const Ramp = ((SpeedSq / 2500.0) * Refine) * Guess;
+#endif
         TransitRampTarget = (float)Ramp;
         TransitRamp = (float)Ramp;
     }
@@ -561,13 +572,21 @@ void LaneAction::do_simulation_controller(IVP_Event_Sim* EventSim, IVP_U_Vector<
     {
         // 062c2043-062c205f: 1.0f - (1.0f - 400.0 / 2500.0f) * Progress, on the FPU
         // (DAT_0639f448 double 400, DAT_0639f3cc 2500.0f).
+#ifdef FREELANCER_ADOXA
+        TransitRamp = (float)(1.0 - (1.0 - 400.0 / G_AdoxaLaneSpeed) * Progress);
+#else
         TransitRamp = (float)(1.0 - (1.0 - 400.0 / 2500.0) * Progress);
+#endif
     }
 
     // 062c209e-062c2135: the lane speed (2500 * TransitRamp, rounded) times Dt, unrounded,
     // along the lane pose's backward axis. x and y are rounded before they are added; z is
     // added unrounded to both positions.
+#ifdef FREELANCER_ADOXA
+    float const LaneSpeed = G_AdoxaLaneSpeed * TransitRamp;
+#else
     float const LaneSpeed = 2500.0f * TransitRamp;
+#endif
     double const Advance = (double)LaneSpeed * Dt;
     float const Dx = (float)(-LanePose.Rotation.E[0][2] * Advance);
     float const Dy = (float)(-LanePose.Rotation.E[1][2] * Advance);
@@ -627,3 +646,13 @@ void LaneAction::do_simulation_controller(IVP_Event_Sim* EventSim, IVP_U_Vector<
     // (CObject slot 0x7c).
     ((CObject*)TradelaneObj()->cobject())->beam_object(LanePose.Translation, LanePose.Rotation, true);
 }
+
+#ifdef FREELANCER_ADOXA
+float G_AdoxaLaneSpeed = 2500.0f;
+
+std::map<unsigned, float>& AdoxaLaneSpeeds()
+{
+    static std::map<unsigned, float> S_Speeds;
+    return S_Speeds;
+}
+#endif

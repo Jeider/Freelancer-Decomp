@@ -5,6 +5,11 @@
 // Author: Giperion.
 
 #include "common_reputation.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#include "common_ini.h"
+#include <string>
+#endif
 #include "common_reputation_internal.h"
 
 #include "common_ini.h"
@@ -64,6 +69,23 @@ namespace CmnReputation
         if (!GStoryFactionIds.empty())
             return;
 
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's storyfactions.dll (docs/adoxa.md): DATA\storyfactions.ini replaces
+        // the built-in list -- every value name of its first section, when there is one.
+        if (PORT_PLUGIN_ON("storyfactions"))
+        {
+            INI_Reader Reader;
+            if (Reader.open("..\\data\\storyfactions.ini", false))
+            {
+                Reader.read_header();
+                while (Reader.read_value())
+                    GStoryFactionIds.push_back(MakeId(Reader.get_name_ptr()));
+                Reader.close();
+                if (!GStoryFactionIds.empty())
+                    return;
+            }
+        }
+#endif
         unsigned Index = 0;
         while (kStoryFactionNames[Index] != nullptr)
         {

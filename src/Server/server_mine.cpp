@@ -13,6 +13,7 @@
 // Mine's own fields +0x74..+0x9f. The spawner (StarSystem FUN_06d08ef0) allocates 0xa0.
 
 #include "../include/server_gameobject.h"
+#include "../include/adoxa_healing.h" // port-only adoxa healing
 #include "../include/server_sysdb.h"   // StarSystem::explode
 #include "../include/common_misc.h"    // SUBOBJ_ID_*, DamageList
 #include "../include/common_id.h"      // ID_String::IsEmpty
@@ -278,7 +279,7 @@ bool Mine::destroy(int Kind, unsigned int ObjId)
             if (Explosion != nullptr &&
                 static_cast<double>(Explosion->Radius) > Epsilon &&
                 (static_cast<double>(Explosion->Impulse) > Epsilon ||
-                 static_cast<double>(Explosion->HullDamage) > Epsilon ||
+                 HEALING_DAMAGES(Explosion->HullDamage, Epsilon) ||
                  static_cast<double>(Explosion->EnergyDamage) > Epsilon))
             {
                 // .text:06cf3910-06cf397f: {own id, the CMine's owner (+0xe4, 0xf narrowing,

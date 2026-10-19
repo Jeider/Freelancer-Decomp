@@ -15,6 +15,12 @@
 // FUN_06eec4e0 / FUN_06eec680 / FUN_06eec860) are the std containers of Gcs.h.
 
 #include "Gcs.h"
+#ifdef FREELANCER_ADOXA
+#include "../include/port_plugins.h" // port-only adoxa plugins
+#include <cctype>
+#include <cstdio>
+#include <cstring>
+#endif
 
 #include "BaseDB.h"             // FindContentBaseInfo (FUN_06eac0c0)
 #include "BehaviorCmds.h"       // FContentShipBase
@@ -135,6 +141,152 @@ int __cdecl PickVoiceLine(char const* Name, char const* Suffix, unsigned int Voi
     return Result;
 }
 
+#ifdef FREELANCER_ADOXA
+namespace
+{
+    // Port-only, adoxa's callsign.dll (docs/adoxa.md): port.ini [callsign] callsign =
+    // "<faction> [<formation> [<n>][-][<n>]]" -- what freelancer.ini's "DLL = callsign.dll, ..."
+    // passed. Faction is a name from the table below or a faction nickname (max 9 chars);
+    // formation a name or number; the two numbers replace the player's "1-1", and leaving out
+    // the dash removes it for everybody. The plugin patched content.dll's strings
+    // (gcs_refer_faction_player, gcs_refer_formationdesig_01, gcs_misc_dash) and the two player
+    // number sites (06eeb49b, 06eeb523); these are the same edits.
+    struct FCallsign
+    {
+        bool bActive = false;
+        char FactionName[48] = "gcs_refer_faction_player";
+        char FormationName[48] = "gcs_refer_formationdesig_01";
+        char const* Dash = "gcs_misc_dash";
+        int Number1 = -1; // case 2 (retail: (PlayerId - 1) % 20 + 1)
+        int Number2 = 1;  // case 3 (retail: 1)
+    };
+
+    FCallsign const& Callsign()
+    {
+        static FCallsign S_Callsign;
+        static bool S_bRead = false;
+        if (S_bRead)
+            return S_Callsign;
+        S_bRead = true;
+        char Text[128];
+        if (!PORT_PLUGIN_ON("callsign") || PortConfigString("callsign", "callsign", "", Text, sizeof(Text)) == 0)
+            return S_Callsign;
+        static char const* const kFactions[][2] = {
+            {"Ageira", "co_vr"}, {"ALG", "co_alg"}, {"Alliance", "fc_fa"}, {"Armed Forces", "br_n"},
+            {"BMM", "br_m"}, {"Bounty Hunters", "gd_bh"}, {"Bowex", "co_be"}, {"Bretonia Police", "br_p"},
+            {"Bundschuh", "fc_b"}, {"Corsairs", "fc_c"}, {"Cryer", "co_hsp"}, {"Daumann", "co_khc"},
+            {"Dragons", "fc_bd"}, {"DSE", "co_me"}, {"Freelancer", "player"}, {"Gaians", "fc_g"},
+            {"Gateway", "co_nws"}, {"GC", "fc_gc"}, {"GMG", "gd_gm"}, {"Hacker", "fc_lh"},
+            {"Hessians", "fc_rh"}, {"Hogosha", "fc_h"}, {"IMG", "gd_im"}, {"Interspace", "co_ic"},
+            {"Junkers", "fc_j"}, {"Kishiro", "co_kt"}, {"Kruger", "rh_m"}, {"Kusari Police", "ku_p"},
+            {"Liberty Police", "li_p"}, {"LSF", "li_lsf"}, {"LWB", "fc_lwb"}, {"Military", "rh_n"},
+            {"Mollys", "fc_m"}, {"Naval Forces", "ku_n"}, {"Navy", "li_n"}, {"Order", "fc_or"},
+            {"Outcasts", "fc_ou"}, {"Planetform", "co_ti"}, {"Republican", "co_rs"},
+            {"Rheinland Police", "rh_p"}, {"Rogues", "fc_lr"}, {"Samura", "co_shi"},
+            {"Spa and Cruise", "co_os"}, {"Synth Foods", "co_ni"}, {"Unioners", "fc_u"},
+            {"Universal", "co_ss"}, {"Xenos", "fc_x"}, {"Zoners", "gd_z"}};
+        static char const* const kFormations[] = {
+            "Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Theta", "Iota", "Kappa", "Lambda",
+            "Omicron", "Sigma", "Omega", "Red", "Blue", "Gold", "Green", "Silver", "Black", "White",
+            "Yellow", "Matsu", "Sakura", "Fuji", "Botan", "Hagi", "Susuki", "Kiku", "Yanagi"};
+
+        S_Callsign.bActive = true;
+        char const* Cursor = Text;
+        int Length = 0;
+        int Index;
+        for (Index = static_cast<int>(sizeof(kFactions) / sizeof(*kFactions)); --Index >= 0;)
+        {
+            Length = static_cast<int>(std::strlen(kFactions[Index][0]));
+            if ((Cursor[Length] == ' ' || Cursor[Length] == '\0') && _strnicmp(kFactions[Index][0], Cursor, Length) == 0)
+                break;
+        }
+        if (Index < 0)
+        {
+            for (Length = 0; Cursor[Length] != ' ' && Cursor[Length] != '\0'; ++Length)
+            {
+            }
+            if (Length <= 9)
+                std::snprintf(S_Callsign.FactionName, sizeof(S_Callsign.FactionName), "gcs_refer_faction_%.*s", Length, Cursor);
+        }
+        else
+            std::snprintf(S_Callsign.FactionName, sizeof(S_Callsign.FactionName), "gcs_refer_faction_%s", kFactions[Index][1]);
+        Cursor += Length;
+
+        if (*Cursor == ' ')
+        {
+            ++Cursor;
+            for (Index = static_cast<int>(sizeof(kFormations) / sizeof(*kFormations)); --Index >= 0;)
+            {
+                Length = static_cast<int>(std::strlen(kFormations[Index]));
+                if ((Cursor[Length] == ' ' || Cursor[Length] == '\0') && _strnicmp(kFormations[Index], Cursor, Length) == 0)
+                {
+                    ++Index;
+                    break;
+                }
+            }
+            if (Index < 0)
+            {
+                Index = Length = 0;
+                while (std::isdigit(static_cast<unsigned char>(Cursor[Length])))
+                    Index = Index * 10 + Cursor[Length++] - '0';
+                if (Index > 99)
+                    Index = 0;
+            }
+        }
+        else
+            Index = Length = 0;
+        std::snprintf(S_Callsign.FormationName, sizeof(S_Callsign.FormationName), "gcs_refer_formationdesig_%02d", Index);
+
+        Cursor += Length;
+        int Number = 0;
+        if (*Cursor == ' ')
+        {
+            if (Cursor[1] == '-')
+            {
+                Number = -1;
+                ++Cursor;
+            }
+            else
+            {
+                char const* const Begin = Cursor;
+                while (std::isdigit(static_cast<unsigned char>(*++Cursor)))
+                    Number = Number * 10 + *Cursor - '0';
+                if (*Cursor == '\0')
+                {
+                    Number = -1;
+                    Cursor = Begin;
+                }
+            }
+        }
+        else
+            Number = -1;
+        S_Callsign.Number1 = Number;
+        if (*Cursor != '-')
+            S_Callsign.Dash = "";
+        if (*Cursor == '\0' || Cursor[1] == '\0')
+            Number = -1;
+        else
+        {
+            Number = 0;
+            while (std::isdigit(static_cast<unsigned char>(*++Cursor)))
+                Number = Number * 10 + *Cursor - '0';
+            if (Number > 127)
+                Number = 1;
+        }
+        S_Callsign.Number2 = Number;
+        return S_Callsign;
+    }
+
+    char const* GcsMiscDash()
+    {
+        return Callsign().Dash;
+    }
+}
+#define GCS_MISC_DASH GcsMiscDash()
+#else
+#define GCS_MISC_DASH "gcs_misc_dash"
+#endif
+
 TString<0x40> __cdecl MakeVoiceLineName(char const* Name, char const* Suffix,
                                         unsigned int VoiceId)
 {
@@ -243,7 +395,11 @@ TString<0x40> __cdecl MakeObjectReferenceName(int Kind, FContentSpaceObj* Object
             FormatTString64(&Result, "gcs_refer_formationdesig_%02d", Value - 0x304af);
             return Result;
         }
+#ifdef FREELANCER_ADOXA
+        Result = Callsign().FormationName;
+#else
         Result = "gcs_refer_formationdesig_01";
+#endif
         return Result;
     }
     case 2:
@@ -265,6 +421,11 @@ TString<0x40> __cdecl MakeObjectReferenceName(int Kind, FContentSpaceObj* Object
         // not null-tested.
         unsigned int ShipId = Object->SpaceObjId;
         FContentPlayerState* const Player = FindContentPlayerStateByShip(&ShipId);
+#ifdef FREELANCER_ADOXA
+        if (Callsign().bActive)
+            FormatTString64(&Result, "gcs_misc_number_%d", Callsign().Number1);
+        else
+#endif
         FormatTString64(&Result, "gcs_misc_number_%d", (Player->PlayerId - 1) % 20 + 1);
         return Result;
     }
@@ -281,7 +442,11 @@ TString<0x40> __cdecl MakeObjectReferenceName(int Kind, FContentSpaceObj* Object
         }
         unsigned int ShipId = Object->SpaceObjId;
         FindContentPlayerStateByShip(&ShipId);
+#ifdef FREELANCER_ADOXA
+        FormatTString64(&Result, "gcs_misc_number_%d-", Callsign().bActive ? Callsign().Number2 : 1);
+#else
         FormatTString64(&Result, "gcs_misc_number_%d-", 1);
+#endif
         return Result;
     }
     default:
@@ -673,7 +838,11 @@ namespace
         Name.Length = 0;
         Name.Data[0] = '\0';
         if (GetFactionMsgIdPrefix(Ship->ReputationHandle->GetAffiliation(), &Name) != 0)
+#ifdef FREELANCER_ADOXA
+            Name = Callsign().FactionName;
+#else
             Name = "gcs_refer_faction_player";
+#endif
         AppendTString64(&Name, "_short");
         return Name;
     }
@@ -739,7 +908,7 @@ FGcsLineLaunchClearance::FGcsLineLaunchClearance(FSystemInfo* InSystem, unsigned
     // 06ed94dd-06ed95f9: designation, number, dash, number-, "this is".
     PushText(MakeObjectReferenceName(1, Ship, nullptr).Data);
     PushText(MakeObjectReferenceName(2, Ship, nullptr).Data);
-    PushText("gcs_misc_dash");
+    PushText(GCS_MISC_DASH);
     PushText(MakeObjectReferenceName(3, Ship, nullptr).Data);
     PushText("gcs_misc_thisis+");
 
@@ -807,7 +976,7 @@ FGcsLineDockRequest::FGcsLineDockRequest(FSystemInfo* InSystem, unsigned int InS
     PushText(MakeShortFactionName(Ship).Data);
     PushText(MakeObjectReferenceName(1, Ship, nullptr).Data);
     PushText(MakeObjectReferenceName(2, Ship, nullptr).Data);
-    PushText("gcs_misc_dash");
+    PushText(GCS_MISC_DASH);
     // 06ed705d-06ed709b: kind 2 again (not 3).
     PushText(MakeObjectReferenceName(2, Ship, nullptr).Data);
     PushText("gcs_misc_to");
@@ -941,7 +1110,7 @@ FGcsLineDockNowCleared::FGcsLineDockNowCleared(FSystemInfo* InSystem, unsigned i
     PushText(MakeShortFactionName(Ship).Data);
     PushText(MakeObjectReferenceName(1, Ship, nullptr).Data);
     PushText(MakeObjectReferenceName(2, Ship, nullptr).Data);
-    PushText("gcs_misc_dash");
+    PushText(GCS_MISC_DASH);
     PushText(MakeObjectReferenceName(3, Ship, nullptr).Data);
     PushText(MakeVoiceLineName("gcs_dockrequest_nowcleared", "+", VoiceId).Data);
     AddText(MakeDockApproachName(DockType, "-"));
@@ -1405,7 +1574,7 @@ FGcsLineCombatTakingLead::FGcsLineCombatTakingLead(FSystemInfo* InSystem, unsign
     PushText("gcs_misc_thisis+");
     PushText(MakeObjectReferenceName(1, Ship, nullptr).Data);
     PushText(MakeObjectReferenceName(2, Ship, nullptr).Data);
-    PushText("gcs_misc_dash");
+    PushText(GCS_MISC_DASH);
     PushText(MakeObjectReferenceName(3, Ship, nullptr).Data);
     // 06edbecc-06edbf2e: the name copied (FUN_06ead640), FUN_06eeaf10 with "-".
     PushText(MakeVoiceLineName(MakeTString64("gcs_combat_takinglead").Data, "-", VoiceId).Data);
@@ -1902,7 +2071,7 @@ FGcsLineScanAnnounce::FGcsLineScanAnnounce(FSystemInfo* InSystem, unsigned int I
     PushText(MakeShortFactionName(ListenerShip).Data);
     PushText(MakeObjectReferenceName(1, ListenerShip, nullptr).Data);
     PushText(MakeObjectReferenceName(2, ListenerShip, nullptr).Data);
-    PushText("gcs_misc_dash");
+    PushText(GCS_MISC_DASH);
     PushText(MakeObjectReferenceName(3, ListenerShip, nullptr).Data);
     // 06ee5fed-06ee605d: the name copied (FUN_06ead640) with "-", FUN_06f937c0.
     PushText(MakeVoiceLineName(MakeTString64("gcs_scan_announce").Data, "-", VoiceId).Data);
@@ -2036,7 +2205,7 @@ FGcsLineFidgetStatusQuery::FGcsLineFidgetStatusQuery(FSystemInfo* InSystem,
     // 06ee0210-06ee02ee.
     PushText(MakeObjectReferenceName(1, Ship, nullptr).Data);
     PushText(MakeObjectReferenceName(2, Ship, nullptr).Data);
-    PushText("gcs_misc_dash");
+    PushText(GCS_MISC_DASH);
     PushText(MakeObjectReferenceName(3, Ship, nullptr).Data);
     // 06ee02f3-06ee0363.
     PushText(MakeVoiceLineName(MakeTString64("gcs_fidget_whatstatus").Data, "-", VoiceId).Data);
@@ -2061,7 +2230,7 @@ FGcsLineFidgetStatusReport::FGcsLineFidgetStatusReport(FSystemInfo* InSystem,
     PushText("gcs_misc_thisis+");
     PushText(MakeObjectReferenceName(1, Ship, nullptr).Data);
     PushText(MakeObjectReferenceName(2, Ship, nullptr).Data);
-    PushText("gcs_misc_dash");
+    PushText(GCS_MISC_DASH);
     PushText(MakeObjectReferenceName(3, Ship, nullptr).Data);
     // 06ee05e6-06ee05fe: the ship's relative health (status not tested) into the local that
     // held the ship pointer ([ESP+0x10]), so a failing call leaves the pointer's bits.
@@ -2124,7 +2293,7 @@ FGcsLineFidgetWaypointQuery::FGcsLineFidgetWaypointQuery(FSystemInfo* InSystem,
     PushText(MakeShortFactionName(Ship).Data);
     PushText(MakeObjectReferenceName(1, Ship, nullptr).Data);
     PushText(MakeObjectReferenceName(2, Ship, nullptr).Data);
-    PushText("gcs_misc_dash");
+    PushText(GCS_MISC_DASH);
     PushText(MakeObjectReferenceName(3, Ship, nullptr).Data);
     // 06ee0d7a-06ee0de8.
     PushText(MakeVoiceLineName(MakeTString64("gcs_fidget_patrol_wpremainquery").Data, "-",

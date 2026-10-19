@@ -10,6 +10,7 @@
 // server_gameobject.cpp.
 
 #include "../include/server_gameobject.h"
+#include "../include/adoxa_healing.h" // port-only adoxa healing
 #include "../include/server_sysdb.h"   // StarSystem::explode / find_object, StarSystem_DamageObject
 #include "../include/common_misc.h"    // LOOT_UNSEEN_*, SUBOBJ_ID_ROOT / SUBOBJ_ID_POWER
 #include "../include/common_id.h"      // ID_String::IsEmpty / get_string
@@ -306,7 +307,7 @@ void Loot::explode_on_destroy()
     if (!(static_cast<double>(Explosion->Radius) > Epsilon))
         return;
     if (!(static_cast<double>(Explosion->Impulse) > Epsilon) &&
-        !(static_cast<double>(Explosion->HullDamage) > Epsilon) &&
+        !HEALING_DAMAGES(Explosion->HullDamage, Epsilon) &&
         !(static_cast<double>(Explosion->EnergyDamage) > Epsilon))
     {
         return;

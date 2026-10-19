@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "common_misc.h"
+#include "adoxa_healing.h" // port-only adoxa healing
 
 // ============================================================================
 // DamageEntry
@@ -117,7 +118,8 @@ void DamageList::add_damage_entry(unsigned short SubObjId, float HitPts, DamageE
         {
             // .text:062bbcaa-062bbcc4: `FLD old; FCOMP new; TEST AH,0x5; JP` -- the old value
             // is kept only when strictly less; equal or unordered stores the new one.
-            Entry.HitPts = (Entry.HitPts < HitPts) ? Entry.HitPts : HitPts;
+            // healing.dll (062bbc24): the newest value always, so a repair can raise it.
+            Entry.HitPts = HEALING_ON() ? HitPts : ((Entry.HitPts < HitPts) ? Entry.HitPts : HitPts);
             if (static_cast<int>(Fate) > static_cast<int>(Entry.Fate))
                 Entry.Fate = Fate;
             Found = true;

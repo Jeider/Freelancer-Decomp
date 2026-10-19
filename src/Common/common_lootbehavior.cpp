@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "common_lootbehavior.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#endif
 
 #include "common_aisteer.h"        // FAiTarget
 #include "common_archetype.h"      // Archetype::Ship::HoldSize, Archetype::Root::get_class_type
@@ -286,6 +289,14 @@ bool LootBehavior::AcquireLootTarget(FLootTarget* Slot)
     float BestDistance = 3.40282347e+38f;                           // 0x7f7fffff
     ScanList const* List = nullptr;
     (void)Sys->Timers.GetOwnScanList(List, 0x10000000);   // 062ce948, loot class
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's chklootvol.dll (docs/adoxa.md): loot whose unit volume exceeds the free
+    // hold is skipped, so the NPC does not freeze chasing loot it can never pick up.
+    bool const bCheckVolume = PORT_PLUGIN_ON("chklootvol");
+    float const HoldRemaining = bCheckVolume
+        ? static_cast<CShip const*>(CObjectOfClass(OwnShip(Sys), CObject::ClassShip))->get_cargo_hold_remaining()
+        : 0.0f;
+#endif
     if (List == nullptr)
         return false;                                               // 062ce953
 
@@ -300,6 +311,10 @@ bool LootBehavior::AcquireLootTarget(FLootTarget* Slot)
         CLoot const* const Loot = static_cast<CLoot const*>(CObjectOfClass(Candidate, CObject::ClassLoot));   // 062ce9a0-062ce9c3
         if (Loot->bCanAiTractor == 0)                               // 062ce9c5 [+0xfc]
             break;
+#ifdef FREELANCER_ADOXA
+        if (bCheckVolume && !(Loot->ContentsArch->Volume <= HoldRemaining))
+            continue;
+#endif
 
         int const Kind = static_cast<int>(Loot->ContentsArch->get_class_type());   // 062ce9db [+0x10]
         if (Kind == 0xa)

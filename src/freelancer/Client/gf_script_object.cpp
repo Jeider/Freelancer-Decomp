@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "gf_script_object.h"
+#ifdef FREELANCER_LANGUAGE
+#include "port_config.h" // port-only language switch
+#endif
 
 #include "DALib.h"
 #include "character_info.h"
@@ -1652,8 +1655,21 @@ bool FGfScriptManager::OnEvent(unsigned MsgId)
         FGfScriptSequence* const Sequence = *It;
         if (Sequence->bLetterbox == 0)
             continue;
+#ifdef FREELANCER_LANGUAGE
+        // Port-only (docs/language.md): port.ini [Language.<code>] skip_any_cutscene = 1 is the
+        // mod's Russian exe patch at 0x0045685f (EB 0C): every letterboxed sequence is skipped,
+        // playing and skippable or not.
+        static int const S_SkipAny = []() {
+            char Value[16];
+            PortLanguageString("skip_any_cutscene", "0", Value, sizeof(Value));
+            return Value[0] == '1' || Value[0] == 't' || Value[0] == 'T' || Value[0] == 'y' || Value[0] == 'Y';
+        }() ? 1 : 0;
+        if (S_SkipAny != 0 || (Sequence->bPlaying != 0 && Sequence->Field_0x15 != 0))
+            Sequence->bSkip = 1;
+#else
         if (Sequence->bPlaying != 0 && Sequence->Field_0x15 != 0)
             Sequence->bSkip = 1;
+#endif
         bAny = true;
     }
     if (!bAny)

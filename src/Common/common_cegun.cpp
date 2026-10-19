@@ -8,6 +8,9 @@
 // Declared in common_cequip.h; helpers shared with the sibling TUs are in
 // common_cequip_internal.h (namespace CmnCequip).
 #include "common_cequip.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "common_mod_plugins_api.h" // port-only Interceptor
+#endif
 #include "x86math.h"
 
 #include "common_animdb.h"  // AnimDB::Add/Rem (common_animdb.cpp)
@@ -381,8 +384,14 @@ FireResult CEGun::CanFire(Vector const& Target) const
             (Owner->ObjectClass & CObject::ClassShip) == CObject::ClassShip)
         {
             CShip* Ship = (CShip*)(Owner);
+#ifdef FREELANCER_MOD_PLUGINS
+            // Port-only, the mod's Interceptor.dll (062977e8): interceptor guns fire in cruise.
+            if (Ship->is_cruise_active() && !ModGunIsInterceptor(Arch->Nickname.Id))
+                return FireCruise;
+#else
             if (Ship->is_cruise_active())
                 return FireCruise;
+#endif
         }
         return FireOk;
     }

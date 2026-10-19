@@ -1193,6 +1193,11 @@ public:
     // (IsActive() && !IsDisabled() && !IsDestroyed()) plus the shield-specific
     // && bOnline.
     virtual bool IsFunctioning() const override;
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's ShieldOffline.dll (docs/adoxa.md): CEShield's vtable slot 1 (retail
+    // CEquip::IsActive, .rdata:0639d510) reports inactive while the owner has no hit points.
+    virtual bool IsActive() const override;
+#endif
     // Common.dll.c 0x3c020. If not currently functioning but active and CanActivate() holds,
     // fires INotify::ShieldCanReactivate and brings the shield back online via
     // Activate_Internal(true), then forwards to CAttachedEquip::Update.

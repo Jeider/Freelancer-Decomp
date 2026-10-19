@@ -5,6 +5,14 @@
 // Author: Giperion.
 
 #include "../include/common_server.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "../include/port_config.h" // port-only mod server patches
+#endif
+#ifdef FREELANCER_ADOXA
+#include "../include/port_plugins.h" // port-only adoxa plugins
+#include "../include/common_adoxa_api.h"
+#endif
+#include "../include/adoxa_healing.h" // port-only adoxa healing
 #include "../include/common_net.h"
 #include "../include/common_physys.h"
 #include "../include/common_ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
@@ -394,7 +402,15 @@ static char GAccountRootDir[260] = { 0 };
 static void InitServerAccount(CPlayerAccount& ServerAccount, unsigned int& OutServerID) {
     char UserDataPath[260];
     GetUserDataPath(UserDataPath);
+#ifdef FREELANCER_MOD_PLUGINS
+    // Port-only: [ModServer] account_folder (the mod's server.dll renamed .data:06d8d204
+    // "Accts" to "Acct3").
+    char AccountFolder[64];
+    PortConfigString("ModServer", "account_folder", "Accts", AccountFolder, sizeof(AccountFolder));
+    const char* SubDir = IsMPServer() ? "Accts\\MultiPlayer" : AccountFolder;
+#else
     const char* SubDir = IsMPServer() ? "Accts\\MultiPlayer" : "Accts";
+#endif
     _makepath_s(GAccountRootDir, sizeof(GAccountRootDir), nullptr, UserDataPath, SubDir, nullptr);
 
     if (!IsMPServer()) {
@@ -5520,7 +5536,7 @@ bool MedMine::update(float Dt)
         Blast.Explosion = Explosion;
         Blast.SkipCollisionGroup = nullptr;
         if (Explosion != nullptr && Explosion->Radius > 0.0001 &&
-            (Explosion->Impulse > 0.0001 || Explosion->HullDamage > 0.0001 ||
+            (Explosion->Impulse > 0.0001 || HEALING_DAMAGES(Explosion->HullDamage, 0.0001) ||
              Explosion->EnergyDamage > 0.0001))
             OwnerSystem->explode(Blast);
 
@@ -7721,8 +7737,14 @@ void StarSystem::add_player(unsigned int SessionId)
 // listing, not guessed: .rdata:06d66aec = 20 bc be 4a = 0x4abebc20 = 6.25e6,
 // .rdata:06d66af0 = 0x4bbebc20 = 2.5e7, .rdata:06d66af4 = 0x4cbebc20 = 1.0e8.
 // They are 2500^2, 5000^2 and 10000^2.
+#ifdef FREELANCER_MOD_PLUGINS
+// Port-only: [ModServer] view_radius_sq_scale (the mod's server.dll multiplied both by 10).
+static float const kViewRadiusSqUnowned = 6.25e6f * PortConfigFloat("ModServer", "view_radius_sq_scale", 1.0f);
+static float const kViewRadiusSqStranger = 2.5e7f * PortConfigFloat("ModServer", "view_radius_sq_scale", 1.0f);
+#else
 static float const kViewRadiusSqUnowned = 6.25e6f;    // .rdata:06d66aec
 static float const kViewRadiusSqStranger = 2.5e7f;    // .rdata:06d66af0
+#endif
 static float const kViewRadiusSqGroupMate = 1.0e8f;   // .rdata:06d66af4
 
 // ---------------------------------------------------------------------------
@@ -9110,7 +9132,7 @@ void StarSystem::explode(ExplosionDamageEvent const& Blast)
     // .text:06d0b3c4 .. 06d0b3e5  HullDamage (+0xc) > 0.0f goes straight in;
     // otherwise EnergyDamage (+0x10) > 0.0f, else skip to the impulse pass.
     // (FCOMP against DAT_06d65188 = 0.0f, `TEST AH,0x41` -- JZ = greater.)
-    if (Explosion->HullDamage > 0.0f || Explosion->EnergyDamage > 0.0f) {
+    if (HEALING_DAMAGES(Explosion->HullDamage, 0.0) || Explosion->EnergyDamage > 0.0f) {
         // .text:06d0b3eb .. 06d0b3f4  a std::vector<unsigned int> at S+0x44
         // (FUN_06d0f1f0) of the ids already damaged.
         std::vector<unsigned int> Damaged;
@@ -12179,7 +12201,20 @@ void Server_GetLaunchPosition(unsigned int PlayerId, unsigned int* OutObjId, int
         }
         else
         {
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's moors.dll (06d00a6b): with more than one dock object, a ship
+            // without can_use_berths launches from the last one (the moor), not the first.
+            GameObject* Ring = Rings.front();
+            if (Rings.size() > 1u && PORT_PLUGIN_ON("moors"))
+            {
+                unsigned int ShipArchId = 0;
+                pub::Player::GetShipID(PlayerId, ShipArchId);
+                if (!AdoxaShipCanUseBerths(ShipArchId))
+                    Ring = Rings.back();
+            }
+#else
             GameObject* const Ring = Rings.front();
+#endif
             *OutObjId = Ring->get_id();
             if ((Ring->get_type_bits() & 0x20u) != 0u)
             {

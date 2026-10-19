@@ -7,6 +7,10 @@
 // CAsteroid and CDynamicAsteroid (the asteroid objects; fields and cubes live in
 // common_casteroid.cpp).
 #include "common_cobject.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins
+#include <cstdlib>
+#endif
 
 #include "common_physys.h"
 
@@ -198,6 +202,16 @@ void CDynamicAsteroid::init_physics(Vector const& Velocity, Vector const& Angula
     Phy.bFlag1c = 0;
     Phy.bEnableCollisions = 1;
     strcpy(Phy.Name, "DynAst");
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's dynastex.dll (062a2b2e): the archetype's mass, +-10%.
+    if (PORT_PLUGIN_ON("dynastex"))
+    {
+        float const Mass = get_archetype()->Mass;
+        float Variance = Mass * 0.1f;
+        Variance = 2.0f * Variance * static_cast<float>(rand()) / RAND_MAX - Variance;
+        Phy.Mass = Mass + Variance;
+    }
+#endif
     Phy.bHasInertia = 0;
     Phy.Inertia.x = 0.0f;
     Phy.Inertia.y = 0.0f;

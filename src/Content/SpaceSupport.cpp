@@ -10,6 +10,12 @@
 // deleting dtor = IDLL::~IDLL only).
 
 #include "SpaceSupport.h"
+#ifdef FREELANCER_ADOXA
+#include "../include/port_plugins.h" // port-only adoxa plugins
+#include "../include/common_adoxa_api.h"
+#include "ContentStaticIds.h"
+#include <algorithm>
+#endif
 
 #include "CombatReputation.h"   // TU56: OnDamageReputation / ApplyKillReputation / OnHeartbeatReputation
 #include "ContentInternal.h"
@@ -805,7 +811,13 @@ namespace
             std::vector<unsigned int> ClassIds;
             if (GetShipMissionProperties(ShipArchId, &ClassIds))
             {
+#ifdef FREELANCER_ADOXA
+                // Port-only, adoxa's moors.dll (06f5e2a0): always the multiplayer pick (-1), so
+                // a moored ship gets a moor terminal in single player too.
+                int DockIndex = (pub::SinglePlayer() && !PORT_PLUGIN_ON("moors")) ? 0 : -1;
+#else
                 int DockIndex = pub::SinglePlayer() ? 0 : -1;
+#endif
                 if (ChooseDockTerminal(&ClassIds, &Msg[1], nullptr, &DockIndex) == DOCK_HOST_RESPONSE_4)
                     pub::ReportFreeTerminal(Msg[1], DockIndex);
             }
