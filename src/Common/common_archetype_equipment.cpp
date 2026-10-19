@@ -40,6 +40,59 @@
 #include <string.h>
 #include <vector>
 
+#ifdef FREELANCER_ADOXA
+#include "common_adoxa_engclass.h"
+namespace
+{
+    // Port-only, adoxa's engclass.dll (docs/adoxa.md): Power / Engine nickname id -> the hp
+    // type its [Power] / [Engine] hp_type names (0x43..0x7e). The plugin kept it in the unused
+    // byte +0x6f of the archetype; one missing here is the retail 2 (internal).
+    std::map<unsigned, unsigned>& EngclassHpTypes()
+    {
+        static std::map<unsigned, unsigned> S_Types;
+        return S_Types;
+    }
+
+    // engclass.c Read_Hook + HP_Set: hp_type = hp_<family>_special_N; consumed only when the
+    // name is one of the new types.
+    bool ReadEngclassHpType(INI_Reader& Reader, unsigned NicknameId)
+    {
+        if (!Reader.is_value("hp_type"))
+            return false;
+        char const* const Name = Reader.get_value_string(0);
+        if (Name == nullptr)
+            return false;
+        unsigned const Type = AdoxaEngclassHpSearch(Name);
+        if (Type == 0)
+            return false;
+        EngclassHpTypes()[NicknameId] = Type;
+        return true;
+    }
+
+    // engclass.c get_hp_type: movzx eax, byte [ecx+0x6f].
+    HpAttachmentType EngclassHpType(unsigned NicknameId)
+    {
+        std::map<unsigned, unsigned>::const_iterator const Found = EngclassHpTypes().find(NicknameId);
+        if (Found == EngclassHpTypes().end())
+            return HpTypeInternal;
+        return (HpAttachmentType)Found->second;
+    }
+}
+#endif
+
+#ifdef FREELANCER_MOD_PLUGINS
+namespace Archetype
+{
+    struct InternalFXEquip;
+}
+// The WingAnim system: InternalFX archetype -> its use_animation_oneshot script.
+std::map<Archetype::InternalFXEquip const*, char const*>& ModInternalFxOneShots()
+{
+    static std::map<Archetype::InternalFXEquip const*, char const*> S_OneShots;
+    return S_OneShots;
+}
+#endif
+
 #ifdef FREELANCER_MOD_PLUGINS
 namespace
 {
@@ -625,6 +678,11 @@ namespace Archetype
             return true;
         }
 
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's engclass.dll (docs/adoxa.md; 062f4878, the not-found return).
+        if (PORT_PLUGIN_ON("engclass"))
+            return ReadEngclassHpType(Reader, Nickname.Id);
+#endif
         return false;
     }
 
@@ -651,6 +709,12 @@ namespace Archetype
     // get_hp_type overrides -- all return the same unnamed constant 2.
     HpAttachmentType Power::get_hp_type() const
     {
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's engclass.dll (docs/adoxa.md; vtable slot 0639990c): the hp_type
+        // read, 2 by default (the plugin's byte +0x6f, set to 2 at 062f80d0).
+        if (PORT_PLUGIN_ON("engclass"))
+            return EngclassHpType(Nickname.Id);
+#endif
         return HpTypeInternal;
     }
 
@@ -721,7 +785,15 @@ namespace Archetype
         }
 
         if (!Reader.is_value("reverse_fraction"))
+        {
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's engclass.dll (docs/adoxa.md; 062f51b8, the not-found return;
+            // MultiCruise's cruise_speed above is the plugin's chained ReadEng_Hook).
+            if (PORT_PLUGIN_ON("engclass"))
+                return ReadEngclassHpType(Reader, Nickname.Id);
+#endif
             return false;
+        }
 
         ReverseFraction = Reader.get_value_float(0);
         return true;
@@ -753,6 +825,12 @@ namespace Archetype
 
     HpAttachmentType Engine::get_hp_type() const
     {
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's engclass.dll (docs/adoxa.md; vtable slot 06399ac4, default 2 set
+        // at 062f817e).
+        if (PORT_PLUGIN_ON("engclass"))
+            return EngclassHpType(Nickname.Id);
+#endif
         return HpTypeInternal;
     }
 
@@ -1258,6 +1336,15 @@ namespace Archetype
     {
         if (Equipment::read(Reader))
             return true;
+
+#ifdef FREELANCER_MOD_PLUGINS
+        // Port-only (docs/mod_plugins.md, the WingAnim system): use_animation_oneshot.
+        if (PORT_PLUGIN_ON("WingAnim") && Reader.is_value("use_animation_oneshot"))
+        {
+            ModInternalFxOneShots()[this] = StringAlloc(Reader.get_value_string(), false);
+            return true;
+        }
+#endif
 
         if (!Reader.is_value("use_animation"))
             return false;

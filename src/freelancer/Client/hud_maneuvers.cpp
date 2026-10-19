@@ -35,6 +35,10 @@
 #include "DALib.h"
 #include "dacom.h"
 #include "engine/engbase.h"
+#ifdef FREELANCER_ADOXA
+#include "space_app.h"            // G_SpaceApp.Turret (TurretZoom)
+#include "space_camera_turret.h"  // TurretZoomOnWheel
+#endif
 
 #include <stdint.h>
 #include <stdio.h>
@@ -472,6 +476,12 @@ bool HUD_Maneuvers::OnEvent(unsigned MsgId)
 
     case 0x04:
     {
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's TurretZoom (docs/adoxa.md; Wheel_Hook on the jump-table entry
+        // 0x004d845c): in the turret view (HUD_Status +0x5b9) the wheel zooms the turret camera.
+        if (GetHudStatus()->bTurretView != 0 && TurretZoomOnWheel(&G_SpaceApp.Turret))
+            return true;
+#endif
         // 0x004d8354: the mouse wheel steps the throttle by 0.2 (DAT_005d8298).
         int const Wheel = GetClientMouseWheel();
         if (Wheel < 0)

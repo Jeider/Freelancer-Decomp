@@ -90,3 +90,24 @@ void TurretCameraUpdate(FTurretCamera* Cam, float DeltaSeconds);
 // FUN_0051a2b0, a __thiscall taking the cockpit ini path. Reads [TurretCamera] and warns about
 // the obsolete [Turret] section. Returns false when the file could not be opened.
 bool TurretCameraLoad(FTurretCamera* Cam, const char* CockpitIniPath);
+
+#ifdef FREELANCER_ADOXA
+// Port-only, adoxa's TurretZoom v1.41 (docs/adoxa.md), port.ini [Plugins] TurretZoom = 1. The
+// mouse wheel moves the turret camera's tether (z: zoom, or y with Shift+Alt + wheel down) and
+// its rotate speeds; options in port.ini [TurretZoom] (the strings the DLL took after its
+// dacom.ini entry): fast, inverse, max, shift, ctrl, alt, s+c, c+a, small, large, switch,
+// adjust, interval.
+
+// Turret_Hook (the case 0xbf jump-table entry 0x0054a880 -> 0x0054a638): called after the
+// mouse-pick test passed, before +0x5b9 flips. Entering the view saves the tether y/z and the
+// two rotate speeds as the zoom's start; leaving it puts them back.
+void TurretZoomOnToggle(FTurretCamera* Cam, bool bWasTurretView);
+
+// Wheel_Hook (HUD_Maneuvers' case 4 jump-table entry 0x004d845c -> 0x004d8354): while the
+// turret view is up the wheel goes to the zoom instead of the throttle. True: consumed.
+bool TurretZoomOnWheel(FTurretCamera* Cam);
+
+// update_hook (vtable slot 0x005dbd30 -> 0x0051a730): unless "fast", the tether eases towards
+// the zoom's target by dt * accel_speed before the camera's own update.
+void TurretZoomUpdate(FTurretCamera* Cam, float DeltaSeconds);
+#endif

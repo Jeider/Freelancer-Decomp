@@ -75,7 +75,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <!-- Port-only beta DBG_OPTIONS window and [OUTLINES] drawing (docs/dbg_options.md). -->
-  <ItemDefinitionGroup Condition="'$(FreelancerDbgOptions)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common')">
+  <ItemDefinitionGroup Condition="'$(FreelancerDbgOptions)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='Server')">
     <ClCompile>
       <PreprocessorDefinitions>FREELANCER_DBG_OPTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>

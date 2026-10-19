@@ -8,6 +8,11 @@
 // Declared in common_cequip.h; helpers shared with the sibling TUs are in
 // common_cequip_internal.h (namespace CmnCequip).
 #include "common_cequip.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "port_plugins.h" // port-only WingAnim
+#include "common_mod_plugins_api.h"
+#include <map>
+#endif
 #include "x86math.h"
 
 #include "common_animdb.h"  // AnimDB::Add/Rem (common_animdb.cpp)
@@ -121,6 +126,59 @@ CEAttachedFX const* __cdecl CEAttachedFX::cast(CEquip const* Equip)
     return (CEAttachedFX const*)(Equip);
 }
 
+#ifdef FREELANCER_MOD_PLUGINS
+std::map<Archetype::InternalFXEquip const*, char const*>& ModInternalFxOneShots(); // common_archetype_equipment.cpp
+
+namespace
+{
+    char const* ModInternalFxOneShot(Archetype::InternalFXEquip const* Arch)
+    {
+        if (!PORT_PLUGIN_ON("WingAnim"))
+            return nullptr;
+        std::map<Archetype::InternalFXEquip const*, char const*>::const_iterator const Found =
+            ModInternalFxOneShots().find(Arch);
+        return Found != ModInternalFxOneShots().end() ? Found->second : nullptr;
+    }
+
+    CEInternalFX* ModShipOneShotFx(CEqObj const* Ship)
+    {
+        if (Ship == nullptr)
+            return nullptr;
+        CEquipTraverser Walk(EquipTypeInternalFX);
+        for (CEquip const* Equip = Ship->EquipManager.Traverse(Walk); Equip != nullptr;
+             Equip = Ship->EquipManager.Traverse(Walk))
+        {
+            CEInternalFX const* const Fx = CEInternalFX::cast(Equip);
+            if (Fx != nullptr && ModInternalFxOneShot(Fx->InternalFXArch()) != nullptr)
+                return const_cast<CEInternalFX*>(Fx);
+        }
+        return nullptr;
+    }
+}
+
+int __cdecl ModShipOneShotAnim(CEqObj const* Ship)
+{
+    CEInternalFX const* const Fx = ModShipOneShotFx(Ship);
+    return Fx != nullptr ? Fx->Anim.Index : -1;
+}
+
+int __cdecl ModSwapShipOneShotAnim(CEqObj* Ship, char const* Script)
+{
+    CEInternalFX* const Fx = ModShipOneShotFx(Ship);
+    if (Fx == nullptr)
+        return -1;
+    if (Fx->Anim.Index != -1)
+    {
+        AnimDB::Rem(Fx->Anim.Index);
+        Fx->Anim.Release();
+    }
+    Fx->Anim.Index = DALib::Anim->PlayScript(AsOpaqueDword(Ship->Archetype->get_script_index()),
+                                             AsOpaqueDword(Ship->EngineInstanceId), Script, nullptr,
+                                             nullptr);
+    return Fx->Anim.Index;
+}
+#endif
+
 CEInternalFX::CEInternalFX(CEqObj* OwnerObj, unsigned short EquipId,
                            Archetype::InternalFXEquip const* ArchObj,
                            bool bMissionFlag)
@@ -148,6 +206,24 @@ CEInternalFX::CEInternalFX(CEqObj* OwnerObj, unsigned short EquipId,
             AnimDB::Add(Anim.Index);
         }
     }
+#ifdef FREELANCER_MOD_PLUGINS
+    // Port-only (docs/mod_plugins.md, the WingAnim system): use_animation_oneshot plays its
+    // script once, forward from the start (EvalPlayback flags 0, time 0), and the playback stays
+    // as the pose holder until the client's wing manager swaps it (ModSwapShipOneShotAnim).
+    else if (char const* const OneShot = ModInternalFxOneShot(FxArch))
+    {
+        Anim.Index = DALib::Anim->PlayScript(AsOpaqueDword(OwnerObj->Archetype->get_script_index()),
+                                             AsOpaqueDword(OwnerObj->EngineInstanceId),
+                                             OneShot, nullptr, nullptr);
+        if (Anim.Index != -1)
+        {
+            DALib::Anim->EvalPlayback(Anim.Index, 0, 0.0f, 1.0f, nullptr,
+                                      AsOpaqueDword(0x3f800000),
+                                      AsOpaqueDword(0x3f800000), nullptr);
+            AnimDB::Add(Anim.Index);
+        }
+    }
+#endif
 }
 
 CEInternalFX::CEInternalFX(CEInternalFX const& Other)

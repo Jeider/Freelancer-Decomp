@@ -51,6 +51,12 @@ bool NeuroNetNavMap::IsSkippedSystem(Universe::ISystem const* System) const
     // Inlined in retail (e.g. 0x0049187b..0x00491892, 0x00491b44..0x00491b5b): the system's id
     // against the four SkipSystemIds.
     unsigned const Id = System->GetId();
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's NoNavMap.dll (docs/adoxa.md; 0x00491881, 0x00491b48, 0x004942cf): the
+    // file's systems.
+    if (NoNavMapActive())
+        return NoNavMapListed(Id);
+#endif
     for (int Index = 0; Index < 4; ++Index)
     {
         if (SkipSystemIds[Index] == Id)

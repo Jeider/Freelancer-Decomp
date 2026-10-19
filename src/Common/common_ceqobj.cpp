@@ -173,6 +173,13 @@ bool CEqObj::add_equipped_item(EquipDesc const& Desc)
         {
             Ext->Connect(Desc.Hardpoint);                              // vtable +0x5c
         }
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's engclass.dll (docs/adoxa.md; 062a9775 JE retargeted 0x0d -> 0x4e):
+        // engines and powerplants now sit on hardpoints, so the warning is gone.
+        else if (PORT_PLUGIN_ON("engclass"))
+        {
+        }
+#endif
         else
         {
             // 062a9783..062a97c0: object nickname, equipment nickname, hardpoint (raw).

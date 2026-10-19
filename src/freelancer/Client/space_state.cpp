@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "space_state.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "wing_anim.h" // port-only wing animation system
+#endif
 #include "space_app.h"
 
 #include "character_info.h"         // ResetCharacterScripts (FUN_00435630)
@@ -122,6 +125,9 @@ namespace
     // FUN_0054b230 (thiscall on the state, 0x0054b08d).
     void UpdateSpaceDocking(SpaceApp* State)
     {
+#ifdef FREELANCER_MOD_PLUGINS
+        WingAnimTick(); // port-only: once per space frame
+#endif
         if (State->bSpaceReady != 0)
         {
             // 0x0054b242..0x0054b2b6: once the ship is no longer excluded from control bit 4
@@ -462,6 +468,11 @@ bool FSpaceAppEventFace::OnEvent(unsigned MsgId)
         // mouse pick is blocked.
         if (HudIsMousePickBlocked())
             return false;
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's TurretZoom (docs/adoxa.md; Turret_Hook on the jump-table entry
+        // 0x0054a880): save the turret camera on entry, restore it on exit.
+        TurretZoomOnToggle(&App->Turret, GetHudStatus()->bTurretView != 0);
+#endif
         Status = GetHudStatus();
         Status->bTurretView = Status->bTurretView == 0 ? 1 : 0;
         if (GetHudStatus()->bTurretView != 0)

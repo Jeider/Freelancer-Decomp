@@ -1077,6 +1077,10 @@ void NeuroNetNavMap::ShowInfoCard(int IdsName, int IdsInfo, unsigned char Visit,
     SetFilterMode(6);
     for (int Index = 0; Index < 4; ++Index)
         FactionLabels[Index]->SetProperty(1, 1, 0);
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x00497cab NavMap_Patch7).
+    NavMapTerritoryLabelsSetProperty(1, 1, 0);
+#endif
     HideObjectTools();
 }
 

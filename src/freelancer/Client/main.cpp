@@ -8,6 +8,7 @@
 #ifdef FREELANCER_DBG_OPTIONS
 #include "dbg_options.h"
 #include "dbg_console.h" // port-only beta console
+#include "dbg_chase_camera.h" // port-only beta chase camera
 #endif
 #ifdef FREELANCER_FLPLUSPLUS
 #include "flplusplus.h"        // port-only flplusplus start-up
@@ -567,6 +568,7 @@ namespace
 #ifdef FREELANCER_DBG_OPTIONS
         DbgOptionsShutdown();
         DbgConsoleShutdown();
+        DbgChaseShutdown();
 #endif
         FontShutdown(); // FUN_004174a0 (0x005b229a)
         ShutdownRichText();

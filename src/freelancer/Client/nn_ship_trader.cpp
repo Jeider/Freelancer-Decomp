@@ -24,6 +24,9 @@
 #include "nn_text_control.h"        // NnTextControl::GetFontString (+0x334)
 #include "nn_text_scratch.h"        // DAT_0066dc60 / DAT_0066fc60 / DAT_006119f8
 #include "rich_text_win.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h"           // port-only adoxa plugins (scroller)
+#endif
 #include "ship_view_control.h"
 #include "win3d.h"                  // Win3DFindByName, Win3DDeleteTree, Win3DGetMouseRay
 #include "win_factory.h"
@@ -895,6 +898,11 @@ void NnShipTrader::SelectRow(int Row)
         InfoValues->SetScrollOrigin(0, 0);
         InfoValues->ClearContent();
         InfoValues->AppendContent(Text);
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's scroller (docs/adoxa.md; 0x004b8ee3 -> JMP +6): the values pane
+        // keeps its scroll bar, which scrolls the stats pane as well (rich_text_win.cpp).
+        if (!PORT_PLUGIN_ON("scroller"))
+#endif
         InfoValues->SetAutoScrollbar(false);
     }
 

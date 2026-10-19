@@ -752,3 +752,21 @@ void NavMapSetGroupPositions(void const* Data);
 // G_NavMapRequestedSystem (and, with a position, G_NavMapRequestedPos /
 // G_bNavMapRequestedPos). Callers: 0x00455225, NnCommodityByBase (0x0046f6b4).
 void NavMapRequestFocus(unsigned Id, unsigned char bZone);
+
+#ifdef FREELANCER_ADOXA
+// Port-only, adoxa's territory.dll v1.03 (docs/adoxa.md): the extra house labels the Nav Map
+// creates after its four faction labels (0x004904c4 JMP NavMap_Patch1; the plugin's my_buffer,
+// re-filled on every Nav Map). Every retail write to the faction labels' visibility or colour
+// is repeated on them (NavMap_Patch3..10), and Draw draws them after the tools (Patch2).
+extern std::vector<WinControl*> G_NavMapTerritoryLabels;
+// SetProperty(Msg, A, B) on each of them.
+void NavMapTerritoryLabelsSetProperty(int Msg, uintptr_t A, uintptr_t B);
+
+// Port-only, adoxa's NoNavMap.dll (docs/adoxa.md; 0x004911b7, 0x00491881, 0x00491b48,
+// 0x004942cf, 0x00494c69, 0x00495f27, 0x0049e2e7): DATA\UNIVERSE\nonavmap.ini [Systems]
+// nickname = ... (at most 127) replaces the four SkipSystemIds -- the systems that show "Nav Map
+// not available". True when the plugin is on and the file opened (even with no systems).
+bool NoNavMapActive();
+// SystemId is one of the file's systems.
+bool NoNavMapListed(unsigned SystemId);
+#endif

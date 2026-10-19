@@ -460,6 +460,10 @@ void NeuroNetNavMap::SetFilterMode(int Mode)
         {
             for (int Index = 0; Index < 4; ++Index)
                 FactionLabels[Index]->SetProperty(1, 0, 0);
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x004a0315 NavMap_Patch10).
+            NavMapTerritoryLabelsSetProperty(1, 0, 0);
+#endif
         }
         else
         {

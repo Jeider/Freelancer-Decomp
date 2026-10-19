@@ -29,4 +29,9 @@ void DbgOptionsShutdown();
 // From the space pass after the effects: PHYS WIRES, PHYS SPHERES, SHIELDS and PHANTOMS.
 void DbgOutlinesDraw(ICamera* Camera);
 
+// A world-space line list (pairs of points, 0xAARRGGBB per point) through the same path as the
+// outlines; bOnTop turns the depth test off for it (the chase camera's hardpoints).
+void DbgDrawWorldLines(float const* Points3, unsigned const* Colors, unsigned PointCount, ICamera* Camera,
+                       bool bOnTop);
+
 #endif

@@ -73,6 +73,34 @@ Retail: the option table (`FUN_005792b0`, 71 rows) is only ever read; the window
 
 Port with the define: `dbg_options.cpp` (the window on Ctrl+Shift+O through `KeyMapRouteInputMessage`, drawn at the end of the frame; the outlines after the effects in `SpaceObjDrawPass`), Common `common_dbg_outlines.cpp` (IVP hull edges, physical and phantom spheres). `HOTSPOTS` is not ported. Compiled, not yet run.
 
+## Client / Common / Server / Content: adoxa's plugins (ADOXA, 2026-10-20)
+
+Status: OPEN — intentional port-only features, requested in the Jeider/Freelancer-Decomp fork. Owner: that fork's maintainer. Removal condition: only an explicit instruction of the owner. Every change is under `FREELANCER_ADOXA` (`FreelancerAdoxa`) and each plugin is switched at run time by `port.ini [Plugins]` (missing = off); at 0 the modules are retail. Description and patch table: [../adoxa.md](../adoxa.md).
+
+Retail: none of the plugins' behaviour (no lane_speed, critical_hit, damage_per_fire wear, equipment drag, repair zones, moors, dock keys, ammo limits, engine classes, territory texts, ...).
+
+Port with the define: the plugins' logic in the functions they patched (adoxa.md lists them), from the newest public sources; per-plugin differences are listed there. Compiled, not yet run.
+
+## Client / Common / Server / Content: other mod plugins and server patches (MOD-PLUGINS, 2026-10-20)
+
+Status: OPEN — intentional port-only features, requested in the Jeider/Freelancer-Decomp fork. Owner: that fork's maintainer. Removal condition: only an explicit instruction of the owner. Under `FREELANCER_MOD_PLUGINS` (`FreelancerModPlugins`), switched by `port.ini [Plugins]`, `[ModServer]` and `[WingAnim]`. Description: [../mod_plugins.md](../mod_plugins.md).
+
+Retail: a single global cruise speed; no cloak key; guns never fire in cruise; energy damage always on; explosion hull bands by distance; view radii 2500/5000 m; update sphere 10000; FLS1 saves in `Accts`; `use_animation` loops only.
+
+Port with the define: MultiCruise, Invisibility (`USER_CLOAK`), Interceptor, PowerDamage, the mod's server.dll changes as switches, and the wing animation system (`use_animation_oneshot`, `wing_anim.cpp`) that replaces AnimKey. Compiled, not yet run.
+
+## Client / Common: language switch (LANGUAGE, 2026-10-20)
+
+Status: OPEN — intentional port-only feature, requested in the Jeider/Freelancer-Decomp fork. Owner: that fork's maintainer. Removal condition: only an explicit instruction of the owner. Under `FREELANCER_LANGUAGE` (`FreelancerLanguage`). Description: [../language.md](../language.md).
+
+Retail: the client ini is the literal `Freelancer.ini` (`FUN_005621a0`), the resource DLL `resources.dll` (`WinMain`); `INI_Reader::open` opens the path it is given.
+
+Port with the define: `port.ini [Language]` (or `-lang:xx`) picks `freelancer_ini`, `resources`, `data_overlay` (inis under `..\DATA\` read from an overlay folder when present there), `skip_any_cutscene` (the Russian exe's `0x0045685f` patch) and the plugins' language files. Compiled, not yet run.
+
+## Client: the beta's console and chase camera (DBG-OPTIONS, 2026-10-20)
+
+Status: OPEN — part of the DBG-OPTIONS entry above (same define and owner). Retail has neither. Port: `dbg_console.cpp` (`` ` ``; `TimeScale` multiplies the capped frame dt in single player in `client_timing.cpp`, as the beta's `0x00427bf0`) and `dbg_chase_camera.cpp` (Ctrl+Shift+C; a `"chase"` branch in `SwitchSpaceCameraMode`, the camera object outside `SpaceApp`). Description: [../dbg_options.md](../dbg_options.md). Compiled, not yet run.
+
 ## SoundManager / SoundStreamer: Fraunhofer ACM (decode only) (SOUND-ACM-DECODE-ONLY, 2026-10-10)
 
 Status: OPEN — intentional deviation at the owner's direct request. Owner: Giperion; SoundManager.dll / SoundStreamer.dll. Removal condition: only an explicit instruction from Giperion; do not close on a routine retail-conformance audit.

@@ -98,3 +98,22 @@ void NnArrivalTextHurry();
 void NnArrivalTextShowRaw(float Delay, uintptr_t Arg);
 // FUN_0045b490 -- ensure, then ShowSystemArrival(true). Caller 0x0054adec (the space init).
 void NnArrivalTextShowSystemNow();
+
+#ifdef FREELANCER_ADOXA
+// Port-only, adoxa's territory.dll v1.03 (docs/adoxa.md; nn_modal.cpp reads territory.ini): a
+// house on the universe view of the Nav Map -- its ids, its position (the ini's NavMap = X, Y
+// as X * 0.0272 - 0.209, Y * -0.0272 + 0.201) and its text style (default SubHeader).
+struct FTerritoryNavMapHouse
+{
+    unsigned Ids;
+    float X;
+    float Y;
+    char const* Font;
+};
+// One of the four retail faction labels (0 Liberty .. 3 Rheinland, house_id 1249..1252) that
+// territory.ini moved; null when it did not, or the plugin is off.
+FTerritoryNavMapHouse const* TerritoryNavMapLabel(int Index);
+// Every other house with NavMap =, in file order (the plugin's NavMap vector); null and 0 when
+// there are none.
+FTerritoryNavMapHouse const* TerritoryNavMapHouses(unsigned* OutCount);
+#endif

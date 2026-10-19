@@ -5,9 +5,13 @@
 // Author: Giperion.
 
 #include "menu_keymap_config.h"
+#ifdef FREELANCER_MOD_PLUGINS
+#include "wing_anim.h" // port-only wing animation key
+#endif
 #ifdef FREELANCER_DBG_OPTIONS
 #include "dbg_options.h"
 #include "dbg_console.h" // port-only beta console
+#include "dbg_chase_camera.h" // port-only beta chase camera
 #endif
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
@@ -615,13 +619,19 @@ void UnregisterAcceleratorGroup(char const* GroupNickname)
 bool KeyMapRouteInputMessage(unsigned Message, unsigned Wparam, unsigned Lparam)
 {
 #ifdef FREELANCER_DBG_OPTIONS
-    if (DbgConsoleHandleMessage(Message, Wparam))
+    if (DbgConsoleHandleMessage(Message, Wparam, Lparam))
+        return true;
+    if (DbgChaseHandleKey(Message, Wparam))
         return true;
     if (DbgOptionsHandleKey(Message, Wparam))
         return true;
 #endif
 #ifdef FREELANCER_WALK_MODE
     if (BaseWalkHandleKey(Message, Wparam))
+        return true;
+#endif
+#ifdef FREELANCER_MOD_PLUGINS
+    if (WingAnimHandleKey(Message, Wparam))
         return true;
 #endif
     // FUN_00577850 (cdecl, 3 args) -- listing 00577850..00577b1c. Every message the pump reads

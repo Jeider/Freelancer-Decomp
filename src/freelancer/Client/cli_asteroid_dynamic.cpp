@@ -196,6 +196,16 @@ void FCliDynamicAsteroidGameobj::Slot194(void const* A, void const* B, FClientGa
     // word zero-extended). Unlike GameObject's slot 101 there is no own slot 107 afterwards.
     Other->Slot1a0(A, D, this,
                    reinterpret_cast<void const*>(static_cast<uintptr_t>(SUBOBJ_ID_NONE)));
+#ifdef FREELANCER_ADOXA
+    // Port-only extension of dynastex (docs/adoxa.md, [dynastex] collision_damage = 1): the
+    // collision report every other gameobj makes (Slot1ac: the relative speed and both masses
+    // through Collision::CalcCollisionDamage, sent as SPObjCollision against Other), so a ship
+    // that rams a dynamic asteroid takes damage. Retail and the plugin skip it: the asteroid is
+    // client-only and the dynamic-asteroid gameobj's slot 0x194 never reports.
+    static bool const S_bCollisionDamage = PortConfigInt("dynastex", "collision_damage", 0) != 0;
+    if (S_bCollisionDamage && PORT_PLUGIN_ON("dynastex"))
+        Slot1ac(A, reinterpret_cast<void const*>(static_cast<uintptr_t>(SUBOBJ_ID_NONE)), Other, D);
+#endif
 
     // 0x005254ab..0x005254d8: an active asteroid, Other's object narrowed by class & 7.
     if (bActive == 0)

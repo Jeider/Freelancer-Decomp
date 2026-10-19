@@ -378,3 +378,22 @@ void DbgOutlinesDraw(ICamera* Camera)
 }
 
 #endif
+
+#ifdef FREELANCER_DBG_OPTIONS
+void DbgDrawWorldLines(float const* Points3, unsigned const* Colors, unsigned PointCount, ICamera* Camera,
+                       bool bOnTop)
+{
+    if (Camera == nullptr || PointCount < 2)
+        return;
+    std::vector<FLineVertex> Vertices;
+    Vertices.reserve(PointCount);
+    for (unsigned Index = 0; Index < PointCount; ++Index)
+        Vertices.push_back({Points3[Index * 3], Points3[Index * 3 + 1], Points3[Index * 3 + 2], Colors[Index]});
+    IRenderPipeline* const Pipeline = DALib::Pipeline;
+    if (bOnTop)
+        Pipeline->SetRenderState(static_cast<D3DRENDERSTATETYPE>(7), 0); // D3DRS_ZENABLE
+    DrawLines(Vertices, Camera);
+    if (bOnTop)
+        Pipeline->SetRenderState(static_cast<D3DRENDERSTATETYPE>(7), 1);
+}
+#endif

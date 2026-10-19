@@ -51,6 +51,7 @@
 #ifdef FREELANCER_DBG_OPTIONS
 #include "dbg_options.h"
 #include "dbg_console.h" // port-only beta console
+#include "dbg_chase_camera.h" // port-only beta chase camera
 #endif
 
 #include <float.h>
@@ -145,6 +146,7 @@ namespace
         DrawClientTickProfile();
 #ifdef FREELANCER_DBG_OPTIONS
         DbgOptionsDrawWindow();
+        DbgChaseDrawOverlay();
         DbgConsoleDraw();
 #endif
 

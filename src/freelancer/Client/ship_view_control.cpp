@@ -16,6 +16,9 @@
 #include "hud_element_list.h"  // HudMatrixRotationY / RotateRows12 / RotateRows01
 #include "hud_target.h"        // FHudInstanceBounds, HudInverseTransformPoint
 #include "nn_ui_pulse.h"       // G_HudChromeColorRgba (DAT_00679bb4)
+#ifdef FREELANCER_ADOXA
+#include "adoxa_engclass.h"    // engclass.dll's mountable engines / powerplants
+#endif
 #ifdef FREELANCER_HUD_INVENTORY_VIEW
 #include "input_manager.h"        // GetClientSoftwareCursor (DAT_00616840 / DAT_00616844)
 #include "menu_ui_init.h"         // PlayUiSoundSlot (FUN_00564570)
@@ -86,6 +89,49 @@ namespace
         {52, 1716}, {53, 1717}, {54, 1718}, {55, 1719}, {56, 1720}, {7, 1518},
         {57, 1721}, {58, 1722}, {59, 1723}, {60, 1724}, {61, 1725}, {62, 1726},
         {63, 1727}, {64, 1728}, {65, 1729}, {66, 1730}, {8, 1519},  {9, 1520}};
+
+    // The caption table's size and rows. Port-only, adoxa's engclass.dll (docs/adoxa.md;
+    // 0x00584728 / 0x00586c79 0x3c -> 0x78, table 0x00615240 -> its MountName): 60 more rows,
+    // hp types 0x43..0x7e captioned by the plugin's local ids 6..65.
+    int ShipViewCaptionRows()
+    {
+#ifdef FREELANCER_ADOXA
+        if (EngclassOn())
+            return 0x78;
+#endif
+        return 0x3c;
+    }
+
+    FHpTypeCaption ShipViewCaption(int Row)
+    {
+#ifdef FREELANCER_ADOXA
+        if (Row >= 0x3c)
+        {
+            FHpTypeCaption Caption;
+            Caption.HpType = ENGCLASS_HP_TYPE + (Row - 0x3c);
+            Caption.Ids = static_cast<int>(EngclassIdsBase()) + 6 + (Row - 0x3c);
+            return Caption;
+        }
+#endif
+        return G_ShipViewHpTypeCaptions[Row];
+    }
+
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's engclass.dll (docs/adoxa.md): FUN_00586b70's grouping with its
+    // patches -- range 4..0x7e (0x00586c89), the byte table 0x00587008 replaced by MountList
+    // (0x00586c8f) and the two upper cases renumbered 1 -> 2 (0x00586c9f) and 2 -> 3
+    // (0x00586ca6): 0 for weapons, turrets and the cargo pod, 2 for shields and thrusters, 3
+    // for the new engine / powerplant types and anything outside 4..0x7e. The group is the
+    // inventory's filter mode of the hardpoint row (0x0047d608 / 0x0047e820).
+    int EngclassHpTypeGroup(int HpType)
+    {
+        if (HpType < 4 || HpType >= ENGCLASS_HP_TYPE)
+            return 3;
+        if ((HpType >= 5 && HpType <= 9) || (HpType >= 0x25 && HpType <= 0x42))
+            return 2;
+        return 0;
+    }
+#endif
 
     // The grouping switch FUN_00586800 (table 0x00586880) and FUN_00586b70 (table 0x00587008)
     // each inline: 0 for 4, 0xa..0xd and 0xf..0x24; 1 for 5..9 and 0x25..0x42; 2 for 0xe and for
@@ -192,6 +238,13 @@ int ShipViewEquipDescHpClass(EquipDesc const* Desc, Archetype::Equipment const**
 int ShipViewHpTypeClass(int HpType)
 {
     // FUN_00585b10: switch on HpType - 4 through the byte table 0x00585b90.
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x00585b17 range 0x3e -> 0x7a, table ->
+    // MountDescIdx, jump table cases 11..16 -> Get_MountDesc): the six new families are the
+    // hardpoint description classes 10..15.
+    if (EngclassOn() && HpType >= ENGCLASS_HP_TYPE && HpType < ENGCLASS_HP_TYPE_END)
+        return 10 + (HpType - ENGCLASS_HP_TYPE) / 10;
+#endif
     switch (HpType)
     {
     case 0xa:
@@ -236,9 +289,9 @@ int ShipViewHpTypeTableCount()
 int ShipViewHpTypeTableType(int Index)
 {
     // FUN_00584720.
-    if (Index < 0 || Index >= 0x3c)
+    if (Index < 0 || Index >= ShipViewCaptionRows())
         return 0;
-    return G_ShipViewHpTypeCaptions[Index].HpType;
+    return ShipViewCaption(Index).HpType;
 }
 
 ShipViewControl::ShipViewControl()
@@ -1569,9 +1622,10 @@ void ShipViewControl::BuildHardpointList()
                 continue;
             int BestRow = -1;
             int BestType = 0;
-            for (int Row = 0; Row < 0x3c; ++Row)
+            int const CaptionRows = ShipViewCaptionRows();
+            for (int Row = 0; Row < CaptionRows; ++Row)
             {
-                int const RowType = G_ShipViewHpTypeCaptions[Row].HpType;
+                int const RowType = ShipViewCaption(Row).HpType;
                 for (size_t TypeIndex = 0; TypeIndex < HpTypes.size(); ++TypeIndex)
                 {
                     if (RowType == HpTypes[TypeIndex] && RowType > BestType)
@@ -1584,10 +1638,14 @@ void ShipViewControl::BuildHardpointList()
             if (BestRow < 0)
                 continue;
             FShipViewHpEntry Entry;
-            Entry.Ids = G_ShipViewHpTypeCaptions[BestRow].Ids;
+            Entry.Ids = ShipViewCaption(BestRow).Ids;
             Entry.Name = Name;
             Entry.SortKey = BestRow;
+#ifdef FREELANCER_ADOXA
+            Entry.Group = EngclassOn() ? EngclassHpTypeGroup(BestType) : HpTypeGroup(BestType);
+#else
             Entry.Group = HpTypeGroup(BestType);
+#endif
             Entry.Class = ShipViewHpTypeClass(BestType); // FUN_00585b10
             Collected.push_back(Entry);                  // FUN_00587200
         }

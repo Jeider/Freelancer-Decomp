@@ -46,3 +46,47 @@ use the same IVP physics; the beta's per-part walk over the engine instance tree
 the object's single surface, which already holds every part's ledges.
 
 Compiled, not yet run.
+
+## Console
+
+The beta's in-game console (`con_KHandler` at beta `0x006862a8`, drawing `0x00555020`, the
+command table at `0x00690fb0`; `src/freelancer/Client/dbg_console.cpp`). The **`** key (the one
+under Esc; `ё` on a Russian layout) opens and closes it. Enter runs a line, Tab completes a
+command, Up / Down walk the history, PgUp / PgDn / Home / End scroll.
+
+| Command | Action |
+|---|---|
+| `TimeScale` / `ts` [scale] | slow down or speed up the single-player game (beta `0x00550b10`; the frame timer multiplies the capped dt by it, beta `0x00427bf0`); at least 0.01, the port stops at 10 |
+| `time` | seconds since the start |
+| `max_fps` / `fps` [fps] | the frame-rate cap (retail `DAT_00610a0c`) |
+| `lines` [2..40] | visible lines |
+| `pos` / `p` | the player's position |
+| `clear`, `quiet` / `q`, `help` / `h`, `quit` | |
+
+From adoxa's console.dll (`console.cpp` v1.24; the server half is `Server/server_port_console.cpp`,
+found by the client through `GetProcAddress(server.dll, "PortConsoleServer")`, single player):
+
+| Command | Action |
+|---|---|
+| `save` / `s` [name \| 1-9] | save now, in space too (`PlayerData_SaveGame`); one character or none is a quick save `qsave<c>.fl` |
+| `load` / `l` [name \| 1-9] | load such a save (`QueueLoadGameCharacter`; `[ModServer] account_folder` picks the folder) |
+| `base` <name> | land at a base (nickname, or part of the name; `pub::Player::ForceLand`), from space |
+| `system` <name> [x,y,z [rx,ry,rz] \| object] | move to another system: same coordinates, a position, or at an object (nickname or `~part`); `SystemSwitchOutComplete` takes it instead of a gate, without the autosave |
+| `jump` / `j` [forward,right,up \| object] | move in this system: by an offset, to an object, or (nothing) to the target |
+| `launch` | the base's launch tab |
+| `ghost` | toggle the ship's collisions (the `DISABLE_COLLIDE` option) |
+
+## Chase camera and hardpoints
+
+The beta's `ChaseCamera` (vtable beta `0x005c79e4`, update `0x004f1dd0`, events `0x004f2ac0`) and
+its hardpoint display (beta `0x0040c040` / `0x0040c160`), `dbg_chase_camera.cpp`. Retail has no
+chase keymap commands, so the keys are fixed:
+
+| Key | Action |
+|---|---|
+| Ctrl+Shift+C | watch the player's target (else the player); again, or Esc, returns |
+| PgDn / PgUp | next / previous ship; with Ctrl, solar; with hardpoints shown, next / previous hardpoint |
+| arrows, Num+ / Num-, Home | orbit, zoom out / in, reset |
+| V | view: orbit, ahead, behind, facing |
+| Num* | hardpoints: off, drawn on top, depth-tested (red X, green Y, blue Z axes) |
+| Backspace, I | minimum distance 1; the info line |

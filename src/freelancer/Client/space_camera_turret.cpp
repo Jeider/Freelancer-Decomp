@@ -26,6 +26,9 @@
 #include "input_manager.h"        // GetClientMouseButtons, GetClientSoftwareCursor
 #include "player_behavior.h"      // IsMouseFlightLocked (FUN_004c7c80)
 #include "x86math.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h"         // port-only adoxa plugins (TurretZoom)
+#endif
 
 #include <cstddef>
 #include <math.h>
@@ -307,6 +310,11 @@ void TurretCameraUpdate(FTurretCamera* Cam, float DeltaSeconds)
     // FUN_0051a730 (slot 0x6c, thiscall RET 4): FUN_0051a7d0(&view, dt, 0) on an identity 3x4,
     // copied to the world transform, view dirty, then HUDCamera's update (FUN_0051d070).
     float View[12];
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's TurretZoom (update_hook replaces this slot, 0x005dbd30): the eased
+    // tether first.
+    TurretZoomUpdate(Cam, DeltaSeconds);
+#endif
     MakeIdentityView(View);
     TurretCameraComputeView(Cam, View, DeltaSeconds, false);
     StoreWorldView(Cam, View);
@@ -453,3 +461,265 @@ void FTurretCamera::DrawScene(unsigned LayerFlags, unsigned Param2)
 {
     SpaceCameraRenderSlot78(this, LayerFlags, Param2);
 }
+
+#ifdef FREELANCER_ADOXA
+// Port-only, adoxa's TurretZoom v1.41 (docs/adoxa.md; TurretZoom.c). The DLL patched two
+// jump-table entries (0x004d845c, 0x0054a880) and the camera's update slot (0x005dbd30); the
+// port calls these from the cases themselves (hud_maneuvers.cpp, space_state.cpp) and from
+// TurretCameraUpdate.
+namespace
+{
+    // The DLL's indices into the camera from the tether's y (0x00679064): 0 y, 1 z.
+    enum { kZoomY = 0, kZoomZ = 1 };
+
+    // The modifier bits of the event record (DAT_0067c280).
+    enum { kModShift = 1, kModCtrl = 4, kModAlt = 0x10 };
+
+    struct FTurretZoomOptions
+    {
+        float Max = 200000.0f;
+        float Shift = 10000.0f;
+        float Ctrl = 1000.0f;
+        float Alt = 100.0f;
+        float ShiftCtrl = 10.0f;
+        float CtrlAlt = 1.0f;
+        float FactorSmall = 1.1f;
+        float FactorLarge = 1.5f;
+        float FactorSwitch = 5000.0f;
+        float SpeedAdjust = 0.5f;
+        int SpeedInterval = 10000;
+        bool bSmooth = true;
+        bool bInverse = true;
+
+        // The DLL's dacom.ini options ("fast", "inverse", "max=", ...) as port.ini [TurretZoom].
+        FTurretZoomOptions()
+        {
+            char const* const S = "TurretZoom";
+            bSmooth = PortConfigInt(S, "fast", 0) == 0;
+            bInverse = PortConfigInt(S, "inverse", 0) == 0;
+            Max = PortConfigFloat(S, "max", Max);
+            Shift = PortConfigFloat(S, "shift", Shift);
+            Ctrl = PortConfigFloat(S, "ctrl", Ctrl);
+            Alt = PortConfigFloat(S, "alt", Alt);
+            ShiftCtrl = PortConfigFloat(S, "s+c", ShiftCtrl);
+            CtrlAlt = PortConfigFloat(S, "c+a", CtrlAlt);
+            FactorSmall = PortConfigFloat(S, "small", FactorSmall);
+            FactorLarge = PortConfigFloat(S, "large", FactorLarge);
+            FactorSwitch = PortConfigFloat(S, "switch", FactorSwitch);
+            SpeedAdjust = PortConfigFloat(S, "adjust", SpeedAdjust);
+            SpeedInterval = PortConfigInt(S, "interval", SpeedInterval);
+            if (SpeedInterval == 0)
+                SpeedInterval = 10000;   // port-only: no division by zero
+        }
+    };
+
+    FTurretZoomOptions const& ZoomOptions()
+    {
+        static FTurretZoomOptions const S_Options;
+        return S_Options;
+    }
+
+    // The DLL's globals.
+    float G_ZoomTarget[2] = {};        // tether_new (y, z)
+    float G_ZoomTetherYOrg = 0.0f;     // tether_y_org
+    float G_ZoomTetherZOrg = 0.0f;     // tether_z_org
+    float G_ZoomYawOrg = 0.0f;         // yaw_org
+    float G_ZoomPitchOrg = 0.0f;       // pitch_org
+    int G_ZoomSpeed = 0;               // speed
+    int G_ZoomAxis = kZoomZ;           // tether
+    // Port-only: the DLL restored (and eased towards) whatever its globals held even before a
+    // first entry had saved them; the port waits for one.
+    bool G_bZoomSaved = false;
+
+    float& TetherAxis(FTurretCamera* Cam, int Axis)
+    {
+        return Cam->Tether[1 + Axis];
+    }
+
+    // Adjust_Zoom.
+    void AdjustZoom(FTurretCamera* Cam, int Dir)
+    {
+        FTurretZoomOptions const& O = ZoomOptions();
+        unsigned const Keys = HudCommandRecord()->Modifiers;
+        float Dist = 0.0f;
+        bool bNeg = false;
+        float& Target = G_ZoomTarget[G_ZoomAxis];
+
+        switch (Keys)
+        {
+        case kModShift:            Dist = O.Shift; break;
+        case kModCtrl:             Dist = O.Ctrl; break;
+        case kModAlt:              Dist = O.Alt; break;
+        case kModShift + kModCtrl: Dist = O.ShiftCtrl; break;
+        case kModCtrl + kModAlt:   Dist = O.CtrlAlt; break;
+        default:
+        {
+            float const Factor =
+                (fabsf(Target) < O.FactorSwitch) ? O.FactorLarge : O.FactorSmall;
+            if (Dir < 0)
+                Target /= Factor;
+            else
+                Target *= Factor;
+            bNeg = false;
+            goto TestSpeed;
+        }
+        }
+
+        bNeg = Target < 0.0f;
+        if (bNeg)
+            Dir = -Dir;
+        Target += Dist * static_cast<float>(Dir);
+
+    TestSpeed:
+        if (G_ZoomAxis == kZoomY)
+            return;
+
+        if (G_ZoomTarget[kZoomZ] < 0.0f)
+        {
+            // Keep adjusting the speed as you zoom in.
+            int const Speed = -static_cast<int>(G_ZoomTarget[kZoomZ]) / O.SpeedInterval + 1;
+            if (Speed != G_ZoomSpeed)
+            {
+                float const Factor = static_cast<float>(pow(O.SpeedAdjust, Speed));
+                Cam->YawRotateSpeed = G_ZoomYawOrg * Factor;
+                Cam->PitchRotateSpeed = G_ZoomPitchOrg * Factor;
+                G_ZoomSpeed = Speed;
+            }
+        }
+        else if (bNeg)
+        {
+            Cam->YawRotateSpeed = G_ZoomYawOrg;
+            Cam->PitchRotateSpeed = G_ZoomPitchOrg;
+            G_ZoomSpeed = 0;
+        }
+    }
+}
+
+void TurretZoomOnToggle(FTurretCamera* Cam, bool bWasTurretView)
+{
+    if (!PORT_PLUGIN_ON("TurretZoom"))
+        return;
+    if (!bWasTurretView)
+    {
+        // Entering: the current values become the zoom's start and the restore point.
+        G_ZoomTarget[kZoomY] = Cam->Tether[1];
+        G_ZoomTarget[kZoomZ] = Cam->Tether[2];
+        G_ZoomTetherYOrg = Cam->Tether[1];
+        G_ZoomTetherZOrg = Cam->Tether[2];
+        G_ZoomYawOrg = Cam->YawRotateSpeed;
+        G_ZoomPitchOrg = Cam->PitchRotateSpeed;
+        G_ZoomSpeed = 0;
+        G_ZoomAxis = kZoomZ;
+        G_bZoomSaved = true;
+    }
+    else if (G_bZoomSaved)
+    {
+        // Leaving: put them back.
+        Cam->Tether[1] = G_ZoomTetherYOrg;
+        Cam->Tether[2] = G_ZoomTetherZOrg;
+        Cam->YawRotateSpeed = G_ZoomYawOrg;
+        Cam->PitchRotateSpeed = G_ZoomPitchOrg;
+    }
+}
+
+bool TurretZoomOnWheel(FTurretCamera* Cam)
+{
+    if (!PORT_PLUGIN_ON("TurretZoom"))
+        return false;
+
+    // Zoom.
+    FTurretZoomOptions const& O = ZoomOptions();
+    int const Wheel = GetClientMouseWheel();   // DAT_0061684c
+    if (Wheel == 0)
+        return true;
+    if (!G_bZoomSaved)
+        return true;   // port-only: no start values yet (see G_bZoomSaved)
+
+    unsigned const Keys = HudCommandRecord()->Modifiers;   // DAT_0067c280
+    if (Keys == kModShift + kModAlt)
+    {
+        G_ZoomAxis = (Wheel < 0) ? kZoomY : kZoomZ;
+        return true;
+    }
+
+    if (Keys == kModShift + kModCtrl + kModAlt)
+    {
+        if (G_ZoomAxis == kZoomZ && G_ZoomTarget[kZoomZ] < 0.0f)
+        {
+            if (Wheel < 0)
+            {
+                Cam->YawRotateSpeed *= O.SpeedAdjust;
+                Cam->PitchRotateSpeed *= O.SpeedAdjust;
+            }
+            else
+            {
+                Cam->YawRotateSpeed /= O.SpeedAdjust;
+                Cam->PitchRotateSpeed /= O.SpeedAdjust;
+            }
+        }
+        return true;
+    }
+
+    float& Target = G_ZoomTarget[G_ZoomAxis];
+    if ((Wheel < 0) == O.bInverse)
+    {
+        if (Target < 0.0f)
+        {
+            if (Target > -O.Max)
+                AdjustZoom(Cam, 1);
+        }
+        else if (Keys == 0 && Target < 1.0f)
+        {
+            Target = -Target;
+            if (G_ZoomAxis == kZoomZ)
+            {
+                Cam->YawRotateSpeed *= O.SpeedAdjust;
+                Cam->PitchRotateSpeed *= O.SpeedAdjust;
+                G_ZoomSpeed = 1;
+            }
+        }
+        else
+        {
+            AdjustZoom(Cam, -1);
+        }
+    }
+    else
+    {
+        if (Target >= 0.0f)
+        {
+            if (Target < O.Max)
+                AdjustZoom(Cam, 1);
+        }
+        else if (Keys == 0 && Target > -1.0f)
+        {
+            Target = -Target;
+            if (G_ZoomAxis == kZoomZ)
+            {
+                Cam->YawRotateSpeed = G_ZoomYawOrg;
+                Cam->PitchRotateSpeed = G_ZoomPitchOrg;
+                G_ZoomSpeed = 0;
+            }
+        }
+        else
+        {
+            AdjustZoom(Cam, -1);
+        }
+    }
+
+    if (!O.bSmooth)
+        TetherAxis(Cam, G_ZoomAxis) = G_ZoomTarget[G_ZoomAxis];
+    return true;
+}
+
+void TurretZoomUpdate(FTurretCamera* Cam, float DeltaSeconds)
+{
+    if (!PORT_PLUGIN_ON("TurretZoom") || !ZoomOptions().bSmooth || !G_bZoomSaved)
+        return;
+    // update: both axes ease by interval * accel_speed.
+    for (int Axis = kZoomY; Axis <= kZoomZ; ++Axis)
+    {
+        float& Value = TetherAxis(Cam, Axis);
+        Value += (G_ZoomTarget[Axis] - Value) * DeltaSeconds * Cam->AccelSpeed;
+    }
+}
+#endif

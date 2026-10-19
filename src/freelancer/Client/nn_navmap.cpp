@@ -43,6 +43,12 @@
 #include <wchar.h>
 #include <windows.h>                 // CharUpperW (FUN_005b74d9)
 
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h"            // port-only adoxa plugins (territory, NoNavMap)
+#include "nn_arrival_text.h"         // TerritoryNavMapLabel / TerritoryNavMapHouses
+#include "common_ini.h"              // INI_Reader (nonavmap.ini)
+#endif
+
 // --- Globals (retail NavMap.cpp .bss / .data) ---
 int G_NavMapFilterMode = 0;               // DAT_006720a0
 int G_NavMapZoneFilter = 0;               // DAT_006720a4
@@ -817,29 +823,52 @@ bool NeuroNetNavMap::Create(Win3D* NewParent, void* Data)
 
     // 00490354..004904be: the four faction labels of the universe view, hidden.
     {
-        float const Position[3] = {-0.055f, -0.09f, 0.0f};
-        FactionLabels[0] = CreateTextControl("NavMapLibertyLabel", "SubHeader", Position,
-                                             nullptr, 0.132f, 0.03f, 1.9f, 0x4e1, 0, 0, 1);
+        static char const* const kLabelNames[4] = {"NavMapLibertyLabel", "NavMapBretoniaLabel",
+                                                   "NavMapKusariLabel", "NavMapRheinlandLabel"};
+        static float const kLabelPos[4][2] = {
+            {-0.055f, -0.09f}, {-0.245f, -0.123f}, {0.005f, 0.121f}, {0.065f, -0.15f}};
+        for (int Index = 0; Index < 4; ++Index)
+        {
+            float Position[3] = {kLabelPos[Index][0], kLabelPos[Index][1], 0.0f};
+            char const* Font = "SubHeader";
+            unsigned Ids = 0x4e1u + static_cast<unsigned>(Index);
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x00490358 / 0x004903b4 /
+            // 0x00490410 / 0x0049046c): house_id 1249..1252 with NavMap = rewrites the label's
+            // ids, position and font.
+            if (FTerritoryNavMapHouse const* const House = TerritoryNavMapLabel(Index))
+            {
+                Ids = House->Ids;
+                Position[0] = House->X;
+                Position[1] = House->Y;
+                Font = House->Font;
+            }
+#endif
+            FactionLabels[Index] = CreateTextControl(kLabelNames[Index], Font, Position, nullptr,
+                                                     0.132f, 0.03f, 1.9f, Ids, 0, 0, 1);
+            FactionLabels[Index]->SetProperty(1, 1, 0);
+        }
     }
-    FactionLabels[0]->SetProperty(1, 1, 0);
+
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x004904c4 JMP NavMap_Patch1,
+    // navmap_houses): every other house with NavMap = becomes an unnamed, hidden label beside
+    // them -- the faction labels' size, left aligned, centred.
+    G_NavMapTerritoryLabels.clear();
     {
-        float const Position[3] = {-0.245f, -0.123f, 0.0f};
-        FactionLabels[1] = CreateTextControl("NavMapBretoniaLabel", "SubHeader", Position,
-                                             nullptr, 0.132f, 0.03f, 1.9f, 0x4e2, 0, 0, 1);
+        unsigned Count = 0;
+        FTerritoryNavMapHouse const* const Houses = TerritoryNavMapHouses(&Count);
+        for (unsigned Index = 0; Index < Count; ++Index)
+        {
+            float const Position[3] = {Houses[Index].X, Houses[Index].Y, 0.0f};
+            WinControl* const Label =
+                CreateTextControl(nullptr, Houses[Index].Font, Position, nullptr, 0.132f, 0.03f,
+                                  1.9f, Houses[Index].Ids, 0, 0, 1);
+            Label->SetProperty(1, 1, 0);
+            G_NavMapTerritoryLabels.push_back(Label);
+        }
     }
-    FactionLabels[1]->SetProperty(1, 1, 0);
-    {
-        float const Position[3] = {0.005f, 0.121f, 0.0f};
-        FactionLabels[2] = CreateTextControl("NavMapKusariLabel", "SubHeader", Position,
-                                             nullptr, 0.132f, 0.03f, 1.9f, 0x4e3, 0, 0, 1);
-    }
-    FactionLabels[2]->SetProperty(1, 1, 0);
-    {
-        float const Position[3] = {0.065f, -0.15f, 0.0f};
-        FactionLabels[3] = CreateTextControl("NavMapRheinlandLabel", "SubHeader", Position,
-                                             nullptr, 0.132f, 0.03f, 1.9f, 0x4e4, 0, 0, 1);
-    }
-    FactionLabels[3]->SetProperty(1, 1, 0);
+#endif
 
     // 004904c4..00490503
     {
@@ -1017,6 +1046,10 @@ bool NeuroNetNavMap::Slot23(unsigned Msg, unsigned A, unsigned B)
 
             for (int Index = 0; Index < 4; ++Index)
                 FactionLabels[Index]->SetProperty(1, 1, 0);
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x00494806 NavMap_Patch3).
+            NavMapTerritoryLabelsSetProperty(1, 1, 0);
+#endif
         }
 
         // 0049480c..0049483c
@@ -1150,6 +1183,12 @@ void NeuroNetNavMap::InitialShow()
         if (!bNameHidden)
         {
             unsigned const Id = CurrentSystem->GetId();
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's NoNavMap.dll (docs/adoxa.md; 0x004911b7): the file's systems.
+            if (NoNavMapActive())
+                bNameHidden = NoNavMapListed(Id);
+            else
+#endif
             for (int Index = 0; Index < 4; ++Index)
             {
                 if (SkipSystemIds[Index] == Id)
@@ -1411,3 +1450,60 @@ void NavMapRequestFocus(unsigned Id, unsigned char bZone)
         }
     }
 }
+
+#ifdef FREELANCER_ADOXA
+std::vector<WinControl*> G_NavMapTerritoryLabels;
+
+void NavMapTerritoryLabelsSetProperty(int Msg, uintptr_t A, uintptr_t B)
+{
+    for (size_t Index = 0; Index < G_NavMapTerritoryLabels.size(); ++Index)
+        G_NavMapTerritoryLabels[Index]->SetProperty(Msg, A, B);
+}
+
+namespace
+{
+    // The plugin's Patch(): DATA\UNIVERSE\nonavmap.ini read once (it assumed "data path =
+    // ..\data"); every value of every section is a nickname, the first 127 kept. Null when the
+    // plugin is off or the file does not open (the plugin patched nothing then).
+    std::vector<unsigned> const* NoNavMapSystems()
+    {
+        static std::vector<unsigned>* S_Systems = nullptr;
+        static bool S_bRead = false;
+        if (S_bRead)
+            return S_Systems;
+        S_bRead = true;
+        if (!PORT_PLUGIN_ON("NoNavMap"))
+            return nullptr;
+        INI_Reader Ini;
+        if (!Ini.open("..\\data\\universe\\nonavmap.ini", false))
+            return nullptr;
+        std::vector<unsigned>* const Systems = new std::vector<unsigned>;
+        while (Systems->size() < 127 && Ini.read_header())
+        {
+            while (Systems->size() < 127 && Ini.read_value())
+                Systems->push_back(CreateID(Ini.get_value_string()));
+        }
+        Ini.close();
+        S_Systems = Systems;
+        return S_Systems;
+    }
+}
+
+bool NoNavMapActive()
+{
+    return NoNavMapSystems() != nullptr;
+}
+
+bool NoNavMapListed(unsigned SystemId)
+{
+    std::vector<unsigned> const* const Systems = NoNavMapSystems();
+    if (Systems == nullptr)
+        return false;
+    for (size_t Index = 0; Index < Systems->size(); ++Index)
+    {
+        if ((*Systems)[Index] == SystemId)
+            return true;
+    }
+    return false;
+}
+#endif

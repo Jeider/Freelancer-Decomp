@@ -320,6 +320,12 @@ void NeuroNetNavMap::EnterSystemView()
     {
         unsigned const Id = CurrentSystem->GetId();
         bHidden = 0;
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's NoNavMap.dll (docs/adoxa.md; 0x0049e2e7): the file's systems.
+        if (NoNavMapActive())
+            bHidden = NoNavMapListed(Id) ? 1 : 0;
+        else
+#endif
         for (int Index = 0; Index < 4; ++Index)
         {
             if (SkipSystemIds[Index] == Id)
@@ -360,6 +366,10 @@ void NeuroNetNavMap::EnterSystemView()
     BaseListFilter->SetProperty(1, bHidden, 0);
     for (int Index = 0; Index < 4; ++Index)
         FactionLabels[Index]->SetProperty(1, 1, 0);
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x0049e4a5 NavMap_Patch8).
+    NavMapTerritoryLabelsSetProperty(1, 1, 0);
+#endif
 
     // 0049e4ab..0049e546: no pan, the flat mesh at full alpha, the items and the grid placed,
     // then every grid label shown.
@@ -438,6 +448,10 @@ void NeuroNetNavMap::EnterUniverseView()
     FilterTitle->SetProperty(1, 1, 0);
     for (int Index = 0; Index < 4; ++Index)
         FactionLabels[Index]->SetProperty(1, 0, 0);
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x0049e7e3 NavMap_Patch9).
+    NavMapTerritoryLabelsSetProperty(1, 0, 0);
+#endif
 
     // 0049e7e9..0049e87a: no pan, the items placed, the grid hidden, the title "Universe"
     // (ids 0x505).

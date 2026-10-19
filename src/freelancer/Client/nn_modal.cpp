@@ -44,6 +44,17 @@
 #include <wchar.h>
 #include <windows.h>
 
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa plugins (territory)
+#include "common_ini.h"   // INI_Reader (territory.ini)
+#include "font_string.h"  // FFontString::bMultiLine (the caption's Font::String)
+#include <stdlib.h>
+#include <string.h>
+#include <map>
+#include <string>
+#include <vector>
+#endif
+
 bool G_bNnScreenUp = false;              // DAT_0067dcc8
 NN_MainButton* G_NnMainButton = nullptr; // DAT_0066d3f0
 NnArrivalText* G_NnArrivalText = nullptr; // DAT_0066d398
@@ -88,6 +99,348 @@ namespace
     constexpr int kArrivalFormatChars = 0x80;
 }
 
+#ifdef FREELANCER_ADOXA
+// Port-only, adoxa's territory.dll v1.03 (docs/adoxa.md): the system entry caption and the Nav
+// Map houses customised by DATA\UNIVERSE\territory.ini. The plugin read the file once at load
+// (DllMain) and patched Freelancer.exe; here it is read on first use. The file name is port.ini
+// [Language.<code>] territory_ini (default territory.ini, relative to DATA\UNIVERSE): the mod's
+// Russian and English territory DLLs differed only in that name (territory.ini / territ_en.ini).
+// Strings are converted with [Settings] codepage; without one, port.ini [Language.<code>]
+// territory_codepage, else the system ANSI code page (CP_ACP) as the plugin's default.
+namespace
+{
+    // The plugin's TTer.
+    struct FTerritory
+    {
+        int Res; // the house: > 0 its ids, < 0 ~index into Store (house = name), 0 none
+        int Fmt; // the format: > 0 its ids, < 0 ~index into Store, 0 the retail format
+    };
+
+    struct FTerritoryData
+    {
+        bool bCaps = true;            // [Settings] caps
+        unsigned CodePage = CP_ACP;   // [Settings] codepage
+        std::map<int, FTerritory> Territories; // keyed by system nickname hash or strid_name
+        std::vector<std::wstring> Store;       // the plugin's StringStore
+        bool bLabelSet[4] = {false, false, false, false};
+        FTerritoryNavMapHouse Labels[4] = {}; // house_id 1249..1252 (the retail labels)
+        std::vector<FTerritoryNavMapHouse> Houses; // every other house with NavMap =
+    };
+
+    // stows: the string converted with the code page and kept, its NOT index returned (0 for an
+    // empty one). At most 63 characters; '^' becomes a new line when bNewLines.
+    int TerritoryStoreString(FTerritoryData& Data, char const* Text, bool bNewLines)
+    {
+        int const Pos = ~static_cast<int>(Data.Store.size());
+        int const Len = MultiByteToWideChar(Data.CodePage, 0, Text, -1, nullptr, 0);
+        if (Len <= 1)
+            return 0;
+        std::wstring Wide(static_cast<size_t>(Len), L'\0');
+        MultiByteToWideChar(Data.CodePage, 0, Text, -1, &Wide[0], Len);
+        Wide.resize(static_cast<size_t>(Len > 64 ? 63 : Len - 1));
+        if (bNewLines)
+        {
+            for (size_t Index = 0; Index < Wide.size(); ++Index)
+            {
+                if (Wide[Index] == L'^')
+                    Wide[Index] = L'\n';
+            }
+        }
+        Data.Store.push_back(Wide);
+        return Pos;
+    }
+
+    // codepage = UTF-8 / ANSI / OEM / MAC / a number.
+    unsigned TerritoryParseCodePage(char const* Text)
+    {
+        if (_stricmp(Text, "UTF-8") == 0)
+            return CP_UTF8;
+        if (_stricmp(Text, "ANSI") == 0)
+            return CP_ACP;
+        if (_stricmp(Text, "OEM") == 0)
+            return CP_OEMCP;
+        if (_stricmp(Text, "MAC") == 0)
+            return CP_MACCP;
+        return static_cast<unsigned>(atoi(Text));
+    }
+
+    // The plugin's range reader: NUMBER, FIRST-LAST or STRINGNN-MM (LAST / MM may give only the
+    // changed digits: "196609-13", "Li01-5"); anything else is a nickname.
+    struct FTerritoryRange
+    {
+        int Pos = 0;
+        int Last = 0;
+        char String[128] = {};
+        int Digit = 0;
+
+        static int GetNum(char const*& Text)
+        {
+            for (int Num = 0;; ++Text)
+            {
+                if (*Text < '0' || *Text > '9')
+                    return Num;
+                Num = Num * 10 + *Text - '0';
+            }
+        }
+
+        int First(char const* Text)
+        {
+            char Buffer[32];
+            String[0] = '\0';
+            Last = 0;
+
+            char const* const Start = Text;
+            Pos = GetNum(Text);
+            if (Text != Start)
+            {
+                if (*Text == '\0')
+                    return Pos;
+                int Prefix = static_cast<int>(Text - Start);
+                if (*Text == '-' && Prefix <= 10)
+                {
+                    Prefix -= static_cast<int>(strlen(++Text));
+                    if (Prefix > 0)
+                    {
+                        _snprintf(Buffer, sizeof(Buffer), "%.*s%s", Prefix, Start, Text);
+                        Buffer[sizeof(Buffer) - 1] = '\0';
+                        Text = Buffer;
+                    }
+                    Last = GetNum(Text);
+                    if (*Text == '\0' && Last >= Pos)
+                        return Pos;
+                }
+            }
+
+            char const* Dash = strchr(Start, '-');
+            int const Len = Dash != nullptr ? static_cast<int>(Dash - Start) : 0;
+            if (Len < 3 || Len >= static_cast<int>(sizeof(String)) || Dash[-1] < '0' ||
+                Dash[-1] > '9' || Dash[-2] < '0' || Dash[-2] > '9')
+                return static_cast<int>(CreateID(Start));
+            Pos = (Dash[-2] - '0') * 10 + Dash[-1] - '0';
+            Last = GetNum(++Dash);
+            if (*Dash != '\0' || Last < Pos)
+                return static_cast<int>(CreateID(Start));
+
+            Digit = Len - 1;
+            memcpy(String, Start, static_cast<size_t>(Len));
+            String[Len] = '\0';
+            return static_cast<int>(CreateID(String));
+        }
+
+        int Next()
+        {
+            if (++Pos > Last)
+                return 0;
+            if (String[0] != '\0')
+            {
+                if (++String[Digit] > '9')
+                {
+                    String[Digit] = '0';
+                    ++String[Digit - 1];
+                }
+                return static_cast<int>(CreateID(String));
+            }
+            return Pos;
+        }
+    };
+
+    // set_territories: every parameter of systems =, last first.
+    void TerritorySetSystems(FTerritoryData& Data, INI_Reader& Ini, FTerritory const& Ter)
+    {
+        FTerritoryRange Range;
+        for (int Index = static_cast<int>(Ini.get_num_parameters()); --Index >= 0;)
+        {
+            int Id = Range.First(Ini.get_value_string(static_cast<unsigned>(Index)));
+            while (Id != 0)
+            {
+                Data.Territories[Id] = Ter;
+                Id = Range.Next();
+            }
+        }
+    }
+
+    // The plugin's Patch(): the ini read in order (the code page applies to the strings after
+    // it). Null when the plugin is off or the file does not open (the plugin patched nothing).
+    FTerritoryData const* TerritoryData()
+    {
+        static FTerritoryData* S_Data = nullptr;
+        static bool S_bRead = false;
+        if (S_bRead)
+            return S_Data;
+        S_bRead = true;
+        if (!PORT_PLUGIN_ON("territory"))
+            return nullptr;
+
+        char Name[MAX_PATH];
+        PortLanguageString("territory_ini", "territory.ini", Name, sizeof(Name));
+        char Path[MAX_PATH + 32];
+        _snprintf(Path, sizeof(Path), "..\\data\\universe\\%s", Name);
+        Path[sizeof(Path) - 1] = '\0';
+
+        INI_Reader Ini;
+        if (!Ini.open(Path, false))
+            return nullptr;
+
+        FTerritoryData* const Data = new FTerritoryData;
+        char CodePage[32];
+        if (PortLanguageString("territory_codepage", "", CodePage, sizeof(CodePage)) != 0 &&
+            CodePage[0] != '\0')
+            Data->CodePage = TerritoryParseCodePage(CodePage);
+
+        // The plugin's globals: ter is reset per section, nm (the Nav Map house) is not.
+        FTerritory Ter = {0, 0};
+        FTerritoryNavMapHouse House = {0, 0.0f, 0.0f, nullptr};
+        while (Ini.read_header())
+        {
+            Ter.Res = 0;
+            Ter.Fmt = 0;
+            if (Ini.is_header("Houses"))
+            {
+                while (Ini.read_value())
+                {
+                    if (Ini.is_value("house"))
+                        Ter.Res = TerritoryStoreString(*Data, Ini.get_value_string(), false);
+                    else if (Ini.is_value("house_id"))
+                    {
+                        if (Ini.is_value_empty(0))
+                            House.Ids = static_cast<unsigned>(Ini.get_value_int(1));
+                        else
+                        {
+                            Ter.Res = Ini.get_value_int(0);
+                            House.Ids = Ini.is_value_empty(1)
+                                            ? static_cast<unsigned>(Ter.Res)
+                                            : static_cast<unsigned>(Ini.get_value_int(1));
+                        }
+                    }
+                    else if (Ini.is_value("format"))
+                        Ter.Fmt = TerritoryStoreString(*Data, Ini.get_value_string(), true);
+                    else if (Ini.is_value("format_id"))
+                        Ter.Fmt = Ini.get_value_int(0);
+                    else if (Ini.is_value("systems"))
+                    {
+                        if (Ter.Res != 0)
+                            TerritorySetSystems(*Data, Ini, Ter);
+                    }
+                    else if (Ini.is_value("NavMap"))
+                    {
+                        if (House.Ids != 0)
+                        {
+                            // The system pos scaled onto the universe view.
+                            House.X = static_cast<float>(Ini.get_value_float(0)) * 0.0272f - 0.2090f;
+                            House.Y = static_cast<float>(Ini.get_value_float(1)) * -0.0272f + 0.2010f;
+                            House.Font = Ini.is_value_empty(2) ? "SubHeader"
+                                                               : _strdup(Ini.get_value_string(2));
+                            // 0x00490358 / 0x004903b4 / 0x00490410 / 0x0049046c: the four
+                            // retail labels take the new ids, position and font in place.
+                            if (Ter.Res >= 1249 && Ter.Res <= 1252)
+                            {
+                                Data->bLabelSet[Ter.Res - 1249] = true;
+                                Data->Labels[Ter.Res - 1249] = House;
+                            }
+                            else
+                                Data->Houses.push_back(House);
+                            House.Ids = 0;
+                        }
+                    }
+                }
+            }
+            else if (Ini.is_header("Systems"))
+            {
+                while (Ini.read_value())
+                {
+                    if (Ini.is_value("format"))
+                        Ter.Fmt = TerritoryStoreString(*Data, Ini.get_value_string(), true);
+                    else if (Ini.is_value("format_id"))
+                        Ter.Fmt = Ini.get_value_int(0);
+                    else if (Ini.is_value("systems"))
+                    {
+                        if (Ter.Fmt != 0)
+                            TerritorySetSystems(*Data, Ini, Ter);
+                    }
+                }
+            }
+            else if (Ini.is_header("Settings"))
+            {
+                while (Ini.read_value())
+                {
+                    if (Ini.is_value("caps"))
+                    {
+                        if (!Ini.get_value_bool(0))
+                            Data->bCaps = false;
+                    }
+                    else if (Ini.is_value("codepage"))
+                        Data->CodePage = TerritoryParseCodePage(Ini.get_value_string(0));
+                }
+            }
+        }
+        Ini.close();
+        S_Data = Data;
+        return S_Data;
+    }
+
+    // find_territory: the system's nickname hash first (DAT_00673354), then its strid_name.
+    bool TerritoryFind(FTerritoryData const& Data, int SystemIds, FTerritory* Out)
+    {
+        std::map<int, FTerritory>::const_iterator It =
+            Data.Territories.find(static_cast<int>(GetPlayerStarSystemIdRetail()));
+        if (It == Data.Territories.end())
+            It = Data.Territories.find(SystemIds);
+        if (It == Data.Territories.end())
+            return false;
+        *Out = It->second;
+        return true;
+    }
+
+    // A format: a stored string, or ids (count 0x40, as the plugin) -- Default for 0.
+    void TerritoryFormat(FTerritoryData const& Data, int Fmt, unsigned Default, wchar_t* Out)
+    {
+        if (Fmt < 0)
+        {
+            wcscpy(Out, Data.Store[static_cast<size_t>(~Fmt)].c_str());
+            return;
+        }
+        GetIdsStringWWithRawFallback(Fmt != 0 ? static_cast<unsigned>(Fmt) : Default, Out, 0x40);
+    }
+}
+
+FTerritoryNavMapHouse const* TerritoryNavMapLabel(int Index)
+{
+    FTerritoryData const* const Data = TerritoryData();
+    if (Data == nullptr || Index < 0 || Index >= 4 || !Data->bLabelSet[Index])
+        return nullptr;
+    return &Data->Labels[Index];
+}
+
+FTerritoryNavMapHouse const* TerritoryNavMapHouses(unsigned* OutCount)
+{
+    FTerritoryData const* const Data = TerritoryData();
+    if (Data == nullptr || Data->Houses.empty())
+    {
+        *OutCount = 0;
+        return nullptr;
+    }
+    *OutCount = static_cast<unsigned>(Data->Houses.size());
+    return &Data->Houses[0];
+}
+#endif
+
+namespace
+{
+    // CharUpperW on the caption (0x0045af5a, 0x0045b0d8, 0x0045b142, 0x0045b278).
+    void ArrivalUpper(wchar_t* Text)
+    {
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x0045af5b / 0x0045b0d9 / 0x0045b143
+        // / 0x0045b279): [Settings] caps = false turned each PUSH 0x0066fc60 into 0x0066fc5e --
+        // the empty string before the text -- so the caption keeps its case.
+        FTerritoryData const* const Data = TerritoryData();
+        if (Data != nullptr && !Data->bCaps)
+            return;
+#endif
+        CharUpperW(Text);
+    }
+}
+
 NnArrivalText::NnArrivalText()
 {
     // FUN_0045b530 0x0045b569..0x0045b583: FUN_0059f860, vptrs, DAT_0066d398 = this, +0x338 = 0.
@@ -118,6 +471,17 @@ bool NnArrivalText::Create(Win3D* NewParent, void* Data)
     Caption->SetProperty(0x33, reinterpret_cast<uintptr_t>(&G_NnPaletteArgb_679b90), 1);
     // 0x0045ac34..0x0045ac3a: the caption hidden (flags &= 0xfc).
     Caption->Flags = static_cast<unsigned char>(Caption->Flags & 0xfc);
+
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's territory.dll v1.02+ (docs/adoxa.md; 0x0045ac3e JMP 0x0045acb1): with
+    // any territory defined, the caption's Font::String is multi-line (+0x30 = 1) so a '^' in a
+    // format breaks the line.
+    {
+        FTerritoryData const* const Territory = TerritoryData();
+        if (Territory != nullptr && !Territory->Territories.empty())
+            Caption->GetFontString()->bMultiLine = 1;
+    }
+#endif
 
     // 0x0045ac3e..0x0045ac73: slot 31 SetOffset(0, 0, -1.0f), the vector passed by value.
     SetOffset(0.0f, 0.0f, -1.0f);
@@ -240,7 +604,7 @@ void NnArrivalText::ShowBaseArrival(float ArrivalTime)
     GetIdsStringWWithRawFallback(static_cast<unsigned>(BaseIds), G_NnTextScratchA, Half);
     GetIdsStringWWithRawFallback(static_cast<unsigned>(SystemIds), SecondHalf, Half);
     _swprintf(G_NnTextScratchB, Format, G_NnTextScratchA, SecondHalf);
-    CharUpperW(G_NnTextScratchB);
+    ArrivalUpper(G_NnTextScratchB);
 
     // 0x0045af65..0x0045af76: the caption's property 0x1d (the text).
     Caption->SetProperty(0x1d, reinterpret_cast<uintptr_t>(G_NnTextScratchB), 0);
@@ -262,6 +626,65 @@ void NnArrivalText::ShowSystemArrival(bool bResetDelay)
     bWaitForLetterbox = 1;
 
     int const SystemIds = PlayerSystemStridName();
+
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's territory.dll v1.03 (docs/adoxa.md; 0x0045b020 JMP Territory_Patch): a
+    // system territory.ini names (by nickname, then strid_name) gets its own house / format.
+    FTerritoryData const* const Territory = TerritoryData();
+    FTerritory Ter;
+    if (Territory != nullptr && TerritoryFind(*Territory, SystemIds, &Ter))
+    {
+        wchar_t TerFormat[kArrivalFormatChars];
+        int const Half = G_NnTextScratchCapacity / 2;
+        wchar_t* const SecondHalf = G_NnTextScratchA + Half;
+        if (Ter.Res == 0)
+        {
+            // [Systems] ("sys"): the format (ids 0x55d's place, 0x0045b108 / 0x0045b10e) with
+            // the system alone, then the retail tail -- delay 2.0f. No zero-system test.
+            TerritoryFormat(*Territory, Ter.Fmt, 0x55d, TerFormat);
+            GetIdsStringWWithRawFallback(static_cast<unsigned>(SystemIds), G_NnTextScratchA,
+                                         Half);
+            _swprintf(G_NnTextScratchB, TerFormat, G_NnTextScratchA);
+            ArrivalUpper(G_NnTextScratchB);
+            Caption->SetProperty(0x1d, reinterpret_cast<uintptr_t>(G_NnTextScratchB), 0);
+            Delay = 2.0f;
+        }
+        else if (Ter.Res > 0 && Ter.Fmt == 0)
+        {
+            // A house by ids with the retail format: the retail house path from 0x0045b057
+            // (its zero-system test included) with the house as the region.
+            if (SystemIds == 0)
+                return;
+            GetIdsStringWWithRawFallback(0x55e, TerFormat, kArrivalFormatChars);
+            GetIdsStringWWithRawFallback(static_cast<unsigned>(SystemIds), G_NnTextScratchA,
+                                         Half);
+            GetIdsStringWWithRawFallback(static_cast<unsigned>(Ter.Res), SecondHalf, Half);
+            _swprintf(G_NnTextScratchB, TerFormat, G_NnTextScratchA, SecondHalf);
+            ArrivalUpper(G_NnTextScratchB);
+            Caption->SetProperty(0x1d, reinterpret_cast<uintptr_t>(G_NnTextScratchB), 0);
+        }
+        else
+        {
+            // "tp1": the house format (ids 0x55e when none), the system into the first half
+            // and the house -- by ids (0x0045b083) or the stored name copied into the second
+            // half (0x0045b0bf) -- then the retail house tail. No zero-system test.
+            TerritoryFormat(*Territory, Ter.Fmt, 0x55e, TerFormat);
+            GetIdsStringWWithRawFallback(static_cast<unsigned>(SystemIds), G_NnTextScratchA,
+                                         Half);
+            if (Ter.Res > 0)
+                GetIdsStringWWithRawFallback(static_cast<unsigned>(Ter.Res), SecondHalf, Half);
+            else
+                wcscpy(SecondHalf, Territory->Store[static_cast<size_t>(~Ter.Res)].c_str());
+            _swprintf(G_NnTextScratchB, TerFormat, G_NnTextScratchA, SecondHalf);
+            ArrivalUpper(G_NnTextScratchB);
+            Caption->SetProperty(0x1d, reinterpret_cast<uintptr_t>(G_NnTextScratchB), 0);
+        }
+        // 0x0045b16e..0x0045b179
+        if (bResetDelay)
+            Delay = 2.0f;
+        return;
+    }
+#endif
 
     // 0x0045b020..0x0045b055: the region caption by the strid_name's place in 0x30001..0x30018
     // (byte table 0x0045b1a0 over the jump table 0x0045b190).
@@ -290,7 +713,7 @@ void NnArrivalText::ShowSystemArrival(bool bResetDelay)
         GetIdsStringWWithRawFallback(static_cast<unsigned>(SystemIds), G_NnTextScratchA, Half);
         GetIdsStringWWithRawFallback(RegionIds, SecondHalf, Half);
         _swprintf(G_NnTextScratchB, Format, G_NnTextScratchA, SecondHalf);
-        CharUpperW(G_NnTextScratchB);
+        ArrivalUpper(G_NnTextScratchB);
         Caption->SetProperty(0x1d, reinterpret_cast<uintptr_t>(G_NnTextScratchB), 0);
     }
     else
@@ -300,7 +723,7 @@ void NnArrivalText::ShowSystemArrival(bool bResetDelay)
         GetIdsStringWWithRawFallback(static_cast<unsigned>(SystemIds), G_NnTextScratchA,
                                      G_NnTextScratchCapacity / 2);
         _swprintf(G_NnTextScratchB, Format, G_NnTextScratchA);
-        CharUpperW(G_NnTextScratchB);
+        ArrivalUpper(G_NnTextScratchB);
         Caption->SetProperty(0x1d, reinterpret_cast<uintptr_t>(G_NnTextScratchB), 0);
         Delay = 2.0f;
     }
@@ -329,7 +752,7 @@ void NnArrivalText::ShowNamedArrival(unsigned NameIds)
     GetIdsStringWWithRawFallback(NameIds, G_NnTextScratchA, Half);
     GetIdsStringWWithRawFallback(static_cast<unsigned>(SystemIds), SecondHalf, Half);
     _swprintf(G_NnTextScratchB, Format, G_NnTextScratchA, SecondHalf);
-    CharUpperW(G_NnTextScratchB);
+    ArrivalUpper(G_NnTextScratchB);
     Caption->SetProperty(0x1d, reinterpret_cast<uintptr_t>(G_NnTextScratchB), 0);
     Delay = 2.0f;
 }

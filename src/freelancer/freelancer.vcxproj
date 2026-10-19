@@ -140,6 +140,8 @@
     <ClInclude Include="Client\client_tick_profile.h" />
     <ClInclude Include="Client\dbg_options.h" />
     <ClInclude Include="Client\dbg_console.h" />
+    <ClInclude Include="Client\dbg_chase_camera.h" />
+    <ClInclude Include="Client\wing_anim.h" />
     <ClInclude Include="Client\widescreen.h" />
     <ClInclude Include="Client\connect_handshake.h" />
     <ClInclude Include="Client\connect_lists.h" />
@@ -355,6 +357,8 @@
     <ClCompile Include="Client\client_tick_profile.cpp" />
     <ClCompile Include="Client\dbg_options.cpp" />
     <ClCompile Include="Client\dbg_console.cpp" />
+    <ClCompile Include="Client\dbg_chase_camera.cpp" />
+    <ClCompile Include="Client\wing_anim.cpp" />
     <ClCompile Include="Client\connect_handshake.cpp" />
     <ClCompile Include="Client\connect_lists.cpp" />
     <ClCompile Include="Client\login_mgr.cpp" />

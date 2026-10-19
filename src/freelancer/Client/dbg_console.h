@@ -15,7 +15,7 @@
 
 // From KeyMapRouteInputMessage: true when the console used the message (it eats every key
 // and character while open).
-bool DbgConsoleHandleMessage(unsigned Message, unsigned Wparam);
+bool DbgConsoleHandleMessage(unsigned Message, unsigned Wparam, unsigned Lparam);
 
 // From the end of the frame, after the DBG_OPTIONS window.
 void DbgConsoleDraw();

@@ -9,6 +9,7 @@
 #include "nn_dealer.h"
 #ifdef FREELANCER_ADOXA
 #include "common_adoxa_api.h" // AmmoLimit
+#include "adoxa_engclass.h"   // engclass.dll's mountable engines / powerplants
 #endif
 
 #include "client_base_market.h"     // GetClientLocationBaseMarket (FUN_0043a510), the market
@@ -793,7 +794,13 @@ void NnDealer::Update()
                         // 0 or 2; the partner is not null-tested): no hardpoint for the good at
                         // all (FUN_00585f20(GoodId, 1)) -- reason 7; with something to buy, no
                         // free one (FUN_00585f20(GoodId, 0)) -- reason 8.
-                        int const Filter = Inventory->Mode;
+                        int Filter = Inventory->Mode;
+#ifdef FREELANCER_ADOXA
+                        // Port-only, adoxa's engclass.dll (docs/adoxa.md; DealerSelected_Hook
+                        // at 0x004804e8, GetEquipment on the good id): a mountable engine /
+                        // powerplant needs a hardpoint like a weapon.
+                        Filter = EngclassFilterMode(Filter, Good2Arch(GoodId));
+#endif
                         if (Filter == 0 || Filter == 2)
                         {
                             ShipViewControl* const View = Inventory->Ship.ShipView; // +0x330
@@ -931,7 +938,14 @@ void NnDealer::Update()
                 QuantityPrompt->SetProperty(1, 1, 0);
             }
             Archetype::Equipment* const Shown = Archetype::GetEquipment(Field390);
-            if (Shown != nullptr && Shown->get_class_type() == Archetype::AClassEngine &&
+            bool bEngineCheck = Shown != nullptr;
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0048089d JE -> NOP + JMP):
+            // engines can be traded.
+            if (EngclassOn())
+                bEngineCheck = false;
+#endif
+            if (bEngineCheck && Shown->get_class_type() == Archetype::AClassEngine &&
                 TradeMode == 2)
                 ShowErrorText(0x52d, 0);
         }
@@ -946,7 +960,14 @@ void NnDealer::Update()
                     ShowErrorText(0x575, 0);
             }
             Archetype::Equipment* const Shown = Archetype::GetEquipment(Field390);
-            if (Shown != nullptr && Shown->get_class_type() == Archetype::AClassEngine)
+            bool bEngineCheck = Shown != nullptr;
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x00480936 JE -> JMP): engines
+            // can be sold.
+            if (EngclassOn())
+                bEngineCheck = false;
+#endif
+            if (bEngineCheck && Shown->get_class_type() == Archetype::AClassEngine)
                 ShowErrorText(TradeMode == 2 ? 0x52d : 0x52c, 0);
             swprintf(ToolTipText, 0xff, L"%d", Field38c);
             TransferItemQuantity->SetProperty(0x1d, reinterpret_cast<uintptr_t>(ToolTipText), 0);
@@ -1540,7 +1561,12 @@ bool NnDealer::CanBuyGood(unsigned GoodId)
 
     // 00482ea1..00482ecf: the partner's weapons / equipment filters (+0x32c 0 or 2; the partner
     // is not null-tested): no hardpoint for the good at all (FUN_00585f20(GoodId, 1)) -- false.
-    int const Filter = Inventory->Mode;
+    int Filter = Inventory->Mode;
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's engclass.dll (docs/adoxa.md; Dealer_Hook at 0x00482ea7, GetEquipment on
+    // the good id): a mountable engine / powerplant needs a hardpoint like a weapon.
+    Filter = EngclassFilterMode(Filter, Good2Arch(GoodId));
+#endif
     if (Filter == 0 || Filter == 2)
     {
         if (Inventory->Ship.ShipView->FindHardpointForGood(GoodId, true) == nullptr)
@@ -1801,7 +1827,14 @@ int NnDealer::GetMaxBuyCount(unsigned GoodId, int* OutReason)
         {
             Inventory->Field394.clear();
             unsigned const Selected = GetSelectedMarketGood(); // FUN_00483580
-            if (Selected != 0 && (Mode == 0 || Mode == 2))
+            bool bHardpointModes = Mode == 0 || Mode == 2;
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x00483869 JE -> JMP): the hint
+            // is looked up in every mode.
+            if (EngclassOn())
+                bHardpointModes = true;
+#endif
+            if (Selected != 0 && bHardpointModes)
             {
                 char const* const Hardpoint =
                     Inventory->Ship.ShipView->FindHardpointForGood(Selected, false);

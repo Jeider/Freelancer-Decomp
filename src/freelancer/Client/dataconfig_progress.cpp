@@ -5,6 +5,10 @@
 // Author: Giperion.
 
 #include "dataconfig_progress.h"
+#ifdef FREELANCER_ADOXA
+#include "adoxa_engclass.h" // engclass resource DLL
+#include "port_config.h"    // PortLanguageString
+#endif
 
 #include "client_debris.h" // LoadDebrisArchFile (FUN_00530d20)
 #include "common_ini.h"
@@ -228,6 +232,32 @@ bool LoadClientIniData(char const* IniPath)
                 }
             }
         }
+
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's engclass.dll (docs/adoxa.md; ResDll_Hook at 0x005b0fad): the
+        // plugin pushed its own module onto the ids module list after the [Resources] DLLs
+        // and shifted its strings by the index. The port loads the language's copy of that
+        // DLL as resources only (port.ini [Language.<code>] engclass_resources; the mod has
+        // engclass.dll in Russian and engclass_en.dll in English) -- its DllMain patches
+        // retail addresses and must never run. A failed load still registers the null
+        // handle, as FUN_005b0c30 does for a [Resources] DLL.
+        if (EngclassOn())
+        {
+            char EngclassPath[MAX_PATH];
+            PortLanguageString("engclass_resources", "engclass.dll", EngclassPath,
+                               sizeof(EngclassPath));
+            if (EngclassPath[0] == '\0')
+                strcpy(EngclassPath, "engclass.dll");
+            HMODULE const Module = LoadLibraryExA(EngclassPath, nullptr, LOAD_LIBRARY_AS_DATAFILE);
+            if (Module == nullptr)
+            {
+                DWORD const Error = GetLastError();
+                FDUMP(0x100001, "%s(%d) : *** ERROR: Couldn't load %s! Error code %d\n",
+                      kMainCppPath, 0x22c, EngclassPath, Error);
+            }
+            EngclassIdsBase() = RegisterIdsResourceModule(Module);
+        }
+#endif
 
         // 0x005b0fad..0x005b0fc9: still inside the open success -- FUN_00427a70 on
         // GetFileSysPath("audio\\SoundCFG.ini", 0).

@@ -74,6 +74,7 @@
     <ClCompile Include="server_createinfo.cpp" />
     <ClCompile Include="server_savegame.cpp" />
     <ClCompile Include="server_savefile.cpp" />
+    <ClCompile Include="server_port_console.cpp" />
     <ClCompile Include="server_fuse.cpp" />
     <ClCompile Include="server_loot.cpp" />
     <ClCompile Include="server_mine.cpp" />

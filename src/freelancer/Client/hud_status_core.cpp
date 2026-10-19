@@ -10,6 +10,9 @@
 #include "cli_projectile_fx.h"  // CliShipActivateEquip
 #include "player_spawn.h"      // GetPlayerConnectionId
 #endif
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h"     // port-only adoxa patches (DisableAutoLevelToggle)
+#endif
 
 #include "character_select_equip.h"
 #include "client_gameobj.h"
@@ -2317,6 +2320,14 @@ bool HUD_Status::OnEvent(unsigned MsgId)
 
     case 0x3e:
         // 0x004dbe07: FUN_004c79a0 with the flipped toggle.
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's "Disable auto-level toggling" exe patch (0x004dbe0f SETE -> SETNE,
+        // file offset 0xdbe10 94 -> 95): the key keeps the current state instead of flipping it,
+        // so auto-level can stay off for roll.
+        if (PORT_PLUGIN_ON("DisableAutoLevelToggle"))
+            G_StatusAutoLevel = (G_StatusAutoLevel != 0) ? 1 : 0;
+        else
+#endif
         G_StatusAutoLevel = (G_StatusAutoLevel == 0) ? 1 : 0;
         SetPlayerAutoLevel(G_StatusAutoLevel != 0);
         return true;

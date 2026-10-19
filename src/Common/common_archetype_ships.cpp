@@ -10,6 +10,8 @@
 #include "common_archetype.h"
 #ifdef FREELANCER_ADOXA
 #include "common_adoxa.h" // port-only LaneSpeed
+#include "common_adoxa_engclass.h" // port-only engclass hp types
+#include <stdio.h>
 #endif
 #include "common_archetype_internal.h"
 
@@ -1168,6 +1170,55 @@ namespace Archetype
         if (Reader.is_value("hp_type"))
         {
             unsigned Value = 0;
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's engclass.dll (docs/adoxa.md; 062f2598, the not-in-table path):
+            // hp_<fighter|elite|freighter>_<power|engine>_special_N, and "hp_type = TYPE MAX,
+            // hp, ..." for hp_TYPE_special_MAX down to _1, each with the same hardpoints. The
+            // plugin re-read the line once per class (patching 062f2f1e); a class it cannot
+            // name adds nothing.
+            if (PORT_PLUGIN_ON("engclass") && !TryLookupHpType(Reader.get_value_string(0), &Value))
+            {
+                // The table-hit path below (062f25a2 on), once per type.
+                auto const AddEngclassLegalHps = [this](INI_Reader& Ini, unsigned Type)
+                {
+                    LegalHps.push_back(LegalHpTypes());
+                    LegalHpTypes& Entry = LegalHps.back();
+                    Entry.Type = (HpAttachmentType)Type;
+                    for (int Index = 1; !Ini.is_value_empty(Index); ++Index)
+                    {
+                        CacheString Hp;
+                        Hp.Value = StringAlloc(Ini.get_value_string(Index), false);
+                        Entry.Hardpoints.push_back(Hp);
+                    }
+                };
+                char const* const Name = Reader.get_value_string(0);
+                char Family[64];
+                int MaxClass = 0;
+                if (Name != nullptr && sscanf(Name, "%63s %d", Family, &MaxClass) == 2 &&
+                    MaxClass >= 1)
+                {
+                    // Classes above 10 name nothing (HP_Search fails); skip them outright.
+                    if (MaxClass > ADOXA_ENGCLASS_CLASSES)
+                        MaxClass = ADOXA_ENGCLASS_CLASSES;
+                    for (int Class = MaxClass; Class >= 1; --Class)
+                    {
+                        char Full[96];
+                        _snprintf(Full, sizeof(Full), "hp_%s_special_%d", Family, Class);
+                        Full[sizeof(Full) - 1] = '\0';
+                        unsigned const Type = AdoxaEngclassHpSearch(Full);
+                        if (Type != 0)
+                            AddEngclassLegalHps(Reader, Type);
+                    }
+                }
+                else
+                {
+                    unsigned const Type = AdoxaEngclassHpSearch(Name);
+                    if (Type != 0)
+                        AddEngclassLegalHps(Reader, Type);
+                }
+                return true;
+            }
+#endif
             if (!TryLookupHpType(Reader.get_value_string(0), &Value) || Value == 0)
                 return true;
             HpAttachmentType const Type = (HpAttachmentType)Value;

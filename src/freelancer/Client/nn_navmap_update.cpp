@@ -179,6 +179,13 @@ namespace
         if (!bHidden)
         {
             unsigned const Id = System->GetId();
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's NoNavMap.dll (docs/adoxa.md; 0x00494c69, 0x00495f27): the
+            // file's systems.
+            if (NoNavMapActive())
+                bHidden = NoNavMapListed(Id);
+            else
+#endif
             for (int Index = 0; Index < 4; ++Index)
             {
                 if (SkipSystemIds[Index] == Id)
@@ -1342,6 +1349,11 @@ namespace
         for (int Index = 0; Index < 4; ++Index)
             Map->FactionLabels[Index]->SetProperty(0x33, reinterpret_cast<uintptr_t>(&Colour),
                                                    bFlag);
+#ifdef FREELANCER_ADOXA
+        // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x00495d6f / 0x00495eb1 / 0x00496113
+        // NavMap_Patch4..6): the house labels take the same colour.
+        NavMapTerritoryLabelsSetProperty(0x33, reinterpret_cast<uintptr_t>(&Colour), bFlag);
+#endif
         unsigned long GridColour = G_NnPaletteArgb_679bb0;
         reinterpret_cast<unsigned char*>(&GridColour)[3] = Alpha;
         for (int Index = 0; Index < 8; ++Index)

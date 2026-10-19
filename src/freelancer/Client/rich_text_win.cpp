@@ -25,6 +25,9 @@
 #include "render/IBigImage2.h"
 #include "render/IRenderPipeline.h"
 #include "x86math.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h"   // port-only adoxa plugins (scroller)
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -441,6 +444,49 @@ void BaseRichTextWin::Draw()
     Slot39();
 }
 
+#ifdef FREELANCER_ADOXA
+namespace
+{
+    // Port-only, adoxa's scroller (docs/adoxa.md). Retail's name test of Scroll_Hook: the name
+    // at +0x18, past a leading "Ship", is "InfoCard_Values" (0x005d1cbc, 16 bytes with the NUL).
+    // Returns the prefix length (0 or 4), or -1 for any other window.
+    int ScrollerValuesPrefix(char const* Name)
+    {
+        int const Prefix = (strncmp(Name, "Ship", 4) == 0) ? 4 : 0;
+        return (strcmp(Name + Prefix, "InfoCard_Values") == 0) ? Prefix : -1;
+    }
+
+    // The values pane scrolls its stats pane along (the one bar for both): Scroll_Hook calls
+    // FUN_005798b0 on the stats window (scroll x of the values pane, the bar's value) before the
+    // values pane's own call. The DLL kept the stats window FUN_005a10e0 last returned at
+    // 0x0048120d (NN_Dealer "InfoCard_Stats") or 0x004b7d4e (NN_ShipTrader
+    // "ShipInfoCard_Stats"); the port finds that sibling by name, so no stale pointer is kept.
+    void ScrollerFollowValues(BaseRichTextWin* Values, int Value)
+    {
+        int const Prefix = ScrollerValuesPrefix(Values->GetName());
+        if (Prefix < 0 || Values->GetParent() == nullptr)
+            return;
+        char const* const StatsName = (Prefix != 0) ? "ShipInfoCard_Stats" : "InfoCard_Stats";
+        for (Win3D* Walk = Values->GetParent()->GetChildHead(); Walk != nullptr;
+             Walk = Walk->GetNextSibling())
+        {
+            if (strcmp(Walk->GetName(), StatsName) == 0)
+            {
+                BaseRichTextWin* const Stats = dynamic_cast<BaseRichTextWin*>(Walk);
+                if (Stats != nullptr)
+                {
+                    int ScrollX = 0;
+                    int ScrollY = 0;
+                    Values->GetScrollOrigin(&ScrollX, &ScrollY);
+                    Stats->SetScrollOrigin(ScrollX, Value);
+                }
+                return;
+            }
+        }
+    }
+}
+#endif
+
 bool BaseRichTextWin::Slot23(unsigned Msg, unsigned A, unsigned B)
 {
     // FUN_0057afd0 (RET 0xc). 0xf005 is a scrollbar's value change; A is the sender.
@@ -448,6 +494,11 @@ bool BaseRichTextWin::Slot23(unsigned Msg, unsigned A, unsigned B)
     {
         if (A == static_cast<unsigned>(reinterpret_cast<uintptr_t>(ScrollBarV)))
         {
+#ifdef FREELANCER_ADOXA
+            // Port-only, adoxa's scroller (docs/adoxa.md; Scroll_Hook on the call at 0x0057b003).
+            if (PORT_PLUGIN_ON("scroller"))
+                ScrollerFollowValues(this, static_cast<int>(ScrollBarV->GetValue()));
+#endif
             int const OriginX = ScrollX;
             SetScrollOrigin(OriginX, static_cast<int>(ScrollBarV->GetValue()));
             return true;
@@ -572,6 +623,14 @@ void BaseRichTextWin::GetScrollOrigin(int* OutScrollX, int* OutScrollY)
 void BaseRichTextWin::SetAutoScrollbar(bool bAuto)
 {
     // FUN_005799f0.
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's scroller (docs/adoxa.md; 0x00481208, the disp8 0x2c -> 0x10 that turns
+    // the last argument of FUN_005a10e0 for NN_Dealer's "InfoCard_Stats" into 0): that pane
+    // gets no scroll bar of its own -- the values pane's bar scrolls both. Its only
+    // SetAutoScrollbar call is the creation one (nn_dealer.cpp FUN_00480d10).
+    if (bAuto && PORT_PLUGIN_ON("scroller") && strcmp(GetName(), "InfoCard_Stats") == 0)
+        bAuto = false;
+#endif
     bAutoScrollbar = bAuto ? 1 : 0;
     bLayoutDirty = 1;
     bSurfaceDirty = 1;

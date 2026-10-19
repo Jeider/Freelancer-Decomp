@@ -55,6 +55,9 @@
 #include "win3d_render.h"     // Win3DApplyCamera (FUN_00422950)
 #include "win3d_renderables.h" // Win3DImmedDrawLine (FUN_005a2940)
 #include "x86math.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h"     // port-only adoxa plugins (numeric)
+#endif
 
 #include <cfloat>
 #include <cmath>
@@ -2829,6 +2832,9 @@ void HudTargetableObjects::DrawOnScreenTarget(IObjRW* Object, FHudContactRecord 
         Simple = nullptr;
     float Health = 0.0f;           // [ESP+0x4c]
     float ShieldFraction = 0.0f;   // [ESP+0x2c]
+#ifdef FREELANCER_ADOXA
+    float NumericShieldCur = 0.0f; // numeric: [ESP+0x70] read after the block
+#endif
     if (Simple != nullptr)
     {
         Health = Simple->get_relative_health();
@@ -2841,8 +2847,36 @@ void HudTargetableObjects::DrawOnScreenTarget(IObjRW* Object, FHudContactRecord 
             if (ShieldMax > 0.0f)
                 ShieldFraction = static_cast<float>(static_cast<double>(ShieldCur) /
                                                     static_cast<double>(ShieldMax));
+#ifdef FREELANCER_ADOXA
+            NumericShieldCur = ShieldCur;
+#endif
         }
     }
+
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's numeric (docs/adoxa.md; copy_damage at 0x004ef771): the hit points
+    // behind the bars, shown under them next to the range. Hull only with a health bar and for a
+    // CEqObj (class & 0x103): hit_pts times the first CEArmor's hit_pts_scale; shield whenever
+    // its fraction is not zero (the dword at [ESP+0x2c]): the current shield. Both truncated
+    // (_ftol); 0 means "not shown".
+    int NumericHull = 0;
+    int NumericShield = 0;
+    if (PORT_PLUGIN_ON("numeric") && Simple != nullptr)
+    {
+        if (bHealthBar && (static_cast<unsigned>(Simple->ObjectClass) & 0x103u) == 0x103u)
+        {
+            double HullPoints = static_cast<double>(Simple->HitPts);
+            CEquip const* const Armor =
+                static_cast<CEqObj const*>(Simple)->EquipManager.FindFirst(EquipTypeArmor);
+            if (Armor != nullptr)
+                HullPoints *= static_cast<double>(
+                    static_cast<Archetype::Armor const*>(Armor->Arch)->HitPtsScale);
+            NumericHull = static_cast<int>(HullPoints);
+        }
+        if (ShieldFraction != 0.0f)
+            NumericShield = static_cast<int>(NumericShieldCur);   // [ESP+0x70]
+    }
+#endif
 
     // 0x004ef771..0x004ef7a8: a waypoint's bars sit 0.003 right (DAT_005d3e90) and 0.04 down.
     if (bWaypoint)
@@ -2937,6 +2971,36 @@ void HudTargetableObjects::DrawOnScreenTarget(IObjRW* Object, FHudContactRecord 
     }
     DrawRangeLabel(&G_HudZeroVector, Radius, Record, static_cast<int>(Record->Distance),
                    &RangePoint);
+
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's numeric (docs/adoxa.md; display_damage at 0x004efd8e): the range text
+    // control again, 0.1 below the range (double 0x005c7720) -- the hull 0.05 to its left
+    // (DAT_005cb88c), the shield 0.1 further right -- "%d" (0x005d7c04) through the number-string
+    // setter (FUN_0058a580), placed (slot 42, property 5) and drawn (slot 13).
+    if (NumericHull != 0 || NumericShield != 0)
+    {
+        Vector NumberPoint = RangePoint;
+        NumberPoint.y = static_cast<float>(static_cast<double>(NumberPoint.y) - 0.1);
+        NumberPoint.x = static_cast<float>(static_cast<double>(NumberPoint.x) -
+                                           static_cast<double>(0.05f));
+        char NumberText[12];
+        if (NumericHull != 0)
+        {
+            sprintf(NumberText, "%d", NumericHull);
+            static_cast<NnTextControl*>(ReticleRangeText)->SetNumberText(NumberText);
+            ReticleRangeText->SetProperty(5, reinterpret_cast<uintptr_t>(&NumberPoint), 0);
+            ReticleRangeText->Draw();
+        }
+        NumberPoint.x = static_cast<float>(static_cast<double>(NumberPoint.x) + 0.1);
+        if (NumericShield != 0)
+        {
+            sprintf(NumberText, "%d", NumericShield);
+            static_cast<NnTextControl*>(ReticleRangeText)->SetNumberText(NumberText);
+            ReticleRangeText->SetProperty(5, reinterpret_cast<uintptr_t>(&NumberPoint), 0);
+            ReticleRangeText->Draw();
+        }
+    }
+#endif
 
     // 0x004efd93..0x004efddf: the ship behind the object (class & 0x503) and whether a player
     // owns it (CSimple +0xb4).

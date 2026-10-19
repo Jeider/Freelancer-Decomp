@@ -955,6 +955,15 @@ void NeuroNetNavMap::Draw()
         if (IsShown(Tools[Index]))
             Tools[Index]->Draw();
     }
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x0049293d NavMap_Patch2 / 0x004932fe):
+    // the tool list copied into a buffer with the house labels appended, drawn after the tools.
+    for (size_t Index = 0; Index < G_NavMapTerritoryLabels.size(); ++Index)
+    {
+        if (IsShown(G_NavMapTerritoryLabels[Index]))
+            G_NavMapTerritoryLabels[Index]->Draw();
+    }
+#endif
     for (int Index = 0; Index < 8; ++Index)
     {
         WinControl* const Letter = GridLetters[Index];

@@ -73,6 +73,34 @@ Retail: таблица опций (`FUN_005792b0`, 71 строка) только
 
 Порт с define: `dbg_options.cpp` (окно по Ctrl+Shift+O через `KeyMapRouteInputMessage`, рисуется в конце кадра; контуры после эффектов в `SpaceObjDrawPass`), Common `common_dbg_outlines.cpp` (рёбра IVP-оболочек, физические сферы и фантомы). `HOTSPOTS` не перенесено. Собрано, не запускалось.
 
+## Клиент / Common / Server / Content: плагины adoxa (ADOXA, 2026-10-20)
+
+Статус: OPEN — намеренные возможности порта, добавлены по запросу в форке Jeider/Freelancer-Decomp. Владелец: мейнтейнер этого форка. Условие снятия: только явное указание владельца. Все изменения под `FREELANCER_ADOXA` (`FreelancerAdoxa`), каждый плагин переключается во время работы в `port.ini [Plugins]` (без ключа — выключен); при 0 модули — retail. Описание и таблица патчей: [../adoxa.md](../adoxa.md).
+
+Retail: поведения плагинов нет (lane_speed, critical_hit, износ по damage_per_fire, сопротивление оборудования, ремонтные зоны, причалы, ключи стыковки, лимиты боеприпасов, классы двигателей, тексты territory, ...).
+
+Порт с define: логика плагинов в функциях, которые они патчили (список в adoxa.md), по последним публичным исходникам; отличия от плагинов перечислены там же. Собрано, не запускалось.
+
+## Клиент / Common / Server / Content: другие плагины мода и правки сервера (MOD-PLUGINS, 2026-10-20)
+
+Статус: OPEN — намеренные возможности порта, добавлены по запросу в форке Jeider/Freelancer-Decomp. Владелец: мейнтейнер этого форка. Условие снятия: только явное указание владельца. Под `FREELANCER_MOD_PLUGINS` (`FreelancerModPlugins`), переключаются в `port.ini [Plugins]`, `[ModServer]` и `[WingAnim]`. Описание: [../mod_plugins.md](../mod_plugins.md).
+
+Retail: одна общая скорость круиза; нет клавиши маскировки; оружие не стреляет в круизе; энергетический урон всегда есть; полосы урона взрыва по расстоянию; радиусы видимости 2500/5000 м; сфера обновления 10000; сейвы FLS1 в `Accts`; `use_animation` только в цикле.
+
+Порт с define: MultiCruise, Invisibility (`USER_CLOAK`), Interceptor, PowerDamage, правки server.dll мода как переключатели и система анимации крыла (`use_animation_oneshot`, `wing_anim.cpp`) вместо AnimKey. Собрано, не запускалось.
+
+## Клиент / Common: переключение языка (LANGUAGE, 2026-10-20)
+
+Статус: OPEN — намеренная возможность порта, добавлена по запросу в форке Jeider/Freelancer-Decomp. Владелец: мейнтейнер этого форка. Условие снятия: только явное указание владельца. Под `FREELANCER_LANGUAGE` (`FreelancerLanguage`). Описание: [../language.md](../language.md).
+
+Retail: ini клиента — литерал `Freelancer.ini` (`FUN_005621a0`), ресурсная DLL — `resources.dll` (`WinMain`); `INI_Reader::open` открывает переданный путь.
+
+Порт с define: `port.ini [Language]` (или `-lang:xx`) выбирает `freelancer_ini`, `resources`, `data_overlay` (ini из `..\DATA\` читаются из папки-слоя, если они там есть), `skip_any_cutscene` (правка русского exe по `0x0045685f`) и языковые файлы плагинов. Собрано, не запускалось.
+
+## Клиент: консоль и камера на объект из беты (DBG-OPTIONS, 2026-10-20)
+
+Статус: OPEN — часть записи DBG-OPTIONS выше (тот же define и владелец). В ретейле нет ни того, ни другого. Порт: `dbg_console.cpp` (`` ` ``; `TimeScale` умножает ограниченный dt кадра в одиночной игре в `client_timing.cpp`, как бета `0x00427bf0`) и `dbg_chase_camera.cpp` (Ctrl+Shift+C; ветка `"chase"` в `SwitchSpaceCameraMode`, объект камеры вне `SpaceApp`). Описание: [../dbg_options.md](../dbg_options.md). Собрано, не запускалось.
+
 ## SoundManager / SoundStreamer: Fraunhofer ACM (decode only) (SOUND-ACM-DECODE-ONLY, 2026-10-10)
 
 Статус: ЖИВО — намеренное отклонение по прямому запросу владельца. Владелец: Giperion; SoundManager.dll / SoundStreamer.dll. Условие снятия: только явное указание Giperion; не закрывать при обычном аудите соответствия retail.

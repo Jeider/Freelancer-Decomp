@@ -1169,6 +1169,9 @@ void IServerImpl::GFGoodSell(const SGFGoodSellInfo& info, unsigned int session_i
     // SystemSwitchOutComplete -- retail .text:06cef600 .. 06cef9d6 (RET 8): the
     // player's ship has finished the jump-out animation at a gate/hole; move it
     // into the destination system at the arrival object.
+#ifdef FREELANCER_DBG_OPTIONS
+bool PortConsoleTakeSystemSwitch(unsigned ShipId, unsigned& OutSystem, Vector& InOutPos, Matrix& InOutOrient); // server_port_console.cpp
+#endif
 void IServerImpl::SystemSwitchOutComplete(unsigned int ship_id, unsigned int session_id) {
         // .text:06cef609 .. 06cef63f -- PlayerDB::is_valid inlined: sid != 0 (JBE),
         // sid - 1 < max (JNC), client_id (+0x348) != 0 -- PlayerDB_GetPlayer's null.
@@ -1195,6 +1198,50 @@ void IServerImpl::SystemSwitchOutComplete(unsigned int ship_id, unsigned int ses
                                      (static_cast<unsigned int>(ShipRaw->ObjectClass) & 3u) == 3u)
                                         ? static_cast<CSimple*>(ShipRaw) : nullptr;
         if (ShipSimple->OwnerPlayer != session_id) return;
+
+#ifdef FREELANCER_DBG_OPTIONS
+        // Port-only: the console's "system" command (adoxa's console.dll patched this function
+        // at server+0xf600 to ignore the exit object and use its own system and position). The
+        // ship moves without a gate; the arrival object is none and the autosave is skipped.
+        {
+            unsigned int ConsoleSystem = 0;
+            Vector ConsolePos;
+            ConsolePos.x = ConsolePos.y = ConsolePos.z = 0.0f;
+            Matrix ConsoleOrient = Matrix(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+            if (PortConsoleTakeSystemSwitch(ship_id, ConsoleSystem, ConsolePos, ConsoleOrient))
+            {
+                StarSystem* const ConsoleDest = SysDB_LookupSystem(ConsoleSystem);
+                if (ConsoleDest == nullptr)
+                    return;
+                unsigned int ConsoleMsg25[3] = {ship_id, 0u, Sys->SystemInfo->NicknameId};
+                Server_ControllerDispatch(0, pub::Controller::EMessage::Msg0x25, ConsoleMsg25);
+                PhySys::CreateParms ConsoleParms = {};
+                ConsoleParms.Mass = 1.0f;
+                ConsoleParms.LinearDamping = PhySys::DEFAULT_LINEAR_DAMPING;
+                ConsoleParms.AngularDamping[0] = PhySys::DEFAULT_ANGULAR_DAMPING.x;
+                ConsoleParms.AngularDamping[1] = PhySys::DEFAULT_ANGULAR_DAMPING.y;
+                ConsoleParms.AngularDamping[2] = PhySys::DEFAULT_ANGULAR_DAMPING.z;
+                ConsoleParms.Type = 2;
+                ConsoleParms.bEnableCollisions = 1;
+                Sys->remove_ship(Obj, &ConsoleParms);
+                Sys->player_switched_out(session_id, ConsoleSystem);
+                ConsoleDest->add_player(session_id);
+                ConsoleDest->add_ship(Obj, &ConsoleParms, ConsolePos, ConsoleOrient);
+                ConsoleDest->arrive_ship(Obj, nullptr, ConsolePos, ConsoleOrient);
+                p->system_id = ConsoleSystem;
+                unsigned int ConsoleMsg3b[7];
+                ConsoleMsg3b[0] = ConsoleDest->SystemInfo->NicknameId;
+                ConsoleMsg3b[1] = Sys->SystemInfo->NicknameId;
+                ConsoleMsg3b[2] = session_id;
+                ConsoleMsg3b[3] = 0;
+                std::memcpy(&ConsoleMsg3b[4], &ConsolePos.x, sizeof(float));
+                std::memcpy(&ConsoleMsg3b[5], &ConsolePos.y, sizeof(float));
+                std::memcpy(&ConsoleMsg3b[6], &ConsolePos.z, sizeof(float));
+                Server_ControllerDispatch(0, pub::Controller::EMessage::SystemEnter, ConsoleMsg3b);
+                return;
+            }
+        }
+#endif
 
         // .text:06cef6be .. 06cef702 -- the gate is the ship's +0x90 (read off the
         // wrapper with no class test), found in this system under type mask 0xc40

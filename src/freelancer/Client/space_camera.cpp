@@ -14,6 +14,9 @@
 // controller SpaceApp (space_app.h), built by its ctor FUN_00549300.
 
 #include "space_camera.h"
+#ifdef FREELANCER_DBG_OPTIONS
+#include "dbg_chase_camera.h" // port-only beta chase camera
+#endif
 #include "space_camera_third.h"
 #include "space_camera_first.h"
 #include "space_camera_turret.h"
@@ -664,6 +667,20 @@ FSpaceCamera* SwitchSpaceCameraMode(const char* ModeName, void* AttachTarget)
     {
         Selected = kSpaceCameraDocking;
     }
+#ifdef FREELANCER_DBG_OPTIONS
+    else if (strcmp(Name, "chase") == 0)
+    {
+        // Port-only: the beta's ChaseCamera (beta Space::SetCamera 0x00529950 "chase" branch:
+        // the "Arrow" cursor, the draw latch off). It lives outside the controller.
+        FSpaceCamera* const Chase = DbgChaseCamera();
+        if (Chase == nullptr)
+            return nullptr;
+        MouseSetCursor("Arrow", true);
+        SetClientMouseCursorDrawFlag(0);
+        InstallSpaceCamera(Chase, false);
+        return Chase;
+    }
+#endif
     else
     {
         // Unknown name: retail returns immediately without even touching the cursor.

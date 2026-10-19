@@ -18,8 +18,21 @@
 #include "win3d_immediate.h"
 #include "win3d_renderables.h" // UiOverlayPrepPipeline
 
+#include "client_state.h"     // QueueLoadGameCharacter (load)
+#include "game_options.h"      // kGameOptDisableCollide (ghost)
+#include "ids_strings.h"       // GetIdsStringW (base / system names)
+#include "nav_bar.h"           // NavBar (launch)
+#include "player_behavior.h"   // GetPlayerObjRW
+#include "space_state.h"       // SetPendingJumpSystem (system)
+#include "win3d.h"             // Win3DFindByName
+
 #include "common_cobject.h"
-#include "common_misc.h"       // SinglePlayer
+#include "common_id.h"
+#include "common_misc.h"       // SinglePlayer, GetUserDataPath
+#include "common_server_types.h" // CHARACTER_ID
+#include "common_universe.h"
+#include "port_config.h"
+#include "port_console_api.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -168,6 +181,311 @@ namespace
         PostQuitMessage(0);
     }
 
+    // ---- adoxa's console.dll commands (save, load, base, system, jump, launch, ghost) -------
+
+    FPortConsoleServerFn ServerConsole()
+    {
+        // Single player loads Server.dll into the process; the client does not link it.
+        HMODULE const Server = GetModuleHandleA("server.dll");
+        return Server != nullptr ? reinterpret_cast<FPortConsoleServerFn>(GetProcAddress(Server, PORT_CONSOLE_SERVER_EXPORT))
+                                 : nullptr;
+    }
+
+    bool InSpace()
+    {
+        return GetPlayerObjRW() != nullptr && GetPlayerShipObject() != nullptr;
+    }
+
+    std::wstring Widen(char const* Text)
+    {
+        wchar_t Wide[256];
+        MultiByteToWideChar(CP_ACP, 0, Text, -1, Wide, 256);
+        return Wide;
+    }
+
+    bool ContainsNoCase(std::wstring const& Text, std::wstring const& Part)
+    {
+        if (Part.empty() || Text.size() < Part.size())
+            return false;
+        for (size_t At = 0; At + Part.size() <= Text.size(); ++At)
+            if (_wcsnicmp(Text.c_str() + At, Part.c_str(), Part.size()) == 0)
+                return true;
+        return false;
+    }
+
+    // console.dll fl_name: "" or one character -> "qsave<c>.fl", "Quick Save <c>"; else
+    // "<CreateID>.fl" with the text as the description.
+    void SaveName(char const* Desc, char* File, size_t FileSize, std::wstring& Description)
+    {
+        if (Desc[0] == '\0' || Desc[1] == '\0')
+        {
+            char Slot = Desc[0] == ':' ? '?' : static_cast<char>(std::toupper(static_cast<unsigned char>(Desc[0])));
+            _snprintf(File, FileSize - 1, "qsave%s%c.fl", "", Slot);
+            if (Slot == '\0')
+                _snprintf(File, FileSize - 1, "qsave.fl");
+            File[FileSize - 1] = '\0';
+            Description = L"Quick Save";
+            if (Slot != '\0')
+            {
+                Description += L' ';
+                Description += static_cast<wchar_t>(Slot);
+            }
+        }
+        else
+        {
+            _snprintf(File, FileSize - 1, "%x.fl", CreateID(Desc));
+            File[FileSize - 1] = '\0';
+            Description = Widen(Desc);
+        }
+    }
+
+    void CmdSave(char const* Args)
+    {
+        FPortConsoleServerFn const Server = ServerConsole();
+        if (Server == nullptr || !SinglePlayer())
+        {
+            Printf("* Single player only.");
+            return;
+        }
+        char File[64];
+        std::wstring Description;
+        SaveName(Args, File, sizeof(File), Description);
+        FPortConsoleSave Save = {File, Description.c_str()};
+        Printf(Server(kPortConsoleSave, &Save) ? "Game saved (%s)." : "* Save failed (%s).", File);
+    }
+
+    void CmdLoad(char const* Args)
+    {
+        char File[64];
+        std::wstring Description;
+        SaveName(Args, File, sizeof(File), Description);
+        char Path[512] = {};
+        GetUserDataPath(Path);
+        char Folder[64];
+        PortConfigString("ModServer", "account_folder", "Accts", Folder, sizeof(Folder));
+        std::strncat(Path, "\\", sizeof(Path) - std::strlen(Path) - 1);
+        std::strncat(Path, Folder, sizeof(Path) - std::strlen(Path) - 1);
+        std::strncat(Path, "\\SinglePlayer\\", sizeof(Path) - std::strlen(Path) - 1);
+        std::strncat(Path, File, sizeof(Path) - std::strlen(Path) - 1);
+        if (GetFileAttributesA(Path) == INVALID_FILE_ATTRIBUTES)
+        {
+            Printf("* Game not found (%s).", File);
+            return;
+        }
+        CHARACTER_ID Character;
+        std::strncpy(Character.Buffer, File, sizeof(Character.Buffer) - 1);
+        QueueLoadGameCharacter(&Character, true);
+        G_bOpen = false;
+    }
+
+    Universe::IBase* FindBase(char const* Name)
+    {
+        // console.dll cmdBase: the nickname, else the first base whose name contains the text
+        // (not the intro bases).
+        unsigned const Id = CreateID(Name);
+        std::wstring const Part = Widen(Name);
+        Universe::IBase* Partial = nullptr;
+        for (Universe::IBase* Base = Universe::GetFirstBase(); Base != nullptr; Base = Universe::GetNextBase())
+        {
+            if (Base->GetId() == Id)
+                return Base;
+            if (Partial == nullptr && _strnicmp(Base->GetNickname(), "intro", 5) != 0)
+            {
+                wchar_t Text[128] = {};
+                GetIdsStringW(static_cast<unsigned>(Base->GetStridName()), Text, 128);
+                if (ContainsNoCase(Text, Part) || ContainsNoCase(Widen(Base->GetNickname()), Part))
+                    Partial = Base;
+            }
+        }
+        return Partial;
+    }
+
+    Universe::ISystem* FindSystem(char const* Name)
+    {
+        unsigned const Id = CreateID(Name);
+        std::wstring const Part = Widen(Name);
+        Universe::ISystem* Partial = nullptr;
+        for (Universe::ISystem* System = Universe::GetFirstSystem(); System != nullptr; System = Universe::GetNextSystem())
+        {
+            if (System->GetId() == Id)
+                return System;
+            if (Partial == nullptr)
+            {
+                wchar_t Text[128] = {};
+                GetIdsStringW(static_cast<unsigned>(System->GetStridName()), Text, 128);
+                if (ContainsNoCase(Text, Part) || ContainsNoCase(Widen(System->GetNickname()), Part))
+                    Partial = System;
+            }
+        }
+        return Partial;
+    }
+
+    void CmdBase(char const* Args)
+    {
+        if (*Args == '\0')
+        {
+            Printf("base <nickname or part of the name>");
+            return;
+        }
+        if (!InSpace())
+        {
+            Printf("* Launch first (base works in space).");
+            return;
+        }
+        Universe::IBase* const Base = FindBase(Args);
+        if (Base == nullptr)
+        {
+            Printf("* Base not found.");
+            return;
+        }
+        FPortConsoleServerFn const Server = ServerConsole();
+        unsigned const Id = Base->GetId();
+        if (Server == nullptr || Server(kPortConsoleForceLand, &Id) != kPortConsoleOk)
+        {
+            Printf("* Landing failed.");
+            return;
+        }
+        Printf("Landing at %s.", Base->GetNickname());
+    }
+
+    bool ReadVector(char const*& Text, Vector& Out)
+    {
+        float Values[3] = {};
+        int Count = 0;
+        while (Count < 3)
+        {
+            while (*Text == ' ' || *Text == ',')
+                ++Text;
+            char* End = nullptr;
+            double const Value = std::strtod(Text, &End);
+            if (End == Text)
+                break;
+            Values[Count++] = static_cast<float>(Value);
+            Text = End;
+        }
+        Out.x = Values[0];
+        Out.y = Values[1];
+        Out.z = Values[2];
+        return Count > 0;
+    }
+
+    void CmdSystem(char const* Args)
+    {
+        // console.dll cmdSystem: system [x,y,z [rx,ry,rz] | object]; without a position the
+        // ship keeps its coordinates.
+        if (*Args == '\0')
+        {
+            Printf("system <nickname or part of the name> [x,y,z [rx,ry,rz] | object]");
+            return;
+        }
+        if (!InSpace())
+        {
+            Printf("* Launch first (system works in space).");
+            return;
+        }
+        char Name[64] = {};
+        int Length = 0;
+        while (Args[Length] != '\0' && Args[Length] != ' ' && Length < 63)
+        {
+            Name[Length] = Args[Length];
+            ++Length;
+        }
+        char const* Rest = Args + Length;
+        while (*Rest == ' ')
+            ++Rest;
+        Universe::ISystem* const System = FindSystem(Name);
+        if (System == nullptr)
+        {
+            Printf("* System not found.");
+            return;
+        }
+        FPortConsoleSystem Switch = {};
+        Switch.System = System->GetId();
+        Switch.Orient = Matrix(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+        if (std::isdigit(static_cast<unsigned char>(*Rest)) || *Rest == '-' || *Rest == ',')
+        {
+            Switch.Mode = 1;
+            ReadVector(Rest, Switch.Pos);
+            Vector Rotation;
+            if (ReadVector(Rest, Rotation))
+                Switch.Orient = EulerMatrix(Rotation);
+        }
+        else if (*Rest != '\0')
+        {
+            Switch.Mode = 2;
+            std::strncpy(Switch.Object, Rest, sizeof(Switch.Object) - 1);
+        }
+        FPortConsoleServerFn const Server = ServerConsole();
+        if (Server == nullptr || Server(kPortConsoleSystem, &Switch) != kPortConsoleOk)
+        {
+            Printf("* Single player only.");
+            return;
+        }
+        unsigned const Id = Switch.System;
+        SetPendingJumpSystem(&Id, false);
+        Printf("Switching to %s.", System->GetNickname());
+    }
+
+    void CmdJump(char const* Args)
+    {
+        // console.dll cmdJump: jump [forward,right,up | object]; nothing = the target.
+        FPortConsoleJump Jump = {};
+        if (std::isdigit(static_cast<unsigned char>(*Args)) || *Args == '-' || *Args == ',')
+        {
+            Jump.Mode = 1;
+            ReadVector(Args, Jump.Offset);
+        }
+        else if (*Args != '\0')
+        {
+            Jump.Mode = 2;
+            std::strncpy(Jump.Object, Args, sizeof(Jump.Object) - 1);
+        }
+        FPortConsoleServerFn const Server = ServerConsole();
+        if (Server == nullptr)
+        {
+            Printf("* Single player only.");
+            return;
+        }
+        switch (Server(kPortConsoleJump, &Jump))
+        {
+        case kPortConsoleNotInSpace: Printf("* Not in space."); break;
+        case kPortConsoleNoTarget: Printf("* No target."); break;
+        case kPortConsoleObjectNotFound: Printf("* Object not found."); break;
+        default: break;
+        }
+    }
+
+    void CmdLaunch(char const*)
+    {
+        // console.dll cmdLaunch: what clicking the launch tab does (NavBar case 4, 0x00440f94).
+        Win3D* const Found = Win3DFindByName("NavBar");
+        if (Found == nullptr)
+        {
+            Printf("* Not in a base.");
+            return;
+        }
+        NavBar* const Bar = static_cast<NavBar*>(Found);
+        for (FNavBarButton& Button : Bar->Buttons)
+        {
+            if (Button.Type == 4 && Button.Hotspot == nullptr)
+            {
+                G_bOpen = false;
+                Bar->OnButtonClicked(&Button);
+                return;
+            }
+        }
+        Printf("* No launch button.");
+    }
+
+    void CmdGhost(char const*)
+    {
+        // console.dll cmdGhost toggled the DISABLE_COLLIDE option (DAT_00679cc4); the player's
+        // ship update applies it (client_gameobj.cpp, 0x00545092).
+        int& Option = g_display.options[kGameOptDisableCollide];
+        Option = Option != 0 ? 0 : 1;
+        Printf(Option != 0 ? "Ghost on: no collisions." : "Ghost off.");
+    }
+
     FCommand const kCommands[] = {
         {"help", "h", "list the commands", &CmdHelp},
         {"TimeScale", "ts", "[scale] slow down / speed up the single-player game (1 = normal)", &CmdTimeScale},
@@ -178,6 +496,13 @@ namespace
         {"quiet", "q", "toggle command output", &CmdQuiet},
         {"pos", "p", "the player's position", &CmdPos},
         {"quit", nullptr, "quit the game", &CmdQuit},
+        {"save", "s", "[name | 1-9] save the game (in space too)", &CmdSave},
+        {"load", "l", "[name | 1-9] load a game saved with save", &CmdLoad},
+        {"base", nullptr, "<name> land at a base", &CmdBase},
+        {"system", nullptr, "<name> [x,y,z [rx,ry,rz] | object] move to another system", &CmdSystem},
+        {"jump", "j", "[forward,right,up | object] move in this system (nothing: to the target)", &CmdJump},
+        {"launch", nullptr, "launch from the base", &CmdLaunch},
+        {"ghost", nullptr, "toggle the ship's collisions", &CmdGhost},
     };
 
     void CmdHelp(char const*)
@@ -240,7 +565,32 @@ namespace
     }
 }
 
-bool DbgConsoleHandleMessage(unsigned Message, unsigned Wparam)
+namespace
+{
+    // The console eats the key-down while open, so the pump skips TranslateMessage and no
+    // WM_CHAR follows: the character is produced here from the key, the scan code and the
+    // current keyboard layout, and converted to the ANSI code page the window uses.
+    void TypeKey(unsigned Wparam, unsigned Lparam)
+    {
+        BYTE State[256];
+        if (!GetKeyboardState(State))
+            return;
+        // Ctrl / Alt combinations are commands, not text.
+        if ((State[VK_CONTROL] & 0x80) != 0 || (State[VK_MENU] & 0x80) != 0)
+            return;
+        wchar_t Wide[4] = {};
+        int const Count = ToUnicodeEx(Wparam, (Lparam >> 16) & 0xff, State, Wide, 4, 0, GetKeyboardLayout(0));
+        if (Count != 1 || Wide[0] < 0x20)
+            return;
+        char Narrow[4] = {};
+        if (WideCharToMultiByte(CP_ACP, 0, Wide, 1, Narrow, sizeof(Narrow), nullptr, nullptr) != 1)
+            return;
+        if (static_cast<int>(G_Input.size()) < kMaxInput)
+            G_Input += Narrow[0];
+    }
+}
+
+bool DbgConsoleHandleMessage(unsigned Message, unsigned Wparam, unsigned Lparam)
 {
     if (!G_bOpen)
     {
@@ -255,17 +605,8 @@ bool DbgConsoleHandleMessage(unsigned Message, unsigned Wparam)
         return false;
     }
 
-    if (Message == WM_CHAR || Message == WM_SYSCHAR)
-    {
-        // Beta 0x005551c0: printable characters; backquote, backspace, return and tab are keys.
-        // The window is ANSI (RegisterClassA), so the character is a code-page byte; the
-        // toggle key's own character (` / ~, or cp1251 ё / Ё) is not typed.
-        unsigned char const Char = static_cast<unsigned char>(Wparam);
-        if (Char >= 0x20 && Char != '`' && Char != '~' && Char != 0xb8 && Char != 0xa8 &&
-            static_cast<int>(G_Input.size()) < kMaxInput)
-            G_Input += static_cast<char>(Char);
-        return true;
-    }
+    if (Message == WM_CHAR || Message == WM_SYSCHAR || Message == WM_DEADCHAR)
+        return true; // text comes from TypeKey below
     if (Message != WM_KEYDOWN && Message != WM_SYSKEYDOWN)
         return Message == WM_KEYUP || Message == WM_SYSKEYUP;
 
@@ -318,6 +659,8 @@ bool DbgConsoleHandleMessage(unsigned Message, unsigned Wparam)
         }
         break;
     default:
+        // Beta 0x005551c0: every other key types its character (the toggle key never does).
+        TypeKey(Wparam, Lparam);
         break;
     }
     int const MaxScroll = static_cast<int>(G_Lines.size()) - G_Visible;
