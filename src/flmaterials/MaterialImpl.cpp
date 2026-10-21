@@ -8,6 +8,7 @@
 #include "engine/engbase.h" // IEngine
 #include "readfile.h"
 #include "render/shading.h" // ITextureLibrary2, IMaterialLibrary, IMatAnimLibrary, IImaInstance
+#include "render/IRPSurfaceContext.h"
 #include "x86math.h"        // I3DMathEngine
 
 #include <cctype>
@@ -1801,6 +1802,17 @@ namespace
         return WireDrawEdges(Pipeline, VertexBufferManager, Mesh, ColorFromP0, ColorFromP1, true);
     }
 
+    struct GlassSurfaceScope
+    {
+        IRPSurfaceContext* Surface=nullptr;
+        explicit GlassSurfaceScope(IRenderPipeline* Pipeline)
+        {
+            Pipeline->QueryInterface(Iids::RPSurfaceContext,reinterpret_cast<void**>(&Surface));
+            if(Surface) Surface->SetGlassSurface(1);
+        }
+        ~GlassSurfaceScope() {if(Surface) {Surface->SetGlassSurface(0);Surface->Release();}}
+    };
+
     // LAB_066f5dc0: Candidate forwarding or two passes. The resolved handle
     // is borrowed by reference because retail reloads it after draw/query calls.
     GENRESULT SubmitEnvMapGeometry(IRenderPipeline* Pipeline, IRPDraw* RpDraw, IVertexBufferManager* VbMgr,
@@ -1816,6 +1828,7 @@ namespace
             return ((IMaterial*)(Submit->Candidate))->Submit(Context, Prim, Start, Count,
                                                                       IbStart, IndexSpan, Flags);
 
+        GlassSurfaceScope GlassShader(Pipeline);
         Pipeline->SetRenderState(D3DRS_CULLMODE, 3);
         const GENRESULT Pass1 = FlmMeshDrawPass(Pipeline, RpDraw, VbMgr, Context, Prim, Start,
                                                Count, IbStart, IndexSpan, Flags);
@@ -1901,6 +1914,7 @@ namespace
         const unsigned long IndexSpan = IndexSpanArg;
         const unsigned long Flags = FlagsArg;
 
+        GlassSurfaceScope GlassShader(Pipeline);
         PipelineSetRenderState(Pipeline, D3DRS_CULLMODE, 3);
         const GENRESULT Pass1 = FlmMeshDrawPass(Pipeline, RpDraw, VbMgr, Context, Prim, Start,
                                                 Count, IbStart, IndexSpan, Flags);

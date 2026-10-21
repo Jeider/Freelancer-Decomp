@@ -37,6 +37,7 @@
 | `MatchPlayer` | MatchPlayer.dll: уровень встреч поднимается до половины ранга игрока | `FZonePopulation::ParseValue` (`06ef9066`) |
 | `callsign` | callsign.dll: позывной игрока (`port.ini [callsign] callsign = фракция [формация [n][-][n]]`) | `Gcs.cpp`: `gcs_refer_faction_*`, `gcs_refer_formationdesig_*`, `gcs_misc_dash`, два номера игрока |
 | `DisableAutoLevelToggle` | правка exe `0xdbe10 94 -> 95` («Disable auto-level toggling») | `HUD_Status::OnEvent`, case `0x3e` |
+| `DisableLevelCameraToggle` | правка exe `0x11a1d3 94 -> 95` («Disable level camera toggling») | `ThirdPersonCameraOnEvent` (`0x0051a1d2`), событие `0x3f`; вместе с парной правкой `0x005186e3` (1 -> 0) выравнивание камеры изначально выключено (конструктор камеры от третьего лица), а при появлении корабля оно выключается в камере и в менеджере поведения после flight_controls_fix из FLSharp — и крен jflp не выравнивается обратно |
 
 ## Интерфейс
 

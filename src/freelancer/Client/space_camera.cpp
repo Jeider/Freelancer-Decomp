@@ -44,6 +44,11 @@
 #include "common_iface.h"    // IObjRW (NotifyCinematicView)
 #include "common_server.h"   // IServer::SPRequestInvincibility (DAT_0067ecd0 slot 57)
 #include "x86math.h"         // I3DMathEngine::InverseTransform (slot 0x3c)
+#ifdef FREELANCER_PRECISE_RENDER
+#include "port_config.h"
+#include "port_precise_view.h"
+#include <windows.h>
+#endif
 
 #include <math.h>
 #include <stdlib.h>
@@ -1080,6 +1085,18 @@ float const* DACOM_API FSpaceCamera::GetViewTransform()
         this->ViewPos[2] = -Out.Z;
 
         this->bViewDirty = 0;
+#ifdef FREELANCER_PRECISE_RENDER
+        // Port-only: port.ini [Render] precise_view (port_precise_view.h).
+        static PortRegisterViewFn const S_Register = []() -> PortRegisterViewFn {
+            if (PortConfigInt("Render", "precise_view", 0) == 0)
+                return nullptr;
+            HMODULE const Math = GetModuleHandleA("x86math.dll");
+            return Math != nullptr ? reinterpret_cast<PortRegisterViewFn>(GetProcAddress(Math, PORT_REGISTER_VIEW_EXPORT))
+                                   : nullptr;
+        }();
+        if (S_Register != nullptr)
+            S_Register(this, this->View, this->WorldPos);
+#endif
     }
     return this->View;
 }

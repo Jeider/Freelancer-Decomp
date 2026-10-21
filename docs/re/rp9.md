@@ -821,3 +821,268 @@ wait for a shader reload, a failed target for an ini reload, the noise for a res
 - The first entry generates the noise on the CPU (a one-off hitch, the time is logged).
 - Hot reload is polled only in the space frame.
 - Bilinear filtering of the FP16 target is assumed (present on any D3D10-class GPU).
+
+
+### Optional volume alongside ring puffs
+
+An RP9 build accepts an optional section in a planet-ring INI:
+
+```ini
+[Volumetric]
+file = ..\DATA_EXTRA\VOLUMETRIC\li_cal_light_cloud_volume.ini
+```
+
+The file uses the nebula INI format (`[Fog]`, `[NebulaLight]`, optionally
+`[Clouds]`). Its volume shares the ring zone, uses its inscribed ellipsoid,
+and currently requires a solid RING (`size = outer_radius, 0, thickness`).
+Hollow rings are rejected instead of filling their hole. Existing ring puffs
+and meshes are still rendered independently. The companion does not enter
+the retail nebula/controller list: it sets no object fog, background colour,
+or fog far plane. The ring owns and destroys its companion on Clear/reload.
+
+Tune it with `[NebulaOverride] file = li_cal_light_cloud_volume` in
+`DATA_EXTRA/VOLUMETRIC/volumetric.ini`. This settings file hot-reloads in space;
+adding/changing the ring's `[Volumetric]` reference requires reloading the system.
+The supplied profile concentrates the volume within an 18 km march cap, with
+6.5 km cloud masses and 2.4 km puff-texture tiles. A zero-count `[Clouds]` block
+provides `crow_exterior1`, the original blue puff colours and drift without
+spawning additional billboards. `puff_texture_density`, `puff_texture_colour`
+and `puff_texture_scale` control the texture contribution. Its projection uses
+a wrapped camera-position/drift offset (c105), so it stays in world space and
+moves with the detail flow instead of following the camera. Lower key-light
+intensity and forward scattering reduce the glare toward the sun. Inspect this
+initial tuning profile in game.
+
+Global `[Nebula] enabled = 0` suppresses all volumes, including overrides;
+the original ring puffs continue. With `FreelancerRp9=0` or RP8 the extra section
+is ignored and the original ring path is retained. No UI quality selector is added.
+
+
+### Asset-family cloud styles
+
+`[NebulaStyle] name = crow` supplies the crow cloud look independently of the
+global defaults. The same mechanism recognises `edge` and `walker`; no presets
+for those families are supplied yet. The client detects a family once when
+registering a nebula, from `[Clouds] puff_shape` (`crow_`, `edge_`, `walker_`),
+falling back to the `[TexturePanels] file` base name. Generated nebula INIs do
+not need edits. Ring companions are classified by their own source INI too.
+
+Settings are resolved as global `[Nebula]`, then the matching `[NebulaStyle]`,
+then the explicitly listed keys of a `[NebulaOverride]`. An override may choose
+`style = crow` explicitly. Section and key order do not affect inheritance;
+styles hot-reload with the rest of volumetric.ini. The global enabled switch
+still disables all volumes. RP8 and builds without RP9 retain the retail path.
+
+`cloud_billow` (0..1, default 0) adds smaller rounded cellular lobes to the
+large cloud base using the noise volume's existing green channel. The CPU
+lightning-placement estimate, shadow probes and visible density use the same
+base shape; there is no extra texture fetch. Coverage remains approximate
+because the coverage histogram describes the original red-channel noise.
+Crow combines these lobes with round layers, weak edge erosion, dense cloud
+cores and subdued ambient/emissive light. Puff texture modulation is secondary.
+The li_cal ring inherits the style but uses larger, more transparent clouds
+than actual crow nebula zones. Visual matching to the supplied Lonestar frames
+requires in-game inspection; a still frame does not specify the animation speed.
+
+
+Crow tuning revision: lower coverage/extinction and a wider, thinner outer shell
+restore a more open exterior. Ambient illumination is raised while lightning
+is disabled, including the retail random ship-light flash while the volume is
+available. The ring's own puff lightning is disabled in its game-data INI.
+
+`cloud_near_fade_start/end` override the local cloud fade distances in metres;
+when set, the shader uses smoothstep instead of the original linear fade.
+Crow ramps over 0.5..4 km (ring: 0.9..4.5 km), to surround the ship progressively.
+`object_ambient_strength/scale` tint lit objects using the containing nebula's
+own `[NebulaLight] ambient`, with a smooth inward ramp over
+`ambient_blend_distance` metres. A smaller nebula takes precedence over a
+system-wide ring companion. Defaults leave the original ambient code intact.
+
+`dynamic_asteroid_fade_fraction` widens the fade band as a fraction of the
+recycling sphere's radius; `dynamic_asteroid_fade_seconds` limits fade-in speed
+from each fresh placement. Crow uses a 70% distance band and a four-second
+fade-in; fade-out follows the smooth spatial curve to zero before recycling.
+Collision, damage, asteroid count and spawn radius are unchanged. The cube
+asteroids' existing distance fade is widened separately to 65%.
+
+
+Crow background/distance revision: `background_scale` dims only the sky in a
+single pass before planets, asteroid meshes, ships and HUD. Overlapping volumes
+use the darkest requested scale once. The sky multiplier blends by zone immersion.
+`max_march_distance` is 45 km for crow nebulae and 30 km for the system-wide ring;
+`cloud_distance_fade` softens the last 12/10 km of those ranges. It fades relative
+to the march cap, never to an object's scene-depth endpoint. Exterior volumes
+fade over 30 km before the 90 km selection limit. These remain artistic limits,
+not an increase in ship or asteroid spawn counts.
+
+Crow now uses `replace_object_fog = 0` to preserve the original per-object fog
+and the mod's field/nebula placement, alongside the volumetric clouds. Lighting
+entries remain valid through the late ship/effect passes, with invalidation on
+nebula destruction, so the player receives the same ambient tint as other lit
+objects. `use_sun_burnthrough = 1` also uses `[NebulaLight]
+sun_burnthrough_intensity` for directional object lighting: the per-object GPU
+light colour is attenuated while the shared CPU light descriptor is restored.
+The upload is reset on leaving the volume and bookkeeping is removed with the
+light. The benchmark's ring companion uses intensity 0.5; the five ordinary
+li_cal nebula INIs already use 0.5. RP8 and disabled features retain their paths.
+
+The FL_MOD benchmark asteroid field INIs also require `[Field]
+contains_fog_zone = 1`: spatial overlap alone does not enable the retail asteroid
+ambient/fog pass. This is enabled for li_cal_ast1/2/3 and li_cal_pocket1 with
+backups; their zones, exclusions, counts and placement stay intact.
+
+The ordinary sun billboard also uses this intensity when a ring volume supplies
+the lighting. Inside a volumetric controller it yields to the controller's
+burn-through draw, avoiding a full-bright sprite plus a second burn-through
+sprite now that the old opaque fog overlay no longer covers the first one.
+
+
+### Crow hybrid: exterior, nearby volume, interior detail sprites
+
+The latest benchmark tuning separates the system ring from real nebulae. The
+ring uses density_scale 0.12, cloud_density 1 and coverage 0.2; its original
+ring puffs remain independent, at puff_max_alpha 0.22. It is a thin system haze.
+
+For ordinary crow nebulae, `exterior_radius_fraction = 0.1` limits volume
+selection to a small margin around each zone instead of a system-wide 90 km
+radius. It uses 10% of the smallest zone radius, capped by
+exterior_max_distance. With halo_extent 0.02 and shell_noise 0.03 the drawn
+bound is about 1.05 zone radii; the selection margin is slightly wider again.
+Across that margin a smoothstep raises the ray-marched volume from zero and
+complementarily lowers the original exterior bits and fill-sheet alpha.
+Outside it the original exterior alone remains. The volume marches at most
+10 km, fading cloud density over its last 4 km; it does not depict a distant
+dense interior. Actual zone size/orientation and exclusion masks remain.
+
+`hybrid_clouds = 1` moves the existing interior puff sprites into a separate
+pass after the volume composite, before other effects. Original puff counts,
+positions, shapes, drift, immersion fade and exclusions are preserved.
+`hybrid_puff_alpha = 0.22` adds restrained local detail; RP9 soft intersections,
+individual camera-facing quads and the particle sorting/fade settings provide
+the spatial detail. Puff lightning flashes stay suppressed during this pass.
+These are 2D textured quads distributed in 3D, not a new volumetric-impostor
+system or per-pixel shaded 3D meshes. Ray marching supplies the mass and
+self-shadowing; the sprites supply nearby texture and parallax. Families
+without hybrid_clouds retain their old drawing order and switch behaviour.
+
+### Crow atmospheric fog and system backdrop tuning
+
+Crow now uses `replace_object_fog = 1`: the existing depth-integrated volume
+replaces the retail linear object fog, which otherwise turns distant solars
+and static asteroids into opaque fog-coloured silhouettes behind fading
+dynamic asteroids. Haze transmittance is 0.8 per source `[Fog]` distance before
+the 0.85 density multiplier (about 0.827 afterwards, before cloud extinction).
+The ray marcher supplies exponential extinction, directional scattering and
+cloud shadows. Ambient tint, cloud shapes, the hybrid puff pass and the
+near-boundary entry crossfade remain. This reduces the silhouette contrast;
+it does not implement order-independent transparency for dynamic asteroids.
+
+The li_cal ring companion explicitly retains very thin haze (0.995), uses
+`background_scale = 1` to preserve the original sky brightness, and extends
+its sparse volume to 60 km, fading clouds over the last 45 km. Cloud masses
+are 14 km across with puff-texture detail and a 2--12 km near ramp, so the
+system backdrop continues into spatial clouds rather than a dark flat veil.
+Density 0.16, coverage 0.2 and brighter volume lighting keep this layer
+subtle; the companion's sun burn-through remains 0.5. Ordinary crow nebulae
+keep their 10 km march cap and 10% near-boundary selection margin. Runtime
+global settings are preserved when installing the two profile sections.
+
+### Bounded backdrop, distant fog transition and solar edge halo
+
+The follow-up benchmark gives the companion `backdrop_radius = 115000`:
+`RenderZoneScale` scales its rendering ellipsoid (preserving axis proportions),
+outside selection distance and inside classification consistently, leaving the
+600 km gameplay ring and its lighting zones intact. `backdrop_falloff = 0.35`
+sets its soft outer shell; existing shell noise supplies an irregular edge.
+The system volume starts fading in over 35--65 km along the camera ray,
+marches at most 180 km and fades over its last 80 km. Its 14 km cloud masses,
+coverage 0.42 and density 0.32 make the distant shape more readable while
+haze transmittance 0.9999 and background_scale 1 preserve the sky and sun.
+Only profiles opting into backdrop_radius use the separate rendering extent.
+
+Local crow restores strong atmospheric fog with haze transmittance 0.18,
+but `fog_ramp_start = 500` and `fog_ramp_distance = 5000` grow its density
+using smoothstep inside the ray integral. This replaces the instant opaque
+linear ramp without removing the distance fog. Isolated haze retains about
+94%, 31% and 5% of surface contrast at 2, 5 and 8 km respectively, before
+cloud extinction and exclusion zones. Cloud entry/crossfade is unchanged.
+`c106.xy` carries this ramp; zero ramp distance preserves earlier profiles.
+
+`sun_occlusion_halo = 0.18` enables an inexpensive, artistic partial-eclipse
+halo. Nine physics rays sample the actual centre sprite's disc, excluding
+the sun itself, shields and the cockpit player's hull. A modest expanded
+glow is strongest at partial visibility and absent at full visibility or
+full blockage. It draws with the sun so later opaque geometry still covers
+the blocked side. This is a diffraction/bloom approximation, not physical
+refraction or a screen-space light-shaft algorithm. No halo rays run when
+the setting is zero, the volume is disabled or RP9 is unavailable.
+
+The dynamic asteroid temporal fade now depends on distance: at the near
+end it takes 0.12 seconds; at the recycling edge it approaches the configured
+4 seconds. Crow's spatial fade occupies the outer 40% of the radius, leaving
+the inner 60% opaque. Counts, placement and collisions remain untouched.
+
+`port.ini [Render] solar_draw_distance = 50000` is the RP9 equivalent of
+patching the spatial render query at original file offset 0x213ec8
+(DAT_00613ec8). The inspected FL_ND/FL_ND/EXE/Freelancer.exe holds 10000
+there. Mesh LOD ranges, the camera far clip and the spatial query capacity
+remain separate limits; this does not globally rescale mesh LODs.
+The benchmark Trade_Lane_Ring already specifies LODranges 0,100000.
+
+Generator persistence: FL_MOD/Assets/Pythonlancer/universe/systems/li_cal.py
+now sets FIELD/ FIELD_TEMPLATE on CalAsteroidDefinition1 and adds
+contains_fog_zone to the CalGasPockets field template. The actual generator
+was checked to emit the flag for both definitions without regenerating the
+whole system. The generated gen_ nebula INIs have not been edited; the new
+render settings live in the separate DATA_EXTRA profile.
+
+Related references: GPU Gems 2, [Accurate Atmospheric Scattering](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-16-accurate-atmospheric-scattering),
+and GPU Gems 3, [Volumetric Light Scattering as a Post-Process](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-13-volumetric-light-scattering-post-process).
+These explain distance scattering and occlusion-driven light effects;
+the benchmark keeps its existing volume integrator and the simpler solar halo above.
+
+### Hollow outer shield and transparent gas mines
+
+The current system backdrop is a hollow ellipsoidal shell rather than a solid
+cloud body. `backdrop_inner_radius = 80000` and `backdrop_inner_fade = 12000`
+describe its clear inner cavity and smooth inner density ramp along the long
+axis; `backdrop_radius = 115000` and `backdrop_falloff = 0.18` bound the outer
+edge. Axis proportions still follow the source ring, so vertical radii are
+half these distances. Shell noise gently displaces the edge. `c106.zw` carries
+the inner radius and inverse fade in normalized volume space. The mask
+multiplies both cloud and haze density; ordinary nebulae default to no cavity.
+The companion keeps haze_tail disabled. Near fading is now 0--800 metres:
+the shell's world-space geometry, rather than a camera-following distance
+band, places the background behind the system. The original llight cloud
+puff INI, textures and independent draw path remain unchanged.
+
+California's explosive clouds are static `mine_oxygen` asteroid mines using
+mine_gas.3db / ast_gas_mine.mat in li_cal_pocket1. Their field max_alpha is
+0.3, so the existing cube renderer disables depth writes. Previously they
+drew before the volume, which saw the distant background depth and integrated
+the entire cloud bank over them. RP9 now queues inherently transparent cube
+fields while the volume is active and flushes them after the volume and its
+detail puffs. Each field restores its own ambient, fog and material, retains
+the depth test, and uses the source fill_dist instead of the opaque asteroid
+spawn extension. The queue clears on frame start and before flush, and falls
+back to immediate drawing if its 64 field slots are full. Dynamic asteroids,
+mine physics, textures, source alpha and explosion activation are unchanged.
+RP8 and disabled volume paths keep their existing draw order.
+
+The next backdrop preset doubles the long-axis shell thickness from 35 km
+to 70 km by preserving the 80 km cavity and moving the outer edge to 150 km.
+Inner fade is 24 km; the outer fade is 0.276 of the radius (41.4 km), so both
+transitions scale with the thicker body. Cloud cells are now 50 km across,
+compressed along the system up axis by layer_stretch 3.5 into broad sheets.
+Coverage 0.62, softness 0.7, erosion 0.12 and no billow connect the separate
+cloudlets; weaker puff modulation and a 48 km puff-texture tile retain texture
+without breaking the banks into many small blobs. Density 0.2 compensates
+for the longer path. The world-space shell controls the finite far edge;
+cloud_distance_fade is zero and the 320 km march cap covers the full body.
+Only the ring override changes; local crow, generated INIs and original
+llight cloud puffs keep their settings.
+
+Solar visibility, equipment cone sources, external light_anim and the proposed
+surface shader/local-shadow architecture are documented in
+[local_surface_lighting.md](local_surface_lighting.md). The material and shadow
+parts of that document are proposals; the solar/equipment fixes are implemented.

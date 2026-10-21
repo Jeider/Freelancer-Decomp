@@ -122,4 +122,11 @@ namespace Iids
     // means "Direct3D 8, use the retail path".
     static const char RenderPipelineEx[] = "RP9_IRenderPipelineEx";
     static const char RPDrawEx[] = "RP9_IRPDrawEx";
+    static const char RPSurfaceContext[] = "RP9_IRPSurfaceContext_v1";
+    static const char RPSurfaceShader[] = "RP9_IRPSurfaceShader_v1";
+    static const char AlchemyEffectColour[] = "Alchemy_IEffectColour_v1";
+    static const char AlchemyRenderOpacity[] = "Alchemy_IRenderOpacity_v1";
+    static const char RPWeaponGlints[] = "RP9_IRPWeaponGlints_v2";
+    static const char RPLocalShadows[] = "RP9_IRPLocalShadows_v1";
+    static const char RPFrameQuality[] = "RP9_IRPFrameQuality_v1";
 }

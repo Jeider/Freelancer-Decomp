@@ -57,6 +57,7 @@
 // s0: the INTZ scene depth (point, clamp). s1: the noise volume (linear, wrap).
 sampler2D SceneDepth : register(s0);
 sampler3D Noise : register(s1);
+sampler2D PuffTexture : register(s2); // the nebula's own puff shape (PuffTex.w = 1)
 
 float4 ProjZ : register(c0);         // projection z/w rows (RPExLinearDepth)
 float4 ViewRect : register(c1);      // camera viewport in target UV: x0, y0, width, height
@@ -80,7 +81,7 @@ float4 ShapeMore : register(c17);    // x warp amplitude (m), yz cloud near fade
 // The .w of c19 and c22 hold reciprocals of other constants: loop invariants computed in the
 // shader would each hold a temp register through the march (ps_3_0 has 32, all in use). The
 // same reason puts other derived values into constants (marked "see c19.w").
-float4 HazeAlbedo : register(c18);   // rgb haze albedo, w unused
+float4 HazeAlbedo : register(c18);   // rgb haze albedo, w custom smooth near fade
 float4 HazeEmission : register(c19); // rgb haze self-glow, w 1 / [Fog] near (0 = no clear radius)
 float4 CloudEmission : register(c20); // rgb cloud self-glow, w powder strength
 float4 PuffColourA : register(c21);  // rgb cloud albedo a, w powder factor (sigma * 2 * length)
@@ -155,6 +156,14 @@ float4 StarWeight : register(c101);
 // write depth while translucent: x the view depth where their alpha reaches 0, y 1 / the fade
 // band, z the view depth up to which a pixel can belong to such a cube (0 = none).
 float4 AsteroidFade : register(c102);
+// Fog ramp: x start, y inverse length. Hollow backdrop: z inner radius, w inverse edge width
+// in the ellipsoid's unit space; w = 0 preserves solid nebulae.
+float4 Atmosphere : register(c106);
+// The nebula's puff texture: x density weight, y colour weight, z 1 / tile (m), w 1 = bound;
+// PuffTexUv: the shape's atlas rectangle (u0, v0, du, dv).
+float4 PuffTex : register(c103);
+float4 PuffTexUv : register(c104);
+float4 PuffTexOffset : register(c105); // xyz texture drift offset, w rounded base-shape lobes
 
 FFullscreenVertex VSMain(float3 Position : POSITION, float2 TexCoord : TEXCOORD0)
 {
@@ -171,8 +180,8 @@ float3 NebulaToNoise(float3 P)
 // Base-shape cloud amount (no erosion) at a noise-space point: shadow rays and occlusion.
 float NebulaBaseCloud(float3 Pn)
 {
-    float Base = tex3Dlod(Noise, float4(Pn * BaseNoise.w + BaseNoise.xyz, 0.0)).r;
-    return NebulaCloudFromBase(Base, Shape.xy);
+    float2 Base = tex3Dlod(Noise, float4(Pn * BaseNoise.w + BaseNoise.xyz, 0.0)).rg;
+    return NebulaCloudFromBase(saturate(Base.x + (Base.y - 0.5) * PuffTexOffset.w), Shape.xy);
 }
 
 // One exclusion zone (centre + 1 / edge fraction, the three local rows, row 0's w the haze
@@ -193,6 +202,24 @@ void NebulaExclusionZone(float3 P, float4 Centre, float4 Row0, float3 Row1, floa
 // of zones to test there (z). DetailFade: 1 = full edge detail, 0 = its mean (far away).
 // LodF: the level of detail (0..1); far away the coverage ramp widens about its middle
 // (ShellMore.y): soft masses instead of hard-edged blotches.
+// The nebula's puff texture projected through the cloud space on three planes (each tiled into
+// the shape's atlas rectangle, inset half a percent against bleeding from its neighbours) and
+// blended by the axis the sample leans to: rgb colour, a coverage.
+float2 NebulaPuffTexture(float3 Pn)
+{
+    float3 Q = Pn * PuffTex.z + PuffTexOffset.xyz;
+    // Retain only coverage and brightness between texture fetches.
+    float4 Tx = tex2Dlod(PuffTexture,
+        float4(PuffTexUv.xy + (0.005 + 0.99 * frac(Q.xy)) * PuffTexUv.zw, 0.0, 0.0));
+    float2 Result = float2(Tx.a, RPExLuminance(Tx.rgb));
+    Tx = tex2Dlod(PuffTexture,
+        float4(PuffTexUv.xy + (0.005 + 0.99 * frac(Q.yz + 0.5)) * PuffTexUv.zw, 0.0, 0.0));
+    Result += float2(Tx.a, RPExLuminance(Tx.rgb));
+    Tx = tex2Dlod(PuffTexture,
+        float4(PuffTexUv.xy + (0.005 + 0.99 * frac(Q.zx + 0.25)) * PuffTexUv.zw, 0.0, 0.0));
+    return (Result + float2(Tx.a, RPExLuminance(Tx.rgb))) * (1.0 / 3.0);
+}
+
 void NebulaMedium(float3 P, float T, float3 ExRange, float DetailFade, float LodF,
                   out float Haze, out float Cloud, out float ColourNoise, out float3 Warped,
                   out float3 Local)
@@ -256,6 +283,15 @@ void NebulaMedium(float3 P, float T, float3 ExRange, float DetailFade, float Lod
     float Outer;
     float Profile = NebulaShellProfile(Qd, Shell.x, ShellMore.x, Outer);
     Haze = max(Profile, NebulaHalo(Qd, Halo.x, Halo.y, Halo.z)) * Thin * Clear;
+    // Reuse the clear-ramp temporary to stay within ps_3_0 register limits.
+    ClearT = saturate((T - Atmosphere.x) * Atmosphere.y);
+    Haze *= Atmosphere.y > 0.0 ? ClearT * ClearT * (3.0 - 2.0 * ClearT) : 1.0;
+    // A world-anchored outer cloud shell, with no medium in the central cavity.
+    // Reuse ClearT so the ps_3_0 march does not need another live temporary.
+    ClearT = saturate((Qd - Atmosphere.z) * Atmosphere.w);
+    ClearT = Atmosphere.w > 0.0 ? ClearT * ClearT * (3.0 - 2.0 * ClearT) : 1.0;
+    Haze *= ClearT;
+    Profile *= ClearT;
     // The halo holds no clouds: no warp / base lookups (the light probes start unwarped).
     float3 Pn = NebulaToNoise(P);
     Warped = Pn;
@@ -270,6 +306,8 @@ void NebulaMedium(float3 P, float T, float3 ExRange, float DetailFade, float Lod
     Warped = Pn + Warp * ShapeMore.x;
     float4 Base = tex3Dlod(Noise, float4(Warped * BaseNoise.w + BaseNoise.xyz, 0.0));
     ColourNoise = Base.a;
+    // A second scale of rounded cellular lobes builds cumulus-like cloud shoulders.
+    Base.r = saturate(Base.r + (Base.g - 0.5) * PuffTexOffset.w);
     float Rise = Outer * Outer * Shell.w * (1.0 - Shape.x);
     float C = saturate((Base.r - ShellMore.w - Rise) * (Shape.y / (1.0 + LodF * ShellMore.y)) + 0.5);
     if (C > 0.0)
@@ -283,6 +321,8 @@ void NebulaMedium(float3 P, float T, float3 ExRange, float DetailFade, float Lod
         C = NebulaErode(C, Detail, Shape.z, Shape.w);
         // The clouds fade in over the [Clouds] near_fade_distance range, like retail's puffs.
         float NearFade = saturate((T - ShapeMore.y) * PuffColourB.w);
+        if (HazeAlbedo.w > 0.5)
+            NearFade = NearFade * NearFade * (3.0 - 2.0 * NearFade);
         Cloud = C * Profile * KeepClouds * NearFade * Clear;
     }
 }
@@ -460,18 +500,9 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
     }
 
 #if NEBULA_POINT_LIGHTS
-    // Point lights: the ray's span through the light spheres (unused lights sit at the origin
-    // with no colour and are not counted); the per-step light work runs only there.
-    float4 LightT = float4(dot(Dir, LightPos[0].xyz), dot(Dir, LightPos[1].xyz),
-                           dot(Dir, LightPos[2].xyz), dot(Dir, LightPos[3].xyz));
-    float4 LightCC = float4(LightColour[0].w, LightColour[1].w, LightColour[2].w, LightColour[3].w);
-    float4 LightDisc = LightT * LightT - (LightCC - LightExtra.y);
-    float4 LightValid = (LightDisc >= 0.0) * (float4(0.0, 1.0, 2.0, 3.0) < Misc.y);
-    float4 LightRoot = sqrt(max(LightDisc, 0.0));
-    float4 LightLo = LightValid > 0.0 ? LightT - LightRoot : 1.0e30;
-    float4 LightHi = LightValid > 0.0 ? LightT + LightRoot : -1.0e30;
-    float2 LRange = float2(min(min(LightLo.x, LightLo.y), min(LightLo.z, LightLo.w)),
-                           max(max(LightHi.x, LightHi.y), max(LightHi.z, LightHi.w)));
+    // Each light already rejects samples outside its radius in NebulaPointLight.
+    // Avoid keeping an additional per-ray light-sphere interval live through the march;
+    // those registers are needed by textured cloud samples on ps_3_0.
 #endif
 
     // Step count: the LOD fraction, then capped so the executed instructions stay under the
@@ -530,6 +561,22 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
         float3 Warped;
         float3 Local;
         NebulaMedium(P, T, ExRange, DetailFade, LodF, Haze, Cloud, ColourNoise, Warped, Local);
+        if (Cloud > 0.0 && PuffTex.w > 0.5 && DetailFade > 0.0)
+        {
+            // The retail puff's own shape and shading inside the cloud masses: its coverage
+            // carves the density, its brightness moves the colour between puff_colora / _colorb.
+            float2 Tx = NebulaPuffTexture(Warped);
+            float Cover = saturate(Tx.x * 1.6);
+            Cloud *= lerp(1.0, Cover, PuffTex.x * DetailFade);
+            ColourNoise = lerp(ColourNoise, saturate(Tx.y), PuffTex.y * DetailFade);
+        }
+        // Fade distant clouds before the march cap; do not use the scene-depth endpoint,
+        // which would incorrectly remove cloud fog in front of an opaque object.
+        if (MacroShadow.y > 0.0)
+        {
+            float FarFade = saturate((TStart + March.y - T) * MacroShadow.y);
+            Cloud *= FarFade * FarFade * (3.0 - 2.0 * FarFade);
+        }
         float SigmaH = Medium.x * Haze;
         float SigmaC = Medium.y * Cloud;
         float Sigma = SigmaH + SigmaC;
@@ -543,7 +590,7 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
             // Before the key-light part, so only PointRadiance stays live through it (ps_3_0
             // has 32 temp registers).
             float3 PointRadiance = float3(0.0, 0.0, 0.0);
-            [branch] if (T >= LRange.x && T <= LRange.y)
+            [branch] if (Misc.y > 0.5)
             {
                 float3 PointIn = float3(0.0, 0.0, 0.0);
                 float3 CoreIn = float3(0.0, 0.0, 0.0);

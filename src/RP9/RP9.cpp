@@ -1319,6 +1319,16 @@ GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
         Face = (IRenderPipelineEx*)(this);
     else if (IidEqual(Iid, Iids::RPDrawEx))
         Face = (IRPDrawEx*)(this);
+    else if (IidEqual(Iid, Iids::RPSurfaceContext))
+        Face = (IRPSurfaceContext*)(this);
+    else if (IidEqual(Iid, Iids::RPSurfaceShader))
+        Face = (IRPSurfaceShader*)(this);
+    else if (IidEqual(Iid, Iids::RPLocalShadows))
+        Face = (IRPLocalShadows*)(this);
+    else if (IidEqual(Iid, Iids::RPWeaponGlints))
+        Face = (IRPWeaponGlints*)(this);
+    else if (IidEqual(Iid, Iids::RPFrameQuality))
+        Face = (IRPFrameQuality*)(this);
     if (Face == nullptr)
         return GR_INTERFACE_UNSUPPORTED;
     Face->AddRef();
@@ -3801,10 +3811,18 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitive(unsigned long Prim, unsigned
     if ((int)(PrimCount) <= 0)
         return (GENRESULT)(Hr);
     FlushDrawState(Device);
+    // ExShadowDrawBegin is a no-op returning true outside an opened shadow map.
+    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bSoft && ExSurfaceBegin();
     // D3D9 takes the base vertex index here; it is the one the D3D8 device holds
     // (DeviceBaseVertex_, see FlushDrawState).
     Hr = Device->DrawIndexedPrimitive((D3DPRIMITIVETYPE)(Prim), DeviceBaseVertex_, MinIndex,
                                       NumVertices, StartIndex, PrimCount);
+    if (bSurface)
+        ExSurfaceEnd();
+    if (bSoft)
+        ExSoftEnd();
     if (Hr < 0)
         FdumpHr("draw_indexed_primitive: %s", Hr, 3961);
     return (GENRESULT)(Hr);
@@ -4461,6 +4479,8 @@ GENRESULT DACOM_API FDirectX9::SetLight(void* Handle, const D3DLIGHT8* Light)
                                         nullptr);
     const HRESULT Hr =
         Device_->SetLight((DWORD)Index, Light);
+    if (SUCCEEDED(Hr) && Light != nullptr)
+        Ex_->SurfaceDirectLights[(unsigned long)(uintptr_t)Handle] = *Light;
     if (Hr < 0)
         FdumpHr("set_light: %s", Hr, 0xb96);
     return (GENRESULT)Hr;
@@ -4479,8 +4499,29 @@ GENRESULT DACOM_API FDirectX9::DestroyLight(void* Handle)
     LightManager_.SetEnable(Key, 0);
     LightManager_.Flush(Device_);
     LightManager_.Remove(Key);
+    Ex_->SurfaceDirectLights.erase(Key);
     return GR_OK;
 }
+unsigned int FDirectX9::ExCollectSurfaceLights(D3DLIGHT9* Out, unsigned int Capacity)
+{
+    unsigned int Count = 0;
+    for (auto const& Item : G_LightRecords)
+    {
+        FRp9LightRecord const& Record = Item.second;
+        if (!Record.bEnabled || Count == Capacity)
+            continue;
+        if (Record.Data != nullptr)
+            Out[Count++] = *Record.Data;
+        else
+        {
+            auto Found = Ex_->SurfaceDirectLights.find(Item.first);
+            if (Found != Ex_->SurfaceDirectLights.end())
+                Out[Count++] = Found->second;
+        }
+    }
+    return Count;
+}
+
 // RP8: FDirectX8::GetLight
 GENRESULT DACOM_API FDirectX9::GetLight(void* Handle, D3DLIGHT8* OutLight)
 {
@@ -4530,6 +4571,11 @@ GENRESULT DACOM_API FDirectX9::SetMaterial(const D3DMATERIAL8* Material)
     // FUN_06d0d1dc 06d0d254..06d0d30d: Device->SetMaterial(+0xa8); hr < 0 ->
     // "set_material: %s" (line 0xbd0); return hr.
     const HRESULT Hr = Device_->SetMaterial(Material);
+    if (SUCCEEDED(Hr))
+    {
+        Ex_->SurfaceMaterial = *Material;
+        Ex_->bSurfaceMaterialValid = true;
+    }
     if (Hr < 0)
         FdumpHr("set_material: %s", Hr, 3024);
     return (GENRESULT)Hr;
@@ -5036,6 +5082,19 @@ GENRESULT DACOM_API FDirectX9::SetTextureStageState(int Stage, int Type, int Val
         "set_texture_stage_state() called outside of create_buffers/destroy_buffers", 3640);
     if (Ready != GR_OK)
         return Ready;
+    ExInitQualityConfig();
+    if(Ex_->QualityAnisotropy>1)
+    {
+        if(Type==kD3d8TssMinFilter && Value>0)
+        {
+            Value=D3DTEXF_ANISOTROPIC;
+            Device_->SetSamplerState(Stage,D3DSAMP_MAXANISOTROPY,Ex_->QualityAnisotropy);
+            auto& Aniso=DeviceStates_.TextureStates[Stage][kD3d8TssMaxAnisotropy];
+            Aniso.Value=Ex_->QualityAnisotropy;Aniso.bValid=1;
+        }
+        else if(Type==kD3d8TssMaxAnisotropy) Value=Ex_->QualityAnisotropy;
+        else if(Type==kD3d8TssMipFilter && Value>0) Value=D3DTEXF_LINEAR;
+    }
     // FUN_06d0fbcf 06d0fc40: entry {value, valid byte}; valid && value == Value -> nothing;
     // else Device+0xfc SetTextureStageState, valid = (hr >= 0), valid -> value = Value; 0.
     FRp9TextureStageState& Cache = DeviceStates_.TextureStates[Stage][Type];
@@ -5202,9 +5261,16 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitive(unsigned long Prim, unsigned int Fv
 
     StreamCache_.SelectVertexStream(nullptr, Fvf);
     FlushDrawState(Device_);
+    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bSoft && ExSurfaceBegin();
     const unsigned int PrimCount = PrimCountFromVerts(Prim, Count);
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
     Result = Device_->DrawPrimitiveUP((D3DPRIMITIVETYPE)(Prim), PrimCount, Verts, Stride);
+    if (bSurface)
+        ExSurfaceEnd();
+    if (bSoft)
+        ExSoftEnd();
     StreamCache_.Reset();
     if (FAILED(Result))
         FdumpHr("draw_primitive: %s", Result, 3809);
@@ -5231,9 +5297,16 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveUp(unsigned long Prim, unsign
 
     StreamCache_.SelectVertexStream(nullptr, Fvf);
     FlushDrawState(Device_);
+    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bSoft && ExSurfaceBegin();
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
     Result = Device_->DrawIndexedPrimitiveUP((D3DPRIMITIVETYPE)(Prim), 0, VertCount,
                                              PrimCount, Indices, D3DFMT_INDEX16, Verts, Stride);
+    if (bSurface)
+        ExSurfaceEnd();
+    if (bSoft)
+        ExSoftEnd();
     StreamCache_.Reset();
     if (FAILED(Result))
         FdumpHr("draw_indexed_primitive: %s", Result, 3844);
@@ -5255,7 +5328,14 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitiveVb(unsigned long Prim, void* Vb, uns
 
     StreamCache_.SelectVertexStream((FRp9Vb*)Vb, 0);
     FlushDrawState(Device_);
+    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bSoft && ExSurfaceBegin();
     Result = Device_->DrawPrimitive((D3DPRIMITIVETYPE)(Prim), StartVertex, PrimCount);
+    if (bSurface)
+        ExSurfaceEnd();
+    if (bSoft)
+        ExSoftEnd();
     if (FAILED(Result))
         FdumpHr("draw_primitive_vb: %s", Result, 3866);
     return (GENRESULT)Result;
@@ -5302,9 +5382,17 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveVb(unsigned long Prim, void* 
     StreamCache_.SelectVertexStream((FRp9Vb*)Vb, 0);
     StreamCache_.SelectIndices(&ScratchIb_, BaseVertex);
     FlushDrawState(Device_);
+    // The compiled and GPU-tested hook is a no-op outside a shadow-map pass.
+    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bSoft && ExSurfaceBegin();
     // D3D9: the base vertex index set by the flush above travels with the draw call.
     Result = Device_->DrawIndexedPrimitive((D3DPRIMITIVETYPE)(Prim), DeviceBaseVertex_, 0,
                                            NumVerts, LockOffset, PrimCount);
+    if (bSurface)
+        ExSurfaceEnd();
+    if (bSoft)
+        ExSoftEnd();
     if (Result < 0)
         FdumpHr("draw_indexed_primitive_vb: %s", Result, 3931);
     return (GENRESULT)Result;
@@ -5335,6 +5423,7 @@ GENRESULT DACOM_API FDirectX9::RemoveLight(void* Handle)
     SetLightEnable(Handle, 0);
     LightManager_.Flush(Device_);
     LightManager_.Remove((unsigned long)(uintptr_t)Handle);
+    Ex_->SurfaceDirectLights.erase((unsigned long)(uintptr_t)Handle);
     return GR_OK;
 }
 // RP8: FDirectX8::UpdateLight

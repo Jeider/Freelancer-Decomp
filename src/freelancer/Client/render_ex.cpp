@@ -21,6 +21,7 @@
 #include "readfile.h"    // IFileSystem
 #include "render/IRenderPipeline.h"
 #include "render/IRenderPipelineEx.h"
+#include "render/IRPFrameQuality.h"
 
 #include <cmath>
 #include <cstdio>
@@ -54,6 +55,9 @@ namespace
     IFileSystem* GExtraData = nullptr;
     FRenderExSettings GSettings = {false, 0.0f};
     FRPExProgram* GDepthProgram = nullptr;
+    FRPExProgram* GSolarRaysProgram = nullptr;
+    bool GbSolarRaysTried = false;
+    float GSolarSceneNear=1,GSolarSceneFar=250000,GSolarDepthMin=0,GSolarDepthMax=1;
     bool GbDepthProgramTried = false;
     bool GbNoSceneDepthReported = false;
     // GetExCaps answers only once the device exists (after RenderEx::Startup): queried lazily,
@@ -371,6 +375,8 @@ void RenderEx::Startup()
 void RenderEx::Shutdown()
 {
     NebulaVolume::Shutdown();
+    if(GPipelineEx && GSolarRaysProgram) GPipelineEx->DestroyExProgram(GSolarRaysProgram);
+    GSolarRaysProgram=nullptr;GbSolarRaysTried=false;
     if (GPipelineEx != nullptr && GDepthProgram != nullptr)
         GPipelineEx->DestroyExProgram(GDepthProgram);
     GDepthProgram = nullptr;
@@ -441,8 +447,53 @@ void RenderEx::AfterSpaceScene()
         GetCaps(&Caps);
     }
     PollHotReload();
+    IRPFrameQuality* Quality=nullptr;
+    if(DALib::Pipeline->QueryInterface(Iids::RPFrameQuality,reinterpret_cast<void**>(&Quality))>=0 && Quality)
+    {
+        Quality->ApplySceneAntialiasing();
+        Quality->Release();
+    }
     if (GSettings.bSceneDepthView)
         DrawSceneDepthView();
+}
+
+void RenderEx::NoteSolarSceneDepth(float Near,float Far)
+{
+    GSolarSceneNear=Near;GSolarSceneFar=Far;
+    DALib::Pipeline->GetDepthRange(&GSolarDepthMin,&GSolarDepthMax);
+}
+
+void RenderEx::DrawSolarRays(float U,float V,float Radius,float Strength,const float* Colour,float Aspect,float SunFrontDistance)
+{
+    if(!IsAvailable() || !(Strength>0) || U<-.2f || U>1.2f || V<-.2f || V>1.2f) return;
+    FRPExTexture* Depth=nullptr;
+    if(GPipelineEx->GetSceneDepth(&Depth)!=GR_OK) return;
+    if(!GbSolarRaysTried)
+    {
+        GbSolarRaysTried=true;
+        GPipelineEx->CreateExProgram(GExtraData,"SHADERS\\solar_rays.hlsl","VSMain","PSMain",&GSolarRaysProgram);
+    }
+    if(!GSolarRaysProgram) return;
+    FRPExPassDesc Pass={nullptr,0,0};
+    if(GPipelineEx->BeginExPass(&Pass)!=GR_OK) return;
+    FRPExSamplerState Point={RPExFilterPoint,RPExMipNone,RPExAddressClamp,RPExAddressClamp,RPExAddressClamp};
+    if(GPipelineEx->BindExProgram(GSolarRaysProgram)==GR_OK && GPipelineEx->BindExTexture(0,Depth,&Point)==GR_OK)
+    {
+        const double Near=GSolarSceneNear,Far=GSolarSceneFar;
+        const double Distance=std::fmax(SunFrontDistance,GSolarSceneNear);
+        const double Projected=Far/(Far-Near)*(1.0-Near/Distance);
+        const float Cutoff=static_cast<float>(GSolarDepthMin+
+            (GSolarDepthMax-GSolarDepthMin)*Projected)-0.00000012f;
+        const float Params[12]={U,V,Radius,Strength,Colour[0],Colour[1],Colour[2],Aspect,
+                                Cutoff,GSolarDepthMax,0,0};
+        GPipelineEx->SetExPixelConstants(0,Params,3);
+        DALib::Pipeline->SetRenderState(D3DRS_ALPHABLENDENABLE,1);
+        DALib::Pipeline->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_ONE);
+        DALib::Pipeline->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_ONE);
+        DALib::Pipeline->SetRenderState(D3DRS_BLENDOP,D3DBLENDOP_ADD);
+        GDrawEx->DrawFullscreenQuad();
+    }
+    GPipelineEx->EndExPass();
 }
 
 #endif // FREELANCER_RP9

@@ -3086,6 +3086,13 @@ namespace
     }
 #endif
 
+#ifdef FREELANCER_RP9
+    // Inherently translucent fields (gas mines) do not write depth. Composite the volume first,
+    // then draw their original meshes; otherwise the volume mistakes them for distant sky.
+    FCliAsteroid* GTransparentFields[64];
+    unsigned GTransparentFieldCount = 0;
+#endif
+
     // FUN_005225d0 (thiscall on the field, RET 4: camera). No test of the field or the camera.
     void CliAsteroidTickOne(FCliAsteroid* Field, FSpaceCamera* Cam)
     {
@@ -3110,7 +3117,7 @@ namespace
         float const SpawnReach = NebulaVolume::AsteroidSpawnReach(Field->Zone, &SpawnFadeFraction);
         double ExtFill = 0.0;
         double ExtFadeBand = 0.0;
-        if (SpawnReach > 0.0f)
+        if (SpawnReach > 0.0f && !(Field->ScaleCC < 1.0f))
         {
             double const RetailFill = static_cast<double>(Field->FillDistAt24) * Field->Scale230;
             double const Margin =
@@ -3167,39 +3174,47 @@ namespace
             Field->CmnField->near_field(CamPos))
 #endif
         {
-            if (bAmbientDone == 0)
-            {
-                CliAsteroidAmbientPass(Field, Cam, kAmbientScaleArg);
-                bAmbientDone = 1;
-            }
 #ifdef FREELANCER_RP9
-            // Port-only: the fading cubes write depth while translucent; the volume adds the
-            // medium behind them for the part they let through (their alpha reaches 0 at the
-            // view depth ExtFill, see CliAsteroidDrawNearField).
-            if (ExtFill > 0.0)
-                NebulaVolume::NoteAsteroidFade(static_cast<float>(ExtFill),
-                                               static_cast<float>(ExtFadeBand),
-                                               static_cast<float>(Field->CubeSize));
-            if (ExtFill > 0.0 && Field->ExclusionMgr != nullptr)
-            {
-                // Port-only: the exclusion zones are cut off at fill * 1.25 from the camera
-                // (FUN_00524880, MaxCliDist); the extended walk needs them as far as it goes.
-                float const SavedDistSq =
-                    FCliAsteroidExclusionInline::GetMaxCliDistSq(Field->ExclusionMgr);
-                double const ExtDist = ExtFill * 1.25;
-                float const ExtDistSq = static_cast<float>(ExtDist * ExtDist);
-                if (ExtDistSq > SavedDistSq)
-                    FCliAsteroidExclusionInline::SetMaxCliDistSq(Field->ExclusionMgr, ExtDistSq);
-                CliAsteroidDrawNearField(Field, Cam, ExtFill, ExtFadeBand);
-                FCliAsteroidExclusionInline::SetMaxCliDistSq(Field->ExclusionMgr, SavedDistSq);
-            }
+            if (Field->ScaleCC < 1.0f && NebulaVolume::IsActive() &&
+                GTransparentFieldCount < sizeof(GTransparentFields) / sizeof(GTransparentFields[0]))
+                GTransparentFields[GTransparentFieldCount++] = Field;
             else
-                CliAsteroidDrawNearField(Field, Cam, ExtFill, ExtFadeBand);
-#else
-            CliAsteroidDrawNearField(Field, Cam);
 #endif
-            if (Field->ScaleCC < 1.0f)
-                bAmbientDone = 0;
+            {
+                if (bAmbientDone == 0)
+                {
+                    CliAsteroidAmbientPass(Field, Cam, kAmbientScaleArg);
+                    bAmbientDone = 1;
+                }
+#ifdef FREELANCER_RP9
+                // Port-only: the fading cubes write depth while translucent; the volume adds the
+                // medium behind them for the part they let through (their alpha reaches 0 at the
+                // view depth ExtFill, see CliAsteroidDrawNearField).
+                if (ExtFill > 0.0)
+                    NebulaVolume::NoteAsteroidFade(static_cast<float>(ExtFill),
+                                                   static_cast<float>(ExtFadeBand),
+                                                   static_cast<float>(Field->CubeSize));
+                if (ExtFill > 0.0 && Field->ExclusionMgr != nullptr)
+                {
+                    // Port-only: the exclusion zones are cut off at fill * 1.25 from the camera
+                    // (FUN_00524880, MaxCliDist); the extended walk needs them as far as it goes.
+                    float const SavedDistSq =
+                        FCliAsteroidExclusionInline::GetMaxCliDistSq(Field->ExclusionMgr);
+                    double const ExtDist = ExtFill * 1.25;
+                    float const ExtDistSq = static_cast<float>(ExtDist * ExtDist);
+                    if (ExtDistSq > SavedDistSq)
+                        FCliAsteroidExclusionInline::SetMaxCliDistSq(Field->ExclusionMgr, ExtDistSq);
+                    CliAsteroidDrawNearField(Field, Cam, ExtFill, ExtFadeBand);
+                    FCliAsteroidExclusionInline::SetMaxCliDistSq(Field->ExclusionMgr, SavedDistSq);
+                }
+                else
+                    CliAsteroidDrawNearField(Field, Cam, ExtFill, ExtFadeBand);
+#else
+                CliAsteroidDrawNearField(Field, Cam);
+#endif
+                if (Field->ScaleCC < 1.0f)
+                    bAmbientDone = 0;
+            }
         }
 
         // 0x005226c9..0x005226f3: every DynamicAsteroids record (+0x224..+0x228) gets
@@ -3209,6 +3224,29 @@ namespace
                                    Field);
     }
 } // namespace
+
+#ifdef FREELANCER_RP9
+void CliAsteroidBeginVolumeFrame()
+{
+    GTransparentFieldCount = 0;
+}
+
+void CliAsteroidDrawTransparentFields(FSpaceCamera* Cam)
+{
+    const unsigned Count = GTransparentFieldCount;
+    GTransparentFieldCount = 0;
+    if (Cam == nullptr)
+        return;
+    for (unsigned Index = 0; Index < Count; ++Index)
+    {
+        FCliAsteroid* const Field = GTransparentFields[Index];
+        // Original material alpha, depth test, local fog and source fill_dist remain intact.
+        // Physics, mine activation and explosion creation do not pass through this draw queue.
+        CliAsteroidAmbientPass(Field, Cam, kAmbientScaleArg);
+        CliAsteroidDrawNearField(Field, Cam, 0.0, 0.0);
+    }
+}
+#endif
 
 void CliAsteroidLightAround(FCliAsteroid* Field, FSpaceCamera* Cam, float Scale)
 {

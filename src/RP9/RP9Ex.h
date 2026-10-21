@@ -14,6 +14,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 // A shader program: the source location for reloads, the last bytecode that compiled, and the
 // shader objects made from it (null while no device, or when the source never compiled).
@@ -90,4 +91,108 @@ struct FRp9ExState
     FRPExTexture* CurrentTarget;
     unsigned long TargetWidth;
     unsigned long TargetHeight;
+
+    // Soft particles (SetSoftParticles): the requested kind, the fade distance of each kind
+    // (port.ini [Render], read once), the built-in shaders and the draw in flight.
+    unsigned long SoftKind;
+    float SoftFade[3];
+    float SoftFadeOverride; // SetSoftParticleFade; 0 = SoftFade[SoftKind]
+    bool bSoftConfigRead;
+    bool bSoftCompileFailed;
+    bool bSoftActive;
+    IDirect3DVertexShader9* SoftVs;
+    IDirect3DPixelShader9* SoftPs;
+    FRp9ExStageSave SoftSavedStage1;
+
+    // Generic surface shader route, independent of objects (ships/stations/asteroids).
+    bool bSurfaceConfigRead = false;
+    bool bSurfaceEnabled = false;
+    bool bSurfaceCompileFailed = false;
+    bool bSurfaceCubeCompileFailed = false;
+    bool bSurfaceActive = false;
+    bool bSurfaceCockpit = false, bSurfaceGlass = false;
+    bool bCockpitShader = true, bGlassShader = true;
+    float SurfaceGlassStrength = 1.5f, SurfaceCockpitStrength = 0.65f;
+    bool bSurfaceMaterialValid = false;
+    bool bSurfaceLogged = false;
+    unsigned long SurfaceShader = RPSurfaceAuto;
+    float SurfaceRoughness = 0.0f;
+    float SurfaceEnvironment = -1.0f;
+    float SurfaceHighlights = 1.35f;
+    float SurfaceCoat = 0.9f;
+    float SurfaceBrushed = 0.8f;
+    D3DMATERIAL9 SurfaceMaterial = {};
+    std::map<unsigned long, D3DLIGHT9> SurfaceDirectLights;
+    IDirect3DVertexShader9* SurfaceVs = nullptr;
+    IDirect3DPixelShader9* SurfacePs = nullptr;
+    IDirect3DPixelShader9* SurfaceCubePs = nullptr;
+    FRp9ExStageSave SurfaceSavedStage1 = {};
+    FRp9ExStageSave SurfaceSavedShadowStages[2] = {};
+    bool bSurfaceShadowSamplers = false;
+
+    struct WeaponGlintGroup
+    {
+        float Position[3] = {}, Colour[3] = {};
+        unsigned long Owner = 0;
+        unsigned Shots = 0;
+    };
+    WeaponGlintGroup WeaponGlints[8] = {};
+    unsigned WeaponGlintCount = 0, WeaponGlintBudget = 8, WeaponGlintReceiverMask = 0;
+    bool bWeaponGlintConfigRead = false, bWeaponGlintsEnabled = true;
+    bool bWeaponGlintFrame = false, bWeaponGlintReceiver = false;
+    float WeaponGlintStrength = 1.25f, WeaponGlintRadius = 22.5f;
+    float WeaponGlintDistance = 1000.0f;
+    float WeaponGlintEye[3] = {}, WeaponGlintRotation[16] = {};
+
+    bool bShadowDrawing = false;
+    bool bShadowFrameValid = false;
+    bool bShadowReceiver = false;
+    bool bShadowReceiverIsShip = false;
+    bool bShadowAdaptiveQuality = true;
+    float ShadowStaticQualityDistance = 500.0f;
+    float ShadowShipQualityDistance = 150.0f;
+    float ShadowLowSearchSamples = 4.0f;
+    float ShadowLowFilterSamples = 4.0f;
+    bool bShadowFailed = false;
+    unsigned ShadowReadyMask = 0;
+    unsigned ShadowCascade = 0;
+    bool bShadowConfigRead = false;
+    unsigned ShadowResolution = 8192;
+    float ShadowNearRadius = 150.0f;
+    float ShadowFarRadius = 5000.0f;
+    float ShadowMaxLength = 200.0f;
+    float ShadowDepthSpan[2] = {800.0f,10500.0f};
+    float ShadowStrength = 0.85f;
+    float ShadowLightAngle = 2.0f;
+    unsigned ShadowSearchSamples = 64;
+    unsigned ShadowFilterSamples = 192;
+    bool bQualityConfigRead = false;
+    unsigned QualityAnisotropy = 16;
+    bool bQualityFxaa = true;
+    bool bQualityFxaaFailed = false;
+    IDirect3DTexture9* QualitySceneCopy = nullptr;
+    IDirect3DPixelShader9* QualityFxaaPs = nullptr;
+    float ShadowBiasScale = 0.5f;
+    IDirect3DTexture9* ShadowMaps[2] = {};
+    IDirect3DSurface9* ShadowDepth = nullptr;
+    IDirect3DVertexShader9* ShadowVs = nullptr;
+    IDirect3DPixelShader9* ShadowPs = nullptr;
+    IDirect3DStateBlock9* ShadowSavedState = nullptr;
+    IDirect3DSurface9* ShadowSavedColor = nullptr;
+    IDirect3DSurface9* ShadowSavedDepth = nullptr;
+    D3DVIEWPORT9 ShadowSavedViewport = {};
+    float ShadowMatrices[2][16] = {};
+    float ShadowCameraRotation[16] = {};
+    float ShadowCameraPosition[3] = {};
+    float ShadowSunDirection[4] = {};
+    float ShadowPlanets[8][4] = {};
+    unsigned ShadowPlanetCount = 0;
+    FRp9RenderStateCache ShadowSavedRenderStates = {};
+    FRp9DeviceStateCaches ShadowSavedDeviceStates = {};
+    FRp9PipelineTransforms ShadowSavedTransforms = {};
+    FRp9StreamCache ShadowSavedStream = {};
+    FRp9PipelineStateSlot ShadowSavedPipeline[kRp9PipelineStateCount] = {};
+    INT ShadowSavedBaseVertex = 0;
+    D3DMATERIAL9 ShadowSavedMaterial = {};
+    bool bShadowSavedMaterialValid = false;
 };

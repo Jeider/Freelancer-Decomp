@@ -98,6 +98,18 @@
       <PreprocessorDefinitions>FREELANCER_LANGUAGE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <!-- Port-only camera-relative modelview (docs/precise_render.md): the client and x86math. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerPreciseRender)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='x86math')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_PRECISE_RENDER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Port-only particle improvements (docs/particle_fx.md): the client and alchemy. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerParticleFx)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='alchemy')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_PARTICLE_FX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <!-- Port-only FLSharp.dll fixes (docs/flsharp.md): the client, Common, Server, EngBase, alchemy and DALib. -->
   <ItemDefinitionGroup Condition="'$(FreelancerFlsharp)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='Server' or '$(MSBuildProjectName)'=='EngBase' or '$(MSBuildProjectName)'=='alchemy' or '$(MSBuildProjectName)'=='DALib')">
     <ClCompile>

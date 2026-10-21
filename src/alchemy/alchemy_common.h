@@ -19,6 +19,7 @@ struct ICamera;
 // exactly once in alchemy_common.cpp.
 namespace AlchemyImpl
 {
+    unsigned long AlApplyRenderOpacity(unsigned long Colour,unsigned long SrcBlend);
     // ---- Constants ----------------------------------------------------
     // GR_INTERFACE_UNSUPPORTED / GR_OUT_OF_MEMORY are DACOM-wide and come from dacom.h;
     // only alchemy's own ALE codes live here.

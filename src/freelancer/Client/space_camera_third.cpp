@@ -13,6 +13,9 @@
 // update 0x6c (0x00518e40), with the chase solver both of the last two call, FUN_00518f20.
 
 #include "space_camera_third.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa patches (DisableLevelCameraToggle)
+#endif
 #include "space_scene_obj_draw.h"
 
 #include "client_gameobj.h"          // FClientShipGameobj::Field_0x158
@@ -239,6 +242,13 @@ bool ThirdPersonCameraOnEvent(FThirdPersonCamera* Cam, unsigned MsgId)
         return false;
 
     // 0x0051a1cd..0x0051a1d5: flip +0x13c (face + 0x44).
+#ifdef FREELANCER_ADOXA
+    // Port-only, adoxa's "Disable level camera toggling" exe patch (0x0051a1d2 SETE -> SETNE,
+    // file offset 0x11a1d3 94 -> 95): the key keeps the level-camera state instead of flipping it.
+    if (PORT_PLUGIN_ON("DisableLevelCameraToggle"))
+        Cam->bCameraLevelEnabled = (Cam->bCameraLevelEnabled != 0) ? 1 : 0;
+    else
+#endif
     Cam->bCameraLevelEnabled = (Cam->bCameraLevelEnabled == 0) ? 1 : 0;
 
     // 0x0051a1d8..0x0051a1fc: the watched object (face - 0x38 = +0xc0, minus eight, null when
@@ -300,7 +310,13 @@ void ThirdPersonCameraConstruct(FThirdPersonCamera* Cam)
     Cam->SpeedSlack = 0.0f;
     Cam->SmoothedSpeed = 0.0f;
     Cam->PrevSpeed = 0.0f;
+#ifdef FREELANCER_ADOXA
+    // Port-only, the exe patch paired with "Disable level camera toggling" (0x005186e3
+    // `MOV byte [ESI+0x13c],1` -> 0): the level camera starts off.
+    Cam->bCameraLevelEnabled = PORT_PLUGIN_ON("DisableLevelCameraToggle") ? 0 : 1;
+#else
     Cam->bCameraLevelEnabled = 1;
+#endif
     Cam->LookAheadMultiplier = 0.05f;      // 0x3d4ccccd
     Cam->AccelerationLimit = 40.0f;        // 0x42200000
 

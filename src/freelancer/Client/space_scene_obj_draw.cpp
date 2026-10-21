@@ -42,7 +42,11 @@
 #include "space_camera.h"
 #include "space_camera_game.h"
 #include "player_behavior.h"
+#include "player_spawn.h"
 #include "perf_options.h"
+#if defined(FREELANCER_RP9)
+#include "port_config.h"
+#endif
 #ifdef FREELANCER_RP9
 #include "render_ex.h"      // RenderEx::AfterSpaceScene (port-only Direct3D 9 extensions)
 #endif
@@ -63,6 +67,17 @@
 #include "render/IFLAppearance.h"
 #include "render/rendcomp.h"
 #include "render/IRenderPipeline.h"
+#ifdef FREELANCER_RP9
+#include "render/IRPLocalShadows.h"
+#include "render/IRPWeaponGlints.h"
+#include "render/IAlchemyEffectColour.h"
+#include <map>
+#include "render/RPWeaponGlintTracking.h"
+#include "render/RPWeaponGlintSelection.h"
+#include "render/RPWeaponGlintCoverage.h"
+#include "cli_asteroid_dynamic.h"
+#include <algorithm>
+#endif
 #include "render/shading.h"
 #include "soundmanager.h"
 
@@ -153,6 +168,13 @@ namespace
         int Slot04() override { return 2; }
     };
     static_assert(sizeof(FZItemNebula) == 0xc, "ZItemNebula sizeof 0xc");
+#ifdef FREELANCER_RP9
+    struct FZItemSunBillboard final : FZItem
+    {
+        void Draw(FSpaceCamera* Cam) override { StarSphereDrawNebulaBillboard(Object, Cam); }
+        int Slot04() override { return 2; }
+    };
+#endif
 
     // ZItemGameObject, vftable 0x005dc364.
     struct FZItemGameObject final : FZItem
@@ -331,6 +353,38 @@ namespace
         }
         ZItemQueuePushBucket2(Node);
     }
+
+#ifdef FREELANCER_RP9
+    void RestoreVolumeBackgrounds(ICamera* Camera)
+    {
+        // Retail clears all previously queued nebulae and stops its list walk when the
+        // camera becomes fully enclosed. Rebuild the missing background nodes only;
+        // integrated fog, not this binary state, must determine what can still be seen.
+        float const* Eye = Camera->GetPosition();
+        std::list<FNebulaEffect*>& Nebulae = StarSysNebulaList();
+        for (FNebulaEffect* Nebula : Nebulae)
+        {
+            if (Nebula == G_FieldController || Nebula->FlagLoaded == 0 || Nebula->Zone == nullptr)
+                continue;
+            bool Queued = false;
+            for (FZItem* Node : G_Buckets[2].Nodes)
+                if (Node != nullptr && dynamic_cast<FZItemNebula*>(Node) != nullptr && Node->Object == Nebula)
+                    Queued = true;
+            if (Queued)
+                continue;
+            Universe::IZone* Zone = Nebula->GetZone();
+            Vector const& Centre = Zone->GetPos();
+            const double X = (double)Centre.x - Eye[0], Y = (double)Centre.y - Eye[1], Z = (double)Centre.z - Eye[2];
+            const double Distance = std::sqrt(X * X + Y * Y + Z * Z);
+            Vector Dir;
+            const double Inv = Distance > 1.0e-6 ? 1.0 / Distance : 0.0;
+            Dir.x = (float)(X * Inv); Dir.y = (float)(Y * Inv); Dir.z = (float)(Z * Inv);
+            const double Beyond = Distance > 1.0e-6 ?
+                std::fmax(Distance - Zone->GetRadiusAlong(Dir), 0.0) : 0.0;
+            PushNebulaZItem((float)(Beyond * Beyond), Nebula);
+        }
+    }
+#endif
 
     // FUN_0051b730 (thiscall on the camera) -- pick the field controller DAT_00675244 among the
     // StarSys nebulae; every other one is queued as a ZItemNebula in bucket 2 (FUN_0051f140),
@@ -978,6 +1032,12 @@ namespace
 
         // LAB_00555659 (shared tail): FUN_00410240(EBX); FUN_00537f40(buf, 4, a0, a1, a5);
         // FUN_004102c0(buf, count, a2, a0).
+#ifdef FREELANCER_RP9
+        // Resolve colour at the object's position and blend over the boundary in metres.
+        unsigned char VolumeAmbient[3] = {G_AmbientWorkRgb[0], G_AmbientWorkRgb[1], G_AmbientWorkRgb[2]};
+        if (NebulaVolume::TintObjectAmbient(Pos3, VolumeAmbient))
+            AmbientPtr = VolumeAmbient;
+#endif
         EngineLightSetAmbientRgbBytes(AmbientPtr);
 
         void* LightSlots[4] = {};
@@ -1127,6 +1187,10 @@ namespace
     void EnqueueObject(FClientGameobj* Go, FSpaceCamera* Cam)
     {
         ICamera* const Camera = AsCamera(Cam);
+        bool VolumeFog = false;
+#ifdef FREELANCER_RP9
+        VolumeFog = NebulaVolume::ReplacesObjectFog(G_FieldController);
+#endif
 
         // 0x0051f2ce..0x0051f318: camera position (vt+0xc) copied; object position (vt+0);
         // the difference built through FUN_00422b80 from three float-rounded components
@@ -1153,7 +1217,7 @@ namespace
             // outside a field's core.
             if (Go->ManagerKind != 2)
                 return;
-            if (G_FieldEnclosure == 2)
+            if (G_FieldEnclosure == 2 && !VolumeFog)
                 return;
 
             // 0x0051f374..0x0051f3b0: the LOD pick (vt+0x17c, no cached LOD) against the 250000
@@ -1171,7 +1235,7 @@ namespace
 
             // 0x0051f3cd..0x0051f3de: vt+0x18c (DrawStateA) must be 0.
             unsigned DrawStateB = 0;
-            if (Go->Slot18c(&DrawStateB) != 0)
+            if (Go->Slot18c(&DrawStateB) != 0 && !VolumeFog)
                 return;
 
             PushNode(2, Go, DistSq, Lod); // DAT_00675310, bucket 2
@@ -1199,7 +1263,7 @@ namespace
         // 0x0051f499..0x0051f538: with a field controller, vt+0x18c's second word (written to
         // a float local that starts at 0) is the enclosure E.
         unsigned Bucket = 0;
-        if (G_FieldController != nullptr)
+        if (G_FieldController != nullptr && !VolumeFog)
         {
             unsigned EncloseBits = 0;
             const unsigned DrawStateA = Go->Slot18c(&EncloseBits);
@@ -1700,6 +1764,267 @@ namespace
         Pipe->SetRenderState(D3DRS_ZFUNC, SavedRs17);
     }
 
+#ifdef FREELANCER_RP9
+    // The scene owns this interface only through its opaque mesh drain. The user
+    // explicitly approved experimental game-frame integration after GPU validation.
+    IRPLocalShadows* G_LocalShadows = nullptr;
+    IRPWeaponGlints* G_WeaponGlints = nullptr;
+    bool G_CockpitGlintBoundsValid=false;
+    float G_CockpitGlintCenter[3]={},G_CockpitGlintRadius=0;
+
+    bool ProjectileGlintColour(FEffectArch* Effect,IAlchemyEffectColour* Sampler,float* Colour)
+    {
+        if(!Effect) return false;
+        struct Cached {unsigned long Crc;float Rgb[3];};
+        static std::map<unsigned,Cached> Colours;
+        // Authored vis_effect is authoritative for hybrids. A missing/not-yet-loaded
+        // ALE colour must never silently substitute the supplementary beam's hue.
+        FVisEffectArch* Vis=Effect->VisEffect ? Effect->VisEffect : Effect->VisGeneric;
+        if(Vis)
+        {
+            if(!Sampler || !DALib::FxEffectLibrary) return false;
+            auto Found=Colours.find(Effect->NicknameId);
+            if(Found!=Colours.end() && Found->second.Crc==Vis->EffectCrc)
+            {std::memcpy(Colour,Found->second.Rgb,12);return true;}
+            IFxEffectArchetype* Ale=nullptr;
+            if(DALib::FxEffectLibrary->FindByHash(Vis->EffectCrc,&Ale)<0 || !Ale) return false;
+            GENRESULT Result=Sampler->SampleEffectColour(Ale,Colour);Ale->Release();
+            if(Result>=0)
+            {
+                if(Colours.size()>512) Colours.clear();
+                Cached Entry={Vis->EffectCrc,{Colour[0],Colour[1],Colour[2]}};
+                Colours[Effect->NicknameId]=Entry;return true;
+            }
+            // Retry on later frames; do not cache a fallback beam/light colour.
+            return false;
+        }
+        if(Effect->VisBeam)
+        {
+            auto* Beam=Effect->VisBeam;
+            float const* C=&Beam->ColorTipR;
+            float Peak=std::fmax(C[0],std::fmax(C[1],C[2]));
+            if(!(Peak>0.001f)) {C=&Beam->ColorCoreR;Peak=std::fmax(C[0],std::fmax(C[1],C[2]));}
+            if(Peak>0.001f)
+            {for(unsigned I=0;I<3;++I) Colour[I]=std::fmax(0.0f,std::fmin(1.0f,C[I]/Peak));return true;}
+        }
+        float Peak=(float)(std::fmax(Effect->LgtColorR,std::fmax(Effect->LgtColorG,Effect->LgtColorB)));
+        if(!(Peak>0)) return false;
+        Colour[0]=Effect->LgtColorR/Peak;Colour[1]=Effect->LgtColorG/Peak;Colour[2]=Effect->LgtColorB/Peak;
+        return true;
+    }
+
+    bool LocalShadowEligible(FClientGameobj* Go);
+
+    IRPWeaponGlints* BuildWeaponGlints(FSpaceCamera* Cam)
+    {
+        IRPWeaponGlints* Glints=nullptr;
+        if(DALib::Pipeline->QueryInterface(Iids::RPWeaponGlints,reinterpret_cast<void**>(&Glints))<0 || !Glints)
+            return nullptr;
+        ICamera* Camera=AsCamera(Cam);
+        Glints->BeginWeaponGlints(Camera->GetViewTransform(),Camera->GetPosition());
+        static RPWeaponGlintTracking Tracking;
+        Tracking.Begin(reinterpret_cast<std::uintptr_t>(Cam));
+        auto Empty=[&]() -> IRPWeaponGlints* {
+            Tracking.Clear();Glints->BeginWeaponGlints(nullptr,nullptr);Glints->Release();return nullptr;
+        };
+        if(!PortConfigInt("Render","weapon_glints",1) || !PortConfigInt("Render","surface_shaders",0) ||
+           GetGameOption(kGameOptProjectiles)==0) return Empty();
+        int Kind=3;
+        FClientGameobj* ProjectileHead=ClientObjDb_GetKindHead(&Kind);
+        if(!ProjectileHead) return Empty();
+        struct Shot
+        {
+            Vector Position;unsigned Owner,Priority;
+            double DistanceSq;std::uintptr_t Token;float Remaining;
+        };
+        static std::vector<Shot> Shots;Shots.clear();
+        if(Shots.capacity()<256) Shots.reserve(256);
+        RPWeaponGlintSelection Selection;
+        Selection.Begin((unsigned)PortConfigInt("Render","weapon_glint_groups",8),GetPlayerShipId());
+        float const* Eye=Camera->GetPosition();
+        double Range=std::fmax(100.0,std::fmin(1000.0,PortConfigInt("Render","weapon_glint_distance",1000)));
+        float const* View=Camera->GetViewTransform();
+        RPWeaponGlintCoverage Coverage;
+        float Influence=(float)std::fmax(5.0,std::fmin(100.0,PortConfigFloat("Render","weapon_glint_radius",22.5f)));
+        for(auto const& Bucket:G_Buckets) for(auto* Node:Bucket.Nodes)
+        {
+            auto* Item=dynamic_cast<FZItemGameObject*>(Node);if(!Item) continue;
+            auto* Go=static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object));
+            if(!LocalShadowEligible(Go)) continue;
+            Vector Center;float Radius=Go->Slot178(Center);
+            if(!std::isfinite(Radius) || Radius<0) continue;
+            float Relative[3]={(float)((double)Center.x-Eye[0]),(float)((double)Center.y-Eye[1]),(float)((double)Center.z-Eye[2])};
+            if(!std::isfinite(Relative[0]) || !std::isfinite(Relative[1]) || !std::isfinite(Relative[2])) continue;
+            float Reach=Radius+(float)Range;
+            if(Relative[0]*Relative[0]+Relative[1]*Relative[1]+Relative[2]*Relative[2]>Reach*Reach) continue;
+            Coverage.Mark(Relative,Radius+Influence);
+        }
+        if(G_CockpitGlintBoundsValid)
+        {
+            float Relative[3]={(float)((double)G_CockpitGlintCenter[0]-Eye[0]),
+                               (float)((double)G_CockpitGlintCenter[1]-Eye[1]),
+                               (float)((double)G_CockpitGlintCenter[2]-Eye[2])};
+            Coverage.Mark(Relative,G_CockpitGlintRadius+Influence);
+        }
+        if(!Coverage.Any) return Empty();
+        IAlchemyEffectColour* Sampler=nullptr;
+        if(DALib::Alchemy) DALib::Alchemy->QueryInterface(Iids::AlchemyEffectColour,reinterpret_cast<void**>(&Sampler));
+        // Logical gun projectiles: ALE-only, beam-only, or combined visuals.
+        for(FClientGameobj* Go=ProjectileHead;Go;Go=Go->ListNext)
+        {
+            if(!Go->Object || Go->Object->ObjectClass!=CObject::ClassBeam || Go->Slot154()) continue;
+            auto* Object=static_cast<CBeam*>(Go->Object);
+            if(Object->Lifetime<=0) continue;
+            Shot S={};S.Position=Object->WorldPosition;S.Owner=Object->OwnerId;
+            S.Token=reinterpret_cast<std::uintptr_t>(Object);S.Remaining=Object->Lifetime;
+            double X=(double)S.Position.x-Eye[0],Y=(double)S.Position.y-Eye[1],Z=(double)S.Position.z-Eye[2];
+            S.DistanceSq=X*X+Y*Y+Z*Z;
+            if(!std::isfinite(S.DistanceSq) || S.DistanceSq>Range*Range) continue;
+            float Relative[3]={(float)X,(float)Y,(float)Z};
+            if(!Coverage.Contains(Relative)) continue; // clearly empty space consumes no group
+            // Native camera-frustum test after cheap range/empty-space rejection.
+            float ViewPoint[3]={(float)(View[0]*X+View[1]*Y+View[2]*Z),
+                                (float)(View[3]*X+View[4]*Y+View[5]*Z),
+                                (float)(View[6]*X+View[7]*Y+View[8]*Z)};
+            if((unsigned short)Camera->ClassifySphere(ViewPoint,0.0f)<3) continue;
+            S.Priority=Tracking.Priority(S.Token,S.Owner,S.Remaining);
+            Selection.Consider(S.Owner,(float)S.DistanceSq);
+            Shots.push_back(S);
+        }
+        // Resolve colour only for admitted shooters. One archetype lookup per frame,
+        // not one ALE/beam metadata lookup per projectile in a turret battery.
+        struct FrameColour {float Rgb[3];bool Valid;};
+        struct ColourEntry {Archetype::Root* Arch;FrameColour Colour;};
+        static std::vector<ColourEntry> ColourCache;ColourCache.clear();
+        for(auto const& S:Shots)
+        {
+            if(Selection.Find(S.Owner)<0) continue;
+            auto* Object=reinterpret_cast<CBeam*>(S.Token); // current-frame live object only
+            auto* Arch=Object->Archetype;
+            auto Found=std::find_if(ColourCache.begin(),ColourCache.end(),[&](ColourEntry const& C){return C.Arch==Arch;});
+            if(Found==ColourCache.end())
+            {
+                FrameColour C={};
+                auto* Companion=Arch ? Arch->Companion : nullptr;
+                ID_String const* Name=Companion ? Archetype::CliProjConstEffect(Companion) : nullptr;
+                FEffectArch* Effect=Name && !Name->IsEmpty() ? FindEffectArch(&Name->Id) : nullptr;
+                C.Valid=ProjectileGlintColour(Effect,Sampler,C.Rgb);
+                ColourCache.push_back({Arch,C});Found=ColourCache.end()-1;
+            }
+            if(Found->Colour.Valid) Selection.Add(S.Owner,(float)S.DistanceSq,S.Priority,S.Token,S.Remaining,
+                                                  &S.Position.x,Found->Colour.Rgb);
+        }
+        Selection.Finish();
+        float const UnusedDirection[3]={0,0,1};bool Submitted=false;
+        for(unsigned I=0;I<Selection.Count;++I)
+        {
+            auto const& G=Selection.Groups[I];if(!G.Shots) continue;
+            GENRESULT Group=Glints->AddWeaponGlint(G.Position,UnusedDirection,G.Colour,G.Owner);
+            if(Group>0) {Tracking.Admit((unsigned)Group-1,G.Token,G.Owner,G.Remaining);Submitted=true;}
+        }
+        Tracking.Finish();
+        if(Sampler) Sampler->Release();
+        if(!Submitted) return Empty();
+        return Glints;
+    }
+
+
+    bool LocalShadowEligible(FClientGameobj* Go)
+    {
+        if(!Go || (Go->ManagerKind!=1 && Go->ManagerKind!=2)) return false;
+        unsigned Type=0; Go->get_type(Type);
+        // NON_TARGETABLE includes decorative planet-circle helpers in mods.
+        // They are not physical hulls and must not black out nearby ships.
+        if(Go->ManagerKind==2 && (Type&0x4a0fu)) return false;
+        if(Go->Object && (static_cast<unsigned>(Go->Object->ObjectClass)&0x103u)==0x103u &&
+            static_cast<CEqObj*>(Go->Object)->CloakPercent>0.01f) return false;
+        return true;
+    }
+
+    IRPLocalShadows* BuildLocalShadows(FSpaceCamera* Cam)
+    {
+        if(PortConfigInt("Render","local_shadows",0)==0 || PortConfigInt("Render","surface_shaders",0)==0)
+            return nullptr;
+        IRPLocalShadows* Shadows=nullptr;
+        if(DALib::Pipeline->QueryInterface(Iids::RPLocalShadows,reinterpret_cast<void**>(&Shadows))<0 || !Shadows)
+            return nullptr;
+        ICamera* Camera=AsCamera(Cam);
+        FStarSphereList* Stars=StarSphereList();
+        if(!Stars || !Stars->Count || !Stars->Sentinel->Next->Sphere) {Shadows->Release();return nullptr;}
+        Vector Sun;
+        StarSphereGetOwnerPosition(Stars->Sentinel->Next->Sphere,&Sun);
+        float const* Eye=Camera->GetPosition();
+        double Dx=(double)Eye[0]-Sun.x,Dy=(double)Eye[1]-Sun.y,Dz=(double)Eye[2]-Sun.z;
+        double Len=std::sqrt(Dx*Dx+Dy*Dy+Dz*Dz);
+        if(!(Len>1)) {Shadows->Release();return nullptr;}
+        float Ray[3]={(float)(Dx/Len),(float)(Dy/Len),(float)(Dz/Len)};
+        if(Shadows->BeginLocalShadowFrame(Camera->GetViewTransform(),Eye,Ray)<0) {Shadows->Release();return nullptr;}
+        struct Caster {FClientGameobj* Go;float Distance;float Perpendicular;float Radius;};
+        std::vector<Caster> Casters;
+        float const ShadowSceneRadius=(float)(std::fmax(1000.0,std::fmin(15000.0,
+            PortConfigInt("Render","shadow_scene_radius",5000))));
+        float const ShadowNearRadius=(float)(std::fmax(100.0,std::fmin(1500.0,
+            PortConfigInt("Render","shadow_near_radius",150))));
+        // No retained pointers between frames. RenderInstance is a geometry submit:
+        // it does not call GameObject Slot188, sweep effects or update simulation.
+        int const Kinds[]={1,2,9};
+        for(int Kind:Kinds)
+        for(FClientGameobj* Go=ClientObjDb_GetKindHead(&Kind);Go;Go=Go->ListNext)
+        {
+            if(!Go->Object) continue;
+            if(Kind==9)
+            {
+                auto* Rock=static_cast<FCliDynamicAsteroidGameobj*>(Go);
+                if(!Rock->bActive || !(Rock->Alpha>=1.0f) || GetGameOption(kGameOptDynAsteroids)==0) continue;
+            }
+            Vector Center;float Radius=Go->Slot178(Center);
+            unsigned Type=0;Go->get_type(Type);
+            if(Kind==2 && (Type&5u))
+            {
+                // The render extent may contain atmosphere/rings. Eclipse only
+                // the authored solid planet, centred on its world position.
+                auto* Arch=static_cast<Archetype::Solar*>(Go->Object->get_archetype());
+                if(Arch && Arch->SolarRadius>0 && std::isfinite(Arch->SolarRadius))
+                {
+                    Radius=Arch->SolarRadius;
+                    Center=Go->get_position();
+                }
+                Shadows->AddLocalShadowPlanet(&Center.x,Radius);
+                continue;
+            }
+            if(!(Radius>0) || !std::isfinite(Radius)) continue;
+            double X=(double)Center.x-Eye[0],Y=(double)Center.y-Eye[1],Z=(double)Center.z-Eye[2];
+            double Distance=std::sqrt(X*X+Y*Y+Z*Z);
+            if(!std::isfinite(Distance)) continue;
+            if((Kind!=9 && !LocalShadowEligible(Go)) || Distance>ShadowSceneRadius+Radius || Go->get_index()==-1) continue;
+            double Along=X*Ray[0]+Y*Ray[1]+Z*Ray[2];
+            float Perpendicular=(float)std::sqrt(std::fmax(0.0,Distance*Distance-Along*Along));
+            Casters.push_back({Go,(float)std::fmax(0.0,Distance-Radius),Perpendicular,Radius});
+        }
+        std::sort(Casters.begin(),Casters.end(),[](Caster const& A,Caster const& B){return A.Distance<B.Distance;});
+        // Separate budgets keep nearby asteroid fields from displacing hulls.
+        unsigned Hulls=0,Rocks=0;
+        Casters.erase(std::remove_if(Casters.begin(),Casters.end(),[&](Caster const& C)
+        {return C.Go->ManagerKind==9 ? ++Rocks>64 : ++Hulls>128;}),Casters.end());
+        for(unsigned Cascade=0;Cascade<2;++Cascade)
+        {
+            if(Shadows->BeginLocalShadowMap(Cascade)<0) {Shadows->Release();return nullptr;}
+            for(Caster const& C:Casters)
+            {
+                if(Cascade==0 && C.Perpendicular>C.Radius+ShadowNearRadius*1.5f+4.0f) continue;
+                if(C.Go->ManagerKind==9)
+                    CliDynamicAsteroidDrawShadow(static_cast<FCliDynamicAsteroidGameobj*>(C.Go),Cam);
+                else
+                    DALib::Renderer->RenderInstance(Camera,reinterpret_cast<void*>(static_cast<intptr_t>(C.Go->get_index())),
+                                                    1.0f,0x108u,nullptr,nullptr);
+                DALib::MaterialBatcher->FlushAll(1u);
+            }
+            if(Shadows->EndLocalShadowMap()<0) {Shadows->Release();return nullptr;}
+        }
+        return Shadows;
+    }
+#endif
+
     void FZItemGameObject::Draw(FSpaceCamera* Cam)
     {
         // 0x0051f7a0..0x0051f7b9: the OutLod written by the slot lands in the caller's argument
@@ -1760,8 +2085,34 @@ namespace
                 DALib::Pipeline->SetRenderState(D3DRS_ZENABLE, 0);
                 DALib::Pipeline->SetRenderState(D3DRS_ZWRITEENABLE, 0);
             }
+#ifdef FREELANCER_RP9
+            if(G_LocalShadows)
+            {
+                FZItemGameObject* Item=dynamic_cast<FZItemGameObject*>(Nodes[I]);
+                FClientGameobj* Go=Item ? static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object)) : nullptr;
+                unsigned Receiver=LocalShadowEligible(Go) ? (Go->ManagerKind==1 ? 3u : 1u) : 0u;
+                G_LocalShadows->SetLocalShadowReceiver(Receiver);
+            }
+#endif
+#ifdef FREELANCER_RP9
+            if(G_WeaponGlints)
+            {
+                FZItemGameObject* Item=dynamic_cast<FZItemGameObject*>(Nodes[I]);
+                FClientGameobj* Go=Item ? static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object)) : nullptr;
+                if(LocalShadowEligible(Go))
+                {
+                    Vector Center;float Radius=Go->Slot178(Center);
+                    G_WeaponGlints->SetWeaponGlintReceiverBounds(&Center.x,Radius);
+                }
+                else G_WeaponGlints->SetWeaponGlintReceiver(0);
+            }
+#endif
             Nodes[I]->Draw(Cam);
             DALib::MaterialBatcher->FlushAll(1u);
+#ifdef FREELANCER_RP9
+            if(G_LocalShadows) G_LocalShadows->SetLocalShadowReceiver(0);
+            if(G_WeaponGlints) G_WeaponGlints->SetWeaponGlintReceiver(0);
+#endif
         }
         if (bToggleDepthRs)
         {
@@ -1855,7 +2206,13 @@ namespace
             float const Scale28 = G_FieldController->GetFloat2C4();
             float const Factor24 = G_FieldController->GetFloat294();
             float const A = static_cast<float>(static_cast<double>(Factor24) * Scale28);
-            Star->DrawBillboard(Cam, A, B);
+#ifdef FREELANCER_RP9
+            // The explicit sorted node emitted one continuous, source-scaled sprite in this mode,
+            // including inside fields where the retail object queue drops the sun's solar.
+            if (PortConfigInt("Render", "sun_nebula_burnthrough", 1) == 0 ||
+                !NebulaVolume::ReplacesFogOverlay(G_FieldController))
+#endif
+                Star->DrawBillboard(Cam, A, B);
         }
 
         // 0x0051fb3b..0x0051fb79: partial enclosure -- far, controller vt+0x14, pass far.
@@ -2553,19 +2910,24 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     G_SceneLayerFlags = LayerFlags;
     G_DrawCtxParam2 = Param2;
     SelectFieldControllers(Cam);
+    bool KeepDistantScene = false;
 #ifdef FREELANCER_RP9
     // Port-only: which nebulae the Direct3D 9 volumetric nebula draws this frame, from inside
     // and from outside (nebula_volume.cpp); the opaque scene outside a nebula's core is drawn
     // out to DAT_006164d4. A no-op on RP8 and with no nebula in range.
+    CliAsteroidBeginVolumeFrame();
     NebulaVolume::BeginFrame(Camera, G_FieldController, G_FieldEnclosure,
                              GetGameOption(kGameOptEffectsGroup) != 0 &&
                                  GetGameOption(kGameOptNebula) != 0,
                              G_SpaceDrawFar);
+    KeepDistantScene = NebulaVolume::ReplacesObjectFog(G_FieldController);
+    if (KeepDistantScene)
+        RestoreVolumeBackgrounds(Camera);
 #endif
 
     // 0x0051c352..0x0051c398: outside a field's core, the far helpers enqueue against the
     // 250000 far plane (DAT_00610534), which then drops back to DAT_006164d4.
-    if (G_FieldEnclosure != 2)
+    if (G_FieldEnclosure != 2 || KeepDistantScene)
     {
         CameraSetNearFar(Cam, Camera->GetZNear(), kDefaultZFar);
         EnqueueAsteroidFarHelpers(Cam);   // FUN_0051ba20
@@ -2580,7 +2942,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     // the controller's vt+0x44 (handed DAT_006164d4, which it ignores), FCOMP DAT_006164d4,
     // TEST AH,0x41 / JNZ: only a strictly larger value is cut back to DAT_006164d4.
     float Far;
-    if (G_FieldEnclosure != 2)
+    if (G_FieldEnclosure != 2 || KeepDistantScene)
     {
         Far = G_SpaceDrawFar;
     }
@@ -2600,6 +2962,9 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     // 0x0051c3df..0x0051c3fb: FUN_0040fb60(GetZNear, far); the queue keeps it at +8.
     CameraSetNearFar(Cam, Camera->GetZNear(), Far);
     G_DrawCtxZFar = Far;
+#ifdef FREELANCER_RP9
+    RenderEx::NoteSolarSceneDepth(Camera->GetZNear(),Far);
+#endif
 
     // 0x0051c3f9..0x0051c518: [OBJECTS] and SOLAR -- the object DB's spatial bucket (slot 0xc,
     // mask 0xfdff) filled around the camera position (vt+0xc) out to DAT_00613ec8 = 10000.
@@ -2616,6 +2981,14 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
             float const LodScale = FlplusplusGetConfig().LodScale;
             if (FlplusplusScaleApplies(LodScale))
                 Query.Radius = kObjDbFillRange * LodScale;
+#endif
+#ifdef FREELANCER_RP9
+            // Port equivalent of the executable's DAT_00613ec8 patch (file offset 0x213ec8).
+            // This expands candidate collection only; each object's mesh LOD still applies.
+            static float const SolarDrawDistance =
+                PortConfigFloat("Render", "solar_draw_distance", kObjDbFillRange);
+            if (SolarDrawDistance > Query.Radius && SolarDrawDistance <= 500000.0f)
+                Query.Radius = SolarDrawDistance;
 #endif
             float const* const CamPos = Camera->GetPosition();
             Query.Center.x = CamPos[0];
@@ -2700,8 +3073,32 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     }
 
     // 0x0051c69a..0x0051c6b3: FUN_0051eda0 sorts; Pipeline vt+0xf0 (0x16, 2).
+#ifdef FREELANCER_RP9
+    if (PortConfigInt("Render", "sun_nebula_burnthrough", 1) != 0 &&
+        NebulaVolume::SunLightScale(Camera->GetPosition()) >= 0.0f)
+    {
+        FStarSphereList* const List = StarSphereList();
+        for (FStarSphereListNode* N = List->Sentinel->Next; N != List->Sentinel; N = N->Next)
+        {
+            void* Mem = ZItemAlloc(sizeof(FZItemSunBillboard));
+            if (Mem == nullptr)
+                continue;
+            FZItemSunBillboard* Node = new (Mem) FZItemSunBillboard();
+            Node->Object = N->Sphere;
+            Vector const& Pos = N->Sphere->Owner->get_position();
+            float const* Eye = Camera->GetPosition();
+            const double X = (double)Pos.x - Eye[0], Y = (double)Pos.y - Eye[1], Z = (double)Pos.z - Eye[2];
+            Node->DistSq = (float)(X * X + Y * Y + Z * Z);
+            G_Buckets[2].Nodes.push_back(Node);
+        }
+    }
+#endif
     SortBuckets();
     Pipe->SetRenderState(D3DRS_CULLMODE, 2);
+#ifdef FREELANCER_RP9
+    G_LocalShadows=BuildLocalShadows(Cam);
+    G_WeaponGlints=BuildWeaponGlints(Cam);
+#endif
 
     // 0x0051c6b9..0x0051c6e0: the background star sphere, unless the camera sits fully inside a
     // nebula (DAT_0067524c == 2), BACKGROUND (option 0x19) is off, or layer bit 0 is clear.
@@ -2714,14 +3111,26 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     if (G_FieldEnclosure != 2 && GetGameOption(kGameOptBackgroundGroup) != 0 && (LayerFlags & 1u) != 0)
 #endif
         StarSphereDraw(Cam); // FUN_00552e70
+#ifdef FREELANCER_RP9
+    NebulaVolume::DimBackground(Camera);
+    NebulaVolume::DrawBackdrop(Camera);
+#endif
 
     DrainBucket2Special(Cam);   // FUN_0051f8d0
     DrainMeshAndAsteroids(Cam); // FUN_0051f950
+#ifdef FREELANCER_RP9
+    if(G_LocalShadows) {G_LocalShadows->SetLocalShadowReceiver(0);G_LocalShadows->Release();G_LocalShadows=nullptr;}
+    // Retain this camera frame's immutable spots for the subsequent cockpit pass.
+    // Receiver participation is off until explicitly scoped to the cockpit mesh.
+    if(G_WeaponGlints) {G_WeaponGlints->SetWeaponGlintReceiver(0);G_WeaponGlints->Release();G_WeaponGlints=nullptr;}
+#endif
 
 #ifdef FREELANCER_RP9
     // Port-only: the volumetric nebula over the opaque scene, before the effects (which retail
     // also draws over its fog). The scene above was drawn with near = GetZNear, far = Far.
     NebulaVolume::Draw(Camera, Camera->GetZNear(), Far);
+    NebulaVolume::DrawHybridClouds(Camera);
+    CliAsteroidDrawTransparentFields(Cam);
 #endif
 
     // 0x0051c6f9..0x0051c7d8: layer bit 0x100 -- the effects.
@@ -2841,7 +3250,11 @@ void SpaceEnvFxBeginCockpitPass(FSpaceCamera* Cam)
     for (FStarSphereListNode* N = Sent->Next; N != Sent; N = N->Next)
     {
         FStarSphere* const Item = N->Sphere;
-        if (G_FieldEnclosure == 2)
+        if (G_FieldEnclosure == 2
+#ifdef FREELANCER_RP9
+            && PortConfigInt("Render", "sun_nebula_burnthrough", 1) == 0
+#endif
+        )
         {
             Item->ZoneOcclusion = 1.0f;
         }
@@ -2934,3 +3347,15 @@ void SpaceDrawQueueRelease()
     for (unsigned B = 0; B < kDrawBucketCount; ++B)
         G_Buckets[B].Nodes.clear();
 }
+
+#ifdef FREELANCER_RP9
+void SpaceSetCockpitGlintBounds(const float* Center,float Radius)
+{
+    G_CockpitGlintBoundsValid=Center && std::isfinite(Radius) && Radius>=0;
+    if(G_CockpitGlintBoundsValid)
+    {
+        for(unsigned I=0;I<3;++I) if(!std::isfinite(Center[I])) {G_CockpitGlintBoundsValid=false;return;}
+        std::memcpy(G_CockpitGlintCenter,Center,12);G_CockpitGlintRadius=Radius;
+    }
+}
+#endif

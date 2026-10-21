@@ -102,6 +102,10 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
 // Caller: FUN_005225d0 (0x005226e9).
 void CliDynamicAsteroidDraw(FCliDynamicAsteroid* This, FSpaceCamera* Cam,
                             unsigned char* bAmbientDone, FCliAsteroid* Field);
+#ifdef FREELANCER_RP9
+// Geometry only: no lighting updates, companion effects or simulation during shadow draws.
+void CliDynamicAsteroidDrawShadow(FCliDynamicAsteroidGameobj* Go, FSpaceCamera* Cam);
+#endif
 // FUN_00526650 (thiscall) -- a new DynamicAsteroid gameobj for this manager: created from
 // the archetype, init'ed in the active system, collisions off, slot 92, into the ObjDB.
 // Caller: FUN_00525c80 (0x00525eec).

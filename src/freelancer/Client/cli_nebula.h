@@ -49,6 +49,26 @@ void NebulaCloudsUpdate(FNebulaClouds* Clouds, void* Camera, float Dt, float Vis
                         Exclusion::NebulaExclusionZoneMgr* ExclusionMgr);
 void NebulaCloudsDestroy(FNebulaClouds* Clouds, unsigned char Flags);
 
+#ifdef FREELANCER_PARTICLE_FX
+// Port-only [Clouds] keys (docs/particle_fx.md), kept beside the retail 0x12c block.
+struct FCloudsPortParams
+{
+    bool bIndividualFacing; // puff_facing = individual
+    float SpinDegPerSec;    // puff_spin
+    float SoftFade;         // soft_fade (metres; 0 = the port.ini default)
+    float FarFadeStart;     // far_fade (fractions of the puff sphere radius; 0, 0 = retail)
+    float FarFadeEnd;
+    float DepthTint[3];     // depth_tint r, g, b (0..1)
+    float DepthTintAmount;  // depth_tint 4th value (0 = off)
+    float DepthTintNear;    // depth_tint_range (metres from the camera)
+    float DepthTintFar;
+    float ScatterStrength;  // sun_scatter (0 = off)
+    float ScatterG;         // sun_scatter 2nd value, forward bias -0.9..0.9
+};
+// Null when the clouds' [Clouds] section had none of the keys.
+FCloudsPortParams const* NebulaCloudsPortParams(FNebulaClouds const* Clouds);
+#endif
+
 struct FNebulaCloudsListNode
 {
     FNebulaCloudsListNode* Next;

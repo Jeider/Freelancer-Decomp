@@ -36,6 +36,11 @@
 #include "space_scene_obj_draw.h" // SpaceObjDrawPass (FUN_0051c200), FUN_0051c970 / FUN_0051c9e0
 #include "win3d_render.h"     // ClearWin3DBuffers (FUN_004215e0)
 #include "x86math.h"
+#ifdef FREELANCER_RP9
+#include "render/IRPSurfaceContext.h"
+#include "render/IRPWeaponGlints.h"
+#include "render/shading.h"
+#endif
 
 #include <cstddef>
 
@@ -515,7 +520,17 @@ void FirstPersonCameraSceneDraw(FFirstPersonCamera* Cam, unsigned LayerFlags, un
         return;
 
     // 0x0051843f..0x0051844a: FUN_0051c200(LayerFlags, Param2).
+#ifdef FREELANCER_RP9
+    if(ClientMeshHolderHasInstance(&Cam->Mesh) && FindPerfOption("cockpit")->Applied>0.999f)
+    {
+        float Center[3];float Radius=ClientMeshHolderGetBoundingSphere(&Cam->Mesh,Center);
+        SpaceSetCockpitGlintBounds(Center,Radius);
+    }
+#endif
     SpaceObjDrawPass(Space, LayerFlags, Param2);
+#ifdef FREELANCER_RP9
+    SpaceSetCockpitGlintBounds(nullptr,0);
+#endif
 
     // 0x0051844f..0x00518463: the "cockpit" perf option's applied value (+0x14, no null test),
     // kept in the first argument's stack slot for the second compare below.
@@ -576,7 +591,26 @@ void FirstPersonCameraSceneDraw(FFirstPersonCamera* Cam, unsigned LayerFlags, un
         // depth range [0, 0.75], and the saved near / far back through FUN_0040fb60.
         DALib::Pipeline->SetDepthRange(0.75f, 1.0f);
         if (ClientMeshHolderHasInstance(&Cam->Mesh))
+        {
+#ifdef FREELANCER_RP9
+            DALib::MaterialBatcher->FlushAll(1u);
+            IRPSurfaceContext* Finish=nullptr;IRPWeaponGlints* Glints=nullptr;
+            DALib::Pipeline->QueryInterface(Iids::RPSurfaceContext,reinterpret_cast<void**>(&Finish));
+            DALib::Pipeline->QueryInterface(Iids::RPWeaponGlints,reinterpret_cast<void**>(&Glints));
+            if(Finish) Finish->SetCockpitSurface(1);
+            if(Glints)
+            {
+                float Center[3];float Radius=ClientMeshHolderGetBoundingSphere(&Cam->Mesh,Center);
+                Glints->SetWeaponGlintReceiverBounds(Center,Radius);
+            }
+#endif
             ClientMeshHolderRender(&Cam->Mesh, Space, 0x100);
+#ifdef FREELANCER_RP9
+            DALib::MaterialBatcher->FlushAll(1u);
+            if(Glints) {Glints->SetWeaponGlintReceiver(0);Glints->Release();}
+            if(Finish) {Finish->SetCockpitSurface(0);Finish->Release();}
+#endif
+        }
         DALib::Pipeline->SetDepthRange(0.0f, 0.75f);
         SpaceCameraSetNearFar(Space, SavedNear, SavedFar);
     }

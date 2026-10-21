@@ -72,27 +72,28 @@ namespace
         return false;
     }
 
+    // The system ini's position of the last object FindObject matched by enumeration, for
+    // PlaceAt when the live object cannot answer GetLocation.
+    bool G_bFoundIniPos = false;
+    Vector G_FoundIniPos;
+
     // console.dll find_object: a nickname, or "~part" of one (the first match).
     unsigned FindObject(unsigned System, char const* Name)
     {
-        if (Name[0] != '~')
-        {
-            unsigned const Id = CreateID(Name);
-            unsigned InSystem = 0;
-            if (pub::SpaceObj::GetSystem(Id, InSystem) >= 0 && InSystem == System)
-                return Id;
-        }
+        G_bFoundIniPos = false;
         struct FFind : pub::System::SysObjEnumerator
         {
             char const* Part;
             bool bPartial;
             unsigned Found = 0;
+            Vector Pos;
             bool Slot00(pub::System::FSysObj const* Object) override
             {
                 bool const bHit = bPartial ? PartialMatch(Object->Nickname, Part) : _stricmp(Object->Nickname, Part) == 0;
                 if (bHit)
                 {
                     Found = CreateID(Object->Nickname);
+                    Pos = Object->Pos;
                     return false;
                 }
                 return true;
@@ -101,7 +102,21 @@ namespace
         Find.bPartial = Name[0] == '~';
         Find.Part = Find.bPartial ? Name + 1 : Name;
         pub::System::EnumerateObjects(System, Find);
-        return Find.Found;
+        if (Find.Found != 0)
+        {
+            G_bFoundIniPos = true;
+            G_FoundIniPos = Find.Pos;
+            return Find.Found;
+        }
+        if (Name[0] != '~')
+        {
+            // Not in the system ini: a spawned object (a mission ship, a dropped crate).
+            unsigned const Id = CreateID(Name);
+            unsigned InSystem = 0;
+            if (pub::SpaceObj::GetSystem(Id, InSystem) >= 0 && InSystem == System)
+                return Id;
+        }
+        return 0;
     }
 
     // console.dll enter_system / cmdJump: where to put a ship that arrives at Object.
@@ -110,8 +125,9 @@ namespace
         unsigned Type = 0;
         pub::SpaceObj::GetType(Object, Type);
         Vector TargetPos;
-        Matrix TargetOrient;
-        pub::SpaceObj::GetLocation(Object, TargetPos, TargetOrient);
+        Matrix TargetOrient = Matrix(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+        if (pub::SpaceObj::GetLocation(Object, TargetPos, TargetOrient) < 0 && G_bFoundIniPos)
+            TargetPos = G_FoundIniPos;
         float Radius = ObjectRadius(Object);
         if (Type == 0x20) // docking ring: in front of the opening
         {
@@ -157,7 +173,7 @@ namespace
         Orient = LookMatrixYup(Delta);
     }
 
-    int Jump(FPortConsoleJump const& In)
+    int Jump(FPortConsoleJump& In)
     {
         unsigned Ship = 0;
         pub::Player::GetShip(kPlayer, Ship);
@@ -168,7 +184,11 @@ namespace
         Vector Pos;
         Matrix Orient;
         pub::SpaceObj::GetLocation(Ship, Pos, Orient);
-        if (In.Mode == 1)
+        if (In.Mode == 3)
+        {
+            Pos = In.Offset;
+        }
+        else if (In.Mode == 1)
         {
             // console.dll: x forward (-Z), y right, z up.
             AddAxis(Pos, -In.Offset.x, Orient, 2);
@@ -179,7 +199,10 @@ namespace
         {
             unsigned Target = 0;
             if (In.Mode == 0)
+            {
+                G_bFoundIniPos = false;
                 pub::SpaceObj::GetTarget(Ship, Target);
+            }
             else
                 Target = FindObject(System, In.Object);
             if (Target == 0)
@@ -188,6 +211,8 @@ namespace
             PlaceAt(Target, Pos, Orient, &From);
         }
         pub::SpaceObj::Relocate(Ship, System, Pos, Orient);
+        In.OutPos = Pos;
+        In.OutOrient = Orient;
         return kPortConsoleOk;
     }
 }
@@ -223,7 +248,7 @@ bool PortConsoleTakeSystemSwitch(unsigned ShipId, unsigned& OutSystem, Vector& I
     return true;
 }
 
-extern "C" __declspec(dllexport) int __cdecl PortConsoleServer(int Op, void const* In)
+extern "C" __declspec(dllexport) int __cdecl PortConsoleServer(int Op, void* In)
 {
     switch (Op)
     {
@@ -241,7 +266,7 @@ extern "C" __declspec(dllexport) int __cdecl PortConsoleServer(int Op, void cons
         G_bPendingSystem = true;
         return kPortConsoleOk;
     case kPortConsoleJump:
-        return Jump(*static_cast<FPortConsoleJump const*>(In));
+        return Jump(*static_cast<FPortConsoleJump*>(In));
     default:
         return kPortConsoleFailed;
     }

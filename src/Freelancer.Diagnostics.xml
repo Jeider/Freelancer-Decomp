@@ -82,6 +82,18 @@
     <EnumValue Name="0" DisplayName="Off" />
     <EnumValue Name="1" DisplayName="On" />
   </EnumProperty>
+  <EnumProperty Name="FreelancerPreciseRender" DisplayName="Camera-relative modelview"
+                Category="Features" Default="0"
+                Description="Not in the original game: an object's modelview is computed relative to the camera, so ships and stations far from the system centre stop shaking; switched by port.ini [Render] precise_view (FREELANCER_PRECISE_RENDER, client and x86math.dll; docs/precise_render.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
+  <EnumProperty Name="FreelancerParticleFx" DisplayName="Particle improvements"
+                Category="Features" Default="0"
+                Description="Not in the original game: soft particles for alchemy effects and nebula puffs (Direct3D 9 / RP9 only), nebula puffs sorted back to front with smooth fades; each switched in port.ini [Render] (FREELANCER_PARTICLE_FX, client and alchemy.dll; docs/particle_fx.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">
+    <EnumValue Name="0" DisplayName="Off" />
+    <EnumValue Name="1" DisplayName="On" />
+  </EnumProperty>
   <EnumProperty Name="FreelancerFlsharp" DisplayName="FLSharp.dll fixes"
                 Category="Features" Default="0"
                 Description="Not in the original game (BC46's FLSharp.dll): bug fixes and improvements of the client and server, ported one by one (FREELANCER_FLSHARP, client, Common.dll and Server.dll; docs/flsharp.md). Off builds the retail behaviour. After changing it, save this property sheet and rebuild the solution.">

@@ -232,6 +232,11 @@ namespace
         // Port-only: while the Direct3D 9 volumetric nebula's lightning strikes drive this light
         // (direction from the strike, its flicker; nebula_volume.cpp), the random flash below
         // stays out. Never true on RP8 or with the volume off.
+        if (NebulaVolume::SuppressesRetailLightning(Nebula))
+        {
+            GameLightVirtualDisable(GLight);
+            return;
+        }
         if (NebulaVolume::DrivesNebulaLight(Nebula))
             return;
 #endif
@@ -339,6 +344,21 @@ namespace
 
     // FUN_00550180
     float const kCloudsRandScale = 3.0517578125e-05f; // DAT_005caeec = 1/32768
+
+#ifdef FREELANCER_PARTICLE_FX
+    std::map<FNebulaClouds const*, FCloudsPortParams> G_CloudsPortParams;
+
+    FCloudsPortParams& CloudsPortParamsFor(FNebulaClouds const* Clouds)
+    {
+        auto Found = G_CloudsPortParams.find(Clouds);
+        if (Found == G_CloudsPortParams.end())
+        {
+            FCloudsPortParams Defaults = {false, 0.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            Found = G_CloudsPortParams.emplace(Clouds, Defaults).first;
+        }
+        return Found->second;
+    }
+#endif
 
     void LocalNebulaCloudsConstruct(FNebulaClouds* Clouds)
     {
@@ -922,6 +942,9 @@ namespace
     // No test of `this`.
     void LocalNebulaCloudsDestroy(FNebulaClouds* Clouds, unsigned char Flags)
     {
+#ifdef FREELANCER_PARTICLE_FX
+        G_CloudsPortParams.erase(Clouds);
+#endif
         LocalNebulaCloudsReleaseBits(Clouds);
         if ((Flags & 1u) != 0)
             operator delete(Clouds);
@@ -932,6 +955,9 @@ namespace
     void LocalNebulaCloudsParseIni(FNebulaClouds* Clouds, INI_Reader& Reader, FShapeDB* Shapes)
     {
         unsigned char* const R = Clouds->Raw;
+#ifdef FREELANCER_PARTICLE_FX
+        G_CloudsPortParams.erase(Clouds);
+#endif
 
         // 0x0055024a..0x0055025e: an existing puff table is freed (FUN_00550cf0), +0x04 and
         // +0xec cleared.
@@ -1153,6 +1179,53 @@ namespace
             {
                 *reinterpret_cast<int*>(R + 0x128) = static_cast<int>(Reader.get_value_float(0));
             }
+#ifdef FREELANCER_PARTICLE_FX
+            // Port-only keys (docs/particle_fx.md); retail ignores them like any unknown key.
+            else if (Reader.is_value("puff_facing"))
+            {
+                CloudsPortParamsFor(Clouds).bIndividualFacing =
+                    _stricmp(Reader.get_value_string(0), "individual") == 0;
+            }
+            else if (Reader.is_value("puff_spin"))
+            {
+                CloudsPortParamsFor(Clouds).SpinDegPerSec = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("soft_fade"))
+            {
+                CloudsPortParamsFor(Clouds).SoftFade = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("far_fade"))
+            {
+                FCloudsPortParams& Params = CloudsPortParamsFor(Clouds);
+                float Start = Reader.get_value_float(0);
+                float End = Reader.get_num_parameters() > 1 ? Reader.get_value_float(1) : 1.0f;
+                End = End > 1.0f ? 1.0f : (End < 0.01f ? 0.01f : End);
+                Start = Start < 0.0f ? 0.0f : (Start > End ? End : Start);
+                Params.FarFadeStart = Start;
+                Params.FarFadeEnd = End;
+            }
+            else if (Reader.is_value("depth_tint"))
+            {
+                FCloudsPortParams& Params = CloudsPortParamsFor(Clouds);
+                for (int Channel = 0; Channel < 3; ++Channel)
+                    Params.DepthTint[Channel] = Reader.get_value_float(Channel) / 255.0f;
+                float const Amount = Reader.get_num_parameters() > 3 ? Reader.get_value_float(3) : 0.5f;
+                Params.DepthTintAmount = Amount < 0.0f ? 0.0f : (Amount > 1.0f ? 1.0f : Amount);
+            }
+            else if (Reader.is_value("depth_tint_range"))
+            {
+                FCloudsPortParams& Params = CloudsPortParamsFor(Clouds);
+                Params.DepthTintNear = Reader.get_value_float(0);
+                Params.DepthTintFar = Reader.get_value_float(1);
+            }
+            else if (Reader.is_value("sun_scatter"))
+            {
+                FCloudsPortParams& Params = CloudsPortParamsFor(Clouds);
+                Params.ScatterStrength = Reader.get_value_float(0);
+                float const G = Reader.get_num_parameters() > 1 ? Reader.get_value_float(1) : 0.6f;
+                Params.ScatterG = G < -0.9f ? -0.9f : (G > 0.9f ? 0.9f : G);
+            }
+#endif
         }
 
         // 0x00550a27..0x00550a6d: +0xec = 1; the weights normalised -- the sum on the FPU, each
@@ -1842,6 +1915,14 @@ void NebulaCloudsParseIni(FNebulaClouds* Clouds, INI_Reader& Reader, FShapeDB* S
     LocalNebulaCloudsParseIni(Clouds, Reader, Shapes);
 }
 
+#ifdef FREELANCER_PARTICLE_FX
+FCloudsPortParams const* NebulaCloudsPortParams(FNebulaClouds const* Clouds)
+{
+    auto const Found = G_CloudsPortParams.find(Clouds);
+    return Found != G_CloudsPortParams.end() ? &Found->second : nullptr;
+}
+#endif
+
 void FNebulaEffect::Load(char const* FilePath, char const* ZoneName)
 {
     FNebulaEffect* const This = this;
@@ -2034,6 +2115,13 @@ void FNebulaEffect::DrawFogOverlay(void* Camera)
     else if (!(*FadePtr > 0.0f))
         bDrawOverlay = false;
 
+    // Retail can stop drawing the opaque quad after one frame because it also stops the
+    // sky and clears directly to the fog colour. RP9 still draws the finite backdrop and
+    // volume layers: the requested retail fog cover must therefore be submitted every frame.
+#ifdef FREELANCER_RP9
+    if (NebulaVolume::IsActiveFor(This) && !NebulaVolume::ReplacesFogOverlay(This))
+        bDrawOverlay = *FadePtr > 0.0f;
+#endif
     if (bDrawOverlay)
     {
         // 0x00508b76: FCOMP 1.0f, TEST AH,1 / JNZ -- only >= 1.0 sets +0x2b8.
@@ -3407,7 +3495,11 @@ void NebulaUpdateBoltCamera(FNebulaEffect* Nebula, float CamX, float CamY, float
     // Corners (zone +/- EdgeA) +/- AxisA through FUN_00423b30 / FUN_00423b60 (float stores).
     if (FaceA > 0.0)
     {
+#ifdef FREELANCER_RP9
+        Win3DColor4f(Fog[0], Fog[1], Fog[2], FaceA * NebulaVolume::ExteriorOpacity(Nebula, true));
+#else
         Win3DColor4f(Fog[0], Fog[1], Fog[2], FaceA);
+#endif
         Win3DTexCoord2f(Shape->U0, Shape->V0);
         T[0] = ZonePos.x + EdgeA[0];
         T[1] = ZonePos.y + EdgeA[1];
@@ -3429,7 +3521,11 @@ void NebulaUpdateBoltCamera(FNebulaEffect* Nebula, float CamX, float CamY, float
     // subtractions; its z is rounded in between.
     if (FaceB > 0.0)
     {
+#ifdef FREELANCER_RP9
+        Win3DColor4f(Fog[0], Fog[1], Fog[2], FaceB * NebulaVolume::ExteriorOpacity(Nebula, true));
+#else
         Win3DColor4f(Fog[0], Fog[1], Fog[2], FaceB);
+#endif
         Win3DTexCoord2f(Shape->U0, Shape->V0);
         T[0] = ZonePos.x + EdgeB[0];
         T[1] = EdgeB[1] + ZonePos.y;
@@ -3592,6 +3688,9 @@ void NebulaDrawBolts(FNebulaEffect* Nebula, void* Camera)
     // 0x005083c6..0x005083fb: base alpha +0xb8, faded out over the second half of +0x294.
     float const Fade = *reinterpret_cast<float*>(B + 0x294);
     float BaseAlpha = *reinterpret_cast<float*>(B + 0xb8);
+#ifdef FREELANCER_RP9
+    BaseAlpha *= NebulaVolume::ExteriorOpacity(Nebula, false);
+#endif
     if (Fade > 0.5f)
         BaseAlpha = static_cast<float>((1.0 - ((static_cast<double>(Fade) - 0.5) +
                                                (static_cast<double>(Fade) - 0.5))) * BaseAlpha);

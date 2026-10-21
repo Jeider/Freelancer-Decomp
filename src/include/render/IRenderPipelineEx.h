@@ -199,6 +199,24 @@ struct IRenderPipelineEx : IDAComponent
     // An IRenderPipeline / IRPTexture texture handle (CreateTexture, LoadTexture, LoadCubemap).
     virtual GENRESULT DACOM_API BindExPipelineTexture(unsigned long Sampler, void* Handle,
                                                       const FRPExSamplerState* State) = 0;
+
+    // Soft particles for the ordinary (fixed-function) draws that follow, outside Ex passes:
+    // a draw of XYZ|DIFFUSE|TEX vertices with alpha blending, depth test on and depth write off
+    // runs through a shader that does what the fixed-function stage 0 and fog would, and fades
+    // the fragment out where it nears the scene depth. Anything else, or no INTZ scene depth,
+    // draws as before. Kind: one of ERPExSoftKind; the fade distance of each kind comes from
+    // port.ini [Render] (docs/particle_fx.md).
+    virtual GENRESULT DACOM_API SetSoftParticles(unsigned long Kind) = 0;
+    // Overrides the current kind's fade distance (metres; 0 = the kind's own) until the next
+    // SetSoftParticles. A kind switched off in port.ini is switched on by a positive value.
+    virtual GENRESULT DACOM_API SetSoftParticleFade(float Metres) = 0;
+};
+
+enum ERPExSoftKind : unsigned long
+{
+    RPExSoftOff = 0,
+    RPExSoftEffects = 1, // alchemy particle appearances (explosions, fire, smoke)
+    RPExSoftClouds = 2,  // nebula interior puffs
 };
 
 // DirectX 9 drawing extensions. IID: Iids::RPDrawEx. Pass only; a program must be bound.

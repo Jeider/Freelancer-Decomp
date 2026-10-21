@@ -11,6 +11,10 @@
 #include "alchemy_ramp.h"
 #include "common_misc.h"
 #include "render/shading.h"
+#ifdef FREELANCER_PARTICLE_FX
+#include "dacom_iids.h"
+#include "render/IRenderPipelineEx.h"
+#endif
 
 #include <cmath>
 #include <cstdint>
@@ -23,8 +27,56 @@
 // slots.
 namespace AlchemyImpl
 {
+    extern float G_AppearanceOpacity;
+    unsigned long AlApplyRenderOpacity(unsigned long Colour,unsigned long SrcBlend)
+        {
+            if(G_AppearanceOpacity>=1.0f) return Colour;
+            const unsigned long Alpha=static_cast<unsigned long>((Colour>>24)*G_AppearanceOpacity+0.5f);
+            unsigned long Rgb=Colour & 0x00fffffful;
+            if(SrcBlend==D3DBLEND_ONE)
+            {
+                Rgb=0;
+                for(unsigned Shift=0;Shift<24;Shift+=8)
+                    Rgb|=static_cast<unsigned long>(((Colour>>Shift)&255)*G_AppearanceOpacity+0.5f)<<Shift;
+            }
+            return Rgb | (Alpha<<24);
+        }
     namespace
     {
+#ifdef FREELANCER_PARTICLE_FX
+        // Port-only (docs/particle_fx.md): the billboard appearances' draws as soft particles
+        // (RP9 only; RP8 answers no IRenderPipelineEx and nothing changes).
+        IRenderPipelineEx* AlSoftPipeline()
+        {
+            static bool S_bAsked = false;
+            static IRenderPipelineEx* S_Ex = nullptr;
+            if (!S_bAsked && G_PipelineOuter != nullptr)
+            {
+                S_bAsked = true;
+                if (G_PipelineOuter->QueryInterface(Iids::RenderPipelineEx, reinterpret_cast<void**>(&S_Ex)) >= 0 &&
+                    S_Ex != nullptr)
+                    S_Ex->Release(); // kept like the other pipeline interfaces
+                else
+                    S_Ex = nullptr;
+            }
+            return S_Ex;
+        }
+
+        struct FAlSoftScope
+        {
+            FAlSoftScope()
+            {
+                if (IRenderPipelineEx* const Ex = AlSoftPipeline())
+                    Ex->SetSoftParticles(RPExSoftEffects);
+            }
+            ~FAlSoftScope()
+            {
+                if (IRenderPipelineEx* const Ex = AlSoftPipeline())
+                    Ex->SetSoftParticles(RPExSoftOff);
+            }
+        };
+#endif
+
         I3DMathEngine* G_Perp3DMath = nullptr; // DAT_06257b38, shared by Perp's draw/fade calls.
         I3DMathEngine* G_BasicGeometry3DMath = nullptr; // DAT_06257a28, Basic quad/triangle.
         I3DMathEngine* G_Rect3DMath = nullptr; // DAT_06257b8c, Rect bounds and fill.
@@ -1315,6 +1367,9 @@ namespace AlchemyImpl
         };
         G_RenderPipeline->SetModelview(IdentityXform12);
 
+#ifdef FREELANCER_PARTICLE_FX
+        FAlSoftScope const Soft;
+#endif
         AlDrawContextDraw(G_BasicDrawContext);
         return GR_OK;
     }
@@ -1402,7 +1457,7 @@ namespace AlchemyImpl
             const unsigned long Color = ForwardAppearanceColorEval(
                 Descriptor_->ColorRamp, AppearanceOuterTime_, InnerTime);
             const std::int64_t AlphaInteger = static_cast<std::int64_t>(static_cast<double>(Alpha) * 255.0);
-            const unsigned long Diffuse = Color | (static_cast<std::uint32_t>(AlphaInteger) << 24);
+            const unsigned long Diffuse = AlApplyRenderOpacity(Color | (static_cast<std::uint32_t>(AlphaInteger) << 24),Descriptor_->BlendInfo[0]);
             const float Angle = static_cast<float>(ForwardAppearanceSingleEval(
                 Descriptor_->TexFrameRamp, AppearanceOuterTime_, InnerTime));
             const float Aspect = static_cast<float>(ForwardAppearanceSingleEval(
@@ -1425,6 +1480,7 @@ namespace AlchemyImpl
                     FlipBasicAppearanceFrame(Descriptor_->Flags, FrameBlock);
                 }
             }
+
             float Bx = 0.0f;
             float By = 0.0f;
             float Ux;
@@ -1455,9 +1511,13 @@ namespace AlchemyImpl
                 float Guess;
                 std::memcpy(&Guess, &GuessBits, sizeof(Guess));
                 const double InverseLength = (1.5 - (((static_cast<double>(Guess) * Guess) * LengthSquared) * 0.5)) * Guess;
-                const float NormalX = static_cast<float>(static_cast<double>(Ua) * InverseLength);
-                const float NormalY = static_cast<float>(static_cast<double>(Ub) * InverseLength);
-                const double NormalZ = Uc * InverseLength;
+                // End-on exhaust (or zero velocity) has no projected streak axis.
+                // Keep a camera-facing footprint instead of collapsing its glow
+                // to a zero-area quad. Ordinary streaks retain the retail math.
+                const bool HasAxis=LengthSquared>1.0e-20f;
+                const float NormalX = HasAxis ? static_cast<float>(static_cast<double>(Ua) * InverseLength) : 0.0f;
+                const float NormalY = HasAxis ? static_cast<float>(static_cast<double>(Ub) * InverseLength) : 1.0f;
+                const double NormalZ = HasAxis ? Uc * InverseLength : 0.0;
                 const double DotY = static_cast<double>(V[1]) * NormalY;
                 const double DotX = static_cast<double>(V[0]) * NormalX;
                 const double SumYx = DotY + DotX;
@@ -1598,7 +1658,7 @@ namespace AlchemyImpl
             const unsigned long Color = ForwardAppearanceColorEval(
                 Descriptor_->ColorRamp, AppearanceOuterTime_, InnerTime);
             const std::int64_t AlphaInteger = static_cast<std::int64_t>(static_cast<double>(Alpha) * 255.0);
-            const unsigned long Diffuse = Color | (static_cast<std::uint32_t>(AlphaInteger) << 24);
+            const unsigned long Diffuse = AlApplyRenderOpacity(Color | (static_cast<std::uint32_t>(AlphaInteger) << 24),Descriptor_->BlendInfo[0]);
             const double DoubledSize = static_cast<double>(Size) + Size;
             const volatile float Size2 = static_cast<float>(DoubledSize);
             // The next trig output overwrites this stored product in retail.
@@ -1961,6 +2021,9 @@ namespace AlchemyImpl
         ComposeTransform(ViewWorld, GetDrawCameraTransform(), NodeWorldXform_);
         CallRenderPipelineSetTransform(G_RenderPipeline, ViewWorld);
 
+#ifdef FREELANCER_PARTICLE_FX
+        FAlSoftScope const Soft;
+#endif
         AlDrawContextDraw(G_RectDrawContext);
         return GR_OK;
     }
@@ -2108,7 +2171,7 @@ namespace AlchemyImpl
             const unsigned long Color = ForwardAppearanceColorEval(
                 Descriptor_->ColorRamp, AppearanceOuterTime_, InnerTime);
             const std::int64_t AlphaInteger = static_cast<std::int64_t>(static_cast<double>(Alpha) * 255.0f);
-            const unsigned long Diffuse = Color | (static_cast<std::uint32_t>(AlphaInteger) << 24);
+            const unsigned long Diffuse = AlApplyRenderOpacity(Color | (static_cast<std::uint32_t>(AlphaInteger) << 24),Descriptor_->BlendInfo[0]);
             if (bFrameLookup)
             {
                 const double FramePosition = ForwardAppearanceSingleEval(
@@ -2500,6 +2563,9 @@ namespace AlchemyImpl
         std::memcpy(&Modelview, &ViewWorld, sizeof(Modelview));
         G_RenderPipeline->SetModelview(reinterpret_cast<const float*>(&Modelview));
 
+#ifdef FREELANCER_PARTICLE_FX
+        FAlSoftScope const Soft;
+#endif
         AlDrawContextDraw(G_PerpDrawContext);
         return GR_OK;
     }
@@ -2657,7 +2723,7 @@ namespace AlchemyImpl
             const unsigned long PackedColor = ForwardAppearanceColorEval(
                 Descriptor_->ColorRamp, AppearanceOuterTime_, InnerTime);
             const std::int64_t AlphaInteger = static_cast<std::int64_t>(static_cast<double>(Alpha) * 255.0f);
-            const unsigned long Diffuse = PackedColor | (static_cast<unsigned long>(AlphaInteger) << 24);
+            const unsigned long Diffuse = AlApplyRenderOpacity(PackedColor | (static_cast<unsigned long>(AlphaInteger) << 24),Descriptor_->BlendInfo[0]);
             if (bFrameLookup)
             {
                 const double FramePosition = ForwardAppearanceSingleEval(
@@ -3134,7 +3200,7 @@ namespace AlchemyImpl
             const unsigned long Color = ForwardAppearanceColorEval(
                 Descriptor_->ColorRamp, AppearanceOuterTime_, InnerTime);
             const std::int64_t AlphaInteger = static_cast<std::int64_t>(static_cast<double>(Alpha) * 255.0);
-            const unsigned long Diffuse = Color | (static_cast<std::uint32_t>(AlphaInteger) << 24);
+            const unsigned long Diffuse = AlApplyRenderOpacity(Color | (static_cast<std::uint32_t>(AlphaInteger) << 24),Descriptor_->BlendInfo[0]);
             if (bFrameLookup)
             {
                 const double FramePosition = ForwardAppearanceSingleEval(
@@ -3264,6 +3330,9 @@ namespace AlchemyImpl
         float ViewWorld[12];
         ComposeTransform(ViewWorld, Camera->GetViewTransform(), NodeWorldXform_);
         G_RenderPipeline->SetModelview(ViewWorld);
+#ifdef FREELANCER_PARTICLE_FX
+        FAlSoftScope const Soft;
+#endif
         AlDrawContextDraw(G_OrientedDrawContext);
         return GR_OK;
     }
@@ -3668,7 +3737,7 @@ namespace AlchemyImpl
                         const unsigned long Color = ForwardAppearanceColorEval(
                             Descriptor_->ColorRamp, AppearanceOuterTime_, InnerTime);
                         const std::int64_t AlphaInteger = ConvertAlchemyFpuInteger(static_cast<double>(Alpha) * 255.0f);
-                        const unsigned long Diffuse = Color | (static_cast<unsigned long>(AlphaInteger) << 24);
+                        const unsigned long Diffuse = AlApplyRenderOpacity(Color | (static_cast<unsigned long>(AlphaInteger) << 24),Descriptor_->BlendInfo[0]);
                         const double FirstZ = static_cast<double>(C[2]) - Dz;
                         const double FirstY = static_cast<double>(C[1]) - Dy;
                         unsigned short I0 = static_cast<unsigned short>(G_DustDrawContext.RequestedVerts);
@@ -4480,7 +4549,7 @@ namespace AlchemyImpl
                 float Rgba[4] = {0.0f, 0.0f, 0.0f, 0.0f};
                 float V = 0.0f;
                 EvalRingParams(State, Head, &HalfWidth, Rgba, &V);
-                const unsigned long Diffuse = PackRingColor(Rgba);
+                const unsigned long Diffuse = AlApplyRenderOpacity(PackRingColor(Rgba),Descriptor_->BlendInfo[0]);
                 unsigned short NewIdx[4];
                 float BasisColumn[3];
                 float Side[3];
@@ -4631,7 +4700,7 @@ namespace AlchemyImpl
         const float* const VWord = ((State.Counter & 1) == (Node->bRibbonParity_ ? 1 : 0))
             ? &Node->Texture_.Frame[2] : &Node->Texture_.Frame[4];
         std::memcpy(&V, VWord, sizeof(float));
-        const unsigned long Diffuse = PackRingColor(Rgba);
+        const unsigned long Diffuse = AlApplyRenderOpacity(PackRingColor(Rgba),Descriptor_->BlendInfo[0]);
 
         unsigned short NewIdx[4];
         float BasisColumn[3];

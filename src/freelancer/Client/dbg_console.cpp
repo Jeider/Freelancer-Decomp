@@ -20,6 +20,7 @@
 
 #include "client_state.h"     // QueueLoadGameCharacter (load)
 #include "game_options.h"      // kGameOptDisableCollide (ghost)
+#include "hud_waypoint.h"      // GetHudWaypoint (jump to a targeted waypoint)
 #include "ids_strings.h"       // GetIdsStringW (base / system names)
 #include "nav_bar.h"           // NavBar (launch)
 #include "player_behavior.h"   // GetPlayerObjRW
@@ -28,6 +29,7 @@
 
 #include "common_cobject.h"
 #include "common_id.h"
+#include "common_iface.h"      // IObjRW::get_position (waypoint)
 #include "common_misc.h"       // SinglePlayer, GetUserDataPath
 #include "common_server_types.h" // CHARACTER_ID
 #include "common_universe.h"
@@ -163,12 +165,36 @@ namespace
             Printf("quiet off");
     }
 
-    void CmdPos(char const*)
+    void RunJump(FPortConsoleServerFn Server, FPortConsoleJump& Jump);
+    bool ReadVector(char const*& Text, Vector& Out);
+    FPortConsoleServerFn ServerConsole();
+
+    void CmdPos(char const* Args)
     {
         CObject const* const Ship = static_cast<CObject const*>(GetPlayerShipObject());
         if (Ship == nullptr)
         {
             Printf("* No player ship.");
+            return;
+        }
+        if (*Args != '\0')
+        {
+            // pos x,y,z: move the ship there in this system, keeping its orientation.
+            FPortConsoleJump Jump = {};
+            Jump.Mode = 3;
+            char const* Text = Args;
+            if (!ReadVector(Text, Jump.Offset))
+            {
+                Printf("* pos x,y,z");
+                return;
+            }
+            FPortConsoleServerFn const Server = ServerConsole();
+            if (Server == nullptr)
+            {
+                Printf("* Single player only.");
+                return;
+            }
+            RunJump(Server, Jump);
             return;
         }
         Vector const& Pos = Ship->get_position();
@@ -339,7 +365,7 @@ namespace
             return;
         }
         FPortConsoleServerFn const Server = ServerConsole();
-        unsigned const Id = Base->GetId();
+        unsigned Id = Base->GetId();
         if (Server == nullptr || Server(kPortConsoleForceLand, &Id) != kPortConsoleOk)
         {
             Printf("* Landing failed.");
@@ -367,6 +393,28 @@ namespace
         Out.y = Values[1];
         Out.z = Values[2];
         return Count > 0;
+    }
+
+    // The server moves its copy of the ship; the client owns the position in single player
+    // (it sends it up every frame), so its own ship is beamed to the same place.
+    void RunJump(FPortConsoleServerFn Server, FPortConsoleJump& Jump)
+    {
+        switch (Server(kPortConsoleJump, &Jump))
+        {
+        case kPortConsoleOk:
+        {
+            CObject* Ship = static_cast<CObject*>(GetPlayerShipObject());
+            if (Ship != nullptr && (static_cast<unsigned>(Ship->ObjectClass) & 0x503u) == 0x503u)
+                Ship->beam_object(Jump.OutPos, Jump.OutOrient, false);
+            Printf("pos = %.1f, %.1f, %.1f", static_cast<double>(Jump.OutPos.x),
+                   static_cast<double>(Jump.OutPos.y), static_cast<double>(Jump.OutPos.z));
+            break;
+        }
+        case kPortConsoleNotInSpace: Printf("* Not in space."); break;
+        case kPortConsoleNoTarget: Printf("* No target."); break;
+        case kPortConsoleObjectNotFound: Printf("* Object not found."); break;
+        default: break;
+        }
     }
 
     void CmdSystem(char const* Args)
@@ -440,19 +488,24 @@ namespace
             Jump.Mode = 2;
             std::strncpy(Jump.Object, Args, sizeof(Jump.Object) - 1);
         }
+        else
+        {
+            // A targeted waypoint is a client-only Solar the server does not know: jump onto it.
+            HUD_Waypoint* const Waypoint = GetHudWaypoint();
+            IObjRW* const WaypointObj = Waypoint != nullptr && Waypoint->IsActive() ? Waypoint->GetWaypointObject() : nullptr;
+            if (WaypointObj != nullptr)
+            {
+                Jump.Mode = 3;
+                Jump.Offset = WaypointObj->get_position();
+            }
+        }
         FPortConsoleServerFn const Server = ServerConsole();
         if (Server == nullptr)
         {
             Printf("* Single player only.");
             return;
         }
-        switch (Server(kPortConsoleJump, &Jump))
-        {
-        case kPortConsoleNotInSpace: Printf("* Not in space."); break;
-        case kPortConsoleNoTarget: Printf("* No target."); break;
-        case kPortConsoleObjectNotFound: Printf("* Object not found."); break;
-        default: break;
-        }
+        RunJump(Server, Jump);
     }
 
     void CmdLaunch(char const*)
@@ -494,7 +547,7 @@ namespace
         {"lines", nullptr, "[2..40] visible console lines", &CmdLines},
         {"clear", nullptr, "clear the console", &CmdClear},
         {"quiet", "q", "toggle command output", &CmdQuiet},
-        {"pos", "p", "the player's position", &CmdPos},
+        {"pos", "p", "[x,y,z] the player's position (with x,y,z: move there)", &CmdPos},
         {"quit", nullptr, "quit the game", &CmdQuit},
         {"save", "s", "[name | 1-9] save the game (in space too)", &CmdSave},
         {"load", "l", "[name | 1-9] load a game saved with save", &CmdLoad},

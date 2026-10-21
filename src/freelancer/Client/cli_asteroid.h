@@ -315,6 +315,10 @@ struct FSpaceCamera;
 // FUN_00522700 (thiscall on the field, RET 8) — light the field around the point Scale along
 // the camera's view axis (the dynamic asteroid draw FUN_005261b0 calls it with 100.0f).
 void CliAsteroidLightAround(FCliAsteroid* Field, FSpaceCamera* Cam, float Scale);
+#ifdef FREELANCER_RP9
+void CliAsteroidBeginVolumeFrame();
+void CliAsteroidDrawTransparentFields(FSpaceCamera* Cam);
+#endif
 
 // FUN_00522070 (thiscall on the field, RET 8) -- the per-frame update: the nebula lookup once,
 // the exclusion re-sort, the CmnAsteroid change events into the cube map (MedAsteroid

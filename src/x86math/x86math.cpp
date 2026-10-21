@@ -710,7 +710,86 @@ namespace
             ++Out;
         }
     }
+
+#ifdef FREELANCER_PRECISE_RENDER
+    // Port-only (port_precise_view.h): the views of the live cameras, one slot per camera.
+    struct FPreciseView
+    {
+        void const* Owner;
+        float View[12];
+        float CameraPos[3];
+    };
+    const int kPreciseViewSlots = 4;
+    FPreciseView G_PreciseViews[kPreciseViewSlots];
+    int G_PreciseViewCount = 0;
+    int G_PreciseViewNext = 0;
+
+    // A is a registered camera view: R = Ra * Rb, T = Ra * (Tb - CameraPos). Ta is -Ra *
+    // CameraPos up to its rounding, so this is the same product without the cancellation of
+    // two huge translations. Locals first: Dst may alias A or B.
+    bool PreciseViewMul(FTransform& Dst, const FTransform& A, const FTransform& B)
+    {
+        if (G_PreciseViewCount == 0)
+            return false;
+        FPreciseView const* Match = nullptr;
+        for (int Slot = 0; Slot < G_PreciseViewCount; ++Slot)
+        {
+            if (std::memcmp(G_PreciseViews[Slot].View, &A, sizeof(FTransform)) == 0)
+            {
+                Match = &G_PreciseViews[Slot];
+                break;
+            }
+        }
+        if (Match == nullptr)
+            return false;
+        const FTransform Left = A;
+        const FTransform Right = B;
+        double Delta[3];
+        for (int Axis = 0; Axis < 3; ++Axis)
+            Delta[Axis] = static_cast<double>((&Right.Translation.X)[Axis]) - Match->CameraPos[Axis];
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            for (int Col = 0; Col < 3; ++Col)
+            {
+                Dst.Rotation.D[Row][Col] =
+                    static_cast<float>(static_cast<double>(Left.Rotation.D[Row][0]) * Right.Rotation.D[0][Col] +
+                                       static_cast<double>(Left.Rotation.D[Row][1]) * Right.Rotation.D[1][Col] +
+                                       static_cast<double>(Left.Rotation.D[Row][2]) * Right.Rotation.D[2][Col]);
+            }
+            (&Dst.Translation.X)[Row] = static_cast<float>(Left.Rotation.D[Row][0] * Delta[0] +
+                                                           Left.Rotation.D[Row][1] * Delta[1] +
+                                                           Left.Rotation.D[Row][2] * Delta[2]);
+        }
+        return true;
+    }
+#endif
 }
+
+#ifdef FREELANCER_PRECISE_RENDER
+extern "C" __declspec(dllexport) void __cdecl PortRegisterView(void const* Owner, float const* View12,
+                                                               float const* CameraPos)
+{
+    if (Owner == nullptr)
+    {
+        G_PreciseViewCount = 0;
+        G_PreciseViewNext = 0;
+        return;
+    }
+    int Slot = 0;
+    while (Slot < G_PreciseViewCount && G_PreciseViews[Slot].Owner != Owner)
+        ++Slot;
+    if (Slot == G_PreciseViewCount)
+    {
+        if (G_PreciseViewCount < kPreciseViewSlots)
+            ++G_PreciseViewCount;
+        else
+            Slot = G_PreciseViewNext++ % kPreciseViewSlots;
+    }
+    G_PreciseViews[Slot].Owner = Owner;
+    std::memcpy(G_PreciseViews[Slot].View, View12, sizeof(G_PreciseViews[Slot].View));
+    std::memcpy(G_PreciseViews[Slot].CameraPos, CameraPos, sizeof(G_PreciseViews[Slot].CameraPos));
+}
+#endif
 
 struct FMathEngine final : I3DMathEngine, IComponentFactory
 {
@@ -789,6 +868,10 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
 
     GENRESULT DACOM_API MulTransform(FTransform& Dst, const FTransform& A, const FTransform& B) override
     {
+#ifdef FREELANCER_PRECISE_RENDER
+        if (PreciseViewMul(Dst, A, B))
+            return GR_OK;
+#endif
         // LAB_06f716f0: literal row/translation interleave and x87 sum order.
         // Input words are read after each output store, including aliased calls.
         float* ResultTransform = &Dst.Rotation.D[0][0];

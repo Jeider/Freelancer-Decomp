@@ -17,5 +17,7 @@
     <FreelancerAdoxa>1</FreelancerAdoxa>
     <FreelancerModPlugins>1</FreelancerModPlugins>
     <FreelancerLanguage>1</FreelancerLanguage>
+    <FreelancerPreciseRender>1</FreelancerPreciseRender>
+    <FreelancerParticleFx>1</FreelancerParticleFx>
   </PropertyGroup>
 </Project>

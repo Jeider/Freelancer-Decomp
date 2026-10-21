@@ -5,6 +5,11 @@
 // Author: Giperion.
 
 #include "particle_effect.h"
+#ifdef FREELANCER_RP9
+#include "star_sphere.h"
+#include "render/IAlchemyRenderOpacity.h"
+#include "dacom_iids.h"
+#endif
 
 #include "alchemy_float_forward.h"
 
@@ -629,8 +634,22 @@ unsigned char FParticleEffect::BuildGeometry(FSpaceCamera* Cam)
     This->Flags7C = static_cast<unsigned char>(This->Flags7C & 0xfeu);
     if (GetGameOption(kGameOptParticles) == 0)
         return 0;
+#ifdef FREELANCER_RP9
+    // Keep simulation running while hidden: do not kill/restart the attached solar ALE.
+    // SetIntensity is ALE's outer-time input, not render alpha, so never repurpose it here.
+    const float SolarOpacity=StarSphereAttachedEffectVisibility(EffectWatchedObject(This), AsCamera(Cam));
+    if (SolarOpacity <= 0.001f)
+        return 1;
+    IAlchemyRenderOpacity* Opacity=nullptr;
+    if(SolarOpacity<0.999f && DALib::Alchemy)
+        DALib::Alchemy->QueryInterface(Iids::AlchemyRenderOpacity,reinterpret_cast<void**>(&Opacity));
+    if(Opacity) Opacity->SetRenderOpacity(SolarOpacity);
+#endif
     if (This->FxEffect != nullptr)
         This->FxEffect->Slot9(Cam);
+#ifdef FREELANCER_RP9
+    if(Opacity) {Opacity->SetRenderOpacity(1.0f);Opacity->Release();}
+#endif
     return 1;
 }
 

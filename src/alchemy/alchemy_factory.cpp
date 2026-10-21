@@ -33,7 +33,7 @@ namespace AlchemyImpl
         switch (Spec.Kind)
         {
         case KindAlchemy:
-            return new (std::nothrow) FAlchemy();
+            return static_cast<IAlchemy*>(new (std::nothrow) FAlchemy());
         case KindFxRuntime:
             return new (std::nothrow) FFxRuntime();
         case KindFxEffectLibrary:
@@ -206,7 +206,7 @@ namespace AlchemyImpl
 
         if (Spec_.Kind == KindAlchemy)
         {
-            FAlchemy* Alchemy = static_cast<FAlchemy*>(Object);
+            FAlchemy* Alchemy = static_cast<FAlchemy*>(static_cast<IAlchemy*>(Object));
             FAGGDESC14* Aggregate = reinterpret_cast<FAGGDESC14*>(Desc);
             Alchemy->SetController(Aggregate->OuterUnknown);
             if (Aggregate->OuterUnknown != nullptr)

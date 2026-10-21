@@ -46,4 +46,6 @@ namespace RenderEx
     // scene_depth_view pass. (The volumetric nebula is drawn earlier, inside SpaceObjDrawPass --
     // nebula_volume.h.)
     void AfterSpaceScene();
+    void NoteSolarSceneDepth(float Near,float Far);
+    void DrawSolarRays(float U,float V,float Radius,float Strength,const float* Colour,float Aspect,float SunFrontDistance);
 }

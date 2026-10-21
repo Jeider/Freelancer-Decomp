@@ -36,6 +36,7 @@ Each plugin is switched by its own key in `port.ini [Plugins]` (`src/include/por
 | `MatchPlayer` | MatchPlayer.dll: encounter level raised to half the player's rank | `FZonePopulation::ParseValue` (`06ef9066`) |
 | `callsign` | callsign.dll: the player's call sign (`port.ini [callsign] callsign = faction [formation [n][-][n]]`) | `Gcs.cpp`: `gcs_refer_faction_*`, `gcs_refer_formationdesig_*`, `gcs_misc_dash`, the two player numbers |
 | `DisableAutoLevelToggle` | the exe patch `0xdbe10 94 -> 95` ("Disable auto-level toggling") | `HUD_Status::OnEvent` case `0x3e` |
+| `DisableLevelCameraToggle` | the exe patch `0x11a1d3 94 -> 95` ("Disable level camera toggling") | `ThirdPersonCameraOnEvent` (`0x0051a1d2`), event `0x3f`; with its companion patch `0x005186e3` (1 -> 0) the level camera starts off (third-person ctor), and the spawn turns it off in the camera and the behaviour manager after FLSharp's flight_controls_fix -- so jflp's roll is not re-levelled |
 
 ## Interface
 

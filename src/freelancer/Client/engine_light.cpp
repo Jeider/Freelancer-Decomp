@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "engine_light.h"
+#ifdef FREELANCER_RP9
+#include "nebula_volume.h"
+#endif
 
 #include "common_csys.h"
 #include "common_ini.h"
@@ -35,6 +38,9 @@ namespace
     // DAT_00610588 — pipeline state 7, latched once on the first light. -1 means "not asked
     // yet"; retail pre-sets 1 so a failed query leaves the "no hardware lights" answer.
     int G_PipelineLightState = -1;
+#ifdef FREELANCER_RP9
+    std::map<FEngineLight*, float> G_NebulaSunUploads;
+#endif
 
     void QueryPipelineLightState()
     {
@@ -161,6 +167,9 @@ namespace
     // always go through EngineLightDestroy).
     void DestructLightBody(FEngineLight* Light)
     {
+#ifdef FREELANCER_RP9
+        G_NebulaSunUploads.erase(Light);
+#endif
         unsigned char const Was = Light->Flags;
         // 00410abb / 00410bab: reset to the base vtable during destruction.
         if ((Was & 4u) != 0) // registered
@@ -1097,6 +1106,43 @@ bool EngineLightApplyNearby(FEngineLight* Light, ICamera* Camera, float const* P
         }
 
         // 0x004106ad..0x004106b4: DAT_00610588 as it is (no query here) -- non-zero goes soft.
+#ifdef FREELANCER_RP9
+        // Upload a per-object sun attenuation, then restore the shared CPU descriptor.
+        // Always upload factor 1 too, so the next object outside the nebula is not left dim.
+        float SunScale = Light->Type == 3 ? NebulaVolume::SunLightScale(Pos3) : -1.0f;
+        if (Light->Type == 3)
+        {
+            // Restore the GPU descriptor once when leaving the last volume or disabling it.
+            const auto Previous = G_NebulaSunUploads.find(Light);
+            if (SunScale < 0.0f && Previous != G_NebulaSunUploads.end())
+                SunScale = 1.0f;
+            if (SunScale >= 0.0f && SunScale < 1.0f)
+                G_NebulaSunUploads[Light] = SunScale;
+            else if (Previous != G_NebulaSunUploads.end())
+                G_NebulaSunUploads.erase(Previous);
+        }
+        if (SunScale >= 0.0f)
+        {
+            float SavedDiffuse[3], SavedSpecular[3];
+            for (int Channel = 0; Channel < 3; ++Channel)
+            {
+                SavedDiffuse[Channel] = Light->D3d.Diffuse[Channel];
+                SavedSpecular[Channel] = Light->D3d.Specular[Channel];
+                Light->D3d.Diffuse[Channel] *= SunScale;
+                Light->D3d.Specular[Channel] *= SunScale;
+            }
+            if (G_PipelineLightState != 0)
+                SoftCameraRewriteLight(Light, Camera, Dir);
+            else
+                PushLightUpdate(Light);
+            for (int Channel = 0; Channel < 3; ++Channel)
+            {
+                Light->D3d.Diffuse[Channel] = SavedDiffuse[Channel];
+                Light->D3d.Specular[Channel] = SavedSpecular[Channel];
+            }
+        }
+        else
+#endif
         if (G_PipelineLightState != 0)
             SoftCameraRewriteLight(Light, Camera, Dir);
     }

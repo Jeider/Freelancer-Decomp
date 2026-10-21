@@ -11,6 +11,7 @@
 #include "alchemy_genericfx.h"
 
 #include <cstdio>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <new>
@@ -225,6 +226,17 @@ namespace AlchemyImpl
             *Out = Interface;
             return GR_OK;
         }
+        if(IidEqual(Iid,Iids::AlchemyEffectColour))
+        {
+            auto* Interface=static_cast<IAlchemyEffectColour*>(Owner_);
+            Interface->AddRef();*Out=Interface;return GR_OK;
+        }
+
+        if(IidEqual(Iid,Iids::AlchemyRenderOpacity))
+        {
+            auto* Interface=static_cast<IAlchemyRenderOpacity*>(Owner_);
+            Interface->AddRef();*Out=Interface;return GR_OK;
+        }
         *Out = nullptr;
         return GR_INTERFACE_UNSUPPORTED;
     }
@@ -254,6 +266,14 @@ namespace AlchemyImpl
         return Controller_->QueryInterface(Iid, Out);
     }
 
+
+    float G_AppearanceOpacity=1.0f;
+    GENRESULT DACOM_API FAlchemy::SetRenderOpacity(float Opacity)
+    {
+        G_AppearanceOpacity=Opacity>=0.0f ? (Opacity<1.0f ? Opacity : 1.0f) : 0.0f;
+        return GR_OK;
+    }
+
     unsigned long DACOM_API FAlchemy::AddRef()
     {
         return Controller_->AddRef();
@@ -262,6 +282,58 @@ namespace AlchemyImpl
     unsigned long DACOM_API FAlchemy::Release()
     {
         return Controller_->Release();
+    }
+
+    GENRESULT DACOM_API FAlchemy::SampleEffectColour(IFxEffectArchetype* Effect,float* Rgb)
+    {
+        if(!Effect || !Rgb) return GR_INVALID_PARMS;
+        Rgb[0]=Rgb[1]=Rgb[2]=0;
+        float Best=-1;
+        unsigned Count=Effect->GetRec16Count();if(Count>256) Count=256;
+        for(unsigned I=0;I<Count;++I)
+        {
+            FAleRec16 Rec={};
+            if(Effect->GetRec16(I,&Rec)<0 || Rec.A!=0) continue;
+            IDAComponent* Node=nullptr;
+            if(NodeLibSlot12(Rec.B,&Node)<0 || !Node) continue;
+            IGenericFx* Fx=nullptr;
+            Node->QueryInterface(Iids::FxNode,reinterpret_cast<void**>(&Fx));Node->Release();
+            if(!Fx) continue;
+            IFxNodePropertySet* Props=nullptr;
+            Fx->GetPropertySet(&Props);Fx->Release();
+            if(!Props) continue;
+            IRampColorRamp* Ramp=nullptr;
+            Props->GetPropColorRampRamp(0x048767E8u,&Ramp); // BasicApp_Color
+            Props->Release();if(!Ramp) continue;
+            int OuterCount=Ramp->GetKeyCount();if(OuterCount>64) OuterCount=64;
+            for(int O=0;O<OuterCount;++O)
+            {
+                IRampColor* Child=nullptr;
+                if(Ramp->GetKeyValue(O,&Child)<0 || !Child) continue;
+                int Keys=Child->GetKeyCount();if(Keys>64) Keys=64;
+                for(int K=0;K<Keys;++K)
+                {
+                    float C[3]={};if(Child->GetKeyRgb(K,C)<0) continue;
+                    if(!std::isfinite(C[0]) || !std::isfinite(C[1]) || !std::isfinite(C[2])) continue;
+                    float Hi=std::fmax(C[0],std::fmax(C[1],C[2]));
+                    float Lo=std::fmin(C[0],std::fmin(C[1],C[2]));
+                    if(!(Hi>0.01f)) continue;
+                    // Prefer a distinct shell hue over bright two-channel transition
+                    // keys (e.g. the yellow birth/fade keys in green Rheinland ALEs).
+                    // Chroma keeps cyan/magenta/yellow valid when that is the actual hue.
+                    float Middle=C[0]+C[1]+C[2]-Hi-Lo;
+                    float Score=(Hi-Middle)/Hi*0.8f+(Hi-Lo)/Hi*0.2f;
+                    if(Score>Best)
+                    {
+                        Best=Score;
+                        for(unsigned J=0;J<3;++J) Rgb[J]=std::fmax(0.0f,C[J]/Hi);
+                    }
+                }
+                Child->Release();
+            }
+            Ramp->Release();
+        }
+        return Best>=0 ? GR_OK : GR_GENERIC;
     }
 
     GENRESULT DACOM_API FAlchemy::LoadNodeLibrary(IFileSystem* Filesys)

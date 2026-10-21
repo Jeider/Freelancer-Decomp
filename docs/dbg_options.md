@@ -60,7 +60,7 @@ command, Up / Down walk the history, PgUp / PgDn / Home / End scroll.
 | `time` | seconds since the start |
 | `max_fps` / `fps` [fps] | the frame-rate cap (retail `DAT_00610a0c`) |
 | `lines` [2..40] | visible lines |
-| `pos` / `p` | the player's position |
+| `pos` / `p` `[x,y,z]` | the player's position; with coordinates, move the ship there in this system |
 | `clear`, `quiet` / `q`, `help` / `h`, `quit` | |
 
 From adoxa's console.dll (`console.cpp` v1.24; the server half is `Server/server_port_console.cpp`,

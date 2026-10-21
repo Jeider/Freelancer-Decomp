@@ -14,6 +14,7 @@
 
 #include "common.hlsli"
 
+
 // Interleaved gradient noise (Jimenez 2014): a per-pixel 0..1 offset with little visible
 // structure, used to jitter the ray-march samples.
 float NebulaInterleavedGradient(float2 Pixel)

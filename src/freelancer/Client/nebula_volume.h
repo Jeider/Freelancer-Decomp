@@ -38,6 +38,12 @@ namespace NebulaVolume
     // NebulaDestroy (cli_nebula.cpp): forgets the nebula.
     void UnregisterNebula(FNebulaEffect* Nebula);
 
+    // Optional [Volumetric] file= in a planet-ring INI. This companion is rendered only
+    // by RP9: it never enters the retail field-controller list and leaves ring puffs alone.
+    // Currently supports solid rings (inner radius 0), using the inscribed ellipsoid.
+    void RegisterRingVolume(void const* Owner, char const* File, char const* ZoneName);
+    void UnregisterRingVolume(void const* Owner);
+
     // RenderEx (Startup and hot reload): (re)reads [Nebula] / [NebulaOverride] from the resolved
     // volumetric.ini path; nullptr (file missing) = built-in defaults. Applies from the next
     // BeginFrame.
@@ -67,6 +73,20 @@ namespace NebulaVolume
     // retail random-direction flash then stays out. False on RP8 and whenever the volume is
     // off.
     bool DrivesNebulaLight(FNebulaEffect const* Nebula);
+    // Style-controlled object lighting and asteroid fades; no ABI changes to retail objects.
+    bool SuppressesRetailLightning(FNebulaEffect const* Nebula);
+    bool TintObjectAmbient(float const* WorldPos, unsigned char* Rgb);
+    float SunLightScale(float const* WorldPos); // -1 = retail, otherwise per-object sun multiplier
+    float SunEdgeHaloStrength(); // optional partial-occlusion halo, zero preserves retail
+    void DimBackground(ICamera* Camera); // sky only, before world geometry
+    void DrawBackdrop(ICamera* Camera); // finite system shell, behind all local nebulae/objects
+    float ExteriorOpacity(FNebulaEffect const* Nebula, bool FillSheet);
+    bool IsHybridCloudPass();
+    float HybridPuffOpacity();
+    void DrawHybridClouds(ICamera* Camera); // detail sprites after the volume composite
+
+    bool DynamicAsteroidFade(Universe::IZone const* FieldZone, float* Fraction, float* Seconds);
+
     // True between BeginFrame and Draw when at least one nebula will be drawn.
     bool IsActive();
     // True between BeginFrame and Draw when the volume draws this nebula.

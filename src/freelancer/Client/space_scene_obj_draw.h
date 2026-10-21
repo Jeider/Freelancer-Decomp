@@ -123,3 +123,8 @@ float GetSpaceFieldRadiusSq();
 // (DAT_00675350 / DAT_00675340), free() every queued ZItem and empty the five bucket vectors.
 // Callers: the space-state exit 0x0054afa7 and the tail jump 0x0054ab36.
 void SpaceDrawQueueRelease();
+
+#ifdef FREELANCER_RP9
+// First-person cockpit can be absent from the world's opaque hull queue.
+void SpaceSetCockpitGlintBounds(const float* Center,float Radius);
+#endif

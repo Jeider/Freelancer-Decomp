@@ -8,6 +8,9 @@
 // Listing: freelancer.exe.txt LAB/FUN_0050a040…0050bfa0, FUN_00551500, LAB_005091a0.
 
 #include "texture_panels.h"
+#ifdef FREELANCER_RP9
+#include "nebula_volume.h"
+#endif
 
 #include "DALib.h"
 #include "asteroid_billboard.h" // FBillboardVertexCursor ({pointer, stride}, dtor FUN_00552b20)
@@ -32,6 +35,23 @@
 #include <cstddef>
 #include <cstring>
 #include <new>
+#ifdef FREELANCER_PARTICLE_FX
+#include "dacom_iids.h"
+#include "port_config.h"
+#include "render/IRenderPipelineEx.h"
+#include <algorithm>
+#include <cstdint>
+#include <vector>
+#include <windows.h>
+
+namespace
+{
+    // sun_scatter's light (docs/particle_fx.md): the centre of the zone that owns the clouds
+    // being drawn (a ring round a sun: the sun). Set by FTexturePanels::DrawPanels and
+    // NebulaDrawCloudsPanels.
+    Universe::IZone const* G_CloudsLightZone = nullptr;
+}
+#endif
 
 namespace
 {
@@ -452,6 +472,9 @@ IPlanetRing::~IPlanetRing()
 
 void FTexturePanels::Clear()
 {
+#ifdef FREELANCER_RP9
+    NebulaVolume::UnregisterRingVolume(this);
+#endif
     // 0050b173..0050b178: only a loaded ring is cleared.
     if (bLoaded == 0)
         return;
@@ -958,8 +981,14 @@ void FTexturePanels::DrawPanels(void* Camera)
         return;
     // 0x0050bca9..0x0050bcc6: every node of the +0x68 list -> FUN_00551500(node+8, camera, 0).
     FTexturePanelsListNode* const Sentinel = ListSentinel;
+#ifdef FREELANCER_PARTICLE_FX
+    G_CloudsLightZone = Zone;
+#endif
     for (FTexturePanelsListNode* N = Sentinel->Next; N != Sentinel; N = N->Next)
         TexturePanelDrawClouds(N->Clouds, Camera, nullptr);
+#ifdef FREELANCER_PARTICLE_FX
+    G_CloudsLightZone = nullptr;
+#endif
 }
 
 // -------------------------------------------------------------------- slot1 LAB_0050a240
@@ -1057,6 +1086,14 @@ void FTexturePanels::Load(char const* IniPath,
                         TransitionDist = Reader.get_value_float(0);
                 }
             }
+#ifdef FREELANCER_RP9
+            else if (Reader.is_header("Volumetric"))
+            {
+                while (Reader.read_value())
+                    if (Reader.is_value("file"))
+                        NebulaVolume::RegisterRingVolume(this, Reader.get_value_string(), Nickname);
+            }
+#endif
             else if (Reader.is_header("Clouds"))
             {
                 // 0050a735..0050a7e8: new FNebulaClouds (0x12c, FUN_00550180), parsed from this
@@ -1291,6 +1328,89 @@ namespace
     }
 }
 
+#ifdef FREELANCER_PARTICLE_FX
+namespace
+{
+    // Port-only (docs/particle_fx.md): the nebula puffs sorted back to front, with smooth
+    // fades, and drawn as soft particles (port.ini [Render]).
+    struct FCloudQuad
+    {
+        float Depth;
+        unsigned Diffuse;
+        float Pos[6][3];
+        float U[6];
+        float V[6];
+    };
+
+    bool CloudsSorted()
+    {
+        static int const S_Value = PortConfigInt("Render", "cloud_sort", 0);
+        return S_Value != 0;
+    }
+
+    bool CloudsSmoothFade()
+    {
+        static int const S_Value = PortConfigInt("Render", "cloud_smooth_fade", 0);
+        return S_Value != 0;
+    }
+
+    // cloud_inside_only: the puffs only while the camera is inside the nebula zone, and only
+    // the puffs that are inside it. NebulaDrawCloudsPanels sets the zone for its draws.
+    bool CloudsInsideOnly()
+    {
+        static int const S_Value = PortConfigInt("Render", "cloud_inside_only", 0);
+        return S_Value != 0;
+    }
+
+    Universe::IZone const* G_CloudsZone = nullptr;
+
+    // Henyey-Greenstein phase normalised to 1 at CosTheta = 1 (forward peak).
+    double ScatterPhase(double CosTheta, double G)
+    {
+        double const Denom = 1.0 + G * G - 2.0 * G * CosTheta;
+        double const Peak = 1.0 + G * G - 2.0 * G;
+        double const Ratio = Peak / (Denom > 1.0e-6 ? Denom : 1.0e-6);
+        return Ratio * sqrt(Ratio);
+    }
+
+    // puff_spin's clock (wall time; the puffs drift in game time already).
+    double CloudsSeconds()
+    {
+        static ULONGLONG const S_Start = GetTickCount64();
+        return static_cast<double>(GetTickCount64() - S_Start) * 0.001;
+    }
+
+    // A stable angle per puff slot (the puff block lives as long as the table).
+    double PuffBaseAngle(void const* Puff)
+    {
+        unsigned const Hash = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Puff) >> 3) * 2654435761u;
+        return static_cast<double>(Hash) * (6.283185307179586 / 4294967296.0);
+    }
+
+    double SmoothStep01(double T)
+    {
+        T = T < 0.0 ? 0.0 : (T > 1.0 ? 1.0 : T);
+        return T * T * (3.0 - 2.0 * T);
+    }
+
+    IRenderPipelineEx* CloudsPipelineEx()
+    {
+        static bool S_bAsked = false;
+        static IRenderPipelineEx* S_Ex = nullptr;
+        if (!S_bAsked && DALib::Pipeline != nullptr)
+        {
+            S_bAsked = true;
+            if (DALib::Pipeline->QueryInterface(Iids::RenderPipelineEx, reinterpret_cast<void**>(&S_Ex)) >= 0 &&
+                S_Ex != nullptr)
+                S_Ex->Release(); // the pipeline outlives the clouds
+            else
+                S_Ex = nullptr;
+        }
+        return S_Ex;
+    }
+}
+#endif
+
 // .text:00551500..0055240d (__thiscall, RET 8): this = the clouds object, arg1 = the camera,
 // arg2 = the exclusion manager handed to FUN_005513b0. No null tests anywhere: not on the camera,
 // its orientation, the pipeline, the vertex-buffer manager, the puff table or a puff.
@@ -1298,11 +1418,28 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
 {
     unsigned char* const B = Clouds->Raw;
     ICamera* const Cam = static_cast<ICamera*>(Camera);
+#ifdef FREELANCER_RP9
+    const bool HybridPass = NebulaVolume::IsHybridCloudPass();
+    const float HybridAlpha = NebulaVolume::HybridPuffOpacity();
+#endif
 
     // 0x00551524..0x0055153c: camera byte +0xbc -> FUN_005513b0(arg2).
     if (static_cast<unsigned char*>(Camera)[0xbc] != 0)
         NebulaCloudsRegenExcluded(Clouds, ExclusionCtx);
 
+#ifdef FREELANCER_PARTICLE_FX
+    Universe::IZone const* const InsideZone = CloudsInsideOnly() ? G_CloudsZone : nullptr;
+    if (InsideZone != nullptr)
+    {
+        float const* const CamPos = Cam->GetPosition();
+        Vector Eye;
+        Eye.x = CamPos[0];
+        Eye.y = CamPos[1];
+        Eye.z = CamPos[2];
+        if (!InsideZone->InZone(Eye, 0.0f))
+            return;
+    }
+#endif
     // 0x00551541..0x0055155f: +0xec, the active count +0x14 and the first shape +0x28.
     if (B[0xec] == 0)
         return;
@@ -1483,6 +1620,35 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
 
     FVertexMemoryLock Desc = {}; // [ESP+0xa0]: VB wrapper, FVF, start vertex, bits
     unsigned char** const Table = *reinterpret_cast<unsigned char***>(B);
+#ifdef FREELANCER_PARTICLE_FX
+    bool const bSortPuffs = CloudsSorted();
+    bool const bSmoothFade = CloudsSmoothFade();
+    std::vector<FCloudQuad> Quads;
+    FCloudsPortParams const* const PortParams = NebulaCloudsPortParams(Clouds);
+    bool const bFarFade = PortParams != nullptr && PortParams->FarFadeEnd > 0.0f;
+    bool const bIndividual = (PortParams != nullptr && PortParams->bIndividualFacing)
+#ifdef FREELANCER_RP9
+                            || HybridPass
+#endif
+                            ;
+    bool const bDepthTint = PortParams != nullptr && PortParams->DepthTintAmount > 0.0f &&
+                            PortParams->DepthTintFar > PortParams->DepthTintNear;
+    bool const bScatter = PortParams != nullptr && PortParams->ScatterStrength > 0.0f && G_CloudsLightZone != nullptr;
+    float CloudsEye[3] = {0.0f, 0.0f, 0.0f};
+    Vector CloudsLight;
+    CloudsLight.x = CloudsLight.y = CloudsLight.z = 0.0f;
+    if (bScatter)
+    {
+        float const* const Eye = Cam->GetPosition();
+        CloudsEye[0] = Eye[0];
+        CloudsEye[1] = Eye[1];
+        CloudsEye[2] = Eye[2];
+        CloudsLight = G_CloudsLightZone->GetPos();
+    }
+    double const SpinRad = PortParams != nullptr
+                               ? CloudsSeconds() * static_cast<double>(PortParams->SpinDegPerSec) * (3.141592653589793 / 180.0)
+                               : 0.0;
+#endif
     // 0x00551b2e..0x00551b57 and 0x005522d8..0x005522f1: the count +0xc is re-read at every
     // iteration's test; the table pointer is read once and stepped.
     for (int I = 0; I < *reinterpret_cast<int*>(B + 0xc); ++I)
@@ -1494,6 +1660,10 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
         unsigned char* const Puff = Table[I];
         if (Puff[0x50] == 0 || Puff[0x51] != 0)
             continue;
+#ifdef FREELANCER_PARTICLE_FX
+        if (InsideZone != nullptr && !InsideZone->InZone(*reinterpret_cast<Vector const*>(Puff), 0.0f))
+            continue;
+#endif
 
         // 0x00551b94..0x00551bec: VP = I3DMathEngine::InverseTransform (+0x3c)(CamXform, puff
         // position); puff +0x54 = -VP.z.
@@ -1520,12 +1690,38 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
             double const Dist2 = (static_cast<double>(D[2]) * D[2] + static_cast<double>(D[1]) * D[1]) +
                                  static_cast<double>(D[0]) * D[0];
             float const Dist2f = static_cast<float>(Dist2);
+#ifdef FREELANCER_PARTICLE_FX
+            if (bFarFade)
+            {
+                // far_fade: a smooth fade between Start and End times the sphere radius.
+                double const Dist = sqrt(Dist2);
+                double const FadeEnd = static_cast<double>(PortParams->FarFadeEnd) * Radius;
+                double const FadeStart = static_cast<double>(PortParams->FarFadeStart) * Radius;
+                if (Dist > FadeEnd)
+                    continue;
+                if (Dist > FadeStart && FadeEnd > FadeStart)
+                    Alpha = static_cast<float>(SmoothStep01((FadeEnd - Dist) / (FadeEnd - FadeStart)) * Alpha);
+            }
+            else
+            {
+#endif
             // 0x00551c89..0x00551c92: TEST AH,0x41 / JE -> skipped when strictly beyond R^2.
             if (Dist2 > RadiusSq)
                 continue;
             // 0x00551c98..0x00551cbd: past (0.7 R)^2 (strictly greater) the alpha ramps down.
             if (Dist2f > InnerSq)
+            {
+#ifdef FREELANCER_PARTICLE_FX
+                if (bSmoothFade)
+                    Alpha = static_cast<float>(
+                        SmoothStep01((static_cast<double>(RadiusSq) - Dist2f) * InvRing) * Alpha);
+                else
+#endif
                 Alpha = static_cast<float>(((static_cast<double>(RadiusSq) - Dist2f) * Alpha) * InvRing);
+            }
+#ifdef FREELANCER_PARTICLE_FX
+            }
+#endif
         }
         // 0x00551cc1..0x00551cd0: ordered less than 0.02 (DAT_005e0e08, double) -> skipped.
         if (Alpha < 0.02)
@@ -1547,9 +1743,22 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
         // 0x00551d43..0x00551d67: TEST AH,5 / JP -> the near ramp runs only when ordered less than
         // +0xe8.
         if (PuffDepth < NearHi)
+        {
+#ifdef FREELANCER_PARTICLE_FX
+            if (bSmoothFade)
+                Alpha2 = static_cast<float>(
+                    SmoothStep01((static_cast<double>(PuffDepth) - NearLo) * InvNear) * Alpha);
+            else
+#endif
             Alpha2 = static_cast<float>(((static_cast<double>(PuffDepth) - NearLo) * Alpha) * InvNear);
+        }
         // 0x00551d6b..0x00551d7a: ordered less than 0.02 -> skipped.
+#ifdef FREELANCER_RP9
+        Alpha2 *= HybridAlpha;
+        if (Alpha2 < (HybridPass ? 0.005f : 0.02f))
+#else
         if (Alpha2 < 0.02)
+#endif
             continue;
 
         // 0x00551d80..0x00551d9b: the colour puff +0xc..+0x14.
@@ -1561,7 +1770,11 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
         // 0x00551d90..0x00551e18: with +0x124 zero, +0xdc strictly positive (TEST AH,0x41 / JNE)
         // and puff +0x38 not less than 0 (TEST AH,1 / JNE skips on less or unordered), the wisp
         // is added (FUN_004d7270) and each channel not ordered-less than 1 is set to 1.0f.
-        if (*reinterpret_cast<int*>(B + 0x124) == 0 && *reinterpret_cast<float*>(B + 0xdc) > 0.0f &&
+        if (
+#ifdef FREELANCER_RP9
+            !HybridPass &&
+#endif
+            *reinterpret_cast<int*>(B + 0x124) == 0 && *reinterpret_cast<float*>(B + 0xdc) > 0.0f &&
             *reinterpret_cast<float*>(Puff + 0x38) >= 0.0f)
         {
             Vec3AddInPlace(Col, Wisp2);
@@ -1573,6 +1786,42 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
                 Col[2] = 1.0f;
         }
 
+#ifdef FREELANCER_PARTICLE_FX
+        if (bScatter)
+        {
+            // sun_scatter: brighter and denser where the camera looks through the puff
+            // towards the light, flatter where the light is behind the camera.
+            float const* const PuffPos = reinterpret_cast<float const*>(Puff);
+            double const Vx = PuffPos[0] - CloudsEye[0], Vy = PuffPos[1] - CloudsEye[1], Vz = PuffPos[2] - CloudsEye[2];
+            double const Lx = CloudsLight.x - PuffPos[0], Ly = CloudsLight.y - PuffPos[1], Lz = CloudsLight.z - PuffPos[2];
+            double const VLen = sqrt(Vx * Vx + Vy * Vy + Vz * Vz);
+            double const LLen = sqrt(Lx * Lx + Ly * Ly + Lz * Lz);
+            if (VLen > 1.0e-3 && LLen > 1.0e-3)
+            {
+                double const Cos = (Vx * Lx + Vy * Ly + Vz * Lz) / (VLen * LLen);
+                double const Phase = ScatterPhase(Cos, PortParams->ScatterG);
+                // 0.6 .. 1 + strength: away from the light the puff dims a little.
+                double const Gain = 0.6 + (0.4 + PortParams->ScatterStrength) * Phase;
+                for (int Channel = 0; Channel < 3; ++Channel)
+                {
+                    double const Lit = Col[Channel] * Gain;
+                    Col[Channel] = static_cast<float>(Lit > 1.0 ? 1.0 : Lit);
+                }
+                double const AlphaGain = 0.8 + 0.4 * Phase;
+                double const NewAlpha = Alpha2 * AlphaGain;
+                Alpha2 = static_cast<float>(NewAlpha > 1.0 ? 1.0 : NewAlpha);
+            }
+        }
+        if (bDepthTint)
+        {
+            // depth_tint: aerial perspective, far puffs lean towards the depth colour.
+            double const T = SmoothStep01((static_cast<double>(PuffDepth) - PortParams->DepthTintNear) /
+                                          (static_cast<double>(PortParams->DepthTintFar) - PortParams->DepthTintNear)) *
+                             PortParams->DepthTintAmount;
+            for (int Channel = 0; Channel < 3; ++Channel)
+                Col[Channel] = static_cast<float>(Col[Channel] + (PortParams->DepthTint[Channel] - Col[Channel]) * T);
+        }
+#endif
         // 0x00551e20..0x00551ef9: the diffuse word through _ftol (DAT_005c75d8 = 255.0f). With
         // alpha: A from alpha2, R G B from the colour. Without: A = 0xff and each channel is
         // colour * alpha2. Only the low byte of each _ftol survives the shifts and masks.
@@ -1603,6 +1852,9 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
         // into the lock at the offsets and the stride the returned FVF gives (FUN_00552440
         // position, 0xc for D3DFVF_NORMAL, FUN_00552480 diffuse/specular, FUN_004061a0
         // texcoords).
+#ifdef FREELANCER_PARTICLE_FX
+        if (!bSortPuffs)
+#endif
         if (bLocked == 0)
         {
             bLocked = 1;
@@ -1638,6 +1890,44 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
         ScaleVec3(SP, P, Size);
         float SQ[3];
         ScaleVec3(SQ, Q, Size);
+#ifdef FREELANCER_PARTICLE_FX
+        if (bIndividual)
+        {
+            // puff_facing = individual: the quad faces the camera point (not the view plane),
+            // its up taken from the shared reference V and turned by the puff's own angle
+            // (plus puff_spin), so a big puff keeps its look while the camera turns.
+            double const Len = sqrt(static_cast<double>(VP.X) * VP.X + static_cast<double>(VP.Y) * VP.Y +
+                                    static_cast<double>(VP.Z) * VP.Z);
+            if (Len > 1.0e-3)
+            {
+                double const Nx = -VP.X / Len, Ny = -VP.Y / Len, Nz = -VP.Z / Len; // towards the eye
+                // Right = Up x N with Up = V (fall back to view Y when V is along N).
+                double Ux = V.X, Uy = V.Y, Uz = V.Z;
+                double Rx = Uy * Nz - Uz * Ny, Ry = Uz * Nx - Ux * Nz, Rz = Ux * Ny - Uy * Nx;
+                double RLen = sqrt(Rx * Rx + Ry * Ry + Rz * Rz);
+                if (RLen < 1.0e-4)
+                {
+                    Ux = 0.0; Uy = 1.0; Uz = 0.0;
+                    Rx = Uy * Nz - Uz * Ny; Ry = Uz * Nx - Ux * Nz; Rz = Ux * Ny - Uy * Nx;
+                    RLen = sqrt(Rx * Rx + Ry * Ry + Rz * Rz);
+                }
+                if (RLen >= 1.0e-4)
+                {
+                    Rx /= RLen; Ry /= RLen; Rz /= RLen;
+                    // Up = N x Right.
+                    Ux = Ny * Rz - Nz * Ry; Uy = Nz * Rx - Nx * Rz; Uz = Nx * Ry - Ny * Rx;
+                    double const Angle = PuffBaseAngle(Puff) + SpinRad;
+                    double const Cs = cos(Angle), Sn = sin(Angle);
+                    SP[0] = static_cast<float>((Ux * Cs - Rx * Sn) * Size);
+                    SP[1] = static_cast<float>((Uy * Cs - Ry * Sn) * Size);
+                    SP[2] = static_cast<float>((Uz * Cs - Rz * Sn) * Size);
+                    SQ[0] = static_cast<float>((Rx * Cs + Ux * Sn) * Size);
+                    SQ[1] = static_cast<float>((Ry * Cs + Uy * Sn) * Size);
+                    SQ[2] = static_cast<float>((Rz * Cs + Uz * Sn) * Size);
+                }
+            }
+        }
+#endif
         float Tmp[3];
         float C0[3];
         Win3DVec3Sub(Tmp, &VP.X, SQ);
@@ -1657,6 +1947,23 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
         float const* const Pos[6] = {C0, Cc1, Cc2, Cc2, Cc3, C0};
         float const Us[6] = {Shape->U0, Shape->U1, Shape->U1, Shape->U1, Shape->U0, Shape->U0};
         float const Vs[6] = {Shape->V0, Shape->V0, Shape->V1, Shape->V1, Shape->V1, Shape->V0};
+#ifdef FREELANCER_PARTICLE_FX
+        if (bSortPuffs)
+        {
+            FCloudQuad Quad;
+            Quad.Depth = PuffDepth;
+            Quad.Diffuse = Diffuse;
+            for (int Vert = 0; Vert < 6; ++Vert)
+            {
+                memcpy(Quad.Pos[Vert], Pos[Vert], sizeof(Quad.Pos[Vert]));
+                Quad.U[Vert] = Us[Vert];
+                Quad.V[Vert] = Vs[Vert];
+            }
+            Quads.push_back(Quad);
+            ++G_CloudsPuffsDrawn;
+            continue;
+        }
+#endif
         for (int Vert = 0; Vert < 6; ++Vert)
         {
             float* const OutPos = reinterpret_cast<float*>(PosCursor.Ptr);
@@ -1677,6 +1984,45 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
         VertCount += 6;
     }
 
+#ifdef FREELANCER_PARTICLE_FX
+    // The sorted path: farthest first, written in one lock as the retail loop would.
+    if (bSortPuffs && !Quads.empty())
+    {
+        std::sort(Quads.begin(), Quads.end(),
+                  [](FCloudQuad const& A, FCloudQuad const& Bq) { return A.Depth > Bq.Depth; });
+        bLocked = 1;
+        if (DALib::VertexBuffer->LockVertexMemory(0x142, static_cast<unsigned int>(VertTotal), &Desc) == GR_OK)
+        {
+            unsigned const Fvf = static_cast<unsigned>(Desc.Listing.Fvf);
+            unsigned char* const Base = (unsigned char*)Desc.Vertices;
+            int const NormalBytes = (Fvf & 0x10) != 0 ? 0xc : 0;
+            int const PosBytes = FvfPositionBytes(static_cast<unsigned char>(Fvf)) + NormalBytes;
+            int const DiffBytes = FvfDiffuseNormalBytes(static_cast<unsigned char>(Fvf));
+            int const Stride = FvfTexcoordBlockBytes(Fvf) + (PosBytes + DiffBytes);
+            unsigned char* Out = Base;
+            for (FCloudQuad const& Quad : Quads)
+            {
+                for (int Vert = 0; Vert < 6; ++Vert)
+                {
+                    memcpy(Out, Quad.Pos[Vert], sizeof(Quad.Pos[Vert]));
+                    *reinterpret_cast<unsigned*>(Out + PosBytes) = Quad.Diffuse;
+                    float* const OutUv = reinterpret_cast<float*>(Out + PosBytes + DiffBytes);
+                    OutUv[0] = Quad.U[Vert];
+                    OutUv[1] = Quad.V[Vert];
+                    Out += Stride;
+                }
+                VertCount += 6;
+            }
+        }
+    }
+    IRenderPipelineEx* const SoftEx = CloudsPipelineEx();
+    if (SoftEx != nullptr)
+    {
+        SoftEx->SetSoftParticles(RPExSoftClouds);
+        if (PortParams != nullptr && PortParams->SoftFade > 0.0f)
+            SoftEx->SetSoftParticleFade(PortParams->SoftFade); // soft_fade of this [Clouds]
+    }
+#endif
     // 0x005522f7..0x00552337: after a lock (even a failed one) VertexBuffer +0x18 unlocks and
     // pipeline +0x11c draws a triangle list of the written vertex count from the lock's start.
     if (bLocked != 0)
@@ -1685,6 +2031,10 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
         Pipe->DrawPrimitiveVb(4, Desc.Listing.VertexBuffer, static_cast<unsigned int>(Desc.Listing.BaseVertex),
                               static_cast<unsigned int>(VertCount), nullptr);
     }
+#ifdef FREELANCER_PARTICLE_FX
+    if (SoftEx != nullptr)
+        SoftEx->SetSoftParticles(RPExSoftOff);
+#endif
 
     // 0x0055233d..0x005523f0: RS 0x19 = 5; RS 0x18, 0x89, 0x16 restored; DAT_005e09e0 walk
     // (first state 0x8d); RS 0xe = 1; RS 0x1b = 0.
@@ -1738,8 +2088,16 @@ void NebulaDrawCloudsPanels(FNebulaEffect* Nebula, void* Camera)
     // 0x00509261..0x00509285: every node of the list at +0xf8 -> FUN_00551500 on node+8 with the
     // camera and +0x34.
     FNebulaCloudsListNode* const Sentinel = Nebula->Clouds.Sentinel;
+#ifdef FREELANCER_PARTICLE_FX
+    G_CloudsZone = Nebula->Zone;
+    G_CloudsLightZone = Nebula->Zone;
+#endif
     for (FNebulaCloudsListNode* N = Sentinel->Next; N != Sentinel; N = N->Next)
         TexturePanelDrawClouds(N->Clouds, Camera, Nebula->ExclusionMgr);
+#ifdef FREELANCER_PARTICLE_FX
+    G_CloudsZone = nullptr;
+    G_CloudsLightZone = nullptr;
+#endif
 
     // 0x00509287..0x005092ec: MaterialBatcher (1, 1); RS 0x16 = 2; RS 0x89 = 1; RS 0x8b restored;
     // FUN_00422190(1); FUN_00421ed0(0xb60).

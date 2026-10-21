@@ -41,6 +41,12 @@
     <!-- Port-only language switch (docs/language.md): port.ini [Language] picks the client ini,
          resources.dll and per-language data overlays, FREELANCER_LANGUAGE; off by default. -->
     <FreelancerLanguage Condition="'$(FreelancerLanguage)'==''">0</FreelancerLanguage>
+    <!-- Port-only camera-relative modelview (docs/precise_render.md): objects far from the system
+         centre stop shaking; port.ini [Render] precise_view, FREELANCER_PRECISE_RENDER; off by default. -->
+    <FreelancerPreciseRender Condition="'$(FreelancerPreciseRender)'==''">0</FreelancerPreciseRender>
+    <!-- Port-only particle improvements (docs/particle_fx.md): soft particles for alchemy effects
+         and nebula puffs (RP9), sorted puffs with smooth fades; port.ini [Render], FREELANCER_PARTICLE_FX. -->
+    <FreelancerParticleFx Condition="'$(FreelancerParticleFx)'==''">0</FreelancerParticleFx>
     <PlatformToolset>v143</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <CharacterSet>MultiByte</CharacterSet>

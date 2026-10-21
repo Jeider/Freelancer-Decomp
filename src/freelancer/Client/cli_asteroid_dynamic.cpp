@@ -5,6 +5,10 @@
 // Author: Giperion.
 
 #include "cli_asteroid_dynamic.h"
+#ifdef FREELANCER_RP9
+#include "nebula_volume.h"
+#include <cmath>
+#endif
 #ifdef FREELANCER_ADOXA
 #include "port_plugins.h" // port-only adoxa plugins
 #include <cstdlib>
@@ -745,6 +749,10 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
     double const FadeSq = RadiusSq * kFadeFactor;
     double const BandStart = FarSq - FadeSq;
     This->bAnyVisible = 0;
+#ifdef FREELANCER_RP9
+    float FadeFraction = 0.0f, FadeSeconds = 0.0f;
+    const bool SmoothVolumeFade = NebulaVolume::DynamicAsteroidFade(This->Zone, &FadeFraction, &FadeSeconds);
+#endif
 
     for (int Index = 0; Index < This->SlotCount; ++Index)
     {
@@ -775,6 +783,24 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
             double Alpha = 1.0;
             if (DistSq > BandStart)
                 Alpha = (FarSq - DistSq) / FadeSq;
+#ifdef FREELANCER_RP9
+            if (SmoothVolumeFade)
+            {
+                const double FarRadius = std::sqrt(FarSq);
+                const double Distance = std::sqrt((double)DistSq);
+                double Keep = (FarRadius - Distance) / (FarRadius * FadeFraction);
+                Keep = Keep < 0.0 ? 0.0 : (Keep > 1.0 ? 1.0 : Keep);
+                Alpha = Keep * Keep * (3.0 - 2.0 * Keep);
+                // Long temporal fade only at the distant recycling edge. A nearby asteroid
+                // becomes crisp in 0.12 s instead of remaining transparent as the player passes it.
+                const double FarWeight = 1.0 - Keep;
+                const double Seconds = 0.12 + (FadeSeconds > 0.12 ? FadeSeconds - 0.12 : 0.0) *
+                                                  FarWeight * FarWeight;
+                const double Rise = (Dt > 0.0f ? (double)Dt : 0.0) / Seconds;
+                if (Alpha > Go->Alpha + Rise)
+                    Alpha = Go->Alpha + Rise;
+            }
+#endif
             This->SlotPtrs[Index]->Alpha = static_cast<float>(Alpha);
             if (Alpha > kVisibleAlpha)
                 This->bAnyVisible = 1;
@@ -835,6 +861,10 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
         if (This->SlotPtrs[Index]->GetObject() != nullptr)
             PhySys::SetCollisionState(This->SlotPtrs[Index]->GetObject(), false);
         This->SlotPtrs[Index]->Place(&Place, This->MaxVelocity, This->MaxAngularVelocity);
+#ifdef FREELANCER_RP9
+        if (SmoothVolumeFade)
+            This->SlotPtrs[Index]->Alpha = 0.0f;
+#endif
         if (This->SlotPtrs[Index]->GetObject() != nullptr)
             PhySys::SetCollisionState(This->SlotPtrs[Index]->GetObject(), true);
 
@@ -908,6 +938,48 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
         This->bAnyVisible = 1;
     }
 }
+
+#ifdef FREELANCER_RP9
+void CliDynamicAsteroidDrawShadow(FCliDynamicAsteroidGameobj* Go, FSpaceCamera* Cam)
+{
+    if (!Go || !Cam || !Go->bActive || Go->Alpha < 1.0f ||
+        GetGameOption(kGameOptDynAsteroids) == 0) return;
+    FCliDynamicAsteroid* This = Go->GetOwner();
+    if (!This || !This->Mesh || This->MeshDesc.SrcCount <= 0) return;
+    FVertexMemoryLock Lock;
+    IVertexBufferManager* VbMgr = DALib::VertexBuffer;
+    if (VbMgr->LockVertexMemory(static_cast<unsigned>(This->MeshDesc.SrcFvf),
+                              static_cast<unsigned>(This->MeshDesc.SrcCount), &Lock) < 0) return;
+    VbMgr->CopyVertexData(Lock.Vertices, Lock.Listing.Fvf, &This->MeshDesc, 0, This->MeshDesc.SrcCount);
+    VbMgr->UnlockVertexMemory(&Lock);
+    if (This->Material) This->Material->Bind(nullptr);
+    IRenderPipeline* Pipe = DALib::Pipeline;
+    ApplyRsTable(Pipe, kRsDynOpaque);
+    Pipe->SetRenderState(D3DRS_ALPHAREF, 0x7f);
+    D3DMATERIAL8 Material = {};
+    Material.Diffuse.a = 1.0f; // cutouts must not inherit the previous hull's fade
+    Pipe->SetMaterial(&Material);
+    FTransform View, World;
+    std::memcpy(&View, AsCamera(Cam)->GetViewTransform(), sizeof(View));
+    std::memcpy(&World, &Go->get_transform(), sizeof(World));
+    int bModelview = 1;
+    Pipe->GetPipelineState(7, &bModelview);
+    if (bModelview)
+    {
+        FTransform Combined;
+        CliAsteroidMathEngine()->MulTransform(Combined, View, World);
+        Pipe->SetModelview(reinterpret_cast<float const*>(&Combined));
+    }
+    else
+    {
+        Pipe->SetWorld(reinterpret_cast<float const*>(&World));
+        Pipe->SetView(reinterpret_cast<float const*>(&View));
+    }
+    Pipe->DrawIndexedPrimitiveVb(This->PrimitiveType, Lock.Listing.VertexBuffer,
+        static_cast<unsigned>(Lock.Listing.BaseVertex), static_cast<unsigned>(This->MeshDesc.SrcCount),
+        This->Mesh->Indices, static_cast<unsigned>(This->Mesh->IndexCount), 0);
+}
+#endif
 
 void CliDynamicAsteroidDraw(FCliDynamicAsteroid* This, FSpaceCamera* Cam,
                             unsigned char* bAmbientDone, FCliAsteroid* Field)

@@ -6,6 +6,11 @@
 
 #pragma once
 
+#ifdef FREELANCER_RP9
+// Distance-sorted solar sprite, including suns culled by the retail field object queue.
+void StarSphereDrawNebulaBillboard(void* Sphere, void* Camera);
+#endif
+
 // Retail SunEffect / StarSphere — freelancer.exe PTR_FUN_005db658 (7 slots).
 // Source path (embedded): Client\space\StarSphere.h. Epic: star-sphere.
 // Distinct from TexturePanels (PTR_LAB_005db1b4) and from skybox "star_sphere" perf option.
@@ -156,3 +161,7 @@ Vector* StarSphereGetOwnerPosition(FStarSphere const* Sphere, Vector* Out);
 // FUN_00512620 (thiscall on the sphere) -- max(glow scale, centre scale or 0) * Radius; the glow
 // is read with no test. Caller: the Solar radius slot FUN_00548110 (0x00548144).
 float StarSphereMaxGlowScale(FStarSphere const* Sphere);
+#ifdef FREELANCER_RP9
+// Visibility of an effect attached to a listed sun, or 1 for any other owner.
+float StarSphereAttachedEffectVisibility(void const* Owner, void* Camera);
+#endif

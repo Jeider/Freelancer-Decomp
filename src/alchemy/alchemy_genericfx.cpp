@@ -418,6 +418,20 @@ namespace AlchemyImpl
     } // namespace
 
     // FUN_06244b20 (ECX = wrapper): +0 = 0, +4 = -1, +8..+0x18 = 0, +0x1c = 0, +0x20 = 0.
+    bool FGenericFxObjectBase::CanShareAppearanceBatch(FGenericFxObjectBase const* Other) const
+    {
+        if(!Other || !Descriptor_ || !Other->Descriptor_ ||
+           std::strcmp(FactoryName_,Other->FactoryName_)!=0 ||
+           Descriptor_->TextureCrc!=Other->Descriptor_->TextureCrc ||
+           std::memcmp(Texture_.Frame,Other->Texture_.Frame,sizeof(float))!=0 ||
+           std::memcmp(Descriptor_->BlendInfo,Other->Descriptor_->BlendInfo,sizeof(Descriptor_->BlendInfo))!=0 ||
+           Descriptor_->Flags!=Other->Descriptor_->Flags) return false;
+        // Basic billboards bake each node's view transform into their vertices.
+        // Other families submit local geometry under the batch head's transform.
+        return NameEqual(FactoryName_,"FxBasicAppearance") ||
+            std::memcmp(NodeWorldXform_,Other->NodeWorldXform_,sizeof(NodeWorldXform_))==0;
+    }
+
     FFxTextureWrapper::FFxTextureWrapper()
         : TexCrc(0), Handle(-1), FrameCount(0), Field_0x20(0)
     {

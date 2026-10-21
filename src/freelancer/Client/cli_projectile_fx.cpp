@@ -16,6 +16,9 @@
 #include "effect_base.h"          // EffectAlloc (FUN_004f79a0)
 #include "effect_vertex_batch.h"
 #include "engine_light.h"
+#ifdef FREELANCER_RP9
+#include "port_config.h"
+#endif
 #include "globals.h"
 #include "hud_command_dispatch.h"
 #include "menu_sound_arch.h"
@@ -1152,10 +1155,10 @@ void CliLauncherPlayMuzzleFx(FCliLauncherFx* Launcher)
         AnimDB::Add(Launcher->AnimJointIndex.Value);
     }
 
-    // 0x0052d04b..0x0052d088: from the cockpit camera (FUN_0054bc80), the player's ship
-    // (FUN_0054baf0, +0xc, +4, class 0x503; zero otherwise) compared with the launcher's owner.
-    if (IsFirstPersonCameraCurrent() && ResolvePlayerShipObject() == Launch->Owner)
-    {
+    // 0x0052d04b..0x0052d088: retail animates light only in the player's cockpit.
+    // RP9 also emits the same animated source externally, keeping the muzzle particle there.
+    const bool PlayerCockpit = IsFirstPersonCameraCurrent() && ResolvePlayerShipObject() == Launch->Owner;
+    auto EmitAnimatedLight = [&]() {
         // 0x0052d08e..0x0052d093: no light animation name -> nothing.
         if (Companion->LightAnimLen == 0)
             return;
@@ -1199,7 +1202,20 @@ void CliLauncherPlayMuzzleFx(FCliLauncherFx* Launcher)
         }
         GameLightRelease(Light);
         return;
+    };
+#ifdef FREELANCER_RP9
+    if (PortConfigInt("Render", "weapon_lights", 1) != 0 &&
+        (PlayerCockpit || Companion->LightAnimLen != 0))
+        EmitAnimatedLight();
+    if (PlayerCockpit)
+        return;
+#else
+    if (PlayerCockpit)
+    {
+        EmitAnimatedLight();
+        return;
     }
+#endif
 
     // 0x0052d1a1..0x0052d1ae: no flash particle -> nothing.
     if (Companion->OneShotEffect.IsEmpty())

@@ -34,9 +34,15 @@
 // Compiled only with FREELANCER_RP9 (src/Directory.Build.props).
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h"
+#include "port_config.h"
 
 #include "cli_nebula.h"
 #include "render_ex.h"
+#include "star_sys.h"
+#include "space_camera.h"
+#include "win3d_immediate.h"
+#include "screen_quad_state.h"
+#include "texture_shapes.h" // FTexShape, TexShapeGetGpuHandle (puff_texture_*)
 #include "star_sphere.h"
 
 #include "DALib.h"
@@ -82,7 +88,7 @@ namespace
     const char kNebulaVolumeShader[] = "SHADERS\\nebula_volume.hlsl";
     const char kNebulaCompositeShader[] = "SHADERS\\nebula_composite.hlsl";
 
-    // Must match nebula_volume.hlsl: register layout (c0..c102), loop bounds.
+    // Must match nebula_volume.hlsl: register layout (c0..c106), loop bounds.
     const int kMaxExclusions = 8;
     const int kMaxSteps = 128;
     const int kMaxShadowSteps = 6;     // NEBULA_SHADOW_STEPS
@@ -90,7 +96,7 @@ namespace
     const int kMaxPointLights = 4;     // NEBULA_MAX_POINT_LIGHTS
     const int kMaxFarSpheres = 4;      // FarSphere[]
     const int kMaxStarGlows = 3;       // StarGlow[]
-    const int kRaymarchRegisterCount = 103;
+    const int kRaymarchRegisterCount = 107;
     const int kRegShadowStep = 29;
     const int kRegExclusionCentre = 37;
     const int kRegExclusionRow0 = 45;
@@ -117,7 +123,11 @@ namespace
     const int kRegStarDistance = 100;
     const int kRegStarWeight = 101;
     const int kRegAsteroidFade = 102;
-    const int kCompositeRegisterCount = 4;
+    const int kRegPuffTexture = 103;   // x density weight, y colour weight, z 1 / tile (m), w on
+    const int kRegPuffTextureUv = 104; // the shape's atlas rectangle: u0, v0, u1 - u0, v1 - v0
+    const int kRegPuffTextureOffset = 105; // xyz texture drift in tiles, w rounded base-shape lobes
+    const int kRegAtmosphere = 106; // fog start/inverse ramp, backdrop inner radius/inverse fade
+    const int kCompositeRegisterCount = 24;
     // Shadow steps grow by this ratio (short near the sample, long toward the light).
     const double kShadowStepGrowth = 1.6;
     // Nebulae drawn per frame at most ([Nebula] max_nebulae is clamped to this).
@@ -190,13 +200,42 @@ namespace
         float CloudScaleFogDistances;
         float Coverage;
         float CloudSoftness;
+        float CloudBillow; // rounded Worley lobes added to the base shape (0 = original)
         float LayerStretch;
         float DetailScale;
         float Erosion;
         float Wispiness;
         float Warp;
         float DriftScale;
+        // The nebula's own puff texture in the volume (shape of the first [Clouds] puff_shape):
+        // how much it shapes the cloud density and tints the colour (0 = off), and its tile as a
+        // multiple of puff_radius.
+        float PuffTextureDensity;
+        float PuffTextureColour;
+        float PuffTextureScale;
         float CloudNearFadeScale;
+        float ExteriorRadiusFraction;
+        float HybridClouds;
+        float HybridPuffAlpha;
+        float CloudDistanceFade;
+        float BackgroundScale;
+        float FogRampStart;
+        float FogRampDistance;
+        float VisibilityFadeStart;
+        float VisibilityFadeEnd;
+        float BackdropRadius;
+        float BackdropFalloff;
+        float BackdropInnerRadius;
+        float BackdropInnerFade;
+        float SunOcclusionHalo;
+        float UseSunBurnthrough;
+        float CloudNearFadeStart;
+        float CloudNearFadeEnd;
+        float ObjectAmbientStrength;
+        float ObjectAmbientScale;
+        float AmbientBlendDistance;
+        float DynamicAsteroidFadeFraction;
+        float DynamicAsteroidFadeSeconds;
         float CloudBrightness;
         float HazeAlbedo;
         float Emission;
@@ -321,13 +360,39 @@ namespace
         {"cloud_scale_fog_distances", &FNebulaVolumeSettings::CloudScaleFogDistances},
         {"coverage", &FNebulaVolumeSettings::Coverage},
         {"cloud_softness", &FNebulaVolumeSettings::CloudSoftness},
+        {"cloud_billow", &FNebulaVolumeSettings::CloudBillow},
         {"layer_stretch", &FNebulaVolumeSettings::LayerStretch},
         {"detail_scale", &FNebulaVolumeSettings::DetailScale},
         {"erosion", &FNebulaVolumeSettings::Erosion},
         {"wispiness", &FNebulaVolumeSettings::Wispiness},
         {"warp", &FNebulaVolumeSettings::Warp},
+        {"puff_texture_density", &FNebulaVolumeSettings::PuffTextureDensity},
+        {"puff_texture_colour", &FNebulaVolumeSettings::PuffTextureColour},
+        {"puff_texture_scale", &FNebulaVolumeSettings::PuffTextureScale},
         {"drift_scale", &FNebulaVolumeSettings::DriftScale},
         {"cloud_near_fade_scale", &FNebulaVolumeSettings::CloudNearFadeScale},
+        {"exterior_radius_fraction", &FNebulaVolumeSettings::ExteriorRadiusFraction},
+        {"hybrid_clouds", &FNebulaVolumeSettings::HybridClouds},
+        {"hybrid_puff_alpha", &FNebulaVolumeSettings::HybridPuffAlpha},
+        {"cloud_distance_fade", &FNebulaVolumeSettings::CloudDistanceFade},
+        {"background_scale", &FNebulaVolumeSettings::BackgroundScale},
+        {"fog_ramp_start", &FNebulaVolumeSettings::FogRampStart},
+        {"fog_ramp_distance", &FNebulaVolumeSettings::FogRampDistance},
+        {"visibility_fade_start", &FNebulaVolumeSettings::VisibilityFadeStart},
+        {"visibility_fade_end", &FNebulaVolumeSettings::VisibilityFadeEnd},
+        {"backdrop_radius", &FNebulaVolumeSettings::BackdropRadius},
+        {"backdrop_falloff", &FNebulaVolumeSettings::BackdropFalloff},
+        {"backdrop_inner_radius", &FNebulaVolumeSettings::BackdropInnerRadius},
+        {"backdrop_inner_fade", &FNebulaVolumeSettings::BackdropInnerFade},
+        {"sun_occlusion_halo", &FNebulaVolumeSettings::SunOcclusionHalo},
+        {"use_sun_burnthrough", &FNebulaVolumeSettings::UseSunBurnthrough},
+        {"cloud_near_fade_start", &FNebulaVolumeSettings::CloudNearFadeStart},
+        {"cloud_near_fade_end", &FNebulaVolumeSettings::CloudNearFadeEnd},
+        {"object_ambient_strength", &FNebulaVolumeSettings::ObjectAmbientStrength},
+        {"object_ambient_scale", &FNebulaVolumeSettings::ObjectAmbientScale},
+        {"ambient_blend_distance", &FNebulaVolumeSettings::AmbientBlendDistance},
+        {"dynamic_asteroid_fade_fraction", &FNebulaVolumeSettings::DynamicAsteroidFadeFraction},
+        {"dynamic_asteroid_fade_seconds", &FNebulaVolumeSettings::DynamicAsteroidFadeSeconds},
         {"cloud_brightness", &FNebulaVolumeSettings::CloudBrightness},
         {"haze_albedo", &FNebulaVolumeSettings::HazeAlbedo},
         {"emission", &FNebulaVolumeSettings::Emission},
@@ -441,13 +506,39 @@ namespace
         S.CloudScaleFogDistances = 2.5f;
         S.Coverage = 0.4f;
         S.CloudSoftness = 0.6f;
+        S.CloudBillow = 0.0f;
         S.LayerStretch = 1.6f;
         S.DetailScale = 4.0f;
         S.Erosion = 0.5f;
         S.Wispiness = 0.35f;
         S.Warp = 0.3f;
+        S.PuffTextureDensity = 0.0f;
+        S.PuffTextureColour = 0.0f;
+        S.PuffTextureScale = 8.0f;
         S.DriftScale = 6.0f;
         S.CloudNearFadeScale = 1.0f;
+        S.ExteriorRadiusFraction = 0.0f;
+        S.HybridClouds = 0.0f;
+        S.HybridPuffAlpha = 0.22f;
+        S.CloudDistanceFade = 0.0f;
+        S.BackgroundScale = 1.0f;
+        S.FogRampStart = 0.0f;
+        S.FogRampDistance = 0.0f;
+        S.VisibilityFadeStart = 0.0f;
+        S.VisibilityFadeEnd = 0.0f;
+        S.BackdropRadius = 0.0f;
+        S.BackdropFalloff = 0.35f;
+        S.BackdropInnerRadius = 0.0f;
+        S.BackdropInnerFade = 10000.0f;
+        S.SunOcclusionHalo = 0.0f;
+        S.UseSunBurnthrough = 0.0f;
+        S.CloudNearFadeStart = -1.0f;
+        S.CloudNearFadeEnd = -1.0f;
+        S.ObjectAmbientStrength = 0.0f;
+        S.ObjectAmbientScale = 1.0f;
+        S.AmbientBlendDistance = 2000.0f;
+        S.DynamicAsteroidFadeFraction = 0.0f;
+        S.DynamicAsteroidFadeSeconds = 0.0f;
         S.CloudBrightness = 1.0f;
         S.HazeAlbedo = 0.15f;
         S.Emission = 0.25f;
@@ -546,14 +637,19 @@ namespace
 
     struct FNebulaOverride
     {
-        char File[64]; // nebula ini base name, no directory, no extension
+        char File[64]; // nebula ini base name, or the name of a [NebulaStyle]
+        char Style[32]; // optional explicit style; empty = detected from the nebula's INI
         FNebulaVolumeSettings Settings;
+        bool Keys[sizeof(kSettingKeys) / sizeof(kSettingKeys[0])];
+        bool VectorKeys[sizeof(kSettingVectorKeys) / sizeof(kSettingVectorKeys[0])];
     };
 
     struct FRegisteredNebula
     {
         FNebulaEffect* Nebula;
         char File[64];
+        char Style[32]; // crow / edge / walker from the source shapes; no retail ABI change
+        void const* RingOwner; // null for ordinary nebulae; owned companion otherwise
         // Lightning scheduler (UpdateLightning): the time (SecondsNow) of the next strike, < 0 =
         // not armed yet; strikes left in the current burst and where the burst happens.
         double NextStrike;
@@ -563,6 +659,7 @@ namespace
 
     FNebulaVolumeSettings GSettings = DefaultSettings();
     std::vector<FNebulaOverride> GOverrides;
+    std::vector<FNebulaOverride> GStyles;
     std::vector<FRegisteredNebula> GNebulae;
     // [Debug] nebula_view: 0 normal, 1 cloud density, 2 key-light shadow, 3 haze only,
     // 4 clouds only.
@@ -624,6 +721,9 @@ namespace
     // Nearest first. GEntryCount > 0 is "active".
     FVolumeEntry GEntries[kMaxNebulae];
     int GEntryCount = 0;
+    int GFrameLightingCount = 0; // valid through late ship/effect passes; cleared on unregister
+    bool GbHybridCloudPass = false;
+    float GHybridPuffAlpha = 1.0f;
     // Set by BeginFrame (the controller drawn from inside with real_background), kept through
     // Draw for the frame's clear colour; cleared by the next BeginFrame or a failed draw of the
     // controller.
@@ -739,7 +839,8 @@ namespace
         Out[Length] = '\0';
     }
 
-    bool ApplySettingKey(FNebulaVolumeSettings* Settings, INI_Reader& Reader)
+    bool ApplySettingKey(FNebulaVolumeSettings* Settings, INI_Reader& Reader,
+                         bool* Keys = nullptr, bool* VectorKeys = nullptr)
     {
         const size_t Count = sizeof(kSettingKeys) / sizeof(kSettingKeys[0]);
         for (size_t Index = 0; Index < Count; ++Index)
@@ -747,6 +848,8 @@ namespace
             if (Reader.is_value(kSettingKeys[Index].Key))
             {
                 Settings->*(kSettingKeys[Index].Member) = (float)(Reader.get_value_float(0));
+                if (Keys != nullptr)
+                    Keys[Index] = true;
                 return true;
             }
         }
@@ -755,6 +858,8 @@ namespace
         {
             if (Reader.is_value(kSettingVectorKeys[Index].Key))
             {
+                if (VectorKeys != nullptr)
+                    VectorKeys[Index] = true;
                 float* const Values = Settings->*(kSettingVectorKeys[Index].Member);
                 const unsigned int Given = Reader.get_num_parameters();
                 for (unsigned int Component = 0; Component < 3; ++Component)
@@ -766,26 +871,84 @@ namespace
         return false;
     }
 
-    FNebulaVolumeSettings const& SettingsFor(FNebulaEffect const* Nebula)
+    void ApplyPatch(FNebulaVolumeSettings* Settings, FNebulaOverride const& Patch)
     {
-        const char* File = nullptr;
-        for (size_t Index = 0; Index < GNebulae.size(); ++Index)
+        for (size_t Index = 0; Index < sizeof(kSettingKeys) / sizeof(kSettingKeys[0]); ++Index)
+            if (Patch.Keys[Index])
+                Settings->*(kSettingKeys[Index].Member) = Patch.Settings.*(kSettingKeys[Index].Member);
+        for (size_t Index = 0; Index < sizeof(kSettingVectorKeys) / sizeof(kSettingVectorKeys[0]); ++Index)
+            if (Patch.VectorKeys[Index])
+                memcpy(Settings->*(kSettingVectorKeys[Index].Member),
+                       Patch.Settings.*(kSettingVectorKeys[Index].Member), sizeof(float) * 3);
+    }
+
+    FNebulaVolumeSettings SettingsFor(FNebulaEffect const* Nebula)
+    {
+        FNebulaVolumeSettings Settings = GSettings;
+        for (size_t Registered = 0; Registered < GNebulae.size(); ++Registered)
         {
-            if (GNebulae[Index].Nebula == Nebula)
-            {
-                File = GNebulae[Index].File;
-                break;
-            }
-        }
-        if (File != nullptr)
-        {
+            FRegisteredNebula const& Entry = GNebulae[Registered];
+            if (Entry.Nebula != Nebula)
+                continue;
+            FNebulaOverride const* Override = nullptr;
             for (size_t Index = 0; Index < GOverrides.size(); ++Index)
+                if (_stricmp(GOverrides[Index].File, Entry.File) == 0)
+                {
+                    Override = &GOverrides[Index];
+                    break;
+                }
+            const char* Style = Override != nullptr && Override->Style[0] != '\0'
+                                    ? Override->Style : Entry.Style;
+            for (size_t Index = 0; Index < GStyles.size(); ++Index)
+                if (_stricmp(GStyles[Index].File, Style) == 0)
+                {
+                    ApplyPatch(&Settings, GStyles[Index]);
+                    break;
+                }
+            if (Override != nullptr)
+                ApplyPatch(&Settings, *Override);
+            break;
+        }
+        return Settings;
+    }
+
+    // Detect the asset family once at registration, never by per-frame disk reads.
+    // Match the actual puff shapes first, with the texture-panel file as a fallback.
+    void DetectNebulaStyle(char* Out, size_t Size, char const* File)
+    {
+        Out[0] = '\0';
+        char Path[MAX_PATH];
+        GetFileSysPath(Path, File, DALib::Data);
+        INI_Reader Reader;
+        if (!Reader.open(Path, false))
+            return;
+        while (Reader.read_header())
+        {
+            const bool Clouds = Reader.is_header("Clouds");
+            const bool Panels = Reader.is_header("TexturePanels");
+            if (!Clouds && !Panels)
+                continue;
+            while (Reader.read_value())
             {
-                if (_stricmp(GOverrides[Index].File, File) == 0)
-                    return GOverrides[Index].Settings;
+                if ((Clouds && Reader.is_value("puff_shape")) ||
+                    (Panels && Reader.is_value("file") && Out[0] == '\0'))
+                {
+                    char Name[64];
+                    BaseName(Name, sizeof(Name), Reader.get_value_string());
+                    const char* Families[] = {"crow", "edge", "walker"};
+                    for (int Index = 0; Index < 3; ++Index)
+                    {
+                        const size_t Length = strlen(Families[Index]);
+                        if (_strnicmp(Name, Families[Index], Length) == 0 && Name[Length] == '_')
+                        {
+                            strcpy_s(Out, Size, Families[Index]);
+                            if (Clouds)
+                                return;
+                        }
+                    }
+                }
             }
         }
-        return GSettings;
     }
 
     // ---- noise volume ---------------------------------------------------------------------
@@ -1253,6 +1416,18 @@ namespace
         }
     }
 
+    // A bounded visual companion does not resize the gameplay ring or its lighting zones.
+    float RenderZoneScale(Universe::IZone const* Zone, FNebulaVolumeSettings const& S)
+    {
+        if (!(S.BackdropRadius > 1.0f))
+            return 1.0f;
+        float Radii[3];
+        ZoneRadii(Zone, Radii);
+        const float Largest = Radii[0] > Radii[1] ? Radii[0] : Radii[1];
+        const float Radius = Largest > Radii[2] ? Largest : Radii[2];
+        return Radius > 1.0f ? S.BackdropRadius / Radius : 1.0f;
+    }
+
     void Set4(float* Register, float X, float Y, float Z, float W)
     {
         Register[0] = X;
@@ -1264,6 +1439,21 @@ namespace
     float* RaymarchRegister(int Index)
     {
         return &GRaymarchConstants[Index * 4];
+    }
+
+    // The pipeline texture of the nebula's first puff shape for the frame's ray march (sampler 2),
+    // null when the nebula has none or puff_texture_* is off.
+    void* GPuffTextureHandle = nullptr;
+
+    // The first shape of the first [Clouds] block (FNebulaClouds +0x28, the shape table).
+    FTexShape const* FirstPuffShape(FNebulaEffect const* Nebula)
+    {
+        FNebulaCloudsListNode* const Sentinel = Nebula->Clouds.Sentinel;
+        if (Sentinel == nullptr || Sentinel->Next == Sentinel || Sentinel->Next->Clouds == nullptr)
+            return nullptr;
+        FTexShape const* Shape = nullptr;
+        memcpy(&Shape, Sentinel->Next->Clouds->Raw + 0x28, sizeof(Shape));
+        return Shape;
     }
 
     // The first [Clouds] block of the nebula (FNebulaClouds raw offsets, cli_nebula.cpp
@@ -1473,6 +1663,7 @@ namespace
         double DriftSpeed;    // m/s
         double Time;          // SecondsNow
         double WarpAmplitude; // m
+        float Billow; // 0..1, rounded cellular lobes
         float RemapLow;       // coverage threshold of the base value
         float RemapInvWidth;  // 1 / its ramp width
     };
@@ -1529,6 +1720,7 @@ namespace
         }
 
         Out->Time = Time;
+        Out->Billow = Clamp(S.CloudBillow, 0.0f, 1.0f);
         Out->DriftSpeed = (double)(Clouds.Drift) * (double)(S.DriftScale);
         Out->WarpAmplitude = CloudScale * (S.Warp > 0.0f ? (double)(S.Warp) : 0.0);
         Out->RemapLow = 0.6f;
@@ -1610,6 +1802,7 @@ namespace
         SampleNoiseVolume(NoiseTileCoordinate(Frame, 0, 0, Warped[0]),
                           NoiseTileCoordinate(Frame, 0, 1, Warped[1]),
                           NoiseTileCoordinate(Frame, 0, 2, Warped[2]), Base);
+        Base[0] = Clamp(Base[0] + (Base[1] - 0.5f) * Frame.Billow, 0.0f, 1.0f);
         const float Low = Frame.RemapLow + Rise * (1.0f - Frame.RemapLow);
         return Clamp((Base[0] - Low) * Frame.RemapInvWidth, 0.0f, 1.0f);
     }
@@ -1639,7 +1832,8 @@ namespace
         // edge_softness stays the narrowest the shell can be (shell_width 0 = the edge ramp of
         // before, now eased).
         const float Edge = Clamp(S.EdgeSoftness, 0.001f, 1.0f);
-        Out->Width = Clamp(S.ShellWidth > Edge ? S.ShellWidth : Edge, 0.001f, 1.0f);
+        const float Width = S.BackdropRadius > 1.0f ? S.BackdropFalloff : S.ShellWidth;
+        Out->Width = Clamp(Width > Edge ? Width : Edge, 0.001f, 1.0f);
         Out->Amplitude = Clamp(S.ShellNoise, 0.0f, 0.5f);
         // Without displacement the noise lookup is skipped everywhere.
         Out->NoiseStart = Out->Amplitude > 0.0f ? 1.0f - Out->Width - Out->Amplitude : 1.0e9f;
@@ -1907,6 +2101,10 @@ namespace
              (float)((double)(ZonePos.y) - CamPos[1]), (float)((double)(ZonePos.z) - CamPos[2]),
              0.0f);
         ZoneLocalRows(Zone, RaymarchRegister(7), RaymarchRegister(8), RaymarchRegister(9));
+        const float VisualScale = RenderZoneScale(Zone, S);
+        for (int Axis = 0; Axis < 3; ++Axis)
+            for (int Component = 0; Component < 3; ++Component)
+                RaymarchRegister(7 + Axis)[Component] /= VisualScale;
         const Matrix& Orientation = Zone->GetOrientation();
 
         // c88..c90 the outer shell and the halo (ComputeShellFrame, shared with the lightning
@@ -2032,6 +2230,12 @@ namespace
         // c11 medium: the two extinctions, the clear radius ([Fog] near), the debug view.
         Set4(RaymarchRegister(11), HazeSigma, CloudSigma, FogNear,
              bShaderView ? (float)(GNebulaView) : 0.0f);
+        Set4(RaymarchRegister(kRegAtmosphere), S.FogRampStart,
+             S.FogRampDistance > 1.0f ? 1.0f / S.FogRampDistance : 0.0f,
+             S.BackdropRadius > 1.0f ? S.BackdropInnerRadius / S.BackdropRadius : 0.0f,
+             S.BackdropRadius > 1.0f && S.BackdropInnerRadius > 0.0f
+                 ? S.BackdropRadius / (S.BackdropInnerFade > 1.0f ? S.BackdropInnerFade : 1.0f)
+                 : 0.0f);
 
         // Cloud scales, noise space, drift and coverage cut (ComputeNoiseFrame, shared with the
         // lightning placement).
@@ -2077,9 +2281,12 @@ namespace
         // c17 warp amplitude, cloud near fade range ([Clouds] near_fade_distance x
         // cloud_near_fade_scale), haze tail.
         const float NearFadeScale = S.CloudNearFadeScale > 0.0f ? S.CloudNearFadeScale : 0.0f;
-        const float FadeA = Clouds.NearFadeA * NearFadeScale;
+        const float FadeA = S.CloudNearFadeStart >= 0.0f ? S.CloudNearFadeStart
+                                                          : Clouds.NearFadeA * NearFadeScale;
         float FadeB = (Clouds.NearFadeB > Clouds.NearFadeA ? Clouds.NearFadeB : Clouds.NearFadeA + 1.0f) *
                       NearFadeScale;
+        if (S.CloudNearFadeEnd > FadeA)
+            FadeB = S.CloudNearFadeEnd;
         Set4(RaymarchRegister(17), (float)(Frame.WarpAmplitude), FadeA, FadeB,
              S.HazeTail > 0.5f ? 1.0f : 0.0f);
         const float FadeWidth = FadeB - FadeA > 1.0f ? FadeB - FadeA : 1.0f;
@@ -2099,6 +2306,7 @@ namespace
         Set4(RaymarchRegister(19), FogRgb[0] * S.HazeEmission, FogRgb[1] * S.HazeEmission,
              FogRgb[2] * S.HazeEmission, FogNear > 0.0f ? 1.0f / FogNear : 0.0f);
         const float PowderLength = (float)(DetailCell);
+        RaymarchRegister(18)[3] = S.CloudNearFadeStart >= 0.0f ? 1.0f : 0.0f;
         Set4(RaymarchRegister(20), FogRgb[0] * S.Emission, FogRgb[1] * S.Emission,
              FogRgb[2] * S.Emission, Clamp(S.PowderStrength, 0.0f, 1.0f));
         Set4(RaymarchRegister(21), Clouds.ColourA[0] * S.CloudBrightness,
@@ -2331,7 +2539,8 @@ namespace
                           : 0.0f);
         // c80 the large-scale haze shadow: the haze extinction times exterior_shadow_density.
         Set4(RaymarchRegister(kRegMacroShadow),
-             bMacroShadow ? Medium.HazeSigma * S.ExteriorShadowDensity : 0.0f, 0.0f, 0.0f, 0.0f);
+             bMacroShadow ? Medium.HazeSigma * S.ExteriorShadowDensity : 0.0f,
+             S.CloudDistanceFade > 1.0f ? 1.0f / S.CloudDistanceFade : 0.0f, 0.0f, 0.0f);
 
         // c93..c96 opaque spheres drawn without depth before this pass (far planets and
         // moons): camera-relative centre, |centre|^2 - radius^2; 1e30 = unused.
@@ -2369,7 +2578,12 @@ namespace
             StarWeight[Index] = GlowWeight * Clamp(Note.Alpha, 0.0f, 1.0f);
         }
         Set4(RaymarchRegister(kRegStarDistance), StarDist[0], StarDist[1], StarDist[2], 0.0f);
-        Set4(RaymarchRegister(kRegStarWeight), StarWeight[0], StarWeight[1], StarWeight[2], 0.0f);
+        // A restrained transmission floor for the already burn-through-scaled solar sprite.
+        // It only applies inside the sprite and behind no opaque geometry (shader checks both).
+        const bool Burnthrough = S.UseSunBurnthrough > 0.5f &&
+            PortConfigInt("Render", "sun_nebula_burnthrough", 1) != 0;
+        Set4(RaymarchRegister(kRegStarWeight), StarWeight[0], StarWeight[1], StarWeight[2],
+             Burnthrough ? 0.25f : 0.0f);
         // c102 the asteroid cubes fading out at the end of the extended spawn distance (they
         // write depth while translucent). A pixel's depth is its asteroid's surface, up to about
         // a cube from the cube centre the alpha was computed for: the shader's fade ends one cube
@@ -2378,6 +2592,35 @@ namespace
         if (!bIgnoreDepth && GAsteroidFadeEnd > 0.0f && GAsteroidFadeBand > 0.0f)
             Set4(RaymarchRegister(kRegAsteroidFade), GAsteroidFadeEnd - GAsteroidCubeSize,
                  1.0f / GAsteroidFadeBand, GAsteroidFadeEnd + GAsteroidCubeSize, 0.0f);
+
+        // c103 / c104 the nebula's own puff texture: projected on three planes through the
+        // cloud space, it shapes the density and tints the colour, so each nebula keeps the
+        // look of its retail puffs (puff_texture_density / _colour / _scale).
+        Set4(RaymarchRegister(kRegPuffTextureOffset), 0.0f, 0.0f, 0.0f,
+             Clamp(S.CloudBillow, 0.0f, 1.0f));
+        GPuffTextureHandle = nullptr;
+        if (S.PuffTextureDensity > 0.0f || S.PuffTextureColour > 0.0f)
+        {
+            FTexShape const* const Shape = FirstPuffShape(Nebula);
+            void* const Handle = Shape != nullptr ? TexShapeGetGpuHandle(Shape, 0) : nullptr;
+            const double Tile = (double)(Clouds.PuffRadius) *
+                                (S.PuffTextureScale > 0.1f ? (double)(S.PuffTextureScale) : 0.1);
+            if (Handle != nullptr && Tile > 1.0)
+            {
+                GPuffTextureHandle = Handle;
+                Set4(RaymarchRegister(kRegPuffTexture), Clamp(S.PuffTextureDensity, 0.0f, 1.0f),
+                     Clamp(S.PuffTextureColour, 0.0f, 1.0f), (float)(1.0 / Tile), 1.0f);
+                Set4(RaymarchRegister(kRegPuffTextureUv), Shape->U0, Shape->V0, Shape->U1 - Shape->U0,
+                     Shape->V1 - Shape->V0);
+                // The projection must follow the world and drift, rather than the camera.
+                // Wrap in double precision to retain detail far from the system origin.
+                float* Offset = RaymarchRegister(kRegPuffTextureOffset);
+                for (int Axis = 0; Axis < 3; ++Axis)
+                    Offset[Axis] = (float)(Frac((CamNoise[Axis] - kDriftDir[1][Axis] *
+                        Frame.DriftSpeed * kDriftMul[1] * Frame.Time) / Tile));
+                Offset[3] = Clamp(S.CloudBillow, 0.0f, 1.0f);
+            }
+        }
 
         // The composite's c3: exposure, mode, white -- a plain pass-through when the ray march
         // already wrote display values (8-bit target, debug views 1 and 2).
@@ -2442,6 +2685,26 @@ namespace
              1.0f / (float)(LowWidth), 1.0f / (float)(LowHeight));
         Set4(&GCompositeConstants[8], 0.5f / (float)(FullWidth), 0.5f / (float)(FullHeight),
              UpsampleThreshold > 0.0f ? UpsampleThreshold : 0.0f, bIgnoreDepth ? 1.0f : 0.0f);
+        // Solar burn-through is resolved at full resolution after the expensive march:
+        // exact opaque silhouettes, without increasing SM3 loop register pressure.
+        memcpy(&GCompositeConstants[4 * 4], RaymarchRegister(1), sizeof(float) * 4);
+        memcpy(&GCompositeConstants[5 * 4], RaymarchRegister(2), sizeof(float) * 4);
+        memcpy(&GCompositeConstants[6 * 4], RaymarchRegister(3), sizeof(float) * 12);
+        memcpy(&GCompositeConstants[9 * 4], RaymarchRegister(kRegStarGlow), sizeof(float) * 12);
+        memcpy(&GCompositeConstants[12 * 4], RaymarchRegister(kRegStarWeight), sizeof(float) * 4);
+        memcpy(&GCompositeConstants[13 * 4], RaymarchRegister(kRegStarDistance), sizeof(float) * 4);
+        memcpy(&GCompositeConstants[14 * 4], RaymarchRegister(kRegFarSphere), sizeof(float) * 16);
+        const FNebulaVolumeSettings& S = Entry.Settings;
+        const bool CloseFog = S.VisibilityFadeEnd > S.VisibilityFadeStart &&
+            !(S.BackdropRadius > 1.0f) && RaymarchRegister(11)[3] < 0.5f;
+        Set4(&GCompositeConstants[18 * 4], S.VisibilityFadeStart,
+            CloseFog ? 1.0f / (S.VisibilityFadeEnd - S.VisibilityFadeStart) : 0.0f,
+            Clamp(Entry.Strength, 0.0f, 1.0f), 0.0f);
+        memcpy(&GCompositeConstants[19 * 4], RaymarchRegister(6), sizeof(float) * 16);
+        GCompositeConstants[19 * 4 + 3] = 1.0f; // real zone, excluding the thin exterior halo
+        float SimpleFogRgb[3];
+        Entry.Nebula->CopyFogRgb(SimpleFogRgb);
+        Set4(&GCompositeConstants[23 * 4], SimpleFogRgb[0], SimpleFogRgb[1], SimpleFogRgb[2], 0.0f);
 
         FRPExSamplerState Point;
         Point.MinMagFilter = RPExFilterPoint;
@@ -2474,6 +2737,14 @@ namespace
         if (bOk)
             bOk = Ex->BindExTexture(0, SceneDepth, &Point) == GR_OK &&
                   Ex->BindExTexture(1, GNoiseVolume, &LinearWrap) == GR_OK;
+        if (bOk && GPuffTextureHandle != nullptr)
+        {
+            // The shader keeps its samples inside the shape's atlas rectangle itself.
+            FRPExSamplerState PuffSampler = LinearClamp;
+            PuffSampler.MipFilter = RPExMipLinear;
+            if (Ex->BindExPipelineTexture(2, GPuffTextureHandle, &PuffSampler) != GR_OK)
+                Set4(RaymarchRegister(kRegPuffTexture), 0.0f, 0.0f, 0.0f, 0.0f);
+        }
         if (bOk)
         {
             Ex->SetExPixelConstants(0, GRaymarchConstants, kRaymarchRegisterCount);
@@ -3204,6 +3475,8 @@ void NebulaVolume::RegisterNebula(FNebulaEffect* Nebula, char const* File)
         return;
     FRegisteredNebula Entry;
     Entry.Nebula = Nebula;
+    Entry.RingOwner = nullptr;
+    DetectNebulaStyle(Entry.Style, sizeof(Entry.Style), File);
     BaseName(Entry.File, sizeof(Entry.File), File);
     Entry.NextStrike = -1.0;
     Entry.BurstLeft = 0;
@@ -3221,8 +3494,44 @@ void NebulaVolume::RegisterNebula(FNebulaEffect* Nebula, char const* File)
     GNebulae.push_back(Entry);
 }
 
+void NebulaVolume::UnregisterRingVolume(void const* Owner)
+{
+    for (size_t Index = 0; Index < GNebulae.size(); ++Index)
+    {
+        if (GNebulae[Index].RingOwner == Owner && Owner != nullptr)
+        {
+            // NebulaDestroy unregisters it and removes any frame/lightning references.
+            NebulaDestroy(GNebulae[Index].Nebula);
+            return;
+        }
+    }
+}
+
+void NebulaVolume::RegisterRingVolume(void const* Owner, char const* File, char const* ZoneName)
+{
+    UnregisterRingVolume(Owner);
+    if (Owner == nullptr || File == nullptr || File[0] == '\0' || !RenderEx::IsAvailable())
+        return;
+    Universe::IZone const* Zone = Universe::get_zone(StarSysGetActiveSystemId(), ZoneName);
+    // The volume marcher uses an ellipsoid, not an annulus. Do not fill a planet ring's hole.
+    if (Zone == nullptr || Zone->GetShape() != Universe::ZoneShapeRing ||
+        Zone->GetSize().y != 0.0f || Zone->GetSize().x <= 0.0f || Zone->GetSize().z <= 0.0f)
+    {
+        FDUMP(0x100002, "%s(%d) : WARNING: ring volume requires a solid ring zone: %s",
+              kNebulaVolumeSource, __LINE__, ZoneName);
+        return;
+    }
+    FNebulaEffect* Nebula = NebulaCreate();
+    Nebula->Load(File, ZoneName);
+    RegisterNebula(Nebula, File);
+    for (size_t Index = 0; Index < GNebulae.size(); ++Index)
+        if (GNebulae[Index].Nebula == Nebula)
+            GNebulae[Index].RingOwner = Owner;
+}
+
 void NebulaVolume::UnregisterNebula(FNebulaEffect* Nebula)
 {
+    GFrameLightingCount = 0;
     for (size_t Index = 0; Index < GNebulae.size(); ++Index)
     {
         if (GNebulae[Index].Nebula == Nebula)
@@ -3264,14 +3573,15 @@ void NebulaVolume::LoadSettings(char const* IniPath)
 {
     GSettings = DefaultSettings();
     GOverrides.clear();
+    GStyles.clear();
     GNebulaView = 0;
     GbLightningForce = false;
     GbLightningShowPositions = false;
     // resolution_scale may have changed: a failed render target is tried again.
     GbTargetFailed = false;
 
-    // Pass 1: [Nebula] and [Debug] nebula_view. Pass 2: [NebulaOverride], each starting from
-    // the [Nebula] values, so the section order in the file does not matter.
+    // Pass 1: global settings and debug. Pass 2: sparse style/override patches.
+    // SettingsFor layers them after loading, independently of section and key order.
     INI_Reader Reader;
     if (IniPath == nullptr || !Reader.open(IniPath, false))
         return;
@@ -3301,28 +3611,35 @@ void NebulaVolume::LoadSettings(char const* IniPath)
         return;
     while (Reader.read_header())
     {
-        if (!Reader.is_header("NebulaOverride"))
+        const bool bStyle = Reader.is_header("NebulaStyle");
+        if (!bStyle && !Reader.is_header("NebulaOverride"))
             continue;
-        FNebulaOverride Override;
-        Override.File[0] = '\0';
+        FNebulaOverride Override = {};
         Override.Settings = GSettings;
         while (Reader.read_value())
         {
-            if (Reader.is_value("file"))
+            if (Reader.is_value(bStyle ? "name" : "file"))
                 BaseName(Override.File, sizeof(Override.File), Reader.get_value_string(0));
+            else if (!bStyle && Reader.is_value("style"))
+                BaseName(Override.Style, sizeof(Override.Style), Reader.get_value_string(0));
             else
-                ApplySettingKey(&Override.Settings, Reader);
+                ApplySettingKey(&Override.Settings, Reader, Override.Keys, Override.VectorKeys);
         }
         if (Override.File[0] != '\0')
-            GOverrides.push_back(Override);
+        {
+            if (bStyle)
+                GStyles.push_back(Override);
+            else
+                GOverrides.push_back(Override);
+        }
         else
-            FDUMP(0x100002, "%s(%d) : WARNING:General:[NebulaOverride] without file = ignored",
+            FDUMP(0x100002, "%s(%d) : WARNING:General:nebula style/override without name/file = ignored",
                   kNebulaVolumeSource, __LINE__);
     }
     Reader.close();
     FDUMP(0x100003, "%s(%d) : NOTICE:General:nebula volume settings: enabled %d, %u override(s), "
-          "view %d", kNebulaVolumeSource, __LINE__, GSettings.Enabled > 0.5f ? 1 : 0,
-          (unsigned int)(GOverrides.size()), GNebulaView);
+          "view %d, %u style(s)", kNebulaVolumeSource, __LINE__, GSettings.Enabled > 0.5f ? 1 : 0,
+          (unsigned int)(GOverrides.size()), GNebulaView, (unsigned int)(GStyles.size()));
 }
 
 void NebulaVolume::OnProgramsReloaded()
@@ -3334,6 +3651,7 @@ void NebulaVolume::OnProgramsReloaded()
 
 void NebulaVolume::Shutdown()
 {
+    GFrameLightingCount = 0;
     IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
     if (Ex != nullptr)
     {
@@ -3390,6 +3708,7 @@ namespace
                             bool bNebulaOption, float SceneFar)
     {
         GEntryCount = 0;
+        GFrameLightingCount = 0;
         GbRealBackground = false;
         GController = Controller;
         GControllerMarchCap = 0.0f;
@@ -3401,7 +3720,7 @@ namespace
         GAsteroidCubeSize = 0.0f;
         (void)Enclosure; // the controller's own immersion (+0x294) says the same, per nebula
         if (Camera == nullptr || !bNebulaOption || !RenderEx::IsAvailable() || GbProgramFailed ||
-            GNebulae.empty())
+            GNebulae.empty() || !(GSettings.Enabled > 0.5f))
             return;
 
         // Candidates, nearest first, at most max_nebulae ([Nebula], global): every nebula the
@@ -3422,7 +3741,25 @@ namespace
             FNebulaVolumeSettings const& Settings = SettingsFor(Nebula);
             if (!(Settings.Enabled > 0.5f))
                 continue;
-            const bool bInside = Nebula->GetFloat294() > 0.0f;
+            const float VisualScale = RenderZoneScale(Nebula->Zone, Settings);
+            bool bInside = Nebula->GetFloat294() > 0.0f;
+            if (GNebulae[Index].RingOwner != nullptr)
+            {
+                // Companions do not run retail Update (which changes fog and immersion).
+                // Classify against the same ellipsoid the shader actually marches.
+                float Rows[3][3];
+                ZoneLocalRows(Nebula->Zone, Rows[0], Rows[1], Rows[2]);
+                Vector const& Centre = Nebula->Zone->GetPos();
+                double Q2 = 0.0;
+                for (int Axis = 0; Axis < 3; ++Axis)
+                {
+                    const double Q = Rows[Axis][0] * (CamPos[0] - Centre.x) +
+                                     Rows[Axis][1] * (CamPos[1] - Centre.y) +
+                                     Rows[Axis][2] * (CamPos[2] - Centre.z);
+                    Q2 += Q * Q;
+                }
+                bInside = Q2 < (double)VisualScale * VisualScale;
+            }
             // The drawn bound is the halo's end plus the shell noise, not the zone surface:
             // the distances (exterior fade, far bucket, the key light's reference) count from it.
             FShellFrame Shell;
@@ -3433,15 +3770,27 @@ namespace
             {
                 if (!(Settings.Exterior > 0.5f))
                     continue;
-                Distance = SurfaceDistance(Nebula->Zone, CamPos, (double)(Shell.SpanScale));
-                const double MaxDistance = (double)(Settings.ExteriorMaxDistance);
+                Distance = SurfaceDistance(Nebula->Zone, CamPos, (double)(Shell.SpanScale) * VisualScale);
+                double MaxDistance = (double)(Settings.ExteriorMaxDistance);
+                double Fade = Settings.ExteriorFadeDistance > 1.0f
+                                  ? (double)(Settings.ExteriorFadeDistance) : 1.0;
+                if (Settings.ExteriorRadiusFraction > 0.0f)
+                {
+                    float Radii[3];
+                    ZoneRadii(Nebula->Zone, Radii);
+                    const float Smallest = Radii[0] < Radii[1] ? Radii[0] : Radii[1];
+                    const float MinRadius = Smallest < Radii[2] ? Smallest : Radii[2];
+                    const double NearShell = (double)MinRadius * Settings.ExteriorRadiusFraction;
+                    if (NearShell < MaxDistance)
+                        MaxDistance = NearShell;
+                    Fade = MaxDistance > 1.0 ? MaxDistance : 1.0;
+                }
                 if (!(Distance < MaxDistance))
                     continue;
-                const double Fade = Settings.ExteriorFadeDistance > 1.0f
-                                        ? (double)(Settings.ExteriorFadeDistance)
-                                        : 1.0;
                 const double Remaining = (MaxDistance - Distance) / Fade;
                 Strength = Remaining >= 1.0 ? 1.0f : (float)(Remaining);
+                if (Settings.ExteriorRadiusFraction > 0.0f)
+                    Strength = Strength * Strength * (3.0f - 2.0f * Strength);
                 if (!(Strength > 0.001f))
                     continue;
             }
@@ -3463,7 +3812,7 @@ namespace
             FVolumeEntry& Entry = GEntries[Slot];
             Entry.Nebula = Nebula;
             Entry.Settings = Settings;
-            Entry.SpanScale = Shell.SpanScale;
+            Entry.SpanScale = Shell.SpanScale * VisualScale;
             Entry.SurfaceDistance = (float)(Distance);
             Entry.Strength = Strength;
             Entry.MarchCap = 0.0f;
@@ -3507,6 +3856,12 @@ namespace
             // node.
             Entry.bBackground = !Entry.bInside && Entry.Nebula != Controller &&
                                 (double)(Entry.SurfaceDistance) > (double)(SceneFar);
+            // Ring companions have no retail far-bucket node: DrawBackdrop renders them
+            // immediately above the sky, before even the far objects and local exteriors.
+            for (size_t Registered = 0; Registered < GNebulae.size(); ++Registered)
+                if (GNebulae[Registered].Nebula == Entry.Nebula &&
+                    GNebulae[Registered].RingOwner != nullptr)
+                    Entry.bBackground = false;
             if (Entry.Settings.AsteroidSpawn > 0.5f)
             {
                 float Reach = Entry.AsteroidSurfaceDistance + Entry.AsteroidHazeReach;
@@ -3515,9 +3870,13 @@ namespace
                 if (Reach > GMaxAsteroidReach)
                     GMaxAsteroidReach = Reach;
             }
-            if (Entry.Nebula == Controller && Entry.bInside)
+            if (Entry.Nebula == Controller)
             {
-                GControllerMarchCap = Entry.MarchCap;
+                if (Entry.bInside)
+                    GControllerMarchCap = Entry.MarchCap;
+                // SelectFieldControllers uses ZoneExteriorFactor, whereas bInside comes
+                // from the retail effect's updated immersion. They may cross their thresholds
+                // on different frames: background policy must not depend on that second gate.
                 GbRealBackground = Entry.Settings.RealBackground > 0.5f;
             }
         }
@@ -3528,10 +3887,201 @@ void NebulaVolume::BeginFrame(ICamera* Camera, FNebulaEffect* Controller, int En
                               bool bNebulaOption, float SceneFar)
 {
     SelectFrameEntries(Camera, Controller, Enclosure, bNebulaOption, SceneFar);
+    GFrameLightingCount = GEntryCount;
     // Lightning: strikes of the drawn nebulae, the ship light (with no entry -- RP8, the
     // volume off, nothing in range -- every strike goes and a light the strikes drove is left
     // dark for retail).
     UpdateLightning(Camera);
+}
+
+bool NebulaVolume::SuppressesRetailLightning(FNebulaEffect const* Nebula)
+{
+    if (Nebula == nullptr || !RenderEx::IsAvailable() || GbProgramFailed ||
+        !(GSettings.Enabled > 0.5f))
+        return false;
+    const FNebulaVolumeSettings S = SettingsFor(Nebula);
+    return S.Enabled > 0.5f && S.LightningEnabled < 0.5f;
+}
+
+bool NebulaVolume::TintObjectAmbient(float const* WorldPos, unsigned char* Rgb)
+{
+    if (WorldPos == nullptr || Rgb == nullptr || !RenderEx::IsAvailable() || GbProgramFailed ||
+        !(GSettings.Enabled > 0.5f) || GFrameLightingCount == 0)
+        return false;
+    float BestRadius = 1.0e30f;
+    bool Found = false;
+    unsigned char Original[3] = {Rgb[0], Rgb[1], Rgb[2]};
+    for (int Index = 0; Index < GFrameLightingCount; ++Index)
+    {
+        FNebulaEffect* Nebula = GEntries[Index].Nebula;
+        if (Nebula == nullptr || Nebula->Zone == nullptr || Nebula->FlagLoaded == 0)
+            continue;
+        FNebulaVolumeSettings const& S = GEntries[Index].Settings;
+        if (!(S.Enabled > 0.5f) || !(S.ObjectAmbientStrength > 0.0f))
+            continue;
+        unsigned char const* Ambient = Nebula->GetAmbientBytes();
+        if (Ambient == nullptr)
+            continue;
+        float Rows[3][3], Radius[3];
+        ZoneLocalRows(Nebula->Zone, Rows[0], Rows[1], Rows[2]);
+        ZoneRadii(Nebula->Zone, Radius);
+        const float Smallest = Radius[0] < Radius[1] ? Radius[0] : Radius[1];
+        const float MinRadius = Smallest < Radius[2] ? Smallest : Radius[2];
+        Vector const& Centre = Nebula->Zone->GetPos();
+        double Q2 = 0.0;
+        for (int Axis = 0; Axis < 3; ++Axis)
+        {
+            const double Q = Rows[Axis][0] * ((double)WorldPos[0] - Centre.x) +
+                             Rows[Axis][1] * ((double)WorldPos[1] - Centre.y) +
+                             Rows[Axis][2] * ((double)WorldPos[2] - Centre.z);
+            Q2 += Q * Q;
+        }
+        if (Q2 > 1.0 || MinRadius >= BestRadius)
+            continue;
+        // A real nebula takes precedence over a larger system-wide ring companion.
+        BestRadius = MinRadius;
+        const float Depth = (float)((1.0 - std::sqrt(Q2)) * MinRadius);
+        float Weight = Clamp(Depth / (S.AmbientBlendDistance > 1.0f ? S.AmbientBlendDistance : 1.0f), 0.0f, 1.0f);
+        Weight = Weight * Weight * (3.0f - 2.0f * Weight) * Clamp(S.ObjectAmbientStrength, 0.0f, 1.0f);
+        for (int Channel = 0; Channel < 3; ++Channel)
+        {
+            const float Target = Clamp(Ambient[Channel] * S.ObjectAmbientScale, 0.0f, 255.0f);
+            Rgb[Channel] = (unsigned char)(Original[Channel] + (Target - Original[Channel]) * Weight + 0.5f);
+        }
+        Found = true;
+    }
+    return Found;
+}
+
+float NebulaVolume::SunLightScale(float const* WorldPos)
+{
+    if (WorldPos == nullptr || !RenderEx::IsAvailable() || !(GSettings.Enabled > 0.5f) ||
+        GFrameLightingCount == 0 || GbProgramFailed)
+        return -1.0f; // the retail light path is untouched
+    float Scale = 1.0f;
+    bool Enabled = false;
+    Vector Point; Point.x = WorldPos[0]; Point.y = WorldPos[1]; Point.z = WorldPos[2];
+    for (int Index = 0; Index < GFrameLightingCount; ++Index)
+    {
+        FVolumeEntry const& Entry = GEntries[Index];
+        if (!(Entry.Settings.UseSunBurnthrough > 0.5f))
+            continue;
+        // A finite backdrop is scenery behind the system, not a fog enclosure at the camera.
+        // Its source zone encompasses the empty cavity too: using that immersion would halve
+        // the ordinary system sun even tens of kilometres in front of the cloud shell.
+        if (Entry.Settings.BackdropRadius > 1.0f)
+            continue;
+        Enabled = true;
+        // Zone immersion preserves the mod's zone/exclusion placement for object lighting.
+        float Weight = Clamp((float)Entry.Nebula->Zone->GetImmersion(Point), 0.0f, 1.0f);
+        Weight = Weight * Weight * (3.0f - 2.0f * Weight);
+        const float Burn = Clamp(Entry.Nebula->GetFloat2C4(), 0.0f, 1.0f);
+        if (Entry.Settings.FogRampDistance > 1.0f)
+        {
+            float Rows[3][3], Radii[3];
+            ZoneLocalRows(Entry.Nebula->Zone, Rows[0], Rows[1], Rows[2]);
+            ZoneRadii(Entry.Nebula->Zone, Radii);
+            Vector const& Centre = Entry.Nebula->Zone->GetPos();
+            double Q2 = 0.0;
+            for (int Axis = 0; Axis < 3; ++Axis)
+            {
+                const double Q = Rows[Axis][0] * ((double)WorldPos[0] - Centre.x) +
+                    Rows[Axis][1] * ((double)WorldPos[1] - Centre.y) +
+                    Rows[Axis][2] * ((double)WorldPos[2] - Centre.z);
+                Q2 += Q * Q;
+            }
+            const float Radius = std::fmin(Radii[0], std::fmin(Radii[1], Radii[2]));
+            const float Depth = (float)((1.0 - std::sqrt(Q2)) * Radius);
+            float Enter = Clamp((Depth - Entry.Settings.FogRampStart) /
+                (Entry.Settings.FogRampDistance * 1.5f), 0.0f, 1.0f);
+            Enter = Enter * Enter * (3.0f - 2.0f * Enter);
+            Weight = std::fmin(Weight, Enter);
+        }
+        const float Current = 1.0f + (Burn - 1.0f) * Weight;
+        if (Current < Scale)
+            Scale = Current;
+    }
+    return Enabled ? Scale : -1.0f;
+}
+
+float NebulaVolume::SunEdgeHaloStrength()
+{
+    if (!RenderEx::IsAvailable() || GbProgramFailed || !(GSettings.Enabled > 0.5f))
+        return 0.0f;
+    float Strength = 0.0f;
+    for (int Index = 0; Index < GEntryCount; ++Index)
+    {
+        const float Value = GEntries[Index].Settings.SunOcclusionHalo * GEntries[Index].Strength;
+        if (Value > Strength)
+            Strength = Value;
+    }
+    return Clamp(Strength, 0.0f, 0.5f);
+}
+
+void NebulaVolume::DimBackground(ICamera* Camera)
+{
+    if (Camera == nullptr || GEntryCount == 0)
+        return;
+    Vector Point; float const* Position = Camera->GetPosition();
+    Point.x = Position[0]; Point.y = Position[1]; Point.z = Position[2];
+    float Scale = 1.0f;
+    for (int Index = 0; Index < GEntryCount; ++Index)
+    {
+        FVolumeEntry const& Entry = GEntries[Index];
+        float Weight = Clamp((float)Entry.Nebula->Zone->GetImmersion(Point), 0.0f, 1.0f);
+        Weight = Weight * Weight * (3.0f - 2.0f * Weight);
+        const float Current = 1.0f + (Clamp(Entry.Settings.BackgroundScale, 0.0f, 1.0f) - 1.0f) * Weight;
+        if (Current < Scale)
+            Scale = Current; // one dimming pass, not multiplied once per overlapping volume
+    }
+    if (Scale >= 0.999f)
+        return;
+    // Draw immediately after the sky, before any solars, asteroids, ships or HUD.
+    IRenderPipeline* Pipe = DALib::Pipeline;
+    FScreenQuadRenderStateSaver SaveLight(Pipe, D3DRS_LIGHTING, 0);
+    FScreenQuadRenderStateSaver SaveFog(Pipe, D3DRS_FOGENABLE, 0);
+    FScreenQuadRenderStateSaver SaveZ(Pipe, D3DRS_ZENABLE, 0);
+    FScreenQuadRenderStateSaver SaveWrite(Pipe, D3DRS_ZWRITEENABLE, 0);
+    FScreenQuadRenderStateSaver SaveCull(Pipe, D3DRS_CULLMODE, 1);
+    FScreenQuadRenderStateSaver SaveBlend(Pipe, D3DRS_ALPHABLENDENABLE, 1);
+    FScreenQuadRenderStateSaver SaveSrc(Pipe, D3DRS_SRCBLEND, 5);
+    FScreenQuadRenderStateSaver SaveDest(Pipe, D3DRS_DESTBLEND, 6);
+    Win3DSetOrtho2DForCamera(static_cast<FSpaceCamera*>(Camera));
+    Win3DDisable(kWin3DLightingCap);
+    Win3DDisable(kWin3DTexture2D);
+    Win3DBegin(kWin3DQuads);
+    Win3DColor4f(0.0f, 0.0f, 0.0f, 1.0f - Scale);
+    int const* Vp = Camera->GetViewport();
+    const float W = (float)(Vp[2] - Vp[0]), H = (float)(Vp[3] - Vp[1]);
+    Win3DVertex3f(0.0f, 0.0f, 0.0f); Win3DVertex3f(W, 0.0f, 0.0f);
+    Win3DVertex3f(W, H, 0.0f); Win3DVertex3f(0.0f, H, 0.0f);
+    Win3DEnd();
+    Win3DApplyCameraPerspective(Camera);
+}
+
+bool NebulaVolume::DynamicAsteroidFade(Universe::IZone const* FieldZone, float* Fraction, float* Seconds)
+{
+    if (FieldZone == nullptr || !RenderEx::IsAvailable() || GbProgramFailed || !(GSettings.Enabled > 0.5f))
+        return false;
+    Vector const& FieldPos = FieldZone->GetPos();
+    for (size_t Index = 0; Index < GNebulae.size(); ++Index)
+    {
+        FNebulaEffect* Nebula = GNebulae[Index].Nebula;
+        if (Nebula == nullptr || Nebula->Zone == nullptr || Nebula->FlagLoaded == 0)
+            continue;
+        const FNebulaVolumeSettings S = SettingsFor(Nebula);
+        if (!(S.Enabled > 0.5f) || !(S.DynamicAsteroidFadeSeconds > 0.0f))
+            continue;
+        Vector const& Pos = Nebula->Zone->GetPos();
+        const double Dx = (double)FieldPos.x - Pos.x, Dy = (double)FieldPos.y - Pos.y, Dz = (double)FieldPos.z - Pos.z;
+        const double Radius = (double)FieldZone->GetRadius() + Nebula->Zone->GetRadius();
+        if (Dx * Dx + Dy * Dy + Dz * Dz > Radius * Radius)
+            continue;
+        *Fraction = Clamp(S.DynamicAsteroidFadeFraction, 0.05f, 0.95f);
+        *Seconds = S.DynamicAsteroidFadeSeconds;
+        return true;
+    }
+    return false;
 }
 
 bool NebulaVolume::DrivesNebulaLight(FNebulaEffect const* Nebula)
@@ -3551,7 +4101,9 @@ bool NebulaVolume::IsActiveFor(FNebulaEffect const* Nebula)
 
 bool NebulaVolume::ReplacesObjectFog(FNebulaEffect const* Nebula)
 {
-    FVolumeEntry const* const Entry = FullEntry(Nebula);
+    // The exterior volume fades continuously too. Leaving legacy object fog active until
+    // Strength reaches exactly 1 both double-fogs objects and switches visibility at the edge.
+    FVolumeEntry const* const Entry = FindEntry(Nebula);
     return Entry != nullptr && Entry->Settings.ReplaceObjectFog > 0.5f;
 }
 
@@ -3564,7 +4116,8 @@ bool NebulaVolume::ReplacesFogOverlay(FNebulaEffect const* Nebula)
 bool NebulaVolume::ReplacesClouds(FNebulaEffect const* Nebula)
 {
     FVolumeEntry const* const Entry = FindEntry(Nebula);
-    return Entry != nullptr && Entry->Settings.ReplaceClouds > 0.5f;
+    return Entry != nullptr && (Entry->Settings.ReplaceClouds > 0.5f ||
+                                Entry->Settings.HybridClouds > 0.5f);
 }
 
 bool NebulaVolume::ReplacesExteriorBits(FNebulaEffect const* Nebula)
@@ -3577,6 +4130,43 @@ bool NebulaVolume::ReplacesFillSheets(FNebulaEffect const* Nebula)
 {
     FVolumeEntry const* const Entry = FullEntry(Nebula);
     return Entry != nullptr && Entry->Settings.ReplaceFillSheets > 0.5f;
+}
+
+float NebulaVolume::ExteriorOpacity(FNebulaEffect const* Nebula, bool FillSheet)
+{
+    FVolumeEntry const* Entry = FindEntry(Nebula);
+    if (Entry == nullptr)
+        return 1.0f;
+    const bool Replaced = FillSheet ? Entry->Settings.ReplaceFillSheets > 0.5f
+                                   : Entry->Settings.ReplaceExteriorBits > 0.5f;
+    // Existing families keep their original switching semantics unless they opt into
+    // the near-boundary hybrid. Crow fades the old representation out as the volume rises.
+    if (!Replaced || !(Entry->Settings.ExteriorRadiusFraction > 0.0f))
+        return 1.0f;
+    return 1.0f - Clamp(Entry->Strength, 0.0f, 1.0f);
+}
+
+bool NebulaVolume::IsHybridCloudPass() { return GbHybridCloudPass; }
+float NebulaVolume::HybridPuffOpacity() { return GHybridPuffAlpha; }
+
+void NebulaVolume::DrawHybridClouds(ICamera* Camera)
+{
+    if (Camera == nullptr || GbProgramFailed || !(GSettings.Enabled > 0.5f))
+        return;
+    for (int Index = 0; Index < GFrameLightingCount; ++Index)
+    {
+        FVolumeEntry const& Entry = GEntries[Index];
+        if (!(Entry.Settings.HybridClouds > 0.5f) || !Entry.bDrawn || !Entry.bInside)
+            continue;
+        // Existing world-space puff positions and their immersion fade are retained.
+        // Draw after the volume composite so fine detail is not fogged by the entire
+        // background ray. The puff pass still depth-tests and uses RP9 soft intersections.
+        GbHybridCloudPass = true;
+        GHybridPuffAlpha = Clamp(Entry.Settings.HybridPuffAlpha, 0.0f, 1.0f);
+        Entry.Nebula->DrawCloudsPanels(Camera);
+        GbHybridCloudPass = false;
+        GHybridPuffAlpha = 1.0f;
+    }
 }
 
 bool NebulaVolume::ShowsRealBackground()
@@ -3731,6 +4321,27 @@ void NebulaVolume::DrawBackground(FNebulaEffect* Nebula, ICamera* Camera)
     if (Entry == nullptr || !Entry->bBackground || Entry->bDrawn || Camera == nullptr)
         return;
     DrawEntryOnce(*Entry, Camera, Camera->GetZNear(), Camera->GetZFar(), true);
+}
+
+void NebulaVolume::DrawBackdrop(ICamera* Camera)
+{
+    if (Camera == nullptr)
+        return;
+    for (int Index = GEntryCount - 1; Index >= 0; --Index)
+    {
+        FVolumeEntry& Entry = GEntries[Index];
+        if (!(Entry.Settings.BackdropRadius > 1.0f))
+            continue;
+        for (size_t Registered = 0; Registered < GNebulae.size(); ++Registered)
+        {
+            if (GNebulae[Registered].Nebula == Entry.Nebula &&
+                GNebulae[Registered].RingOwner != nullptr)
+            {
+                DrawEntryOnce(Entry, Camera, Camera->GetZNear(), Camera->GetZFar(), true);
+                break;
+            }
+        }
+    }
 }
 
 void NebulaVolume::Draw(ICamera* Camera, float Near, float Far)

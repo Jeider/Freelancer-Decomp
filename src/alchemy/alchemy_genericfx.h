@@ -147,6 +147,8 @@ namespace AlchemyImpl
 
     public:
         FGenericFxObjectBase(const char* PrimaryIid, const char* FactoryName);
+        // Port batching guard; not part of the retail component interface/layout.
+        bool CanShareAppearanceBatch(FGenericFxObjectBase const* Other) const;
         virtual ~FGenericFxObjectBase() noexcept(false);
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;

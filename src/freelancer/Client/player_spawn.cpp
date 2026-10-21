@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "player_spawn.h"
+#ifdef FREELANCER_ADOXA
+#include "port_plugins.h" // port-only adoxa patches (DisableLevelCameraToggle)
+#endif
 #include "client_objdb.h"
 
 #include "character_select_equip.h"
@@ -503,6 +506,19 @@ FClientShipGameobj* SpawnPlayerShip()
         }
     }
     ClientObjDb_FlsharpResetUpdates(Ship);
+#endif
+#ifdef FREELANCER_ADOXA
+    // Port-only, "Disable level camera toggling" with its 0x005186e3 default: the level camera
+    // stays off for the new ship -- the camera and the behaviour manager (+0xf9), which keeps
+    // re-levelling the ship (and so cancels jflp's roll) while it is on. In the patched exe the
+    // manager learnt the off state from the first press of the (no longer toggling) key; here
+    // it is set at once, after FLSharp's flight_controls_fix copied the manager's default in.
+    if (PORT_PLUGIN_ON("DisableLevelCameraToggle"))
+    {
+        G_SpaceApp.ThirdPerson.bCameraLevelEnabled = 0;
+        if (IBehaviorManager* const LevelManager = GetBehaviorManager(static_cast<IObjRW*>(GetPlayerObjRW())))
+            LevelManager->update_level_camera(false);
+    }
 #endif
     // 0x0054b877..0x0054b8e1: the locals' destructors (list, vector) run on scope exit.
     return Go;

@@ -85,6 +85,7 @@
   <ItemGroup Condition="'$(Rp9Enabled)'=='true'">
     <ClInclude Include="RP9.h" />
     <ClInclude Include="RP9Ex.h" />
+    <ClInclude Include="RP9ShaderCache.h" />
     <ClInclude Include="..\include\render\IRenderPipelineEx.h" />
     <ClInclude Include="Rp9D3d8Types.h" />
     <ClInclude Include="Mgsdb.h" />

@@ -22,6 +22,11 @@
 #include "luaprofile.h"
 #include "render/IRenderPipeline.h"
 #include "render/IRenderPipelineEx.h"
+#include "render/IRPSurfaceShader.h"
+#include "render/IRPSurfaceContext.h"
+#include "render/IRPLocalShadows.h"
+#include "render/IRPWeaponGlints.h"
+#include "render/IRPFrameQuality.h"
 #include "Rp9D3d8Types.h"
 
 #include <stddef.h>
@@ -368,7 +373,9 @@ class FDirectX9 final : public IRenderPipeline,
                         public IAggregateComponent,
                         // Port-only Direct3D 9 extensions (render/IRenderPipelineEx.h, RP9Ex.cpp).
                         public IRenderPipelineEx,
-                        public IRPDrawEx
+                        public IRPDrawEx,
+                        public IRPSurfaceShader, public IRPSurfaceContext,
+                        public IRPLocalShadows, public IRPFrameQuality, public IRPWeaponGlints
 {
 public:
     FDirectX9();
@@ -555,6 +562,8 @@ public:
                                       const FRPExSamplerState* State) override;
     GENRESULT DACOM_API BindExPipelineTexture(unsigned long Sampler, void* Handle,
                                               const FRPExSamplerState* State) override;
+    GENRESULT DACOM_API SetSoftParticles(unsigned long Kind) override;
+    GENRESULT DACOM_API SetSoftParticleFade(float Metres) override;
 
     // IRPDrawEx (RP9Ex.cpp).
     GENRESULT DACOM_API DrawFullscreenQuad() override;
@@ -578,12 +587,37 @@ public:
     void ExReleaseAllGpu();
     // ~FDirectX9: frees every handle.
     void ExDestroyAll();
+    // Soft particles around one draw (after FlushDrawState, around the device's Draw* call):
+    // Begin binds the shaders when SetSoftParticles asked for them and the draw qualifies (true
+    // then), End puts back the fixed-function state.
+    bool ExSoftBegin();
+    void ExSoftEnd();
+    GENRESULT DACOM_API SetSurfaceShader(unsigned long Shader, float Roughness,
+                                          float EnvironmentStrength) override;
+    GENRESULT DACOM_API SetCockpitSurface(unsigned long) override;
+    GENRESULT DACOM_API SetGlassSurface(unsigned long) override;
+    bool ExSurfaceBegin();
+    void ExSurfaceEnd();
+    unsigned int ExCollectSurfaceLights(D3DLIGHT9* Out, unsigned int Capacity);
+    GENRESULT DACOM_API BeginLocalShadowFrame(const float*, const float*, const float*) override;
+    GENRESULT DACOM_API BeginLocalShadowMap(unsigned long Cascade) override;
+    GENRESULT DACOM_API EndLocalShadowMap() override;
+    GENRESULT DACOM_API SetLocalShadowReceiver(unsigned long Enabled) override;
+    GENRESULT DACOM_API AddLocalShadowPlanet(const float*, float Radius) override;
+    GENRESULT DACOM_API BeginWeaponGlints(const float*, const float*) override;
+    GENRESULT DACOM_API AddWeaponGlint(const float*, const float*, const float*, unsigned long) override;
+    GENRESULT DACOM_API SetWeaponGlintReceiver(unsigned long) override;
+    GENRESULT DACOM_API SetWeaponGlintReceiverBounds(const float*,float) override;
+    bool ExShadowDrawBegin();
+    void ExShadowRelease();
     // RP9.cpp helpers on the RP8-mirrored caches and handles.
     IDirect3DBaseTexture9* PipelineTextureFromHandle(void* Handle);
     void ExSaveStage(unsigned long Stage, FRp9ExStageSave* Out);
     void ExRestoreStage(unsigned long Stage, const FRp9ExStageSave* Saved);
 
     GENRESULT QueryLocal(const char* Iid, void** Out);
+    GENRESULT DACOM_API ApplySceneAntialiasing() override;
+    void ExInitQualityConfig();
     void FlushDrawState(IDirect3DDevice9* Device); // formerly static FlushDrawState
     GENRESULT ApplySectionName(const FRp9AggDesc* Desc);
     // RP8 FUN_06d020ab (startup and create_buffers call it with the device caps, in D3D8 shape).

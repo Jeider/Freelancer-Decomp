@@ -46,10 +46,15 @@ struct FPortConsoleSystem
 
 struct FPortConsoleJump
 {
-    int Mode;                  // 0: the ship's target, 1: Offset (forward, right, up), 2: Object
+    int Mode;                  // 0: the ship's target, 1: Offset (forward, right, up), 2: Object,
+                               // 3: Offset is an absolute position (the orientation is kept)
     Vector Offset;
     char Object[64];
+    // Out: where the ship goes. In single player the client owns its ship's position (it
+    // sends it to the server every frame), so the console beams the client's ship there too.
+    Vector OutPos;
+    Matrix OutOrient;
 };
 
-typedef int(__cdecl* FPortConsoleServerFn)(int Op, void const* In);
+typedef int(__cdecl* FPortConsoleServerFn)(int Op, void* InOut);
 #define PORT_CONSOLE_SERVER_EXPORT "PortConsoleServer"

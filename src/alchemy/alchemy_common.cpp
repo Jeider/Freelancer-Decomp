@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <new>
+#include <unordered_map>
 #include <intrin.h>
 #include <xmmintrin.h>
 
@@ -1632,8 +1633,12 @@ namespace AlchemyImpl
 
     // The four records zeroed, as LAB_06201030 (load) and BeginDraw 0x06201abf do. The list
     // holds no references (FUN_06201c70 does not AddRef), so there is nothing to release.
+    extern float G_AppearanceOpacity;
+    static std::unordered_map<IGenericFx*,float> G_BatchOpacity;
+
     void ClearBatchLists()
     {
+        G_BatchOpacity.clear();
         unsigned long List = 0;
         for (List = 0; List < kBatchListCount; ++List)
         {
@@ -1662,6 +1667,7 @@ namespace AlchemyImpl
     {
         FBatchList& List = G_BatchLists[ListIndex];
         IGenericFx* Node = AsFxNode(Appearance);
+        if(G_AppearanceOpacity<0.999f) G_BatchOpacity[Node]=G_AppearanceOpacity;
         IGenericFx* OldTail = List.Tail;
         List.Tail = Node;
         if (OldTail == nullptr)
@@ -1684,33 +1690,35 @@ namespace AlchemyImpl
     // The lists are not cleared here; BeginDraw clears them.
     void FlushAppearanceBatches()
     {
-        unsigned long List = 0;
-        for (List = 0; List < kBatchListCount; ++List)
+        // Keep submission order, but never let another texture, blend pair or
+        // local-space transform inherit the first appearance's draw state.
+        for(unsigned long List=0;List<kBatchListCount;++List)
         {
-            IGenericFx* Head = G_BatchLists[List].Head;
-            if (Head == nullptr)
-                continue;
-            unsigned long TotalVerts = 0;
-            unsigned long TotalIndices = 0;
-            IGenericFx* Member = Head;
-            while (Member != nullptr)
+            IGenericFx* Head=G_BatchLists[List].Head;
+            while(Head)
             {
-                unsigned long Verts = 0;
-                unsigned long Indices = 0;
-                Member->GetQueuedVertCount(&Verts);
-                Member->GetQueuedIndexCount(&Indices);
-                TotalVerts += Verts;
-                TotalIndices += Indices;
-                Member = BatchLinksOf(Member)->BatchNext_;
+                IGenericFx* End=BatchLinksOf(Head)->BatchNext_;
+                while(End && BatchLinksOf(Head)->CanShareAppearanceBatch(BatchLinksOf(End)))
+                    End=BatchLinksOf(End)->BatchNext_;
+                unsigned long TotalVerts=0,TotalIndices=0;
+                for(IGenericFx* Member=Head;Member!=End;Member=BatchLinksOf(Member)->BatchNext_)
+                {
+                    unsigned long Verts=0,Indices=0;
+                    Member->GetQueuedVertCount(&Verts);Member->GetQueuedIndexCount(&Indices);
+                    TotalVerts+=Verts;TotalIndices+=Indices;
+                }
+                Head->BeginBatchedDraw(TotalVerts,TotalIndices);
+                for(IGenericFx* Member=Head;Member!=End;Member=BatchLinksOf(Member)->BatchNext_)
+                {
+                    const float SavedOpacity=G_AppearanceOpacity;
+                    const auto Opacity=G_BatchOpacity.find(Member);
+                    G_AppearanceOpacity=Opacity!=G_BatchOpacity.end() ? Opacity->second : 1.0f;
+                    Member->FillBatchedGeometry();
+                    G_AppearanceOpacity=SavedOpacity;
+                }
+                Head->EndBatchedDraw();
+                Head=End;
             }
-            Head->BeginBatchedDraw(TotalVerts, TotalIndices);
-            Member = Head;
-            while (Member != nullptr)
-            {
-                Member->FillBatchedGeometry();
-                Member = BatchLinksOf(Member)->BatchNext_;
-            }
-            Head->EndBatchedDraw();
         }
     }
 

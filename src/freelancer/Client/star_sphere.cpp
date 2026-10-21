@@ -27,6 +27,10 @@
 #include "globals.h"
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h" // NebulaVolume::NoteStarGlow (port-only Direct3D 9 nebula)
+#include "port_config.h"
+#include "render_ex.h"
+#include <unordered_map>
+#include "space_scene_obj_draw.h" // the controller already draws its burn-through sprite
 #endif
 #include "hud_widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
 #include "pixel_format.h" // PixelFormatFromD3D / PixelFormatGetDesc (FUN_005b7010 / 005b7030)
@@ -66,6 +70,10 @@ static unsigned char G_StarBillboardEnabled = 1;
 static unsigned char G_StarSpinesEnabled = 1;
 static unsigned char G_StarCoronaDrawEnabled = 1;
 static unsigned char G_StarLensFlareEnabled = 1;
+#ifdef FREELANCER_RP9
+struct FSolarAleFade {float Alpha;unsigned long Tick;};
+static std::unordered_map<FStarSphere*,FSolarAleFade> G_SolarAleFade;
+#endif
 
 // DAT_0067519c — corona "draw without blending" byte: FUN_0050e6f0 turns GL_BLEND (0xbe2) off
 // before the corona and back on after it when set. BSS, and nothing in the image writes it
@@ -342,6 +350,34 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
     // FUN_00512620 is StarSphereMaxGlowScale below (public; its caller is the Solar slot 94).
 
     float const* OwnerGetWorldPos(IObjInspect* Owner);
+#ifdef FREELANCER_RP9
+    float SolarNebulaImmersion()
+    {
+        if(GetSpaceFieldEnclosure()==0) return 0.0f;
+        auto* Field=static_cast<FNebulaEffect*>(GetSpaceFieldController());
+        return Field ? std::fmax(0.0f,std::fmin(1.0f,Field->GetFloat294())) : 0.0f;
+    }
+    bool SolarNebulaBlocked(FStarSphere const* Sphere, ICamera* Camera)
+    {
+        return StarSysNebulaSegmentHits(Camera->GetPosition(),
+            reinterpret_cast<float const*>(&Sphere->Owner->get_position()));
+    }
+    bool SolarHitOnSegment(Vector const& From,Vector const& To,Vector const& Point)
+    {
+        const double X=To.x-From.x,Y=To.y-From.y,Z=To.z-From.z;
+        const double Along=(Point.x-From.x)*X+(Point.y-From.y)*Y+(Point.z-From.z)*Z;
+        return Along>0.0 && Along<X*X+Y*Y+Z*Z;
+    }
+    float SolarOpticsStrength()
+    {
+        return std::fmax(0.0f,std::fmin(2.0f,PortConfigFloat("Render","sun_optics_strength",.5f)));
+    }
+    float SolarStructuredStrength()
+    {
+        const float Clear=1.0f-SolarNebulaImmersion();
+        return SolarOpticsStrength()*Clear*Clear;
+    }
+#endif
 
     // FUN_00511b90 (thiscall on the sphere, RET 4; caller the Draw at 0x00511cfd) — zone
     // occlusion factor, 0 or 1. The player's tradelane state first, then the segment camera ->
@@ -352,7 +388,11 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
         // 0x00511b9e..0x00511bc8: FUN_0054baf0; when set, IObjInspect slot 77 (+0x134)
         // is_using_tradelane(&flag) -- a true byte returns 1.0f (DAT_005c75dc).
         IObjRW* const PlayerRw = static_cast<IObjRW*>(GetPlayerObjRW());
-        if (PlayerRw != nullptr)
+        if (PlayerRw != nullptr
+#ifdef FREELANCER_RP9
+            && PortConfigInt("Render", "sun_field_spines", 1) == 0
+#endif
+        )
         {
             bool bUsingTradelane = false;
             PlayerRw->is_using_tradelane(&bUsingTradelane);
@@ -370,7 +410,18 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
 
         // 0x00511c0d..0x00511c50: the nebula arm; a hit skips the asteroid arm.
         if (StarSysNebulaSegmentHits(CamPos, SunPos))
+        {
+            // Nebula visibility follows the complete camera-to-sun segment.
+            // Camera immersion/burn-through is an object-lighting policy, not a
+            // replacement for a cloud that lies between the camera and the sun.
             return 1.0f;
+        }
+#ifdef FREELANCER_RP9
+        // adoxa retail patches 0x111BA5 / 0x111C80: keep nebula occlusion, but do not
+        // suppress spines merely because a lane or ordinary asteroid field is crossed.
+        if (PortConfigInt("Render", "sun_field_spines", 1) != 0)
+            return 0.0f;
+#endif
 
         // 0x00511c52..0x00511c90: FUN_005201d0's field list; each field's zone (+0x1c) slot 19
         // (+0x4c) Intersect(cam, sun, &hit), read unchecked. The walk stops at the first hit.
@@ -468,12 +519,21 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
             PhySys::FindRayCollisions(StarSysGetActiveSystemId(), *From, *To, G_SunRayHits, 6);
 
         // 0050c80d..0050c820: threshold = Sphere+0x88 * 0.65f (DAT_005db53c).
+#ifdef FREELANCER_RP9
+        // Attached solar effects still need a centre ray at quality 0; Draw did not populate
+        // PixelScale in that mode, so do not read its retail-uninitialised value.
+        float const Threshold = G_SunEffectQuality > 0.0f ? Sphere->PixelScale * 0.65f : 0.0f;
+#else
         float const Threshold = Sphere->PixelScale * 0.65f;
+#endif
 
         for (int Index = 0; Index < Count; ++Index)
         {
             PhySys::RayHit const& Hit = G_SunRayHits[Index];
             CObject* const Obj = Hit.Object;
+#ifdef FREELANCER_RP9
+            if(!SolarHitOnSegment(*From,*To,Hit.Point)) continue;
+#endif
 
             // 0050c840..0050c862: skip a hit on a shield part. The hit's +0x1c is the part id
             // (compared to PartMap[0] in 12-byte entries, byte +8 = is_shield_part) -- the
@@ -534,8 +594,14 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
     bool SunSampleOnScreen(float Sx, float Sy, float Margin, float NegMargin, int Width,
                            int Height)
     {
+#ifdef FREELANCER_RP9
+        // Unproject extrapolates valid rays beyond the viewport. Query those
+        // rays normally; the screen border itself must not eclipse the corona.
+        return std::isfinite(Sx) && std::isfinite(Sy);
+#else
         return Sx > NegMargin && static_cast<double>(Width) + Margin > Sx && Sy > NegMargin &&
                static_cast<double>(Height) + Margin > Sy;
+#endif
     }
 
     // FUN_0050da20's per-sample ray (0x0050dcb2..0x0050dd89 and its two twins): camera slot 14
@@ -868,9 +934,13 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
     // sum on the FPU and rounded once. FUN_0050e6f0 inlines the same sequence for every other
     // corona vertex, so it uses this too.
     void CoronaEmitVertex(float const* Slot, float Sx, float Sy, float Scale, float const* Rgb,
-                          float IntensityMul)
+                          float IntensityMul,bool SourceOne=false)
     {
-        Win3DColor4f(Rgb[0], Rgb[1], Rgb[2],
+        float Radiance=1.0f;
+#ifdef FREELANCER_RP9
+        if(SourceOne) Radiance=IntensityMul;
+#endif
+        Win3DColor4f(Rgb[0]*Radiance, Rgb[1]*Radiance, Rgb[2]*Radiance,
                      static_cast<float>(static_cast<double>(kHalf) * Slot[4] * IntensityMul));
         Win3DTexCoord2f(Slot[2], Slot[3]);
         float const Y = static_cast<float>(static_cast<double>(Scale) * Slot[1] + Sy);
@@ -881,6 +951,10 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
     // FUN_0050e6f0 — corona/glow via Win3D. LOD<3 fan + LOD≥3 triangle adjacency + outer fan.
     void SunBodyDrawCorona(FSunEffectBody* Body, FStarSphere* Sphere, float IntensityMul)
     {
+#ifdef FREELANCER_RP9
+        IntensityMul*=SolarStructuredStrength();
+        if(IntensityMul<=.001f) return;
+#endif
         // 0x0050e6f0: `this` (ESI) is used at once -- retail tests neither it nor the sphere.
         unsigned char* const Base = Body->Raw;
         FTexShape const** ShapeSlot = reinterpret_cast<FTexShape const**>(Base + 0x2e0);
@@ -917,10 +991,10 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
             // and slot 1 again in the outer colour; End at LAB_0050f201.
             Win3DBindTexture(ResolveShapeTextureHandle(Shape));
             Win3DBegin(kWin3DTriangleFan);
-            CoronaEmitVertex(Centre, Cx, Cy, Scale, CenterRgb, IntensityMul);
+            CoronaEmitVertex(Centre, Cx, Cy, Scale, CenterRgb, IntensityMul, BlendSrc==2);
             for (int Index = 1; Index < kCoronaRingCount; ++Index)
-                CoronaEmitVertex(Centre + Index * 6, Cx, Cy, Scale, OuterRgb, IntensityMul);
-            CoronaEmitVertex(Centre + 6, Cx, Cy, Scale, OuterRgb, IntensityMul);
+                CoronaEmitVertex(Centre + Index * 6, Cx, Cy, Scale, OuterRgb, IntensityMul, BlendSrc==2);
+            CoronaEmitVertex(Centre + 6, Cx, Cy, Scale, OuterRgb, IntensityMul, BlendSrc==2);
             Win3DEnd();
         }
         else
@@ -975,21 +1049,21 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
                 // in the mid colour, ring slots in the outer colour.
                 if (*EdgeFlag == 0)
                 {
-                    CoronaEmitVertex(MidA, Cx, Cy, Scale, MidRgb, IntensityMul);
-                    CoronaEmitVertex(Mid, Cx, Cy, Scale, MidRgb, IntensityMul);
-                    CoronaEmitVertex(RingB, Cx, Cy, Scale, OuterRgb, IntensityMul);
-                    CoronaEmitVertex(MidA, Cx, Cy, Scale, MidRgb, IntensityMul);
-                    CoronaEmitVertex(RingB, Cx, Cy, Scale, OuterRgb, IntensityMul);
-                    CoronaEmitVertex(RingC, Cx, Cy, Scale, OuterRgb, IntensityMul);
+                    CoronaEmitVertex(MidA, Cx, Cy, Scale, MidRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(Mid, Cx, Cy, Scale, MidRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(RingB, Cx, Cy, Scale, OuterRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(MidA, Cx, Cy, Scale, MidRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(RingB, Cx, Cy, Scale, OuterRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(RingC, Cx, Cy, Scale, OuterRgb, IntensityMul, BlendSrc==2);
                 }
                 else
                 {
-                    CoronaEmitVertex(MidA, Cx, Cy, Scale, MidRgb, IntensityMul);
-                    CoronaEmitVertex(Mid, Cx, Cy, Scale, MidRgb, IntensityMul);
-                    CoronaEmitVertex(RingC, Cx, Cy, Scale, OuterRgb, IntensityMul);
-                    CoronaEmitVertex(Mid, Cx, Cy, Scale, MidRgb, IntensityMul);
-                    CoronaEmitVertex(RingB, Cx, Cy, Scale, OuterRgb, IntensityMul);
-                    CoronaEmitVertex(RingC, Cx, Cy, Scale, OuterRgb, IntensityMul);
+                    CoronaEmitVertex(MidA, Cx, Cy, Scale, MidRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(Mid, Cx, Cy, Scale, MidRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(RingC, Cx, Cy, Scale, OuterRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(Mid, Cx, Cy, Scale, MidRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(RingB, Cx, Cy, Scale, OuterRgb, IntensityMul, BlendSrc==2);
+                    CoronaEmitVertex(RingC, Cx, Cy, Scale, OuterRgb, IntensityMul, BlendSrc==2);
                 }
                 ++Index;
             }
@@ -1004,11 +1078,11 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
             {
                 Win3DBindTexture(ResolveShapeTextureHandle(*ShapeSlot));
                 Win3DBegin(kWin3DTriangleFan);
-                CoronaEmitVertex(Centre, Cx, Cy, Scale, CenterRgb, IntensityMul);
+                CoronaEmitVertex(Centre, Cx, Cy, Scale, CenterRgb, IntensityMul, BlendSrc==2);
                 for (int Fan = 0; Fan < kCoronaOuterFanCount; ++Fan)
                     CoronaEmitVertex(Centre + (0x138 / 4) + Fan * 6, Cx, Cy, Scale, MidRgb,
                                      IntensityMul);
-                CoronaEmitVertex(Centre + (0x138 / 4), Cx, Cy, Scale, MidRgb, IntensityMul);
+                CoronaEmitVertex(Centre + (0x138 / 4), Cx, Cy, Scale, MidRgb, IntensityMul, BlendSrc==2);
                 Win3DEnd();
             }
         }
@@ -1093,7 +1167,11 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
         {
             float const* const Elem = *It;
             Win3DColor4f(Elem[2], Elem[3], Elem[4],
-                         static_cast<float>(static_cast<double>(Fade) * Elem[5]));
+                         static_cast<float>(static_cast<double>(Fade) * Elem[5]
+#ifdef FREELANCER_RP9
+                             * std::fmax(0.0f,std::fmin(1.0f,IntensityMul))*SolarStructuredStrength()
+#endif
+                             ));
             double const Along = static_cast<double>(Elem[0]);
             float const AlongY = static_cast<float>(static_cast<double>(AxisY) * Along);
             float const Cx =
@@ -1255,6 +1333,10 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
     // intensity), listing-traced 0x00510160..0x0051098c -- the spine strips in Win3D mode 8.
     void SpinesDraw(FStarFxChild40* Spines, void* /*Cam*/, FStarSphere* Sphere, float IntensityMul)
     {
+#ifdef FREELANCER_RP9
+        IntensityMul*=SolarStructuredStrength();
+        if(IntensityMul<=.001f) return;
+#endif
         // 0x0051016a..0x00510170: the blend func is set first, before the shape is resolved,
         // so it is applied even when the shape is missing. No argument test (Sphere->SunBody
         // is read at 0x00510239 as it is).
@@ -1450,8 +1532,34 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
 
     // FUN_0050cd50 — Cam-basis oriented star_glow / star_center triangle fan (world verts).
     void StarGlowDrawBillboard(FStarGlowDesc* Desc, float const Pos[3], float Scale,
-                               float const Right[3], float const Up[3], float Alpha)
+                               float const Right[3], float const Up[3], float Alpha,bool ApplyOptics=true)
     {
+#ifdef FREELANCER_RP9
+        if(ApplyOptics)
+        {
+            const float Weight=SolarNebulaImmersion();
+            const float Strength=SolarOpticsStrength();
+            // Screen/additive glows use source ONE: alpha alone cannot dim them.
+            // Scale radiance and crossfade the authored sprite into a round halo.
+            auto DrawScaled=[&](FStarGlowDesc Copy,float Factor) {
+                if(Factor<=.001f) return;
+                for(int I=0;I<3;++I) {Copy.InnerColor[I]*=Factor;Copy.OuterColor[I]*=Factor;}
+                StarGlowDrawBillboard(&Copy,Pos,Scale,Right,Up,Alpha,false);
+            };
+            DrawScaled(*Desc,Strength*(1.0f-Weight));
+            if(Weight>0.0f)
+            {
+                auto* Shape=G_StarSphereShapeDB.Find("glow2");
+                if(Shape)
+                {
+                    FStarGlowDesc Halo=*Desc;Halo.Field48=reinterpret_cast<unsigned>(Shape);Halo.Field4C=0;
+                    const float HaloStrength=std::fmax(0.0f,std::fmin(.5f,PortConfigFloat("Render","sun_nebula_halo",.12f)));
+                    DrawScaled(Halo,Strength*Weight*HaloStrength);
+                }
+            }
+            return;
+        }
+#endif
         // 0x0050cd59..0x0050cd5e: the only test is the shape (+0x48); no null tests on the
         // arguments and no shape lookup here (UpdateIntensity LAB_00511690 resolves it).
         FTexShape const* Shape = reinterpret_cast<FTexShape const*>(Desc->Field48);
@@ -1699,6 +1807,11 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
 
     void FStarSphere::DrawBillboard(void* Cam, float A, float B)
     {
+#ifdef FREELANCER_RP9
+        // Includes the sorted sprite and the controller's native burn-through
+        // callback. Neither may redraw a sun hidden behind a distant nebula.
+        if(SolarNebulaBlocked(this,static_cast<ICamera*>(Cam))) return;
+#endif
         // LAB_005118d0 (thiscall, RET 0xc: Cam, A, B). No option gates and no null tests in
         // retail: only the DAT_00613470 byte.
         if (G_StarBillboardEnabled == 0)
@@ -1769,11 +1882,65 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
         // -- U is its 2nd vector argument (params 5..7), R its 3rd (params 8..10), which is the
         // port's (Right = R, Up = U) naming. No null test on +0x10.
         StarGlowDrawBillboard(this->StarGlow, Pos, Scale, Right, Up, A);
+#ifdef FREELANCER_RP9
+        // Partial eclipse: sample the visible solar disc, not the oversized glow sprite.
+        // This is a restrained diffraction/bloom approximation, not geometric refraction.
+        // Drawn with the sun, so later opaque geometry still covers the blocked side.
+        const float EdgeStrength = NebulaVolume::SunEdgeHaloStrength();
+        if (EdgeStrength > 0.0f && A > 0.0f)
+        {
+            const float DiscScale = this->StarCenter != nullptr ? this->StarCenter->Scale
+                                                               : this->StarGlow->Scale * 0.08f;
+            const float DiscRadius = Scale * DiscScale;
+            CObject* const Own = SunRayOwnerObject(this->Owner);
+            CObject* const Player = IsFirstPersonCameraCurrent()
+                                       ? SunRayOwnerObject(GetPlayerObjRW()) : nullptr;
+            Vector From; From.x = CamPos[0]; From.y = CamPos[1]; From.z = CamPos[2];
+            int Visible = 0;
+            for (int Sample = 0; Sample < 9; ++Sample)
+            {
+                const double Angle = Sample * (kPi * 0.25);
+                const float X = Sample == 8 ? 0.0f : (float)std::cos(Angle) * DiscRadius * 0.8f;
+                const float Y = Sample == 8 ? 0.0f : (float)std::sin(Angle) * DiscRadius * 0.8f;
+                Vector To;
+                To.x = Pos[0] + Right[0] * X + Up[0] * Y;
+                To.y = Pos[1] + Right[1] * X + Up[1] * Y;
+                To.z = Pos[2] + Right[2] * X + Up[2] * Y;
+                PhySys::RayHit Hits[6];
+                const int Count = PhySys::FindRayCollisions(StarSysGetActiveSystemId(), From, To, Hits, 6);
+                bool Blocked = false;
+                for (int HitIndex = 0; HitIndex < Count; ++HitIndex)
+                {
+                    CObject* const Object = Hits[HitIndex].Object;
+                    if (Object != nullptr && Object != Own && Object != Player &&
+                        SolarHitOnSegment(From,To,Hits[HitIndex].Point) &&
+                        !Object->is_shield_part(Hits[HitIndex].PartId))
+                    {
+                        Blocked = true;
+                        break;
+                    }
+                }
+                Visible += Blocked ? 0 : 1;
+            }
+            const float Visibility = Visible / 9.0f;
+            const float Partial = 4.0f * Visibility * (1.0f - Visibility);
+            if (Partial > 0.0f)
+                StarGlowDrawBillboard(this->StarGlow, Pos, Scale * 1.25f, Right, Up,
+                                     A * EdgeStrength * Partial);
+        }
+#endif
         // 0x00511acc..0x00511b29: the star_center (+0x0c) when present, with A * A.
         if (this->StarCenter != nullptr)
         {
             float const AlphaSq = static_cast<float>(static_cast<double>(A) * A);
+#ifdef FREELANCER_RP9
+            // The authored centre is the solar disc, not an optical halo. Keep
+            // retail texture, size, radiance and alpha blending; only the outer
+            // effects receive the reduced gain and nebula halo replacement.
+            StarGlowDrawBillboard(this->StarCenter, Pos, Scale, Right, Up, AlphaSq,false);
+#else
             StarGlowDrawBillboard(this->StarCenter, Pos, Scale, Right, Up, AlphaSq);
+#endif
         }
 
 #ifdef FREELANCER_RP9
@@ -1797,9 +1964,41 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
         Win3DEnable(kWin3DCullFace);  // FUN_00421dd0(0xb44)
     }
 
+    // The dedicated sorted node draws solar sprites independently of retail nebula culling.
+    // Later solar mesh callbacks must not add the same glow a second time.
+#ifdef FREELANCER_RP9
+    bool GbNebulaSolarBillboardPass = false;
+#endif
+
     void FStarSphere::DrawSimple(void* Cam)
     {
         // LAB_00511b70 (RET 4): vt[+0x18](Cam, 1.0f, 1.0f), no tests.
+#ifdef FREELANCER_RP9
+        const float SunScale = NebulaVolume::SunLightScale(static_cast<ICamera*>(Cam)->GetPosition());
+        if (SunScale >= 0.0f)
+        {
+            if (PortConfigInt("Render", "sun_nebula_burnthrough", 1) != 0 &&
+                !GbNebulaSolarBillboardPass)
+                return;
+            FNebulaEffect* Controller = static_cast<FNebulaEffect*>(GetSpaceFieldController());
+            // With the compatibility switch off, retain the controller's later burn-through
+            // sprite. The new path emits one sorted sprite, continuously scaled at the boundary.
+            if (Controller != nullptr &&
+                ((!NebulaVolume::ReplacesFogOverlay(Controller) && GetSpaceFieldEnclosure() != 0) ||
+                 PortConfigInt("Render", "sun_nebula_burnthrough", 1) == 0))
+                return;
+            float Size = 1.0f;
+            if (Controller != nullptr && PortConfigInt("Render", "sun_nebula_burnthrough", 1) != 0)
+            {
+                const float Burn = std::fmax(0.0f, std::fmin(Controller->GetFloat2C4(), 1.0f));
+                const float Weight = Burn < 0.999f ?
+                    std::fmax(0.0f, std::fmin((1.0f - SunScale) / (1.0f - Burn), 1.0f)) : 0.0f;
+                Size += (Controller->GetFloat2C8() - 1.0f) * Weight;
+            }
+            DrawBillboard(Cam, SunScale, Size);
+            return;
+        }
+#endif
         DrawBillboard(Cam, 1.0f, 1.0f);
     }
 
@@ -1846,6 +2045,11 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
             if (Next < ZoneTarget)
                 this->ZoneOcclusion = static_cast<float>(ZoneTarget);
         }
+#ifdef FREELANCER_RP9
+        // Reject immediately while crossing a nebula. Do not leak corona/spines
+        // during retail's slower zone-occlusion interpolation.
+        if(SolarNebulaBlocked(this,Camera)) return;
+#endif
         // 0x00511d4c..0x00511d5a: FCOMP 1.0f, TEST AH,5 / JP -- only an ordered +0x34 < 1 goes on.
         if (!(this->ZoneOcclusion < 1.0f))
             return;
@@ -2031,6 +2235,9 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
 
     void FStarSphere::DrawFlare(void* Cam, float Dt)
     {
+#ifdef FREELANCER_RP9
+        if(SolarNebulaBlocked(this,static_cast<ICamera*>(Cam))) return;
+#endif
         // LAB_005124f0 (thiscall, RET 8: camera, dt) -- quality and occlusion gates, then the
         // Win3D ortho box and FUN_0050f850. No test of `this`, the camera or the flare child.
         // 0x005124f0..0x00512504: DAT_0067509c FCOMP 0.0f, TEST AH,0x41 / JNP -- <= 0 returns
@@ -2049,6 +2256,21 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
         if (!(this->WorldPos[2] < 0.0f))
             return;
 
+#ifdef FREELANCER_RP9
+        if(PortConfigInt("Render","sun_rays",1)!=0 && this->StarGlow)
+        {
+            ICamera* const Camera=static_cast<ICamera*>(Cam);
+            int const* Vp=Camera->GetViewport();
+            const float W=static_cast<float>(Vp[2]-Vp[0]+1),H=static_cast<float>(Vp[3]-Vp[1]+1);
+            const float DiscScale=this->StarCenter ? this->StarCenter->Scale : this->StarGlow->Scale*.08f;
+            const float Radius=std::fmax(.012f,std::fmin(.07f,this->PixelScale*DiscScale/H));
+            const float Strength=std::fmax(0.0f,std::fmin(4.0f,PortConfigFloat("Render","sun_ray_strength",1.5f)));
+            if(W>0 && H>0)
+                RenderEx::DrawSolarRays((this->ScreenX-Vp[0])/W,(this->ScreenY-Vp[1])/H,
+                    Radius,Strength*Faded*this->Intensity*SolarStructuredStrength(),this->StarGlow->InnerColor,W/H,std::fmax(Camera->GetZNear(),-this->WorldPos[2]-this->Radius));
+        }
+#endif
+
         // 0x00512544..0x00512566: Enable 0xbe2, blend (5, 2), Disable 0xb44, Disable 0xb71.
         Win3DEnable(kWin3DBlend);
         Win3DSetBlendFunc(kWin3DBlendSrcAlpha, kWin3DBlendOne);
@@ -2064,7 +2286,11 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
 
         // 0x005125a1..0x005125b7: DAT_00613473 -> FUN_0050f850 on +0x18 (camera, this, faded).
         if (G_StarLensFlareEnabled != 0)
-            LensFlareDraw(this->LensFlare, Camera, this, Faded);
+            LensFlareDraw(this->LensFlare, Camera, this, Faded
+#ifdef FREELANCER_RP9
+                * std::fmax(0.0f,std::fmin(1.0f,SunBodyComputeCoronaFactor(this->SunBody)))
+#endif
+                );
 
         // 0x005125bc..0x005125db: Enable 0xb71, Enable 0xb44, Disable 0xbe2, FUN_00422950(camera).
         Win3DEnable(kWin3DDepthTest);
@@ -2838,6 +3064,9 @@ FStarSphere::FStarSphere(IObjInspect* InOwner)
 
 FStarSphere::~FStarSphere()
 {
+#ifdef FREELANCER_RP9
+    G_SolarAleFade.erase(this);
+#endif
     // FUN_00510f10 (thiscall), 0x00510f10..0x00510f8d: no test of `this`; every owned pointer
     // is tested, freed and zeroed in retail's order (+0x10, +0x0c, +0x14, +0x18 via FUN_0050f340,
     // +0x1c via FUN_0050fb50).
@@ -2950,6 +3179,52 @@ float StarSphereMaxGlowScale(FStarSphere const* Sphere)
     float const Scale = (Center > Glow) ? Center : Glow;
     return Scale * Sphere->Radius;
 }
+
+#ifdef FREELANCER_RP9
+void StarSphereDrawNebulaBillboard(void* Sphere, void* Camera)
+{
+    if (Camera == nullptr || PortConfigInt("Render", "sun_nebula_burnthrough", 1) == 0 ||
+        NebulaVolume::SunLightScale(static_cast<ICamera*>(Camera)->GetPosition()) < 0.0f)
+        return;
+    GbNebulaSolarBillboardPass = true;
+    static_cast<FStarSphere*>(Sphere)->DrawSimple(Camera);
+    GbNebulaSolarBillboardPass = false;
+}
+
+float StarSphereAttachedEffectVisibility(void const* Owner, void* Camera)
+{
+    static const int Enabled = PortConfigInt("Render", "sun_attached_effect_occlusion", 1);
+    if (Owner == nullptr || Camera == nullptr || Enabled == 0)
+        return 1.0f;
+    FStarSphereList* const List = StarSphereList();
+    for (FStarSphereListNode* Node = List->Sentinel->Next; Node != List->Sentinel; Node = Node->Next)
+    {
+        FStarSphere* const Sphere = Node->Sphere;
+        if (Sphere->Owner != Owner)
+            continue;
+        float Visible = SunBodyComputeCoronaFactor(Sphere->SunBody);
+        if (G_SunEffectQuality <= 0.0f)
+        {
+            const float* Cam = static_cast<ICamera*>(Camera)->GetPosition();
+            Vector From; From.x = Cam[0]; From.y = Cam[1]; From.z = Cam[2];
+            const Vector To = Sphere->Owner->get_position();
+            Visible = SunRayIsOccluded(Sphere, &From, &To, Camera) ? 0.0f : 1.0f;
+        }
+        if(SolarNebulaBlocked(Sphere,static_cast<ICamera*>(Camera))) Visible=0.0f;
+        Visible *= (1.0f - Sphere->ZoneOcclusion) * Sphere->Intensity * SolarStructuredStrength();
+        Visible=Visible < 0.0f ? 0.0f : (Visible > 1.0f ? 1.0f : Visible);
+        const unsigned long Tick=GetTickCount();
+        auto Inserted=G_SolarAleFade.emplace(Sphere,FSolarAleFade{Visible,Tick});
+        FSolarAleFade& Fade=Inserted.first->second;
+        const float Seconds=std::fmax(.03f,std::fmin(1.0f,PortConfigFloat("Render","sun_effect_fade",.15f)));
+        const float Step=std::fmin(.25f,static_cast<float>(Tick-Fade.Tick)*.001f)/Seconds;
+        Fade.Tick=Tick;
+        Fade.Alpha=ApproachFloat(Fade.Alpha,Visible,Step,Step);
+        return Fade.Alpha;
+    }
+    return 1.0f;
+}
+#endif
 
 FStarSphere* StarSphereCreateListed(IObjInspect* Owner)
 {

@@ -8,6 +8,9 @@
 // Agent: cursor:equip-fx-factory.
 
 #include "client_equip_fx.h"
+#ifdef FREELANCER_RP9
+#include "port_config.h"
+#endif
 
 #include "cli_projectile_fx.h"
 #include "cli_tractor_beam.h" // CliTractorBeamCreate / CliTractorBeamInit (FUN_0052fa10)
@@ -128,7 +131,7 @@ namespace
         unsigned char bPlayerOwned;         // +0x80 FUN_004fd9d0's argument
         unsigned char Pad81[3];
         unsigned long TexFrame[5];          // +0x84 TextureLib slot +0x58 frame of "shine"
-        FCliEquipGameLight* EngineLight;    // +0x98 the real light (player-owned only)
+        FCliEquipGameLight* EngineLight;    // +0x98 retail player-only; RP9 equipment_lights extends ownership
     };
     static_assert(sizeof(FCliEquipLight) == 0x9c, "CliEquipLight 0x9c");
     static_assert(offsetof(FCliEquipLight, Companion) == 0x6c, "Companion");
@@ -361,7 +364,11 @@ namespace
                       "CliEquipLight: real light sources so no longer blink");
             }
 
-            if (Self->bPlayerOwned != 0)
+            if (Self->bPlayerOwned != 0
+#ifdef FREELANCER_RP9
+                || PortConfigInt("Render", "equipment_lights", 1) != 0
+#endif
+            )
             {
                 // 0x004fdb95..0x004fdbc3: FUN_00537a90(0x130) (malloc, the size is not the
                 // pool's), FUN_005374e0, owner, PTR_FUN_005da424; +0x98 stored either way.
@@ -373,6 +380,8 @@ namespace
                     Light->Owner = Self;
                 }
                 Self->EngineLight = Light;
+                if (Light == nullptr)
+                    return 1;
 
                 // 0x004fdbc9..0x004fdc47: FUN_004115b0 with the colour bytes, FUN_00411300 with
                 // the intensity.

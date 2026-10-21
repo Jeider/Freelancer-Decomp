@@ -7,6 +7,8 @@
 #pragma once
 
 #include "alchemy_types.h"
+#include "render/IAlchemyEffectColour.h"
+#include "render/IAlchemyRenderOpacity.h"
 #include "alchemy_common.h"
 #include "alchemy_nodelibrary.h"
 
@@ -27,7 +29,8 @@ namespace AlchemyImpl
     // routine instead of re-implementing it.
     void ApplyParticleDrawRenderState();
 
-    class FAlchemy final : public IAlchemy
+    extern float G_AppearanceOpacity;
+    class FAlchemy final : public IAlchemy, public IAlchemyEffectColour, public IAlchemyRenderOpacity
     {
     public:
         // DLL-global callbacks set by LAB_062024c0 / LAB_062024d0.
@@ -59,6 +62,8 @@ namespace AlchemyImpl
         IDAComponent* InnerUnknown() { return &Inner_; }
 
         GENRESULT DACOM_API LoadNodeLibrary(IFileSystem* Filesys) override;
+        GENRESULT DACOM_API SampleEffectColour(IFxEffectArchetype*,float*) override;
+        GENRESULT DACOM_API SetRenderOpacity(float Opacity) override;
         GENRESULT DACOM_API SaveNodeLibrary(IFileSystem* Filesys) override;
         unsigned long DACOM_API HashNodeName(const char* Name) override
         {
