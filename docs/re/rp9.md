@@ -1206,6 +1206,14 @@ pulses (`planet_lava_pulse`); ice layers get a soft GGX sheen (`planet_ice_sheen
 Lommel-Seeliger (brightness ~ cos(i)/(cos(i)+cos(e)): a flat disc to the limb and a sharp
 terminator; `planet_airless`). c6.w lava pulse, c17 airless / ice sheen / layer 0 ice / layer 1 ice.
 
+Planet eclipses: port.ini `planet_eclipses = caster:receiver[,...]` (solar nicknames). While
+the client draws the receiver (DrainBucket, space_scene_obj_draw.cpp) it calls
+`IRPPlanetSurface::SetPlanetEclipse` with the caster's and the system sun's spheres (solar_radius)
+and a range of the caster-receiver distance plus the receiver's radius; planet_surface.hlsl and
+planet_atmosphere.hlsl dim the sunlight by the fraction of the sun's disc the caster covers as
+seen from each point (umbra where it covers it all, a soft penumbra), within that range. c18-c20
+(surface) / c9-c11 (atmosphere): caster, sun (view space, radius), range / strength / on.
+
 Seams: the normal is the analytic sphere normal (no facets, no lighting step between side and
 cap meshes); base samples stay half a texel inside 0..1 (no wrap bleeding); within the seam band
 of a uv edge the colour fades to a blurred mip and relief/terrain shadows fade out, so two

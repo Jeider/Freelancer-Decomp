@@ -1628,6 +1628,12 @@ static std::string ReadLowerRenderString(const char* Key, const char* Default)
     }
     else
         strcpy(Text, Default);
+    // GetPrivateProfileString keeps an inline "; comment": cut it and the blanks before it.
+    if (char* const Comment = strchr(Text, ';'))
+        *Comment = '\0';
+    size_t Used = strlen(Text);
+    while (Used != 0 && (Text[Used - 1] == ' ' || Text[Used - 1] == '\t'))
+        Text[--Used] = '\0';
     return LowerString(Text);
 }
 
@@ -1841,7 +1847,7 @@ bool FDirectX9::ExAtmosphereBegin()
     VsConstants[34] = C.z;
     VsConstants[35] = Outer * 1.03f;
     const float* P = Transforms_.Projection.Values;
-    const float PsConstants[36] = {
+    float PsConstants[48] = {
         C.x, C.y, C.z, Inner,
         Outer, 1.0f / Span, VsConstants[35], 0.0f,
         SunDir.x, SunDir.y, SunDir.z, Ex->AtmosphereBrightness * Density,
@@ -1856,7 +1862,8 @@ bool FDirectX9::ExAtmosphereBegin()
     Rp9SetVertexShader(Device_, Ex->AtmosphereVs);
     Rp9SetPixelShader(Device_, Ex->AtmospherePs);
     Rp9SetVertexConstants(Device_, 0, VsConstants, 9);
-    Rp9SetPixelConstants(Device_, 0, PsConstants, 9);
+    ExPlanetEclipseConstants(&PsConstants[36]);
+    Rp9SetPixelConstants(Device_, 0, PsConstants, 12);
     Rp9SetRenderState(Device_, D3DRS_ALPHABLENDENABLE, TRUE);
     Rp9SetRenderState(Device_, D3DRS_SRCBLEND, D3DBLEND_ONE);
     Rp9SetRenderState(Device_, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
@@ -2058,6 +2065,39 @@ GENRESULT DACOM_API FDirectX9::SetPlanetSurface(const FRPPlanetSurface* Desc)
     return GR_OK;
 }
 
+GENRESULT DACOM_API FDirectX9::SetPlanetEclipse(const FRPPlanetEclipse* Desc)
+{
+    FRp9ExState* Ex = Ex_;
+    Ex->bPlanetEclipse = Desc != nullptr && Desc->Caster[3] > 0.0f && Desc->Sun[3] > 0.0f && Desc->Range > 0.0f;
+    if (Ex->bPlanetEclipse)
+        Ex->PlanetEclipse = *Desc;
+    return GR_OK;
+}
+
+void FDirectX9::ExPlanetEclipseConstants(float* Out)
+{
+    FRp9ExState* Ex = Ex_;
+    memset(Out, 0, sizeof(float) * 12);
+    if (!Ex->bPlanetEclipse)
+        return;
+    D3DXMATRIX View;
+    memcpy(&View, Transforms_.View.Values, sizeof(View));
+    D3DXVECTOR3 Caster, Sun;
+    D3DXVec3TransformCoord(&Caster, reinterpret_cast<const D3DXVECTOR3*>(Ex->PlanetEclipse.Caster), &View);
+    D3DXVec3TransformCoord(&Sun, reinterpret_cast<const D3DXVECTOR3*>(Ex->PlanetEclipse.Sun), &View);
+    Out[0] = Caster.x;
+    Out[1] = Caster.y;
+    Out[2] = Caster.z;
+    Out[3] = Ex->PlanetEclipse.Caster[3];
+    Out[4] = Sun.x;
+    Out[5] = Sun.y;
+    Out[6] = Sun.z;
+    Out[7] = Ex->PlanetEclipse.Sun[3];
+    Out[8] = Ex->PlanetEclipse.Range;
+    Out[9] = Ex->PlanetEclipse.Strength;
+    Out[11] = 1.0f;
+}
+
 bool FDirectX9::ExPlanetSurfaceBegin()
 {
     FRp9ExState* Ex = Ex_;
@@ -2131,7 +2171,7 @@ bool FDirectX9::ExPlanetSurfaceBegin()
     const float EddySpeed = (Ex->bPlanetSwirl ? 0.005f : 0.0012f) * Ex->PlanetGasTurbulence;
     const float EddyFrequency = Ex->bPlanetSwirl ? 2.5f : 4.0f;
     const float FlowPeriod = Ex->bPlanetSwirl ? 16.0f : 20.0f;
-    const float PsConstants[72] = {
+    float PsConstants[84] = {
         SunDir.x, SunDir.y, SunDir.z, Ex->PlanetWrap,
         Sun.Diffuse.r * Mat.Diffuse.r, Sun.Diffuse.g * Mat.Diffuse.g, Sun.Diffuse.b * Mat.Diffuse.b, 0.0f,
         Mat.Ambient.r * Ambient[0] + Mat.Emissive.r, Mat.Ambient.g * Ambient[1] + Mat.Emissive.g,
@@ -2172,7 +2212,8 @@ bool FDirectX9::ExPlanetSurfaceBegin()
     Rp9SetVertexShader(Device_, Ex->PlanetVs);
     Rp9SetPixelShader(Device_, Ex->PlanetPs);
     Rp9SetVertexConstants(Device_, 0, VsConstants, 8);
-    Rp9SetPixelConstants(Device_, 0, PsConstants, 18);
+    ExPlanetEclipseConstants(&PsConstants[72]);
+    Rp9SetPixelConstants(Device_, 0, PsConstants, 21);
     Rp9SetRenderState(Device_, D3DRS_ALPHABLENDENABLE, FALSE);
     Rp9SetRenderState(Device_, D3DRS_ALPHATESTENABLE, FALSE);
     Rp9SetRenderState(Device_, D3DRS_FOGENABLE, FALSE);

@@ -50,8 +50,35 @@ float4 Storms[3] : register(c12);   // per vortex: longitude, latitude (object s
 float4 Centre : register(c15);      // xyz planet centre (view), w seam band (uv) where the texture edges are softened
 float4 GasStyle : register(c16);    // x eddy noise frequency, y unused, z animated (1), w flow period (s)
 float4 Surface : register(c17);     // x airless (Lommel-Seeliger lighting), y ice sheen, z layer 0 ice, w layer 1 ice
+float4 EclipseCaster : register(c18);  // eclipse: caster centre (view), radius
+float4 EclipseSun : register(c19);     // eclipse: sun centre (view), radius
+float4 EclipseControl : register(c20); // eclipse: x range behind the caster, y strength, w on
 
 static const float3 Luma = float3(0.299, 0.587, 0.114);
+
+// A planet eclipsing this one (port.ini planet_eclipses): the fraction of the sun left at a
+// view-space point. The sun and the caster are discs in the sky of that point; where the caster
+// covers the sun fully there is umbra, a soft penumbra where it covers part of it.
+float Eclipse(float3 P)
+{
+    if (EclipseControl.w < 0.5)
+        return 1.0;
+    float3 ToCaster = EclipseCaster.xyz - P;
+    float3 ToSun = EclipseSun.xyz - P;
+    float SunDistance = length(ToSun);
+    float3 SunRay = ToSun / SunDistance;
+    float Along = dot(ToCaster, SunRay);
+    if (Along <= 0.0 || Along > EclipseControl.x)
+        return 1.0;
+    float CasterDistance = length(ToCaster);
+    float CasterAngle = asin(saturate(EclipseCaster.w / CasterDistance));
+    float SunAngle = max(asin(saturate(EclipseSun.w / SunDistance)), 1.0e-4);
+    float Apart = acos(saturate(dot(ToCaster / CasterDistance, SunRay)));
+    float Covered = 1.0 - smoothstep(abs(CasterAngle - SunAngle), CasterAngle + SunAngle, Apart);
+    // A caster smaller than the sun never hides all of it.
+    Covered *= min(1.0, (CasterAngle * CasterAngle) / (SunAngle * SunAngle));
+    return 1.0 - Covered * EclipseControl.y;
+}
 
 // The height field: the base map's luminance plus the layers' elevation through the mask (rock
 // stands above sand and water, so mountains bulge even where the artist painted them dark).
@@ -330,6 +357,8 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float LsView = max(dot(Nr, V), 0.05);
     float Lunar = min(2.0 * LsLight / (LsLight + LsView), 1.5) * TerrainShadow * saturate(NoL * 20.0);
     Diffuse = lerp(Diffuse, Lunar, Surface.x);
+    float Sunlit = Eclipse(In.ViewPosition);
+    Diffuse *= Sunlit;
     // Gas giants darken towards the limb (looking through more haze above the clouds).
     float NoVLimb = saturate(dot(N, V));
     Diffuse *= lerp(1.0, 0.45 + 0.55 * sqrt(NoVLimb), IsGas);
@@ -343,7 +372,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float D = A2 / (3.14159265 * Den * Den);
     float F = Water.z + (1.0 - Water.z) * pow(1.0 - saturate(dot(V, H)), 5.0);
     float NoV = saturate(dot(N, V));
-    Result += SunColour.rgb * (Water.x * Sea * D * F * saturate(NoL) / (4.0 * max(NoV, 0.2)));
+    Result += SunColour.rgb * (Sunlit * Water.x * Sea * D * F * saturate(NoL) / (4.0 * max(NoV, 0.2)));
 
     // Ice: a broad soft sheen on the relief normal (GGX, roughness 0.35, F0 0.04).
     float Ice = (W0 * Surface.z + W1 * Surface.w) * (1.0 - Sea);
@@ -353,7 +382,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float IceDen = NoHr * NoHr * (IceA2 - 1.0) + 1.0;
     float IceD = IceA2 / (3.14159265 * IceDen * IceDen);
     float IceF = 0.04 + 0.96 * pow(1.0 - saturate(dot(V, Hr)), 5.0);
-    Result += SunColour.rgb * (Surface.y * Ice * IceD * IceF * saturate(dot(Nr, L)) / (4.0 * max(NoV, 0.2)));
+    Result += SunColour.rgb * (Sunlit * Surface.y * Ice * IceD * IceF * saturate(dot(Nr, L)) / (4.0 * max(NoV, 0.2)));
 
     // Illum: the glow layer over the lit surface (retail: always; Glow.y fades it out on the day
     // side: city lights come on past the terminator, lava burns brighter at night). Lava pulses.

@@ -604,6 +604,9 @@ public:
     void ExAtmosphereEnd();
     // Planet surface (SetPlanetSurface): one-pass planet_surface.hlsl draw of a detail-map planet material.
     GENRESULT DACOM_API SetPlanetSurface(const FRPPlanetSurface* Desc) override;
+    GENRESULT DACOM_API SetPlanetEclipse(const FRPPlanetEclipse* Desc) override;
+    // The eclipse constants (caster, sun in view space; range, strength, on) for a planet shader.
+    void ExPlanetEclipseConstants(float* Out12);
     bool ExPlanetSurfaceBegin();
     void ExPlanetSurfaceEnd();
     bool ExPickSun(const D3DXVECTOR3& Centre, D3DXVECTOR3* Direction, D3DLIGHT9* Light, unsigned* LightCount = nullptr);

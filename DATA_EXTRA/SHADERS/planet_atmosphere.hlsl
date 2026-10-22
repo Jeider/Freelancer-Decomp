@@ -34,6 +34,33 @@ float4 SunColour : register(c5);    // rgb light colour
 float4 Look : register(c6);         // x forward scattering, y terminator warmth, z veil opacity
 float4 ProjectionZ : register(c7);  // projection column z (clip z = dot(float4(P, 1), ProjectionZ))
 float4 ProjectionW : register(c8);  // projection column w
+float4 EclipseCaster : register(c9);  // eclipse: caster centre (view), radius
+float4 EclipseSun : register(c10);     // eclipse: sun centre (view), radius
+float4 EclipseControl : register(c11); // eclipse: x range behind the caster, y strength, w on
+
+// A planet eclipsing this one (port.ini planet_eclipses): the fraction of the sun left at a
+// view-space point. The sun and the caster are discs in the sky of that point; where the caster
+// covers the sun fully there is umbra, a soft penumbra where it covers part of it.
+float Eclipse(float3 P)
+{
+    if (EclipseControl.w < 0.5)
+        return 1.0;
+    float3 ToCaster = EclipseCaster.xyz - P;
+    float3 ToSun = EclipseSun.xyz - P;
+    float SunDistance = length(ToSun);
+    float3 SunRay = ToSun / SunDistance;
+    float Along = dot(ToCaster, SunRay);
+    if (Along <= 0.0 || Along > EclipseControl.x)
+        return 1.0;
+    float CasterDistance = length(ToCaster);
+    float CasterAngle = asin(saturate(EclipseCaster.w / CasterDistance));
+    float SunAngle = max(asin(saturate(EclipseSun.w / SunDistance)), 1.0e-4);
+    float Apart = acos(saturate(dot(ToCaster / CasterDistance, SunRay)));
+    float Covered = 1.0 - smoothstep(abs(CasterAngle - SunAngle), CasterAngle + SunAngle, Apart);
+    // A caster smaller than the sun never hides all of it.
+    Covered *= min(1.0, (CasterAngle * CasterAngle) / (SunAngle * SunAngle));
+    return 1.0 - Covered * EclipseControl.y;
+}
 
 struct ShellOutput
 {
@@ -86,12 +113,13 @@ ShellOutput PSMain(ShellPixel In)
         float3 Normal = Hit / Surface;
         float Rim = pow(1.0 - saturate(dot(Normal, -Ray)), Haze.y);
         float Amount = lerp(Haze.x, 1.0, Rim);
-        float3 C = Lit(Normal, Ray, Light) * Amount;
+        float HitDistance = Along - sqrt(Surface * Surface - Miss * Miss);
+        float Sunlit = Eclipse(Ray * HitDistance);
+        float3 C = Lit(Normal, Ray, Light) * Amount * Sunlit;
         Out.Colour = float4(C, Look.z * Amount * (0.35 + 0.65 * Light));
         // The planet mesh is a polygon sphere whose radius need not match Surface exactly: pull
         // the depth a little towards the camera so the haze is never hidden by the real surface
         // close up (a hard edge where the two cross); ships above the surface still cover it.
-        float HitDistance = Along - sqrt(Surface * Surface - Miss * Miss);
         Out.Depth = DepthOf(Ray * max(HitDistance * 0.98 - Surface * 0.005, HitDistance * 0.5));
         return Out;
     }
@@ -100,7 +128,7 @@ ShellOutput PSMain(ShellPixel In)
     clip(1.0 - Height);
     float Fade = 1.0 - Height;
     float Glow = exp(-Height * Haze.z) * Fade * Fade;
-    Out.Colour = float4(Lit(Closest / Miss, Ray, Light) * Glow, 0.0);
+    Out.Colour = float4(Lit(Closest / Miss, Ray, Light) * Glow * Eclipse(Ray * max(Along, 1.0)), 0.0);
     // The closest approach in view space (camera at the origin; Closest is planet-relative);
     // behind the camera (looking away from the planet) a point just ahead of it.
     Out.Depth = DepthOf(Ray * max(Along, 1.0));

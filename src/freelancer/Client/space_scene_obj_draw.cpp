@@ -69,6 +69,7 @@
 #include "render/IRenderPipeline.h"
 #ifdef FREELANCER_RP9
 #include "render/IRPLocalShadows.h"
+#include "render/IRPPlanetSurface.h"
 #include <unordered_set>
 #include "render/IRPWeaponGlints.h"
 #include "render/IAlchemyEffectColour.h"
@@ -2297,6 +2298,110 @@ namespace
     // 0); node vt[0](Cam) (0x0051f872); MaterialBatcher +0x28 FlushAll(1). After the loop, with
     // bToggleDepthRs, RS 7 = 1 and RS 0xe = 1 (the last as a tail jump, 0x0051f8c5). No test of
     // the bucket index, a node, the pipeline or the batcher.
+#ifdef FREELANCER_RP9
+    // Port-only: planet eclipses. port.ini [Render] planet_eclipses = caster:receiver[,...] (solar
+    // nicknames): while the receiver planet is drawn, RP9 shades it (surface and atmosphere) with
+    // the caster's shadow, cast from the system's sun; the shadow reaches the receiver's far side.
+    struct FPlanetEclipsePair
+    {
+        unsigned Caster, Receiver;
+    };
+
+    std::vector<FPlanetEclipsePair> const& PlanetEclipsePairs()
+    {
+        static std::vector<FPlanetEclipsePair> Pairs;
+        static bool bRead = false;
+        if (bRead)
+            return Pairs;
+        bRead = true;
+        char Text[512] = {};
+        PortConfigString("Render", "planet_eclipses", "", Text, sizeof(Text));
+        char* Next = Text;
+        while (*Next != '\0')
+        {
+            char* const Item = Next;
+            char* const Comma = strchr(Item, ',');
+            Next = Comma != nullptr ? Comma + 1 : Item + strlen(Item);
+            if (Comma != nullptr)
+                *Comma = '\0';
+            char* const Colon = strchr(Item, ':');
+            if (Colon == nullptr)
+                continue;
+            *Colon = '\0';
+            auto Trim = [](char* T) {
+                while (*T == ' ' || *T == '\t') ++T;
+                char* E = T + strlen(T);
+                while (E > T && (E[-1] == ' ' || E[-1] == '\t')) *--E = '\0';
+                return T;
+            };
+            char const* const CasterName = Trim(Item);
+            char const* const ReceiverName = Trim(Colon + 1);
+            if (*CasterName != '\0' && *ReceiverName != '\0')
+                Pairs.push_back({CreateID(CasterName), CreateID(ReceiverName)});
+        }
+        return Pairs;
+    }
+
+    // The solid sphere of a solar (its archetype's solar_radius when set, else the render extent).
+    bool PlanetSphere(FClientGameobj* Go, float* Out)
+    {
+        if (Go == nullptr || Go->Object == nullptr)
+            return false;
+        Vector Center;
+        float Radius = Go->Slot178(Center);
+        auto* Arch = static_cast<Archetype::Solar*>(Go->Object->get_archetype());
+        if (Arch != nullptr && Arch->SolarRadius > 0 && std::isfinite(Arch->SolarRadius))
+        {
+            Radius = Arch->SolarRadius;
+            Center = Go->get_position();
+        }
+        if (!(Radius > 0) || !std::isfinite(Radius))
+            return false;
+        Out[0] = Center.x;
+        Out[1] = Center.y;
+        Out[2] = Center.z;
+        Out[3] = Radius;
+        return true;
+    }
+
+    // Starts the eclipse for Go when it is a configured receiver; true when one was set.
+    bool BeginPlanetEclipse(IRPPlanetSurface* Surface, FClientGameobj* Go)
+    {
+        if (Surface == nullptr || Go == nullptr)
+            return false;
+        unsigned const Id = Go->get_id();
+        for (FPlanetEclipsePair const& Pair : PlanetEclipsePairs())
+        {
+            if (Pair.Receiver != Id)
+                continue;
+            FRPPlanetEclipse Eclipse = {};
+            float Receiver[4];
+            if (!PlanetSphere(ClientObjDb_FindObject(Pair.Caster, 2), Eclipse.Caster) || !PlanetSphere(Go, Receiver))
+                return false;
+            // The system's sun: the first solar of type SUN.
+            int const SolarKind = 2;
+            bool bSun = false;
+            for (FClientGameobj* Solar = ClientObjDb_GetKindHead(&SolarKind); Solar != nullptr && !bSun;
+                 Solar = Solar->ListNext)
+            {
+                unsigned Type = 0;
+                Solar->get_type(Type);
+                if ((Type & 4u) != 0)
+                    bSun = PlanetSphere(Solar, Eclipse.Sun);
+            }
+            if (!bSun)
+                return false;
+            float const Dx = Receiver[0] - Eclipse.Caster[0], Dy = Receiver[1] - Eclipse.Caster[1],
+                        Dz = Receiver[2] - Eclipse.Caster[2];
+            Eclipse.Range = std::sqrt(Dx * Dx + Dy * Dy + Dz * Dz) + Receiver[3];
+            Eclipse.Strength = 1.0f;
+            Surface->SetPlanetEclipse(&Eclipse);
+            return true;
+        }
+        return false;
+    }
+#endif
+
     void DrainBucket(FSpaceCamera* Cam, unsigned Bucket, bool bToggleDepthRs)
     {
         CameraApplyPerspective(Cam);
@@ -2372,10 +2477,29 @@ namespace
             // culling a two-sided material's second pass (flipped cull, negated normals) shows
             // its inside face on top. Every node starts from the scene's default.
             DALib::Pipeline->SetRenderState(D3DRS_CULLMODE, 2);
+            // Port-only: a configured planet eclipse on this planet (planet_eclipses).
+            IRPPlanetSurface* EclipseScope = nullptr;
+            if (!PlanetEclipsePairs().empty() && DALib::Pipeline != nullptr)
+            {
+                FZItemGameObject* const Item = dynamic_cast<FZItemGameObject*>(Nodes[I]);
+                FClientGameobj* const Planet = Item ? static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object)) : nullptr;
+                if (Planet != nullptr && Planet->ManagerKind == 2 &&
+                    DALib::Pipeline->QueryInterface(Iids::RPPlanetSurface, reinterpret_cast<void**>(&EclipseScope)) >= 0 &&
+                    EclipseScope != nullptr && !BeginPlanetEclipse(EclipseScope, Planet))
+                {
+                    EclipseScope->Release();
+                    EclipseScope = nullptr;
+                }
+            }
 #endif
             Nodes[I]->Draw(Cam);
             DALib::MaterialBatcher->FlushAll(1u);
 #ifdef FREELANCER_RP9
+            if (EclipseScope != nullptr)
+            {
+                EclipseScope->SetPlanetEclipse(nullptr);
+                EclipseScope->Release();
+            }
             if(G_WeaponGlints) G_WeaponGlints->SetWeaponGlintReceiver(0);
 #endif
         }

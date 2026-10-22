@@ -16,7 +16,18 @@ struct FRPPlanetSurface
     float TileRate1;       // stage 2 uv scale
 };
 
+// A planet that eclipses the next planet draws (surface and atmosphere): the caster sphere and
+// the sun sphere in world space; the shadow reaches Range metres from the caster. nullptr ends it.
+struct FRPPlanetEclipse
+{
+    float Caster[4]; // world centre, radius
+    float Sun[4];    // world centre, radius
+    float Range;     // how far behind the caster the shadow reaches
+    float Strength;  // 1 = full shadow in the umbra
+};
+
 struct IRPPlanetSurface : IDAComponent
 {
     virtual GENRESULT DACOM_API SetPlanetSurface(const FRPPlanetSurface* Desc) = 0;
+    virtual GENRESULT DACOM_API SetPlanetEclipse(const FRPPlanetEclipse* Desc) = 0;
 };

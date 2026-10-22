@@ -176,6 +176,9 @@ struct FRp9ExState
     IDirect3DPixelShader9* PlanetPs = nullptr;
     std::set<std::string> PlanetLogged;
     FRp9ExStageSave PlanetSavedStage[3];
+    // A planet eclipsing the planet being drawn (SetPlanetEclipse, from the client).
+    bool bPlanetEclipse = false;
+    FRPPlanetEclipse PlanetEclipse = {};
 
     // Generic surface shader route, independent of objects (ships/stations/asteroids).
     bool bSurfaceConfigRead = false;
