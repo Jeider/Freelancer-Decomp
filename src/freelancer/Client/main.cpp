@@ -14,6 +14,7 @@
 #include "flplusplus.h"        // port-only flplusplus start-up
 #ifdef FREELANCER_LANGUAGE
 #include "port_config.h" // port-only language switch
+#include "port_crash_dump.h" // port-only crash dumps
 #endif
 #endif
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
@@ -138,6 +139,7 @@ namespace
         const DWORD Code = Info->ExceptionRecord->ExceptionCode;
         if (Code == 0x80000003 || Code == 0x80000004)
             return 0;
+        PortCrashDump::Write(Info); // port-only: dump + call-stack report in CRASHDUMPS
 
         // 0x005a552d..0x005a5555: guarded by its own __try with a filter that returns 1.
         __try
@@ -303,6 +305,7 @@ namespace
     {
         wcsncpy(G_CrashAppName, AppName, 0x80);
         G_CrashAppName[0x7f] = L'\0';
+        PortCrashDump::Initialize(); // port-only
         SetUnhandledExceptionFilter(ClientCrashFilter);
     }
 

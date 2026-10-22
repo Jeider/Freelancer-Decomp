@@ -232,11 +232,15 @@ float ShadowCompare(sampler2D Map, sampler2D Extra, bool Dual, float3 Q, float W
 float SolarVisibility(float3 Position, float3 Normal)
 {
     if(ShadowControl.x<0.5) return 1.0;
-    float3 Far=mul(float4(Position,1),ShadowFar).xyz;
+    // Normal offset: look the receiver up a little above its own surface, by about a map
+    // texel and more at grazing sun. A surface that is in the map itself (two-sided materials
+    // draw the sun-facing side too) then never shadows itself into speckled acne.
+    float Grazing=1.0+2.0*(1.0-saturate(-dot(Normal,ShadowSunRay.xyz)));
+    float3 Far=mul(float4(Position+Normal*(ShadowBias.y*Grazing),1),ShadowFar).xyz;
     float Visibility=1;
     // Derivatives are evaluated uniformly; texture reads are only performed for
     // the selected cascade, except in the narrow cascade crossfade band.
-    float3 Near=mul(float4(Position,1),ShadowNear).xyz;
+    float3 Near=mul(float4(Position+Normal*(ShadowBias.x*Grazing),1),ShadowNear).xyz;
     float3 NearDerivatives=ShadowDerivatives(Near),FarDerivatives=ShadowDerivatives(Far);
     float Distance=length(Position);
     float Quality=ShadowQuality.y>0.5 ?

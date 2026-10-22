@@ -1105,3 +1105,109 @@ Solar visibility, equipment cone sources, external light_anim and the proposed
 surface shader/local-shadow architecture are documented in
 [local_surface_lighting.md](local_surface_lighting.md). The material and shadow
 parts of that document are proposals; the solar/equipment fixes are implemented.
+
+### Planet atmosphere
+
+Port-only. `FMaterial::SubmitAtmosphereLock` (Shading) queries `IRPPlanetAtmosphere`
+(`render/IRPPlanetAtmosphere.h`, IID `RP9_IRPPlanetAtmosphere_v1`) and wraps the shell draw in
+`SetPlanetAtmosphere(&Desc)` / `SetPlanetAtmosphere(nullptr)`. The Desc carries the material name,
+the object-space radius of the shell mesh (length of a vertex position), the material Scale, the
+diffuse tint and Alpha. The five indexed/unindexed draw entry points of RP9.cpp call
+`ExAtmosphereBegin` before `ExSoftBegin`/`ExSurfaceBegin`; when it qualifies (requested, XYZ
+vertices, not in a shadow pass, Ex pass, soft or surface draw) the draw runs with
+`DATA_EXTRA/SHADERS/planet_atmosphere.hlsl` (soft artistic model, one shell side per pixel) and `ExAtmosphereEnd` restores shaders and the six render states from the pending cache.
+Materials whose name contains an `atmosphere_exclude` substring (default `sw_center`, `bh_`,
+`blackhole`) keep the retail fixed-function draw, as does a shader that failed to compile.
+
+The look: beyond the limb a glow that fades with height (exp(-h * falloff) * (1-h)^2, h = 0 at
+the limb, 1 at the outer radius); over the disc a haze lerp(haze, 1, (1 - N.V)^rim) that meets the
+glow at the limb and veils the surface (alpha veil * amount); both lit by a wrapped diffuse
+(soft terminator), tinted warm where the sun is low and brightened by forward scattering when
+looking past the planet towards the sun. A physical single-scattering model (O'Neil, GPU Gems 2)
+was tried first and rejected: it gives a thin hard ring and almost no haze over the disc.
+
+Constants (view space): VS c0..c3 world*view, c4..c7 projection, c8 (planet centre, outer radius *
+1.03). PS c0 (centre, surface radius), c1 (outer, 1/(outer-surface)), c2 (sun direction,
+brightness * density), c3 (tint with its brightest channel 1), c4 (haze, rim, falloff, wrap), c5
+(sun colour, 1), c6 (forward, warmth, veil). Surface = MeshRadius * world scale / Scale, outer =
+surface * (1 + thickness). The sun is the brightest surface light (`ExCollectSurfaceLights`), or
+the direction to the camera when there is none; density is Alpha/0.6 clamped to 0.5..1.5.
+
+port.ini `[Render]`: `planet_atmosphere` (1), `atmosphere_thickness` (0.06), `atmosphere_brightness`
+(0.9), `atmosphere_haze` (0.12), `atmosphere_rim` (2.5), `atmosphere_falloff` (3),
+`atmosphere_wrap` (0.3), `atmosphere_forward` (1.5), `atmosphere_warmth` (0.5), `atmosphere_veil`
+(0.5), `atmosphere_exclude`.
+
+The atmosphere pixel shader writes its own depth: the analytic surface point under the haze, or the closest approach to the planet for the limb glow (c7/c8 carry the projection z and w columns). Each pixel shades one side of the shell: the near side from outside the drawn (inflated) shell, the far side from inside it, so close to the surface the far side, hidden behind the planet by its own polygons, still passes the depth test.
+
+### Planet surface
+
+Port-only. For `DetailMapMaterial` (mode 3: the one-pass BindDetailMap/SubmitKernel family, `Dt * 2Dm`
+everywhere; gas giants, deserts, ice, crater moons), `DetailMap2Dm1Msk2PassMaterial` (mode 0), `Masked2DetailMapMaterial` (mode 1) and
+`IllumDetailMapMaterial` (mode 2) instances named `planet_*`, with both retail passes available
+(`DetailPassCount == 2`, stage 1 verified), `FMaterial::SubmitPlanetSurface` (Shading) queries
+`IRPPlanetSurface` (`render/IRPPlanetSurface.h`, IID `RP9_IRPPlanetSurface_v1`) and asks RP9 to
+draw the material once. RP9 compiles `DATA_EXTRA/SHADERS/planet_surface.hlsl` inside
+`SetPlanetSurface`, so a successful Set means the draw is RP9's; a refusal (disabled, excluded,
+shader failure) keeps the retail two-pass draw. Shading applies the first retail pass's states,
+binds the base map (Dt) to stage 0, detail map 0 to stage 1 and detail map 1 to stage 2, and
+draws once with alpha test off.
+
+The shader reproduces the retail combines: mode 0 `Dt * lerp(2*Dm, 1, Dt.a)`; mode 1
+`lerp(Dt * 2*Dm0, Dt * 2*Dm1, Dt.a)` (alpha is the land/ocean mask, white = ocean); mode 2 the
+lit `Dt * 2*Dm0` with the unlit `Dt * 2*Dm1` glow blended over by `Dt.a * Dm1.a`. Lighting is the
+fixed-function sum per pixel for the brightest light (`ExPickSun`, shared with the atmosphere)
+plus material ambient/emissive, then fixed-function-equivalent fog. Additions:
+
+- layers: layer 0 is detail map 0 (black mask), layer 1 detail map 1 (white mask, Masked2 only).
+  RP9 classifies each by its detail map name: `ocean` water (DetailMapMaterial only on `wat*`
+  planets; desert uses it for sand), `rock`/`crater` strongest relief and highest elevation,
+  `ice`, ground (default), `grass`, `city`, `cloud` nearly flat; `gas*` planets get none. The mask's
+  white is not always ocean (`desorgrck`: ocean under black, rock under white).
+- relief: height = base luminance + the layers' elevation through the mask (so rock stands
+  above sand even where it is painted dark); a 4-tap gradient spaced by the pixel footprint and a
+  screen-derivative cotangent frame perturb the normal on the day side (not on wet water, less
+  under clouds). Detail relief adds the layer's detail map as fine screen-derivative bumps, a
+  fraction of a tile high, faded out once the detail is smaller than a pixel.
+- terrain shadows: four steps along the height field towards the sun; ridges shadow what lies
+  behind them, longest near the terminator.
+- glint: GGX highlight with Schlick fresnel on water layers where the colour is water-like
+  (blue exceeds red); clouds (bright, low-chroma texels) suppress it.
+
+Pixel constants: c0 sun dir + wrap, c1 sun colour * material diffuse, c2 ambient, c3 mode / water
+kind / tile rates, c4 glint strength / roughness / F0 / cloud threshold, c5 relief / detail
+relief / base texel size, c6 glow strength / night-only (1, 0: retail) / terrain shadows, c7-c8
+fog, c9 layer water/relief (layer 0, layer 1), c10 layer elevations / luminance weight. Samplers 0-2 get linear or
+anisotropic filtering for the draw and are restored afterwards.
+
+port.ini `[Render]`: `planet_surface` (1), `planet_relief` (6), `planet_glint` (10),
+`planet_glint_roughness` (0.13), `planet_glint_fresnel` (0.02), `planet_cloud_threshold` (0.45),
+`planet_terminator_wrap` (0.05), `planet_detail_relief` (1), `planet_terrain_shadows` (8),
+`planet_surface_exclude` (`sw_center,bh_,blackhole,neutron`).
+
+Gas giants (`planet_gas*`, sides and caps) animate within each part: the parts are separate
+textures, so the deformation is computed in longitude/latitude (object space, y the pole), mapped
+to the part's uv through the screen-derivative Jacobian of uv against longitude/latitude, and faded
+out towards the part's uv edges, so the seams stay exactly as painted. The flow is zonal jets (each
+latitude its own speed and sign), eddies from the curl of a 3D noise stream function
+(divergence-free, after Bridson et al., "Curl-noise for procedural fluid flow") and three storm
+vortices (a great spot and two small ovals from a hash of the planet's name), as a two-phase flow
+map (each phase displaces by velocity times its age and restarts while the other is shown).
+`gas_swirl_planets` (default `gasyelcld`) names chaotic giants: no jets, larger eddies churning in
+place. Also limb darkening and a wider terminator. (A whole-planet cube map captured from the parts
+was tried and dropped: faces sharing a material were not all captured, leaving seams.)
+c11 time / jet speed (rad/s) / eddy speed / -, c12-c14 storms (longitude, latitude, radius, spin),
+c15 planet centre (view) + seam band, c16 eddy frequency / - / animated / flow period.
+
+Glow, ice, airless: an IllumDetailMapMaterial glow layer named city/glow lights up at night
+(`planet_city_lights` 0.6: the day side keeps 40%), one named lava is half as bright by day and
+pulses (`planet_lava_pulse`); ice layers get a soft GGX sheen (`planet_ice_sheen` 0.6, roughness
+0.35, F0 0.04); moon*, mercury*, crater* families and crater detail maps are lit with
+Lommel-Seeliger (brightness ~ cos(i)/(cos(i)+cos(e)): a flat disc to the limb and a sharp
+terminator; `planet_airless`). c6.w lava pulse, c17 airless / ice sheen / layer 0 ice / layer 1 ice.
+
+Seams: the normal is the analytic sphere normal (no facets, no lighting step between side and
+cap meshes); base samples stay half a texel inside 0..1 (no wrap bleeding); within the seam band
+of a uv edge the colour fades to a blurred mip and relief/terrain shadows fade out, so two
+mismatched textures meet as a soft gradient. port.ini: `planet_seam_blend` (0.01), `gas_flow`,
+`gas_turbulence`, `gas_storms` (1 each), `gas_swirl_planets`.

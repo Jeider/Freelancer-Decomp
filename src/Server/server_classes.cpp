@@ -6953,6 +6953,17 @@ void StarSystem::load_solars()
     {
         do
         {
+            // Port-only: the walk sees every live CSolar, not just this system's. A solar of
+            // the system just left that someone still holds (a target, say) survives that
+            // system's unload while its physics world -- and its body -- is destroyed; wrapped
+            // here it would be updated through the dangling body (crash in
+            // convert_phantom_to_object after a system switch). Skip solars whose body was made
+            // in another system; ones without physics (id 0) are taken as retail does.
+            if (Obj->PhysicsSystemId != 0u && Obj->PhysicsSystemId != SystemInfo->NicknameId)
+            {
+                Obj = CObject::FindNext();
+                continue;
+            }
             // .text:06d071b2 -- the walk's own reference; attach_existing
             // takes the wrapper's, and .text:06d07224 gives this one back.
             Obj->AddRef();

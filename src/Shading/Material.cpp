@@ -8,6 +8,8 @@
 #include "MaterialAnimation.h"
 #include "MaterialLibrary.h"
 #include "engine/engbase.h"
+#include "render/IRPPlanetAtmosphere.h"
+#include "render/IRPPlanetSurface.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -2252,14 +2254,95 @@ GENRESULT FMaterial::SubmitAtmosphereLock(void* Context, unsigned long PrimType,
     int SavedZWrite;
     Pipeline->GetRenderState(D3DRS_ZWRITEENABLE, &SavedZWrite);
     Pipeline->SetRenderState(D3DRS_ZWRITEENABLE, 0);
+    // Port-only: tell RP9 this draw is a planet's atmosphere shell (drawn with
+    // planet_atmosphere.hlsl there); without the interface the retail draw is unchanged.
+    IRPPlanetAtmosphere* Atmosphere = nullptr;
+    if (Pipeline->QueryInterface(Iids::RPPlanetAtmosphere, (void**)&Atmosphere) >= 0 && Atmosphere != nullptr)
+    {
+        FRPPlanetAtmosphere Desc = {};
+        Desc.Name = InstanceName != nullptr ? InstanceName : "";
+        Desc.Scale = Scale;
+        Desc.Tint[0] = DiffuseR;
+        Desc.Tint[1] = DiffuseG;
+        Desc.Tint[2] = DiffuseB;
+        Desc.Alpha = Alpha;
+        if (Source->Position.Base != nullptr)
+        {
+            const unsigned long Index = (Source->Flags & 4) && Source->Position.IndexArray ?
+                                        Source->Position.IndexArray[Start] : Start;
+            const unsigned long PosStride = Source->Position.Stride ? Source->Position.Stride : 12;
+            const float* P = (const float*)(Source->Position.Base + Index * PosStride);
+            Desc.MeshRadius = std::sqrt(P[0] * P[0] + P[1] * P[1] + P[2] * P[2]);
+        }
+        Atmosphere->SetPlanetAtmosphere(&Desc);
+    }
     Pipeline->DrawIndexedPrimitiveVb(PrimType, Lock.Listing.VertexBuffer, Lock.Listing.BaseVertex, Count,
         (unsigned short*)((uintptr_t)(SubmitContext->Indices) + IbStart * 2),
         IndexSpan, 0);
+    if (Atmosphere != nullptr)
+    {
+        Atmosphere->SetPlanetAtmosphere(nullptr);
+        Atmosphere->Release();
+    }
     Pipeline->SetRenderState(D3DRS_ZFUNC, SavedZFunc);
     Pipeline->SetRenderState(D3DRS_ZWRITEENABLE, SavedZWrite);
     // Own DAT_06ed1130 raw words {0x8D,0,0,0}, regardless of mesh marker.
     Pipeline->SetRenderState(D3DRS_COLORVERTEX, 0);
     return GR_OK;
+}
+
+bool FMaterial::SubmitPlanetSurface(void* Context, unsigned long PrimType, unsigned long Start,
+                                    unsigned long Count, unsigned long Zero, unsigned long Field,
+                                    unsigned long Flags)
+{
+    // Port-only: a "planet_*" detail material drawn by RP9 in one pass with planet_surface.hlsl
+    // (base map on stage 0, detail maps on stages 1 and 2). A refused request keeps the retail passes.
+    // Mode 3: DetailMapMaterial, one pass already bound by Bind (BindDetailMapTables).
+    const bool bSinglePass = BindKind == BindDetailMap;
+    const unsigned long Mode = bSinglePass ? 3 : SubmitKind == SubmitDetail2Pass ? 0 :
+                               (SubmitKind == SubmitMaskedDetail2Pass ? 1 : 2);
+    const bool bTwoLayers = Mode == 1 || Mode == 2;
+    if ((!bSinglePass && DetailPassCount != 2) || !bDetailSecondStageVerified || InstanceName == nullptr ||
+        _strnicmp(InstanceName, "planet_", 7) != 0 || TexBlocks == nullptr || TexCount < (bTwoLayers ? 3UL : 2UL))
+        return false;
+    IRPPlanetSurface* Surface = nullptr;
+    if (Pipeline->QueryInterface(Iids::RPPlanetSurface, (void**)&Surface) < 0 || Surface == nullptr)
+        return false;
+    FRPPlanetSurface Desc = {};
+    Desc.Name = InstanceName;
+    Desc.Mode = Mode;
+    Desc.Detail0 = TexBlocks[1].Name != nullptr ? TexBlocks[1].Name : "";
+    Desc.Detail1 = bTwoLayers && TexBlocks[2].Name != nullptr ? TexBlocks[2].Name : "";
+    Desc.TileRate0 = DetailTileRate0;
+    Desc.TileRate1 = bTwoLayers ? DetailTileRate1 : DetailTileRate0;
+    if (Surface->SetPlanetSurface(&Desc) < 0)
+    {
+        Surface->Release();
+        return false;
+    }
+    // The first retail pass's states, so a fixed-function fallback still draws a sane pass.
+    if (Mode == 0)
+        ApplyDetailPassState(0);
+    else if (Mode == 1)
+        ApplyMaskedDetailPassState(0);
+    else if (Mode == 2)
+        ApplyIllumDetailPassState(0);
+    if (bTwoLayers)
+        BindDetailTexture(Pipeline, TexBlocks[2], 2);
+    int Saved0F;
+    Pipeline->GetRenderState(D3DRS_ALPHATESTENABLE, &Saved0F);
+    Pipeline->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
+    SubmitKernel(Context, PrimType, Start, Count, Zero, Field, Flags);
+    Surface->SetPlanetSurface(nullptr);
+    Surface->Release();
+    if (bTwoLayers)
+        Pipeline->SetTextureStageTexture(2, nullptr);
+    Pipeline->SetRenderState(D3DRS_ALPHATESTENABLE, Saved0F);
+    // The two-pass families tear down inside Submit (as their retail branches do); the single
+    // pass DetailMapMaterial is torn down by the caller.
+    if (!bSinglePass)
+        Teardown(nullptr);
+    return true;
 }
 
 GENRESULT FMaterial::SubmitIndexedListing(FMaterialSubmitContext* Context,
@@ -2369,6 +2452,8 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
     }
     if (SubmitKind == SubmitIllumDetail2Pass)
     {
+        if (SubmitPlanetSurface(Context, PrimType, Start, Count, Zero, Field, Flags))
+            return GR_OK;
         // LAB_06eb9e40: first pass ALPHATEST=0 in either mode.
         int Saved0F;
         Pipeline->GetRenderState(D3DRS_ALPHATESTENABLE, &Saved0F);
@@ -2406,6 +2491,8 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
     }
     if (SubmitKind == SubmitMaskedDetail2Pass)
     {
+        if (SubmitPlanetSurface(Context, PrimType, Start, Count, Zero, Field, Flags))
+            return GR_OK;
         // LAB_06ebbc40: one-pass fallback, or two unconditional kernel draws.
         int Saved0F;
         Pipeline->GetRenderState(D3DRS_ALPHATESTENABLE, &Saved0F);
@@ -2442,6 +2529,8 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
     }
     if (SubmitKind == SubmitDetail2Pass)
     {
+        if (SubmitPlanetSurface(Context, PrimType, Start, Count, Zero, Field, Flags))
+            return GR_OK;
         // LAB_06eb7560: mode 1 draws once; mode 2 always draws both passes.
         int Saved0F;
         Pipeline->GetRenderState(D3DRS_ALPHATESTENABLE, &Saved0F);
@@ -2496,6 +2585,8 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
             return Result;
         return SubmitDcDtTwoSecondPass(Context, PrimType, Start, Count, Zero, Field);
     }
+    if (BindKind == BindDetailMap && SubmitPlanetSurface(Context, PrimType, Start, Count, Zero, Field, Flags))
+        return GR_OK;
     return SubmitKernel(Context, PrimType, Start, Count, Zero, Field, Flags);
 }
 

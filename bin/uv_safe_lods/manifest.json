@@ -1,0 +1,3844 @@
+{
+  "models": [
+    {
+      "file": "SOLAR/MISC/space_industrial01a.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "99948fd0dbfe4cee0eb7f2b8218b3e1d20f8e2ad8b9f19c9b05dd502e827f665",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 422,
+          "vertices": 513,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 11
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 22
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 331,
+          "vertices": 513,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 21
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 55
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 11
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "447ca38ec60a7e2d2d1acaff20aa1aa20e9bb865ee33ea049e98295fbe73716c"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01a_alt.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "a8f2b6bd9926f9d5e6de91fa3d48f64e9548ac56ef1b2569c8d309952777d0bc",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 422,
+          "vertices": 513,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 11
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 22
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 331,
+          "vertices": 513,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 21
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 55
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 11
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "973182534d7a65efe86aa3600e43416b58e903fe100ad912c58199fdac13a673"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01b.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "bd6c25a03b090fc9a8cd308c5934cabffdc3f32215fa5f9996487a8a41658485",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 410,
+          "vertices": 505,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 12
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 24
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 327,
+          "vertices": 505,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 22
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 57
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "64b0e3c921ecc806fd65a748eab9dd3784b99dc10f2eb74312a35c390386f4cc"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01c.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "7fc3aaf6f5be3a9a293682e323031a7472f615e62c6e55545d3b4c3e67ffdf9a",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 163,
+          "vertices": 202,
+          "triangles": 138,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 2,
+              "uv_orientation_density_or_coverage": 10
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 15
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 2,
+              "triangles_after": 2,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 72,
+              "triangles_after": 72,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 8,
+              "triangles_after": 8,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 132,
+          "vertices": 202,
+          "triangles": 138,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 2,
+              "uv_orientation_density_or_coverage": 10
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 17
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 5
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 2,
+              "triangles_after": 2,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 72,
+              "triangles_after": 72,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 8,
+              "triangles_after": 8,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "3bf414a6c898858f8ec374320a1f0222d1e142d330e36c9d229fba2f826ce541"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01d.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "3a55e7f808361cda010b1fd26e36293ab4bc46c3cb34e4b0823a25c3a7d41760",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 346,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 12
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 24
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 276,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 22
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 57
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "692ee9188e075afa93f844176ca283cfcc856192d2469bb89bec7a52980c933d"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01e.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "f42342586df60ed1ab11af4321058872328e90137fd368305b8601a2cc394099",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 346,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 12
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 24
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 276,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 22
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 57
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "ac7fcb1b198d395da786e17d8815748af104e56d0998f44d2f6f9671ab567f9d"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01f.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "66675618fe6c2deb2fc586216d3cdbfb766ac498ad5d603e39b61b8f0523089c",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 346,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 12
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 24
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 276,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 22
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 57
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "d237717e75f6fca2d51b0d7500173b3df1e3b1dfbe55f45610af86c3e1e76f19"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01g.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "323cecc59d2837bd0feffc48344442f3a193c877e67bb4c4e1de6c2a81357dfb",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 346,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 12
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 24
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 276,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 22
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 57
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "a4c6f331aef3dc14f06a0355cb4994c99d83c830c34e5366afe6521bcef08c51"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01h.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "737e0c6cd4125fa8c6c98f5b1b9baf36c75f9b50b2334586cb2152f09c6854c7",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 346,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 12
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 24
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 276,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 22
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 57
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "c56558add8cd2e5b51e79ccd09686ee0e5cf534bffcc28b61a8d69fd0e734590"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01i.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "68e940eb320381292702475df70ac9867d56835f3ef544a8c01f818049a929ee",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 346,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 12
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 24
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 276,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 22
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 57
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "e79b7b29386915d696200f85d8cca730bef8560794f36d0213c1c108d802da60"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01j.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "6a774aa2b132b1f99afe089ffd2334a7551bc877d8d5c432ae74b7b8e09bc3ae",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 346,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 12
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 24
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 276,
+          "vertices": 410,
+          "triangles": 332,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 22
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 57
+            },
+            "0xe1ef0c49": {
+              "uv_orientation_density_or_coverage": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "f1dee250fc514a118478dcd85f84087957b0cdae464b026afba14da6c4b56f39"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial02a.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "54e63f6e8356dfc5fb15b87f231d04509d79e863b9e5e05504a5ad067e454224",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 506,
+          "vertices": 546,
+          "triangles": 300,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 325,
+          "vertices": 546,
+          "triangles": 300,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            },
+            "0xe63dc03f": {
+              "crossed_uv_islands": 61,
+              "uv_orientation_density_or_coverage": 3
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "71b4c1ba7fafaae142e03037787d39bcc76b5cc9298ec8eb22404f7c976525d8"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial02b.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "1c2dccd88136c0545f8f1e04a4878d2d8eac6d11d9723f0d0b180b5d384f3006",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 502,
+          "vertices": 542,
+          "triangles": 300,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 326,
+          "vertices": 542,
+          "triangles": 300,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            },
+            "0xe63dc03f": {
+              "crossed_uv_islands": 61,
+              "uv_orientation_density_or_coverage": 3
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "e2a03f3bc6ee1d7874417446fd4dde31cac8a40affff4acf1a15135d7d2c09b7"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial02d.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "5eaa9d230b0815acd173212cd217dc097556ada84df2dc94fedf62f5fd9795e8",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 539,
+          "vertices": 563,
+          "triangles": 300,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 6
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 376,
+          "vertices": 563,
+          "triangles": 300,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 6
+            },
+            "0xe63dc03f": {
+              "crossed_uv_islands": 64
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "e19ceb5a85803f7b6d8ac31fb90fb1f3d2b7a4e3d81fab90da93a5c5ef43ffad"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial03.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "d4fd8d6d296686701c98985fb3d9fb88870c1e72b4819382b89ed7b114995db7",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 379,
+          "vertices": 635,
+          "triangles": 240,
+          "previous_uv_issues": {
+            "0x1912ceec": {
+              "crossed_uv_islands": 32,
+              "uv_orientation_density_or_coverage": 7
+            },
+            "0xe3646eb5": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 1
+            }
+          },
+          "materials": [
+            {
+              "material": "0x1912ceec",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x2432e58",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1a3fe3ee",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x160e12f1",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe11e848d",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfbe28c33",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe3646eb5",
+              "triangles_before": 80,
+              "triangles_after": 80,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 324,
+          "vertices": 635,
+          "triangles": 240,
+          "previous_uv_issues": {
+            "0x1912ceec": {
+              "crossed_uv_islands": 24,
+              "uv_orientation_density_or_coverage": 4
+            },
+            "0x1a3fe3ee": {
+              "crossed_uv_islands": 2
+            },
+            "0xfbe28c33": {
+              "crossed_uv_islands": 2
+            },
+            "0xe3646eb5": {
+              "crossed_uv_islands": 7,
+              "uv_orientation_density_or_coverage": 1
+            }
+          },
+          "materials": [
+            {
+              "material": "0x1912ceec",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x2432e58",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1a3fe3ee",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x160e12f1",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe11e848d",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfbe28c33",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe3646eb5",
+              "triangles_before": 80,
+              "triangles_after": 80,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "fcf3b94d4c3b8068393a85132d3703c15a6e37bcac6f215f4fa03932b5a80859"
+    },
+    {
+      "file": "SOLAR/MISC/space_industriala.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "1484a604a4e896a7d90ebe0c65aefe65f4d3b825798effdb350aa08da37154e8",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 349,
+          "vertices": 409,
+          "triangles": 252,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 329,
+          "vertices": 409,
+          "triangles": 252,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "e3647d11f5b2dff689bfdb3d9801aba4a4a64e07b8cec8fbfc455f770e106b8c"
+    },
+    {
+      "file": "SOLAR/MISC/space_industriala_alt.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "6b3437ccda12d0317938a249df7168c52046f3266a04db617a5337db3af87155",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 349,
+          "vertices": 409,
+          "triangles": 252,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 329,
+          "vertices": 409,
+          "triangles": 252,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "cafa9aca54fc254d197ed2bdb375311d7a152cffd16828d1a38207e58e000fb8"
+    },
+    {
+      "file": "SOLAR/MISC/space_industriala_alt2.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "93050147a7366aeccd66486c19d65c51f48fe531c4fbb02ba6efdff5f3fb2da9",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 349,
+          "vertices": 409,
+          "triangles": 252,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 329,
+          "vertices": 409,
+          "triangles": 252,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 10
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 144,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "ba897f8f14f0a457b438538f47042d449fdf4c34f8043c23f945df120d15bc79"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrialc.3db",
+      "previous_bundle": "industrial_lods",
+      "source_sha256": "4d59001d535e7ad8d03f244c248813e0d0311e5f36597b295c73a4ef742569ef",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 263,
+          "vertices": 283,
+          "triangles": 166,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 4
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 104,
+              "triangles_after": 104,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 10,
+              "triangles_after": 10,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 235,
+          "vertices": 283,
+          "triangles": 166,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 8
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 104,
+              "triangles_after": 104,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 10,
+              "triangles_after": 10,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "635bf4a2d0f16a10bf426e8da1dd5df2b575dd027bf804b31601fbd298259a8b"
+    },
+    {
+      "file": "SOLAR/MISC/space_control_tower.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "b76046c48b906163f35d4eeccd981b3e691bb001c049c061982bb037bc30b263",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 1541,
+          "vertices": 2261,
+          "triangles": 1056,
+          "previous_uv_issues": {
+            "0xf0df7ffe": {
+              "uv_orientation_density_or_coverage": 12
+            },
+            "0xfc27e50e": {
+              "uv_orientation_density_or_coverage": 1,
+              "crossed_uv_islands": 39
+            },
+            "0xfbab4e8e": {
+              "crossed_uv_islands": 67,
+              "uv_orientation_density_or_coverage": 38
+            },
+            "0x1e1f40f9": {
+              "uv_orientation_density_or_coverage": 29
+            }
+          },
+          "materials": [
+            {
+              "material": "0x1eeab953",
+              "triangles_before": 42,
+              "triangles_after": 32,
+              "error": 0.024009764194488525,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.024009764194488525,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 352,
+              "triangles_after": 352,
+              "error": 0.024009764194488525,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfbab4e8e",
+              "triangles_before": 348,
+              "triangles_after": 348,
+              "error": 0.024009764194488525,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 7
+              }
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 228,
+              "triangles_after": 228,
+              "error": 0.024009764194488525,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 7
+              }
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 1142,
+          "vertices": 2257,
+          "triangles": 1054,
+          "previous_uv_issues": {
+            "0xf0df7ffe": {
+              "uv_orientation_density_or_coverage": 16,
+              "crossed_uv_islands": 2
+            },
+            "0xfc27e50e": {
+              "crossed_uv_islands": 34,
+              "uv_orientation_density_or_coverage": 7
+            },
+            "0xfbab4e8e": {
+              "crossed_uv_islands": 59,
+              "uv_orientation_density_or_coverage": 36
+            },
+            "0x1e1f40f9": {
+              "uv_orientation_density_or_coverage": 33
+            }
+          },
+          "materials": [
+            {
+              "material": "0x1eeab953",
+              "triangles_before": 42,
+              "triangles_after": 30,
+              "error": 0.03433060273528099,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.03433060273528099,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 352,
+              "triangles_after": 352,
+              "error": 0.03433060273528099,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfbab4e8e",
+              "triangles_before": 348,
+              "triangles_after": 348,
+              "error": 0.03433060273528099,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 10
+              }
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 228,
+              "triangles_after": 228,
+              "error": 0.03433060273528099,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 9
+              }
+            }
+          ]
+        }
+      ],
+      "output_sha256": "da46250427cab3bbb1fa6f3891b3e1d8825468c77e7e118cc2df66c60e81f58b"
+    },
+    {
+      "file": "SOLAR/MISC/space_medium_control_tower.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "b59d16eb2dfeb0cd224bed0fb3e8871f9449de8fff5a3ff26910157e03071a87",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 949,
+          "vertices": 1435,
+          "triangles": 1066,
+          "previous_uv_issues": {
+            "0x1e1f40f9": {
+              "crossed_uv_islands": 21,
+              "uv_orientation_density_or_coverage": 10
+            },
+            "0xf0df7ffe": {
+              "uv_orientation_density_or_coverage": 32
+            },
+            "0xfc27e50e": {
+              "uv_orientation_density_or_coverage": 11,
+              "crossed_uv_islands": 47
+            },
+            "0xfbab4e8e": {
+              "crossed_uv_islands": 45,
+              "uv_orientation_density_or_coverage": 31
+            }
+          },
+          "materials": [
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 270,
+              "triangles_after": 270,
+              "error": 0.021852288395166397,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 6
+              }
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.021852288395166397,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 352,
+              "triangles_after": 352,
+              "error": 0.021852288395166397,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfbab4e8e",
+              "triangles_before": 348,
+              "triangles_after": 348,
+              "error": 0.021852288395166397,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 12
+              }
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 664,
+          "vertices": 1435,
+          "triangles": 1066,
+          "previous_uv_issues": {
+            "0x1e1f40f9": {
+              "crossed_uv_islands": 20,
+              "uv_orientation_density_or_coverage": 16
+            },
+            "0xf0df7ffe": {
+              "uv_orientation_density_or_coverage": 33,
+              "crossed_uv_islands": 1
+            },
+            "0xfc27e50e": {
+              "uv_orientation_density_or_coverage": 3,
+              "crossed_uv_islands": 26
+            },
+            "0xfbab4e8e": {
+              "crossed_uv_islands": 70,
+              "uv_orientation_density_or_coverage": 22
+            }
+          },
+          "materials": [
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 270,
+              "triangles_after": 270,
+              "error": 0.0378255695104599,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 13
+              }
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0378255695104599,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 352,
+              "triangles_after": 352,
+              "error": 0.0378255695104599,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfbab4e8e",
+              "triangles_before": 348,
+              "triangles_after": 348,
+              "error": 0.0378255695104599,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 16
+              }
+            }
+          ]
+        }
+      ],
+      "output_sha256": "2ed57ed13acf9336eecd89cbb4331b110724756df2e0ed26bf2268485d559ae9"
+    },
+    {
+      "file": "SOLAR/MISC/space_production.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "e05a1ca2a7d21bc7354fe2496ebe4d83262d5bce1ae31bd7444238579611fc79",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 4623,
+          "vertices": 6863,
+          "triangles": 3757,
+          "previous_uv_issues": {
+            "0xf6f063b4": {
+              "crossed_uv_islands": 148,
+              "uv_orientation_density_or_coverage": 61
+            },
+            "0xf3ae1dd5": {
+              "uv_orientation_density_or_coverage": 2
+            },
+            "0xf2c66b12": {
+              "crossed_uv_islands": 6,
+              "uv_orientation_density_or_coverage": 1
+            },
+            "0xe65df9d3": {
+              "uv_orientation_density_or_coverage": 4,
+              "crossed_uv_islands": 13
+            },
+            "0xe7f80dd5": {
+              "crossed_uv_islands": 4,
+              "uv_orientation_density_or_coverage": 1
+            },
+            "0xe35da937": {
+              "crossed_uv_islands": 2
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf6f063b4",
+              "triangles_before": 2459,
+              "triangles_after": 2459,
+              "error": 0.01965077593922615,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 154
+              }
+            },
+            {
+              "material": "0xf3ae1dd5",
+              "triangles_before": 504,
+              "triangles_after": 504,
+              "error": 0.01965077593922615,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 48
+              }
+            },
+            {
+              "material": "0xf2c66b12",
+              "triangles_before": 148,
+              "triangles_after": 148,
+              "error": 0.01965077593922615,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0xe65df9d3",
+              "triangles_before": 369,
+              "triangles_after": 369,
+              "error": 0.01965077593922615,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe7f80dd5",
+              "triangles_before": 209,
+              "triangles_after": 209,
+              "error": 0.01965077593922615,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0xe35da937",
+              "triangles_before": 10,
+              "triangles_after": 10,
+              "error": 0.01965077593922615,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf1f5a9b1",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.01965077593922615,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1f1572b1",
+              "triangles_before": 52,
+              "triangles_after": 52,
+              "error": 0.01965077593922615,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 2876,
+          "vertices": 6863,
+          "triangles": 3757,
+          "previous_uv_issues": {
+            "0xf6f063b4": {
+              "crossed_uv_islands": 108,
+              "uv_orientation_density_or_coverage": 27
+            },
+            "0xf3ae1dd5": {
+              "crossed_uv_islands": 76,
+              "uv_orientation_density_or_coverage": 11
+            },
+            "0xf2c66b12": {
+              "crossed_uv_islands": 31,
+              "uv_orientation_density_or_coverage": 13
+            },
+            "0xe65df9d3": {
+              "uv_orientation_density_or_coverage": 2,
+              "crossed_uv_islands": 14
+            },
+            "0xe7f80dd5": {
+              "crossed_uv_islands": 6,
+              "uv_orientation_density_or_coverage": 5
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf6f063b4",
+              "triangles_before": 2459,
+              "triangles_after": 2459,
+              "error": 0.02965422347187996,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 149
+              }
+            },
+            {
+              "material": "0xf3ae1dd5",
+              "triangles_before": 504,
+              "triangles_after": 504,
+              "error": 0.02965422347187996,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 58
+              }
+            },
+            {
+              "material": "0xf2c66b12",
+              "triangles_before": 148,
+              "triangles_after": 148,
+              "error": 0.02965422347187996,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0xe65df9d3",
+              "triangles_before": 369,
+              "triangles_after": 369,
+              "error": 0.02965422347187996,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe7f80dd5",
+              "triangles_before": 209,
+              "triangles_after": 209,
+              "error": 0.02965422347187996,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0xe35da937",
+              "triangles_before": 10,
+              "triangles_after": 10,
+              "error": 0.02965422347187996,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf1f5a9b1",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.02965422347187996,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1f1572b1",
+              "triangles_before": 52,
+              "triangles_after": 52,
+              "error": 0.02965422347187996,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "ffa356193194dd083aece1b37dbc44934d8dd7a999d96e119c2442d073142084"
+    },
+    {
+      "file": "SOLAR/MISC/space_large_production.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "9f913adb8c3dcac49e3906642fde3a6eb19d47fd151e3556b8c43bcf38dc4116",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 4679,
+          "vertices": 6342,
+          "triangles": 3755,
+          "previous_uv_issues": {
+            "0xf6f063b4": {
+              "crossed_uv_islands": 126,
+              "uv_orientation_density_or_coverage": 71
+            },
+            "0xf3ae1dd5": {
+              "uv_orientation_density_or_coverage": 2
+            },
+            "0xe65df9d3": {
+              "crossed_uv_islands": 15,
+              "uv_orientation_density_or_coverage": 5
+            },
+            "0xe7f80dd5": {
+              "crossed_uv_islands": 4
+            },
+            "0xe35da937": {
+              "crossed_uv_islands": 2
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf6f063b4",
+              "triangles_before": 2459,
+              "triangles_after": 2459,
+              "error": 0.01965077593922615,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 181
+              }
+            },
+            {
+              "material": "0xf3ae1dd5",
+              "triangles_before": 504,
+              "triangles_after": 504,
+              "error": 0.01965077593922615,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 48
+              }
+            },
+            {
+              "material": "0xf2c66b12",
+              "triangles_before": 148,
+              "triangles_after": 148,
+              "error": 0.01965077593922615,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 5
+              }
+            },
+            {
+              "material": "0xe65df9d3",
+              "triangles_before": 369,
+              "triangles_after": 369,
+              "error": 0.01965077593922615,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0xe7f80dd5",
+              "triangles_before": 209,
+              "triangles_after": 207,
+              "error": 0.01965077593922615,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe35da937",
+              "triangles_before": 10,
+              "triangles_after": 10,
+              "error": 0.01965077593922615,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf1f5a9b1",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.01965077593922615,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1f1572b1",
+              "triangles_before": 52,
+              "triangles_after": 52,
+              "error": 0.01965077593922615,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 2918,
+          "vertices": 6344,
+          "triangles": 3757,
+          "previous_uv_issues": {
+            "0xf6f063b4": {
+              "crossed_uv_islands": 107,
+              "uv_orientation_density_or_coverage": 30
+            },
+            "0xf3ae1dd5": {
+              "crossed_uv_islands": 76,
+              "uv_orientation_density_or_coverage": 11
+            },
+            "0xf2c66b12": {
+              "crossed_uv_islands": 29,
+              "uv_orientation_density_or_coverage": 13
+            },
+            "0xe65df9d3": {
+              "crossed_uv_islands": 10,
+              "uv_orientation_density_or_coverage": 3
+            },
+            "0xe7f80dd5": {
+              "crossed_uv_islands": 5,
+              "uv_orientation_density_or_coverage": 4
+            },
+            "0xe35da937": {
+              "crossed_uv_islands": 2
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf6f063b4",
+              "triangles_before": 2459,
+              "triangles_after": 2459,
+              "error": 0.02965422347187996,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 175
+              }
+            },
+            {
+              "material": "0xf3ae1dd5",
+              "triangles_before": 504,
+              "triangles_after": 504,
+              "error": 0.02965422347187996,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 60
+              }
+            },
+            {
+              "material": "0xf2c66b12",
+              "triangles_before": 148,
+              "triangles_after": 148,
+              "error": 0.02965422347187996,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 5
+              }
+            },
+            {
+              "material": "0xe65df9d3",
+              "triangles_before": 369,
+              "triangles_after": 369,
+              "error": 0.02965422347187996,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 3
+              }
+            },
+            {
+              "material": "0xe7f80dd5",
+              "triangles_before": 209,
+              "triangles_after": 209,
+              "error": 0.02965422347187996,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0xe35da937",
+              "triangles_before": 10,
+              "triangles_after": 10,
+              "error": 0.02965422347187996,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf1f5a9b1",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.02965422347187996,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1f1572b1",
+              "triangles_before": 52,
+              "triangles_after": 52,
+              "error": 0.02965422347187996,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "d80b25777f0da496260872bf2b27d145fc480fd185a31040289c5fba88ed3096"
+    },
+    {
+      "file": "SOLAR/MISC/shipyard_small.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "b3f9e9eabbb2e0e9e86517a2902a626559c0ee49388712277ae70ec5e4e9c4e3",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 1920,
+          "vertices": 2906,
+          "triangles": 1179,
+          "previous_uv_issues": {
+            "0x10cccbfb": {
+              "crossed_uv_islands": 54
+            },
+            "0xe5abadb7": {
+              "crossed_uv_islands": 67,
+              "uv_orientation_density_or_coverage": 8
+            }
+          },
+          "materials": [
+            {
+              "material": "0x10cccbfb",
+              "triangles_before": 420,
+              "triangles_after": 420,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe5abadb7",
+              "triangles_before": 218,
+              "triangles_after": 218,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1364cfe",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x25b4133",
+              "triangles_before": 511,
+              "triangles_after": 511,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 1674,
+          "vertices": 2906,
+          "triangles": 1179,
+          "previous_uv_issues": {
+            "0x10cccbfb": {
+              "crossed_uv_islands": 2
+            },
+            "0xe5abadb7": {
+              "crossed_uv_islands": 68,
+              "uv_orientation_density_or_coverage": 4
+            }
+          },
+          "materials": [
+            {
+              "material": "0x10cccbfb",
+              "triangles_before": 420,
+              "triangles_after": 420,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe5abadb7",
+              "triangles_before": 218,
+              "triangles_after": 218,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1364cfe",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x25b4133",
+              "triangles_before": 511,
+              "triangles_after": 511,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "8bf39bcab7344fc89a908c49f29e0ec0bf94589323d31250999d4601effa3c62"
+    },
+    {
+      "file": "SOLAR/MISC/shipyard_medium.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "729d0b07ef2e96363f6a9c73d1c6a0cbe4bc842c03d915a2ee1b212f14ee0690",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 1906,
+          "vertices": 3052,
+          "triangles": 1179,
+          "previous_uv_issues": {
+            "0x10cccbfb": {
+              "crossed_uv_islands": 54
+            },
+            "0xe5abadb7": {
+              "crossed_uv_islands": 75,
+              "uv_orientation_density_or_coverage": 3
+            }
+          },
+          "materials": [
+            {
+              "material": "0x10cccbfb",
+              "triangles_before": 420,
+              "triangles_after": 420,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe5abadb7",
+              "triangles_before": 218,
+              "triangles_after": 218,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1364cfe",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x25b4133",
+              "triangles_before": 511,
+              "triangles_after": 511,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 1642,
+          "vertices": 3052,
+          "triangles": 1179,
+          "previous_uv_issues": {
+            "0x10cccbfb": {
+              "crossed_uv_islands": 4
+            },
+            "0xe5abadb7": {
+              "crossed_uv_islands": 70,
+              "uv_orientation_density_or_coverage": 4
+            }
+          },
+          "materials": [
+            {
+              "material": "0x10cccbfb",
+              "triangles_before": 420,
+              "triangles_after": 420,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe5abadb7",
+              "triangles_before": 218,
+              "triangles_after": 218,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1364cfe",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x25b4133",
+              "triangles_before": 511,
+              "triangles_after": 511,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "48ee83477a904581d9e50beb66ab9bc0eadf00cce359baec5dc5b3ca062dc95d"
+    },
+    {
+      "file": "SOLAR/MISC/space_domea.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "3afb96cb253e2fda09acb4a4a13c8961807dd6763e47474cc705350d4a753a73",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 850,
+          "vertices": 1161,
+          "triangles": 576,
+          "previous_uv_issues": {
+            "0xf0df7ffe": {
+              "crossed_uv_islands": 7,
+              "uv_orientation_density_or_coverage": 6
+            },
+            "0xfc27e50e": {
+              "crossed_uv_islands": 27,
+              "uv_orientation_density_or_coverage": 15
+            },
+            "0xf79f0a99": {
+              "uv_orientation_density_or_coverage": 1
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.02238527312874794,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 148,
+              "triangles_after": 148,
+              "error": 0.02238527312874794,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 14,
+              "triangles_after": 14,
+              "error": 0.02238527312874794,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf79f0a99",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.02238527312874794,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.02238527312874794,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x12214ce8",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.02238527312874794,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xffba6257",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.02238527312874794,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 746,
+          "vertices": 1139,
+          "triangles": 532,
+          "previous_uv_issues": {
+            "0xf0df7ffe": {
+              "crossed_uv_islands": 7,
+              "uv_orientation_density_or_coverage": 8
+            },
+            "0xfc27e50e": {
+              "crossed_uv_islands": 39,
+              "uv_orientation_density_or_coverage": 19
+            },
+            "0xf79f0a99": {
+              "uv_orientation_density_or_coverage": 1
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.031166523694992065,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 148,
+              "triangles_after": 148,
+              "error": 0.031166523694992065,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 14,
+              "triangles_after": 14,
+              "error": 0.031166523694992065,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf79f0a99",
+              "triangles_before": 160,
+              "triangles_after": 116,
+              "error": 0.031166523694992065,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.031166523694992065,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x12214ce8",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.031166523694992065,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xffba6257",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.031166523694992065,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "e239a1e3a2bddf3786e5e29036da6f07e1905e3f5d170ba7e990eb740bb6f2fc"
+    },
+    {
+      "file": "SOLAR/MISC/space_domeb.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "58818463588b74db6d85935f1131e4113f3dd046ee388cc355772f6af322c96f",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 870,
+          "vertices": 1160,
+          "triangles": 576,
+          "previous_uv_issues": {
+            "0xf0df7ffe": {
+              "crossed_uv_islands": 7,
+              "uv_orientation_density_or_coverage": 6
+            },
+            "0xfc27e50e": {
+              "crossed_uv_islands": 27,
+              "uv_orientation_density_or_coverage": 14
+            },
+            "0xf79f0a99": {
+              "uv_orientation_density_or_coverage": 1
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.02247048169374466,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 148,
+              "triangles_after": 148,
+              "error": 0.02247048169374466,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 14,
+              "triangles_after": 14,
+              "error": 0.02247048169374466,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf79f0a99",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.02247048169374466,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.02247048169374466,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x12214ce8",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.02247048169374466,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xffba6257",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.02247048169374466,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 788,
+          "vertices": 1138,
+          "triangles": 532,
+          "previous_uv_issues": {
+            "0xf0df7ffe": {
+              "crossed_uv_islands": 7,
+              "uv_orientation_density_or_coverage": 8
+            },
+            "0xfc27e50e": {
+              "crossed_uv_islands": 38,
+              "uv_orientation_density_or_coverage": 16
+            },
+            "0xf79f0a99": {
+              "uv_orientation_density_or_coverage": 1
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.031104834750294685,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 148,
+              "triangles_after": 148,
+              "error": 0.031104834750294685,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 14,
+              "triangles_after": 14,
+              "error": 0.031104834750294685,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf79f0a99",
+              "triangles_before": 160,
+              "triangles_after": 116,
+              "error": 0.031104834750294685,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.031104834750294685,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x12214ce8",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.031104834750294685,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xffba6257",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.031104834750294685,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "6595219b4225c07ba33254650ef4873d94cc8f586d6dd643bcff7b21a7673be6"
+    },
+    {
+      "file": "SOLAR/MISC/space_small_control_block.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "3239afed70f36fdf2870c657b55b2fc6e9c86a9bc5b3cb6047dd92110c2ac1f6",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 492,
+          "vertices": 792,
+          "triangles": 400,
+          "previous_uv_issues": {
+            "0xf0df7ffe": {
+              "uv_orientation_density_or_coverage": 20
+            },
+            "0xfc27e50e": {
+              "uv_orientation_density_or_coverage": 41,
+              "crossed_uv_islands": 44
+            },
+            "0xeccb83e1": {
+              "uv_orientation_density_or_coverage": 8
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 80,
+              "triangles_after": 80,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 238,
+              "triangles_after": 238,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe61a4408",
+              "triangles_before": 18,
+              "triangles_after": 18,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 30,
+              "triangles_after": 30,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 2,
+              "triangles_after": 2,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xeccb83e1",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 458,
+          "vertices": 792,
+          "triangles": 400,
+          "previous_uv_issues": {
+            "0xf0df7ffe": {
+              "uv_orientation_density_or_coverage": 24
+            },
+            "0xfc27e50e": {
+              "uv_orientation_density_or_coverage": 47,
+              "crossed_uv_islands": 32
+            },
+            "0xeccb83e1": {
+              "uv_orientation_density_or_coverage": 8
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 80,
+              "triangles_after": 80,
+              "error": 0.030657164752483368,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 238,
+              "triangles_after": 238,
+              "error": 0.030657164752483368,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 9
+              }
+            },
+            {
+              "material": "0xe61a4408",
+              "triangles_before": 18,
+              "triangles_after": 18,
+              "error": 0.030657164752483368,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 30,
+              "triangles_after": 30,
+              "error": 0.030657164752483368,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 2,
+              "triangles_after": 2,
+              "error": 0.030657164752483368,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xeccb83e1",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.030657164752483368,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "e4c6deb6528f8bc2a5527d833d0b11e189c54a17f1d7531c4da7561573219f90"
+    },
+    {
+      "file": "SOLAR/MISC/space_windows.3db",
+      "previous_bundle": "component_lods",
+      "source_sha256": "ba9728aa9ba7faf22435f2c0836cbcea8d0160e4c13044c293bd68e3f01a2288",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 618,
+          "vertices": 938,
+          "triangles": 389,
+          "previous_uv_issues": {
+            "0xf4a6b1a0": {
+              "uv_orientation_density_or_coverage": 3,
+              "crossed_uv_islands": 2
+            },
+            "0x4e810a0": {
+              "uv_orientation_density_or_coverage": 3
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf4a6b1a0",
+              "triangles_before": 60,
+              "triangles_after": 60,
+              "error": 0.001695115934126079,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0x4e810a0",
+              "triangles_before": 306,
+              "triangles_after": 263,
+              "error": 0.001695115934126079,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1097013f",
+              "triangles_before": 66,
+              "triangles_after": 66,
+              "error": 0.001695115934126079,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 448,
+          "vertices": 938,
+          "triangles": 389,
+          "previous_uv_issues": {
+            "0xf4a6b1a0": {
+              "crossed_uv_islands": 9,
+              "uv_orientation_density_or_coverage": 3
+            },
+            "0x4e810a0": {
+              "crossed_uv_islands": 6,
+              "uv_orientation_density_or_coverage": 6
+            },
+            "0x1097013f": {
+              "uv_orientation_density_or_coverage": 6
+            }
+          },
+          "materials": [
+            {
+              "material": "0xf4a6b1a0",
+              "triangles_before": 60,
+              "triangles_after": 60,
+              "error": 0.001695115934126079,
+              "uv_rejected": {
+                "uv_orientation_density_or_coverage": 1
+              }
+            },
+            {
+              "material": "0x4e810a0",
+              "triangles_before": 306,
+              "triangles_after": 263,
+              "error": 0.001695115934126079,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1097013f",
+              "triangles_before": 66,
+              "triangles_after": 66,
+              "error": 0.001695115934126079,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "cc173398767b9a970a0cac99c8f09da64debb427f2a80cb1ddf93869ef5139ff"
+    },
+    {
+      "file": "SOLAR/MISC/space_trade_station_part.3db",
+      "previous_bundle": "generated_station_lods",
+      "source_sha256": "ee09199538784c61f2d41f6bdfb319931b16f9636a27626df9fe26e5df18c5f5",
+      "levels": [
+        {
+          "level": 1,
+          "previous_vertices": 3065,
+          "vertices": 3847,
+          "triangles": 2180,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 70
+            },
+            "0xe63dc03f": {
+              "crossed_uv_islands": 176,
+              "uv_orientation_density_or_coverage": 16
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 624,
+              "triangles_after": 624,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 512,
+              "triangles_after": 512,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 116,
+              "triangles_after": 116,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 568,
+              "triangles_after": 568,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe3f33a5c",
+              "triangles_before": 192,
+              "triangles_after": 192,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 72,
+              "triangles_after": 72,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "previous_vertices": 2684,
+          "vertices": 3847,
+          "triangles": 2180,
+          "previous_uv_issues": {
+            "0xfc27e50e": {
+              "crossed_uv_islands": 76
+            },
+            "0xe63dc03f": {
+              "crossed_uv_islands": 240,
+              "uv_orientation_density_or_coverage": 16
+            },
+            "0x13210c2f": {
+              "uv_orientation_density_or_coverage": 8
+            }
+          },
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 624,
+              "triangles_after": 624,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 512,
+              "triangles_after": 512,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 116,
+              "triangles_after": 116,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 568,
+              "triangles_after": 568,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xe3f33a5c",
+              "triangles_before": 192,
+              "triangles_after": 192,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 96,
+              "error": 0.0,
+              "uv_rejected": {}
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 72,
+              "triangles_after": 72,
+              "error": 0.0,
+              "uv_rejected": {}
+            }
+          ]
+        }
+      ],
+      "output_sha256": "7e1c185b8a7a0264880e0cbea21e71b2239e7e93531d2cbb32cb7fffc8ea2da0"
+    }
+  ],
+  "original_uv_audit": [
+    {
+      "file": "SOLAR/MISC/space_industrial01a.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01a.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01a_alt.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01a_alt.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01b.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01b.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01c.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01c.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01d.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01d.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01e.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01e.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01f.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01f.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01g.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01g.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01h.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01h.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01i.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01i.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01j.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial01j.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial02a.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial02a.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial02b.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial02b.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial02d.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial02d.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial03.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrial03.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industriala.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industriala.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industriala_alt.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industriala_alt.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industriala_alt2.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industriala_alt2.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_industrialc.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_industrial_lods_20261022_114327\\SOLAR\\MISC\\space_industrialc.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_control_tower.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\space_control_tower.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_medium_control_tower.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\space_medium_control_tower.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_production.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\space_production.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_large_production.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\space_large_production.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/shipyard_small.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\shipyard_small.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/shipyard_medium.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\shipyard_medium.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_domea.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\space_domea.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_domeb.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\space_domeb.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_small_control_block.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\space_small_control_block.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_windows.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\space_windows.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_long_large_arch.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\MISC\\space_long_large_arch.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/ASTEROIDS_MOD/DYSON/dyson_box_detail_fixed.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\.before_component_lods_20261022_124307\\SOLAR\\ASTEROIDS_MOD\\DYSON\\dyson_box_detail_fixed.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_trade_station_part.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\SOLAR\\MISC\\.before_trade_station_lods_20261022_110538\\space_trade_station_part.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_panel_rotated.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\SOLAR\\MISC\\.before_panel_normals_20261022_002831\\space_panel_rotated.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_panel45.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\SOLAR\\MISC\\.before_panel_normals_20261022_002831\\space_panel45.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_panel_Z90.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\SOLAR\\MISC\\.before_panel_normals_20261022_002831\\space_panel_Z90.3db",
+      "near_uv_verified": true
+    },
+    {
+      "file": "SOLAR/MISC/space_panel.3db",
+      "original": "D:\\games\\FL_MOD\\DATA\\SOLAR\\MISC\\.before_or_hq_panel_normals_20261022_103115\\space_panel.3db",
+      "near_uv_verified": true
+    }
+  ],
+  "configs_changed": false
+}

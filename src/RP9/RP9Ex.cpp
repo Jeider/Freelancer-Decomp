@@ -788,6 +788,10 @@ void FDirectX9::ExReleaseAllGpu()
         Ex->SoftPs->Release();
         Ex->SoftPs = nullptr;
     }
+    if (Ex->AtmosphereVs != nullptr) { Ex->AtmosphereVs->Release(); Ex->AtmosphereVs = nullptr; }
+    if (Ex->AtmospherePs != nullptr) { Ex->AtmospherePs->Release(); Ex->AtmospherePs = nullptr; }
+    if (Ex->PlanetVs != nullptr) { Ex->PlanetVs->Release(); Ex->PlanetVs = nullptr; }
+    if (Ex->PlanetPs != nullptr) { Ex->PlanetPs->Release(); Ex->PlanetPs = nullptr; }
     for (size_t Index = 0; Index < Ex->Programs.size(); ++Index)
         ReleaseProgramShaders(Ex->Programs[Index]);
     for (size_t Index = 0; Index < Ex->Textures.size(); ++Index)
@@ -1599,6 +1603,596 @@ void FDirectX9::ExSoftEnd()
     Rp9SetPixelShader(Device_, nullptr);
     ExRestoreStage(1, &Ex->SoftSavedStage1);
     Device_->SetDepthStencilSurface(Ex->SceneDepth.Surface);
+}
+
+// ---- planet atmosphere --------------------------------------------------------------------
+
+static std::string LowerString(std::string Text)
+{
+    for (size_t I = 0; I < Text.size(); ++I)
+        Text[I] = (char)tolower((unsigned char)Text[I]);
+    return Text;
+}
+
+// A port.ini [Render] string (next to the exe), lowercased.
+static std::string ReadLowerRenderString(const char* Key, const char* Default)
+{
+    char Path[MAX_PATH] = {};
+    char Text[256] = {};
+    const DWORD Length = GetModuleFileNameA(nullptr, Path, MAX_PATH);
+    char* Slash = Length != 0 && Length < MAX_PATH ? strrchr(Path, '\\') : nullptr;
+    if (Slash != nullptr)
+    {
+        strcpy(Slash + 1, "port.ini");
+        GetPrivateProfileStringA("Render", Key, Default, Text, sizeof(Text), Path);
+    }
+    else
+        strcpy(Text, Default);
+    return LowerString(Text);
+}
+
+// True when the (lowercased) name contains any part of the comma-separated list.
+static bool NameExcluded(const std::string& LowerName, const std::string& List)
+{
+    size_t Begin = 0;
+    while (Begin <= List.size())
+    {
+        size_t End = List.find(',', Begin);
+        if (End == std::string::npos)
+            End = List.size();
+        const std::string Part = List.substr(Begin, End - Begin);
+        if (!Part.empty() && LowerName.find(Part) != std::string::npos)
+            return true;
+        Begin = End + 1;
+    }
+    return false;
+}
+
+// Reads a shader file of DATA_EXTRA/SHADERS (next to the exe's folder) and creates both stages.
+bool FDirectX9::ExCompileShaderPair(const char* File, IDirect3DVertexShader9** Vs, IDirect3DPixelShader9** Ps,
+                                    const char* VsEntry, const char* PsEntry)
+{
+    char Module[MAX_PATH] = {};
+    GetModuleFileNameA(nullptr, Module, MAX_PATH);
+    char* Slash = strrchr(Module, '\\');
+    if (Slash == nullptr)
+        return false;
+    Slash[1] = 0;
+    const std::string Path = std::string(Module) + "../DATA_EXTRA/SHADERS/" + File;
+    std::string Source;
+    FILE* Handle = fopen(Path.c_str(), "rb");
+    if (Handle != nullptr)
+    {
+        char B[4096];
+        size_t N;
+        while ((N = fread(B, 1, sizeof(B), Handle)) != 0)
+            Source.append(B, N);
+        fclose(Handle);
+    }
+    std::vector<unsigned char> VsCode, PsCode;
+    bool bOk = !Source.empty() && CompileStage(Source, Path, nullptr, VsEntry, "vs_3_0", &VsCode) &&
+               CompileStage(Source, Path, nullptr, PsEntry, "ps_3_0", &PsCode);
+    if (bOk && *Vs == nullptr)
+        bOk = SUCCEEDED(Device_->CreateVertexShader((const DWORD*)(&VsCode[0]), Vs));
+    if (bOk && *Ps == nullptr)
+        bOk = SUCCEEDED(Device_->CreatePixelShader((const DWORD*)(&PsCode[0]), Ps));
+    return bOk;
+}
+
+// The sun: the brightest light by luminance (directional first, then point by range), as a
+// view-space direction from Centre. False (and *Direction towards the camera) without a light.
+bool FDirectX9::ExPickSun(const D3DXVECTOR3& Centre, D3DXVECTOR3* Direction, D3DLIGHT9* Light,
+                          unsigned* LightCount)
+{
+    D3DLIGHT9 Lights[8];
+    const unsigned Count = ExCollectSurfaceLights(Lights, 8);
+    if (LightCount != nullptr)
+        *LightCount = Count;
+    D3DXMATRIX View;
+    memcpy(&View, Transforms_.View.Values, sizeof(View));
+    float BestScore = 0.0f;
+    bool bHaveSun = false;
+    for (unsigned I = 0; I < Count; ++I)
+    {
+        const D3DLIGHT9& L = Lights[I];
+        const float Lum = 0.3f * L.Diffuse.r + 0.59f * L.Diffuse.g + 0.11f * L.Diffuse.b;
+        if (Lum <= 0.0f)
+            continue;
+        D3DXVECTOR3 Dir;
+        float Score;
+        if (L.Type == D3DLIGHT_DIRECTIONAL)
+        {
+            D3DXVECTOR3 N;
+            D3DXVec3TransformNormal(&N, reinterpret_cast<const D3DXVECTOR3*>(&L.Direction), &View);
+            const D3DXVECTOR3 Neg(-N.x, -N.y, -N.z);
+            D3DXVec3Normalize(&Dir, &Neg);
+            Score = 1e30f * Lum;
+        }
+        else
+        {
+            D3DXVECTOR3 Pos;
+            D3DXVec3TransformCoord(&Pos, reinterpret_cast<const D3DXVECTOR3*>(&L.Position), &View);
+            const D3DXVECTOR3 V = Pos - Centre;
+            const float Dist = D3DXVec3Length(&V);
+            if (Dist <= 0.0f)
+                continue;
+            Dir = V / Dist;
+            Score = Lum * (L.Range <= 0.0f || L.Range >= Dist ? L.Range + 1.0f : 0.001f);
+        }
+        if (!bHaveSun || Score > BestScore)
+        {
+            bHaveSun = true;
+            BestScore = Score;
+            *Direction = Dir;
+            *Light = L;
+        }
+    }
+    if (!bHaveSun)
+    {
+        // No light: towards the camera.
+        const D3DXVECTOR3 Back(-Centre.x, -Centre.y, -Centre.z);
+        D3DXVec3Normalize(Direction, &Back);
+    }
+    return bHaveSun;
+}
+
+GENRESULT DACOM_API FDirectX9::SetPlanetAtmosphere(const FRPPlanetAtmosphere* Desc)
+{
+    FRp9ExState* Ex = Ex_;
+    if (!Ex->bAtmosphereConfigRead)
+    {
+        Ex->bAtmosphereConfigRead = true;
+        Ex->bAtmosphereEnabled = ReadShadowSetting("planet_atmosphere", 1, 0, 1) > 0.5f;
+        Ex->AtmosphereThickness = ReadShadowSetting("atmosphere_thickness", 0.06f, 0.005f, 0.3f);
+        Ex->AtmosphereBrightness = ReadShadowSetting("atmosphere_brightness", 0.9f, 0.0f, 4.0f);
+        Ex->AtmosphereHaze = ReadShadowSetting("atmosphere_haze", 0.12f, 0.0f, 1.0f);
+        Ex->AtmosphereRim = ReadShadowSetting("atmosphere_rim", 2.5f, 0.5f, 8.0f);
+        Ex->AtmosphereFalloff = ReadShadowSetting("atmosphere_falloff", 3.0f, 0.0f, 10.0f);
+        Ex->AtmosphereWrap = ReadShadowSetting("atmosphere_wrap", 0.3f, 0.0f, 1.0f);
+        Ex->AtmosphereForward = ReadShadowSetting("atmosphere_forward", 1.5f, 0.0f, 5.0f);
+        Ex->AtmosphereWarmth = ReadShadowSetting("atmosphere_warmth", 0.5f, 0.0f, 1.0f);
+        Ex->AtmosphereVeil = ReadShadowSetting("atmosphere_veil", 0.5f, 0.0f, 1.0f);
+        Ex->AtmosphereExclude = ReadLowerRenderString("atmosphere_exclude", "sw_center,bh_,blackhole");
+        ExLogf(kExFdumpNotice, "NOTICE", __LINE__,
+               "planet atmosphere: %s, thickness %.3f brightness %.2f haze %.2f rim %.2f falloff %.2f wrap %.2f "
+               "forward %.2f warmth %.2f veil %.2f exclude \"%s\"",
+               Ex->bAtmosphereEnabled ? "on" : "off", (double)(Ex->AtmosphereThickness),
+               (double)(Ex->AtmosphereBrightness), (double)(Ex->AtmosphereHaze), (double)(Ex->AtmosphereRim),
+               (double)(Ex->AtmosphereFalloff), (double)(Ex->AtmosphereWrap), (double)(Ex->AtmosphereForward),
+               (double)(Ex->AtmosphereWarmth), (double)(Ex->AtmosphereVeil), Ex->AtmosphereExclude.c_str());
+    }
+    if (Desc == nullptr)
+    {
+        Ex->bAtmosphereRequested = false;
+        return GR_OK;
+    }
+    Ex->AtmosphereDesc = *Desc;
+    Ex->AtmosphereName = Desc->Name != nullptr ? Desc->Name : "";
+    Ex->AtmosphereDesc.Name = Ex->AtmosphereName.c_str();
+    const bool bExcluded = NameExcluded(LowerString(Ex->AtmosphereName), Ex->AtmosphereExclude);
+    Ex->bAtmosphereRequested = Ex->bAtmosphereEnabled && !Ex->bAtmosphereFailed && !bExcluded &&
+                               Desc->MeshRadius > 0.0f && Desc->Scale > 0.0f;
+    return GR_OK;
+}
+
+bool FDirectX9::ExAtmosphereBegin()
+{
+    FRp9ExState* Ex = Ex_;
+    if (Ex == nullptr || Device_ == nullptr || !Ex->bAtmosphereRequested || Ex->bShadowDrawing || Ex->bInPass ||
+        Ex->bSoftActive || Ex->bSurfaceActive)
+        return false;
+    unsigned long Fvf = StreamCache_.Fvf;
+    if (Fvf == 0 && StreamCache_.VertexBuffer != nullptr)
+        Fvf = StreamCache_.VertexBuffer->Fvf;
+    if ((Fvf & D3DFVF_POSITION_MASK) != D3DFVF_XYZ)
+        return false;
+
+    if ((Ex->AtmosphereVs == nullptr || Ex->AtmospherePs == nullptr) &&
+        !ExCompileShaderPair("planet_atmosphere.hlsl", &Ex->AtmosphereVs, &Ex->AtmospherePs))
+    {
+        ExLogf(kExFdumpError, "ERROR", __LINE__, "planet atmosphere: shader unavailable, off");
+        Ex->bAtmosphereFailed = true;
+        return false;
+    }
+    // Queued instanced surface draws must go out before these shaders are bound.
+    ExFlushSurfaceInstances();
+
+    const FRPPlanetAtmosphere& A = Ex->AtmosphereDesc;
+    float WV[16];
+    MulMatrix4(Transforms_.World.Values, Transforms_.View.Values, WV);
+    const D3DXVECTOR3 C(WV[12], WV[13], WV[14]);
+    const float STotal = std::sqrt(WV[0] * WV[0] + WV[1] * WV[1] + WV[2] * WV[2]);
+    const float Inner = A.MeshRadius * STotal / A.Scale;
+    const float Outer = Inner * (1.0f + Ex->AtmosphereThickness);
+
+    D3DXVECTOR3 SunDir(0, 0, 0);
+    D3DLIGHT9 Sun;
+    unsigned Count = 0;
+    float SunColour[3] = {1.0f, 1.0f, 1.0f};
+    if (ExPickSun(C, &SunDir, &Sun, &Count))
+    {
+        const float Max = (std::max)(Sun.Diffuse.r, (std::max)(Sun.Diffuse.g, Sun.Diffuse.b));
+        if (Max > 0.0f)
+        {
+            SunColour[0] = Sun.Diffuse.r / Max;
+            SunColour[1] = Sun.Diffuse.g / Max;
+            SunColour[2] = Sun.Diffuse.b / Max;
+        }
+    }
+
+    // The atmosphere colour: the material tint with its brightest channel at 1.
+    float T[3] = {A.Tint[0], A.Tint[1], A.Tint[2]};
+    float M = (std::max)(T[0], (std::max)(T[1], T[2]));
+    if (M <= 0.01f)
+    {
+        T[0] = 0.6f;
+        T[1] = 0.8f;
+        T[2] = 1.0f;
+        M = 1.0f;
+    }
+    const float Density = (std::min)(1.5f, (std::max)(0.5f, A.Alpha / 0.6f));
+
+    const float Span = Outer - Inner;
+    float VsConstants[36];
+    memcpy(&VsConstants[0], WV, sizeof(float) * 16);
+    memcpy(&VsConstants[16], Transforms_.Projection.Values, sizeof(float) * 16);
+    VsConstants[32] = C.x;
+    VsConstants[33] = C.y;
+    VsConstants[34] = C.z;
+    VsConstants[35] = Outer * 1.03f;
+    const float* P = Transforms_.Projection.Values;
+    const float PsConstants[36] = {
+        C.x, C.y, C.z, Inner,
+        Outer, 1.0f / Span, VsConstants[35], 0.0f,
+        SunDir.x, SunDir.y, SunDir.z, Ex->AtmosphereBrightness * Density,
+        T[0] / M, T[1] / M, T[2] / M, 0.0f,
+        Ex->AtmosphereHaze, Ex->AtmosphereRim, Ex->AtmosphereFalloff, Ex->AtmosphereWrap,
+        SunColour[0], SunColour[1], SunColour[2], 1.0f,
+        Ex->AtmosphereForward, Ex->AtmosphereWarmth, Ex->AtmosphereVeil, 0.0f,
+        // The projection's z and w columns: the shader writes the depth of the point it shades.
+        P[2], P[6], P[10], P[14],
+        P[3], P[7], P[11], P[15],
+    };
+    Rp9SetVertexShader(Device_, Ex->AtmosphereVs);
+    Rp9SetPixelShader(Device_, Ex->AtmospherePs);
+    Rp9SetVertexConstants(Device_, 0, VsConstants, 9);
+    Rp9SetPixelConstants(Device_, 0, PsConstants, 9);
+    Rp9SetRenderState(Device_, D3DRS_ALPHABLENDENABLE, TRUE);
+    Rp9SetRenderState(Device_, D3DRS_SRCBLEND, D3DBLEND_ONE);
+    Rp9SetRenderState(Device_, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+    Rp9SetRenderState(Device_, D3DRS_ALPHATESTENABLE, FALSE);
+    Rp9SetRenderState(Device_, D3DRS_CULLMODE, D3DCULL_NONE);
+    Rp9SetRenderState(Device_, D3DRS_FOGENABLE, FALSE);
+
+    if (Ex->AtmosphereLogged.size() < 64 && Ex->AtmosphereLogged.insert(Ex->AtmosphereName).second)
+        ExLogf(kExFdumpNotice, "NOTICE", __LINE__,
+               "planet atmosphere: %s inner %.0f outer %.0f mesh %.2f scale %.3f lights %u sun (%.2f %.2f %.2f)",
+               Ex->AtmosphereName.c_str(), (double)(Inner), (double)(Outer), (double)(A.MeshRadius),
+               (double)(A.Scale), Count, (double)(SunDir.x), (double)(SunDir.y), (double)(SunDir.z));
+    Ex->bAtmosphereActive = true;
+    return true;
+}
+
+void FDirectX9::ExAtmosphereEnd()
+{
+    FRp9ExState* Ex = Ex_;
+    if (Ex == nullptr || !Ex->bAtmosphereActive)
+        return;
+    Ex->bAtmosphereActive = false;
+    Rp9SetVertexShader(Device_, nullptr);
+    Rp9SetPixelShader(Device_, nullptr);
+    // Back to what RP9's pending state says, so its cache stays truthful.
+    Rp9SetRenderState(Device_, D3DRS_ALPHABLENDENABLE, RenderStates_.GetPending(27));
+    Rp9SetRenderState(Device_, D3DRS_SRCBLEND, RenderStates_.GetPending(19));
+    Rp9SetRenderState(Device_, D3DRS_DESTBLEND, RenderStates_.GetPending(20));
+    Rp9SetRenderState(Device_, D3DRS_ALPHATESTENABLE, RenderStates_.GetPending(15));
+    Rp9SetRenderState(Device_, D3DRS_CULLMODE, RenderStates_.GetPending(22));
+    Rp9SetRenderState(Device_, D3DRS_FOGENABLE, RenderStates_.GetPending(28));
+}
+
+// ---- planet surface -----------------------------------------------------------------------
+
+// What a planet material layer is, from its detail map name: water (glint where the colour is
+// water-like), relief strength and elevation (how far the layer stands above the others).
+struct FPlanetLayer
+{
+    float Water, Relief, Elevation, Ice = 0.0f;
+};
+
+static FPlanetLayer ClassifyPlanetLayer(const std::string& Detail, bool bWaterAllowed)
+{
+    if (Detail.find("ocean") != std::string::npos)
+        return {bWaterAllowed ? 1.0f : 0.0f, 1.0f, 0.0f}; // relief only where it is not wet
+    if (Detail.find("gas") != std::string::npos)
+        return {0.0f, 0.0f, 0.0f};
+    if (Detail.find("cloud") != std::string::npos)
+        return {0.0f, 0.15f, 0.2f};
+    if (Detail.find("crater") != std::string::npos)
+        return {0.0f, 1.6f, 0.8f};
+    if (Detail.find("rock") != std::string::npos)
+        return {0.0f, 1.5f, 0.8f};
+    if (Detail.find("ice") != std::string::npos)
+        return {0.0f, 2.0f, 0.5f, 1.0f};
+    if (Detail.find("grass") != std::string::npos)
+        return {0.0f, 0.6f, 0.3f};
+    if (Detail.find("city") != std::string::npos)
+        return {0.0f, 0.5f, 0.3f};
+    return {0.0f, 1.0f, 0.4f}; // ground and anything else
+}
+
+GENRESULT DACOM_API FDirectX9::SetPlanetSurface(const FRPPlanetSurface* Desc)
+{
+    FRp9ExState* Ex = Ex_;
+    if (!Ex->bPlanetConfigRead)
+    {
+        Ex->bPlanetConfigRead = true;
+        Ex->bPlanetEnabled = ReadShadowSetting("planet_surface", 1, 0, 1) > 0.5f;
+        Ex->PlanetRelief = ReadShadowSetting("planet_relief", 6.0f, 0.0f, 30.0f);
+        Ex->PlanetGlint = ReadShadowSetting("planet_glint", 10.0f, 0.0f, 50.0f);
+        Ex->PlanetGlintRoughness = ReadShadowSetting("planet_glint_roughness", 0.13f, 0.02f, 1.0f);
+        Ex->PlanetGlintFresnel = ReadShadowSetting("planet_glint_fresnel", 0.02f, 0.0f, 1.0f);
+        Ex->PlanetCloud = ReadShadowSetting("planet_cloud_threshold", 0.45f, 0.0f, 1.0f);
+        Ex->PlanetWrap = ReadShadowSetting("planet_terminator_wrap", 0.05f, 0.0f, 1.0f);
+        Ex->PlanetDetailRelief = ReadShadowSetting("planet_detail_relief", 1.0f, 0.0f, 10.0f);
+        Ex->PlanetShadows = ReadShadowSetting("planet_terrain_shadows", 8.0f, 0.0f, 50.0f);
+        Ex->PlanetSeam = ReadShadowSetting("planet_seam_blend", 0.01f, 0.0f, 0.1f);
+        Ex->PlanetGasFlow = ReadShadowSetting("gas_flow", 1.0f, 0.0f, 10.0f);
+        Ex->PlanetGasTurbulence = ReadShadowSetting("gas_turbulence", 1.0f, 0.0f, 10.0f);
+        Ex->PlanetGasStorms = ReadShadowSetting("gas_storms", 1.0f, 0.0f, 3.0f);
+        Ex->PlanetSwirlList = ReadLowerRenderString("gas_swirl_planets", "gasyelcld");
+        Ex->PlanetCityLights = ReadShadowSetting("planet_city_lights", 0.6f, 0.0f, 1.0f);
+        Ex->PlanetLavaPulse = ReadShadowSetting("planet_lava_pulse", 1.0f, 0.0f, 1.0f);
+        Ex->PlanetIceSheen = ReadShadowSetting("planet_ice_sheen", 0.6f, 0.0f, 4.0f);
+        Ex->PlanetAirless = ReadShadowSetting("planet_airless", 1.0f, 0.0f, 1.0f);
+        QueryPerformanceFrequency(&Ex->PlanetClockFrequency);
+        QueryPerformanceCounter(&Ex->PlanetClockStart);
+        Ex->PlanetExclude = ReadLowerRenderString("planet_surface_exclude", "sw_center,bh_,blackhole,neutron");
+        ExLogf(kExFdumpNotice, "NOTICE", __LINE__,
+               "planet surface: %s, relief %.2f detail %.2f shadows %.2f glint %.2f roughness %.2f fresnel %.3f "
+               "clouds %.2f wrap %.2f exclude \"%s\"",
+               Ex->bPlanetEnabled ? "on" : "off", (double)(Ex->PlanetRelief), (double)(Ex->PlanetDetailRelief),
+               (double)(Ex->PlanetShadows), (double)(Ex->PlanetGlint),
+               (double)(Ex->PlanetGlintRoughness), (double)(Ex->PlanetGlintFresnel), (double)(Ex->PlanetCloud),
+               (double)(Ex->PlanetWrap), Ex->PlanetExclude.c_str());
+    }
+    Ex->bPlanetRequested = false;
+    if (Desc == nullptr)
+        return GR_OK;
+    if (!Ex->bPlanetEnabled || Ex->bPlanetFailed || Device_ == nullptr || Desc->Mode > 3)
+        return GR_GENERIC;
+    Ex->PlanetName = Desc->Name != nullptr ? Desc->Name : "";
+    const std::string Lower = LowerString(Ex->PlanetName);
+    if (NameExcluded(Lower, Ex->PlanetExclude))
+        return GR_GENERIC;
+    // Compiled here, outside a draw, so that a successful Set means the draw will be ours.
+    if ((Ex->PlanetVs == nullptr || Ex->PlanetPs == nullptr) &&
+        !ExCompileShaderPair("planet_surface.hlsl", &Ex->PlanetVs, &Ex->PlanetPs))
+    {
+        ExLogf(kExFdumpError, "ERROR", __LINE__, "planet surface: shader unavailable, off");
+        Ex->bPlanetFailed = true;
+        return GR_GENERIC;
+    }
+    // The family is the name after "planet_": gas* giants get no relief. Layer 0 is detail map 0;
+    // layer 1 is detail map 1 under the white mask (Masked2 only: elsewhere detail map 1 is the
+    // glow layer or absent). A DetailMapMaterial "ocean" detail is water only on wat* worlds
+    // (desert uses it for sand); the shader also checks that the colour looks like water.
+    const std::string Family = Lower.compare(0, 7, "planet_") == 0 ? Lower.substr(7) : Lower;
+    const bool bGas = Family.compare(0, 3, "gas") == 0;
+    const bool bSingleLayer = Desc->Mode == 0 || Desc->Mode == 3;
+    const bool bWaterAllowed = !bSingleLayer || Family.compare(0, 3, "wat") == 0;
+    const FPlanetLayer Layer0 = ClassifyPlanetLayer(LowerString(Desc->Detail0 != nullptr ? Desc->Detail0 : ""),
+                                                    bWaterAllowed);
+    const FPlanetLayer Layer1 = Desc->Mode == 1 ?
+        ClassifyPlanetLayer(LowerString(Desc->Detail1 != nullptr ? Desc->Detail1 : ""), bWaterAllowed) : Layer0;
+    Ex->PlanetMode = Desc->Mode;
+    Ex->PlanetWater = (Layer0.Water > 0.0f ? 1 : 0) | (Layer1.Water > 0.0f ? 2 : 0);
+    Ex->PlanetLayers[0] = Layer0.Water;
+    Ex->PlanetLayers[1] = bGas ? 0.0f : Layer0.Relief;
+    Ex->PlanetLayers[2] = Layer1.Water;
+    Ex->PlanetLayers[3] = bGas ? 0.0f : Layer1.Relief;
+    Ex->PlanetElevation[0] = Layer0.Elevation;
+    Ex->PlanetElevation[1] = Layer1.Elevation;
+    Ex->PlanetReliefNow = bGas ? 0.0f : Ex->PlanetRelief;
+    // Gas giant sides animate (caps stay as painted, the jets and eddies fade out before them).
+    // The storms come from the planet's own name: same planet, same storms, on every material.
+    // Gas giants animate within each part (side or cap): the deformation fades out towards the
+    // part's uv edges, so the seams stay exactly as painted. gas_swirl_planets name the chaotic
+    // ones (by family, "gasyelcld" for planet_gasyelcld_side1) that churn in place instead of
+    // flowing in bands.
+    Ex->bPlanetGas = bGas && bSingleLayer;
+    Ex->bPlanetSwirl = Ex->bPlanetGas && NameExcluded(Family.substr(0, Family.find('_')), Ex->PlanetSwirlList);
+    memset(Ex->PlanetStorms, 0, sizeof(Ex->PlanetStorms));
+    if (Ex->bPlanetGas && Ex->PlanetGasStorms > 0.0f)
+    {
+        const std::string Planet = Family.substr(0, Family.find('_'));
+        unsigned Seed = 2166136261u;
+        for (size_t I = 0; I < Planet.size(); ++I)
+            Seed = (Seed ^ (unsigned char)Planet[I]) * 16777619u;
+        auto Next = [&Seed]() {
+            Seed = Seed * 1664525u + 1013904223u;
+            return (float)((Seed >> 8) & 0xffffff) / 16777216.0f;
+        };
+        const float Pi = 3.14159265f;
+        const float Turn = Next() < 0.5f ? 1.0f : -1.0f;
+        // The great spot: southern mid-latitudes, ~15 degrees across; then two small white ovals.
+        const float Great[4] = {Next() * 2 * Pi - Pi, -(0.3f + 0.15f * Next()), 0.22f + 0.08f * Next(),
+                                Turn * (4.0f + Next())};
+        const float Oval1[4] = {Next() * 2 * Pi - Pi, 0.45f + 0.2f * Next(), 0.06f + 0.03f * Next(),
+                                -Turn * (2.5f + Next())};
+        const float Oval2[4] = {Next() * 2 * Pi - Pi, -(0.65f + 0.15f * Next()), 0.05f + 0.02f * Next(),
+                                Turn * (2.5f + Next())};
+        memcpy(&Ex->PlanetStorms[0], Great, sizeof(Great));
+        memcpy(&Ex->PlanetStorms[4], Oval1, sizeof(Oval1));
+        memcpy(&Ex->PlanetStorms[8], Oval2, sizeof(Oval2));
+        for (int I = 0; I < 3; ++I)
+            Ex->PlanetStorms[I * 4 + 3] *= 2.0f * Ex->PlanetGasStorms;
+    }
+    Ex->PlanetGlintNow = Ex->PlanetWater != 0 ? Ex->PlanetGlint : 0.0f;
+    Ex->PlanetTile0 = Desc->TileRate0;
+    Ex->PlanetTile1 = Desc->TileRate1;
+    // The glow layer (IllumDetailMapMaterial's detail map 1): city lights come on at night, lava
+    // burns brighter at night and pulses; anything else keeps the retail always-on glow.
+    const std::string Glow = LowerString(Desc->Mode == 2 && Desc->Detail1 != nullptr ? Desc->Detail1 : "");
+    const bool bCity = Glow.find("city") != std::string::npos || Glow.find("glow") != std::string::npos;
+    const bool bLava = Glow.find("lava") != std::string::npos;
+    Ex->PlanetGlow[0] = bCity ? 1.2f : (bLava ? 1.3f : 1.0f);
+    Ex->PlanetGlow[1] = bCity ? Ex->PlanetCityLights : (bLava ? 0.5f : 0.0f);
+    Ex->PlanetGlow[3] = bLava ? Ex->PlanetLavaPulse : 0.0f;
+    // Airless bodies light like the Moon; ice layers get a soft sheen.
+    const std::string Detail0 = LowerString(Desc->Detail0 != nullptr ? Desc->Detail0 : "");
+    const bool bAirless = Family.compare(0, 4, "moon") == 0 || Family.compare(0, 7, "mercury") == 0 ||
+                          Family.compare(0, 6, "crater") == 0 || Detail0.find("crater") != std::string::npos;
+    Ex->PlanetSurface[0] = bAirless ? Ex->PlanetAirless : 0.0f;
+    Ex->PlanetSurface[1] = Ex->PlanetIceSheen;
+    Ex->PlanetSurface[2] = Layer0.Ice;
+    Ex->PlanetSurface[3] = Layer1.Ice;
+    if (Ex->PlanetLogged.size() < 128 && Ex->PlanetLogged.insert(Ex->PlanetName).second)
+        ExLogf(kExFdumpNotice, "NOTICE", __LINE__,
+               "planet surface: %s mode %lu water layers %lu relief %.2f/%.2f elevation %.2f/%.2f detail %s / %s "
+               "tile %.2f %.2f",
+               Ex->PlanetName.c_str(), Ex->PlanetMode, Ex->PlanetWater, (double)(Ex->PlanetLayers[1]),
+               (double)(Ex->PlanetLayers[3]), (double)(Layer0.Elevation), (double)(Layer1.Elevation),
+               Desc->Detail0 != nullptr ? Desc->Detail0 : "", Desc->Detail1 != nullptr ? Desc->Detail1 : "",
+               (double)(Desc->TileRate0), (double)(Desc->TileRate1));
+    Ex->bPlanetRequested = true;
+    return GR_OK;
+}
+
+bool FDirectX9::ExPlanetSurfaceBegin()
+{
+    FRp9ExState* Ex = Ex_;
+    if (Ex == nullptr || Device_ == nullptr || !Ex->bPlanetRequested || Ex->bShadowDrawing || Ex->bInPass ||
+        Ex->bSoftActive || Ex->bSurfaceActive || Ex->bAtmosphereActive || Ex->PlanetVs == nullptr ||
+        Ex->PlanetPs == nullptr)
+        return false;
+    unsigned long Fvf = StreamCache_.Fvf;
+    if (Fvf == 0 && StreamCache_.VertexBuffer != nullptr)
+        Fvf = StreamCache_.VertexBuffer->Fvf;
+    if ((Fvf & D3DFVF_POSITION_MASK) != D3DFVF_XYZ || !(Fvf & D3DFVF_NORMAL) ||
+        ((Fvf & D3DFVF_TEXCOUNT_MASK) >> D3DFVF_TEXCOUNT_SHIFT) == 0)
+        return false;
+    // The base map's size spaces the relief taps.
+    if (!DeviceStates_.TextureBindings[0].bValid)
+        return false;
+    IDirect3DBaseTexture9* BaseTexture = PipelineTextureFromHandle(DeviceStates_.TextureBindings[0].Handle);
+    if (BaseTexture == nullptr || BaseTexture->GetType() != D3DRTYPE_TEXTURE)
+        return false;
+    D3DSURFACE_DESC BaseDesc;
+    if (FAILED(static_cast<IDirect3DTexture9*>(BaseTexture)->GetLevelDesc(0, &BaseDesc)) || BaseDesc.Width == 0 ||
+        BaseDesc.Height == 0)
+        return false;
+    // Queued instanced surface draws must go out before these shaders are bound.
+    ExFlushSurfaceInstances();
+
+    float VsConstants[32];
+    MulMatrix4(Transforms_.World.Values, Transforms_.View.Values, VsConstants);
+    memcpy(&VsConstants[16], Transforms_.Projection.Values, sizeof(float) * 16);
+    const D3DXVECTOR3 C(VsConstants[12], VsConstants[13], VsConstants[14]);
+
+    D3DMATERIAL9 Mat = {};
+    if (Ex->bSurfaceMaterialValid)
+        Mat = Ex->SurfaceMaterial;
+    else
+    {
+        Mat.Diffuse.r = Mat.Diffuse.g = Mat.Diffuse.b = Mat.Diffuse.a = 1.0f;
+        Mat.Ambient.r = Mat.Ambient.g = Mat.Ambient.b = Mat.Ambient.a = 1.0f;
+    }
+    D3DXVECTOR3 SunDir(0, 0, 0);
+    D3DLIGHT9 Sun = {};
+    Sun.Diffuse.r = Sun.Diffuse.g = Sun.Diffuse.b = 1.0f;
+    ExPickSun(C, &SunDir, &Sun);
+    // Ambient as the fixed-function pipeline sums it: the material ambient times the global
+    // ambient and every light's ambient, plus the material emissive.
+    D3DLIGHT9 Lights[8];
+    const unsigned Count = ExCollectSurfaceLights(Lights, 8);
+    const unsigned long AmbientState = RenderStates_.GetPending(D3DRS_AMBIENT);
+    float Ambient[3] = {((AmbientState >> 16) & 255) / 255.0f, ((AmbientState >> 8) & 255) / 255.0f,
+                        (AmbientState & 255) / 255.0f};
+    for (unsigned I = 0; I < Count; ++I)
+    {
+        Ambient[0] += Lights[I].Ambient.r;
+        Ambient[1] += Lights[I].Ambient.g;
+        Ambient[2] += Lights[I].Ambient.b;
+    }
+    unsigned long FogMode = RenderStates_.GetPending(kRsFogTableMode);
+    if (FogMode == D3DFOG_NONE)
+        FogMode = RenderStates_.GetPending(kRsFogVertexMode);
+    if (!RenderStates_.GetPending(kRsFogEnable))
+        FogMode = 0;
+    const unsigned long FogColour = RenderStates_.GetPending(kRsFogColor);
+    // Animation clock: seconds since the first planet, wrapped well before float precision fades.
+    LARGE_INTEGER Now;
+    QueryPerformanceCounter(&Now);
+    const double Seconds = Ex->PlanetClockFrequency.QuadPart > 0 ?
+        (double)(Now.QuadPart - Ex->PlanetClockStart.QuadPart) / (double)Ex->PlanetClockFrequency.QuadPart : 0.0;
+    const float Clock = (float)fmod(Seconds, 16384.0);
+    // Banded giants: jets and moderate eddies; swirl giants: no jets, larger and stronger eddies.
+    const float JetSpeed = Ex->bPlanetSwirl ? 0.0f : 0.012f * Ex->PlanetGasFlow;
+    const float EddySpeed = (Ex->bPlanetSwirl ? 0.005f : 0.0012f) * Ex->PlanetGasTurbulence;
+    const float EddyFrequency = Ex->bPlanetSwirl ? 2.5f : 4.0f;
+    const float FlowPeriod = Ex->bPlanetSwirl ? 16.0f : 20.0f;
+    const float PsConstants[72] = {
+        SunDir.x, SunDir.y, SunDir.z, Ex->PlanetWrap,
+        Sun.Diffuse.r * Mat.Diffuse.r, Sun.Diffuse.g * Mat.Diffuse.g, Sun.Diffuse.b * Mat.Diffuse.b, 0.0f,
+        Mat.Ambient.r * Ambient[0] + Mat.Emissive.r, Mat.Ambient.g * Ambient[1] + Mat.Emissive.g,
+        Mat.Ambient.b * Ambient[2] + Mat.Emissive.b, 0.0f,
+        (float)Ex->PlanetMode, Ex->bPlanetGas ? 1.0f : 0.0f, Ex->PlanetTile0, Ex->PlanetTile1,
+        Ex->PlanetGlintNow, Ex->PlanetGlintRoughness, Ex->PlanetGlintFresnel, Ex->PlanetCloud,
+        Ex->PlanetReliefNow, Ex->PlanetDetailRelief, 1.0f / BaseDesc.Width, 1.0f / BaseDesc.Height,
+        Ex->PlanetGlow[0], Ex->PlanetGlow[1], Ex->PlanetShadows, Ex->PlanetGlow[3],
+        FloatBits(RenderStates_.GetPending(kRsFogStart)), FloatBits(RenderStates_.GetPending(kRsFogEnd)),
+        FloatBits(RenderStates_.GetPending(kRsFogDensity)), (float)FogMode,
+        ((FogColour >> 16) & 255) / 255.0f, ((FogColour >> 8) & 255) / 255.0f, (FogColour & 255) / 255.0f,
+        RenderStates_.GetPending(D3DRS_RANGEFOGENABLE) ? 1.0f : 0.0f,
+        Ex->PlanetLayers[0], Ex->PlanetLayers[1], Ex->PlanetLayers[2], Ex->PlanetLayers[3],
+        Ex->PlanetElevation[0], Ex->PlanetElevation[1], 1.0f, 0.0f,
+        Clock, JetSpeed, EddySpeed, 0.0f,
+        Ex->PlanetStorms[0], Ex->PlanetStorms[1], Ex->PlanetStorms[2], Ex->PlanetStorms[3],
+        Ex->PlanetStorms[4], Ex->PlanetStorms[5], Ex->PlanetStorms[6], Ex->PlanetStorms[7],
+        Ex->PlanetStorms[8], Ex->PlanetStorms[9], Ex->PlanetStorms[10], Ex->PlanetStorms[11],
+        C.x, C.y, C.z, Ex->PlanetSeam,
+        EddyFrequency, 0.0f, Ex->bPlanetGas ? 1.0f : 0.0f, FlowPeriod,
+        Ex->PlanetSurface[0], Ex->PlanetSurface[1], Ex->PlanetSurface[2], Ex->PlanetSurface[3],
+    };
+    // Filtering of the three maps (stage 2 was never sampled by the retail passes).
+    ExInitQualityConfig();
+    for (unsigned long Stage = 0; Stage < 3; ++Stage)
+    {
+        ExSaveStage(Stage, &Ex->PlanetSavedStage[Stage]);
+        if (Ex->QualityAnisotropy > 1)
+        {
+            Rp9SetSamplerState(Device_, Stage, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+            Rp9SetSamplerState(Device_, Stage, D3DSAMP_MAXANISOTROPY, Ex->QualityAnisotropy);
+        }
+        else
+            Rp9SetSamplerState(Device_, Stage, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+        Rp9SetSamplerState(Device_, Stage, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+        Rp9SetSamplerState(Device_, Stage, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+    }
+    Rp9SetVertexShader(Device_, Ex->PlanetVs);
+    Rp9SetPixelShader(Device_, Ex->PlanetPs);
+    Rp9SetVertexConstants(Device_, 0, VsConstants, 8);
+    Rp9SetPixelConstants(Device_, 0, PsConstants, 18);
+    Rp9SetRenderState(Device_, D3DRS_ALPHABLENDENABLE, FALSE);
+    Rp9SetRenderState(Device_, D3DRS_ALPHATESTENABLE, FALSE);
+    Rp9SetRenderState(Device_, D3DRS_FOGENABLE, FALSE);
+    Ex->bPlanetActive = true;
+    return true;
+}
+
+void FDirectX9::ExPlanetSurfaceEnd()
+{
+    FRp9ExState* Ex = Ex_;
+    if (Ex == nullptr || !Ex->bPlanetActive)
+        return;
+    Ex->bPlanetActive = false;
+    Rp9SetVertexShader(Device_, nullptr);
+    Rp9SetPixelShader(Device_, nullptr);
+    Rp9SetRenderState(Device_, D3DRS_ALPHABLENDENABLE, RenderStates_.GetPending(27));
+    Rp9SetRenderState(Device_, D3DRS_ALPHATESTENABLE, RenderStates_.GetPending(15));
+    Rp9SetRenderState(Device_, D3DRS_FOGENABLE, RenderStates_.GetPending(28));
+    for (unsigned long Stage = 0; Stage < 3; ++Stage)
+        ExRestoreStage(Stage, &Ex->PlanetSavedStage[Stage]);
 }
 
 // ---- generic surface materials ------------------------------------------------------------

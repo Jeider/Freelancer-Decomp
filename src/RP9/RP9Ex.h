@@ -16,6 +16,7 @@
 #include <vector>
 #include <map>
 #include <array>
+#include <set>
 #include <cstdint>
 
 // GPU time per frame from D3D9 timestamp queries ([Render] render_stats = 1): the whole frame,
@@ -136,6 +137,45 @@ struct FRp9ExState
     IDirect3DVertexShader9* SoftVs;
     IDirect3DPixelShader9* SoftPs;
     FRp9ExStageSave SoftSavedStage1;
+
+    // Planet atmosphere (SetPlanetAtmosphere): requested by Shading around the shell draw,
+    // port.ini [Render] settings (read once) and the shaders of planet_atmosphere.hlsl.
+    bool bAtmosphereRequested = false, bAtmosphereActive = false, bAtmosphereConfigRead = false;
+    bool bAtmosphereEnabled = true, bAtmosphereFailed = false;
+    FRPPlanetAtmosphere AtmosphereDesc = {};
+    std::string AtmosphereName;
+    float AtmosphereThickness = 0.06f, AtmosphereBrightness = 0.9f, AtmosphereHaze = 0.12f, AtmosphereRim = 2.5f;
+    float AtmosphereFalloff = 3.0f, AtmosphereWrap = 0.3f, AtmosphereForward = 1.5f, AtmosphereWarmth = 0.5f,
+          AtmosphereVeil = 0.5f;
+    std::string AtmosphereExclude;
+    IDirect3DVertexShader9* AtmosphereVs = nullptr;
+    IDirect3DPixelShader9* AtmospherePs = nullptr;
+    std::set<std::string> AtmosphereLogged;
+
+    // Planet surface (SetPlanetSurface): requested by Shading around a planet material draw, port.ini
+    // [Render] settings (read once), the classification of the requested material and planet_surface.hlsl.
+    bool bPlanetRequested = false, bPlanetActive = false, bPlanetConfigRead = false;
+    bool bPlanetEnabled = true, bPlanetFailed = false;
+    std::string PlanetName, PlanetExclude;
+    unsigned long PlanetMode = 0, PlanetWater = 0;
+    float PlanetTile0 = 1.0f, PlanetTile1 = 1.0f, PlanetReliefNow = 0.0f, PlanetGlintNow = 0.0f;
+    float PlanetLayers[4] = {}, PlanetElevation[2] = {}; // per layer: water, relief; elevation
+    float PlanetGlow[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // strength, night-only, (shadows), pulse
+    float PlanetSurface[4] = {};                        // airless, ice sheen, layer 0 ice, layer 1 ice
+    float PlanetCityLights = 0.6f, PlanetLavaPulse = 1.0f, PlanetIceSheen = 0.6f, PlanetAirless = 1.0f;
+    bool bPlanetGas = false;     // a gas giant side: animated jets, eddies, storms, lightning
+    float PlanetStorms[12] = {}; // three vortices: longitude, latitude, radius, spin
+    float PlanetGasFlow = 1.0f, PlanetGasTurbulence = 1.0f, PlanetGasStorms = 1.0f,
+          PlanetSeam = 0.01f;
+    LARGE_INTEGER PlanetClockStart = {}, PlanetClockFrequency = {};
+    std::string PlanetSwirlList;
+    bool bPlanetSwirl = false; // a chaotic gas giant: eddies churning in place, no jets
+    float PlanetRelief = 6.0f, PlanetGlint = 10.0f, PlanetGlintRoughness = 0.13f, PlanetGlintFresnel = 0.02f,
+          PlanetCloud = 0.45f, PlanetWrap = 0.05f, PlanetDetailRelief = 1.0f, PlanetShadows = 8.0f;
+    IDirect3DVertexShader9* PlanetVs = nullptr;
+    IDirect3DPixelShader9* PlanetPs = nullptr;
+    std::set<std::string> PlanetLogged;
+    FRp9ExStageSave PlanetSavedStage[3];
 
     // Generic surface shader route, independent of objects (ships/stations/asteroids).
     bool bSurfaceConfigRead = false;

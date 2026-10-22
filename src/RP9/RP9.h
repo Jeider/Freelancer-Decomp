@@ -27,6 +27,10 @@
 #include "render/IRPLocalShadows.h"
 #include "render/IRPWeaponGlints.h"
 #include "render/IRPFrameQuality.h"
+#include "render/IRPPlanetAtmosphere.h"
+#include "render/IRPPlanetSurface.h"
+
+struct D3DXVECTOR3;
 #include "Rp9D3d8Types.h"
 
 #include <stddef.h>
@@ -375,7 +379,8 @@ class FDirectX9 final : public IRenderPipeline,
                         public IRenderPipelineEx,
                         public IRPDrawEx,
                         public IRPSurfaceShader, public IRPSurfaceContext,
-                        public IRPLocalShadows, public IRPFrameQuality, public IRPWeaponGlints
+                        public IRPLocalShadows, public IRPFrameQuality, public IRPWeaponGlints,
+                        public IRPPlanetAtmosphere, public IRPPlanetSurface
 {
 public:
     FDirectX9();
@@ -592,6 +597,18 @@ public:
     // then), End puts back the fixed-function state.
     bool ExSoftBegin();
     void ExSoftEnd();
+    // Planet atmosphere shell around one draw (SetPlanetAtmosphere): Begin binds
+    // planet_atmosphere.hlsl when the draw qualifies, End restores the fixed-function state.
+    GENRESULT DACOM_API SetPlanetAtmosphere(const FRPPlanetAtmosphere* Desc) override;
+    bool ExAtmosphereBegin();
+    void ExAtmosphereEnd();
+    // Planet surface (SetPlanetSurface): one-pass planet_surface.hlsl draw of a detail-map planet material.
+    GENRESULT DACOM_API SetPlanetSurface(const FRPPlanetSurface* Desc) override;
+    bool ExPlanetSurfaceBegin();
+    void ExPlanetSurfaceEnd();
+    bool ExPickSun(const D3DXVECTOR3& Centre, D3DXVECTOR3* Direction, D3DLIGHT9* Light, unsigned* LightCount = nullptr);
+    bool ExCompileShaderPair(const char* File, IDirect3DVertexShader9** Vs, IDirect3DPixelShader9** Ps,
+                             const char* VsEntry = "VSMain", const char* PsEntry = "PSMain");
     GENRESULT DACOM_API SetSurfaceShader(unsigned long Shader, float Roughness,
                                           float EnvironmentStrength) override;
     GENRESULT DACOM_API SetCockpitSurface(unsigned long) override;

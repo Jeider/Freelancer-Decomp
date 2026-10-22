@@ -154,6 +154,8 @@ public:
     GENRESULT SubmitBtDetailTwoSecondPass(void* Context, unsigned long PrimType,
                                           unsigned long Start, unsigned long Count,
                                           unsigned long IbStart, unsigned long IndexSpan);
+    bool SubmitPlanetSurface(void* Context, unsigned long PrimType, unsigned long Start, unsigned long Count,
+                             unsigned long Zero, unsigned long Field, unsigned long Flags);
     GENRESULT SubmitAtmosphereLock(void* Context, unsigned long PrimType, unsigned long Start,
                                    unsigned long Count, unsigned long Zero, unsigned long Field);
 };

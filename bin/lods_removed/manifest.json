@@ -1,0 +1,272 @@
+[
+  {
+    "file": "SOLAR/MISC/space_industrial01a.3db",
+    "original_sha256": "72e82cd22568c2f356f74462246f168a9b17bc994ffe30704e1aaad053168e22",
+    "current_sha256": "99948fd0dbfe4cee0eb7f2b8218b3e1d20f8e2ad8b9f19c9b05dd502e827f665",
+    "output_sha256": "324abaac793eec40b20deff2e85392e8241945b6e13620dbbc22ae74aba05efe",
+    "near_mesh": "ind01a.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01a_alt.3db",
+    "original_sha256": "07451d14c0cdcc46eb5de342de8469c1a14815e6ddd8b862a3bd58cc96b75413",
+    "current_sha256": "a8f2b6bd9926f9d5e6de91fa3d48f64e9548ac56ef1b2569c8d309952777d0bc",
+    "output_sha256": "07451d14c0cdcc46eb5de342de8469c1a14815e6ddd8b862a3bd58cc96b75413",
+    "near_mesh": "ind01a_alt_low_Detail.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01b.3db",
+    "original_sha256": "cc6931605a150bf3c70731cda6c722a7b6611ec0a014994575bdcb879aa08556",
+    "current_sha256": "bd6c25a03b090fc9a8cd308c5934cabffdc3f32215fa5f9996487a8a41658485",
+    "output_sha256": "cc6931605a150bf3c70731cda6c722a7b6611ec0a014994575bdcb879aa08556",
+    "near_mesh": "ind01b.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01c.3db",
+    "original_sha256": "0e9f4380e5366f85d7bae600239078c50c21ad3de6ae9468a184518311ccca5c",
+    "current_sha256": "7fc3aaf6f5be3a9a293682e323031a7472f615e62c6e55545d3b4c3e67ffdf9a",
+    "output_sha256": "5b1621dcabe5098dc76c5c0d18c6962096d3be5e40abbcf6a03a044896d55748",
+    "near_mesh": "ind01c.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01d.3db",
+    "original_sha256": "f2d4187effe5dad3d014a48d64c60ac1db1874586b4ad053a6497c7c3b57ac5b",
+    "current_sha256": "3a55e7f808361cda010b1fd26e36293ab4bc46c3cb34e4b0823a25c3a7d41760",
+    "output_sha256": "4e7264be5f3981b77fcd4578c5b7810fd2cabec1e2a8503a7e3c6fc2943aa166",
+    "near_mesh": "ind010d_rm_version.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01e.3db",
+    "original_sha256": "74f97f06cd418904e60e62253c54187f729b277df6c217b2fd48f15b04260297",
+    "current_sha256": "f42342586df60ed1ab11af4321058872328e90137fd368305b8601a2cc394099",
+    "output_sha256": "bde8c962a22b6b27988ce4c0219515b6cd7c675efda760233fc85ed9c96f24c0",
+    "near_mesh": "ind01e_rm_version.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01f.3db",
+    "original_sha256": "1c6d823efe9a4a211d4673269f4fce11a51105b5eb249840611bcc1a1cb9cb3e",
+    "current_sha256": "66675618fe6c2deb2fc586216d3cdbfb766ac498ad5d603e39b61b8f0523089c",
+    "output_sha256": "69365127877ce2131b6d9f5d305718c3af1c00d320c146cddeb2f83d03e18505",
+    "near_mesh": "rmbase_smugglers_core.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01g.3db",
+    "original_sha256": "a8fc2ca801b9f7690c6fd696d221ad974e8017b9340c95a226c531cac6d62332",
+    "current_sha256": "323cecc59d2837bd0feffc48344442f3a193c877e67bb4c4e1de6c2a81357dfb",
+    "output_sha256": "512cd9b53d41fcf179b42568fd114fac7cadb5a657482a1b73f79890a9dcfec3",
+    "near_mesh": "rmbase_traders_core.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01h.3db",
+    "original_sha256": "1c0a4212c1265eec37b7a8a0a82b47046b6bed7d3ea993c68b09b83012d81a0f",
+    "current_sha256": "737e0c6cd4125fa8c6c98f5b1b9baf36c75f9b50b2334586cb2152f09c6854c7",
+    "output_sha256": "d8ee2d5d6f5c2b7ef51317bf8a9f9591f1587acf3ee31c10a489d08a4b8c56a4",
+    "near_mesh": "___ind010h_rm_version.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01i.3db",
+    "original_sha256": "64b81b7b4ac6719a9aee74c83fa5e820f4a7814dff0b2aeaa0c6bfe25c44a3f7",
+    "current_sha256": "68e940eb320381292702475df70ac9867d56835f3ef544a8c01f818049a929ee",
+    "output_sha256": "6bfc386f2473b2a36d2985a2466531f84987078dae536ab5862600a3b409090f",
+    "near_mesh": "space_industrial_i_for_gasminer.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01j.3db",
+    "original_sha256": "223759a44747284f228d87c457368e8a9781e6611285425853cecfd0020a1a6e",
+    "current_sha256": "6a774aa2b132b1f99afe089ffd2334a7551bc877d8d5c432ae74b7b8e09bc3ae",
+    "output_sha256": "af7f7dbba2d094203b4c61936bb2e71d3215c2d6f88439d1a77289bda935ee1c",
+    "near_mesh": "jeiders_space_rmbase_newgasminer_root.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial02a.3db",
+    "original_sha256": "bec1624676ffc5432cfe35e977e2ab482023cd92c0ea40b11e394f8c2eaa88a4",
+    "current_sha256": "54e63f6e8356dfc5fb15b87f231d04509d79e863b9e5e05504a5ad067e454224",
+    "output_sha256": "bec1624676ffc5432cfe35e977e2ab482023cd92c0ea40b11e394f8c2eaa88a4",
+    "near_mesh": "ind02a_new.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial02b.3db",
+    "original_sha256": "5ea5a79e5ac86070db035d7d1bd31b79c2f2a92fc00083e4454024b267dfff30",
+    "current_sha256": "1c2dccd88136c0545f8f1e04a4878d2d8eac6d11d9723f0d0b180b5d384f3006",
+    "output_sha256": "42dc99096ee5caad3f0bf8400bc5d3b74f8269e014d96ce8a5f8e42483861720",
+    "near_mesh": "xspace_ind_b_40_percent.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial02d.3db",
+    "original_sha256": "7ff5ac369b2a506e4301e95bc5c10d3bddb6f0ec7b0155098c20b03f896a6dcb",
+    "current_sha256": "5eaa9d230b0815acd173212cd217dc097556ada84df2dc94fedf62f5fd9795e8",
+    "output_sha256": "7ff5ac369b2a506e4301e95bc5c10d3bddb6f0ec7b0155098c20b03f896a6dcb",
+    "near_mesh": "jeider_s_space_ind02_special_for_co-dread.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial03.3db",
+    "original_sha256": "378fcf7588d52709372c24173821017ba55529a542b4466d8018ac560df9e083",
+    "current_sha256": "d4fd8d6d296686701c98985fb3d9fb88870c1e72b4819382b89ed7b114995db7",
+    "output_sha256": "75d88cd43f57810c3eb04ccae621348fb637f63371ae720403a0b749cf26440e",
+    "near_mesh": "jeider_s_new_space_industrial_from_water_base.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industriala.3db",
+    "original_sha256": "e437415ca4e83fbe0030c10df264247674445c515e5c6314e192349ed329cf91",
+    "current_sha256": "1484a604a4e896a7d90ebe0c65aefe65f4d3b825798effdb350aa08da37154e8",
+    "output_sha256": "e437415ca4e83fbe0030c10df264247674445c515e5c6314e192349ed329cf91",
+    "near_mesh": "space_ind_0a_by_jeider.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industriala_alt.3db",
+    "original_sha256": "f2391bd196635bde7d45686f36b02e4d1a005b9c99a677d757018f2a17acb3e5",
+    "current_sha256": "6b3437ccda12d0317938a249df7168c52046f3266a04db617a5337db3af87155",
+    "output_sha256": "f2391bd196635bde7d45686f36b02e4d1a005b9c99a677d757018f2a17acb3e5",
+    "near_mesh": "space_ind_0a_ALT_by_jeider.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industriala_alt2.3db",
+    "original_sha256": "56a4c8c4e4e84bb208afc9164af58f0491aa40a2b7688b6f082dae88921181a7",
+    "current_sha256": "93050147a7366aeccd66486c19d65c51f48fe531c4fbb02ba6efdff5f3fb2da9",
+    "output_sha256": "56a4c8c4e4e84bb208afc9164af58f0491aa40a2b7688b6f082dae88921181a7",
+    "near_mesh": "space_ind_0a_ALT+SEC_by_jeider.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_industrialc.3db",
+    "original_sha256": "96f33a1165519e82fb1f8ac9d9eeec6eb9c3b72131fe65b82fffcbd96caa7629",
+    "current_sha256": "4d59001d535e7ad8d03f244c248813e0d0311e5f36597b295c73a4ef742569ef",
+    "output_sha256": "d141f7c02305529a3476d871177ea4f9621bd676900c36e2f7613d3607b3e602",
+    "near_mesh": "jeider_s_space_ind_short_big_version.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_control_tower.3db",
+    "original_sha256": "e2e6cf231f4afd5e42bc2681716fbbf4bc672617f0074dcb2091a021b648f61c",
+    "current_sha256": "b76046c48b906163f35d4eeccd981b3e691bb001c049c061982bb037bc30b263",
+    "output_sha256": "e2e6cf231f4afd5e42bc2681716fbbf4bc672617f0074dcb2091a021b648f61c",
+    "near_mesh": "jeider_s_control_tower_x2.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_medium_control_tower.3db",
+    "original_sha256": "8acbeafda83f0d806e571e79633367cef707dbcc5cb6b0e32c8cdbc386058cd6",
+    "current_sha256": "b59d16eb2dfeb0cd224bed0fb3e8871f9449de8fff5a3ff26910157e03071a87",
+    "output_sha256": "f4cfa3c22ea451431b26753e0da7c1b264e3af05863f291e88bc571a82f0c6aa",
+    "near_mesh": "jeiders_med_ctrl_twr.lod0-112.vms",
+    "near_data_changed": true,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_production.3db",
+    "original_sha256": "1a94725e7c12d35e5d476f2856c9d9df313fe3148536ce8df31197692ef8f80d",
+    "current_sha256": "e05a1ca2a7d21bc7354fe2496ebe4d83262d5bce1ae31bd7444238579611fc79",
+    "output_sha256": "f4ab830ba25bcdbff20b86f34b33a12b85a6e0177792ec377c261a727f3a7446",
+    "near_mesh": "jeider_s_mplatform_standalone.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_large_production.3db",
+    "original_sha256": "4f9b9cd4ade091748c7b1209e7b56fa4fbe60b1e205c6f7ea98e993d6c5a7961",
+    "current_sha256": "9f913adb8c3dcac49e3906642fde3a6eb19d47fd151e3556b8c43bcf38dc4116",
+    "output_sha256": "280317cc8784a115e9a02f6743b45bd117f3d42f910106822a60320d73037607",
+    "near_mesh": "space_large_production_by_jeider.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/shipyard_small.3db",
+    "original_sha256": "2b7f4698ee67e02f2129f0e411950bde686c9983e7669abd5ecb6741ac017c31",
+    "current_sha256": "b3f9e9eabbb2e0e9e86517a2902a626559c0ee49388712277ae70ec5e4e9c4e3",
+    "output_sha256": "f0409acac02483dfd71fcefd5c430d3ea0f1932c26484455ef18fe5f3367481f",
+    "near_mesh": "jeider_s_small_shipyard.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/shipyard_medium.3db",
+    "original_sha256": "3157c4f40ba88dcd715391c51ccff7ca11a3dd56839eb48d66d5af4caf1386ce",
+    "current_sha256": "729d0b07ef2e96363f6a9c73d1c6a0cbe4bc842c03d915a2ee1b212f14ee0690",
+    "output_sha256": "ce2420194ccacb6dfb4f3bbff90e8f58a5c23bbdd8fc7c2b507abf746b07b58f",
+    "near_mesh": "jeider_s_medium_mod_shipyard.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_domea.3db",
+    "original_sha256": "e25ddd1041cd1b0135727809912c31de8a3d2e619be1928187f7376bfb43e791",
+    "current_sha256": "3afb96cb253e2fda09acb4a4a13c8961807dd6763e47474cc705350d4a753a73",
+    "output_sha256": "58a646cfed575a1961228fd70899036cdc8506673b20c756ce7c7af5073bd7c0",
+    "near_mesh": "space_dome_only_special.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_domeb.3db",
+    "original_sha256": "a36e119944047b6559d811c277bb80e98a4ea8cd90275829b26c98b4b3faa8cb",
+    "current_sha256": "58818463588b74db6d85935f1131e4113f3dd046ee388cc355772f6af322c96f",
+    "output_sha256": "4bbb52514792549fe3d1e80a9afde84f06d1e41dfe89fcbe373513f17187a1c0",
+    "near_mesh": "space_domeB.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_small_control_block.3db",
+    "original_sha256": "8513264ecb70e6db7761be62d1f46e45aabd779384ee2695fe790f8f52635804",
+    "current_sha256": "3239afed70f36fdf2870c657b55b2fc6e9c86a9bc5b3cb6047dd92110c2ac1f6",
+    "output_sha256": "31b36568c8bad39dfa9dae4279c6eacc656194ea1e52ae8d327cf77aa34760f9",
+    "near_mesh": "jeider_s_space_small_control_block.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_windows.3db",
+    "original_sha256": "34e240f0858f67b8b0f4adeb5d9b0ab315b5e8948bb24688e717e08253b7247b",
+    "current_sha256": "ba9728aa9ba7faf22435f2c0836cbcea8d0160e4c13044c293bd68e3f01a2288",
+    "output_sha256": "169413ad52a45caf89d3ff62c443cb9513fdbbd777624358950cc8b8d2868090",
+    "near_mesh": "jeider_s_space_windows_from_li_dread.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  },
+  {
+    "file": "SOLAR/MISC/space_trade_station_part.3db",
+    "original_sha256": "5b450005ea11b504934159b46d2588c9cbbb96707ef23ec9f3f9d7fa8c2c5af7",
+    "current_sha256": "ee09199538784c61f2d41f6bdfb319931b16f9636a27626df9fe26e5df18c5f5",
+    "output_sha256": "c4db7abefbcfe45d3886c186c4673f4412ea10a369fa549d56ca803391d01d15",
+    "near_mesh": "space_trade_Station_part_by_jeider.lod0-112.vms",
+    "near_data_changed": false,
+    "count_diff": false
+  }
+]

@@ -2068,6 +2068,7 @@ namespace
         if(Shadows->BeginLocalShadowFrame(Camera->GetViewTransform(),Eye,Ray)<0) {Shadows->Release();return nullptr;}
         struct Caster {FClientGameobj* Go;float Distance;float Perpendicular;float Radius;bool Short;};
         std::vector<Caster> Casters;
+        static const int ShadowDebug=PortConfigInt("Render","shadow_debug",0);
         float const ShadowSceneRadius=(float)(std::fmax(1000.0,std::fmin(15000.0,
             PortConfigInt("Render","shadow_scene_radius",5000))));
         float const ShadowNearRadius=(float)(std::fmax(100.0,std::fmin(1500.0,
@@ -2164,13 +2165,33 @@ namespace
         float Reach=(float)(std::max)(1,(std::min)(200,PortConfigInt("Render","shadow_max_length",200)));
         auto DrawCaster=[&](Caster const& C)
         {
+            bool const PlayerShip=C.Go->ManagerKind==1 && IsPlayerShipId(C.Go->get_id());
+            // Diagnostics: [Render] shadow_debug = 1 keeps the player's ship out of the shadow maps.
+            if(ShadowDebug==1 && PlayerShip) return;
             // The flag covers the batch flush, where the batched depth draws are issued.
             if(C.Short) Shadows->SetLocalShadowCaster(1u);
             if(C.Go->ManagerKind==9)
                 CliDynamicAsteroidDrawShadow(static_cast<FCliDynamicAsteroidGameobj*>(C.Go),Cam);
             else
+            {
+                // The player's ship is drawn into the shadow map at the LOD its normal draw uses
+                // (GameobjSubmitDrawRetail), not the distance LOD, so its shadow matches the visible model.
+                unsigned long Flags=0x108u;
+                if(PlayerShip)
+                {
+                    float Scale=0.0f;
+                    Archetype::CliObjGetArchLodGlobals(&Scale);
+                    if(!(static_cast<double>(Scale)<=0.75)) Flags=0u;
+                    else
+                    {
+                        BindRendererLods(reinterpret_cast<void*>(static_cast<intptr_t>(C.Go->get_index())),1,nullptr);
+                        Flags=0x80u;
+                    }
+                    Flags|=0x100u;
+                }
                 DALib::Renderer->RenderInstance(Camera,reinterpret_cast<void*>(static_cast<intptr_t>(C.Go->get_index())),
-                                                1.0f,0x108u,nullptr,nullptr);
+                                                1.0f,Flags,nullptr,nullptr);
+            }
             DALib::MaterialBatcher->FlushAll(1u);
             if(C.Short) Shadows->SetLocalShadowCaster(0u);
         };
@@ -2344,6 +2365,13 @@ namespace
                 }
                 else G_WeaponGlints->SetWeaponGlintReceiver(0);
             }
+#endif
+#ifdef FREELANCER_RP9
+            // Port-only: effects drawn earlier in the scene (alchemy particles, effect
+            // batches, billboards) leave CULLMODE none; retail sets it once per frame. Without
+            // culling a two-sided material's second pass (flipped cull, negated normals) shows
+            // its inside face on top. Every node starts from the scene's default.
+            DALib::Pipeline->SetRenderState(D3DRS_CULLMODE, 2);
 #endif
             Nodes[I]->Draw(Cam);
             DALib::MaterialBatcher->FlushAll(1u);

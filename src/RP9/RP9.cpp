@@ -1336,6 +1336,10 @@ GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
         Face = (IRPWeaponGlints*)(this);
     else if (IidEqual(Iid, Iids::RPFrameQuality))
         Face = (IRPFrameQuality*)(this);
+    else if (IidEqual(Iid, Iids::RPPlanetAtmosphere))
+        Face = (IRPPlanetAtmosphere*)(this);
+    else if (IidEqual(Iid, Iids::RPPlanetSurface))
+        Face = (IRPPlanetSurface*)(this);
     if (Face == nullptr)
         return GR_INTERFACE_UNSUPPORTED;
     Face->AddRef();
@@ -3846,9 +3850,11 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitive(unsigned long Prim, unsigned
     FlushDrawState(Device);
     // ExShadowDrawBegin is a no-op returning true outside an opened shadow map.
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
-    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
-    const bool bSurface = !bSoft && ExSurfaceBegin();
-    if (!bSurface && !bSoft)
+    const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
+    const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
+    const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bPlanet && !bAtmosphere && !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft && !bAtmosphere && !bPlanet)
         ExSurfaceRelease(); // a fixed-function draw after a surface draw
     if(!bSurface) ExFlushSurfaceInstances();
     else if(ExQueueSurfaceInstance(Prim,MinIndex,NumVertices,StartIndex,PrimCount))
@@ -3862,6 +3868,10 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitive(unsigned long Prim, unsigned
         ExSurfaceEnd();
     if (bSoft)
         ExSoftEnd();
+    if (bPlanet)
+        ExPlanetSurfaceEnd();
+    if (bAtmosphere)
+        ExAtmosphereEnd();
     if (Hr < 0)
         FdumpHr("draw_indexed_primitive: %s", Hr, 3961);
     return (GENRESULT)(Hr);
@@ -5311,18 +5321,24 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitive(unsigned long Prim, unsigned int Fv
     StreamCache_.SelectVertexStream(nullptr, Fvf);
     FlushDrawState(Device_);
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
-    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
-    const bool bSurface = !bSoft && ExSurfaceBegin();
-    if (!bSurface && !bSoft)
-        ExSurfaceRelease(); // a fixed-function draw after a surface draw
     const unsigned int PrimCount = PrimCountFromVerts(Prim, Count);
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
+    const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
+    const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
+    const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bPlanet && !bAtmosphere && !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft && !bAtmosphere && !bPlanet)
+        ExSurfaceRelease(); // a fixed-function draw after a surface draw
     ExNoteDraw(PrimCount);
     Result = Device_->DrawPrimitiveUP((D3DPRIMITIVETYPE)(Prim), PrimCount, Verts, Stride);
     if (bSurface)
         ExSurfaceEnd();
     if (bSoft)
         ExSoftEnd();
+    if (bPlanet)
+        ExPlanetSurfaceEnd();
+    if (bAtmosphere)
+        ExAtmosphereEnd();
     StreamCache_.Reset();
     if (FAILED(Result))
         FdumpHr("draw_primitive: %s", Result, 3809);
@@ -5351,11 +5367,13 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveUp(unsigned long Prim, unsign
     StreamCache_.SelectVertexStream(nullptr, Fvf);
     FlushDrawState(Device_);
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
-    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
-    const bool bSurface = !bSoft && ExSurfaceBegin();
-    if (!bSurface && !bSoft)
-        ExSurfaceRelease(); // a fixed-function draw after a surface draw
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
+    const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
+    const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
+    const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bPlanet && !bAtmosphere && !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft && !bAtmosphere && !bPlanet)
+        ExSurfaceRelease(); // a fixed-function draw after a surface draw
     ExNoteDraw(PrimCount);
     Result = Device_->DrawIndexedPrimitiveUP((D3DPRIMITIVETYPE)(Prim), 0, VertCount,
                                              PrimCount, Indices, D3DFMT_INDEX16, Verts, Stride);
@@ -5363,6 +5381,10 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveUp(unsigned long Prim, unsign
         ExSurfaceEnd();
     if (bSoft)
         ExSoftEnd();
+    if (bPlanet)
+        ExPlanetSurfaceEnd();
+    if (bAtmosphere)
+        ExAtmosphereEnd();
     StreamCache_.Reset();
     if (FAILED(Result))
         FdumpHr("draw_indexed_primitive: %s", Result, 3844);
@@ -5386,9 +5408,11 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitiveVb(unsigned long Prim, void* Vb, uns
     StreamCache_.SelectVertexStream((FRp9Vb*)Vb, 0);
     FlushDrawState(Device_);
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
-    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
-    const bool bSurface = !bSoft && ExSurfaceBegin();
-    if (!bSurface && !bSoft)
+    const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
+    const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
+    const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bPlanet && !bAtmosphere && !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft && !bAtmosphere && !bPlanet)
         ExSurfaceRelease(); // a fixed-function draw after a surface draw
     ExNoteDraw(PrimCount);
     Result = Device_->DrawPrimitive((D3DPRIMITIVETYPE)(Prim), StartVertex, PrimCount);
@@ -5396,6 +5420,10 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitiveVb(unsigned long Prim, void* Vb, uns
         ExSurfaceEnd();
     if (bSoft)
         ExSoftEnd();
+    if (bPlanet)
+        ExPlanetSurfaceEnd();
+    if (bAtmosphere)
+        ExAtmosphereEnd();
     if (FAILED(Result))
         FdumpHr("draw_primitive_vb: %s", Result, 3866);
     return (GENRESULT)Result;
@@ -5445,9 +5473,11 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveVb(unsigned long Prim, void* 
     FlushDrawState(Device_);
     // The compiled and GPU-tested hook is a no-op outside a shadow-map pass.
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
-    const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
-    const bool bSurface = !bSoft && ExSurfaceBegin();
-    if (!bSurface && !bSoft)
+    const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
+    const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
+    const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bPlanet && !bAtmosphere && !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft && !bAtmosphere && !bPlanet)
         ExSurfaceRelease(); // a fixed-function draw after a surface draw
     // D3D9: the base vertex index set by the flush above travels with the draw call.
     ExNoteDraw(PrimCount);
@@ -5457,6 +5487,10 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveVb(unsigned long Prim, void* 
         ExSurfaceEnd();
     if (bSoft)
         ExSoftEnd();
+    if (bPlanet)
+        ExPlanetSurfaceEnd();
+    if (bAtmosphere)
+        ExAtmosphereEnd();
     if (Result < 0)
         FdumpHr("draw_indexed_primitive_vb: %s", Result, 3931);
     return (GENRESULT)Result;
