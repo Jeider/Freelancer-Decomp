@@ -69,6 +69,7 @@
 #include "render/IRenderPipeline.h"
 #ifdef FREELANCER_RP9
 #include "render/IRPLocalShadows.h"
+#include <unordered_set>
 #include "render/IRPWeaponGlints.h"
 #include "render/IAlchemyEffectColour.h"
 #include <map>
@@ -1929,6 +1930,35 @@ namespace
     }
 
 
+    // NPC ship shadows by the camera's distance to the hull (the nearest point of its bounding
+    // sphere): the full filter, a moderate fixed filter, a simple single comparison, then
+    // none -- neither received nor cast. NPC ship shadows reach shadow_npc_ship_length (RP9)
+    // behind the hull. The player's ship keeps the full filter and the full shadow length.
+    struct FNpcShipShadowRanges { float Full, Moderate, Simple; };
+    FNpcShipShadowRanges const& NpcShipShadowRanges()
+    {
+        static FNpcShipShadowRanges const Ranges = {
+            PortConfigFloat("Render", "shadow_npc_full_distance", 100.0f),
+            PortConfigFloat("Render", "shadow_npc_moderate_distance", 300.0f),
+            PortConfigFloat("Render", "shadow_npc_simple_distance", 500.0f)};
+        return Ranges;
+    }
+
+    bool IsNpcShip(FClientGameobj* Go)
+    {
+        return Go && Go->ManagerKind == 1 && !IsPlayerShipId(Go->get_id());
+    }
+
+    // -1 no shadow, else the SetLocalShadowReceiver tier (0 full, 1 moderate, 2 simple).
+    int NpcShipShadowTier(float SurfaceDistance)
+    {
+        FNpcShipShadowRanges const& Ranges = NpcShipShadowRanges();
+        if (SurfaceDistance <= Ranges.Full) return 0;
+        if (SurfaceDistance <= Ranges.Moderate) return 1;
+        if (SurfaceDistance <= Ranges.Simple) return 2;
+        return -1;
+    }
+
     bool LocalShadowEligible(FClientGameobj* Go)
     {
         if(!Go || (Go->ManagerKind!=1 && Go->ManagerKind!=2)) return false;
@@ -1939,6 +1969,83 @@ namespace
         if(Go->Object && (static_cast<unsigned>(Go->Object->ObjectClass)&0x103u)==0x103u &&
             static_cast<CEqObj*>(Go->Object)->CloakPercent>0.01f) return false;
         return true;
+    }
+
+    struct FShadowComponentMotion
+    {
+        float Transform[12] = {};
+        void* Archetype = nullptr;
+        DWORD ChangedAt = 0;
+        unsigned Seen = 0;
+    };
+    std::map<void*,FShadowComponentMotion> G_ShadowComponentMotion;
+    // Last frame's solar casters (membership hysteresis in BuildLocalShadows).
+    std::unordered_set<FClientGameobj*> G_ShadowSolarCasters;
+    unsigned G_ShadowMotionFrame=0,G_ShadowMotionSystem=0;
+
+    // Engine hierarchy nodes, rather than whole stations, are the cache unit.
+    // Fixed attached panels survive a rotating turret on the same station root.
+    void CollectShadowComponents(void* Instance,bool AllowStatic,DWORD Now,
+                                 std::vector<void*>& Fixed,std::vector<void*>& Live,unsigned Depth=0)
+    {
+        if(Depth>64 || !Instance || Instance==G_InvalidEngineHandle) return;
+        IEngine* Engine=DALib::Engine;
+        float* Transform=Engine->GetInstanceTransform(Instance);
+        void* Arch=Engine->GetInstanceArchetype(Instance);
+        if(Arch!=G_InvalidEngineHandle) Engine->ReleaseHandle(Arch);
+        bool Stable=false;
+        if(Transform && AllowStatic)
+        {
+            auto Found=G_ShadowComponentMotion.find(Instance);
+            if(Found==G_ShadowComponentMotion.end())
+            {
+                FShadowComponentMotion State;
+                memcpy(State.Transform,Transform,48); State.Archetype=Arch; State.ChangedAt=Now;
+                State.Seen=G_ShadowMotionFrame;
+                G_ShadowComponentMotion.emplace(Instance,State);
+            }
+            else
+            {
+                auto& State=Found->second;
+                if(State.Seen+1!=G_ShadowMotionFrame || State.Archetype!=Arch ||
+                   memcmp(State.Transform,Transform,48)!=0)
+                {
+                    memcpy(State.Transform,Transform,48); State.Archetype=Arch; State.ChangedAt=Now;
+                }
+                State.Seen=G_ShadowMotionFrame;
+                Stable=(DWORD)(Now-State.ChangedAt)>=500;
+            }
+        }
+        (Stable ? Fixed : Live).push_back(Instance);
+        void* Child=Engine->GetRelatedInstance(Instance,1,G_InvalidEngineHandle);
+        while(Child!=G_InvalidEngineHandle)
+        {
+            CollectShadowComponents(Child,AllowStatic,Now,Fixed,Live,Depth+1);
+            Child=Engine->GetRelatedInstance(Instance,1,Child);
+        }
+    }
+
+    bool NearShadowComponentVisible(void* Instance,const float* Eye,const float* Ray,
+                                    float Half,float Reach)
+    {
+        float Radius=0; float Center[3]={};
+        if(DALib::Engine->GetInstanceExtent(Instance,1,&Radius,Center)<0 ||
+           !(Radius>0) || !std::isfinite(Radius)) return true;
+        const float* M=DALib::Engine->GetInstanceTransform(Instance);
+        if(!M) return true;
+        double Delta[3];
+        for(unsigned I=0;I<3;++I)
+            Delta[I]=(double)M[I*3]*Center[0]+(double)M[I*3+1]*Center[1]+
+                     (double)M[I*3+2]*Center[2]+M[9+I]-Eye[I];
+        // Frobenius norm bounds arbitrary transform scale (including nonuniform
+        // authored transforms). Conservative extra coverage is preferable to a
+        // missing caster. No dependence on the main camera's view frustum.
+        double ScaleSq=0;for(unsigned I=0;I<9;++I) ScaleSq+=(double)M[I]*M[I];
+        double R=Radius*std::sqrt(ScaleSq);
+        double Along=Delta[0]*Ray[0]+Delta[1]*Ray[1]+Delta[2]*Ray[2];
+        double DistanceSq=Delta[0]*Delta[0]+Delta[1]*Delta[1]+Delta[2]*Delta[2];
+        double Transverse=Half*1.414214+R;
+        return !(std::fabs(Along)>Half+Reach+50+R || DistanceSq-Along*Along>Transverse*Transverse);
     }
 
     IRPLocalShadows* BuildLocalShadows(FSpaceCamera* Cam)
@@ -1959,7 +2066,7 @@ namespace
         if(!(Len>1)) {Shadows->Release();return nullptr;}
         float Ray[3]={(float)(Dx/Len),(float)(Dy/Len),(float)(Dz/Len)};
         if(Shadows->BeginLocalShadowFrame(Camera->GetViewTransform(),Eye,Ray)<0) {Shadows->Release();return nullptr;}
-        struct Caster {FClientGameobj* Go;float Distance;float Perpendicular;float Radius;};
+        struct Caster {FClientGameobj* Go;float Distance;float Perpendicular;float Radius;bool Short;};
         std::vector<Caster> Casters;
         float const ShadowSceneRadius=(float)(std::fmax(1000.0,std::fmin(15000.0,
             PortConfigInt("Render","shadow_scene_radius",5000))));
@@ -1996,28 +2103,125 @@ namespace
             double X=(double)Center.x-Eye[0],Y=(double)Center.y-Eye[1],Z=(double)Center.z-Eye[2];
             double Distance=std::sqrt(X*X+Y*Y+Z*Z);
             if(!std::isfinite(Distance)) continue;
-            if((Kind!=9 && !LocalShadowEligible(Go)) || Distance>ShadowSceneRadius+Radius || Go->get_index()==-1) continue;
+            // Solars that were casters last frame stay until 10 % beyond the radius, so the
+            // far map's static cache key does not flip at the boundary.
+            const double Reach=ShadowSceneRadius*(Kind==2 && G_ShadowSolarCasters.count(Go) ? 1.1 : 1.0)+Radius;
+            if((Kind!=9 && !LocalShadowEligible(Go)) || Distance>Reach || Go->get_index()==-1) continue;
+            const bool Npc=Kind==1 && IsNpcShip(Go);
+            if(Npc && NpcShipShadowTier((float)std::fmax(0.0,Distance-Radius))<0) continue;
             double Along=X*Ray[0]+Y*Ray[1]+Z*Ray[2];
             float Perpendicular=(float)std::sqrt(std::fmax(0.0,Distance*Distance-Along*Along));
-            Casters.push_back({Go,(float)std::fmax(0.0,Distance-Radius),Perpendicular,Radius});
+            Casters.push_back({Go,(float)std::fmax(0.0,Distance-Radius),Perpendicular,Radius,Npc});
         }
         std::sort(Casters.begin(),Casters.end(),[](Caster const& A,Caster const& B){return A.Distance<B.Distance;});
-        // Separate budgets keep nearby asteroid fields from displacing hulls.
-        unsigned Hulls=0,Rocks=0;
+        // Separate budgets keep nearby asteroid fields from displacing hulls, and moving
+        // ships from displacing station components (which would change the cache key).
+        unsigned Ships=0,Solars=0,Rocks=0;
         Casters.erase(std::remove_if(Casters.begin(),Casters.end(),[&](Caster const& C)
-        {return C.Go->ManagerKind==9 ? ++Rocks>64 : ++Hulls>128;}),Casters.end());
+        {return C.Go->ManagerKind==9 ? ++Rocks>64 : C.Go->ManagerKind==2 ? ++Solars>256 : ++Ships>128;}),Casters.end());
+        G_ShadowSolarCasters.clear();
+        for(Caster const& C:Casters) if(C.Go->ManagerKind==2) G_ShadowSolarCasters.insert(C.Go);
+        DWORD Now=GetTickCount();
+        unsigned System=StarSysGetActiveSystemId();
+        if(G_ShadowMotionSystem!=System)
+        {G_ShadowComponentMotion.clear();G_ShadowSolarCasters.clear();G_ShadowMotionSystem=System;}
+        ++G_ShadowMotionFrame;
+        std::vector<void*> Fixed,Live;
+        bool UseCache=PortConfigInt("Render","shadow_static_cache",1)!=0 && DALib::Engine;
+        for(Caster const& C:Casters)
+        {
+            if(!UseCache || C.Go->ManagerKind!=2) continue;
+            bool Cacheable=C.Go->ManagerKind==2;
+            if(Cacheable)
+            {
+                auto* Solar=static_cast<CSolar*>(C.Go->Object);
+                // Continuous vertex/compound animations and active gate scripts
+                // are kept live even when their root transform is stationary.
+                Cacheable=Solar->ContinualAnims.empty() && Solar->GateAnimState==4;
+            }
+            CollectShadowComponents(reinterpret_cast<void*>(static_cast<intptr_t>(C.Go->get_index())),
+                                    Cacheable,Now,Fixed,Live);
+        }
+        for(auto It=G_ShadowComponentMotion.begin();It!=G_ShadowComponentMotion.end();)
+            if(It->second.Seen!=G_ShadowMotionFrame) It=G_ShadowComponentMotion.erase(It); else ++It;
+        // Distance sorting changes as the camera moves. Hash a stable component
+        // order, current transforms and system ID, not the caster-list order.
+        std::sort(Fixed.begin(),Fixed.end(),std::less<void*>());
+        std::uint64_t Key=14695981039346656037ull;
+        auto Hash=[&](const void* Data,size_t Size)
+        {
+            auto* Bytes=static_cast<const unsigned char*>(Data);
+            for(size_t I=0;I<Size;++I) {Key^=Bytes[I];Key*=1099511628211ull;}
+        };
+        Hash(&System,sizeof(System));
+        for(void* Instance:Fixed)
+        {
+            auto const& State=G_ShadowComponentMotion.find(Instance)->second;
+            Hash(&Instance,sizeof(Instance)); Hash(&State.Archetype,sizeof(State.Archetype));
+            Hash(State.Transform,48);
+        }
+        bool SplitNear=UseCache && Fixed.size()+Live.size()>=32;
+        float Reach=(float)(std::max)(1,(std::min)(200,PortConfigInt("Render","shadow_max_length",200)));
+        auto DrawCaster=[&](Caster const& C)
+        {
+            // The flag covers the batch flush, where the batched depth draws are issued.
+            if(C.Short) Shadows->SetLocalShadowCaster(1u);
+            if(C.Go->ManagerKind==9)
+                CliDynamicAsteroidDrawShadow(static_cast<FCliDynamicAsteroidGameobj*>(C.Go),Cam);
+            else
+                DALib::Renderer->RenderInstance(Camera,reinterpret_cast<void*>(static_cast<intptr_t>(C.Go->get_index())),
+                                                1.0f,0x108u,nullptr,nullptr);
+            DALib::MaterialBatcher->FlushAll(1u);
+            if(C.Short) Shadows->SetLocalShadowCaster(0u);
+        };
+        auto NearCaster=[&](Caster const& C)
+        {return C.Perpendicular<=C.Radius+ShadowNearRadius*1.5f+4.0f;};
+        // Ships and asteroids get their own near map (cascade 2), sampled beside the near map:
+        // a ship far above a station then cannot replace the station's nearer depth and cut a
+        // lit hole into the station's shadow. Without it they share the near map as before.
+        bool NearLive=Shadows->BeginLocalShadowMap(2)>=0;
+        if(NearLive)
+        {
+            for(Caster const& C:Casters)
+                if(C.Go->ManagerKind!=2 && NearCaster(C)) DrawCaster(C);
+            NearLive=Shadows->EndLocalShadowMap()>=0;
+        }
         for(unsigned Cascade=0;Cascade<2;++Cascade)
         {
+            bool Cached=false;
+            // Stations go to their own cached map, sampled beside the far map: a ship above a
+            // station then cannot replace the station's depth (a lit hole in its shadow).
+            if(Cascade==1 && !Fixed.empty())
+            {
+                GENRESULT Result=Shadows->BeginStaticShadowCache((unsigned long)Key,(unsigned long)(Key>>32));
+                if(Result==0)
+                {
+                    for(void* Instance:Fixed)
+                        DALib::Renderer->RenderInstance(Camera,Instance,1.0f,0x2108u,nullptr,nullptr);
+                    DALib::MaterialBatcher->FlushAll(1u);
+                    Cached=Shadows->EndLocalShadowMap()>=0;
+                }
+                else Cached=Result==1;
+            }
             if(Shadows->BeginLocalShadowMap(Cascade)<0) {Shadows->Release();return nullptr;}
+            if(Cached || (Cascade==0 && SplitNear))
+            {
+                // Receiver/material state is common in a depth pass, so fixed
+                // geometry and live components can each share one batch flush.
+                auto DrawComponent=[&](void* Instance)
+                {
+                    if(Cascade==0 && !NearShadowComponentVisible(Instance,Eye,Ray,ShadowNearRadius,Reach)) return;
+                    DALib::Renderer->RenderInstance(Camera,Instance,1.0f,0x2108u,nullptr,nullptr);
+                };
+                if(Cascade==0) for(void* Instance:Fixed) DrawComponent(Instance);
+                for(void* Instance:Live) DrawComponent(Instance);
+                DALib::MaterialBatcher->FlushAll(1u);
+            }
             for(Caster const& C:Casters)
             {
-                if(Cascade==0 && C.Perpendicular>C.Radius+ShadowNearRadius*1.5f+4.0f) continue;
-                if(C.Go->ManagerKind==9)
-                    CliDynamicAsteroidDrawShadow(static_cast<FCliDynamicAsteroidGameobj*>(C.Go),Cam);
-                else
-                    DALib::Renderer->RenderInstance(Camera,reinterpret_cast<void*>(static_cast<intptr_t>(C.Go->get_index())),
-                                                    1.0f,0x108u,nullptr,nullptr);
-                DALib::MaterialBatcher->FlushAll(1u);
+                if((Cached || (Cascade==0 && SplitNear)) && C.Go->ManagerKind==2) continue;
+                if(Cascade==0 && (!NearCaster(C) || (NearLive && C.Go->ManagerKind!=2))) continue;
+                DrawCaster(C);
             }
             if(Shadows->EndLocalShadowMap()<0) {Shadows->Release();return nullptr;}
         }
@@ -2078,6 +2282,15 @@ namespace
 
         std::vector<FZItem*>& Nodes = G_Buckets[Bucket].Nodes;
         size_t const Count = Nodes.size();
+#ifdef FREELANCER_RP9
+        IRPLocalShadows* SurfaceScope=G_LocalShadows;
+        bool OwnSurfaceScope=false;
+        if(!SurfaceScope && DALib::Pipeline)
+        {
+            if(DALib::Pipeline->QueryInterface(Iids::RPLocalShadows,reinterpret_cast<void**>(&SurfaceScope))>=0 && SurfaceScope)
+                OwnSurfaceScope=true;
+        }
+#endif
         for (size_t I = 0; I < Count; ++I)
         {
             if (bToggleDepthRs)
@@ -2086,19 +2299,44 @@ namespace
                 DALib::Pipeline->SetRenderState(D3DRS_ZWRITEENABLE, 0);
             }
 #ifdef FREELANCER_RP9
-            if(G_LocalShadows)
+            FClientGameobj* Go=nullptr;
+            if(SurfaceScope || G_WeaponGlints)
             {
                 FZItemGameObject* Item=dynamic_cast<FZItemGameObject*>(Nodes[I]);
-                FClientGameobj* Go=Item ? static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object)) : nullptr;
-                unsigned Receiver=LocalShadowEligible(Go) ? (Go->ManagerKind==1 ? 3u : 1u) : 0u;
-                G_LocalShadows->SetLocalShadowReceiver(Receiver);
+                Go=Item ? static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object)) : nullptr;
+            }
+            if(SurfaceScope)
+            {
+                unsigned Receiver=G_LocalShadows && LocalShadowEligible(Go) ? (Go->ManagerKind==1 ? 3u : 1u) : 0u;
+                if(Receiver==3u && IsNpcShip(Go))
+                {
+                    Vector Center; const float Radius=std::fmax(0.0f,Go->Slot178(Center));
+                    const float* Eye=Cam->GetPosition();
+                    const float X=Center.x-Eye[0],Y=Center.y-Eye[1],Z=Center.z-Eye[2];
+                    const int Tier=NpcShipShadowTier(std::fmax(0.0f,std::sqrt(X*X+Y*Y+Z*Z)-Radius));
+                    Receiver=Tier<0 ? 0u : 3u|(static_cast<unsigned>(Tier)<<5);
+                }
+                if(Go && Go->ManagerKind==2)
+                {
+                    static const float FullDistance=static_cast<float>(PortConfigInt("Render","surface_static_full_distance",4000));
+                    static const float OffDistance=static_cast<float>(PortConfigInt("Render","surface_static_off_distance",20000));
+                    static const bool Instances=PortConfigInt("Render","surface_instancing",0)!=0;
+                    Vector Center; const float Radius=std::fmax(0.0f,Go->Slot178(Center));
+                    const float* Eye=Cam->GetPosition();
+                    const float X=Center.x-Eye[0],Y=Center.y-Eye[1],Z=Center.z-Eye[2];
+                    const float DistanceSquared=X*X+Y*Y+Z*Z;
+                    const float Full=std::fmax(0.0f,FullDistance)+Radius;
+                    const float Off=std::fmax(std::fmax(0.0f,FullDistance),OffDistance)+Radius;
+                    if(DistanceSquared>Off*Off) Receiver|=16u;
+                    else if(DistanceSquared>Full*Full) Receiver|=8u;
+                    if(Instances) Receiver|=4u;
+                }
+                SurfaceScope->SetLocalShadowReceiver(Receiver);
             }
 #endif
 #ifdef FREELANCER_RP9
             if(G_WeaponGlints)
             {
-                FZItemGameObject* Item=dynamic_cast<FZItemGameObject*>(Nodes[I]);
-                FClientGameobj* Go=Item ? static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object)) : nullptr;
                 if(LocalShadowEligible(Go))
                 {
                     Vector Center;float Radius=Go->Slot178(Center);
@@ -2110,10 +2348,13 @@ namespace
             Nodes[I]->Draw(Cam);
             DALib::MaterialBatcher->FlushAll(1u);
 #ifdef FREELANCER_RP9
-            if(G_LocalShadows) G_LocalShadows->SetLocalShadowReceiver(0);
             if(G_WeaponGlints) G_WeaponGlints->SetWeaponGlintReceiver(0);
 #endif
         }
+#ifdef FREELANCER_RP9
+        if(SurfaceScope) SurfaceScope->SetLocalShadowReceiver(0);
+        if(OwnSurfaceScope) SurfaceScope->Release();
+#endif
         if (bToggleDepthRs)
         {
             DALib::Pipeline->SetRenderState(D3DRS_ZENABLE, 1);

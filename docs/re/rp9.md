@@ -203,6 +203,25 @@ Everything that writes to the device past RP9's lazy caches is done only inside 
 - Passes do not nest. Textures (`DestroyExTexture`, and the pipeline's own `DestroyTexture`) must
   not be destroyed inside a pass.
 
+### Surface route between draws
+
+The reflective surface shader (`ExSurfaceBegin`, outside passes) keeps its device state between
+draws instead of restoring fixed-function state after each one:
+
+- Its environment map is on sampler 10 and the shadow maps on samplers 8/9. Fixed-function
+  rendering only uses stages 0..7, so nothing is saved or restored per draw; the environment
+  sampler states are copied from the stage that holds the map (address U/V/W, filters, max
+  anisotropy, LOD bias).
+- Vertex and pixel shaders stay bound after a surface draw. `ExSurfaceRelease` unbinds them before
+  the next fixed-function draw (all five draw paths), and before `BeginExPass`,
+  `BeginLocalShadowMap` and the frame antialiasing. It is a no-op inside a pass or a shadow map.
+- `FRp9DeviceCallCache` counts shader, pixel-constant and sampler-8+ writes (`Invalidate`, after
+  every state-block `Apply`, counts as one). The surface route re-sends a shader, a sampler or a
+  block of pixel constants (material 0..11, lights 12..51, shadow frame 52..76, glints 77..93,
+  style/tier 94..95) only when it differs from what the route last sent or its counter moved.
+- `ExShadowRelease` and `ExReleaseDeviceResources` unbind samplers 8..10 first: the device holds a
+  reference to bound textures and `Reset` needs every default-pool one released.
+
 ### Device loss/reset
 
 `DestroyGpuResources` (also called by `CreateBuffers` before `Reset`) closes an open pass, takes

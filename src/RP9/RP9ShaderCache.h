@@ -53,14 +53,16 @@ namespace Rp9ShaderCache
 
     inline const std::string& CompilerIdentity()
     {
-        // Called after preprocessing, so the compiler's lazy dependency is loaded.
+        // The D3DX and HLSL compiler DLLs by name: the address of D3DXPreprocessShader is the
+        // import thunk inside the calling module, which tied every key to that module's build.
+        // The compiler is loaded here so the identity does not depend on load order; the
+        // game, RP9 and tools/warm_surface_cache then agree.
         static const std::string Identity=[]() -> std::string {
-            HMODULE Module=nullptr;
-            if(!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                reinterpret_cast<LPCWSTR>(&D3DXPreprocessShader),&Module)) return {};
+            HMODULE Module=GetModuleHandleW(L"d3dx9_43.dll");
+            if(!Module) return {};
             Hash Digest;
             if(!HashModule(Digest,Module)) return {};
-            HMODULE Compiler=GetModuleHandleW(L"d3dcompiler_43.dll");
+            HMODULE Compiler=LoadLibraryW(L"d3dcompiler_43.dll");
             if(Compiler && !HashModule(Digest,Compiler)) return {};
             BYTE Bytes[32];if(!Digest.Finish(Bytes)) return {};
             return std::string((char*)Bytes,sizeof(Bytes));
@@ -72,7 +74,7 @@ namespace Rp9ShaderCache
     {
         auto const& Compiler=CompilerIdentity();if(Compiler.empty()) return {};
         Hash Digest;
-        if(!Digest.String("Freelancer-RP9-SM3-cache-v1") || !Digest.String(Compiler) ||
+        if(!Digest.String("Freelancer-RP9-SM3-cache-v2") || !Digest.String(Compiler) ||
            !Digest.String(Source) || !Digest.String(Entry) || !Digest.String(Profile) ||
            !Digest.Add(&Flags,sizeof(Flags))) return {};
         BYTE Bytes[32];if(!Digest.Finish(Bytes)) return {};
@@ -162,6 +164,15 @@ namespace Rp9ShaderCache
         if(FAILED(Hr) || !Expanded) {if(Expanded) Expanded->Release();return FAILED(Hr)?Hr:E_FAIL;}
         // D3DX's text buffer includes the terminating NUL.
         std::string Text((char*)Expanded->GetBufferPointer());Expanded->Release();
+        // In-memory sources are named "<current directory>\memory" in the #line directives;
+        // drop the names so the key does not depend on the process's working directory.
+        for(size_t At=Text.find("#line");At!=std::string::npos;At=Text.find("#line",At+5))
+        {
+            const size_t End=Text.find('\n',At);
+            const size_t Quote=Text.find('"',At);
+            if(Quote!=std::string::npos && (End==std::string::npos || Quote<End))
+                Text.erase(Quote,(End==std::string::npos ? Text.size() : End)-Quote);
+        }
         std::string CacheKey=Key(Text,Entry,Profile,Flags);
         if(!CacheKey.empty() && Load(CacheKey,Out)) {*Hit=true;return S_OK;}
         ID3DXBuffer* Code=nullptr;

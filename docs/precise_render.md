@@ -31,3 +31,10 @@ Physics, the server and the stored positions are unchanged.
 
 Effects whose vertices are written in world coordinates (particles, beams, trails) are drawn
 with the bare view as the modelview and still carry the world-size rounding of their vertices.
+
+## During camera shake
+
+While the hit / jump shake amplitude (`G_CameraShakeAmount`, `GetCameraShakeAmount`) is
+non-zero, `GetViewTransform` clears the registered views instead of registering its own, so
+every modelview takes the ordinary path for those frames and the shake reaches the scene
+unfiltered. The precise path resumes on the first still frame.

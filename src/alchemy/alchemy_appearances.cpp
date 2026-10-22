@@ -28,6 +28,7 @@
 namespace AlchemyImpl
 {
     extern float G_AppearanceOpacity;
+    extern bool G_AppearanceSoft;
     unsigned long AlApplyRenderOpacity(unsigned long Colour,unsigned long SrcBlend)
         {
             if(G_AppearanceOpacity>=1.0f) return Colour;
@@ -62,15 +63,25 @@ namespace AlchemyImpl
             return S_Ex;
         }
 
+        // Hull-attached effects (G_AppearanceSoft off) keep the retail draw: they sit on
+        // the surface behind them and would fade out completely.
         struct FAlSoftScope
         {
+            bool bActive = false;
             FAlSoftScope()
             {
+                if (!G_AppearanceSoft)
+                    return;
                 if (IRenderPipelineEx* const Ex = AlSoftPipeline())
+                {
                     Ex->SetSoftParticles(RPExSoftEffects);
+                    bActive = true;
+                }
             }
             ~FAlSoftScope()
             {
+                if (!bActive)
+                    return;
                 if (IRenderPipelineEx* const Ex = AlSoftPipeline())
                     Ex->SetSoftParticles(RPExSoftOff);
             }

@@ -15,6 +15,39 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <array>
+#include <cstdint>
+
+// GPU time per frame from D3D9 timestamp queries ([Render] render_stats = 1): the whole frame,
+// the shadow-map passes, the Ex passes (nebula, sun rays) and the frame antialiasing. Results
+// are read a few frames late without stalling.
+struct ID3DXFont;
+
+struct FRp9GpuTimers
+{
+    enum EMark : unsigned char { FrameBegin, FrameEnd, ShadowBegin, ShadowEnd, ExBegin, ExEnd,
+                                 AaBegin, AaEnd };
+    static const unsigned Frames = 4, Slots = 32;
+    IDirect3DQuery9* Disjoint[Frames] = {};
+    IDirect3DQuery9* Frequency[Frames] = {};
+    IDirect3DQuery9* Stamps[Frames][Slots] = {};
+    unsigned char Kinds[Frames][Slots] = {};
+    unsigned Used[Frames] = {};
+    bool bOpen[Frames] = {}, bPending[Frames] = {};
+    unsigned Current = 0;
+    bool bFailed = false;
+    // Milliseconds summed over the frames collected since the last report.
+    double Sum[4] = {};
+    unsigned Collected = 0;
+};
+
+struct FRp9SurfaceInstanceGroup
+{
+    IDirect3DStateBlock9* State=nullptr;
+    std::vector<std::array<float,32>> Matrices;
+    unsigned long Prim=0,Min=0,Vertices=0,Start=0,Count=0,Fvf=0;
+    INT Base=0;
+};
 
 // A shader program: the source location for reloads, the last bytecode that compiled, and the
 // shader objects made from it (null while no device, or when the source never compiled).
@@ -124,11 +157,27 @@ struct FRp9ExState
     D3DMATERIAL9 SurfaceMaterial = {};
     std::map<unsigned long, D3DLIGHT9> SurfaceDirectLights;
     IDirect3DVertexShader9* SurfaceVs = nullptr;
+    unsigned SurfaceDistanceTier = 0; // 0 full, 1 diffuse/env only, 2 native
+    IDirect3DPixelShader9* SurfaceLowPs = nullptr;
+    IDirect3DPixelShader9* SurfaceLowCubePs = nullptr;
     IDirect3DPixelShader9* SurfacePs = nullptr;
     IDirect3DPixelShader9* SurfaceCubePs = nullptr;
-    FRp9ExStageSave SurfaceSavedStage1 = {};
-    FRp9ExStageSave SurfaceSavedShadowStages[2] = {};
-    bool bSurfaceShadowSamplers = false;
+    // Receivers without a shadow this frame (SURFACE_NO_SHADOW): no shadow registers or taps.
+    IDirect3DPixelShader9* SurfaceNoShadowPs = nullptr;
+    IDirect3DPixelShader9* SurfaceNoShadowCubePs = nullptr;
+    // What the surface route last left on the device. Shaders stay bound after a surface draw
+    // (a fixed-function draw unbinds them, ExSurfaceRelease); the shadow maps (s8/s9) and the
+    // environment map (s10) sit on samplers fixed-function rendering never uses, so no stage
+    // is saved or restored per draw. Each mirror is valid while the matching device-call
+    // write counter is unchanged.
+    std::uint32_t SurfaceShaderWrites = 0, SurfacePsWrites = 0, SurfaceSamplerWrites = 0;
+    IDirect3DVertexShader9* SurfaceBoundVs = nullptr;
+    IDirect3DPixelShader9* SurfaceBoundPs = nullptr;
+    float SurfacePsMirror[96 * 4] = {};
+    bool SurfacePsMirrorValid[96] = {};
+    IDirect3DBaseTexture9* SurfaceSamplerTexture[5] = {};
+    unsigned long SurfaceSamplerStates[5][8] = {};
+    bool SurfaceSamplerValid[5] = {};
 
     struct WeaponGlintGroup
     {
@@ -157,26 +206,53 @@ struct FRp9ExState
     unsigned ShadowReadyMask = 0;
     unsigned ShadowCascade = 0;
     bool bShadowConfigRead = false;
-    unsigned ShadowResolution = 8192;
+    // Per map: [0] near, [1] far (and the far map's static cache).
+    unsigned ShadowResolution[2] = {4096, 4096};
     float ShadowNearRadius = 150.0f;
     float ShadowFarRadius = 5000.0f;
     float ShadowMaxLength = 200.0f;
     float ShadowDepthSpan[2] = {800.0f,10500.0f};
     float ShadowStrength = 0.85f;
     float ShadowLightAngle = 2.0f;
-    unsigned ShadowSearchSamples = 64;
-    unsigned ShadowFilterSamples = 192;
+    unsigned ShadowSearchSamples = 16;
+    unsigned ShadowFilterSamples = 32;
+    // NPC ship receivers (SetLocalShadowReceiver bits 5..6): 0 best, 1 moderate, 2 simple.
+    unsigned ShadowReceiverTier = 0;
+    float ShadowModerateSearchSamples = 8.0f, ShadowModerateFilterSamples = 8.0f;
+    // Casters marked by SetLocalShadowCaster(1) (NPC ships) store a negative depth; their
+    // shadow reaches only this far behind them.
+    float ShadowShortReach = 100.0f;
+    bool bShadowShortCaster = false;
+    // The far map's static cache is rebuilt after this long even when nothing changed.
+    DWORD ShadowStaticMaxAge = 10000;
     bool bQualityConfigRead = false;
     unsigned QualityAnisotropy = 16;
-    bool bQualityFxaa = true;
+    unsigned QualityFxaaMode = 1;
+    // Between a successful BeginScene and EndScene.
+    bool bInScene = false;
     bool bQualityFxaaFailed = false;
     IDirect3DTexture9* QualitySceneCopy = nullptr;
     IDirect3DPixelShader9* QualityFxaaPs = nullptr;
+    IDirect3DStateBlock9* QualitySavedState = nullptr;
     float ShadowBiasScale = 0.5f;
-    IDirect3DTexture9* ShadowMaps[2] = {};
+    // [0] near, [1] far, [2] the near map's moving casters (ships, asteroids).
+    IDirect3DTexture9* ShadowMaps[3] = {};
+    // Only the far cascade is cached: the near map stays live and needs no
+    // additional 8192-square allocation. Cache failure falls back to full draws.
+    IDirect3DTexture9* ShadowStaticMap = nullptr;
+    bool bShadowStaticCache = true, bShadowStaticValid = false;
+    bool bShadowStaticDrawing = false, bShadowStaticPrepared = false;
+    bool bShadowStaticFailed = false;
+    float ShadowStaticAnchor[3] = {}, ShadowStaticRay[3] = {};
+    unsigned long ShadowStaticKey[2] = {}, ShadowStaticPendingKey[2] = {};
+    DWORD ShadowStaticBuiltAt = 0;
+    unsigned ShadowStaticHits = 0, ShadowStaticBuilds = 0;
+    // Invalidations of a valid cache: camera move, sun direction, age, scene key.
+    unsigned ShadowStaticReasons[4] = {};
     IDirect3DSurface9* ShadowDepth = nullptr;
     IDirect3DVertexShader9* ShadowVs = nullptr;
     IDirect3DPixelShader9* ShadowPs = nullptr;
+    // Created once and re-captured per shadow map; released before a device reset.
     IDirect3DStateBlock9* ShadowSavedState = nullptr;
     IDirect3DSurface9* ShadowSavedColor = nullptr;
     IDirect3DSurface9* ShadowSavedDepth = nullptr;
@@ -195,4 +271,21 @@ struct FRp9ExState
     INT ShadowSavedBaseVertex = 0;
     D3DMATERIAL9 ShadowSavedMaterial = {};
     bool bShadowSavedMaterialValid = false;
+    bool bSurfaceNormalCached=false,bSurfaceLightsCached=false;
+    float SurfaceLastWorldView[16]={},SurfaceLastNormal[16]={};
+    D3DLIGHT9 SurfaceLastLights[8]={};unsigned SurfaceLastLightCount=0;
+    float SurfaceLastLightView[16]={},SurfacePackedLights[8*20]={},SurfaceLightAmbient[3]={};
+    bool bRenderStatsRead=false,bRenderStats=false;
+    FRp9GpuTimers GpuTimers;
+    // The "caching shaders" line drawn while the surface shader warm-up runs.
+    ID3DXFont* WarmupFont = nullptr;
+    IDirect3DStateBlock9* WarmupSavedState = nullptr;
+    int WarmupLanguage = -1; // -1 unread, 0 English, 1 Russian
+    DWORD RenderStatsAt=0;unsigned RenderStatsFrames=0;
+    bool bInstanceConfigRead=false,bSurfaceInstancing=false,bInstanceScope=false,bInstanceFailed=false;
+    IDirect3DVertexBuffer9* SurfaceInstanceVb=nullptr;
+    IDirect3DVertexShader9* SurfaceInstanceVs=nullptr;
+    std::map<unsigned long,IDirect3DVertexDeclaration9*> SurfaceInstanceDecls;
+    std::map<std::string,FRp9SurfaceInstanceGroup> SurfaceInstanceGroups;
+    unsigned SurfaceInstanceQueued=0;
 };

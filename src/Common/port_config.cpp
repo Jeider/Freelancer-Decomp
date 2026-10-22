@@ -12,12 +12,47 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
+#include <string>
+#include <unordered_map>
 #include <windows.h>
 
 namespace
 {
     char G_ExeDirectory[MAX_PATH] = {};
     char G_IniPath[MAX_PATH] = {};
+
+    // GetPrivateProfileString re-opens and parses port.ini on every call, and render code
+    // asks for keys every frame. Raw values are cached per section/key; the file's write time
+    // is checked at most once a second so edits made while the game runs still apply.
+    struct FPortValue
+    {
+        bool bPresent;
+        std::string Text;
+    };
+    std::mutex G_CacheLock;
+    std::unordered_map<std::string, FPortValue> G_Cache;
+    FILETIME G_CacheWriteTime = {};
+    DWORD G_CacheCheckedAt = 0;
+    bool G_bCacheChecked = false;
+
+    void RefreshCacheLocked()
+    {
+        DWORD const Now = GetTickCount();
+        if (G_bCacheChecked && Now - G_CacheCheckedAt < 1000)
+            return;
+        G_bCacheChecked = true;
+        G_CacheCheckedAt = Now;
+        WIN32_FILE_ATTRIBUTE_DATA Data = {};
+        FILETIME WriteTime = {};
+        if (GetFileAttributesExA(G_IniPath, GetFileExInfoStandard, &Data))
+            WriteTime = Data.ftLastWriteTime;
+        if (CompareFileTime(&WriteTime, &G_CacheWriteTime) != 0)
+        {
+            G_Cache.clear();
+            G_CacheWriteTime = WriteTime;
+        }
+    }
     char G_Language[32] = {};
     bool G_bInitialised = false;
 
@@ -92,7 +127,40 @@ unsigned __cdecl PortConfigString(char const* Section, char const* Key, char con
     Initialise();
     if (Out == nullptr || OutSize == 0)
         return 0;
-    DWORD Length = GetPrivateProfileStringA(Section, Key, Default, Out, OutSize, G_IniPath);
+    if (Default == nullptr)
+        Default = "";
+    char const* Source = Default;
+    std::string Cached;
+    {
+        std::string Name = Section != nullptr ? Section : "";
+        Name += '\n';
+        Name += Key != nullptr ? Key : "";
+        for (char& Char : Name)
+            if (Char >= 'A' && Char <= 'Z')
+                Char = static_cast<char>(Char - 'A' + 'a');
+        std::lock_guard<std::mutex> Lock(G_CacheLock);
+        RefreshCacheLocked();
+        auto Found = G_Cache.find(Name);
+        if (Found == G_Cache.end())
+        {
+            // A sentinel default tells a missing key from an empty value.
+            char Raw[1024];
+            GetPrivateProfileStringA(Section, Key, "\x01", Raw, sizeof(Raw), G_IniPath);
+            FPortValue Value;
+            Value.bPresent = std::strcmp(Raw, "\x01") != 0;
+            if (Value.bPresent)
+                Value.Text = Raw;
+            Found = G_Cache.emplace(std::move(Name), std::move(Value)).first;
+        }
+        if (Found->second.bPresent)
+        {
+            Cached = Found->second.Text;
+            Source = Cached.c_str();
+        }
+    }
+    std::strncpy(Out, Source, OutSize - 1);
+    Out[OutSize - 1] = '\0';
+    DWORD Length = static_cast<DWORD>(std::strlen(Out));
     // GetPrivateProfileString keeps an inline "; comment"; cut it and the blanks before it.
     if (char* const Comment = std::strchr(Out, ';'))
     {

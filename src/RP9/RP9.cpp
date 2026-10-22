@@ -12,6 +12,7 @@
 // them with the D3D8 -> D3D9 translation table.
 #include "RP9.h"
 #include "RP9Ex.h"
+#include "RP9DeviceCallCache.h"
 #include "Mgsdb.h"
 #include "readfile.h"
 #include "x86math.h"
@@ -558,7 +559,7 @@ namespace
     {
         D3DSAMPLERSTATETYPE Sampler;
         if (Rp9SamplerStateFromTss(D3d8Type, &Sampler))
-            return Device->SetSamplerState(Stage, Sampler, Value);
+            return Rp9SetSamplerState(Device, Stage, Sampler, Value);
         return Device->SetTextureStageState(Stage, (D3DTEXTURESTAGESTATETYPE)(D3d8Type), Value);
     }
 
@@ -588,7 +589,7 @@ namespace
         case kD3d8RsEdgeAntialias:
             // D3D9 renamed D3DRS_EDGEANTIALIAS to D3DRS_ANTIALIASEDLINEENABLE (both: antialias
             // lines, BOOL).
-            return Device->SetRenderState(D3DRS_ANTIALIASEDLINEENABLE, Value);
+            return Rp9SetRenderState(Device, D3DRS_ANTIALIASEDLINEENABLE, Value);
         case kD3d8RsZBias:
         {
             // RP9-GAP (the one approximation): D3D8 ZBIAS is an integer 0..16 whose unit is
@@ -600,7 +601,7 @@ namespace
             const float Bias = (float)(-(double)(LONG)(Value) * ldexp(1.0, -DepthBiasZBits));
             DWORD Bits = 0;
             memcpy(&Bits, &Bias, sizeof(Bits));
-            return Device->SetRenderState(D3DRS_DEPTHBIAS, Bits);
+            return Rp9SetRenderState(Device, D3DRS_DEPTHBIAS, Bits);
         }
         case kD3d8RsSoftwareVertexProcessing:
             // D3D9 moved the switch out of the render states. Like D3D8 it is only meaningful
@@ -619,7 +620,7 @@ namespace
             return Device->SetNPatchMode(Segments);
         }
         default:
-            return Device->SetRenderState((D3DRENDERSTATETYPE)(D3d8State), Value);
+            return Rp9SetRenderState(Device, (D3DRENDERSTATETYPE)(D3d8State), Value);
         }
     }
 
@@ -753,6 +754,8 @@ namespace
     std::vector<FRp9LightRecord*> G_DirtyLights;
     // FUN_06d2c01a: DAT_06d728cc = map<handle, record> (keys compared unsigned).
     std::map<unsigned long, FRp9LightRecord> G_LightRecords;
+    std::vector<std::pair<unsigned long,FRp9LightRecord*>> G_SurfaceActiveLights;
+    bool G_SurfaceActiveLightsDirty=true;
 
     // FUN_06d2c553: take an index from the pool. Used >= size -> resize(size + 0x10, 0) and
     // dump " exceeded 64 allocated lights. now at: %d" (StateCache.cpp 0x7c) with the new size;
@@ -943,6 +946,7 @@ namespace
 // formerly LightManagerConstruct
 void FRp9LightManager::Initialize()
 {
+    G_SurfaceActiveLightsDirty=true;
     Generation = 0;
     EnabledCount = 0;
     G_DirtyLights.reserve(0x40);
@@ -974,6 +978,7 @@ int FRp9LightManager::FindOrCreate(unsigned long Handle, const D3DLIGHT8* Data)
 // formerly LightRemove
 bool FRp9LightManager::Remove(unsigned long Handle)
 {
+    G_SurfaceActiveLightsDirty=true;
     std::map<unsigned long, FRp9LightRecord>::iterator It = G_LightRecords.find(Handle);
     if (It == G_LightRecords.end())
         return false;
@@ -1042,6 +1047,7 @@ bool FRp9LightManager::SetEnable(unsigned long Handle, int Enable)
 // formerly LightReset
 void FRp9LightManager::Reset()
 {
+    G_SurfaceActiveLightsDirty=true;
     G_DirtyLights.clear();
     Generation = 0;
     EnabledCount = 0;
@@ -1089,6 +1095,7 @@ HRESULT FRp9LightManager::Flush(IDirect3DDevice9* Device)
             break;
         if (bWasEnabled != Record->bEnabled)
         {
+            G_SurfaceActiveLightsDirty=true;
             if (Record->bEnabled != 0)
                 ++EnabledCount;
             else
@@ -2214,7 +2221,7 @@ void FRp9TransformCache::Commit(IDirect3DDevice9* Device, D3DTRANSFORMSTATETYPE 
         return;
     bApplyMarker = 0;
     bCommitted = 1;
-    const HRESULT Hr = Device->SetTransform(Type, (const D3DMATRIX*)Values);
+    const HRESULT Hr = Rp9SetTransform(Device, Type, (const D3DMATRIX*)Values);
     bCommitted = Hr >= 0 ? 1 : 0;
 }
 
@@ -2267,7 +2274,7 @@ void FDirectX9::FlushDrawState(IDirect3DDevice9* Device)
         {
             // D3D8 SetVertexShader(FVF) -> D3D9 SetFVF(FVF); no vertex shader object is ever
             // bound (the device default after create/reset is none), so the FVF is in effect.
-            const HRESULT ShaderHr = Device->SetFVF(Shader);
+            const HRESULT ShaderHr = Rp9SetFvf(Device, Shader);
             if (ShaderHr < 0)
             {
                 FdumpHr("flush_vertex_shader: %s", ShaderHr, 0x4f, kSrcDx8ShaderInl);
@@ -2772,7 +2779,7 @@ void FDirectX9::ApplyDefaultTextureStages()
         FRp9TextureBinding& Cache = DeviceStates_.TextureBindings[Stage];
         Cache.bValid = 0;
         Cache.Handle = nullptr;
-        const HRESULT TextureHr = Device_->SetTexture(Stage, nullptr);
+        const HRESULT TextureHr = Rp9SetTexture(Device_, Stage, nullptr);
         if (TextureHr >= 0)
         {
             Cache.Handle = nullptr;
@@ -2839,7 +2846,7 @@ void FDirectX9::UnbindTextureHandle(void* Handle)
         {
             if (Cache.bValid != 0 && Cache.Handle == nullptr)
                 continue;
-            const HRESULT Hr = Device_->SetTexture(Stage, nullptr);
+            const HRESULT Hr = Rp9SetTexture(Device_, Stage, nullptr);
             if (Hr >= 0)
             {
                 Cache.Handle = nullptr;
@@ -2895,7 +2902,7 @@ void FDirectX9::ExRestoreStage(unsigned long Stage, const FRp9ExStageSave* Saved
     IDirect3DBaseTexture9* Texture = nullptr;
     if (Saved->Binding.bValid != 0)
         Texture = PipelineTextureFromHandle(Saved->Binding.Handle);
-    const HRESULT TextureHr = Device_->SetTexture(Stage, Texture);
+    const HRESULT TextureHr = Rp9SetTexture(Device_, Stage, Texture);
     if (TextureHr >= 0 && Saved->Binding.bValid != 0)
         Binding = Saved->Binding;
     else
@@ -3532,6 +3539,17 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
     }
     else if (SwapEffect == kD3d8SwapEffectCopyVsync)
         SwapEffect9 = D3DSWAPEFFECT_COPY;
+    // Port-only benchmark override. Keep the retail mode's synchronization
+    // unless explicitly disabled; the client's software limit is independent.
+    char PortIni[MAX_PATH]={}; GetModuleFileNameA(nullptr,PortIni,MAX_PATH);
+    char* PortSlash=strrchr(PortIni,'\\');
+    if(PortSlash && (PortSlash-PortIni)+1+sizeof("port.ini")<=sizeof(PortIni))
+    {
+        strcpy(PortSlash+1,"port.ini");
+        Rp9DeviceCalls().Enabled=GetPrivateProfileIntA("Render","state_cache",0,PortIni)!=0;
+        if(GetPrivateProfileIntA("Render","vsync",1,PortIni)==0)
+            PresentInterval9=D3DPRESENT_INTERVAL_IMMEDIATE;
+    }
     D3DPRESENT_PARAMETERS Present;
     memset(&Present, 0, sizeof(Present));
     Present.BackBufferWidth = (UINT)(Desc->Width);
@@ -3593,6 +3611,7 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
     {
         // 06d091c7: Reset (+0x38)(&pp); failure -> 'create_device: %s' 0x8f4, return hr.
         Hr = Device_->Reset(&Present);
+        Rp9DeviceCalls().Invalidate();
         if (Hr < 0)
         {
             FdumpHr("create_device: %s", Hr, 2292);
@@ -3690,6 +3709,7 @@ GENRESULT DACOM_API FDirectX9::DestroyGpuResources()
 // RP8: FDirectX8::ClearBuffers
 GENRESULT DACOM_API FDirectX9::ClearBuffers(unsigned long Flags, const void* Rects)
 {
+    ExFlushSurfaceInstances();
     const GENRESULT Ready = NeedBuffers(
         "clear_buffers() called outside of create_buffers/destroy_buffers", 2402);
     if (Ready != GR_OK)
@@ -3720,10 +3740,18 @@ GENRESULT DACOM_API FDirectX9::ClearBuffers(unsigned long Flags, const void* Rec
 // RP8: FDirectX8::SwapBuffers
 GENRESULT DACOM_API FDirectX9::SwapBuffers()
 {
+    ExFlushSurfaceInstances();
+    ExReportFrameStats();
     const GENRESULT Ready = NeedBuffers(
         "swap_buffers() called outside of create_buffers/destroy_buffers", 2442);
     if (Ready != GR_OK)
         return Ready;
+    // Port-only: [Render] fxaa = 2 filters the finished frame, HUD included, then the GPU
+    // frame timers close this frame and open the next.
+    if (Ex_ != nullptr && Ex_->QualityFxaaMode == 2)
+        ExApplyFrameAntialiasing();
+    ExDrawWarmupOverlay();
+    ExGpuFrameBoundary();
     RECT SrcRect;
     RECT DestRect;
     const RECT* Src = nullptr;
@@ -3770,12 +3798,15 @@ GENRESULT DACOM_API FDirectX9::BeginScene()
     const HRESULT Hr = Device_->BeginScene();
     if (Hr < 0)
         FdumpHr("begin_scene: %s", Hr, 3544);
+    else if (Ex_ != nullptr)
+        Ex_->bInScene = true;
     return (GENRESULT)(Hr);
 }
 
 // RP8: FDirectX8::EndScene
 GENRESULT DACOM_API FDirectX9::EndScene()
 {
+    ExFlushSurfaceInstances();
     const GENRESULT Ready = NeedBuffers(
         "end_scene() called outside of create_buffers/destroy_buffers", 3556);
     if (Ready != GR_OK)
@@ -3784,6 +3815,8 @@ GENRESULT DACOM_API FDirectX9::EndScene()
     const HRESULT Hr = Device_->EndScene();
     if (Hr < 0)
         FdumpHr("end_scene: %s", Hr, 3560);
+    else if (Ex_ != nullptr)
+        Ex_->bInScene = false;
     return (GENRESULT)(Hr);
 }
 
@@ -3815,8 +3848,14 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitive(unsigned long Prim, unsigned
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
     const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
     const bool bSurface = !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft)
+        ExSurfaceRelease(); // a fixed-function draw after a surface draw
+    if(!bSurface) ExFlushSurfaceInstances();
+    else if(ExQueueSurfaceInstance(Prim,MinIndex,NumVertices,StartIndex,PrimCount))
+    {ExSurfaceEnd();return GR_OK;}
     // D3D9 takes the base vertex index here; it is the one the D3D8 device holds
     // (DeviceBaseVertex_, see FlushDrawState).
+    ExNoteDraw(PrimCount);
     Hr = Device->DrawIndexedPrimitive((D3DPRIMITIVETYPE)(Prim), DeviceBaseVertex_, MinIndex,
                                       NumVertices, StartIndex, PrimCount);
     if (bSurface)
@@ -4032,6 +4071,8 @@ GENRESULT DACOM_API FDirectX9::GetDeviceStats(void* /*Out*/)
 // RP8: FDirectX8::SetViewportRect
 GENRESULT DACOM_API FDirectX9::SetViewportRect(int X, int Y, int W, int H)
 {
+    if((int)ViewportCache_.X!=X || (int)ViewportCache_.Y!=Y ||
+       (int)ViewportCache_.Width!=W || (int)ViewportCache_.Height!=H) ExFlushSurfaceInstances();
     if (Device_ == nullptr)
     {
         Rp9Fdump(kFdumpWarning, 2603, "WARNING", "set_viewport() called outside of device lifetime");
@@ -4084,6 +4125,7 @@ GENRESULT DACOM_API FDirectX9::GetViewportRect(int* OutX, int* OutY, int* OutW, 
 // RP8: FDirectX8::SetDepthRange
 GENRESULT DACOM_API FDirectX9::SetDepthRange(float MinZ, float MaxZ)
 {
+    if(ViewportCache_.MinZ!=MinZ || ViewportCache_.MaxZ!=MaxZ) ExFlushSurfaceInstances();
     const GENRESULT Ready = NeedDeviceLifetime(
         "set_depth_range() called outside of device lifetime", 2622);
     if (Ready != GR_OK)
@@ -4504,12 +4546,18 @@ GENRESULT DACOM_API FDirectX9::DestroyLight(void* Handle)
 }
 unsigned int FDirectX9::ExCollectSurfaceLights(D3DLIGHT9* Out, unsigned int Capacity)
 {
-    unsigned int Count = 0;
-    for (auto const& Item : G_LightRecords)
+    if(G_SurfaceActiveLightsDirty)
     {
-        FRp9LightRecord const& Record = Item.second;
-        if (!Record.bEnabled || Count == Capacity)
-            continue;
+        G_SurfaceActiveLights.clear();
+        for(auto& Item:G_LightRecords) if(Item.second.bEnabled)
+            G_SurfaceActiveLights.emplace_back(Item.first,&Item.second);
+        G_SurfaceActiveLightsDirty=false;
+    }
+    unsigned int Count = 0;
+    for (auto const& Item : G_SurfaceActiveLights)
+    {
+        if(Count==Capacity) break;
+        FRp9LightRecord const& Record = *Item.second;
         if (Record.Data != nullptr)
             Out[Count++] = *Record.Data;
         else
@@ -4568,9 +4616,9 @@ GENRESULT DACOM_API FDirectX9::SetMaterial(const D3DMATERIAL8* Material)
         "set_material() called outside of create_buffers/destroy_buffers", 3020);
     if (Ready != GR_OK)
         return Ready;
-    // FUN_06d0d1dc 06d0d254..06d0d30d: Device->SetMaterial(+0xa8); hr < 0 ->
+    // FUN_06d0d1dc 06d0d254..06d0d30d: Rp9SetMaterial(Device, +0xa8); hr < 0 ->
     // "set_material: %s" (line 0xbd0); return hr.
-    const HRESULT Hr = Device_->SetMaterial(Material);
+    const HRESULT Hr = Rp9SetMaterial(Device_, Material);
     if (SUCCEEDED(Hr))
     {
         Ex_->SurfaceMaterial = *Material;
@@ -5088,7 +5136,7 @@ GENRESULT DACOM_API FDirectX9::SetTextureStageState(int Stage, int Type, int Val
         if(Type==kD3d8TssMinFilter && Value>0)
         {
             Value=D3DTEXF_ANISOTROPIC;
-            Device_->SetSamplerState(Stage,D3DSAMP_MAXANISOTROPY,Ex_->QualityAnisotropy);
+            Rp9SetSamplerState(Device_, Stage,D3DSAMP_MAXANISOTROPY,Ex_->QualityAnisotropy);
             auto& Aniso=DeviceStates_.TextureStates[Stage][kD3d8TssMaxAnisotropy];
             Aniso.Value=Ex_->QualityAnisotropy;Aniso.bValid=1;
         }
@@ -5172,7 +5220,7 @@ GENRESULT DACOM_API FDirectX9::SetTextureStageTexture(int Stage, void* Handle)
                      kSrcDx8Texture);
         Texture = Wrapper->Texture;
     }
-    const HRESULT Hr = Device_->SetTexture((unsigned long)Stage, Texture);
+    const HRESULT Hr = Rp9SetTexture(Device_, (unsigned long)Stage, Texture);
     if (Hr >= 0)
     {
         Cache.Handle = Handle;
@@ -5250,6 +5298,7 @@ GENRESULT DACOM_API FDirectX9::VerifyState()
 GENRESULT DACOM_API FDirectX9::DrawPrimitive(unsigned long Prim, unsigned int Fvf, const void* Verts,
                                             unsigned int Count, void* /*Unused*/)
 {
+    ExFlushSurfaceInstances();
     // FUN_06d1067f RET 0x18. Device +0x120 DrawPrimitiveUP.
     const GENRESULT Ready = NeedBuffers(
         "draw_primitive() called outside of create_buffers/destroy_buffers", 3789);
@@ -5264,8 +5313,11 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitive(unsigned long Prim, unsigned int Fv
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
     const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
     const bool bSurface = !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft)
+        ExSurfaceRelease(); // a fixed-function draw after a surface draw
     const unsigned int PrimCount = PrimCountFromVerts(Prim, Count);
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
+    ExNoteDraw(PrimCount);
     Result = Device_->DrawPrimitiveUP((D3DPRIMITIVETYPE)(Prim), PrimCount, Verts, Stride);
     if (bSurface)
         ExSurfaceEnd();
@@ -5282,6 +5334,7 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveUp(unsigned long Prim, unsign
                                                      const void* Indices, unsigned int IndexCount,
                                                      unsigned long Unused)
 {
+    ExFlushSurfaceInstances();
     // FUN_06d1097d RET 0x20 -- eight dwords, this plus seven arguments; the seventh is never
     // read here but the callee pops it and Freelancer.exe 0x004217b6 / 0x00421973 push it.
     // Device +0x124 DrawIndexedPrimitiveUP; minIndex=0, format=0x65.
@@ -5300,7 +5353,10 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveUp(unsigned long Prim, unsign
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
     const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
     const bool bSurface = !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft)
+        ExSurfaceRelease(); // a fixed-function draw after a surface draw
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
+    ExNoteDraw(PrimCount);
     Result = Device_->DrawIndexedPrimitiveUP((D3DPRIMITIVETYPE)(Prim), 0, VertCount,
                                              PrimCount, Indices, D3DFMT_INDEX16, Verts, Stride);
     if (bSurface)
@@ -5316,6 +5372,7 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveUp(unsigned long Prim, unsign
 GENRESULT DACOM_API FDirectX9::DrawPrimitiveVb(unsigned long Prim, void* Vb, unsigned int StartVertex,
                                               unsigned int Count, void* /*Unused*/)
 {
+    ExFlushSurfaceInstances();
     // FUN_06d10c89 RET 0x18. Device +0x118 DrawPrimitive(prim, start, primCount).
     const GENRESULT Ready = NeedBuffers(
         "draw_primitive_vb() called outside of create_buffers/destroy_buffers", 3853);
@@ -5331,6 +5388,9 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitiveVb(unsigned long Prim, void* Vb, uns
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
     const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
     const bool bSurface = !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft)
+        ExSurfaceRelease(); // a fixed-function draw after a surface draw
+    ExNoteDraw(PrimCount);
     Result = Device_->DrawPrimitive((D3DPRIMITIVETYPE)(Prim), StartVertex, PrimCount);
     if (bSurface)
         ExSurfaceEnd();
@@ -5346,6 +5406,7 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveVb(unsigned long Prim, void* 
                                                      const void* Indices, unsigned int IndexCount,
                                                      unsigned long Unused)
 {
+    ExFlushSurfaceInstances();
     (void)Unused;
     const GENRESULT Ready = NeedBuffers(
         "draw_indexed_primitive_vb() called outside of create_buffers/destroy_buffers", 3878);
@@ -5386,7 +5447,10 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveVb(unsigned long Prim, void* 
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
     const bool bSoft = ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
     const bool bSurface = !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft)
+        ExSurfaceRelease(); // a fixed-function draw after a surface draw
     // D3D9: the base vertex index set by the flush above travels with the draw call.
+    ExNoteDraw(PrimCount);
     Result = Device_->DrawIndexedPrimitive((D3DPRIMITIVETYPE)(Prim), DeviceBaseVertex_, 0,
                                            NumVerts, LockOffset, PrimCount);
     if (bSurface)
@@ -5465,7 +5529,7 @@ GENRESULT DACOM_API FDirectX9::SetWorldN(int WorldIndex, const float* M12)
     Scratch[7] = 0.0f;
     Scratch[11] = 0.0f;
     Scratch[15] = 1.0f;
-    const HRESULT Hr = Device_->SetTransform(
+    const HRESULT Hr = Rp9SetTransform(Device_,
         (D3DTRANSFORMSTATETYPE)((unsigned long)WorldIndex + D3DTS_WORLDMATRIX(0)),
         (D3DMATRIX*)(Scratch));
     return (GENRESULT)Hr;

@@ -40,3 +40,24 @@ respectively, with identical bytecode lengths. These are shader preparation
 measurements, not total game startup times. The GPU route/regression suite passed
 with cache-enabled compilation. Prepared records for the matching compiler DLLs
 can be copied into the user cache to avoid those particular first-launch misses.
+
+## Key fixes and warm-up (2026-10-22)
+
+Two inputs made keys differ between processes, so pre-built entries were never found and
+every RP9 rebuild recompiled everything:
+
+- The compiler identity hashed the module containing `&D3DXPreprocessShader`, which is the
+  import thunk inside the *calling* module (RP9.dll, or the tool's exe), not d3dx9_43.dll. It
+  now hashes `d3dx9_43.dll` and `d3dcompiler_43.dll` by name (the latter loaded explicitly, so
+  load order does not matter).
+- D3DX names an in-memory source `"<current directory>\memory"` in the expanded text's
+  `#line` directives. The file names are removed before hashing and compiling.
+
+The cache revision is now `v2`. RP9 starts a warm-up at device creation (in the menus): one
+worker thread per surface variant compiles into the cache, and while it runs `ExSurfaceBegin`
+uses the native materials instead of compiling on the render thread; a "caching shaders N/M"
+line (Russian or English from port.ini [Language]) is drawn in the top-left corner at
+SwapBuffers. With a warm cache the warm-up ends in milliseconds. `tools/warm_surface_cache`
+compiles the same variants in parallel (about 71 s cold for the two full variants on this
+machine, 31 ms warm); the real-RP9 route check, run from another directory, then finds every
+surface entry (1 s instead of over a minute).

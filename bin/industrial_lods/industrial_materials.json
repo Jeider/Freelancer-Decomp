@@ -1,0 +1,82 @@
+{
+  "0xf0df7ffe": [
+    "STADTL1_256",
+    "DcDt",
+    "solar_mat_tink.mat"
+  ],
+  "0xfc27e50e": [
+    "STADTL2_256",
+    "DcDt",
+    "solar_mat_tink.mat"
+  ],
+  "0xe2c188d7": [
+    "space_cap",
+    "DcDt",
+    "solar_mat_tink.mat"
+  ],
+  "0x1c2ae443": [
+    "space_tank_cap",
+    "DcDt",
+    "solar_mat_tink.mat"
+  ],
+  "0xe63dc03f": [
+    "STADTL2_256MB",
+    "DcDt",
+    "solar_mat_tink.mat"
+  ],
+  "0x13210c2f": [
+    "space_girder01",
+    "DcDt",
+    "solar_mat_tink.mat"
+  ],
+  "0xe1ef0c49": [
+    "track_tube_128",
+    "DcDt",
+    "solar_mat_tink.mat"
+  ],
+  "0xe3674112": [
+    "metal_deck021114155608",
+    "DcDt",
+    "SOLAR/MISC/space_industrial03.3db"
+  ],
+  "0x1912ceec": [
+    "metal_detail_01021114155608",
+    "DcDt",
+    "SOLAR/MISC/space_industrial03.3db"
+  ],
+  "0xef0f158e": [
+    "detailmap_deck021114155608",
+    "DcDt",
+    "SOLAR/MISC/space_industrial03.3db"
+  ],
+  "0xfbe28c33": [
+    "metal_tank_04021114155608",
+    "DcDt",
+    "SOLAR/MISC/space_industrial03.3db"
+  ],
+  "0xe3646eb5": [
+    "metal_tube021114155608",
+    "DcDt",
+    "SOLAR/MISC/space_industrial03.3db"
+  ],
+  "0xe11e848d": [
+    "metal_tank_03021114155608",
+    "DcDt",
+    "SOLAR/MISC/space_industrial03.3db"
+  ],
+  "0x160e12f1": [
+    "metal_tank_02021114155608",
+    "DcDt",
+    "SOLAR/MISC/space_industrial03.3db"
+  ],
+  "0x1a3fe3ee": [
+    "metal_tank_01",
+    "DcDt",
+    "SOLAR/MISC/space_industrial03.3db"
+  ],
+  "0x2432e58": [
+    "metal_detail_02021114155608",
+    "DcDt",
+    "SOLAR/MISC/space_industrial03.3db"
+  ]
+}

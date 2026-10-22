@@ -1,0 +1,691 @@
+[
+  {
+    "file": "SOLAR/MISC/space_industrial.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.solar.misc.space_industrial.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          6,
+          828,
+          274,
+          431
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/data.solar.misc.space_industrial.lod1-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          348,
+          274,
+          216
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/MultiLevel/Level0/VMeshPart/VMeshRef",
+      "/\\/MultiLevel/Level1/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.solar.misc.space_industrial01.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          6,
+          1068,
+          274,
+          506
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/data.solar.misc.space_industrial01.lod1-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          6,
+          780,
+          274,
+          410
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/MultiLevel/Level0/VMeshPart/VMeshRef",
+      "/\\/MultiLevel/Level1/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01a.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/ind01a.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          543
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01a_alt.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/ind01a_alt_low_Detail.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          543
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01b.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/ind01b.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          543
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01c.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/ind01c.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          414,
+          274,
+          202
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01d.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/ind010d_rm_version.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          410
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/fl.rmbase_panels_wire.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          432,
+          274,
+          163
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01e.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/ind01e_rm_version.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          410
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/fl.rmbase_doors_wire.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          576,
+          274,
+          217
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01f.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/rmbase_smugglers_core.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          410
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/fl.rmbase_smuggler_wire.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          324,
+          274,
+          125
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01g.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/rmbase_traders_core.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          410
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/fl.rmbase_trader_wire.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          600,
+          274,
+          208
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01h.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/___ind010h_rm_version.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          410
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/fl.rmbase_shipyard_wire.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          684,
+          274,
+          266
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01i.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/space_industrial_i_for_gasminer.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          410
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/fl.rmbase_gasminer_wire.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          48,
+          274,
+          18
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial01j.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/jeiders_space_rmbase_newgasminer_root.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          996,
+          274,
+          410
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/fl.rmbase_newgasminer_wire.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          132,
+          274,
+          50
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial02.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.solar.misc.space_industrial02.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          972,
+          274,
+          882
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/data.solar.misc.space_industrial02.lod1-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          636,
+          274,
+          506
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/MultiLevel/Level0/VMeshPart/VMeshRef",
+      "/\\/MultiLevel/Level1/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial02a.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/ind02a_new.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          4,
+          900,
+          274,
+          565
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial02b.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/xspace_ind_b_40_percent.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          4,
+          900,
+          274,
+          565
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial02d.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/jeider_s_space_ind02_special_for_co-dread.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          4,
+          900,
+          274,
+          575
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial03.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/jeider_s_new_space_industrial_from_water_base.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          7,
+          720,
+          274,
+          637
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industriala.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/space_ind_0a_by_jeider.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          756,
+          274,
+          409
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industriala_alt.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/space_ind_0a_ALT_by_jeider.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          756,
+          274,
+          409
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industriala_alt2.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/space_ind_0a_ALT+SEC_by_jeider.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          756,
+          274,
+          409
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrialc.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/jeider_s_space_ind_short_big_version.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          5,
+          498,
+          274,
+          283
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "SOLAR/MISC/space_industrial_dmg.cmp",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.solar.misc.space_industrial_dmg.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          6,
+          816,
+          274,
+          425
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/data.solar.misc.space_industrial_dmg.lod1-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          6,
+          480,
+          274,
+          298
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/beam_ind_dmg_lod1020809105404.3db/MultiLevel/Level0/VMeshPart/VMeshRef",
+      "/\\/beam_ind_dmg_lod1020809105404.3db/MultiLevel/Level1/VMeshPart/VMeshRef",
+      "/\\/industrial_dmg_lod1020809105404.3db/MultiLevel/Level0/VMeshPart/VMeshRef",
+      "/\\/industrial_dmg_lod1020809105404.3db/MultiLevel/Level1/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "EQUIPMENT/MODELS/COMMODITIES/crates_old/cargo_industrial.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.equipment.models.commodities.crates.cargo_industrial.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          8,
+          312,
+          274,
+          212
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "EQUIPMENT/MODELS/COMMODITIES/crates_old/pod_industrial.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.equipment.models.commodities.crates.pod_industrial.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          7,
+          996,
+          274,
+          480
+        ]
+      },
+      {
+        "name": "/\\/VMeshLibrary/data.equipment.models.commodities.crates.pod_drab.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          192,
+          274,
+          104
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "EQUIPMENT/MODELS/COMMODITIES/NN_ICONS/cwire_industrial_1.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.equipment.models.commodities.nn_icons.cwire_industrial_1.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          594,
+          274,
+          401
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "EQUIPMENT/MODELS/COMMODITIES/NN_ICONS/cwire_industrial_2.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.equipment.models.commodities.nn_icons.cwire_industrial_2.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          513,
+          274,
+          381
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "EQUIPMENT/MODELS/COMMODITIES/NN_ICONS/cwire_industrial_3.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.equipment.models.commodities.nn_icons.cwire_industrial_3.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          576,
+          274,
+          515
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  },
+  {
+    "file": "EQUIPMENT/MODELS/COMMODITIES/NN_ICONS/industrial.3db",
+    "meshes": [
+      {
+        "name": "/\\/VMeshLibrary/data.equipment.models.commodities.nn_icons.industrial.lod0-112.vms/VMeshData",
+        "header": [
+          1,
+          4,
+          1,
+          6,
+          274,
+          4
+        ]
+      }
+    ],
+    "refs": [
+      "/\\/VMeshPart/VMeshRef"
+    ]
+  }
+]

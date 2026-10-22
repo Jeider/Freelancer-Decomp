@@ -25,6 +25,7 @@
 #include "space_camera_static.h"
 #include "space_camera_docking.h"
 #include "space_camera_death.h"
+#include "space_camera_game.h" // GetCameraShakeAmount (port-only precise_view pause)
 #include "space_app.h"       // G_SpaceApp (DAT_00678b98)
 #include "player_spawn.h"
 #include "client_gameobj.h" // CloseRearAndTurretViewsForDocking (FUN_00549e30)
@@ -1094,7 +1095,11 @@ float const* DACOM_API FSpaceCamera::GetViewTransform()
             return Math != nullptr ? reinterpret_cast<PortRegisterViewFn>(GetProcAddress(Math, PORT_REGISTER_VIEW_EXPORT))
                                    : nullptr;
         }();
-        if (S_Register != nullptr)
+        // While the camera shakes (hull/shield hits, jumps) the precise path is off for every
+        // view, so the shake reaches the scene unfiltered.
+        if (S_Register != nullptr && GetCameraShakeAmount() > 0.0f)
+            S_Register(nullptr, nullptr, nullptr);
+        else if (S_Register != nullptr)
             S_Register(this, this->View, this->WorldPos);
 #endif
     }

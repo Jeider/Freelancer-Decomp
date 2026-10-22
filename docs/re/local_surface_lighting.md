@@ -449,3 +449,209 @@ and matched ray pixels with a source inside versus outside the viewport
 (pixel-identical). Source-extracted native probe tests cover foreground,
 background, endpoint and camera-border cases. The Win32 client builds. The
 updated solar PS uses the existing disk cache; no engine changes are included.
+
+## Static megabase shadow cache (2026-10-22)
+
+`[Render] shadow_static_cache=1` (default) enables a far-cascade static-depth
+cache and component-level near-cascade caster culling for layered stations.
+`0` restores the former full-station shadow submission path. The main colour
+pass, surface shader filtering, shadow resolution and 200 m reach are unchanged.
+
+The client walks each eligible solar's Engine hierarchy. A component becomes
+cacheable after 500 ms of unchanged world transform and archetype, with no
+missing observation frames. Moving turrets/attachments remain live independently
+of fixed panels on the same root. Ships and dynamic asteroids are always live.
+Continuous solar animations and active gate scripts remain live. The signature
+includes the system, component handles, archetypes and transforms; additions,
+removals, motion and mesh replacement invalidate the static set immediately.
+Trees are bounded to 64 levels and stale tracking entries are discarded each frame.
+
+At least 32 stable components are required before enabling the GPU cache. It
+stores one additional far-cascade R32F map (256 MiB at 8192, 64 MiB at 4096),
+allocated lazily. Allocation/restore-shader failure falls back to ordinary draws.
+Near shadows stay live; their component bounding spheres are conservatively
+culled against the near light volume, including upstream casters and transform
+scale. Neither path uses the main camera's frustum to reject shadow casters.
+Depth-only components can share a batch flush; this is not hardware instancing
+and does not merge the base's main-pass draw calls.
+
+The far cache uses a world-anchored light frame. Camera translation/rotation
+rebase its matrix without shifting the cached shadows. It rebuilds after movement
+exceeds 5% of the far radius, sunlight rotation exceeds a half-texel angular
+tolerance, the geometry signature changes, or one second elapses. The age limit
+also bounds changes to material state/LOD which are not represented by transforms.
+On reuse a fullscreen pass restores both R32F colour and hardware Z before live
+casters draw. This avoids frozen ships, ghost shadows, and live geometry behind
+a station overwriting its nearer static depth. Device reset releases all cache
+resources. Logs report `static shadow cache: builds ..., reused ...`.
+
+Validation uses source-extracted production functions, not copies of the cache
+algorithm. `tools/build_shadow_cache_check.py` generates a D3D9 fixture that
+checks every pixel of cached/static plus live depth, camera translation/rotation,
+removal of live shadows, key/region/sun/age invalidation, cache-off fallback and
+resource release. `tools/build_shadow_component_check.py` checks independent
+panel/turret tracking, mesh replacement, reappearance and near-volume culling.
+Both fixtures and Release Win32 client/RP9 builds pass. Actual megabase FPS and
+the cost of the full-map depth restore still require an in-game comparison.
+
+### Uncapped performance comparison
+
+RP9 `[Render] vsync=0` selects `D3DPRESENT_INTERVAL_IMMEDIATE` when creating or
+resetting the device. `[Render] fps_limit=0` removes the client's software frame
+wait, including the default 200 FPS ceiling. Positive `fps_limit` values impose
+that cap; absent/-1 preserves the retail performance-slider/console cap. VSync
+defaults to the existing mode behaviour. Both settings require a restart for a
+controlled comparison. External driver/overlay frame limiters remain independent.
+
+## Renderer-only megabase optimisations (2026-10-22)
+
+No mesh, material-library, texture, collision or LOD assets are regenerated or
+modified. The additional instance buffer contains only per-draw transforms.
+
+- `state_cache=1` (default) mirrors actual D3D9 material, FVF, transform,
+  render-state, texture, sampler and shader calls. Exact duplicate requests are
+  omitted. Float shader constants upload only the changed leading/trailing
+  register range. State-block Apply/device reset invalidates this mirror;
+  it is separate from the existing retail logical state queues. `0` disables
+  deduplication for comparison while retaining correct device validation.
+- Surface normal matrices are reused for identical world-view transforms.
+  Orthonormal transforms use their rotation directly; scaled/sheared transforms
+  retain inverse-transpose handling. Light descriptors in view space are cached
+  by the active light data and view transform. Directional-light positions are
+  canonical zero and their view translations are irrelevant. Active-light
+  iteration is rebuilt when enable states/deletions/reset change, preserving
+  original handle order and the eight-light limit without walking disabled lights
+  for every material.
+- `surface_instancing=1` (default) groups repeated static-buffer indexed opaque
+  draws during consecutive solar-object rendering, including attached components.
+  Keys include geometry/ranges, material pixel constants, projection/environment
+  constants, textures, samplers, render states and viewport. World-view and normal
+  matrices form a second per-instance stream. The first occurrence draws normally;
+  unique meshes allocate no state block. Repeated groups use hardware SM3
+  instancing, with ordinary per-instance draws as a failure fallback. Software
+  vertex-processing devices retain ordinary rendering.
+- A queue is bounded to 128 groups/1024 pending instances. It flushes at bucket
+  boundaries, ships/non-solar draws, transparent/unsupported draws, clear,
+  viewport/depth partition changes, shadow/postprocess passes and scene end.
+  Both native state and stream frequencies are restored. Different lighting or
+  projectile-glint selections remain distinct groups. Instancing also operates
+  when local shadows are disabled; bit 2 of SetLocalShadowReceiver enables the
+  grouping scope independently of bit 0 (shadow receiving).
+- Directional shading avoids point-light distance/attenuation calculations.
+  Zero-contribution lights skip the BRDF lobes. Reflection, ambient, emission,
+  shadow filtering and authored material inputs remain intact.
+- `render_stats=1` logs averaged FPS, ordinary/shadow draw calls, state calls
+  sent/skipped, uploaded constant vectors and instanced draw/instance counts every
+  two seconds. Counters do not issue GPU readbacks or blocking visibility queries.
+
+Validation: Release Win32 client/RP9 builds; real D3D9 material/state/constant
+cache tests; source-extracted normal/light and active-light-list tests; real
+hardware instancing compared pixel-for-pixel with regular rendering of overlapping
+objects, multiple materials and nonzero base/index offsets (24 draws become 8 in
+the fixture), including forced fallback and stream restoration. The surface GPU
+regression captures 229376 bytes across the existing light/gloss/fog/emission
+cases: all bytes match the original shader. Static shadow cache GPU/component
+tests still pass. Surface VS, instanced VS, 2D-env PS and cube-env PS are prewarmed
+in the persistent bytecode cache before installation.
+
+Actual FPS changes for or_hq/ku_tgk require the same-camera in-game comparison.
+Hardware visibility queries and generated/merged mesh LODs are not part of this
+change; the existing frustum and LOD paths remain in place.
+
+### Static surface distance tiers (2026-10-22)
+
+After an in-game performance regression report, surface_instancing and state_cache
+now default to 0 and the installed profile disables both plus render_stats.
+The instancing fixture remains opt-in; its reduced draw count is not an FPS claim.
+
+Static solar root scopes select materials using squared camera distance against
+bounding-sphere radius plus the configured thresholds. Full materials within
+surface_static_full_distance (default 2000 m); separately compiled
+SURFACE_LOW_DETAIL diffuse/envmap-only shaders up to surface_static_off_distance
+(default 20000 m); native fixed-function materials beyond that. Scope bits 3/4
+carry the tier without changing the extension vtable. Reset at bucket boundaries
+and per-object selection prevents the tier leaking to ships/cockpits. Large root
+bounds conservatively retain detail for attached equipment near the camera.
+Low-detail PS has no PCSS/planet shadow sampling, layered gloss/clearcoat/brushed
+finish or glints; diffuse/point/spot lighting, authored envmap, emission/alpha/fog
+remain. Full shaders and shadow-map generation are unchanged. Low tier uploads
+52 PS registers instead of 95 and does not bind shadow samplers.
+
+Validation: both Win32 Release projects build; all six shader variants compile.
+Existing full material GPU captures match HEAD pixel-for-pixel (229376 bytes).
+Low-tier real D3D9 tests verify lit/ambient/point/spot/fog/emission and independence
+from expensive finish controls. Source-extracted receiver tests verify low/native
+selection and reset before ship/ordinary scopes. No live-game FPS measurement.
+
+### Medium-distance gloss refinement (2026-10-22)
+
+Full static surface material now defaults to 4000 m (was 2000 m). The 4-20 km
+SURFACE_LOW_DETAIL variant retains diffuse/envmap and adds one inexpensive
+Blinn highlight, using fixed powers 16/64 formed by multiplication, material
+roughness for width/strength, source specular colour and bounded rational
+highlight addition. No PCSS, tangent/derivative finish, GGX, coat, extra textures
+or passes. The same 52 PS registers suffice. Beyond 20 km stays native.
+Experimental instancing/device-call cache remain disabled. GPU material tests
+verify medium gloss responds to roughness, layered finish controls stay absent,
+and fog/ambient/point/spot/emission still work. Full material captures unchanged.
+
+## Shadow cost, NPC ship tiers and retained surface state (2026-10-22)
+
+Shader (`surface_material.hlsl`, `local_shadow.hlsl`):
+- Near and far maps have their own resolution (`shadow_near_resolution`,
+  `shadow_far_resolution`, default 4096, falling back to `shadow_resolution`); the far texel
+  size is c95.x. Sample defaults are 16 search / 32 filter taps (were 64 / 192).
+- The blocker-search and filter spirals rotate the previous tap direction by the golden
+  angle instead of evaluating sincos per tap.
+- A pixel facing away from the sun, or a receiver in the simple tier (c95.z), takes one
+  bilinear comparison instead of PCSS.
+- `SURFACE_NO_SHADOW` compiles the full material without the shadow code; RP9 selects it for
+  any receiver without shadows this frame.
+- Casters drawn after `SetLocalShadowCaster(1)` store a negative depth. `ShadowDepth`
+  decodes it; such texels shadow only c95.y metres (`shadow_npc_ship_length`, 100) behind
+  the caster, with the usual fade over the last 20 %. The static-cache restore writes the
+  absolute value to Z.
+- Samplers: the environment map is s10 and the shadow maps s8/s9 (were s1, s2/s3).
+
+NPC ships (client, `space_scene_obj_draw.cpp`): `SetLocalShadowReceiver` bits 5..6 carry a
+tier by the camera's distance to the hull: full filter to 100 m, a fixed 8/8 filter to 300 m
+(c76), the simple comparison to 500 m; beyond 500 m the ship is neither a receiver nor a
+caster. The player's ship (`IsPlayerShipId`) always uses the full filter and full length.
+
+RP9 keeps the surface route's shaders, samplers 8..10 and pixel constant blocks between
+draws (docs/re/rp9.md, "Surface route between draws"). The static far cache is rebuilt after
+`shadow_static_cache_seconds` (10) instead of every second.
+
+Validation: `surface_bench` (RTX 5080, 1080p, full-screen receiver): the same settings
+match the previous shader within 1/255; one layer costs 3.73 ms before, 0.49 ms with the
+new defaults, 0.07 ms on surfaces facing away from the sun (was 2.20 ms). Short-reach
+casters 150 m above a receiver leave it lit and 60 m above it shadow it exactly like normal
+casters. The real-RP9 route check (`src/obj/surface_route_check.cpp` adapted) passes with
+the device-call cache on and off: a repeated surface draw sends one device call, a
+fixed-function draw afterwards runs without shaders, cube env maps reflect from s10, NPC
+tier constants reach the shader, and both FXAA modes filter edges.
+
+### Separate station map in the far cascade (2026-10-22)
+
+A first-depth shadow map keeps only the caster nearest the sun. With the cached station depth
+copied into the far map and ships drawn over it, a ship more than its shadow reach above a
+station replaced the station's depth: receivers found only the out-of-reach ship and the
+station's own shadow showed a lit, ship-shaped hole at far range (the near map's limited depth
+range hid this up close). The station map is now sampled directly (s11, c95.w) beside the far
+map, which holds only moving casters; each tap takes the larger occlusion of the two. The
+per-frame full-map copy (and its restore shader) is gone, and any fixed component uses the
+cache (the 32-component threshold is removed). `surface_bench`: the composite lost the station
+shadow at 1.59 M of 2.07 M pixels, the separate maps at 0; cost unchanged (2.45 / 2.47 ms).
+
+Surfaces facing away from the sun skip the shadow lookup, and shadow dims the environment
+reflection in proportion to NoL, so unlit or grazing sides show no caster silhouettes.
+
+The near cascade had the same first-depth problem: "near/far" in the report was the ship's
+distance above the station, not the camera's. Ships and asteroids near the camera are now drawn
+into their own map (cascade 2, `ShadowMaps[2]`, near resolution, sampler s12, c62.y) before the
+near map, which then holds only station geometry; the shader takes the larger occlusion of the
+two. If that map cannot be allocated, the casters share the near map as before. Real-RP9 route
+check: a ship 300 m above a station shadow left the receiver lit (ffffffff) with one map and
+shadowed (ff060606) with the separate map. The far static cache now tolerates a sun-direction
+change of one far texel over the longest shadow (it was one texel over the whole 5 km depth
+span), which had caused most rebuilds while flying.

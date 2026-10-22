@@ -1,0 +1,320 @@
+[
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industriala.3db",
+    "nickname": "attached_ind_a",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industriala_alt2.3db",
+    "nickname": "attached_ind_a_sw",
+    "ranges": "0, 10000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industriala.3db",
+    "nickname": "attached_ind_a_rot",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industriala_alt.3db",
+    "nickname": "attached_ind_a_rot_bx",
+    "ranges": "0, 15000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industriala.3db",
+    "nickname": "attached_ind_a_rot2",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrialc.3db",
+    "nickname": "attached_ind_c",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial01a.3db",
+    "nickname": "attached_ind01_a",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial01a_alt.3db",
+    "nickname": "attached_ind01_a_sw",
+    "ranges": "0, 2000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial01a.3db",
+    "nickname": "attached_ind01_a_root",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial01c.3db",
+    "nickname": "attached_ind01_c",
+    "ranges": "0, 10000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial02b.3db",
+    "nickname": "attached_industrial02b_root",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial02a.3db",
+    "nickname": "attached_industrial02a_root",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial02a.3db",
+    "nickname": "attached_industrial02a_rootA",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial02a.3db",
+    "nickname": "attached_industrial02a_rootB",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial02d.3db",
+    "nickname": "attached_industrial02d",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industriala.3db",
+    "nickname": "rmbase_attached_industriala",
+    "ranges": "0, 40000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial02d.3db",
+    "nickname": "rmbase_attached_industrial02d",
+    "ranges": "0, 40000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial02a.3db",
+    "nickname": "rmbase_attached_industrial02a",
+    "ranges": "0, 40000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/EQUIPMENT/select_equip.ini",
+    "model": "solar/misc/space_industrial01c.3db",
+    "nickname": "rmbase_attached_industrial01c",
+    "ranges": "0, 40000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial03.3db",
+    "nickname": "space_industrial03",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industriala.3db",
+    "nickname": "space_industriala",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industriala.3db",
+    "nickname": "space_industriala_explodable",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industriala.3db",
+    "nickname": "space_industriala_base_root",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industriala.3db",
+    "nickname": "space_industriala_non_targetable",
+    "ranges": "0, 50000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industriala_alt.3db",
+    "nickname": "space_industriala_low_detail",
+    "ranges": "0, 25000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industriala_alt2.3db",
+    "nickname": "space_industriala_lowdetail",
+    "ranges": "0, 10000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrialc.3db",
+    "nickname": "space_industrialc",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrialc.3db",
+    "nickname": "space_industrialc_low_detail",
+    "ranges": "0, 5000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01a.3db",
+    "nickname": "space_industrial01a",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01a.3db",
+    "nickname": "space_industrial01a_station_root",
+    "ranges": "0, 25000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01a_alt.3db",
+    "nickname": "space_industrial01a_low_detail",
+    "ranges": "0, 10000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01c.3db",
+    "nickname": "space_industrial01c",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01c.3db",
+    "nickname": "space_industrial01c_badland",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01b.3db",
+    "nickname": "space_industrial01b",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01b.3db",
+    "nickname": "space_industrial01b_lod",
+    "ranges": "0, 10000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01b.3db",
+    "nickname": "space_industrial01b_badland",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01d.3db",
+    "nickname": "space_industrial01d",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01d.3db",
+    "nickname": "space_industrial01d_low_detail",
+    "ranges": "0, 3000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01e.3db",
+    "nickname": "space_industrial01e",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01f.3db",
+    "nickname": "space_industrial01f",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01g.3db",
+    "nickname": "space_industrial01g",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01h.3db",
+    "nickname": "space_industrial01h",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01i.3db",
+    "nickname": "space_industrial01i",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial02a.3db",
+    "nickname": "space_industrial02a",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial02a.3db",
+    "nickname": "space_industrial02a_non_targetable",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial02a.3db",
+    "nickname": "space_industrial02a_explodable",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial02a.3db",
+    "nickname": "space_industrial02a_station_root",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial02a.3db",
+    "nickname": "space_industrial02a_low_detail",
+    "ranges": "0, 10000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial02b.3db",
+    "nickname": "space_industrial02b",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial02b.3db",
+    "nickname": "space_industrial02b_badland",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial02d.3db",
+    "nickname": "space_industrial02d",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial02d.3db",
+    "nickname": "space_industrial02d_station_root",
+    "ranges": "0, 30000"
+  },
+  {
+    "file": "D:/games/FL_MOD/DATA/SOLAR/solararch.ini",
+    "model": "solar/misc/space_industrial01i.3db",
+    "nickname": "rmbase_gasminer",
+    "ranges": "0, 300000"
+  }
+]

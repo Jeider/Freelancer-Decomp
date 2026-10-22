@@ -1,0 +1,222 @@
+[
+  {
+    "file": "space_control_tower.3db",
+    "original": {
+      "vertices": 2425,
+      "triangles": 1066,
+      "groups": 11
+    },
+    "trial": [
+      {
+        "vertices": 1541,
+        "triangles": 692,
+        "groups": 5
+      },
+      {
+        "vertices": 1142,
+        "triangles": 505,
+        "groups": 5
+      }
+    ]
+  },
+  {
+    "file": "space_medium_control_tower.3db",
+    "original": {
+      "vertices": 1435,
+      "triangles": 1066,
+      "groups": 11
+    },
+    "trial": [
+      {
+        "vertices": 952,
+        "triangles": 691,
+        "groups": 4
+      },
+      {
+        "vertices": 660,
+        "triangles": 438,
+        "groups": 4
+      }
+    ]
+  },
+  {
+    "file": "space_sml_control_tower.3db",
+    "original": {
+      "vertices": 434,
+      "triangles": 244,
+      "groups": 6
+    },
+    "trial": [
+      {
+        "vertices": 335,
+        "triangles": 206,
+        "groups": 4
+      },
+      {
+        "vertices": 327,
+        "triangles": 202,
+        "groups": 4
+      }
+    ]
+  },
+  {
+    "file": "space_production.3db",
+    "original": {
+      "vertices": 6997,
+      "triangles": 3757,
+      "groups": 11
+    },
+    "trial": [
+      {
+        "vertices": 4623,
+        "triangles": 2442,
+        "groups": 8
+      },
+      {
+        "vertices": 2876,
+        "triangles": 1512,
+        "groups": 8
+      }
+    ]
+  },
+  {
+    "file": "space_large_production.3db",
+    "original": {
+      "vertices": 6412,
+      "triangles": 3757,
+      "groups": 11
+    },
+    "trial": [
+      {
+        "vertices": 4679,
+        "triangles": 2442,
+        "groups": 8
+      },
+      {
+        "vertices": 2918,
+        "triangles": 1501,
+        "groups": 8
+      }
+    ]
+  },
+  {
+    "file": "shipyard_small.3db",
+    "original": {
+      "vertices": 2956,
+      "triangles": 1179,
+      "groups": 5
+    },
+    "trial": [
+      {
+        "vertices": 1702,
+        "triangles": 765,
+        "groups": 5
+      },
+      {
+        "vertices": 1000,
+        "triangles": 495,
+        "groups": 5
+      }
+    ]
+  },
+  {
+    "file": "shipyard_medium.3db",
+    "original": {
+      "vertices": 3099,
+      "triangles": 1179,
+      "groups": 5
+    },
+    "trial": [
+      {
+        "vertices": 1732,
+        "triangles": 765,
+        "groups": 5
+      },
+      {
+        "vertices": 1022,
+        "triangles": 493,
+        "groups": 5
+      }
+    ]
+  },
+  {
+    "file": "space_domea.3db",
+    "original": {
+      "vertices": 1161,
+      "triangles": 576,
+      "groups": 7
+    },
+    "trial": [
+      {
+        "vertices": 710,
+        "triangles": 374,
+        "groups": 7
+      },
+      {
+        "vertices": 369,
+        "triangles": 229,
+        "groups": 7
+      }
+    ]
+  },
+  {
+    "file": "space_small_control_block.3db",
+    "original": {
+      "vertices": 792,
+      "triangles": 400,
+      "groups": 6
+    },
+    "trial": [
+      {
+        "vertices": 492,
+        "triangles": 260,
+        "groups": 6
+      },
+      {
+        "vertices": 424,
+        "triangles": 226,
+        "groups": 6
+      }
+    ]
+  },
+  {
+    "file": "space_windows.3db",
+    "original": {
+      "vertices": 972,
+      "triangles": 432,
+      "groups": 9
+    },
+    "trial": [
+      {
+        "vertices": 618,
+        "triangles": 280,
+        "groups": 3
+      },
+      {
+        "vertices": 448,
+        "triangles": 204,
+        "groups": 3
+      }
+    ]
+  },
+  {
+    "file": "space_long_large_arch.3db",
+    "original": {
+      "vertices": 1977,
+      "triangles": 1082,
+      "groups": 8
+    },
+    "trial": [
+      {
+        "vertices": 1397,
+        "triangles": 787,
+        "groups": 3
+      },
+      {
+        "vertices": 1366,
+        "triangles": 770,
+        "groups": 3
+      }
+    ]
+  }
+]

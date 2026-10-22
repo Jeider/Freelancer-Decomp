@@ -64,6 +64,7 @@ namespace AlchemyImpl
         GENRESULT DACOM_API LoadNodeLibrary(IFileSystem* Filesys) override;
         GENRESULT DACOM_API SampleEffectColour(IFxEffectArchetype*,float*) override;
         GENRESULT DACOM_API SetRenderOpacity(float Opacity) override;
+        GENRESULT DACOM_API SetRenderSoftParticles(unsigned long Enabled) override;
         GENRESULT DACOM_API SaveNodeLibrary(IFileSystem* Filesys) override;
         unsigned long DACOM_API HashNodeName(const char* Name) override
         {

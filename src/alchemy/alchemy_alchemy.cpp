@@ -274,6 +274,13 @@ namespace AlchemyImpl
         return GR_OK;
     }
 
+    bool G_AppearanceSoft=true;
+    GENRESULT DACOM_API FAlchemy::SetRenderSoftParticles(unsigned long Enabled)
+    {
+        G_AppearanceSoft=Enabled!=0;
+        return GR_OK;
+    }
+
     unsigned long DACOM_API FAlchemy::AddRef()
     {
         return Controller_->AddRef();

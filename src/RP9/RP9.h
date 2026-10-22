@@ -598,18 +598,32 @@ public:
     GENRESULT DACOM_API SetGlassSurface(unsigned long) override;
     bool ExSurfaceBegin();
     void ExSurfaceEnd();
+    // Before a fixed-function draw: unbinds shaders a surface draw left bound.
+    void ExSurfaceRelease();
+    void ExGpuMark(unsigned Kind);
+    void ExGpuFrameBoundary();
+    void ExGpuRelease();
+    GENRESULT ExApplyFrameAntialiasing();
+    void ExDrawWarmupOverlay();
     unsigned int ExCollectSurfaceLights(D3DLIGHT9* Out, unsigned int Capacity);
     GENRESULT DACOM_API BeginLocalShadowFrame(const float*, const float*, const float*) override;
     GENRESULT DACOM_API BeginLocalShadowMap(unsigned long Cascade) override;
     GENRESULT DACOM_API EndLocalShadowMap() override;
     GENRESULT DACOM_API SetLocalShadowReceiver(unsigned long Enabled) override;
     GENRESULT DACOM_API AddLocalShadowPlanet(const float*, float Radius) override;
+    GENRESULT DACOM_API BeginStaticShadowCache(unsigned long, unsigned long) override;
+    GENRESULT DACOM_API SetLocalShadowCaster(unsigned long Flags) override;
     GENRESULT DACOM_API BeginWeaponGlints(const float*, const float*) override;
     GENRESULT DACOM_API AddWeaponGlint(const float*, const float*, const float*, unsigned long) override;
     GENRESULT DACOM_API SetWeaponGlintReceiver(unsigned long) override;
     GENRESULT DACOM_API SetWeaponGlintReceiverBounds(const float*,float) override;
     bool ExShadowDrawBegin();
     void ExShadowRelease();
+    void ExReportFrameStats();
+    void ExNoteDraw(unsigned long);
+    bool ExQueueSurfaceInstance(unsigned long,unsigned int,unsigned int,unsigned int,unsigned int);
+    void ExFlushSurfaceInstances();
+    void ExReleaseSurfaceInstances();
     // RP9.cpp helpers on the RP8-mirrored caches and handles.
     IDirect3DBaseTexture9* PipelineTextureFromHandle(void* Handle);
     void ExSaveStage(unsigned long Stage, FRp9ExStageSave* Out);

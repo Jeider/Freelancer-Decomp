@@ -9,6 +9,9 @@
 #include "common_timing.h" // Timing::Delta
 #include "dalib_net.h"
 #include "menu_sound_arch.h" // PauseAllClientSounds / ResumePausedClientSounds (FUN_00428550 / 80)
+#ifdef FREELANCER_RP9
+#include "port_config.h"
+#endif
 
 #include <windows.h>
 
@@ -54,7 +57,15 @@ namespace
     void TickFrameTimer()
     {
         // FUN_0042d770.
+#ifdef FREELANCER_RP9
+        // Benchmark override: -1 keeps retail slider/console control, 0 removes
+        // the software wait, positive values set an explicit frame-rate limit.
+        static const int FpsLimit=PortConfigInt("Render","fps_limit",-1);
+        const double MinFrameSeconds=FpsLimit==0 ? 0.0 :
+            1.0/static_cast<double>(FpsLimit>0 ? FpsLimit : G_FpsCap);
+#else
         const double MinFrameSeconds = 1.0 / static_cast<double>(G_FpsCap);
+#endif
         double Dt = 0.0;
         while (true)
         {

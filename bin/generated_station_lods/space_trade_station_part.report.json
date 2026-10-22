@@ -1,0 +1,124 @@
+{
+  "source_sha256": "5b450005ea11b504934159b46d2588c9cbbb96707ef23ec9f3f9d7fa8c2c5af7",
+  "levels": [
+    {
+      "level": 1,
+      "vertices": 3065,
+      "triangles": 1912,
+      "groups": 7,
+      "requested_ratio": 0.55,
+      "metric_limit": 0.008,
+      "materials": [
+        {
+          "material": "0xfc27e50e",
+          "triangles_before": 624,
+          "triangles_after": 554,
+          "error": 0.007460367400199175
+        },
+        {
+          "material": "0xe63dc03f",
+          "triangles_before": 512,
+          "triangles_after": 384,
+          "error": 0.007460367400199175
+        },
+        {
+          "material": "0xe2c188d7",
+          "triangles_before": 116,
+          "triangles_after": 46,
+          "error": 0.007460367400199175
+        },
+        {
+          "material": "0x13210c2f",
+          "triangles_before": 568,
+          "triangles_after": 568,
+          "error": 0.007460367400199175
+        },
+        {
+          "material": "0xe3f33a5c",
+          "triangles_before": 192,
+          "triangles_after": 192,
+          "error": 0.007460367400199175
+        },
+        {
+          "material": "0xf0df7ffe",
+          "triangles_before": 96,
+          "triangles_after": 96,
+          "error": 0.007460367400199175
+        },
+        {
+          "material": "0x1c2ae443",
+          "triangles_before": 72,
+          "triangles_after": 72,
+          "error": 0.007460367400199175
+        }
+      ]
+    },
+    {
+      "level": 2,
+      "vertices": 2684,
+      "triangles": 1684,
+      "groups": 7,
+      "requested_ratio": 0.35,
+      "metric_limit": 0.012,
+      "materials": [
+        {
+          "material": "0xfc27e50e",
+          "triangles_before": 624,
+          "triangles_after": 474,
+          "error": 0.011829416267573833
+        },
+        {
+          "material": "0xe63dc03f",
+          "triangles_before": 512,
+          "triangles_after": 256,
+          "error": 0.011829416267573833
+        },
+        {
+          "material": "0xe2c188d7",
+          "triangles_before": 116,
+          "triangles_after": 30,
+          "error": 0.011829416267573833
+        },
+        {
+          "material": "0x13210c2f",
+          "triangles_before": 568,
+          "triangles_after": 564,
+          "error": 0.011829416267573833
+        },
+        {
+          "material": "0xe3f33a5c",
+          "triangles_before": 192,
+          "triangles_after": 192,
+          "error": 0.011829416267573833
+        },
+        {
+          "material": "0xf0df7ffe",
+          "triangles_before": 96,
+          "triangles_after": 96,
+          "error": 0.011829416267573833
+        },
+        {
+          "material": "0x1c2ae443",
+          "triangles_before": 72,
+          "triangles_after": 72,
+          "error": 0.011829416267573833
+        }
+      ]
+    }
+  ],
+  "original": {
+    "vertices": 3967,
+    "triangles": 2180,
+    "groups": 47
+  },
+  "switch_distances": [
+    0,
+    1800,
+    4500,
+    8000,
+    27000
+  ],
+  "output_sha256": "ee09199538784c61f2d41f6bdfb319931b16f9636a27626df9fe26e5df18c5f5",
+  "solararch_source_sha256": "c5d9aacacfbbec464c68d37839183ad75da0493517ef35b8fa68f2d21b74a30e",
+  "solararch_output_sha256": "ea32e9229a50a6b330373415e71545c237fb67d6caf4a8efcbe576a390122356"
+}

@@ -285,6 +285,8 @@ void HudCameraUpdate(FHudCamera* Cam, float DeltaSeconds);
 void HudCameraUpdateShake(FHudCamera* Cam);
 // The space init's store DAT_00675294 = 0 (0x0054ad78).
 void ResetCameraShakeAmount();
+// Port-only: the current hit / jump shake amplitude (DAT_00675294), 0 when still.
+float GetCameraShakeAmount();
 // FUN_0051dbd0 (thiscall, RET 4): HudCameraUpdateShake, then with a positive amplitude two random
 // rotations of the 3x3 orientation (rows 0/2, then rows 0/1) by angles in [-amp, amp). Callers:
 // the FirstPerson (0x00518351) and RearView (0x0051b184) updates.

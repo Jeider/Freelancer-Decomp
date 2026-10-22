@@ -1,0 +1,1811 @@
+{
+  "models": [
+    {
+      "file": "SOLAR/MISC/space_control_tower.3db",
+      "internal_name": "jeider_s_control_tower_x2.lod0-112.vms",
+      "source_sha256": "e2e6cf231f4afd5e42bc2681716fbbf4bc672617f0074dcb2091a021b648f61c",
+      "original": {
+        "vertices": 2425,
+        "triangles": 1066,
+        "groups": 11
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 1541,
+          "triangles": 692,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0x1eeab953",
+              "triangles_before": 42,
+              "triangles_after": 18,
+              "error": 0.014309638179838657
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 82,
+              "error": 0.014309638179838657
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 352,
+              "triangles_after": 297,
+              "error": 0.014309638179838657
+            },
+            {
+              "material": "0xfbab4e8e",
+              "triangles_before": 348,
+              "triangles_after": 147,
+              "error": 0.014309638179838657
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 228,
+              "triangles_after": 148,
+              "error": 0.014309638179838657
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 1142,
+          "triangles": 505,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0x1eeab953",
+              "triangles_before": 42,
+              "triangles_after": 18,
+              "error": 0.038501348346471786
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 64,
+              "error": 0.038501348346471786
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 352,
+              "triangles_after": 158,
+              "error": 0.038501348346471786
+            },
+            {
+              "material": "0xfbab4e8e",
+              "triangles_before": 348,
+              "triangles_after": 122,
+              "error": 0.038501348346471786
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 228,
+              "triangles_after": 143,
+              "error": 0.038501348346471786
+            }
+          ]
+        }
+      ],
+      "repairs": [],
+      "output_sha256": "b76046c48b906163f35d4eeccd981b3e691bb001c049c061982bb037bc30b263",
+      "materials": {
+        "materials": {
+          "0xfbab4e8e": [
+            "STADTLS2_128G",
+            "DcDt"
+          ],
+          "0xfc27e50e": [
+            "STADTL2_256",
+            "DcDt"
+          ],
+          "0x1eeab953": [
+            "STADTLS2_128DB",
+            "DcDt"
+          ],
+          "0x1e1f40f9": [
+            "STADTLS2_128",
+            "DcDt"
+          ],
+          "0xf0df7ffe": [
+            "STADTL1_256",
+            "DcDt"
+          ]
+        },
+        "preserved": []
+      }
+    },
+    {
+      "file": "SOLAR/MISC/space_medium_control_tower.3db",
+      "internal_name": "jeiders_med_ctrl_twr.lod0-112.vms",
+      "source_sha256": "8acbeafda83f0d806e571e79633367cef707dbcc5cb6b0e32c8cdbc386058cd6",
+      "original": {
+        "vertices": 1435,
+        "triangles": 1066,
+        "groups": 11
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 949,
+          "triangles": 691,
+          "groups": 4,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 270,
+              "triangles_after": 154,
+              "error": 0.014464284293353558
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 67,
+              "error": 0.014464284293353558
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 352,
+              "triangles_after": 290,
+              "error": 0.014464284293353558
+            },
+            {
+              "material": "0xfbab4e8e",
+              "triangles_before": 348,
+              "triangles_after": 180,
+              "error": 0.014464284293353558
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 664,
+          "triangles": 442,
+          "groups": 4,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 270,
+              "triangles_after": 145,
+              "error": 0.03958262875676155
+            },
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 96,
+              "triangles_after": 36,
+              "error": 0.03958262875676155
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 352,
+              "triangles_after": 143,
+              "error": 0.03958262875676155
+            },
+            {
+              "material": "0xfbab4e8e",
+              "triangles_before": 348,
+              "triangles_after": 118,
+              "error": 0.03958262875676155
+            }
+          ]
+        }
+      ],
+      "repairs": [
+        {
+          "kind": "horizontal_panel_winding",
+          "triangles": 4
+        }
+      ],
+      "output_sha256": "b59d16eb2dfeb0cd224bed0fb3e8871f9449de8fff5a3ff26910157e03071a87",
+      "materials": {
+        "materials": {
+          "0x1e1f40f9": [
+            "STADTLS2_128",
+            "DcDt"
+          ],
+          "0xfbab4e8e": [
+            "STADTLS2_128G",
+            "DcDt"
+          ],
+          "0xf0df7ffe": [
+            "STADTL1_256",
+            "DcDt"
+          ],
+          "0xfc27e50e": [
+            "STADTL2_256",
+            "DcDt"
+          ]
+        },
+        "preserved": []
+      }
+    },
+    {
+      "file": "SOLAR/MISC/space_production.3db",
+      "internal_name": "jeider_s_mplatform_standalone.lod0-112.vms",
+      "source_sha256": "1a94725e7c12d35e5d476f2856c9d9df313fe3148536ce8df31197692ef8f80d",
+      "original": {
+        "vertices": 6997,
+        "triangles": 3757,
+        "groups": 11
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 4623,
+          "triangles": 2442,
+          "groups": 8,
+          "ratio_goal": 0.65,
+          "error_limit": 0.02,
+          "materials": [
+            {
+              "material": "0xf6f063b4",
+              "triangles_before": 2459,
+              "triangles_after": 1198,
+              "error": 0.007038618437945843
+            },
+            {
+              "material": "0xf3ae1dd5",
+              "triangles_before": 504,
+              "triangles_after": 502,
+              "error": 0.007038618437945843
+            },
+            {
+              "material": "0xf2c66b12",
+              "triangles_before": 148,
+              "triangles_after": 142,
+              "error": 0.007038618437945843
+            },
+            {
+              "material": "0xe65df9d3",
+              "triangles_before": 369,
+              "triangles_after": 352,
+              "error": 0.007038618437945843
+            },
+            {
+              "material": "0xe7f80dd5",
+              "triangles_before": 209,
+              "triangles_after": 190,
+              "error": 0.007038618437945843
+            },
+            {
+              "material": "0xe35da937",
+              "triangles_before": 10,
+              "triangles_after": 4,
+              "error": 0.007038618437945843
+            },
+            {
+              "material": "0xf1f5a9b1",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.007038618437945843
+            },
+            {
+              "material": "0x1f1572b1",
+              "triangles_before": 52,
+              "triangles_after": 48,
+              "error": 0.007038618437945843
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 2876,
+          "triangles": 1512,
+          "groups": 8,
+          "ratio_goal": 0.4,
+          "error_limit": 0.03,
+          "materials": [
+            {
+              "material": "0xf6f063b4",
+              "triangles_before": 2459,
+              "triangles_after": 646,
+              "error": 0.020560365170240402
+            },
+            {
+              "material": "0xf3ae1dd5",
+              "triangles_before": 504,
+              "triangles_after": 278,
+              "error": 0.020560365170240402
+            },
+            {
+              "material": "0xf2c66b12",
+              "triangles_before": 148,
+              "triangles_after": 74,
+              "error": 0.020560365170240402
+            },
+            {
+              "material": "0xe65df9d3",
+              "triangles_before": 369,
+              "triangles_after": 312,
+              "error": 0.020560365170240402
+            },
+            {
+              "material": "0xe7f80dd5",
+              "triangles_before": 209,
+              "triangles_after": 169,
+              "error": 0.020560365170240402
+            },
+            {
+              "material": "0xe35da937",
+              "triangles_before": 10,
+              "triangles_after": 10,
+              "error": 0.020560365170240402
+            },
+            {
+              "material": "0xf1f5a9b1",
+              "triangles_before": 6,
+              "triangles_after": 2,
+              "error": 0.020560365170240402
+            },
+            {
+              "material": "0x1f1572b1",
+              "triangles_before": 52,
+              "triangles_after": 21,
+              "error": 0.020560365170240402
+            }
+          ]
+        }
+      ],
+      "repairs": [],
+      "output_sha256": "e05a1ca2a7d21bc7354fe2496ebe4d83262d5bce1ae31bd7444238579611fc79",
+      "materials": {
+        "materials": {
+          "0xf1f5a9b1": [
+            "STADTLS2_128Rd",
+            "DcDt"
+          ],
+          "0xf2c66b12": [
+            "STADTL2_256Dr",
+            "DcDt"
+          ],
+          "0xe65df9d3": [
+            "STADTL3_256Br",
+            "DcDt"
+          ],
+          "0xf6f063b4": [
+            "FACTORY1_256LDr",
+            "DcDt"
+          ],
+          "0xe7f80dd5": [
+            "STADTL3_256LY",
+            "DcDt"
+          ],
+          "0xf3ae1dd5": [
+            "FACTORY1_256Dr",
+            "DcDt"
+          ],
+          "0xe35da937": [
+            "STADTLS2_128Dr",
+            "DcDt"
+          ],
+          "0x1f1572b1": [
+            "STAWIN2_128",
+            "DcDtEt"
+          ]
+        },
+        "preserved": []
+      }
+    },
+    {
+      "file": "SOLAR/MISC/space_large_production.3db",
+      "internal_name": "space_large_production_by_jeider.lod0-112.vms",
+      "source_sha256": "4f9b9cd4ade091748c7b1209e7b56fa4fbe60b1e205c6f7ea98e993d6c5a7961",
+      "original": {
+        "vertices": 6412,
+        "triangles": 3757,
+        "groups": 11
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 4679,
+          "triangles": 2442,
+          "groups": 8,
+          "ratio_goal": 0.65,
+          "error_limit": 0.02,
+          "materials": [
+            {
+              "material": "0xf6f063b4",
+              "triangles_before": 2459,
+              "triangles_after": 1194,
+              "error": 0.007038753014057875
+            },
+            {
+              "material": "0xf3ae1dd5",
+              "triangles_before": 504,
+              "triangles_after": 502,
+              "error": 0.007038753014057875
+            },
+            {
+              "material": "0xf2c66b12",
+              "triangles_before": 148,
+              "triangles_after": 148,
+              "error": 0.007038753014057875
+            },
+            {
+              "material": "0xe65df9d3",
+              "triangles_before": 369,
+              "triangles_after": 352,
+              "error": 0.007038753014057875
+            },
+            {
+              "material": "0xe7f80dd5",
+              "triangles_before": 209,
+              "triangles_after": 188,
+              "error": 0.007038753014057875
+            },
+            {
+              "material": "0xe35da937",
+              "triangles_before": 10,
+              "triangles_after": 4,
+              "error": 0.007038753014057875
+            },
+            {
+              "material": "0xf1f5a9b1",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.007038753014057875
+            },
+            {
+              "material": "0x1f1572b1",
+              "triangles_before": 52,
+              "triangles_after": 48,
+              "error": 0.007038753014057875
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 2918,
+          "triangles": 1501,
+          "groups": 8,
+          "ratio_goal": 0.4,
+          "error_limit": 0.03,
+          "materials": [
+            {
+              "material": "0xf6f063b4",
+              "triangles_before": 2459,
+              "triangles_after": 648,
+              "error": 0.02051309309899807
+            },
+            {
+              "material": "0xf3ae1dd5",
+              "triangles_before": 504,
+              "triangles_after": 276,
+              "error": 0.02051309309899807
+            },
+            {
+              "material": "0xf2c66b12",
+              "triangles_before": 148,
+              "triangles_after": 74,
+              "error": 0.02051309309899807
+            },
+            {
+              "material": "0xe65df9d3",
+              "triangles_before": 369,
+              "triangles_after": 309,
+              "error": 0.02051309309899807
+            },
+            {
+              "material": "0xe7f80dd5",
+              "triangles_before": 209,
+              "triangles_after": 167,
+              "error": 0.02051309309899807
+            },
+            {
+              "material": "0xe35da937",
+              "triangles_before": 10,
+              "triangles_after": 4,
+              "error": 0.02051309309899807
+            },
+            {
+              "material": "0xf1f5a9b1",
+              "triangles_before": 6,
+              "triangles_after": 2,
+              "error": 0.02051309309899807
+            },
+            {
+              "material": "0x1f1572b1",
+              "triangles_before": 52,
+              "triangles_after": 21,
+              "error": 0.02051309309899807
+            }
+          ]
+        }
+      ],
+      "repairs": [],
+      "output_sha256": "9f913adb8c3dcac49e3906642fde3a6eb19d47fd151e3556b8c43bcf38dc4116",
+      "materials": {
+        "materials": {
+          "0xf1f5a9b1": [
+            "STADTLS2_128Rd",
+            "DcDt"
+          ],
+          "0xf2c66b12": [
+            "STADTL2_256Dr",
+            "DcDt"
+          ],
+          "0xe65df9d3": [
+            "STADTL3_256Br",
+            "DcDt"
+          ],
+          "0xf6f063b4": [
+            "FACTORY1_256LDr",
+            "DcDt"
+          ],
+          "0xe7f80dd5": [
+            "STADTL3_256LY",
+            "DcDt"
+          ],
+          "0xf3ae1dd5": [
+            "FACTORY1_256Dr",
+            "DcDt"
+          ],
+          "0xe35da937": [
+            "STADTLS2_128Dr",
+            "DcDt"
+          ],
+          "0x1f1572b1": [
+            "STAWIN2_128",
+            "DcDtEt"
+          ]
+        },
+        "preserved": []
+      }
+    },
+    {
+      "file": "SOLAR/MISC/shipyard_small.3db",
+      "internal_name": "jeider_s_small_shipyard.lod0-112.vms",
+      "source_sha256": "2b7f4698ee67e02f2129f0e411950bde686c9983e7669abd5ecb6741ac017c31",
+      "original": {
+        "vertices": 2956,
+        "triangles": 1179,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 1920,
+          "triangles": 789,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0x10cccbfb",
+              "triangles_before": 420,
+              "triangles_after": 108,
+              "error": 0.012427529320120811
+            },
+            {
+              "material": "0xe5abadb7",
+              "triangles_before": 218,
+              "triangles_after": 140,
+              "error": 0.012427529320120811
+            },
+            {
+              "material": "0x1364cfe",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.012427529320120811
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.012427529320120811
+            },
+            {
+              "material": "0x25b4133",
+              "triangles_before": 511,
+              "triangles_after": 511,
+              "error": 0.012427529320120811
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 1674,
+          "triangles": 679,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0x10cccbfb",
+              "triangles_before": 420,
+              "triangles_after": 42,
+              "error": 0.02753554657101631
+            },
+            {
+              "material": "0xe5abadb7",
+              "triangles_before": 218,
+              "triangles_after": 96,
+              "error": 0.02753554657101631
+            },
+            {
+              "material": "0x1364cfe",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.02753554657101631
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.02753554657101631
+            },
+            {
+              "material": "0x25b4133",
+              "triangles_before": 511,
+              "triangles_after": 511,
+              "error": 0.02753554657101631
+            }
+          ]
+        }
+      ],
+      "repairs": [],
+      "output_sha256": "b3f9e9eabbb2e0e9e86517a2902a626559c0ee49388712277ae70ec5e4e9c4e3",
+      "materials": {
+        "materials": {
+          "0xe5abadb7": [
+            "liner_64_G",
+            "DcDt"
+          ],
+          "0x25b4133": [
+            "alpha_mask_x_pnl_a2sideG",
+            "DcDtOcOtTwo"
+          ],
+          "0xe2c188d7": [
+            "space_cap",
+            "DcDt"
+          ],
+          "0x10cccbfb": [
+            "stadtl2_256_LG",
+            "DcDt"
+          ],
+          "0x1364cfe": [
+            "screen_Y",
+            "DcDtEt"
+          ]
+        },
+        "preserved": [
+          39534899
+        ]
+      }
+    },
+    {
+      "file": "SOLAR/MISC/shipyard_medium.3db",
+      "internal_name": "jeider_s_medium_mod_shipyard.lod0-112.vms",
+      "source_sha256": "3157c4f40ba88dcd715391c51ccff7ca11a3dd56839eb48d66d5af4caf1386ce",
+      "original": {
+        "vertices": 3099,
+        "triangles": 1179,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 1906,
+          "triangles": 789,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0x10cccbfb",
+              "triangles_before": 420,
+              "triangles_after": 108,
+              "error": 0.012493971735239029
+            },
+            {
+              "material": "0xe5abadb7",
+              "triangles_before": 218,
+              "triangles_after": 140,
+              "error": 0.012493971735239029
+            },
+            {
+              "material": "0x1364cfe",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.012493971735239029
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.012493971735239029
+            },
+            {
+              "material": "0x25b4133",
+              "triangles_before": 511,
+              "triangles_after": 511,
+              "error": 0.012493971735239029
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 1642,
+          "triangles": 683,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0x10cccbfb",
+              "triangles_before": 420,
+              "triangles_after": 44,
+              "error": 0.02698608487844467
+            },
+            {
+              "material": "0xe5abadb7",
+              "triangles_before": 218,
+              "triangles_after": 98,
+              "error": 0.02698608487844467
+            },
+            {
+              "material": "0x1364cfe",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.02698608487844467
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 6,
+              "error": 0.02698608487844467
+            },
+            {
+              "material": "0x25b4133",
+              "triangles_before": 511,
+              "triangles_after": 511,
+              "error": 0.02698608487844467
+            }
+          ]
+        }
+      ],
+      "repairs": [],
+      "output_sha256": "729d0b07ef2e96363f6a9c73d1c6a0cbe4bc842c03d915a2ee1b212f14ee0690",
+      "materials": {
+        "materials": {
+          "0xe5abadb7": [
+            "liner_64_G",
+            "DcDt"
+          ],
+          "0x25b4133": [
+            "alpha_mask_x_pnl_a2sideG",
+            "DcDtOcOtTwo"
+          ],
+          "0xe2c188d7": [
+            "space_cap",
+            "DcDt"
+          ],
+          "0x10cccbfb": [
+            "stadtl2_256_LG",
+            "DcDt"
+          ],
+          "0x1364cfe": [
+            "screen_Y",
+            "DcDtEt"
+          ]
+        },
+        "preserved": [
+          39534899
+        ]
+      }
+    },
+    {
+      "file": "SOLAR/MISC/space_domea.3db",
+      "internal_name": "space_dome_only_special.lod0-112.vms",
+      "source_sha256": "e25ddd1041cd1b0135727809912c31de8a3d2e619be1928187f7376bfb43e791",
+      "original": {
+        "vertices": 1161,
+        "triangles": 576,
+        "groups": 7
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 850,
+          "triangles": 417,
+          "groups": 7,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 40,
+              "triangles_after": 25,
+              "error": 0.024931158870458603
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 148,
+              "triangles_after": 110,
+              "error": 0.024931158870458603
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 14,
+              "triangles_after": 14,
+              "error": 0.024931158870458603
+            },
+            {
+              "material": "0xf79f0a99",
+              "triangles_before": 160,
+              "triangles_after": 56,
+              "error": 0.024931158870458603
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 4,
+              "error": 0.024931158870458603
+            },
+            {
+              "material": "0x12214ce8",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.024931158870458603
+            },
+            {
+              "material": "0xffba6257",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.024931158870458603
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 746,
+          "triangles": 366,
+          "groups": 7,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 40,
+              "triangles_after": 22,
+              "error": 0.0395694375038147
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 148,
+              "triangles_after": 79,
+              "error": 0.0395694375038147
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 14,
+              "triangles_after": 14,
+              "error": 0.0395694375038147
+            },
+            {
+              "material": "0xf79f0a99",
+              "triangles_before": 160,
+              "triangles_after": 41,
+              "error": 0.0395694375038147
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 2,
+              "error": 0.0395694375038147
+            },
+            {
+              "material": "0x12214ce8",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.0395694375038147
+            },
+            {
+              "material": "0xffba6257",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.0395694375038147
+            }
+          ]
+        }
+      ],
+      "repairs": [],
+      "output_sha256": "3afb96cb253e2fda09acb4a4a13c8961807dd6763e47474cc705350d4a753a73",
+      "materials": {
+        "materials": {
+          "0xffba6257": [
+            "space_girder01_op",
+            "DcDtOcOtTwo"
+          ],
+          "0x12214ce8": [
+            "tree_64",
+            "DcDtOcOtTwo"
+          ],
+          "0xfc27e50e": [
+            "STADTL2_256",
+            "DcDt"
+          ],
+          "0xf79f0a99": [
+            "forest",
+            "DcDt"
+          ],
+          "0xe2c188d7": [
+            "space_cap",
+            "DcDt"
+          ],
+          "0x1e1f40f9": [
+            "STADTLS2_128",
+            "DcDt"
+          ],
+          "0xf0df7ffe": [
+            "STADTL1_256",
+            "DcDt"
+          ]
+        },
+        "preserved": [
+          304172264,
+          4290404951
+        ]
+      }
+    },
+    {
+      "file": "SOLAR/MISC/space_domeb.3db",
+      "internal_name": "space_domeB.lod0-112.vms",
+      "source_sha256": "a36e119944047b6559d811c277bb80e98a4ea8cd90275829b26c98b4b3faa8cb",
+      "original": {
+        "vertices": 1161,
+        "triangles": 576,
+        "groups": 7
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 870,
+          "triangles": 427,
+          "groups": 7,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 40,
+              "triangles_after": 25,
+              "error": 0.024923020973801613
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 148,
+              "triangles_after": 112,
+              "error": 0.024923020973801613
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 14,
+              "triangles_after": 14,
+              "error": 0.024923020973801613
+            },
+            {
+              "material": "0xf79f0a99",
+              "triangles_before": 160,
+              "triangles_after": 64,
+              "error": 0.024923020973801613
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 4,
+              "error": 0.024923020973801613
+            },
+            {
+              "material": "0x12214ce8",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.024923020973801613
+            },
+            {
+              "material": "0xffba6257",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.024923020973801613
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 788,
+          "triangles": 380,
+          "groups": 7,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 40,
+              "triangles_after": 23,
+              "error": 0.03975972160696983
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 148,
+              "triangles_after": 85,
+              "error": 0.03975972160696983
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 14,
+              "triangles_after": 14,
+              "error": 0.03975972160696983
+            },
+            {
+              "material": "0xf79f0a99",
+              "triangles_before": 160,
+              "triangles_after": 48,
+              "error": 0.03975972160696983
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 6,
+              "triangles_after": 2,
+              "error": 0.03975972160696983
+            },
+            {
+              "material": "0x12214ce8",
+              "triangles_before": 48,
+              "triangles_after": 48,
+              "error": 0.03975972160696983
+            },
+            {
+              "material": "0xffba6257",
+              "triangles_before": 160,
+              "triangles_after": 160,
+              "error": 0.03975972160696983
+            }
+          ]
+        }
+      ],
+      "repairs": [],
+      "output_sha256": "58818463588b74db6d85935f1131e4113f3dd046ee388cc355772f6af322c96f",
+      "materials": {
+        "materials": {
+          "0xffba6257": [
+            "space_girder01_op",
+            "DcDtOcOtTwo"
+          ],
+          "0x12214ce8": [
+            "tree_64",
+            "DcDtOcOtTwo"
+          ],
+          "0xfc27e50e": [
+            "STADTL2_256",
+            "DcDt"
+          ],
+          "0xf79f0a99": [
+            "forest",
+            "DcDt"
+          ],
+          "0xe2c188d7": [
+            "space_cap",
+            "DcDt"
+          ],
+          "0x1e1f40f9": [
+            "STADTLS2_128",
+            "DcDt"
+          ],
+          "0xf0df7ffe": [
+            "STADTL1_256",
+            "DcDt"
+          ]
+        },
+        "preserved": [
+          304172264,
+          4290404951
+        ]
+      }
+    },
+    {
+      "file": "SOLAR/MISC/space_small_control_block.3db",
+      "internal_name": "jeider_s_space_small_control_block.lod0-112.vms",
+      "source_sha256": "8513264ecb70e6db7761be62d1f46e45aabd779384ee2695fe790f8f52635804",
+      "original": {
+        "vertices": 792,
+        "triangles": 400,
+        "groups": 6
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 492,
+          "triangles": 260,
+          "groups": 6,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 80,
+              "triangles_after": 60,
+              "error": 0.02392142079770565
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 238,
+              "triangles_after": 138,
+              "error": 0.02392142079770565
+            },
+            {
+              "material": "0xe61a4408",
+              "triangles_before": 18,
+              "triangles_after": 18,
+              "error": 0.02392142079770565
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 30,
+              "triangles_after": 18,
+              "error": 0.02392142079770565
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 2,
+              "triangles_after": 2,
+              "error": 0.02392142079770565
+            },
+            {
+              "material": "0xeccb83e1",
+              "triangles_before": 32,
+              "triangles_after": 24,
+              "error": 0.02392142079770565
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 458,
+          "triangles": 240,
+          "groups": 6,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 80,
+              "triangles_after": 56,
+              "error": 0.03304874524474144
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 238,
+              "triangles_after": 122,
+              "error": 0.03304874524474144
+            },
+            {
+              "material": "0xe61a4408",
+              "triangles_before": 18,
+              "triangles_after": 18,
+              "error": 0.03304874524474144
+            },
+            {
+              "material": "0x1e1f40f9",
+              "triangles_before": 30,
+              "triangles_after": 18,
+              "error": 0.03304874524474144
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 2,
+              "triangles_after": 2,
+              "error": 0.03304874524474144
+            },
+            {
+              "material": "0xeccb83e1",
+              "triangles_before": 32,
+              "triangles_after": 24,
+              "error": 0.03304874524474144
+            }
+          ]
+        }
+      ],
+      "repairs": [],
+      "output_sha256": "3239afed70f36fdf2870c657b55b2fc6e9c86a9bc5b3cb6047dd92110c2ac1f6",
+      "materials": {
+        "materials": {
+          "0xeccb83e1": [
+            "space_wins_128",
+            "DcDtEt"
+          ],
+          "0xe61a4408": [
+            "STADTLS1_128G",
+            "DcDt"
+          ],
+          "0xfc27e50e": [
+            "STADTL2_256",
+            "DcDt"
+          ],
+          "0xe2c188d7": [
+            "space_cap",
+            "DcDt"
+          ],
+          "0x1e1f40f9": [
+            "STADTLS2_128",
+            "DcDt"
+          ],
+          "0xf0df7ffe": [
+            "STADTL1_256",
+            "DcDt"
+          ]
+        },
+        "preserved": [
+          3860481032
+        ]
+      }
+    },
+    {
+      "file": "SOLAR/MISC/space_windows.3db",
+      "internal_name": "jeider_s_space_windows_from_li_dread.lod0-112.vms",
+      "source_sha256": "34e240f0858f67b8b0f4adeb5d9b0ab315b5e8948bb24688e717e08253b7247b",
+      "original": {
+        "vertices": 972,
+        "triangles": 432,
+        "groups": 9
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 618,
+          "triangles": 280,
+          "groups": 3,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xf4a6b1a0",
+              "triangles_before": 60,
+              "triangles_after": 46,
+              "error": 0.0005433378973975778
+            },
+            {
+              "material": "0x4e810a0",
+              "triangles_before": 306,
+              "triangles_after": 168,
+              "error": 0.0005433378973975778
+            },
+            {
+              "material": "0x1097013f",
+              "triangles_before": 66,
+              "triangles_after": 66,
+              "error": 0.0005433378973975778
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 448,
+          "triangles": 204,
+          "groups": 3,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xf4a6b1a0",
+              "triangles_before": 60,
+              "triangles_after": 33,
+              "error": 0.03290489315986633
+            },
+            {
+              "material": "0x4e810a0",
+              "triangles_before": 306,
+              "triangles_after": 114,
+              "error": 0.03290489315986633
+            },
+            {
+              "material": "0x1097013f",
+              "triangles_before": 66,
+              "triangles_after": 57,
+              "error": 0.03290489315986633
+            }
+          ]
+        }
+      ],
+      "repairs": [],
+      "output_sha256": "ba9728aa9ba7faf22435f2c0836cbcea8d0160e4c13044c293bd68e3f01a2288",
+      "materials": {
+        "materials": {
+          "0xf4a6b1a0": [
+            "L_R_wnds_256",
+            "DcDtEt"
+          ],
+          "0x4e810a0": [
+            "liberty1_256",
+            "DcDt"
+          ],
+          "0x1097013f": [
+            "liberty3_256",
+            "DcDt"
+          ]
+        },
+        "preserved": []
+      }
+    }
+  ],
+  "fixes": [
+    {
+      "file": "SOLAR/MISC/space_long_large_arch.3db",
+      "source_sha256": "ad113a774ac3b5a714e381209b9c6723fdb1e16677f3c20f98e52707f946bb22",
+      "output_sha256": "3da1e14b14ed369f5d4eb4ab457a4396a2c64e91a031185fbe52431b4cc280ae",
+      "original": {
+        "vertices": 1977,
+        "triangles": 1082
+      },
+      "repaired": {
+        "vertices": 1977,
+        "triangles": 1082
+      },
+      "repairs": [
+        {
+          "kind": "zero_normal",
+          "vertices": 1,
+          "incident_triangles": 2,
+          "normal": [
+            0.9982411034197535,
+            0.0,
+            0.05928490063509367
+          ]
+        }
+      ]
+    },
+    {
+      "file": "SOLAR/ASTEROIDS_MOD/DYSON/dyson_box_detail_fixed.3db",
+      "source_sha256": "e56aff15531d78e86e47ff39ced7180712c014523685929d93b4e083479316c7",
+      "output_sha256": "a6b8590ceabdd08fe0ff12d1737a8ef58bca01683e195428dc47e4f318a48d9a",
+      "original": {
+        "vertices": 12667,
+        "triangles": 6056
+      },
+      "repaired": {
+        "vertices": 10532,
+        "triangles": 5301
+      },
+      "repairs": [
+        {
+          "kind": "exact_same_winding_duplicates",
+          "removed_triangles": 755,
+          "vertices_before": 12667,
+          "vertices_after": 10532
+        }
+      ]
+    }
+  ],
+  "configs": [
+    {
+      "file": "SOLAR/solararch.ini",
+      "staged": "src/obj/component_config/SOLAR/solararch.ini",
+      "source_sha256": "fcc2a11a692aecc1757ed2d187a1fb8994f9d800519612dd97e661ded1b2d3ad",
+      "output_sha256": "ddef85e0e1baebf45bfb7aef679e0e682ad4719c99230c6cbf7a9e28cefac0cf",
+      "changes": [
+        {
+          "nickname": "shipyard_small",
+          "model": "solar/misc/shipyard_small.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "shipyard_medium",
+          "model": "solar/misc/shipyard_medium.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "space_domea",
+          "model": "solar/misc/space_domea.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_domeb",
+          "model": "solar/misc/space_domeb.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_control_tower",
+          "model": "solar/misc/space_control_tower.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "space_control_tower_explodable",
+          "model": "solar/misc/space_control_tower.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "space_control_tower_root",
+          "model": "solar/misc/space_control_tower.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "space_control_tower_lowdetail",
+          "model": "solar/misc/space_control_tower.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "space_medium_control_tower",
+          "model": "solar/misc/space_medium_control_tower.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "space_medium_control_tower_explodable",
+          "model": "solar/misc/space_medium_control_tower.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "space_medium_control_tower_lowdetail",
+          "model": "solar/misc/space_medium_control_tower.3db",
+          "before": [
+            0.0,
+            5000.0
+          ],
+          "after": [
+            0,
+            1500.0,
+            3250.0,
+            5000.0
+          ]
+        },
+        {
+          "nickname": "space_production",
+          "model": "solar/misc/space_production.3db",
+          "before": [
+            0.0,
+            15000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            15000.0
+          ]
+        },
+        {
+          "nickname": "space_large_production",
+          "model": "solar/misc/space_large_production.3db",
+          "before": [
+            0.0,
+            15000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            15000.0
+          ]
+        },
+        {
+          "nickname": "space_small_control_block",
+          "model": "solar/misc/space_small_control_block.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "space_small_control_block_non_target",
+          "model": "solar/misc/space_small_control_block.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "space_small_control_block_station_root",
+          "model": "solar/misc/space_small_control_block.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "space_small_control_block_badland",
+          "model": "solar/misc/space_small_control_block.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "space_windows",
+          "model": "solar/misc/space_windows.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "EQUIPMENT/select_equip.ini",
+      "staged": "src/obj/component_config/EQUIPMENT/select_equip.ini",
+      "source_sha256": "3aa9c38ca6b148ab93d3a1c467bf88f100b7b6364da61854863f26762a2c7ea4",
+      "output_sha256": "2ec9a97b29c78bc06588817abe2d262f059e0538b02bf5b38f027251fe83276c",
+      "changes": [
+        {
+          "nickname": "attached_small_control_block",
+          "model": "solar/misc/space_small_control_block.3db",
+          "before": [
+            0.0,
+            15000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            15000.0
+          ]
+        },
+        {
+          "nickname": "attached_dome_a",
+          "model": "solar/misc/space_domea.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_dome_b",
+          "model": "solar/misc/space_domeb.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_large_control_tower",
+          "model": "solar/misc/space_control_tower.3db",
+          "before": [
+            0.0,
+            20000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            20000.0
+          ]
+        },
+        {
+          "nickname": "attached_medium_control_tower",
+          "model": "solar/misc/space_medium_control_tower.3db",
+          "before": [
+            0.0,
+            20000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            20000.0
+          ]
+        },
+        {
+          "nickname": "attached_windows",
+          "model": "solar/misc/space_windows.3db",
+          "before": [
+            0.0,
+            20000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            20000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_attached_large_control_tower",
+          "model": "solar/misc/space_control_tower.3db",
+          "before": [
+            0.0,
+            40000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            40000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_attached_medium_control_tower",
+          "model": "solar/misc/space_medium_control_tower.3db",
+          "before": [
+            0.0,
+            40000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            40000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_attached_small_control_block",
+          "model": "solar/misc/space_small_control_block.3db",
+          "before": [
+            0.0,
+            25000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            25000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_attached_large_production",
+          "model": "solar/misc/space_large_production.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_attached_medium_shipyard",
+          "model": "solar/misc/shipyard_medium.3db",
+          "before": [
+            0.0,
+            25000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            25000.0
+          ]
+        }
+      ]
+    }
+  ]
+}

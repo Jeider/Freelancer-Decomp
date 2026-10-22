@@ -640,15 +640,18 @@ unsigned char FParticleEffect::BuildGeometry(FSpaceCamera* Cam)
     const float SolarOpacity=StarSphereAttachedEffectVisibility(EffectWatchedObject(This), AsCamera(Cam));
     if (SolarOpacity <= 0.001f)
         return 1;
+    // Effects on a hardpoint (engines, thrusters, lights) sit on the hull behind them: soft
+    // particles would fade them into it, so they keep the retail draw.
+    const bool OnHull=EffectWatchedObject(This)!=nullptr && This->EngineIndex!=-1;
     IAlchemyRenderOpacity* Opacity=nullptr;
-    if(SolarOpacity<0.999f && DALib::Alchemy)
+    if((SolarOpacity<0.999f || OnHull) && DALib::Alchemy)
         DALib::Alchemy->QueryInterface(Iids::AlchemyRenderOpacity,reinterpret_cast<void**>(&Opacity));
-    if(Opacity) Opacity->SetRenderOpacity(SolarOpacity);
+    if(Opacity) {Opacity->SetRenderOpacity(SolarOpacity);Opacity->SetRenderSoftParticles(OnHull ? 0u : 1u);}
 #endif
     if (This->FxEffect != nullptr)
         This->FxEffect->Slot9(Cam);
 #ifdef FREELANCER_RP9
-    if(Opacity) {Opacity->SetRenderOpacity(1.0f);Opacity->Release();}
+    if(Opacity) {Opacity->SetRenderOpacity(1.0f);Opacity->SetRenderSoftParticles(1u);Opacity->Release();}
 #endif
     return 1;
 }

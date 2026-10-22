@@ -1043,6 +1043,11 @@ void HudCameraUpdate(FHudCamera* Cam, float DeltaSeconds)
     GameCameraUpdate((FGameCamera*)Cam, DeltaSeconds);
 }
 
+float GetCameraShakeAmount()
+{
+    return G_CameraShakeAmount;
+}
+
 void ResetCameraShakeAmount()
 {
     // 0x0054ad78 (the space init): MOV dword ptr [DAT_00675294],0x0.

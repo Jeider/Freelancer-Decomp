@@ -29,6 +29,7 @@
 #include <cstring>
 #include <new>
 #include <unordered_map>
+#include <unordered_set>
 #include <intrin.h>
 #include <xmmintrin.h>
 
@@ -1634,11 +1635,15 @@ namespace AlchemyImpl
     // The four records zeroed, as LAB_06201030 (load) and BeginDraw 0x06201abf do. The list
     // holds no references (FUN_06201c70 does not AddRef), so there is nothing to release.
     extern float G_AppearanceOpacity;
+    extern bool G_AppearanceSoft;
     static std::unordered_map<IGenericFx*,float> G_BatchOpacity;
+    // Appearances queued while soft particles were off for their effect (hull-attached).
+    static std::unordered_set<IGenericFx*> G_BatchNoSoft;
 
     void ClearBatchLists()
     {
         G_BatchOpacity.clear();
+        G_BatchNoSoft.clear();
         unsigned long List = 0;
         for (List = 0; List < kBatchListCount; ++List)
         {
@@ -1668,6 +1673,7 @@ namespace AlchemyImpl
         FBatchList& List = G_BatchLists[ListIndex];
         IGenericFx* Node = AsFxNode(Appearance);
         if(G_AppearanceOpacity<0.999f) G_BatchOpacity[Node]=G_AppearanceOpacity;
+        if(!G_AppearanceSoft) G_BatchNoSoft.insert(Node);
         IGenericFx* OldTail = List.Tail;
         List.Tail = Node;
         if (OldTail == nullptr)
@@ -1698,7 +1704,9 @@ namespace AlchemyImpl
             while(Head)
             {
                 IGenericFx* End=BatchLinksOf(Head)->BatchNext_;
-                while(End && BatchLinksOf(Head)->CanShareAppearanceBatch(BatchLinksOf(End)))
+                const bool HeadSoft=G_BatchNoSoft.find(Head)==G_BatchNoSoft.end();
+                while(End && BatchLinksOf(Head)->CanShareAppearanceBatch(BatchLinksOf(End)) &&
+                      (G_BatchNoSoft.find(End)==G_BatchNoSoft.end())==HeadSoft)
                     End=BatchLinksOf(End)->BatchNext_;
                 unsigned long TotalVerts=0,TotalIndices=0;
                 for(IGenericFx* Member=Head;Member!=End;Member=BatchLinksOf(Member)->BatchNext_)
@@ -1716,7 +1724,10 @@ namespace AlchemyImpl
                     Member->FillBatchedGeometry();
                     G_AppearanceOpacity=SavedOpacity;
                 }
+                const bool SavedSoft=G_AppearanceSoft;
+                G_AppearanceSoft=HeadSoft;
                 Head->EndBatchedDraw();
+                G_AppearanceSoft=SavedSoft;
                 Head=End;
             }
         }

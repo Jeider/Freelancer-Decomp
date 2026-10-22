@@ -1,0 +1,2531 @@
+{
+  "models": [
+    {
+      "file": "SOLAR/MISC/space_industrial01a.3db",
+      "internal_name": "ind01a.lod0-112.vms",
+      "source_sha256": "72e82cd22568c2f356f74462246f168a9b17bc994ffe30704e1aaad053168e22",
+      "original": {
+        "vertices": 543,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 422,
+          "triangles": 290,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 75,
+              "error": 0.02486853115260601
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.02486853115260601
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 133,
+              "error": 0.02486853115260601
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.02486853115260601
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.02486853115260601
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 331,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 57,
+              "error": 0.035890430212020874
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.035890430212020874
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.035890430212020874
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.035890430212020874
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 45,
+              "error": 0.035890430212020874
+            }
+          ]
+        }
+      ],
+      "output_sha256": "99948fd0dbfe4cee0eb7f2b8218b3e1d20f8e2ad8b9f19c9b05dd502e827f665"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01a_alt.3db",
+      "internal_name": "ind01a_alt_low_Detail.lod0-112.vms",
+      "source_sha256": "07451d14c0cdcc46eb5de342de8469c1a14815e6ddd8b862a3bd58cc96b75413",
+      "original": {
+        "vertices": 543,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 422,
+          "triangles": 290,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 75,
+              "error": 0.02486853115260601
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.02486853115260601
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 133,
+              "error": 0.02486853115260601
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.02486853115260601
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.02486853115260601
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 331,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 57,
+              "error": 0.035890430212020874
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.035890430212020874
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.035890430212020874
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.035890430212020874
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 45,
+              "error": 0.035890430212020874
+            }
+          ]
+        }
+      ],
+      "output_sha256": "a8f2b6bd9926f9d5e6de91fa3d48f64e9548ac56ef1b2569c8d309952777d0bc"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01b.3db",
+      "internal_name": "ind01b.lod0-112.vms",
+      "source_sha256": "cc6931605a150bf3c70731cda6c722a7b6611ec0a014994575bdcb879aa08556",
+      "original": {
+        "vertices": 543,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 410,
+          "triangles": 288,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 74,
+              "error": 0.02486846223473549
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.02486846223473549
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 132,
+              "error": 0.02486846223473549
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.02486846223473549
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.02486846223473549
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 327,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 58,
+              "error": 0.035976752638816833
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.035976752638816833
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.035976752638816833
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.035976752638816833
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 44,
+              "error": 0.035976752638816833
+            }
+          ]
+        }
+      ],
+      "output_sha256": "bd6c25a03b090fc9a8cd308c5934cabffdc3f32215fa5f9996487a8a41658485"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01c.3db",
+      "internal_name": "ind01c.lod0-112.vms",
+      "source_sha256": "0e9f4380e5366f85d7bae600239078c50c21ad3de6ae9468a184518311ccca5c",
+      "original": {
+        "vertices": 202,
+        "triangles": 138,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 163,
+          "triangles": 116,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.05,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 32,
+              "triangles_after": 20,
+              "error": 0.04805120453238487
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 2,
+              "triangles_after": 2,
+              "error": 0.04805120453238487
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 72,
+              "triangles_after": 62,
+              "error": 0.04805120453238487
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 8,
+              "triangles_after": 8,
+              "error": 0.04805120453238487
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.04805120453238487
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 132,
+          "triangles": 96,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.07,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 32,
+              "triangles_after": 14,
+              "error": 0.06712917238473892
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 2,
+              "triangles_after": 2,
+              "error": 0.06712917238473892
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 72,
+              "triangles_after": 53,
+              "error": 0.06712917238473892
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 8,
+              "triangles_after": 8,
+              "error": 0.06712917238473892
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 24,
+              "triangles_after": 19,
+              "error": 0.06712917238473892
+            }
+          ]
+        }
+      ],
+      "output_sha256": "7fc3aaf6f5be3a9a293682e323031a7472f615e62c6e55545d3b4c3e67ffdf9a"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01d.3db",
+      "internal_name": "ind010d_rm_version.lod0-112.vms",
+      "source_sha256": "f2d4187effe5dad3d014a48d64c60ac1db1874586b4ad053a6497c7c3b57ac5b",
+      "original": {
+        "vertices": 410,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 346,
+          "triangles": 288,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 74,
+              "error": 0.024864744395017624
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.024864744395017624
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 132,
+              "error": 0.024864744395017624
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.024864744395017624
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.024864744395017624
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 276,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 58,
+              "error": 0.03595009818673134
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.03595009818673134
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.03595009818673134
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.03595009818673134
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 44,
+              "error": 0.03595009818673134
+            }
+          ]
+        }
+      ],
+      "output_sha256": "3a55e7f808361cda010b1fd26e36293ab4bc46c3cb34e4b0823a25c3a7d41760"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01e.3db",
+      "internal_name": "ind01e_rm_version.lod0-112.vms",
+      "source_sha256": "74f97f06cd418904e60e62253c54187f729b277df6c217b2fd48f15b04260297",
+      "original": {
+        "vertices": 410,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 346,
+          "triangles": 288,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 74,
+              "error": 0.024868417531251907
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.024868417531251907
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 132,
+              "error": 0.024868417531251907
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.024868417531251907
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.024868417531251907
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 276,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 58,
+              "error": 0.035903844982385635
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.035903844982385635
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.035903844982385635
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.035903844982385635
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 44,
+              "error": 0.035903844982385635
+            }
+          ]
+        }
+      ],
+      "output_sha256": "f42342586df60ed1ab11af4321058872328e90137fd368305b8601a2cc394099"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01f.3db",
+      "internal_name": "rmbase_smugglers_core.lod0-112.vms",
+      "source_sha256": "1c6d823efe9a4a211d4673269f4fce11a51105b5eb249840611bcc1a1cb9cb3e",
+      "original": {
+        "vertices": 410,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 346,
+          "triangles": 288,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 74,
+              "error": 0.024857575073838234
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.024857575073838234
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 132,
+              "error": 0.024857575073838234
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.024857575073838234
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.024857575073838234
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 276,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 58,
+              "error": 0.036003656685352325
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.036003656685352325
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.036003656685352325
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.036003656685352325
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 44,
+              "error": 0.036003656685352325
+            }
+          ]
+        }
+      ],
+      "output_sha256": "66675618fe6c2deb2fc586216d3cdbfb766ac498ad5d603e39b61b8f0523089c"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01g.3db",
+      "internal_name": "rmbase_traders_core.lod0-112.vms",
+      "source_sha256": "a8fc2ca801b9f7690c6fd696d221ad974e8017b9340c95a226c531cac6d62332",
+      "original": {
+        "vertices": 410,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 346,
+          "triangles": 288,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 74,
+              "error": 0.024857575073838234
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.024857575073838234
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 132,
+              "error": 0.024857575073838234
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.024857575073838234
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.024857575073838234
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 276,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 58,
+              "error": 0.036003656685352325
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.036003656685352325
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.036003656685352325
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.036003656685352325
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 44,
+              "error": 0.036003656685352325
+            }
+          ]
+        }
+      ],
+      "output_sha256": "323cecc59d2837bd0feffc48344442f3a193c877e67bb4c4e1de6c2a81357dfb"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01h.3db",
+      "internal_name": "___ind010h_rm_version.lod0-112.vms",
+      "source_sha256": "1c0a4212c1265eec37b7a8a0a82b47046b6bed7d3ea993c68b09b83012d81a0f",
+      "original": {
+        "vertices": 410,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 346,
+          "triangles": 288,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 74,
+              "error": 0.024864744395017624
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.024864744395017624
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 132,
+              "error": 0.024864744395017624
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.024864744395017624
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.024864744395017624
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 276,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 58,
+              "error": 0.03595009818673134
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.03595009818673134
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.03595009818673134
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.03595009818673134
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 44,
+              "error": 0.03595009818673134
+            }
+          ]
+        }
+      ],
+      "output_sha256": "737e0c6cd4125fa8c6c98f5b1b9baf36c75f9b50b2334586cb2152f09c6854c7"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01i.3db",
+      "internal_name": "space_industrial_i_for_gasminer.lod0-112.vms",
+      "source_sha256": "64b81b7b4ac6719a9aee74c83fa5e820f4a7814dff0b2aeaa0c6bfe25c44a3f7",
+      "original": {
+        "vertices": 410,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 346,
+          "triangles": 288,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 74,
+              "error": 0.024863801896572113
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.024863801896572113
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 132,
+              "error": 0.024863801896572113
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.024863801896572113
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.024863801896572113
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 276,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 58,
+              "error": 0.03591705858707428
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.03591705858707428
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.03591705858707428
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.03591705858707428
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 44,
+              "error": 0.03591705858707428
+            }
+          ]
+        }
+      ],
+      "output_sha256": "68e940eb320381292702475df70ac9867d56835f3ef544a8c01f818049a929ee"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial01j.3db",
+      "internal_name": "jeiders_space_rmbase_newgasminer_root.lod0-112.vms",
+      "source_sha256": "223759a44747284f228d87c457368e8a9781e6611285425853cecfd0020a1a6e",
+      "original": {
+        "vertices": 410,
+        "triangles": 332,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 346,
+          "triangles": 288,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 74,
+              "error": 0.024868572130799294
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.024868572130799294
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 132,
+              "error": 0.024868572130799294
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.024868572130799294
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 64,
+              "error": 0.024868572130799294
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 276,
+          "triangles": 218,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 96,
+              "triangles_after": 58,
+              "error": 0.0359104759991169
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.0359104759991169
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 144,
+              "triangles_after": 98,
+              "error": 0.0359104759991169
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.0359104759991169
+            },
+            {
+              "material": "0xe1ef0c49",
+              "triangles_before": 64,
+              "triangles_after": 44,
+              "error": 0.0359104759991169
+            }
+          ]
+        }
+      ],
+      "output_sha256": "6a774aa2b132b1f99afe089ffd2334a7551bc877d8d5c432ae74b7b8e09bc3ae"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial02a.3db",
+      "internal_name": "ind02a_new.lod0-112.vms",
+      "source_sha256": "bec1624676ffc5432cfe35e977e2ab482023cd92c0ea40b11e394f8c2eaa88a4",
+      "original": {
+        "vertices": 565,
+        "triangles": 300,
+        "groups": 4
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 506,
+          "triangles": 280,
+          "groups": 4,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 38,
+              "error": 0.01974702998995781
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.01974702998995781
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.01974702998995781
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.01974702998995781
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 325,
+          "triangles": 206,
+          "groups": 4,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 28,
+              "error": 0.038678016513586044
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 64,
+              "error": 0.038678016513586044
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.038678016513586044
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.038678016513586044
+            }
+          ]
+        }
+      ],
+      "output_sha256": "54e63f6e8356dfc5fb15b87f231d04509d79e863b9e5e05504a5ad067e454224"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial02b.3db",
+      "internal_name": "xspace_ind_b_40_percent.lod0-112.vms",
+      "source_sha256": "5ea5a79e5ac86070db035d7d1bd31b79c2f2a92fc00083e4454024b267dfff30",
+      "original": {
+        "vertices": 565,
+        "triangles": 300,
+        "groups": 4
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 502,
+          "triangles": 280,
+          "groups": 4,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 38,
+              "error": 0.01974549889564514
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.01974549889564514
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.01974549889564514
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.01974549889564514
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 326,
+          "triangles": 206,
+          "groups": 4,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 28,
+              "error": 0.03867361694574356
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 64,
+              "error": 0.03867361694574356
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.03867361694574356
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.03867361694574356
+            }
+          ]
+        }
+      ],
+      "output_sha256": "1c2dccd88136c0545f8f1e04a4878d2d8eac6d11d9723f0d0b180b5d384f3006"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial02d.3db",
+      "internal_name": "jeider_s_space_ind02_special_for_co-dread.lod0-112.vms",
+      "source_sha256": "7ff5ac369b2a506e4301e95bc5c10d3bddb6f0ec7b0155098c20b03f896a6dcb",
+      "original": {
+        "vertices": 575,
+        "triangles": 300,
+        "groups": 4
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 539,
+          "triangles": 288,
+          "groups": 4,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 42,
+              "error": 0.019628170877695084
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 128,
+              "error": 0.019628170877695084
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 6,
+              "error": 0.019628170877695084
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.019628170877695084
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 376,
+          "triangles": 234,
+          "groups": 4,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 48,
+              "triangles_after": 36,
+              "error": 0.036297425627708435
+            },
+            {
+              "material": "0xe63dc03f",
+              "triangles_before": 128,
+              "triangles_after": 80,
+              "error": 0.036297425627708435
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 6,
+              "error": 0.036297425627708435
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 112,
+              "triangles_after": 112,
+              "error": 0.036297425627708435
+            }
+          ]
+        }
+      ],
+      "output_sha256": "5eaa9d230b0815acd173212cd217dc097556ada84df2dc94fedf62f5fd9795e8"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrial03.3db",
+      "internal_name": "jeider_s_new_space_industrial_from_water_base.lod0-112.vms",
+      "source_sha256": "378fcf7588d52709372c24173821017ba55529a542b4466d8018ac560df9e083",
+      "original": {
+        "vertices": 637,
+        "triangles": 240,
+        "groups": 7
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 379,
+          "triangles": 155,
+          "groups": 7,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0x1912ceec",
+              "triangles_before": 128,
+              "triangles_after": 80,
+              "error": 0.018258221447467804
+            },
+            {
+              "material": "0x2432e58",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.018258221447467804
+            },
+            {
+              "material": "0x1a3fe3ee",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.018258221447467804
+            },
+            {
+              "material": "0x160e12f1",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.018258221447467804
+            },
+            {
+              "material": "0xe11e848d",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.018258221447467804
+            },
+            {
+              "material": "0xfbe28c33",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.018258221447467804
+            },
+            {
+              "material": "0xe3646eb5",
+              "triangles_before": 80,
+              "triangles_after": 43,
+              "error": 0.018258221447467804
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 324,
+          "triangles": 128,
+          "groups": 7,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0x1912ceec",
+              "triangles_before": 128,
+              "triangles_after": 60,
+              "error": 0.03413313999772072
+            },
+            {
+              "material": "0x2432e58",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.03413313999772072
+            },
+            {
+              "material": "0x1a3fe3ee",
+              "triangles_before": 4,
+              "triangles_after": 2,
+              "error": 0.03413313999772072
+            },
+            {
+              "material": "0x160e12f1",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.03413313999772072
+            },
+            {
+              "material": "0xe11e848d",
+              "triangles_before": 4,
+              "triangles_after": 4,
+              "error": 0.03413313999772072
+            },
+            {
+              "material": "0xfbe28c33",
+              "triangles_before": 4,
+              "triangles_after": 2,
+              "error": 0.03413313999772072
+            },
+            {
+              "material": "0xe3646eb5",
+              "triangles_before": 80,
+              "triangles_after": 40,
+              "error": 0.03413313999772072
+            }
+          ]
+        }
+      ],
+      "output_sha256": "d4fd8d6d296686701c98985fb3d9fb88870c1e72b4819382b89ed7b114995db7"
+    },
+    {
+      "file": "SOLAR/MISC/space_industriala.3db",
+      "internal_name": "space_ind_0a_by_jeider.lod0-112.vms",
+      "source_sha256": "e437415ca4e83fbe0030c10df264247674445c515e5c6314e192349ed329cf91",
+      "original": {
+        "vertices": 409,
+        "triangles": 252,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 349,
+          "triangles": 232,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 134,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.019772399216890335
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 329,
+          "triangles": 222,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 124,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.03621867671608925
+            }
+          ]
+        }
+      ],
+      "output_sha256": "1484a604a4e896a7d90ebe0c65aefe65f4d3b825798effdb350aa08da37154e8"
+    },
+    {
+      "file": "SOLAR/MISC/space_industriala_alt.3db",
+      "internal_name": "space_ind_0a_ALT_by_jeider.lod0-112.vms",
+      "source_sha256": "f2391bd196635bde7d45686f36b02e4d1a005b9c99a677d757018f2a17acb3e5",
+      "original": {
+        "vertices": 409,
+        "triangles": 252,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 349,
+          "triangles": 232,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 134,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.019772399216890335
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 329,
+          "triangles": 222,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 124,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.03621867671608925
+            }
+          ]
+        }
+      ],
+      "output_sha256": "6b3437ccda12d0317938a249df7168c52046f3266a04db617a5337db3af87155"
+    },
+    {
+      "file": "SOLAR/MISC/space_industriala_alt2.3db",
+      "internal_name": "space_ind_0a_ALT+SEC_by_jeider.lod0-112.vms",
+      "source_sha256": "56a4c8c4e4e84bb208afc9164af58f0491aa40a2b7688b6f082dae88921181a7",
+      "original": {
+        "vertices": 409,
+        "triangles": 252,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 349,
+          "triangles": 232,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 134,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.019772399216890335
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.019772399216890335
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 329,
+          "triangles": 222,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 32,
+              "triangles_after": 32,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 144,
+              "triangles_after": 124,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 12,
+              "triangles_after": 2,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 40,
+              "triangles_after": 40,
+              "error": 0.03621867671608925
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.03621867671608925
+            }
+          ]
+        }
+      ],
+      "output_sha256": "93050147a7366aeccd66486c19d65c51f48fe531c4fbb02ba6efdff5f3fb2da9"
+    },
+    {
+      "file": "SOLAR/MISC/space_industrialc.3db",
+      "internal_name": "jeider_s_space_ind_short_big_version.lod0-112.vms",
+      "source_sha256": "96f33a1165519e82fb1f8ac9d9eeec6eb9c3b72131fe65b82fffcbd96caa7629",
+      "original": {
+        "vertices": 283,
+        "triangles": 166,
+        "groups": 5
+      },
+      "levels": [
+        {
+          "level": 1,
+          "vertices": 263,
+          "triangles": 158,
+          "groups": 5,
+          "ratio_goal": 0.65,
+          "error_limit": 0.025,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.019651690497994423
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 104,
+              "triangles_after": 100,
+              "error": 0.019651690497994423
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 10,
+              "triangles_after": 6,
+              "error": 0.019651690497994423
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.019651690497994423
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.019651690497994423
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "vertices": 235,
+          "triangles": 150,
+          "groups": 5,
+          "ratio_goal": 0.4,
+          "error_limit": 0.04,
+          "materials": [
+            {
+              "material": "0xf0df7ffe",
+              "triangles_before": 16,
+              "triangles_after": 16,
+              "error": 0.029175348579883575
+            },
+            {
+              "material": "0xfc27e50e",
+              "triangles_before": 104,
+              "triangles_after": 96,
+              "error": 0.029175348579883575
+            },
+            {
+              "material": "0xe2c188d7",
+              "triangles_before": 10,
+              "triangles_after": 2,
+              "error": 0.029175348579883575
+            },
+            {
+              "material": "0x13210c2f",
+              "triangles_before": 24,
+              "triangles_after": 24,
+              "error": 0.029175348579883575
+            },
+            {
+              "material": "0x1c2ae443",
+              "triangles_before": 12,
+              "triangles_after": 12,
+              "error": 0.029175348579883575
+            }
+          ]
+        }
+      ],
+      "output_sha256": "4d59001d535e7ad8d03f244c248813e0d0311e5f36597b295c73a4ef742569ef"
+    }
+  ],
+  "configs": [
+    {
+      "file": "SOLAR/solararch.ini",
+      "staged": "src/obj/industrial_config/SOLAR/solararch.ini",
+      "source_sha256": "ea32e9229a50a6b330373415e71545c237fb67d6caf4a8efcbe576a390122356",
+      "output_sha256": "fcc2a11a692aecc1757ed2d187a1fb8994f9d800519612dd97e661ded1b2d3ad",
+      "changes": [
+        {
+          "nickname": "space_industrial03",
+          "model": "solar/misc/space_industrial03.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industriala",
+          "model": "solar/misc/space_industriala.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "space_industriala_explodable",
+          "model": "solar/misc/space_industriala.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industriala_base_root",
+          "model": "solar/misc/space_industriala.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "space_industriala_non_targetable",
+          "model": "solar/misc/space_industriala.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "space_industriala_low_detail",
+          "model": "solar/misc/space_industriala_alt.3db",
+          "before": [
+            0.0,
+            25000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            25000.0
+          ]
+        },
+        {
+          "nickname": "space_industriala_lowdetail",
+          "model": "solar/misc/space_industriala_alt2.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "space_industrialc",
+          "model": "solar/misc/space_industrialc.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrialc_low_detail",
+          "model": "solar/misc/space_industrialc.3db",
+          "before": [
+            0.0,
+            5000.0
+          ],
+          "after": [
+            0,
+            1500.0,
+            3250.0,
+            5000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01a",
+          "model": "solar/misc/space_industrial01a.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01a_station_root",
+          "model": "solar/misc/space_industrial01a.3db",
+          "before": [
+            0.0,
+            25000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            25000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01a_low_detail",
+          "model": "solar/misc/space_industrial01a_alt.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01c",
+          "model": "solar/misc/space_industrial01c.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01c_badland",
+          "model": "solar/misc/space_industrial01c.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01b",
+          "model": "solar/misc/space_industrial01b.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01b_lod",
+          "model": "solar/misc/space_industrial01b.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01b_badland",
+          "model": "solar/misc/space_industrial01b.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01d",
+          "model": "solar/misc/space_industrial01d.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01d_low_detail",
+          "model": "solar/misc/space_industrial01d.3db",
+          "before": [
+            0.0,
+            3000.0
+          ],
+          "after": [
+            0,
+            900.0,
+            1950.0,
+            3000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01e",
+          "model": "solar/misc/space_industrial01e.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01f",
+          "model": "solar/misc/space_industrial01f.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01g",
+          "model": "solar/misc/space_industrial01g.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01h",
+          "model": "solar/misc/space_industrial01h.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial01i",
+          "model": "solar/misc/space_industrial01i.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial02a",
+          "model": "solar/misc/space_industrial02a.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial02a_non_targetable",
+          "model": "solar/misc/space_industrial02a.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial02a_explodable",
+          "model": "solar/misc/space_industrial02a.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial02a_station_root",
+          "model": "solar/misc/space_industrial02a.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial02a_low_detail",
+          "model": "solar/misc/space_industrial02a.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial02b",
+          "model": "solar/misc/space_industrial02b.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial02b_badland",
+          "model": "solar/misc/space_industrial02b.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial02d",
+          "model": "solar/misc/space_industrial02d.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "space_industrial02d_station_root",
+          "model": "solar/misc/space_industrial02d.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_gasminer",
+          "model": "solar/misc/space_industrial01i.3db",
+          "before": [
+            0.0,
+            300000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            300000.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "EQUIPMENT/select_equip.ini",
+      "staged": "src/obj/industrial_config/EQUIPMENT/select_equip.ini",
+      "source_sha256": "dd9fd1b3f55a7417b172ca987c4e78e4e172574e0aa82d56d10ebf9e92a1aeb4",
+      "output_sha256": "3aa9c38ca6b148ab93d3a1c467bf88f100b7b6364da61854863f26762a2c7ea4",
+      "changes": [
+        {
+          "nickname": "attached_ind_a",
+          "model": "solar/misc/space_industriala.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_ind_a_sw",
+          "model": "solar/misc/space_industriala_alt2.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "attached_ind_a_rot",
+          "model": "solar/misc/space_industriala.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_ind_a_rot_bx",
+          "model": "solar/misc/space_industriala_alt.3db",
+          "before": [
+            0.0,
+            15000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            15000.0
+          ]
+        },
+        {
+          "nickname": "attached_ind_a_rot2",
+          "model": "solar/misc/space_industriala.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_ind_c",
+          "model": "solar/misc/space_industrialc.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_ind01_a",
+          "model": "solar/misc/space_industrial01a.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_ind01_a_sw",
+          "model": "solar/misc/space_industrial01a_alt.3db",
+          "before": [
+            0.0,
+            2000.0
+          ],
+          "after": [
+            0,
+            600.0,
+            1300.0,
+            2000.0
+          ]
+        },
+        {
+          "nickname": "attached_ind01_a_root",
+          "model": "solar/misc/space_industrial01a.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_ind01_c",
+          "model": "solar/misc/space_industrial01c.3db",
+          "before": [
+            0.0,
+            10000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            10000.0
+          ]
+        },
+        {
+          "nickname": "attached_industrial02b_root",
+          "model": "solar/misc/space_industrial02b.3db",
+          "before": [
+            0.0,
+            30000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            30000.0
+          ]
+        },
+        {
+          "nickname": "attached_industrial02a_root",
+          "model": "solar/misc/space_industrial02a.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_industrial02a_rootA",
+          "model": "solar/misc/space_industrial02a.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_industrial02a_rootB",
+          "model": "solar/misc/space_industrial02a.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "attached_industrial02d",
+          "model": "solar/misc/space_industrial02d.3db",
+          "before": [
+            0.0,
+            50000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            50000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_attached_industriala",
+          "model": "solar/misc/space_industriala.3db",
+          "before": [
+            0.0,
+            40000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            40000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_attached_industrial02d",
+          "model": "solar/misc/space_industrial02d.3db",
+          "before": [
+            0.0,
+            40000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            40000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_attached_industrial02a",
+          "model": "solar/misc/space_industrial02a.3db",
+          "before": [
+            0.0,
+            40000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            40000.0
+          ]
+        },
+        {
+          "nickname": "rmbase_attached_industrial01c",
+          "model": "solar/misc/space_industrial01c.3db",
+          "before": [
+            0.0,
+            40000.0
+          ],
+          "after": [
+            0,
+            1800,
+            4500,
+            40000.0
+          ]
+        }
+      ]
+    }
+  ],
+  "skipped": [
+    "SOLAR/MISC/space_industrial.3db",
+    "SOLAR/MISC/space_industrial01.3db",
+    "SOLAR/MISC/space_industrial02.3db",
+    "SOLAR/MISC/space_industrial_dmg.cmp",
+    "EQUIPMENT/MODELS/COMMODITIES/crates_old/cargo_industrial.3db",
+    "EQUIPMENT/MODELS/COMMODITIES/crates_old/pod_industrial.3db",
+    "EQUIPMENT/MODELS/COMMODITIES/NN_ICONS/cwire_industrial_1.3db",
+    "EQUIPMENT/MODELS/COMMODITIES/NN_ICONS/cwire_industrial_2.3db",
+    "EQUIPMENT/MODELS/COMMODITIES/NN_ICONS/cwire_industrial_3.3db",
+    "EQUIPMENT/MODELS/COMMODITIES/NN_ICONS/industrial.3db"
+  ]
+}
