@@ -16,6 +16,7 @@
 #include "game_options.h"
 #include "globals.h"
 #include "player_spawn.h"      // GetPlayerShipObject
+#include "star_sys.h"          // StarSysGetActiveSystemId
 #include "win3d_immediate.h"
 #include "win3d_renderables.h" // UiOverlayPrepPipeline
 
@@ -347,6 +348,10 @@ void DbgOutlinesDraw(ICamera* Camera)
         for (CObject* Object = CObject::FindFirst(Class); Object != nullptr; Object = CObject::FindNext())
         {
             if (!WithinOutlineRange(Object, CameraPos))
+                continue;
+            // A body made in another system (a solar of the system just left, still referenced)
+            // was destroyed with that system's physics: never walk it.
+            if (Object->BodyPtr != nullptr && Object->PhysicsSystemId != StarSysGetActiveSystemId())
                 continue;
             if (bWires)
             {

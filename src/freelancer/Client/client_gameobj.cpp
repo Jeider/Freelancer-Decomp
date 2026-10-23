@@ -3200,6 +3200,10 @@ void FClientShipGameobj::update(float Dt)
                 {
                     if (Obj == Ship)
                         continue;
+                    // A body made in another system (a solar of the system just left, still
+                    // referenced) was destroyed with that system's physics: never read it.
+                    if (Obj->BodyPtr != nullptr && Obj->PhysicsSystemId != Ship->PhysicsSystemId)
+                        continue;
                     Vector const& P = Obj->get_position();
                     Vector const& Q = Ship->get_position();
                     float const D = std::sqrt((P.x - Q.x) * (P.x - Q.x) + (P.y - Q.y) * (P.y - Q.y) + (P.z - Q.z) * (P.z - Q.z));

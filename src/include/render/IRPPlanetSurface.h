@@ -24,6 +24,10 @@ struct FRPPlanetEclipse
     float Sun[4];    // world centre, radius
     float Range;     // how far behind the caster the shadow reaches
     float Strength;  // 1 = full shadow in the umbra
+    // The camera (planets draw through a modelview, so RP9's own view transform is identity):
+    // the game camera's view transform (as BeginLocalShadowFrame takes it) and its position.
+    float View12[12];
+    float Eye[3];
 };
 
 struct IRPPlanetSurface : IDAComponent

@@ -74,6 +74,7 @@
 #include "render/IRPWeaponGlints.h"
 #include "render/IAlchemyEffectColour.h"
 #include <map>
+#include <set>
 #include "render/RPWeaponGlintTracking.h"
 #include "render/RPWeaponGlintSelection.h"
 #include "render/RPWeaponGlintCoverage.h"
@@ -2049,6 +2050,10 @@ namespace
         return !(std::fabs(Along)>Half+Reach+50+R || DistanceSq-Along*Along>Transverse*Transverse);
     }
 
+    // Defined with DrainBucket (planet eclipses): Out = {reach, sun angular radius} when Go is a
+    // planet_eclipses caster.
+    bool PlanetEclipseShipShadow(FClientGameobj* Go, float* Out);
+
     IRPLocalShadows* BuildLocalShadows(FSpaceCamera* Cam)
     {
         if(PortConfigInt("Render","local_shadows",0)==0 || PortConfigInt("Render","surface_shaders",0)==0)
@@ -2088,7 +2093,7 @@ namespace
             }
             Vector Center;float Radius=Go->Slot178(Center);
             unsigned Type=0;Go->get_type(Type);
-            if(Kind==2 && (Type&5u))
+            if(Kind==2 && (Type&3u))  // MOON 1 | PLANET 2 (SUN is 4)
             {
                 // The render extent may contain atmosphere/rings. Eclipse only
                 // the authored solid planet, centred on its world position.
@@ -2098,7 +2103,12 @@ namespace
                     Radius=Arch->SolarRadius;
                     Center=Go->get_position();
                 }
-                Shadows->AddLocalShadowPlanet(&Center.x,Radius);
+                // Port-only: a planet_eclipses caster shadows ships all the way to its receiver.
+                float Eclipse[3];
+                if(PlanetEclipseShipShadow(Go,Eclipse))
+                    Shadows->AddLocalShadowEclipse(&Center.x,Radius,Eclipse[0],Eclipse[1]);
+                else
+                    Shadows->AddLocalShadowPlanet(&Center.x,Radius);
                 continue;
             }
             if(!(Radius>0) || !std::isfinite(Radius)) continue;
@@ -2316,6 +2326,7 @@ namespace
         bRead = true;
         char Text[512] = {};
         PortConfigString("Render", "planet_eclipses", "", Text, sizeof(Text));
+        FDUMP(0x100002, "planet eclipse: planet_eclipses \"%s\"\n", Text);
         char* Next = Text;
         while (*Next != '\0')
         {
@@ -2364,8 +2375,55 @@ namespace
         return true;
     }
 
+    // One FLSpew line per distinct eclipse outcome (receiver, stage), so a missing shadow can be traced.
+    void LogPlanetEclipse(unsigned Receiver, int Stage, char const* Text, float const* A = nullptr,
+                          float const* B = nullptr)
+    {
+        static std::set<unsigned long long> Logged;
+        if (Logged.size() > 64 || !Logged.insert(((unsigned long long)Receiver << 8) | (unsigned)Stage).second)
+            return;
+        FDUMP(0x100002, "planet eclipse: receiver %08x %s caster (%.0f %.0f %.0f r %.0f) sun (%.0f %.0f %.0f r %.0f)\n",
+              Receiver, Text, A ? A[0] : 0.0f, A ? A[1] : 0.0f, A ? A[2] : 0.0f, A ? A[3] : 0.0f,
+              B ? B[0] : 0.0f, B ? B[1] : 0.0f, B ? B[2] : 0.0f, B ? B[3] : 0.0f);
+    }
+
+    bool FindSystemSun(float* Out)
+    {
+        int const SolarKind = 2;
+        for (FClientGameobj* Solar = ClientObjDb_GetKindHead(&SolarKind); Solar != nullptr; Solar = Solar->ListNext)
+        {
+            unsigned Type = 0;
+            Solar->get_type(Type);
+            if ((Type & 4u) != 0 && PlanetSphere(Solar, Out))
+                return true;
+        }
+        return false;
+    }
+
+    bool PlanetEclipseShipShadow(FClientGameobj* Go, float* Out)
+    {
+        if (Go == nullptr)
+            return false;
+        unsigned const Id = Go->get_id();
+        for (FPlanetEclipsePair const& Pair : PlanetEclipsePairs())
+        {
+            if (Pair.Caster != Id)
+                continue;
+            float Caster[4], Receiver[4], Sun[4];
+            if (!PlanetSphere(Go, Caster) || !PlanetSphere(ClientObjDb_FindObject(Pair.Receiver, 2), Receiver) ||
+                !FindSystemSun(Sun))
+                return false;
+            float const Rx = Receiver[0] - Caster[0], Ry = Receiver[1] - Caster[1], Rz = Receiver[2] - Caster[2];
+            float const Sx = Sun[0] - Caster[0], Sy = Sun[1] - Caster[1], Sz = Sun[2] - Caster[2];
+            Out[0] = std::sqrt(Rx * Rx + Ry * Ry + Rz * Rz) + Receiver[3];
+            Out[1] = Sun[3] / (std::max)(std::sqrt(Sx * Sx + Sy * Sy + Sz * Sz), 1.0f);
+            return true;
+        }
+        return false;
+    }
+
     // Starts the eclipse for Go when it is a configured receiver; true when one was set.
-    bool BeginPlanetEclipse(IRPPlanetSurface* Surface, FClientGameobj* Go)
+    bool BeginPlanetEclipse(IRPPlanetSurface* Surface, FClientGameobj* Go, FSpaceCamera* Cam)
     {
         if (Surface == nullptr || Go == nullptr)
             return false;
@@ -2376,8 +2434,16 @@ namespace
                 continue;
             FRPPlanetEclipse Eclipse = {};
             float Receiver[4];
-            if (!PlanetSphere(ClientObjDb_FindObject(Pair.Caster, 2), Eclipse.Caster) || !PlanetSphere(Go, Receiver))
+            if (!PlanetSphere(ClientObjDb_FindObject(Pair.Caster, 2), Eclipse.Caster))
+            {
+                LogPlanetEclipse(Id, 1, "caster not found");
                 return false;
+            }
+            if (!PlanetSphere(Go, Receiver))
+            {
+                LogPlanetEclipse(Id, 2, "receiver has no sphere");
+                return false;
+            }
             // The system's sun: the first solar of type SUN.
             int const SolarKind = 2;
             bool bSun = false;
@@ -2390,12 +2456,20 @@ namespace
                     bSun = PlanetSphere(Solar, Eclipse.Sun);
             }
             if (!bSun)
+            {
+                LogPlanetEclipse(Id, 3, "no sun", Eclipse.Caster);
                 return false;
+            }
             float const Dx = Receiver[0] - Eclipse.Caster[0], Dy = Receiver[1] - Eclipse.Caster[1],
                         Dz = Receiver[2] - Eclipse.Caster[2];
             Eclipse.Range = std::sqrt(Dx * Dx + Dy * Dy + Dz * Dz) + Receiver[3];
             Eclipse.Strength = 1.0f;
+            // RP9 draws planets through a modelview: it needs the camera to bring these to view space.
+            ICamera* const Camera = AsCamera(Cam);
+            memcpy(Eclipse.View12, Camera->GetViewTransform(), sizeof(Eclipse.View12));
+            memcpy(Eclipse.Eye, Camera->GetPosition(), sizeof(Eclipse.Eye));
             Surface->SetPlanetEclipse(&Eclipse);
+            LogPlanetEclipse(Id, 4, "set", Eclipse.Caster, Eclipse.Sun);
             return true;
         }
         return false;
@@ -2485,7 +2559,7 @@ namespace
                 FClientGameobj* const Planet = Item ? static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object)) : nullptr;
                 if (Planet != nullptr && Planet->ManagerKind == 2 &&
                     DALib::Pipeline->QueryInterface(Iids::RPPlanetSurface, reinterpret_cast<void**>(&EclipseScope)) >= 0 &&
-                    EclipseScope != nullptr && !BeginPlanetEclipse(EclipseScope, Planet))
+                    EclipseScope != nullptr && !BeginPlanetEclipse(EclipseScope, Planet, Cam))
                 {
                     EclipseScope->Release();
                     EclipseScope = nullptr;

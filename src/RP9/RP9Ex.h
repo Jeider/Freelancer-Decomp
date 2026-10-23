@@ -306,6 +306,9 @@ struct FRp9ExState
     float ShadowSunDirection[4] = {};
     float ShadowPlanets[8][4] = {};
     unsigned ShadowPlanetCount = 0;
+    // The eclipse caster among ShadowPlanets (radius stored negative): its reach and the
+    // sun's angular radius (penumbra).
+    float ShadowEclipseRange = 0.0f, ShadowEclipseSunAngle = 0.0f;
     FRp9RenderStateCache ShadowSavedRenderStates = {};
     FRp9DeviceStateCaches ShadowSavedDeviceStates = {};
     FRp9PipelineTransforms ShadowSavedTransforms = {};

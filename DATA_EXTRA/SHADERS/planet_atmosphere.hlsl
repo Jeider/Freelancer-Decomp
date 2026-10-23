@@ -116,7 +116,7 @@ ShellOutput PSMain(ShellPixel In)
         float HitDistance = Along - sqrt(Surface * Surface - Miss * Miss);
         float Sunlit = Eclipse(Ray * HitDistance);
         float3 C = Lit(Normal, Ray, Light) * Amount * Sunlit;
-        Out.Colour = float4(C, Look.z * Amount * (0.35 + 0.65 * Light));
+        Out.Colour = float4(C, Look.z * Amount * (0.35 + 0.65 * Light * Sunlit));
         // The planet mesh is a polygon sphere whose radius need not match Surface exactly: pull
         // the depth a little towards the camera so the haze is never hidden by the real surface
         // close up (a hard edge where the two cross); ships above the surface still cover it.

@@ -24,4 +24,8 @@ struct IRPLocalShadows : IDAComponent
     // Inside a shadow map: bit 0 marks the following casters short-reach (NPC ships, [Render]
     // shadow_npc_ship_length metres behind the caster); 0 restores the full shadow length.
     virtual GENRESULT DACOM_API SetLocalShadowCaster(unsigned long Flags) = 0;
+    // A planet eclipse (port.ini planet_eclipses) on ships: like AddLocalShadowPlanet, but the
+    // shadow reaches Range metres behind the planet with a penumbra from the sun's angular radius.
+    virtual GENRESULT DACOM_API AddLocalShadowEclipse(const float* Center3, float Radius, float Range,
+                                                     float SunAngle) = 0;
 };

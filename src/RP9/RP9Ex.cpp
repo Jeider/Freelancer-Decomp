@@ -2080,11 +2080,25 @@ void FDirectX9::ExPlanetEclipseConstants(float* Out)
     memset(Out, 0, sizeof(float) * 12);
     if (!Ex->bPlanetEclipse)
         return;
+    // World to the shaders' view space exactly as BeginLocalShadowFrame does it: the camera's
+    // rotation with game-view Z flipped (RP9's SetModelview flips it), applied to the offset from
+    // the camera.
+    const FRPPlanetEclipse& E = Ex->PlanetEclipse;
+    float Flip[12];
+    memcpy(Flip, E.View12, sizeof(Flip));
+    Flip[6] = -Flip[6];
+    Flip[7] = -Flip[7];
+    Flip[8] = -Flip[8];
+    Flip[9] = Flip[10] = Flip[11] = 0.0f;
+    FRp9TransformCache Rotation = {};
+    Rotation.StoreAffine(Flip);
     D3DXMATRIX View;
-    memcpy(&View, Transforms_.View.Values, sizeof(View));
+    memcpy(&View, Rotation.Values, sizeof(View));
+    const D3DXVECTOR3 CasterDelta(E.Caster[0] - E.Eye[0], E.Caster[1] - E.Eye[1], E.Caster[2] - E.Eye[2]);
+    const D3DXVECTOR3 SunDelta(E.Sun[0] - E.Eye[0], E.Sun[1] - E.Eye[1], E.Sun[2] - E.Eye[2]);
     D3DXVECTOR3 Caster, Sun;
-    D3DXVec3TransformCoord(&Caster, reinterpret_cast<const D3DXVECTOR3*>(Ex->PlanetEclipse.Caster), &View);
-    D3DXVec3TransformCoord(&Sun, reinterpret_cast<const D3DXVECTOR3*>(Ex->PlanetEclipse.Sun), &View);
+    D3DXVec3TransformNormal(&Caster, &CasterDelta, &View);
+    D3DXVec3TransformNormal(&Sun, &SunDelta, &View);
     Out[0] = Caster.x;
     Out[1] = Caster.y;
     Out[2] = Caster.z;
@@ -2096,6 +2110,13 @@ void FDirectX9::ExPlanetEclipseConstants(float* Out)
     Out[8] = Ex->PlanetEclipse.Range;
     Out[9] = Ex->PlanetEclipse.Strength;
     Out[11] = 1.0f;
+    static std::set<std::string> Logged;
+    const std::string Key = Ex->bPlanetActive || Ex->bPlanetRequested ? Ex->PlanetName : std::string("atmosphere");
+    if (Logged.size() < 64 && Logged.insert(Key).second)
+        ExLogf(kExFdumpNotice, "NOTICE", __LINE__,
+               "planet eclipse on %s: caster view (%.0f %.0f %.0f r %.0f) sun view (%.0f %.0f %.0f r %.0f) range %.0f",
+               Key.c_str(), (double)Out[0], (double)Out[1], (double)Out[2], (double)Out[3], (double)Out[4],
+               (double)Out[5], (double)Out[6], (double)Out[7], (double)Out[8]);
 }
 
 bool FDirectX9::ExPlanetSurfaceBegin()
@@ -2536,7 +2557,7 @@ bool FDirectX9::ExSurfaceBegin()
     memcpy(Ps+61*4,Ex->ShadowSunDirection,16);
     // y: the near map's moving casters (ships, asteroids) are in their own map (cascade 2).
     const bool NearLive=ShadowReceiver && (Ex->ShadowReadyMask&4u) && Ex->ShadowMaps[2];
-    Set(62,(float)Ex->ShadowPlanetCount,NearLive ? 1.0f : 0.0f,0,0);
+    Set(62,(float)Ex->ShadowPlanetCount,NearLive ? 1.0f : 0.0f,Ex->ShadowEclipseRange,Ex->ShadowEclipseSunAngle);
     memcpy(Ps+64*4,Ex->ShadowPlanets,sizeof(Ex->ShadowPlanets));
     Set(63,Ex->ShadowMaxLength,Ex->ShadowMaxLength*0.8f,
         Ex->ShadowNearRadius*2,Ex->ShadowFarRadius*2);
@@ -3142,6 +3163,7 @@ GENRESULT DACOM_API FDirectX9::BeginLocalShadowFrame(const float* View12, const 
     ExFlushSurfaceInstances();
     FRp9ExState* E = Ex_;
     E->ShadowReadyMask = 0; E->ShadowPlanetCount = 0; E->bShadowReceiver = false;
+    E->ShadowEclipseRange = 0.0f; E->ShadowEclipseSunAngle = 0.0f;
     E->bShadowFrameValid=false;
     E->bShadowStaticPrepared=false;
     if (!Device_ || E->bShadowDrawing || !View12 || !Position || !SunDirection || E->bShadowFailed)
@@ -3274,6 +3296,44 @@ GENRESULT DACOM_API FDirectX9::AddLocalShadowPlanet(const float* Center, float R
     D3DXMATRIX Rotation; memcpy(&Rotation,E->ShadowCameraRotation,64);
     D3DXVECTOR3 View; D3DXVec3TransformNormal(&View,&Delta,&Rotation);
     float* P=E->ShadowPlanets[E->ShadowPlanetCount++]; memcpy(P,&View,12); P[3]=Radius;
+    return GR_OK;
+}
+
+GENRESULT DACOM_API FDirectX9::AddLocalShadowEclipse(const float* Center, float Radius, float Range,
+                                                    float SunAngle)
+{
+    FRp9ExState* E = Ex_;
+    if (!Center || !(Radius > 0) || !(Range > 0) || !std::isfinite(Radius) || !std::isfinite(Range) ||
+        E->ShadowPlanetCount >= 8)
+        return GR_INVALID_PARMS;
+    D3DXVECTOR3 Delta;
+    for (unsigned I = 0; I < 3; ++I)
+    {
+        if (!std::isfinite(Center[I]))
+            return GR_INVALID_PARMS;
+        (&Delta.x)[I] = Center[I] - E->ShadowCameraPosition[I];
+    }
+    if (D3DXVec3Length(&Delta) - Radius > Range + 35000)
+        return GR_OK;
+    D3DXMATRIX Rotation;
+    memcpy(&Rotation, E->ShadowCameraRotation, 64);
+    D3DXVECTOR3 View;
+    D3DXVec3TransformNormal(&View, &Delta, &Rotation);
+    // A negative radius marks the eclipse caster for surface_material.hlsl.
+    float* P = E->ShadowPlanets[E->ShadowPlanetCount++];
+    memcpy(P, &View, 12);
+    P[3] = -Radius;
+    E->ShadowEclipseRange = Range;
+    E->ShadowEclipseSunAngle = SunAngle > 0 && std::isfinite(SunAngle) ? SunAngle : 0.05f;
+    static bool bLogged = false;
+    if (!bLogged)
+    {
+        bLogged = true;
+        ExLogf(kExFdumpNotice, "NOTICE", __LINE__,
+               "planet eclipse on ships: caster view (%.0f %.0f %.0f r %.0f) reach %.0f sun angle %.3f",
+               (double)View.x, (double)View.y, (double)View.z, (double)Radius, (double)Range,
+               (double)E->ShadowEclipseSunAngle);
+    }
     return GR_OK;
 }
 

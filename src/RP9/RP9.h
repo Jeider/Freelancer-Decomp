@@ -631,6 +631,8 @@ public:
     GENRESULT DACOM_API EndLocalShadowMap() override;
     GENRESULT DACOM_API SetLocalShadowReceiver(unsigned long Enabled) override;
     GENRESULT DACOM_API AddLocalShadowPlanet(const float*, float Radius) override;
+    GENRESULT DACOM_API AddLocalShadowEclipse(const float* Center3, float Radius, float Range,
+                                             float SunAngle) override;
     GENRESULT DACOM_API BeginStaticShadowCache(unsigned long, unsigned long) override;
     GENRESULT DACOM_API SetLocalShadowCaster(unsigned long Flags) override;
     GENRESULT DACOM_API BeginWeaponGlints(const float*, const float*) override;

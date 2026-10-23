@@ -83,7 +83,7 @@ row_major float4x4 ShadowNear : register(c52);
 row_major float4x4 ShadowFar : register(c56);
 float4 ShadowControl : register(c60); // enabled receiver, near-map texel size, fade start/end
 float4 ShadowSunRay : register(c61);
-float4 ShadowPlanetControl : register(c62); // x planet count, y near moving-caster map valid
+float4 ShadowPlanetControl : register(c62); // x planet count, y near moving-caster map valid, z eclipse reach, w eclipse sun angle
 float4 ShadowRange : register(c63); // length, fade start, near/far map world widths
 float4 ShadowPlanets[8] : register(c64);
 float4 ShadowFilter : register(c72); // tan(angular radius), search/filter samples, strength
@@ -269,16 +269,23 @@ float SolarVisibility(float3 Position, float3 Normal)
     {
         if(I>=ShadowPlanetControl.x) break;
         float3 ToPlanet=ShadowPlanets[I].xyz-Position;
-        float Radius=ShadowPlanets[I].w;
+        // A negative radius is the planet_eclipses caster: it reaches ShadowPlanetControl.z metres
+        // with a penumbra from the sun's angular radius (ShadowPlanetControl.w).
+        bool Eclipse=ShadowPlanets[I].w<0;
+        float Radius=abs(ShadowPlanets[I].w);
+        float Reach=Eclipse ? ShadowPlanetControl.z : ShadowRange.x;
         float SurfaceDistance=length(ToPlanet)-Radius;
-        if(SurfaceDistance>=ShadowRange.x) continue;
+        if(SurfaceDistance>=Reach) continue;
         float Along=dot(ToPlanet,-ShadowSunRay.xyz);
         if(Along<=0) continue;
         float Perpendicular=sqrt(max(dot(ToPlanet,ToPlanet)-Along*Along,0));
-        if(Perpendicular>=Radius) continue;
-        float Gap=Along-sqrt(max(Radius*Radius-Perpendicular*Perpendicular,0));
-        float Edge=max(0.05,Gap*ShadowFilter.x);
-        float Occlusion=(1.0-smoothstep(Radius-Edge,Radius,Perpendicular))*ShadowOcclusion(Gap,0,ShadowRange.x);
+        float Edge=Eclipse ? max(0.05,Along*ShadowPlanetControl.w) : 0.0;
+        if(Perpendicular>=Radius+Edge) continue;
+        float Gap=Along-sqrt(max(Radius*Radius-min(Perpendicular*Perpendicular,Radius*Radius),0));
+        if(!Eclipse) Edge=max(0.05,Gap*ShadowFilter.x);
+        float Occlusion=Eclipse ?
+            (1.0-smoothstep(Radius-Edge,Radius+Edge,Perpendicular))*(Gap<Reach ? 1.0 : 0.0) :
+            (1.0-smoothstep(Radius-Edge,Radius,Perpendicular))*ShadowOcclusion(Gap,0,ShadowRange.x);
         Visibility=min(Visibility,1.0-Occlusion);
     }
     return lerp(1.0,Visibility,ShadowFilter.w);
