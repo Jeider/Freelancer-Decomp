@@ -180,6 +180,19 @@ struct FRp9ExState
     bool bPlanetEclipse = false;
     FRPPlanetEclipse PlanetEclipse = {};
 
+    // Planet rings (SetPlanetRing): the band being drawn, port.ini settings and planet_ring.hlsl.
+    bool bRingRequested = false, bRingActive = false, bRingConfigRead = false, bRingEnabled = true, bRingFailed = false, bRingDebug = false;
+    FRPPlanetRing RingDesc = {};
+    float RingBrightness = 2.0f, RingBacklight = 1.0f, RingOpacity = 1.0f, RingForward = 1.5f;
+    IDirect3DVertexShader9* RingVs = nullptr;
+    IDirect3DPixelShader9* RingPs = nullptr;
+    FRp9ExStageSave RingSavedStage[2];
+    std::set<std::string> RingLogged; // one line per distinct ring (inner, outer)
+    // The band's opacity profile per shape texture and rectangle (empty: unreadable), and the
+    // one of the band last drawn (GetPlanetRingProfile).
+    std::map<std::string, std::vector<float>> RingProfiles;
+    const std::vector<float>* RingLastProfile = nullptr;
+
     // Generic surface shader route, independent of objects (ships/stations/asteroids).
     bool bSurfaceConfigRead = false;
     bool bSurfaceEnabled = false;
@@ -276,6 +289,13 @@ struct FRp9ExState
     bool bQualityFxaaFailed = false;
     IDirect3DTexture9* QualitySceneCopy = nullptr;
     IDirect3DPixelShader9* QualityFxaaPs = nullptr;
+    // Port-only windowed gamma: D3D9 ignores the gamma ramp in a window, so the game's curve
+    // (SetGammaFunction: 1/gamma, brightness, contrast, bias) is applied to the finished frame at
+    // SwapBuffers while windowed ([Render] windowed_gamma).
+    bool bWindowed = true;
+    bool bGammaFailed = false;
+    float Gamma[4] = {1.0f, 0.0f, 1.0f, 0.0f};
+    IDirect3DPixelShader9* GammaPs = nullptr;
     IDirect3DStateBlock9* QualitySavedState = nullptr;
     float ShadowBiasScale = 0.5f;
     // [0] near, [1] far, [2] the near map's moving casters (ships, asteroids).

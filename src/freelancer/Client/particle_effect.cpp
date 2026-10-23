@@ -25,6 +25,7 @@
 #include "globals.h"             // ShouldSkipLocalServerTick (FUN_0042d740)
 #include "menu_sound_arch.h"
 #include "perf_options.h"
+#include "port_config.h"
 #include "space_camera.h"
 #include "space_scene_obj_draw.h" // the field controller DAT_00675244 / 0067524c / 00675248
 
@@ -610,6 +611,11 @@ unsigned char FParticleEffect::TickDraw(float Dt, FSpaceCamera* Cam)
     // &xform), +0x1c(0) and +0x20(Dt).
     if (This->FxEffect != nullptr)
     {
+#ifdef FREELANCER_RP9
+        // Port-only: a sun's ALE gives way to the port's corona; nothing to simulate.
+        if (StarSphereReplacesAttachedEffect(EffectWatchedObject(This)))
+            return 1;
+#endif
         FTransform World;
         EffectGetWorldTransform(AsEffectBase(This), &World);
         This->SetLod(This->Float80);
@@ -637,6 +643,8 @@ unsigned char FParticleEffect::BuildGeometry(FSpaceCamera* Cam)
 #ifdef FREELANCER_RP9
     // Keep simulation running while hidden: do not kill/restart the attached solar ALE.
     // SetIntensity is ALE's outer-time input, not render alpha, so never repurpose it here.
+    if (StarSphereReplacesAttachedEffect(EffectWatchedObject(This)))
+        return 1;
     const float SolarOpacity=StarSphereAttachedEffectVisibility(EffectWatchedObject(This), AsCamera(Cam));
     if (SolarOpacity <= 0.001f)
         return 1;

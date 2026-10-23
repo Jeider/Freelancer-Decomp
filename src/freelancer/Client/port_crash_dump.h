@@ -9,10 +9,16 @@
 //                                 stack resolved against the pdbs next to the modules.
 // port.ini [Debug] crash_dumps = 0 turns it off; crash_dumps_keep (default 5) limits how many
 // dumps are kept (the oldest go first).
+// Hangs too: a watchdog thread writes the same pair (exception E0000001 "hang", the main thread's
+// stack) when the main thread has not finished a frame for [Debug] hang_dump_seconds (default
+// 30; 0 = off), once per stall.
 namespace PortCrashDump
 {
-    // Reads the settings and loads dbghelp while the process is healthy.
+    // Reads the settings and loads dbghelp while the process is healthy. Call on the main thread.
     void Initialize();
-    // Called first thing in the unhandled-exception filter; never throws.
-    void Write(EXCEPTION_POINTERS* Info);
+    // Called first thing in the unhandled-exception filter; never throws. True when the pair
+    // was written (the filter then ends the process instead of waiting on Dr. Watson).
+    bool Write(EXCEPTION_POINTERS* Info);
+    // Once per client frame, on the main thread: the hang watchdog's heartbeat.
+    void Heartbeat();
 }

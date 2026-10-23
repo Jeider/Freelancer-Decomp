@@ -142,6 +142,11 @@
     <ClInclude Include="Client\dbg_console.h" />
     <ClInclude Include="Client\dbg_chase_camera.h" />
     <ClInclude Include="Client\port_crash_dump.h" />
+    <ClInclude Include="Client\solar_spheres.h" />
+    <ClInclude Include="Client\far_rocks.h" />
+    <ClInclude Include="Client\field_dust.h" />
+    <ClInclude Include="Client\space_haze.h" />
+    <ClInclude Include="Client\space_layers.h" />
     <ClInclude Include="Client\wing_anim.h" />
     <ClInclude Include="Client\widescreen.h" />
     <ClInclude Include="Client\connect_handshake.h" />
@@ -360,6 +365,11 @@
     <ClCompile Include="Client\dbg_console.cpp" />
     <ClCompile Include="Client\dbg_chase_camera.cpp" />
     <ClCompile Include="Client\port_crash_dump.cpp" />
+    <ClCompile Include="Client\solar_spheres.cpp" />
+    <ClCompile Include="Client\far_rocks.cpp" />
+    <ClCompile Include="Client\field_dust.cpp" />
+    <ClCompile Include="Client\space_haze.cpp" />
+    <ClCompile Include="Client\space_layers.cpp" />
     <ClCompile Include="Client\wing_anim.cpp" />
     <ClCompile Include="Client\connect_handshake.cpp" />
     <ClCompile Include="Client\connect_lists.cpp" />

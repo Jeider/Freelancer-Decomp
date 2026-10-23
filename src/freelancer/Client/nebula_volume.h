@@ -78,6 +78,18 @@ namespace NebulaVolume
     bool TintObjectAmbient(float const* WorldPos, unsigned char* Rgb);
     float SunLightScale(float const* WorldPos); // -1 = retail, otherwise per-object sun multiplier
     float SunEdgeHaloStrength(); // optional partial-occlusion halo, zero preserves retail
+    float SunNebulaHalo(float Default); // the sun halo kept inside a nebula (style sun_nebula_halo)
+    // True from BeginFrame until the next one, also after Draw ended the frame: the late passes
+    // (the sun halo and the ship haze aura, after the composite) ask whether the volume drew.
+    bool IsFrameActive();
+    // Metres of the segment From -> To (capped at MaxLength from From) that lie inside a nebula
+    // zone (24 evenly spaced samples; a sample counts when any registered nebula has immersion
+    // there). Independent of the volume being drawn.
+    float SegmentNebulaLength(float const* From, float const* To, float MaxLength);
+    // The camera is inside a drawn nebula: its fog colour (0..1), immersion (0..1) and the
+    // style's ship_haze_aura / ship_haze_aura_size (port.ini defaults when the style has none).
+    bool ShipAuraInfo(float* OutFogRgb, float* OutImmersion, float* OutStrength, float* OutSize,
+                      float DefaultStrength, float DefaultSize);
     void DimBackground(ICamera* Camera); // sky only, before world geometry
     void DrawBackdrop(ICamera* Camera); // finite system shell, behind all local nebulae/objects
     float ExteriorOpacity(FNebulaEffect const* Nebula, bool FillSheet);
@@ -113,6 +125,11 @@ namespace NebulaVolume
     // BeginFrame through the end of the frame (the clear colour is set after Draw); false when
     // the controller's draw failed.
     bool ShowsRealBackground();
+    // Retail's [BackgroundLightning] flash this frame: FillFogRgb's colour minus the plain fog
+    // colour (the clear colour retail flashed). With real_background the clear no longer shows
+    // it, so a style with its own lightning off (lightning_enabled = 0) adds it to the haze's
+    // self-glow next frame -- the whole nebula flickers as retail's backdrop did, with its gap.
+    void NoteBackgroundFlash(FNebulaEffect const* Nebula, float const* FlashRgb);
     // SpaceObjDrawPass's far plane fully inside a field (retail: FogFarClamp, about [Fog] far
     // + 500): with [Nebula] extend_far_plane, pushed out to 1.5 march caps (the haze has hidden
     // everything there; the thinner haze would otherwise show objects popping in at retail's

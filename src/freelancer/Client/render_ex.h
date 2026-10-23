@@ -48,4 +48,8 @@ namespace RenderEx
     void AfterSpaceScene();
     void NoteSolarSceneDepth(float Near,float Far);
     void DrawSolarRays(float U,float V,float Radius,float Strength,const float* Colour,float Aspect,float SunFrontDistance);
+    // The sun's corona (solar_corona.hlsl), drawn in place of its attached ALE: DiscRadius in
+    // viewport heights, Seconds the animation clock, Seed a per-sun phase.
+    void DrawSolarCorona(float U,float V,float DiscRadius,float Strength,const float* Colour,float Aspect,
+                         float SunFrontDistance,float Seconds,float Seed);
 }

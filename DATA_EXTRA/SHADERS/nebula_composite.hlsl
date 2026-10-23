@@ -31,7 +31,7 @@ float4 Upsample : register(c2);    // xy half a full-res texel, z relative depth
                                    // w 1 = no depth test (drawn before the opaque scene: plain
                                    // bilinear)
 float4 Tonemap : register(c3);     // x exposure, y mode (0 clamp, 1 Reinhard luma, 2 ACES),
-                                   // z Reinhard white
+                                   // z Reinhard white, w upsample_blur (low-res texels)
 float4 ViewRect : register(c4);
 float4 ProjInv : register(c5);
 float4 CamRow[3] : register(c6);
@@ -126,7 +126,32 @@ float4 PSComposite(float2 TexCoord : TEXCOORD0) : COLOR0
     float MaxDiff = max(max(Diff.x, Diff.y), max(Diff.z, Diff.w));
 
     if (MaxDiff < Upsample.z)
-        return FinishVolume(tex2Dlod(Volume, float4(TexCoord, 0.0, 0.0)), TexCoord); // smooth: bilinear
+    {
+        // Smooth: bilinear, or with upsample_blur four bilinear taps around the pixel (about a
+        // 3x3 low-res tent at 1): the march's per-pixel step jitter otherwise shows as a fine
+        // diagonal lattice, the coarser the fewer the steps and the lower the resolution.
+        [branch] if (Tonemap.w > 0.0)
+        {
+            // The taps reach past the four texels tested above: each must see this pixel's depth
+            // too, or the fog behind a silhouette is smeared onto its edge (a ragged halo round
+            // distant asteroids) -- then plain bilinear.
+            float2 R = LowSize.zw * (0.75 * Tonemap.w);
+            float4 TapDepth = float4(LinearDepthAt(TexCoord + float2(-R.x, -R.y)),
+                                     LinearDepthAt(TexCoord + float2(R.x, -R.y)),
+                                     LinearDepthAt(TexCoord + float2(-R.x, R.y)),
+                                     LinearDepthAt(TexCoord + float2(R.x, R.y)));
+            float4 TapDiff = abs(TapDepth - Depth) / max(Depth, 1.0e-3);
+            if (max(max(TapDiff.x, TapDiff.y), max(TapDiff.z, TapDiff.w)) < Upsample.z)
+            {
+                float4 Sum = tex2Dlod(Volume, float4(TexCoord + float2(-R.x, -R.y), 0.0, 0.0)) +
+                             tex2Dlod(Volume, float4(TexCoord + float2(R.x, -R.y), 0.0, 0.0)) +
+                             tex2Dlod(Volume, float4(TexCoord + float2(-R.x, R.y), 0.0, 0.0)) +
+                             tex2Dlod(Volume, float4(TexCoord + float2(R.x, R.y), 0.0, 0.0));
+                return FinishVolume(Sum * 0.25, TexCoord);
+            }
+        }
+        return FinishVolume(tex2Dlod(Volume, float4(TexCoord, 0.0, 0.0)), TexCoord);
+    }
 
     // Depth edge: the best-matching sample (read at its texel centre).
     float2 BestUv = Uv00;

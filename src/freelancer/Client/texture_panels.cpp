@@ -38,9 +38,15 @@
 #ifdef FREELANCER_PARTICLE_FX
 #include "dacom_iids.h"
 #include "port_config.h"
+#include "globals.h" // GetClientElapsedTime (ring puff layer)
+#ifdef FREELANCER_RP9
+#include "render/IRPPlanetSurface.h"
+#include "solar_spheres.h"
+#endif
 #include "render/IRenderPipelineEx.h"
 #include <algorithm>
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
 #include <windows.h>
 
@@ -411,6 +417,18 @@ namespace
         This->ListCount += 1;
     }
 
+#ifdef FREELANCER_RP9
+    // Port-only ring puff layer: per clouds object, the key of the puff cell each slot shows
+    // (0 = free), so a slot keeps its puff from frame to frame while it stays in range.
+    std::unordered_map<FNebulaClouds*, std::vector<uint64_t>>& RingLayerSlots()
+    {
+        // Never destroyed: the atexit teardown (StarSysLeave -> ~FTexturePanels) runs after
+        // function statics are gone and still erases its slots here.
+        static auto* const S_Slots = new std::unordered_map<FNebulaClouds*, std::vector<uint64_t>>();
+        return *S_Slots;
+    }
+#endif
+
     // Camera vt+0x0c -> world position, copied as 3 floats. The slot is __stdcall with `this`
     // on the stack (0050b21e PUSH EBP; CALL [EAX+0xc]), as in space_camera.h.
     void CameraReadPos(void* Camera, float* Out3)
@@ -452,6 +470,15 @@ FTexturePanels::FTexturePanels()
     Field34 = 0;
     NumSegments = 0x20;
     TransitionDist = 150.0f;
+#ifdef FREELANCER_RP9
+    FadeFar = 3400.0f;  // the 2002 beta's values
+    FadeNear = 500.0f;
+    bSunProfile = 0;
+    RingLayerThickness = 0.0f;
+    RingLayerCell = 0.0f;
+    RingLayerDensity = 1.0f;
+    RingLayerOrbit = 0.0f;
+#endif
     DetailTileU = 10.0f;
     DetailTileV = 2;
     ColorR = 1.0f;
@@ -486,6 +513,9 @@ void FTexturePanels::Clear()
     {
         if (N->Clouds != nullptr)
         {
+#ifdef FREELANCER_RP9
+            RingLayerSlots().erase(N->Clouds);
+#endif
             NebulaCloudsReleaseBits(N->Clouds);
             operator delete(N->Clouds);
         }
@@ -694,6 +724,337 @@ namespace
     }
 } // namespace
 
+#ifdef FREELANCER_RP9
+namespace
+{
+    uint64_t RingHash(uint64_t X)
+    {
+        // splitmix64: deterministic, so a cell shows the same puffs every frame.
+        X += 0x9e3779b97f4a7c15ull;
+        X = (X ^ (X >> 30)) * 0xbf58476d1ce4e5b9ull;
+        X = (X ^ (X >> 27)) * 0x94d049bb133111ebull;
+        return X ^ (X >> 31);
+    }
+
+    // [0, 1) from the top 24 bits.
+    double RingUnit(uint64_t Hash)
+    {
+        return static_cast<double>(Hash >> 40) * (1.0 / 16777216.0);
+    }
+
+    // How dense the band is at radius R relative to its densest part (0..1): the shape of the
+    // ring, not its opacity (a detail-mapped ring's profile is a few percent). Uniform until RP9
+    // has read the shape's profile back.
+    double RingProfile(FTexturePanels const* Panels, double Radius, double Inner, double Outer)
+    {
+        if (Panels->bSunProfile == 0)
+            return 1.0;
+        float Peak = 0.0f;
+        for (int I = 0; I < 128; ++I)
+            Peak = (std::max)(Peak, Panels->SunProfile[I]);
+        if (!(Peak > 0.0f))
+            return 0.0;
+        double const Across = (std::max)(0.0, (std::min)(1.0, (Radius - Inner) / (Outer - Inner)));
+        double const Index = Across * 128.0 - 0.5;
+        int const Low = (std::max)(0, (std::min)(127, static_cast<int>(std::floor(Index))));
+        int const High = (std::min)(127, Low + 1);
+        double const Mix = (std::max)(0.0, (std::min)(1.0, Index - Low));
+        return (Panels->SunProfile[Low] * (1.0 - Mix) + Panels->SunProfile[High] * Mix) / Peak;
+    }
+
+    struct FRingPuff
+    {
+        uint64_t Key;
+        float Pos[3];
+        float DistSq;
+    };
+
+    // Port-only (port.ini [Render] ring_puff_layer): the ring's [Clouds] puffs placed in the ring
+    // plane, dense where the band is dense and absent in its gaps, instead of on a sphere around
+    // a point ahead of the camera. The ring is cut into polar cells; each cell holds a fixed set
+    // of puffs from a hash of (radial, angular, k), so the puffs near the camera are the same
+    // every frame and a slot keeps its puff while it stays in range. Returns false to fall back
+    // to the retail update.
+    bool RingLayerUpdate(FTexturePanels* This, FNebulaClouds* Clouds, void* Camera, float Dt)
+    {
+        if (Clouds == nullptr || This->Zone == nullptr || This->MeshBuffer == nullptr ||
+            This->Field34 < 6)
+            return false;
+        unsigned char* const Cl = Clouds->Raw;
+        // Nothing to place until the puff table was built.
+        if (Cl[0xec] == 0)
+            return true;
+
+        double const Pi2 = 6.283185307179586;
+        double const Inner = This->Zone->GetSize().y;
+        double const Outer = This->Zone->GetSize().x;
+        double const R = *reinterpret_cast<float*>(Cl + 0x100);
+        if (!(Outer > Inner) || !(Inner > 1.0) || !(R > 0.0))
+            return false;
+
+        // The ring frame, as DrawPiece: centre, normal from outer vertices 0 and 2, U toward
+        // vertex 0, V = N x U.
+        FTransform ZoneXf;
+        ZoneToTransform(*This->Zone, ZoneXf);
+        double const C[3] = {ZoneXf.Translation.X, ZoneXf.Translation.Y, ZoneXf.Translation.Z};
+        float const* const Mesh = static_cast<float const*>(This->MeshBuffer);
+        double const A[3] = {Mesh[6] - C[0], Mesh[7] - C[1], Mesh[8] - C[2]};
+        double const B[3] = {Mesh[0] - C[0], Mesh[1] - C[1], Mesh[2] - C[2]};
+        double N[3] = {A[1] * B[2] - A[2] * B[1], A[2] * B[0] - A[0] * B[2], A[0] * B[1] - A[1] * B[0]};
+        double const NLength = std::sqrt(N[0] * N[0] + N[1] * N[1] + N[2] * N[2]);
+        if (!(NLength > 0.0))
+            return false;
+        for (int K = 0; K < 3; ++K)
+            N[K] /= NLength;
+        double const BN = B[0] * N[0] + B[1] * N[1] + B[2] * N[2];
+        double U[3] = {B[0] - N[0] * BN, B[1] - N[1] * BN, B[2] - N[2] * BN};
+        double const ULength = std::sqrt(U[0] * U[0] + U[1] * U[1] + U[2] * U[2]);
+        if (!(ULength > 0.0))
+            return false;
+        for (int K = 0; K < 3; ++K)
+            U[K] /= ULength;
+        double const V[3] = {N[1] * U[2] - N[2] * U[1], N[2] * U[0] - N[0] * U[2], N[0] * U[1] - N[1] * U[0]};
+
+        double const Thickness = This->RingLayerThickness > 0.0f
+                                     ? static_cast<double>(This->RingLayerThickness)
+                                     : (std::max)(10.0, static_cast<double>(This->Zone->GetSize().z) * 0.5);
+        // Cells about two and a half puffs across: the layer is as dense as the puffs are big.
+        int const Count = *reinterpret_cast<int*>(Cl + 0xc);
+        unsigned char** const Table = *reinterpret_cast<unsigned char***>(Cl);
+        double PuffSize = 0.0;
+        for (int I = 0; I < Count; ++I)
+            PuffSize += *reinterpret_cast<float*>(Table[I] + 0x18);
+        PuffSize = Count > 0 ? PuffSize / Count : 0.0;
+        double const Cell = This->RingLayerCell > 0.0f ? static_cast<double>(This->RingLayerCell)
+                                                       : (std::max)(20.0, PuffSize * 2.5);
+        double const Density = (std::max)(0.0f, This->RingLayerDensity);
+        static const float ClearScale = std::fmax(0.0f, PortConfigFloat("Render", "ring_puff_clear", 3.0f));
+        double const OrbitRad = This->RingLayerOrbit * (Pi2 / 360.0);
+        double const T = GetClientElapsedTime();
+
+        std::vector<uint64_t>& Slots = RingLayerSlots()[Clouds];
+        if (static_cast<int>(Slots.size()) != Count)
+            Slots.assign(static_cast<size_t>(Count), 0);
+
+        // The camera in ring coordinates.
+        float CamF[3];
+        CameraReadPos(Camera, CamF);
+        double const P[3] = {CamF[0], CamF[1], CamF[2]};
+        double const D[3] = {P[0] - C[0], P[1] - C[1], P[2] - C[2]};
+        double const Ca = D[0] * U[0] + D[1] * U[1] + D[2] * U[2];
+        double const Cb = D[0] * V[0] + D[1] * V[1] + D[2] * V[2];
+        double const Ch = D[0] * N[0] + D[1] * N[1] + D[2] * N[2];
+        double const Rc = std::sqrt(Ca * Ca + Cb * Cb);
+        double const Tc = std::atan2(Cb, Ca);
+
+        *reinterpret_cast<float*>(Cl + 0xb8) = 0.0f; // the draw fades puffs about the camera itself
+        *reinterpret_cast<float*>(Cl + 0xf4) = CamF[0];
+        *reinterpret_cast<float*>(Cl + 0xf8) = CamF[1];
+        *reinterpret_cast<float*>(Cl + 0xfc) = CamF[2];
+        *reinterpret_cast<float*>(Cl + 0xe0) = 1.0f;
+        *reinterpret_cast<int*>(Cl + 0x10) = Count;
+
+        if (std::fabs(Ch) > R + 3.0 * Thickness || Rc + R < Inner || Rc - R > Outer)
+        {
+            for (int I = 0; I < Count; ++I)
+            {
+                Table[I][0x50] = 0;
+                Slots[static_cast<size_t>(I)] = 0;
+            }
+            *reinterpret_cast<int*>(Cl + 0x14) = 0;
+            return true;
+        }
+
+        static std::vector<FRingPuff> S_Cands;
+        std::vector<FRingPuff>& Cands = S_Cands;
+        Cands.clear();
+
+        int const RadialCount = static_cast<int>(std::ceil((Outer - Inner) / Cell));
+        int const IrMin = (std::max)(0, static_cast<int>(std::floor((Rc - R - Inner) / Cell)));
+        int const IrMax = (std::min)(RadialCount - 1, static_cast<int>(std::floor((Rc + R - Inner) / Cell)));
+        for (int Ir = IrMin; Ir <= IrMax; ++Ir)
+        {
+            double const RStart = Inner + Ir * Cell;
+            double const RMid = (std::min)(Outer, RStart + 0.5 * Cell);
+            int const Na = (std::max)(8, static_cast<int>(std::floor(Pi2 * RMid / Cell)));
+            double const BinWidth = Pi2 / Na;
+            double const CellProfile = RingProfile(This, RMid, Inner, Outer) * Density;
+            int const PerCell = (std::min)(6, static_cast<int>(std::ceil(CellProfile * 2.0 - 0.25)));
+            if (PerCell <= 0)
+                continue;
+            // Keplerian: the angular origin of the cell turns with time, slower further out.
+            auto Phi = [&](double Radius) { return OrbitRad * std::pow(Inner / Radius, 1.5) * T; };
+            double Rel = std::fmod(Tc - Phi(RMid), Pi2);
+            if (Rel < 0.0)
+                Rel += Pi2;
+            int const Centre = static_cast<int>(std::floor(Rel / BinWidth));
+            int const Span = static_cast<int>(std::ceil((R / RMid) / BinWidth)) + 1;
+            bool const bAll = 2 * Span + 1 >= Na;
+            int const Visits = bAll ? Na : 2 * Span + 1;
+            for (int Visit = 0; Visit < Visits; ++Visit)
+            {
+                int Ia = bAll ? Visit : Centre - Span + Visit;
+                Ia = ((Ia % Na) + Na) % Na;
+                for (int K = 0; K < PerCell; ++K)
+                {
+                    uint64_t const Key = (static_cast<uint64_t>(Ir + 1) << 24) |
+                                         (static_cast<uint64_t>(Ia) << 4) | static_cast<uint64_t>(K);
+                    uint64_t H = RingHash(Key);
+                    double const Ur = RingUnit(H);
+                    H = RingHash(H);
+                    double const Uv = RingUnit(H);
+                    H = RingHash(H);
+                    double const Uw = RingUnit(H);
+                    H = RingHash(H);
+                    double const Hs1 = RingUnit(H);
+                    H = RingHash(H);
+                    double const Hs2 = RingUnit(H);
+                    H = RingHash(H);
+                    double const Hs3 = RingUnit(H);
+                    double const Radius = RStart + Ur * Cell;
+                    if (Radius < Inner || Radius > Outer)
+                        continue;
+                    // Gaps inside a cell stay empty: thin by the profile at the puff's own radius
+                    // relative to the cell's (whose level already set the count).
+                    double const Ratio = RingProfile(This, Radius, Inner, Outer) * Density /
+                                         (std::max)(CellProfile, 1.0e-3);
+                    if (Uw > Ratio)
+                        continue;
+                    double const Theta = Ia * BinWidth + Uv * BinWidth + Phi(Radius);
+                    // Within +-thickness, denser toward the plane (triangular); Hs3 is spare.
+                    (void)Hs3;
+                    double const Height = Thickness * (Hs1 + Hs2 - 1.0);
+                    double const AlongU = std::cos(Theta) * Radius;
+                    double const AlongV = std::sin(Theta) * Radius;
+                    double W[3];
+                    for (int Axis = 0; Axis < 3; ++Axis)
+                        W[Axis] = C[Axis] + U[Axis] * AlongU + V[Axis] * AlongV + N[Axis] * Height;
+                    double const Dist = (W[0] - P[0]) * (W[0] - P[0]) + (W[1] - P[1]) * (W[1] - P[1]) +
+                                        (W[2] - P[2]) * (W[2] - P[2]);
+                    if (!(Dist < R * R))
+                        continue;
+                    // No cloud over the sun or in front of a planet: clear of every body by
+                    // [Render] ring_puff_clear (body radii) plus the puff's own size.
+                    if (ClearScale > 0.0f)
+                    {
+                        const float At[3] = {static_cast<float>(W[0]), static_cast<float>(W[1]),
+                                             static_cast<float>(W[2])};
+                        if (SolarNearBody(At, ClearScale, static_cast<float>(PuffSize)))
+                            continue;
+                    }
+                    FRingPuff Puff;
+                    Puff.Key = Key;
+                    Puff.Pos[0] = static_cast<float>(W[0]);
+                    Puff.Pos[1] = static_cast<float>(W[1]);
+                    Puff.Pos[2] = static_cast<float>(W[2]);
+                    Puff.DistSq = static_cast<float>(Dist);
+                    Cands.push_back(Puff);
+                }
+            }
+        }
+
+        // More candidates than slots: the nearest win.
+        if (static_cast<int>(Cands.size()) > Count)
+        {
+            std::nth_element(Cands.begin(), Cands.begin() + Count, Cands.end(),
+                             [](FRingPuff const& L, FRingPuff const& Rr) { return L.DistSq < Rr.DistSq; });
+            Cands.resize(static_cast<size_t>(Count));
+        }
+
+        // Stable slots: a slot whose puff is still a candidate keeps it, the rest are freed and
+        // refilled by the new candidates.
+        static std::unordered_map<uint64_t, size_t> S_Index;
+        static std::vector<char> S_Used;
+        S_Index.clear();
+        for (size_t I = 0; I < Cands.size(); ++I)
+            S_Index[Cands[I].Key] = I;
+        S_Used.assign(Cands.size(), 0);
+        for (int I = 0; I < Count; ++I)
+        {
+            uint64_t& Key = Slots[static_cast<size_t>(I)];
+            if (Key == 0)
+                continue;
+            auto const Found = S_Index.find(Key);
+            if (Found == S_Index.end())
+            {
+                Key = 0;
+                continue;
+            }
+            S_Used[Found->second] = 1;
+            memcpy(Table[I], Cands[Found->second].Pos, sizeof(float) * 3);
+        }
+        size_t Next = 0;
+        for (int I = 0; I < Count; ++I)
+        {
+            uint64_t& Key = Slots[static_cast<size_t>(I)];
+            if (Key != 0)
+                continue;
+            while (Next < Cands.size() && S_Used[Next] != 0)
+                ++Next;
+            if (Next >= Cands.size())
+                break;
+            Key = Cands[Next].Key;
+            memcpy(Table[I], Cands[Next].Pos, sizeof(float) * 3);
+            S_Used[Next] = 1;
+        }
+        // Retail's flicker without its drift (FUN_00550f20's timer, cli_nebula.cpp): a puff waits
+        // (0.8 .. 1.5) * lightning_gap (timer +0x38 below 0), then for lightning_duration its
+        // wisp +0x3c is rand * rand each update -- the draw adds lightning_color * that while
+        // the timer is not negative. No gap or duration: no flicker.
+        float const Gap = *reinterpret_cast<float*>(Cl + 0x9c);
+        float const Duration = *reinterpret_cast<float*>(Cl + 0xa0);
+        bool const bFlicker = Gap > 0.0f && Duration > 0.0f;
+        auto Rearm = [Gap]() {
+            return static_cast<float>((-0.800000011920929 - static_cast<double>(rand()) * (1.0 / 32768.0) *
+                                                                0.699999988079071) * Gap);
+        };
+        int Active = 0;
+        for (int I = 0; I < Count; ++I)
+        {
+            unsigned char* const Puff = Table[I];
+            if (Slots[static_cast<size_t>(I)] == 0)
+            {
+                Puff[0x50] = 0;
+                continue;
+            }
+            float* const Timer = reinterpret_cast<float*>(Puff + 0x38);
+            float* const Wisp = reinterpret_cast<float*>(Puff + 0x3c);
+            // A puff that has just taken a slot starts waiting at a random point of its gap.
+            const bool bNew = Puff[0x50] == 0;
+            Puff[0x50] = 1;
+            Puff[0x51] = 0;
+            *reinterpret_cast<float*>(Puff + 0x44) = 0.0f;
+            *reinterpret_cast<float*>(Puff + 0x48) = 0.0f;
+            *reinterpret_cast<float*>(Puff + 0x4c) = 0.0f;
+            if (!bFlicker)
+            {
+                *Timer = -1.0f; // no drift, no flicker
+                *Wisp = 0.0f;
+            }
+            else
+            {
+                if (bNew || !(*Timer < Duration + 1.0f))
+                    *Timer = Rearm();
+                *Timer += Dt;
+                if (*Timer > Duration)
+                    *Timer = Rearm();
+                if (*Timer >= 0.0f)
+                {
+                    const float A = static_cast<float>(rand()) * (1.0f / 32768.0f);
+                    *Wisp = static_cast<float>(rand()) * A * (1.0f / 32768.0f);
+                }
+                else
+                    *Wisp = 0.0f;
+            }
+            ++Active;
+        }
+        *reinterpret_cast<int*>(Cl + 0x14) = Active;
+        return true;
+    }
+} // namespace
+#endif
+
+
 // -------------------------------------------------------------------- slot0 LAB_0050bd70
 
 double FTexturePanels::GetImmersion(Vector const& Point) const
@@ -796,7 +1157,15 @@ void FTexturePanels::Update(void* Camera, float Dt)
     // 0050b299..0050b2ba: every Clouds on the list gets FUN_00550d40(camera, dt, +0x70, null).
     FTexturePanelsListNode* const Sentinel = ListSentinel;
     for (FTexturePanelsListNode* N = Sentinel->Next; N != Sentinel; N = N->Next)
+    {
+#ifdef FREELANCER_RP9
+        // Port-only: puffs anchored in the ring instead of following the camera.
+        static int const S_PuffLayer = PortConfigInt("Render", "ring_puff_layer", 1);
+        if (S_PuffLayer != 0 && RingLayerUpdate(this, N->Clouds, Camera, Dt))
+            continue;
+#endif
         NebulaCloudsUpdate(N->Clouds, Camera, Dt, Visibility, nullptr);
+    }
 }
 
 // -------------------------------------------------------------------- slot4 LAB_0050b510
@@ -946,6 +1315,85 @@ void FTexturePanels::DrawPiece(void* Camera, int PieceIndex)
             }
             if (G_PanelBatcher.Pipeline != nullptr)
             {
+#ifdef FREELANCER_RP9
+                // Port-only: the band is drawn by RP9 (planet_ring.hlsl) as a lit particle layer.
+                IRPPlanetSurface* RingScope = nullptr;
+                if (G_PanelBatcher.Pipeline->QueryInterface(Iids::RPPlanetSurface,
+                                                            reinterpret_cast<void**>(&RingScope)) >= 0 &&
+                    RingScope != nullptr)
+                {
+                    FRPPlanetRing Ring = {};
+                    float const* const Mesh = static_cast<float const*>(MeshBuffer);
+                    Ring.Centre[0] = ZoneXf.Translation.X;
+                    Ring.Centre[1] = ZoneXf.Translation.Y;
+                    Ring.Centre[2] = ZoneXf.Translation.Z;
+                    bool bRing = NumSegments >= 3 && Field34 >= 6 && Shape != nullptr;
+                    if (bRing)
+                    {
+                        // The ring plane's normal from outer vertices 0 and 2 (the sign does not matter).
+                        float const A[3] = {Mesh[6] - Ring.Centre[0], Mesh[7] - Ring.Centre[1],
+                                            Mesh[8] - Ring.Centre[2]};
+                        float const B[3] = {Mesh[0] - Ring.Centre[0], Mesh[1] - Ring.Centre[1],
+                                            Mesh[2] - Ring.Centre[2]};
+                        float N[3] = {A[1] * B[2] - A[2] * B[1], A[2] * B[0] - A[0] * B[2],
+                                      A[0] * B[1] - A[1] * B[0]};
+                        float const Length = std::sqrt(N[0] * N[0] + N[1] * N[1] + N[2] * N[2]);
+                        bRing = Length > 0.0f;
+                        if (bRing)
+                            for (int K = 0; K < 3; ++K)
+                                Ring.Normal[K] = N[K] / Length;
+                    }
+                    if (bRing)
+                    {
+                        Ring.InnerRadius = Zone->GetSize().y;
+                        Ring.OuterRadius = Zone->GetSize().x;
+                        Ring.Segments = static_cast<unsigned long>(NumSegments);
+                        Ring.Piece = static_cast<unsigned long>(PieceIndex);
+                        Ring.Shape[0] = Shape->U0;
+                        Ring.Shape[1] = Shape->U1;
+                        Ring.Shape[2] = Shape->V0;
+                        Ring.Shape[3] = Shape->V1;
+                        Ring.bDetail = DetailShape != nullptr ? 1 : 0;
+                        Ring.Fade[0] = FadeFar;
+                        Ring.Fade[1] = FadeNear;
+                        // The ring's planet (none: radius 0) and the system's sun; no sun, retail draw.
+                        if (!FindHostPlanetSphere(Ring.Centre, Ring.InnerRadius, Ring.Planet))
+                            memset(Ring.Planet, 0, sizeof(Ring.Planet));
+                        // The nearest other planet or moon (100 km) may stand between the sun and
+                        // the ring; the shader tests that per pixel.
+                        if (!FindNearestPlanetSphere(Ring.Centre, 100000.0f, Ring.Planet[3] > 0.0f ? Ring.Planet : nullptr,
+                                                     Ring.Neighbour))
+                            memset(Ring.Neighbour, 0, sizeof(Ring.Neighbour));
+                        bRing = FindSystemSunSphere(Ring.Sun);
+                        // The sunlight at the ring, from the system light itself: the device's
+                        // lights carry it as attenuated for whichever object was lit last.
+                        if (bRing && FindSunLightColour(Ring.Sun, Ring.Centre, Ring.SunColour))
+                            Ring.SunColour[3] = 1.0f;
+                        // And the system's [Ambient] (with the game's ambient option), not the
+                        // D3DRS_AMBIENT left by the previous object (white after some).
+                        if (unsigned char const* const SystemAmbient = StarSysAmbientColor())
+                        {
+                            for (int K = 0; K < 3; ++K)
+                                Ring.Ambient[K] = SystemAmbient[K] / 255.0f;
+                            Ring.Ambient[3] = 1.0f;
+                        }
+                    }
+                    if (bRing)
+                        RingScope->SetPlanetRing(&Ring);
+                    G_PanelBatcher.Pipeline->DrawPrimitive(G_PanelBatcher.Field00,
+                                                           static_cast<unsigned int>(G_PanelBatcher.Fvf),
+                                                           G_PanelBatcher.Verts,
+                                                           static_cast<unsigned int>(Count), nullptr);
+                    if (bRing)
+                    {
+                        if (bSunProfile == 0 && RingScope->GetPlanetRingProfile(SunProfile, 128) >= 0)
+                            bSunProfile = 1;
+                        RingScope->SetPlanetRing(nullptr);
+                    }
+                    RingScope->Release();
+                }
+                else
+#endif
                 G_PanelBatcher.Pipeline->DrawPrimitive(G_PanelBatcher.Field00,
                                                        static_cast<unsigned int>(G_PanelBatcher.Fvf),
                                                        G_PanelBatcher.Verts,
@@ -977,8 +1425,16 @@ void FTexturePanels::DrawPanels(void* Camera)
     // 0x0050bc90..0x0050bca7: byte +0x74, then +0x70 strictly greater than 0 (TEST AH,0x41 / JNE).
     if (bLoaded == 0)
         return;
+#ifdef FREELANCER_RP9
+    // Port-only: the ring puff layer is seen from outside the ring zone's slab too (approaching
+    // the plane from above); RingLayerUpdate leaves no puff active when nothing is in range.
+    static int const S_PuffLayer = PortConfigInt("Render", "ring_puff_layer", 1);
+    if (S_PuffLayer == 0 && !(Visibility > kZero))
+        return;
+#else
     if (!(Visibility > kZero))
         return;
+#endif
     // 0x0050bca9..0x0050bcc6: every node of the +0x68 list -> FUN_00551500(node+8, camera, 0).
     FTexturePanelsListNode* const Sentinel = ListSentinel;
 #ifdef FREELANCER_PARTICLE_FX
@@ -1004,6 +1460,12 @@ void FTexturePanels::Load(char const* IniPath,
     // the zone's vt+0x18 (GetShape) with the result dropped. Retail dereferences the zone here
     // with no null test.
     Zone = Universe::get_zone(QueryActiveSystemIdStarSys(), Nickname);
+#ifdef FREELANCER_RP9
+    // Port-only: a ring line naming a zone the loaded universe lacks (the system ini edited
+    // after the game started) crashed here; the ring stays unloaded instead.
+    if (Zone == nullptr)
+        return;
+#endif
     Zone->GetShape();
 
     // 0050a295..0050a2be: the defaults every load starts from (colour and detail_tile keep
@@ -1016,6 +1478,15 @@ void FTexturePanels::Load(char const* IniPath,
     DetailShape = nullptr;
     NumSegments = 0x20;
     TransitionDist = 150.0f;
+#ifdef FREELANCER_RP9
+    FadeFar = 3400.0f;
+    FadeNear = 500.0f;
+    bSunProfile = 0;
+    RingLayerThickness = 0.0f;
+    RingLayerCell = 0.0f;
+    RingLayerDensity = 1.0f;
+    RingLayerOrbit = 0.0f;
+#endif
 
     // 0050a2c5..0050a303: the path is resolved against DALib::Data into a MAX_PATH buffer. A
     // failed open or an empty file skips the parse but NOT the rest (both jump to 0050a808).
@@ -1084,9 +1555,33 @@ void FTexturePanels::Load(char const* IniPath,
                         NumSegments = static_cast<int>(Reader.get_value_float(0)); // ftol
                     else if (Reader.is_value("transition_dist"))
                         TransitionDist = Reader.get_value_float(0);
+#ifdef FREELANCER_RP9
+                    else if (Reader.is_value("fade_range"))
+                    {
+                        // Port-only (2002 beta [Exterior] fade_range = far, near): the band fades
+                        // out between these distances as the camera closes in.
+                        FadeFar = Reader.get_value_float(0);
+                        FadeNear = Reader.get_value_float(1);
+                    }
+#endif
                 }
             }
 #ifdef FREELANCER_RP9
+            else if (Reader.is_header("RingLayer"))
+            {
+                // Port-only: where the ring's puff layer sits (see RingLayerUpdate).
+                while (Reader.read_value())
+                {
+                    if (Reader.is_value("thickness"))
+                        RingLayerThickness = Reader.get_value_float(0);
+                    else if (Reader.is_value("cell_size"))
+                        RingLayerCell = Reader.get_value_float(0);
+                    else if (Reader.is_value("density"))
+                        RingLayerDensity = Reader.get_value_float(0);
+                    else if (Reader.is_value("orbit_speed"))
+                        RingLayerOrbit = Reader.get_value_float(0);
+                }
+            }
             else if (Reader.is_header("Volumetric"))
             {
                 while (Reader.read_value())
@@ -1337,6 +1832,7 @@ namespace
     {
         float Depth;
         unsigned Diffuse;
+        void* Texture; // the puff shape's texture (a [Clouds] may mix shapes of several)
         float Pos[6][3];
         float U[6];
         float V[6];
@@ -1385,6 +1881,44 @@ namespace
     {
         unsigned const Hash = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Puff) >> 3) * 2654435761u;
         return static_cast<double>(Hash) * (6.283185307179586 / 4294967296.0);
+    }
+
+    // A second stable per-slot hash (other bits than PuffBaseAngle) for the quad's rotation.
+    unsigned PuffRotationHash(void const* Puff)
+    {
+        unsigned Hash = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Puff) >> 3) * 2246822519u;
+        Hash ^= Hash >> 15;
+        Hash *= 3266489917u;
+        Hash ^= Hash >> 13;
+        return Hash;
+    }
+
+    // puff_rotation_step / puff_rotation_range: the quad's own turn in its plane, radians. A step
+    // (90: 0/90/180/270 degrees) wins; with step 0 the range gives a uniform angle in +-range.
+    double PuffRotation(void const* Puff, FCloudsPortParams const* PortParams)
+    {
+        static float const S_IniStep = PortConfigFloat("Render", "puff_rotation_step", 90.0f);
+        static float const S_IniRange = PortConfigFloat("Render", "puff_rotation_range", 0.0f);
+        float const Step = PortParams != nullptr && PortParams->RotationStep >= 0.0f ? PortParams->RotationStep : S_IniStep;
+        float const Range =
+            PortParams != nullptr && PortParams->RotationRange >= 0.0f ? PortParams->RotationRange : S_IniRange;
+        unsigned const Hash = PuffRotationHash(Puff);
+        double Degrees = 0.0;
+        if (Step > 0.0f)
+        {
+            unsigned const Count = static_cast<unsigned>((std::max)(1.0, floor(360.0 / Step + 0.5)));
+            Degrees = static_cast<double>(Step) * (Hash % Count);
+        }
+        else if (Range > 0.0f)
+            Degrees = (static_cast<double>(Hash) * (2.0 / 4294967296.0) - 1.0) * Range;
+        return Degrees * (3.141592653589793 / 180.0);
+    }
+
+    // puff_shadow_floor: the share of its colour a puff keeps fully inside a planet's shadow.
+    float PuffShadowFloor()
+    {
+        static float const S_Floor = (std::max)(0.0f, (std::min)(1.0f, PortConfigFloat("Render", "puff_shadow_floor", 0.2f)));
+        return S_Floor;
     }
 
     double SmoothStep01(double T)
@@ -1621,7 +2155,21 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
     FVertexMemoryLock Desc = {}; // [ESP+0xa0]: VB wrapper, FVF, start vertex, bits
     unsigned char** const Table = *reinterpret_cast<unsigned char***>(B);
 #ifdef FREELANCER_PARTICLE_FX
-    bool const bSortPuffs = CloudsSorted();
+    // Port-only: retail binds the first shape's texture for every puff, so the shapes of another
+    // texture drew as pieces of the first one. With several textures among the puff shapes the
+    // quads are collected and drawn in runs of one texture.
+    bool bMixedTextures = false;
+    {
+        void* const First = TexShapeGetGpuHandle(Shape0, 0);
+        int const ShapeCount = *reinterpret_cast<int*>(B + 0x68);
+        for (int K = 1; K < ShapeCount && K < 8; ++K)
+        {
+            FTexShape const* const Other = reinterpret_cast<FTexShape* const*>(B + 0x28)[K];
+            if (Other != nullptr && TexShapeGetGpuHandle(Other, 0) != First)
+                bMixedTextures = true;
+        }
+    }
+    bool const bSortPuffs = CloudsSorted() || bMixedTextures;
     bool const bSmoothFade = CloudsSmoothFade();
     std::vector<FCloudQuad> Quads;
     FCloudsPortParams const* const PortParams = NebulaCloudsPortParams(Clouds);
@@ -1766,6 +2314,20 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
         Col[0] = *reinterpret_cast<float*>(Puff + 0xc);
         Col[1] = *reinterpret_cast<float*>(Puff + 0x10);
         Col[2] = *reinterpret_cast<float*>(Puff + 0x14);
+#ifdef FREELANCER_RP9
+        {
+            // Port-only: a puff in a planet's shadow keeps only the floor of its colour (ring and
+            // nebula puffs alike); alpha is left alone.
+            float const Floor = PuffShadowFloor();
+            if (Floor < 1.0f)
+            {
+                float const Lit = Floor + (1.0f - Floor) * SolarSunlitAt(reinterpret_cast<float const*>(Puff));
+                Col[0] *= Lit;
+                Col[1] *= Lit;
+                Col[2] *= Lit;
+            }
+        }
+#endif
 
         // 0x00551d90..0x00551e18: with +0x124 zero, +0xdc strictly positive (TEST AH,0x41 / JNE)
         // and puff +0x38 not less than 0 (TEST AH,1 / JNE skips on less or unordered), the wisp
@@ -1928,6 +2490,23 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
             }
         }
 #endif
+#ifdef FREELANCER_RP9
+        {
+            // Port-only: the quad's own turn in its plane (puff_rotation_step / puff_rotation_range),
+            // added to the facing / spin angle above.
+            double const Rot = PuffRotation(Puff, PortParams);
+            if (Rot != 0.0)
+            {
+                float const Cr = static_cast<float>(cos(Rot)), Sr = static_cast<float>(sin(Rot));
+                for (int Axis = 0; Axis < 3; ++Axis)
+                {
+                    float const A = SP[Axis], Bq = SQ[Axis];
+                    SP[Axis] = A * Cr + Bq * Sr;
+                    SQ[Axis] = Bq * Cr - A * Sr;
+                }
+            }
+        }
+#endif
         float Tmp[3];
         float C0[3];
         Win3DVec3Sub(Tmp, &VP.X, SQ);
@@ -1953,6 +2532,7 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
             FCloudQuad Quad;
             Quad.Depth = PuffDepth;
             Quad.Diffuse = Diffuse;
+            Quad.Texture = TexShapeGetGpuHandle(Shape, 0);
             for (int Vert = 0; Vert < 6; ++Vert)
             {
                 memcpy(Quad.Pos[Vert], Pos[Vert], sizeof(Quad.Pos[Vert]));
@@ -1985,11 +2565,16 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
     }
 
 #ifdef FREELANCER_PARTICLE_FX
-    // The sorted path: farthest first, written in one lock as the retail loop would.
+    // The sorted path: farthest first (cloud_sort), or grouped by texture when only the mixed
+    // textures brought the puffs here; written in one lock as the retail loop would.
     if (bSortPuffs && !Quads.empty())
     {
-        std::sort(Quads.begin(), Quads.end(),
-                  [](FCloudQuad const& A, FCloudQuad const& Bq) { return A.Depth > Bq.Depth; });
+        if (CloudsSorted())
+            std::sort(Quads.begin(), Quads.end(),
+                      [](FCloudQuad const& A, FCloudQuad const& Bq) { return A.Depth > Bq.Depth; });
+        else
+            std::stable_sort(Quads.begin(), Quads.end(),
+                             [](FCloudQuad const& A, FCloudQuad const& Bq) { return A.Texture < Bq.Texture; });
         bLocked = 1;
         if (DALib::VertexBuffer->LockVertexMemory(0x142, static_cast<unsigned int>(VertTotal), &Desc) == GR_OK)
         {
@@ -2028,6 +2613,25 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
     if (bLocked != 0)
     {
         DALib::VertexBuffer->UnlockVertexMemory(&Desc);
+#ifdef FREELANCER_PARTICLE_FX
+        if (bMixedTextures)
+        {
+            // One draw per run of quads sharing a texture.
+            size_t Run = 0;
+            while (Run < Quads.size() && static_cast<int>(Run) * 6 < VertCount)
+            {
+                size_t End = Run + 1;
+                while (End < Quads.size() && Quads[End].Texture == Quads[Run].Texture)
+                    ++End;
+                Pipe->SetTextureStageTexture(0, Quads[Run].Texture);
+                Pipe->DrawPrimitiveVb(4, Desc.Listing.VertexBuffer,
+                                      static_cast<unsigned int>(Desc.Listing.BaseVertex + Run * 6),
+                                      static_cast<unsigned int>((End - Run) * 6), nullptr);
+                Run = End;
+            }
+        }
+        else
+#endif
         Pipe->DrawPrimitiveVb(4, Desc.Listing.VertexBuffer, static_cast<unsigned int>(Desc.Listing.BaseVertex),
                               static_cast<unsigned int>(VertCount), nullptr);
     }
@@ -2134,3 +2738,88 @@ int TexturePanelsFvfDiffuseNormalBytes(unsigned char FvfLow)
 {
     return FvfDiffuseNormalBytes(FvfLow);
 }
+
+#ifdef FREELANCER_RP9
+float TexturePanelsRayTransmittance(float const* From, float const* To, float SunRadius)
+{
+    // port.ini [Render] ring_sun_block: scales the band's opacity for the sun (0 = rings never
+    // dim it). The band's own profile when RP9 read it back; else its average, about 0.6.
+    float const Block = PortConfigFloat("Render", "ring_sun_block", 1.0f);
+    if (!(Block > 0.0f) || PortConfigInt("Render", "planet_rings", 1) == 0)
+        return 1.0f;
+    double const Ray[3] = {static_cast<double>(To[0]) - From[0], static_cast<double>(To[1]) - From[1],
+                           static_cast<double>(To[2]) - From[2]};
+    double const RayLength = std::sqrt(Ray[0] * Ray[0] + Ray[1] * Ray[1] + Ray[2] * Ray[2]);
+    if (!(RayLength > 0.0))
+        return 1.0f;
+    double Transmittance = 1.0;
+    FTexturePanelsGlobalNode* const Sentinel = TexturePanelsListSentinel();
+    for (FTexturePanelsGlobalNode* Node = Sentinel->Next; Node != Sentinel; Node = Node->Next)
+    {
+        FTexturePanels const* const Panels = Node->Panels;
+        if (Panels == nullptr || Panels->bLoaded == 0 || Panels->Zone == nullptr || Panels->Shape == nullptr ||
+            Panels->MeshBuffer == nullptr || Panels->Field34 < 6 || !(Panels->Opacity > 0.0f))
+            continue;
+        // The band's plane: centre and the normal from outer vertices 0 and 2, as DrawPiece.
+        FTransform ZoneXf;
+        ZoneToTransform(*Panels->Zone, ZoneXf);
+        double const C[3] = {ZoneXf.Translation.X, ZoneXf.Translation.Y, ZoneXf.Translation.Z};
+        float const* const Mesh = static_cast<float const*>(Panels->MeshBuffer);
+        double const A[3] = {Mesh[6] - C[0], Mesh[7] - C[1], Mesh[8] - C[2]};
+        double const B[3] = {Mesh[0] - C[0], Mesh[1] - C[1], Mesh[2] - C[2]};
+        double N[3] = {A[1] * B[2] - A[2] * B[1], A[2] * B[0] - A[0] * B[2], A[0] * B[1] - A[1] * B[0]};
+        double const NLength = std::sqrt(N[0] * N[0] + N[1] * N[1] + N[2] * N[2]);
+        if (!(NLength > 0.0))
+            continue;
+        for (int K = 0; K < 3; ++K)
+            N[K] /= NLength;
+        double const Facing = N[0] * Ray[0] + N[1] * Ray[1] + N[2] * Ray[2];
+        if (std::fabs(Facing) < 1.0e-9)
+            continue;
+        double const T = (N[0] * (C[0] - From[0]) + N[1] * (C[1] - From[1]) + N[2] * (C[2] - From[2])) / Facing;
+        if (!(T > 0.0 && T < 1.0))
+            continue;
+        double const Hit[3] = {From[0] + Ray[0] * T - C[0], From[1] + Ray[1] * T - C[1], From[2] + Ray[2] * T - C[2]};
+        double const Radius = std::sqrt(Hit[0] * Hit[0] + Hit[1] * Hit[1] + Hit[2] * Hit[2]);
+        double const Inner = Panels->Zone->GetSize().y, Outer = Panels->Zone->GetSize().x;
+        if (!(Outer > Inner) || Radius <= Inner || Radius >= Outer)
+            continue;
+        double const Across = (Radius - Inner) / (Outer - Inner);
+        // Through the layer at a slant the path is longer: (1 - alpha) ^ (1 / |cos|).
+        double const Cosine = (std::max)(std::fabs(Facing) / RayLength, 0.03);
+        if (Panels->bSunProfile == 0)
+        {
+            // No profile: the average band, soft at its edges.
+            double const Edge = (std::min)(1.0, (std::min)(Across, 1.0 - Across) / 0.08);
+            double const Alpha =
+                (std::min)(0.995, static_cast<double>(Panels->Opacity) * Block * 0.6 * Edge * Edge * (3.0 - 2.0 * Edge));
+            Transmittance *= std::pow(1.0 - Alpha, 1.0 / Cosine);
+            continue;
+        }
+        // The profile: dense bands block the sun, gaps let it through. Averaged over the sun's
+        // disc where it crosses the band (its footprint stretched by the slant), so a thin gap
+        // dims smoothly rather than blinking.
+        double const Footprint = SunRadius > 0.0f ? SunRadius * T / Cosine / (Outer - Inner) : 0.0;
+        double const Half = (std::min)(0.5, (std::max)(Footprint, 0.5 / 128.0));
+        double Sum = 0.0;
+        int const Taps = 9;
+        for (int Tap = 0; Tap < Taps; ++Tap)
+        {
+            double const At = Across + Half * (2.0 * Tap / (Taps - 1) - 1.0);
+            double Density = 0.0;
+            if (At > 0.0 && At < 1.0)
+            {
+                double const Index = At * 128.0 - 0.5;
+                int const Low = (std::max)(0, (std::min)(127, static_cast<int>(std::floor(Index))));
+                int const High = (std::min)(127, Low + 1);
+                double const Mix = (std::max)(0.0, (std::min)(1.0, Index - Low));
+                Density = Panels->SunProfile[Low] * (1.0 - Mix) + Panels->SunProfile[High] * Mix;
+            }
+            double const Alpha = (std::min)(0.995, Density * Panels->Opacity * Block);
+            Sum += std::pow(1.0 - Alpha, 1.0 / Cosine);
+        }
+        Transmittance *= Sum / Taps;
+    }
+    return static_cast<float>(Transmittance);
+}
+#endif

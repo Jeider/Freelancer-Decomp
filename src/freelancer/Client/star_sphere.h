@@ -164,4 +164,14 @@ float StarSphereMaxGlowScale(FStarSphere const* Sphere);
 #ifdef FREELANCER_RP9
 // Visibility of an effect attached to a listed sun, or 1 for any other owner.
 float StarSphereAttachedEffectVisibility(void const* Owner, void* Camera);
+// Port-only: Owner is the solar of a listed sun (its attached ALE is the sun's own effect).
+bool StarSphereIsListedOwner(void const* Owner);
+// Port-only: the sun's own ALE effect is replaced by the port's corona ([Render] sun_corona, 1):
+// the effect is then neither simulated nor drawn.
+bool StarSphereReplacesAttachedEffect(void const* Owner);
+struct ICamera;
+// Port-only (space_scene_obj_draw.cpp, right after the nebula composite): the sun's round halo over
+// the nebula, and the player's ship haze aura.
+void StarSphereDrawNebulaHalo(void* Cam); // the FSpaceCamera, as DrawBillboard takes it
+void NebulaShipAuraDraw(ICamera* Camera);
 #endif

@@ -21,6 +21,8 @@
 #include "engine_light.h"
 #include "game_options.h"
 #ifdef FREELANCER_RP9
+#include "far_rocks.h"     // FarRocksParseSection / FarRocksForget / FarRocksReplacesBand (port-only)
+#include "field_dust.h"    // FieldDustParseSection / FieldDustForget (port-only)
 #include "nebula_volume.h" // NebulaVolume::AsteroidSpawnReach (port-only Direct3D 9 nebula)
 #endif
 #include "render/RenderPipeline.h"
@@ -34,6 +36,7 @@
 #include "win3d_render.h"
 #include "x86math.h"
 
+#include <algorithm>
 #include <list>
 #include <math.h>
 #include <stdio.h>
@@ -62,6 +65,20 @@ struct FCliAsteroidExclusionInline
     static void SetMaxCliDistSq(Exclusion::AsteroidExclusionZoneMgr* Mgr, float DistSq)
     {
         Mgr->MaxCliDist = DistSq;
+    }
+
+    // Port-only (far rocks): the zones of the manager, up to Max, none of them null.
+    static int GetZones(Exclusion::AsteroidExclusionZoneMgr const* Mgr, Universe::IZone const** Out, int Max)
+    {
+        int Count = 0;
+        if (Mgr == nullptr)
+            return 0;
+        for (Exclusion::AsteroidExclusionZone* const* It = Mgr->Begin; It != Mgr->End && Count < Max; ++It)
+        {
+            if (*It != nullptr && (*It)->ZonePtr != nullptr)
+                Out[Count++] = (*It)->ZonePtr;
+        }
+        return Count;
     }
 #endif
 };
@@ -451,9 +468,20 @@ namespace
     {
         Bb->FadeDistPercent = 0.3f;
         Bb->Flag7C = 1;
+#ifdef FREELANCER_RP9
+        // Port-only band_thickness / band_near; 0 = not given, a thickness of 0 or less given = -1
+        // (the band forced off).
+        float BandThickness = 0.0f;
+        float BandNear = 0.0f;
+#endif
 
         if (!Reader.read_value())
+        {
+#ifdef FREELANCER_RP9
+            BillboardSetBandIni(Bb, BandThickness, BandNear);
+#endif
             return;
+        }
 
         do
         {
@@ -503,7 +531,21 @@ namespace
                 Bb->ColorShift1 = Reader.get_value_float(1);
                 Bb->ColorShift2 = Reader.get_value_float(2);
             }
+#ifdef FREELANCER_RP9
+            else if (Reader.is_value("band_thickness"))
+            {
+                float const V = Reader.get_value_float(0);
+                BandThickness = V > 0.0f ? V : -1.0f;
+            }
+            else if (Reader.is_value("band_near"))
+            {
+                BandNear = Reader.get_value_float(0);
+            }
+#endif
         } while (Reader.read_value());
+#ifdef FREELANCER_RP9
+        BillboardSetBandIni(Bb, BandThickness, BandNear);
+#endif
     }
 
     // Retail rand() returns 0..0x7fff; DAT_005caeec is 1/32768.
@@ -725,6 +767,9 @@ namespace
         This->Billboard.Count = 100;         // +0x1ac
         This->Billboard.RockCount = 100;     // +0x1b0
         This->Billboard.ZoneRef = nullptr;   // +0x1b4
+#ifdef FREELANCER_RP9
+        BillboardForgetBand(&This->Billboard);
+#endif
         This->Billboard.DensityScale = 1.0f; // +0x1b8
         This->Billboard.Shape = nullptr;     // +0x1bc
         This->Billboard.SizeMin = 500.0f;    // +0x1c0 0x43fa0000
@@ -908,6 +953,10 @@ void CliAsteroidLoadFieldIni(FCliAsteroid* This, char const* FieldIniRel)
     // 0x00520904..0x005209e8: the exclusion bands and the dynamic asteroid managers dropped.
     BandVectorClear(This);
     DynVectorClear(This);
+#ifdef FREELANCER_RP9
+    FarRocksForget(This); // port-only: a reload reads [FarRocks] afresh
+    FieldDustForget(This);
+#endif
 
     // 0x005209eb..0x00520a04: INI_Reader::open(path, false); a failure goes to the FDUMP at
     // 0x00521371 and then on to the band/billboard/mesh tail at 0x00521399.
@@ -958,6 +1007,18 @@ void CliAsteroidLoadFieldIni(FCliAsteroid* This, char const* FieldIniRel)
                             static_cast<float>(This->FlagD1), static_cast<float>(This->FlagD2));
                 BandSetAmbientIncrease(This->BandBlob, Inc);
             }
+#ifdef FREELANCER_RP9
+            else if (Reader.is_header("FarRocks"))
+            {
+                // Port-only: the distant look of the field as lit rock impostors (far_rocks.cpp).
+                FarRocksParseSection(This, Reader);
+            }
+            else if (Reader.is_header("FieldDust"))
+            {
+                // Port-only: the faint dust volume filling the zone (field_dust.cpp).
+                FieldDustParseSection(This, Reader);
+            }
+#endif
             else if (Reader.is_header("ExclusionBand"))
             {
                 // 0x00520efc..0x00520f0b: the section's state saved.
@@ -1321,6 +1382,11 @@ void CliAsteroidDestruct(FCliAsteroid* This)
     operator delete(This->Billboard.Rocks);
     This->Billboard.Count = 0;
     This->Billboard.ZoneRef = nullptr;
+#ifdef FREELANCER_RP9
+    BillboardForgetBand(&This->Billboard);
+    FarRocksForget(This);
+    FieldDustForget(This);
+#endif
     // 0x00520784..0x005207a5: the band vector's storage freed, its three words 0.
     operator delete(This->BandBegin);
     This->BandBegin = nullptr;
@@ -2002,6 +2068,62 @@ void CliAsteroidForEach(FCliAsteroidVisitFn Fn, void* Ctx)
         Fn(*It, Ctx);
 }
 
+#ifdef FREELANCER_RP9
+bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out)
+{
+    if (Field == nullptr || Out == nullptr || Field->Zone == nullptr)
+        return false;
+    memset(Out, 0, sizeof(*Out));
+    Out->Zone = Field->Zone;
+
+    // The band's numbers are read where they rest: the fade distances already times its height
+    // (BandBuildExclusionRings), color_shift and ambient_intensity as parsed.
+    unsigned char* const Blob = const_cast<unsigned char*>(Field->BandBlob);
+    Out->bHasBand = Field->FlagF8 != 0;
+    if (Out->bHasBand)
+    {
+        for (int I = 0; I < 4; ++I)
+            Out->BandFade[I] = *BandF(Blob, 0x19 + I);
+        for (int I = 0; I < 3; ++I)
+            Out->BandColor[I] = *BandF(Blob, 9 + I);
+        Out->BandAmbient = *BandF(Blob, 2);
+    }
+
+    Out->bHasBillboards = Field->Flag198 != 0;
+    if (Out->bHasBillboards)
+    {
+        Out->BillboardCentre = Field->Billboard.Float04;
+        Out->BillboardRadius = Field->Billboard.Float00;
+        Out->BillboardColor[0] = Field->Billboard.ColorShift0;
+        Out->BillboardColor[1] = Field->Billboard.ColorShift1;
+        Out->BillboardColor[2] = Field->Billboard.ColorShift2;
+    }
+
+    Out->FillDist = static_cast<float>(static_cast<double>(Field->FillDistAt24) * static_cast<double>(Field->Scale230));
+    Out->CubeSize = static_cast<float>(Field->CubeSize);
+    Out->bHasCubes = Field->MeshIndexCount > 0;
+
+    for (void** It = Field->DynBegin; It != Field->DynEnd; ++It)
+    {
+        FCliDynamicAsteroid const* const Dyn = static_cast<FCliDynamicAsteroid const*>(*It);
+        if (Dyn == nullptr)
+            continue;
+        Out->MaxPlacementRadius = (std::max)(Out->MaxPlacementRadius, Dyn->PlacementRadius);
+        Out->MaxBandThickness = (std::max)(Out->MaxBandThickness, CliDynamicAsteroidBandThickness(Dyn));
+    }
+
+    Out->Diffuse[0] = Field->TintB4;
+    Out->Diffuse[1] = Field->TintB8;
+    Out->Diffuse[2] = Field->TintBC;
+    Out->Ambient[0] = Field->TintC0;
+    Out->Ambient[1] = Field->TintC4;
+    Out->Ambient[2] = Field->TintC8;
+    Out->bFogZone = Field->FlagD3 != 0;
+    Out->ExclusionCount = FCliAsteroidExclusionInline::GetZones(Field->ExclusionMgr, Out->Exclusion, 16);
+    return true;
+}
+#endif
+
 void CliAsteroidDrawFarPiece(FCliAsteroid* Field, FSpaceCamera* Cam, int PieceIndex)
 {
     // FUN_00522850 (thiscall on the field, RET 8: cam, piece) — FAR band draw for one piece
@@ -2016,6 +2138,11 @@ void CliAsteroidDrawFarPiece(FCliAsteroid* Field, FSpaceCamera* Cam, int PieceIn
         return;
     if (Field->Flag234 == 0)
         return;
+#ifdef FREELANCER_RP9
+    // Port-only: the rocks of the field's [FarRocks] stand in for the band while they are drawn.
+    if (FarRocksReplacesBand(Field))
+        return;
+#endif
 
     // 0x005228b4..0x005228f0: the camera's orientation (vt+0x10) and position (vt+0x0c) are
     // copied to locals and the zone's position (+0x1c, vt+0x10) fetched; all three are const
@@ -3144,6 +3271,20 @@ namespace
             CliAsteroidAmbientPass(Field, Cam, kAmbientScaleArg);
             bAmbientDone = 1;
 #ifdef FREELANCER_RP9
+            // Port-only: the billboards follow the dynamic managers' band (the largest one).
+            float MaxBand = 0.0f;
+            float MaxPlacement = 0.0f;
+            for (void** DynIt = Field->DynBegin; DynIt != Field->DynEnd; ++DynIt)
+            {
+                FCliDynamicAsteroid const* const Dyn = static_cast<FCliDynamicAsteroid const*>(*DynIt);
+                float const DynBand = CliDynamicAsteroidBandThickness(Dyn);
+                if (DynBand > 0.0f)
+                {
+                    MaxBand = (std::max)(MaxBand, DynBand);
+                    MaxPlacement = (std::max)(MaxPlacement, Dyn->PlacementRadius);
+                }
+            }
+            BillboardLinkDynamicBand(&Field->Billboard, MaxBand, MaxPlacement);
             if (ExtFill > 0.0)
             {
                 // Port-only: the billboards fade in over the cubes' extended fade band (retail:

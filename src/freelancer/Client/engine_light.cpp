@@ -1701,6 +1701,11 @@ void GameLightTickAll(float Dt)
     }
 }
 
+FGameLight* GameLightListHead()
+{
+    return G_GameLightHead;
+}
+
 void GameLightLeaveSystem()
 {
     // FUN_005383c0 (.text:005383c0-00538511).

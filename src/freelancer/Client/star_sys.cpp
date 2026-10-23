@@ -25,6 +25,10 @@
 #include "player_behavior.h"
 #include "player_spawn.h"
 #include "space_dust.h"
+#ifdef FREELANCER_RP9
+#include "space_layers.h" // [SpaceLayer] (port-only)
+#include "space_haze.h"   // [SpaceHaze] (port-only)
+#endif
 #include "space_scene_obj_draw.h"
 #include "space_solar_world.h"
 #include "star_sphere.h" // StarSphereDestroyAll (FUN_0050c6e0)
@@ -253,6 +257,10 @@ namespace
         SpaceResetFarClip();       // FUN_00410130
 
         bool bAsteroidsLoaded = false; // [ESP+0x13], once per call
+#ifdef FREELANCER_RP9
+        SpaceLayersClear(); // port-only: a new system starts with no space layers
+        SpaceHazeClear();
+#endif
 
         INI_Reader Reader;
         if (!Reader.open(Path, false))
@@ -394,6 +402,16 @@ namespace
                 // 00553d6d: FUN_0054bde0(&Dust).
                 SpaceDustSetSystemDust(&Dust);
             }
+#ifdef FREELANCER_RP9
+            else if (Reader.is_header("SpaceLayer"))
+            {
+                SpaceLayersParseSection(Reader); // port-only: one world-anchored sprite layer
+            }
+            else if (Reader.is_header("SpaceHaze"))
+            {
+                SpaceHazeParseSection(Reader); // port-only: the fullscreen haze (the last one wins)
+            }
+#endif
             else if (Reader.is_header("LightSource"))
             {
                 void* const Mem = GameLightHeapAlloc(0x12c); // FUN_00537a90
@@ -927,6 +945,10 @@ void StarSysLeave(IObjRW* Player)
     RefreshLoadingProgress();
 
     SpaceDustShutdown(); // 00554c0b: FUN_0054be20
+#ifdef FREELANCER_RP9
+    SpaceLayersClear(); // port-only: before the shape DBs go
+    SpaceHazeClear();
+#endif
     RefreshLoadingProgress();
     StarSphereDestroyAll(); // 00554c12: FUN_0050c6e0
 

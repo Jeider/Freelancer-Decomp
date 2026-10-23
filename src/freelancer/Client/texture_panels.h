@@ -104,10 +104,28 @@ struct FTexturePanels : IPlanetRing
     float Visibility;                     // +0x70  written by Update via slot0
     unsigned char bLoaded;                // +0x74
     unsigned char Pad75[3];
+#ifdef FREELANCER_RP9
+    // Port-only (2002 beta [Exterior] fade_range): the planet ring band fades out between these
+    // distances as the camera closes in (drawn by RP9's planet_ring.hlsl).
+    float FadeFar;                        // +0x78  3400.0
+    float FadeNear;                       // +0x7c  500.0
+    // Port-only ring puff layer (port.ini [Render] ring_puff_layer; ring ini [RingLayer]): the
+    // puffs sit in the ring plane instead of following the camera. 0 = use the default.
+    float RingLayerThickness;             // half-thickness in metres (default zone height / 2, min 10)
+    float RingLayerCell;                  // cell size in metres (default max_distance * 0.35, min 20)
+    float RingLayerDensity;               // multiplier on the puffs per cell (1)
+    float RingLayerOrbit;                 // degrees per second at the inner edge, Keplerian outwards (0)
+    // The band's opacity across it (inner edge .. outer, before Opacity), read back from RP9 at
+    // the first draw: the sun behind the ring is dimmed by it (TexturePanelsRayTransmittance).
+    float SunProfile[128];
+    unsigned char bSunProfile;
+#endif
 };
 
 static_assert(sizeof(FShapeDB) < 0x18, "ShapeDB leaves room for reserved owner bytes");
+#ifndef FREELANCER_RP9
 static_assert(sizeof(FTexturePanels) == 0x78, "TexturePanels 0x78");
+#endif
 static_assert(offsetof(FTexturePanels, Shapes) == 0x04, "ShapeDB +0x04");
 static_assert(offsetof(FTexturePanels, Zone) == 0x1c, "Zone +0x1c");
 static_assert(offsetof(FTexturePanels, Shape) == 0x54, "Shape +0x54");
@@ -134,6 +152,13 @@ struct FTexturePanelsGlobalNode
 // FUN_00509f20 hands out &DAT_0067505c; its callers read the root's +4, the sentinel node.
 // This returns that sentinel.
 FTexturePanelsGlobalNode* TexturePanelsListSentinel();
+
+#ifdef FREELANCER_RP9
+// Port-only: the fraction of light that gets through every planet ring band (TexturePanels) on
+// the straight path From -> To, world space (1 = none in the way). The sun is dimmed by it.
+// SunRadius (> 0) spreads the test over the sun's disc where the ray meets a band.
+float TexturePanelsRayTransmittance(float const* From, float const* To, float SunRadius);
+#endif
 
 // The StarSys tick's walk (FUN_00554eb0 via FUN_00509f20 = &DAT_0067505c): slot 3 update
 // (camera, dt) on every live TexturePanels.

@@ -743,6 +743,7 @@ void FDirectX9::ExReleaseDeviceResources()
     if(Ex->WarmupSavedState) {Ex->WarmupSavedState->Release();Ex->WarmupSavedState=nullptr;}
     if(Ex->QualitySceneCopy) {Ex->QualitySceneCopy->Release();Ex->QualitySceneCopy=nullptr;}
     if(Ex->QualityFxaaPs) {Ex->QualityFxaaPs->Release();Ex->QualityFxaaPs=nullptr;}
+    if(Ex->GammaPs) {Ex->GammaPs->Release();Ex->GammaPs=nullptr;}
     if (Ex->bInPass)
         ExEndPassInternal(this);
     // The device must not hold the surface being released (Reset requires every
@@ -792,6 +793,8 @@ void FDirectX9::ExReleaseAllGpu()
     if (Ex->AtmospherePs != nullptr) { Ex->AtmospherePs->Release(); Ex->AtmospherePs = nullptr; }
     if (Ex->PlanetVs != nullptr) { Ex->PlanetVs->Release(); Ex->PlanetVs = nullptr; }
     if (Ex->PlanetPs != nullptr) { Ex->PlanetPs->Release(); Ex->PlanetPs = nullptr; }
+    if (Ex->RingVs != nullptr) { Ex->RingVs->Release(); Ex->RingVs = nullptr; }
+    if (Ex->RingPs != nullptr) { Ex->RingPs->Release(); Ex->RingPs = nullptr; }
     for (size_t Index = 0; Index < Ex->Programs.size(); ++Index)
         ReleaseProgramShaders(Ex->Programs[Index]);
     for (size_t Index = 0; Index < Ex->Textures.size(); ++Index)
@@ -2257,6 +2260,280 @@ void FDirectX9::ExPlanetSurfaceEnd()
         ExRestoreStage(Stage, &Ex->PlanetSavedStage[Stage]);
 }
 
+// ---- planet rings -------------------------------------------------------------------------
+
+GENRESULT DACOM_API FDirectX9::SetPlanetRing(const FRPPlanetRing* Desc)
+{
+    FRp9ExState* Ex = Ex_;
+    if (!Ex->bRingConfigRead)
+    {
+        Ex->bRingConfigRead = true;
+        Ex->bRingEnabled = ReadShadowSetting("planet_rings", 1, 0, 1) > 0.5f;
+        Ex->RingBrightness = ReadShadowSetting("ring_brightness", 2.0f, 0.0f, 10.0f);
+        Ex->RingBacklight = ReadShadowSetting("ring_backlight", 1.0f, 0.0f, 5.0f);
+        Ex->RingOpacity = ReadShadowSetting("ring_opacity", 1.0f, 0.0f, 4.0f);
+        Ex->RingForward = ReadShadowSetting("ring_forward", 1.5f, 0.0f, 10.0f);
+        Ex->bRingDebug = ReadShadowSetting("ring_debug", 0, 0, 1) > 0.5f;
+        ExLogf(kExFdumpNotice, "NOTICE", __LINE__,
+               "planet rings: %s, brightness %.2f backlight %.2f opacity %.2f forward %.2f",
+               Ex->bRingEnabled ? "on" : "off", (double)(Ex->RingBrightness), (double)(Ex->RingBacklight),
+               (double)(Ex->RingOpacity), (double)(Ex->RingForward));
+    }
+    Ex->bRingRequested = false;
+    if (Desc == nullptr)
+        return GR_OK;
+    if (!Ex->bRingEnabled || Ex->bRingFailed || Device_ == nullptr)
+        return GR_GENERIC;
+    // Compiled here, outside a draw, so that a successful Set means the draw will be ours.
+    if ((Ex->RingVs == nullptr || Ex->RingPs == nullptr) &&
+        !ExCompileShaderPair("planet_ring.hlsl", &Ex->RingVs, &Ex->RingPs))
+    {
+        ExLogf(kExFdumpError, "ERROR", __LINE__, "planet ring: shader unavailable, off");
+        Ex->bRingFailed = true;
+        return GR_GENERIC;
+    }
+    Ex->RingDesc = *Desc;
+    Ex->bRingRequested = true;
+    char Key[64];
+    sprintf(Key, "%.1f/%.1f", (double)(Desc->InnerRadius), (double)(Desc->OuterRadius));
+    if (Ex->RingLogged.size() < 16 && Ex->RingLogged.insert(Key).second)
+        ExLogf(kExFdumpNotice, "NOTICE", __LINE__,
+               "planet ring: inner %.0f outer %.0f segments %lu fade %.0f..%.0f planet radius %.0f",
+               (double)(Desc->InnerRadius), (double)(Desc->OuterRadius), Desc->Segments, (double)(Desc->Fade[0]),
+               (double)(Desc->Fade[1]), (double)(Desc->Planet[3]));
+    return GR_OK;
+}
+
+bool FDirectX9::ExRingBegin()
+{
+    FRp9ExState* Ex = Ex_;
+    if (Ex == nullptr || Device_ == nullptr || !Ex->bRingRequested)
+        return false;
+    // TEMP ring_debug: why a requested band piece fell back to the retail draw.
+    const char* Refused = nullptr;
+    if (Ex->bShadowDrawing)
+        Refused = "shadow pass";
+    else if (Ex->bInPass)
+        Refused = "in pass";
+    else if (Ex->bSoftActive || Ex->bSurfaceActive || Ex->bAtmosphereActive || Ex->bPlanetActive)
+        Refused = "another draw active";
+    else if (Ex->RingVs == nullptr || Ex->RingPs == nullptr)
+        Refused = "no shader";
+    unsigned long Fvf = StreamCache_.Fvf;
+    if (Fvf == 0 && StreamCache_.VertexBuffer != nullptr)
+        Fvf = StreamCache_.VertexBuffer->Fvf;
+    if (Refused == nullptr && ((Fvf & D3DFVF_POSITION_MASK) != D3DFVF_XYZ || !(Fvf & D3DFVF_DIFFUSE) ||
+                               ((Fvf & D3DFVF_TEXCOUNT_MASK) >> D3DFVF_TEXCOUNT_SHIFT) == 0))
+        Refused = "fvf";
+    if (Ex->bRingDebug)
+    {
+        char Key[96];
+        sprintf(Key, "debug piece %lu: %s (fvf 0x%lx, ambient 0x%06lx, z %lu/%lu)", Ex->RingDesc.Piece,
+                Refused ? Refused : "shader", Fvf, RenderStates_.GetPending(D3DRS_AMBIENT) & 0xffffff,
+                RenderStates_.GetPending(D3DRS_ZENABLE), RenderStates_.GetPending(D3DRS_ZWRITEENABLE));
+        if (Ex->RingLogged.size() < 64 && Ex->RingLogged.insert(Key).second)
+            ExLogf(kExFdumpNotice, "NOTICE", __LINE__, "planet ring: %s", Key);
+    }
+    if (Refused != nullptr)
+        return false;
+    // The band's opacity profile (read once per shape texture), for the sun behind the ring.
+    {
+        IDirect3DBaseTexture9* Bound = nullptr;
+        Ex->RingLastProfile = nullptr;
+        if (SUCCEEDED(Device_->GetTexture(0, &Bound)) && Bound != nullptr)
+        {
+            Ex->RingLastProfile = ExRingProfile(Bound, Ex->RingDesc);
+            Bound->Release();
+        }
+    }
+    // Queued instanced surface draws must go out before these shaders are bound.
+    ExFlushSurfaceInstances();
+
+    const FRPPlanetRing& R = Ex->RingDesc;
+    // The ring is drawn with an identity world and the camera as modelview: WV maps world
+    // positions to the shaders' view space.
+    float WV[16];
+    MulMatrix4(Transforms_.World.Values, Transforms_.View.Values, WV);
+    D3DXMATRIX Wv;
+    memcpy(&Wv, WV, sizeof(Wv));
+    D3DXVECTOR3 Centre, PlanetCentre, SunCentre, Normal;
+    const D3DXVECTOR3 CentreWorld(R.Centre[0], R.Centre[1], R.Centre[2]);
+    const D3DXVECTOR3 PlanetWorld(R.Planet[0], R.Planet[1], R.Planet[2]);
+    const D3DXVECTOR3 SunWorld(R.Sun[0], R.Sun[1], R.Sun[2]);
+    const D3DXVECTOR3 NormalWorld(R.Normal[0], R.Normal[1], R.Normal[2]);
+    D3DXVec3TransformCoord(&Centre, &CentreWorld, &Wv);
+    D3DXVec3TransformCoord(&PlanetCentre, &PlanetWorld, &Wv);
+    D3DXVec3TransformCoord(&SunCentre, &SunWorld, &Wv);
+    D3DXVec3TransformNormal(&Normal, &NormalWorld, &Wv);
+    D3DXVECTOR3 NeighbourCentre;
+    const D3DXVECTOR3 NeighbourWorld(R.Neighbour[0], R.Neighbour[1], R.Neighbour[2]);
+    D3DXVec3TransformCoord(&NeighbourCentre, &NeighbourWorld, &Wv);
+    D3DXVec3Normalize(&Normal, &Normal);
+
+    // The sunlight colour: from the client (the system light through its curves at the ring),
+    // else the light source at the star. Not the lights enabled now: the panels draw unlit, so
+    // those are whatever the previous object left on, attenuated for it -- they differ from
+    // piece to piece and lit the band in sectors. The ambient likewise comes from the client (the
+    // system's [Ambient]): D3DRS_AMBIENT is the previous object's too, white after some.
+    D3DLIGHT9 Sun = {};
+    Sun.Diffuse.r = Sun.Diffuse.g = Sun.Diffuse.b = 1.0f;
+    if (R.SunColour[3] > 0.5f)
+    {
+        Sun.Diffuse.r = R.SunColour[0];
+        Sun.Diffuse.g = R.SunColour[1];
+        Sun.Diffuse.b = R.SunColour[2];
+    }
+    else if (!ExFindPointLightNear(R.Sun, &Sun))
+    {
+        D3DXVECTOR3 SunDir(0, 0, 0);
+        ExPickSun(Centre, &SunDir, &Sun);
+    }
+    const unsigned long AmbientState = RenderStates_.GetPending(D3DRS_AMBIENT);
+    float Ambient[3] = {((AmbientState >> 16) & 255) / 255.0f, ((AmbientState >> 8) & 255) / 255.0f,
+                        (AmbientState & 255) / 255.0f};
+    if (R.Ambient[3] > 0.5f)
+        for (int K = 0; K < 3; ++K)
+            Ambient[K] = R.Ambient[K];
+
+    // The outer vertices are pushed out so the polygon of chords covers the true annulus.
+    const float Segments = R.Segments < 3 ? 3.0f : (float)R.Segments;
+    const float Push = 1.0f / std::cos(3.14159265f / Segments);
+    float VsConstants[40];
+    memcpy(&VsConstants[0], WV, sizeof(float) * 16);
+    memcpy(&VsConstants[16], Transforms_.Projection.Values, sizeof(float) * 16);
+    const float VsRing[8] = {Centre.x, Centre.y, Centre.z, Push, Normal.x, Normal.y, Normal.z,
+                             (R.InnerRadius + R.OuterRadius) * 0.5f};
+    memcpy(&VsConstants[32], VsRing, sizeof(VsRing));
+    const float PsConstants[40] = {
+        Centre.x, Centre.y, Centre.z, R.InnerRadius,
+        Normal.x, Normal.y, Normal.z, R.OuterRadius,
+        SunCentre.x, SunCentre.y, SunCentre.z, R.Sun[3],
+        PlanetCentre.x, PlanetCentre.y, PlanetCentre.z, R.Planet[3],
+        Sun.Diffuse.r, Sun.Diffuse.g, Sun.Diffuse.b, 0.0f,
+        Ambient[0], Ambient[1], Ambient[2], 0.0f,
+        R.Shape[0], R.Shape[1], R.Shape[2], R.Shape[3],
+        R.Fade[0], R.Fade[1], R.bDetail ? 1.0f : 0.0f, Ex->RingForward,
+        Ex->RingBrightness, Ex->RingBacklight, Ex->RingOpacity, Ex->bRingDebug ? (float)(R.Piece + 1) : 0.0f,
+        NeighbourCentre.x, NeighbourCentre.y, NeighbourCentre.z, R.Neighbour[3],
+    };
+    ExInitQualityConfig();
+    for (unsigned long Stage = 0; Stage < 2; ++Stage)
+    {
+        ExSaveStage(Stage, &Ex->RingSavedStage[Stage]);
+        if (Ex->QualityAnisotropy > 1)
+        {
+            Rp9SetSamplerState(Device_, Stage, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+            Rp9SetSamplerState(Device_, Stage, D3DSAMP_MAXANISOTROPY, Ex->QualityAnisotropy);
+        }
+        else
+            Rp9SetSamplerState(Device_, Stage, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+        Rp9SetSamplerState(Device_, Stage, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+        Rp9SetSamplerState(Device_, Stage, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+    }
+    Rp9SetVertexShader(Device_, Ex->RingVs);
+    Rp9SetPixelShader(Device_, Ex->RingPs);
+    Rp9SetVertexConstants(Device_, 0, VsConstants, 10);
+    Rp9SetPixelConstants(Device_, 0, PsConstants, 10);
+    Rp9SetRenderState(Device_, D3DRS_ALPHABLENDENABLE, TRUE);
+    Rp9SetRenderState(Device_, D3DRS_SRCBLEND, D3DBLEND_ONE);
+    Rp9SetRenderState(Device_, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+    Rp9SetRenderState(Device_, D3DRS_ALPHATESTENABLE, FALSE);
+    Rp9SetRenderState(Device_, D3DRS_FOGENABLE, FALSE);
+    Rp9SetRenderState(Device_, D3DRS_CULLMODE, D3DCULL_NONE);
+    Ex->bRingActive = true;
+    return true;
+}
+
+void FDirectX9::ExRingEnd()
+{
+    FRp9ExState* Ex = Ex_;
+    if (Ex == nullptr || !Ex->bRingActive)
+        return;
+    Ex->bRingActive = false;
+    Rp9SetVertexShader(Device_, nullptr);
+    Rp9SetPixelShader(Device_, nullptr);
+    Rp9SetRenderState(Device_, D3DRS_ALPHABLENDENABLE, RenderStates_.GetPending(27));
+    Rp9SetRenderState(Device_, D3DRS_SRCBLEND, RenderStates_.GetPending(19));
+    Rp9SetRenderState(Device_, D3DRS_DESTBLEND, RenderStates_.GetPending(20));
+    Rp9SetRenderState(Device_, D3DRS_ALPHATESTENABLE, RenderStates_.GetPending(15));
+    Rp9SetRenderState(Device_, D3DRS_FOGENABLE, RenderStates_.GetPending(28));
+    Rp9SetRenderState(Device_, D3DRS_CULLMODE, RenderStates_.GetPending(22));
+    for (unsigned long Stage = 0; Stage < 2; ++Stage)
+        ExRestoreStage(Stage, &Ex->RingSavedStage[Stage]);
+}
+
+// The band's opacity across it, as planet_ring.hlsl takes it: the shape's alpha down the middle of
+// its rectangle (V1 inner edge .. V0 outer), the detail map's average, ring_opacity. The texture
+// (managed, any format, DXT too) is converted to A8R8G8B8 on the CPU once per texture and shape.
+const std::vector<float>* FDirectX9::ExRingProfile(IDirect3DBaseTexture9* Base, const FRPPlanetRing& Ring)
+{
+    FRp9ExState* Ex = Ex_;
+    char Key[160];
+    sprintf(Key, "%p %.5f %.5f %.5f %.5f %lu", (void*)Base, (double)Ring.Shape[0], (double)Ring.Shape[1],
+            (double)Ring.Shape[2], (double)Ring.Shape[3], Ring.bDetail);
+    auto Found = Ex->RingProfiles.find(Key);
+    if (Found != Ex->RingProfiles.end())
+        return Found->second.empty() ? nullptr : &Found->second;
+    std::vector<float>& Profile = Ex->RingProfiles[Key];
+    if (Base->GetType() != D3DRTYPE_TEXTURE)
+        return nullptr;
+    IDirect3DSurface9* Source = nullptr;
+    if (FAILED(static_cast<IDirect3DTexture9*>(Base)->GetSurfaceLevel(0, &Source)) || Source == nullptr)
+        return nullptr;
+    D3DSURFACE_DESC Desc = {};
+    IDirect3DSurface9* Scratch = nullptr;
+    if (SUCCEEDED(Source->GetDesc(&Desc)) && Desc.Pool != D3DPOOL_DEFAULT &&
+        SUCCEEDED(Device_->CreateOffscreenPlainSurface(Desc.Width, Desc.Height, D3DFMT_A8R8G8B8,
+                                                       D3DPOOL_SCRATCH, &Scratch, nullptr)) &&
+        SUCCEEDED(D3DXLoadSurfaceFromSurface(Scratch, nullptr, nullptr, Source, nullptr, nullptr,
+                                             D3DX_FILTER_NONE, 0)))
+    {
+        D3DLOCKED_RECT Locked;
+        if (SUCCEEDED(Scratch->LockRect(&Locked, nullptr, D3DLOCK_READONLY)))
+        {
+            const unsigned Samples = 256;
+            const float Detail = Ring.bDetail ? 0.237f : 1.0f;
+            const float U = (Ring.Shape[0] + Ring.Shape[1]) * 0.5f;
+            int X = (int)(U * Desc.Width);
+            X = X < 0 ? 0 : (X >= (int)Desc.Width ? (int)Desc.Width - 1 : X);
+            Profile.resize(Samples);
+            for (unsigned I = 0; I < Samples; ++I)
+            {
+                // Linear between the two rows around V, as the sampler filters it.
+                const float Across = (I + 0.5f) / Samples;
+                const float V = (Ring.Shape[3] + (Ring.Shape[2] - Ring.Shape[3]) * Across) * Desc.Height - 0.5f;
+                int Y0 = (int)std::floor(V);
+                const float F = V - Y0;
+                int Y1 = Y0 + 1;
+                Y0 = Y0 < 0 ? 0 : (Y0 >= (int)Desc.Height ? (int)Desc.Height - 1 : Y0);
+                Y1 = Y1 < 0 ? 0 : (Y1 >= (int)Desc.Height ? (int)Desc.Height - 1 : Y1);
+                const unsigned char* Row0 = static_cast<const unsigned char*>(Locked.pBits) + Y0 * Locked.Pitch;
+                const unsigned char* Row1 = static_cast<const unsigned char*>(Locked.pBits) + Y1 * Locked.Pitch;
+                const float A = (Row0[X * 4 + 3] * (1.0f - F) + Row1[X * 4 + 3] * F) / 255.0f;
+                Profile[I] = A * Detail * Ex->RingOpacity;
+            }
+            Scratch->UnlockRect();
+        }
+    }
+    if (Scratch != nullptr)
+        Scratch->Release();
+    Source->Release();
+    ExLogf(kExFdumpNotice, "NOTICE", __LINE__, "planet ring: opacity profile %s (%ux%u format %d)",
+           Profile.empty() ? "unreadable" : "read", Desc.Width, Desc.Height, (int)Desc.Format);
+    return Profile.empty() ? nullptr : &Profile;
+}
+
+GENRESULT DACOM_API FDirectX9::GetPlanetRingProfile(float* Out, unsigned long Count)
+{
+    const std::vector<float>* Profile = Ex_ != nullptr ? Ex_->RingLastProfile : nullptr;
+    if (Out == nullptr || Count == 0 || Profile == nullptr || Profile->empty())
+        return GR_GENERIC;
+    const size_t Size = Profile->size();
+    for (unsigned long I = 0; I < Count; ++I)
+        Out[I] = (*Profile)[(size_t)((I + 0.5) * Size / Count)];
+    return GR_OK;
+}
+
 // ---- generic surface materials ------------------------------------------------------------
 
 GENRESULT DACOM_API FDirectX9::SetSurfaceShader(unsigned long Shader, float Roughness,
@@ -3323,8 +3600,11 @@ GENRESULT DACOM_API FDirectX9::AddLocalShadowEclipse(const float* Center, float 
     float* P = E->ShadowPlanets[E->ShadowPlanetCount++];
     memcpy(P, &View, 12);
     P[3] = -Radius;
-    E->ShadowEclipseRange = Range;
-    E->ShadowEclipseSunAngle = SunAngle > 0 && std::isfinite(SunAngle) ? SunAngle : 0.05f;
+    // One reach and one sun angle for the frame (reset to 0 in the frame begin): the largest wins,
+    // so a ringed planet's long shadow is not cut short by a second caster.
+    E->ShadowEclipseRange = (std::max)(E->ShadowEclipseRange, Range);
+    E->ShadowEclipseSunAngle =
+        (std::max)(E->ShadowEclipseSunAngle, SunAngle > 0 && std::isfinite(SunAngle) ? SunAngle : 0.05f);
     static bool bLogged = false;
     if (!bLogged)
     {
@@ -3591,6 +3871,16 @@ GENRESULT FDirectX9::ExApplyFrameAntialiasing()
             FAILED(Device_->CreatePixelShader((DWORD*)Code.data(),&E->QualityFxaaPs)))
         {E->bQualityFxaaFailed=true;return GR_GENERIC;}
     }
+    return ExApplyFramePass(E->QualityFxaaPs, nullptr);
+}
+
+// The finished frame through one pixel shader (c0 = 1/width, 1/height; c1 = Extra4): the scene
+// copied to a texture and drawn back as a full-screen quad, every state restored. FXAA and the
+// windowed gamma use it.
+GENRESULT FDirectX9::ExApplyFramePass(IDirect3DPixelShader9* Ps, const float* Extra4)
+{
+    FRp9ExState* E=Ex_;
+    if(!Device_ || !E || !Ps || E->bInPass || E->bShadowDrawing || E->bSurfaceActive) return GR_GENERIC;
     ExSurfaceRelease();
     IDirect3DSurface9* Target=nullptr;
     HRESULT Hr=Device_->GetRenderTarget(0,&Target);if(FAILED(Hr)) return (GENRESULT)Hr;
@@ -3632,7 +3922,9 @@ GENRESULT FDirectX9::ExApplyFrameAntialiasing()
                    {-.5f,Desc.Height-.5f,0,1,0,1},{Desc.Width-.5f,Desc.Height-.5f,0,1,1,1}};
     D3DVIEWPORT9 View={0,0,Desc.Width,Desc.Height,0,1};Device_->SetViewport(&View);
     Rp9SetVertexShader(Device_, nullptr);Rp9SetFvf(Device_, D3DFVF_XYZRHW|D3DFVF_TEX1);
-    Rp9SetPixelShader(Device_, E->QualityFxaaPs);Rp9SetPixelConstants(Device_, 0,P,1);
+    float Constants[8]={P[0],P[1],P[2],P[3],Extra4 ? Extra4[0] : 0.0f,Extra4 ? Extra4[1] : 0.0f,
+                        Extra4 ? Extra4[2] : 0.0f,Extra4 ? Extra4[3] : 0.0f};
+    Rp9SetPixelShader(Device_, Ps);Rp9SetPixelConstants(Device_, 0,Constants,2);
     Device_->SetTextureStageState(0,D3DTSS_TEXCOORDINDEX,0);
     Device_->SetTextureStageState(0,D3DTSS_TEXTURETRANSFORMFLAGS,D3DTTFF_DISABLE);
     Rp9SetRenderState(Device_, D3DRS_ZENABLE,FALSE);Rp9SetRenderState(Device_, D3DRS_ZWRITEENABLE,FALSE);
@@ -3655,4 +3947,33 @@ GENRESULT FDirectX9::ExApplyFrameAntialiasing()
         if(SUCCEEDED(Restore)) Restore=EndHr;
     }
     return (GENRESULT)(FAILED(Hr) ? Hr : Restore);
+}
+
+GENRESULT FDirectX9::ExApplyWindowedGamma()
+{
+    FRp9ExState* E=Ex_;
+    if(!Device_ || !E || !E->bWindowed || E->bGammaFailed) return GR_OK;
+    static const bool Enabled=ReadShadowSetting("windowed_gamma",1,0,1)>0.5f;
+    if(!Enabled) return GR_OK;
+    // The identity curve (gamma 1, no brightness, contrast 1, no bias): nothing to do.
+    if(std::fabs(E->Gamma[0]-1.0f)<1e-3f && std::fabs(E->Gamma[1])<1e-3f &&
+       std::fabs(E->Gamma[2]-1.0f)<1e-3f && std::fabs(E->Gamma[3])<1e-3f) return GR_OK;
+    if(!E->GammaPs)
+    {
+        // The same curve as SetGammaFunction's ramp: brightness + (contrast x + bias)^(1/gamma).
+        static const char Source[]=
+            "sampler2D Scene : register(s0);\n"
+            "float4 Curve : register(c1);\n"
+            "float4 PSMain(float2 Uv : TEXCOORD0) : COLOR0\n"
+            "{\n"
+            "    float4 C = tex2D(Scene, Uv);\n"
+            "    C.rgb = saturate(Curve.y + pow(saturate(Curve.z * C.rgb + Curve.w), Curve.x));\n"
+            "    return C;\n"
+            "}\n";
+        std::vector<unsigned char> Code;
+        if(!CompileStage(std::string(Source),std::string("windowed_gamma"),nullptr,"PSMain","ps_3_0",&Code) ||
+           FAILED(Device_->CreatePixelShader((DWORD*)Code.data(),&E->GammaPs)))
+        {E->bGammaFailed=true;return GR_GENERIC;}
+    }
+    return ExApplyFramePass(E->GammaPs, E->Gamma);
 }

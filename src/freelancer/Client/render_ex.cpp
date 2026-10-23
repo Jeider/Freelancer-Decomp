@@ -10,7 +10,10 @@
 #ifdef FREELANCER_RP9
 #include "render_ex.h"
 
+#include "far_rocks.h"
+#include "field_dust.h"
 #include "nebula_volume.h"
+#include "space_haze.h"
 
 #include "DALib.h"
 #include "common_ini.h"  // INI_Reader
@@ -22,6 +25,7 @@
 #include "render/IRenderPipeline.h"
 #include "render/IRenderPipelineEx.h"
 #include "render/IRPFrameQuality.h"
+#include "port_config.h"
 
 #include <cmath>
 #include <cstdio>
@@ -57,6 +61,8 @@ namespace
     FRPExProgram* GDepthProgram = nullptr;
     FRPExProgram* GSolarRaysProgram = nullptr;
     bool GbSolarRaysTried = false;
+    FRPExProgram* GSolarCoronaProgram = nullptr;
+    bool GbSolarCoronaTried = false;
     float GSolarSceneNear=1,GSolarSceneFar=250000,GSolarDepthMin=0,GSolarDepthMax=1;
     bool GbDepthProgramTried = false;
     bool GbNoSceneDepthReported = false;
@@ -375,8 +381,13 @@ void RenderEx::Startup()
 void RenderEx::Shutdown()
 {
     NebulaVolume::Shutdown();
+    SpaceHazeShutdown();
+    FarRocksShutdown();
+    FieldDustShutdown();
     if(GPipelineEx && GSolarRaysProgram) GPipelineEx->DestroyExProgram(GSolarRaysProgram);
     GSolarRaysProgram=nullptr;GbSolarRaysTried=false;
+    if(GPipelineEx && GSolarCoronaProgram) GPipelineEx->DestroyExProgram(GSolarCoronaProgram);
+    GSolarCoronaProgram=nullptr;GbSolarCoronaTried=false;
     if (GPipelineEx != nullptr && GDepthProgram != nullptr)
         GPipelineEx->DestroyExProgram(GDepthProgram);
     GDepthProgram = nullptr;
@@ -487,6 +498,46 @@ void RenderEx::DrawSolarRays(float U,float V,float Radius,float Strength,const f
         const float Params[12]={U,V,Radius,Strength,Colour[0],Colour[1],Colour[2],Aspect,
                                 Cutoff,GSolarDepthMax,0,0};
         GPipelineEx->SetExPixelConstants(0,Params,3);
+        DALib::Pipeline->SetRenderState(D3DRS_ALPHABLENDENABLE,1);
+        DALib::Pipeline->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_ONE);
+        DALib::Pipeline->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_ONE);
+        DALib::Pipeline->SetRenderState(D3DRS_BLENDOP,D3DBLENDOP_ADD);
+        GDrawEx->DrawFullscreenQuad();
+    }
+    GPipelineEx->EndExPass();
+}
+
+void RenderEx::DrawSolarCorona(float U,float V,float DiscRadius,float Strength,const float* Colour,float Aspect,
+                               float SunFrontDistance,float Seconds,float Seed)
+{
+    if(!IsAvailable() || !(Strength>0) || !(DiscRadius>0)) return;
+    // [Render] sun_corona_reach: how far the streamers reach, in disc radii.
+    const float Reach=std::fmax(1.5f,std::fmin(8.0f,PortConfigFloat("Render","sun_corona_reach",3.0f)));
+    const float Extent=DiscRadius*Reach;
+    if(U<-Extent || U>1+Extent || V<-Extent || V>1+Extent) return;
+    FRPExTexture* Depth=nullptr;
+    if(GPipelineEx->GetSceneDepth(&Depth)!=GR_OK) return;
+    if(!GbSolarCoronaTried)
+    {
+        GbSolarCoronaTried=true;
+        GPipelineEx->CreateExProgram(GExtraData,"SHADERS\\solar_corona.hlsl","VSMain","PSMain",&GSolarCoronaProgram);
+    }
+    if(!GSolarCoronaProgram) return;
+    FRPExPassDesc Pass={nullptr,0,0};
+    if(GPipelineEx->BeginExPass(&Pass)!=GR_OK) return;
+    FRPExSamplerState Point={RPExFilterPoint,RPExMipNone,RPExAddressClamp,RPExAddressClamp,RPExAddressClamp};
+    if(GPipelineEx->BindExProgram(GSolarCoronaProgram)==GR_OK && GPipelineEx->BindExTexture(0,Depth,&Point)==GR_OK)
+    {
+        const double Near=GSolarSceneNear,Far=GSolarSceneFar;
+        const double Distance=std::fmax(SunFrontDistance,GSolarSceneNear);
+        const double Projected=Far/(Far-Near)*(1.0-Near/Distance);
+        const float Cutoff=static_cast<float>(GSolarDepthMin+
+            (GSolarDepthMax-GSolarDepthMin)*Projected)-0.00000012f;
+        const float Contrast=std::fmax(0.5f,std::fmin(4.0f,PortConfigFloat("Render","sun_corona_contrast",1.8f)));
+        const float Params[16]={U,V,DiscRadius,Strength,Colour[0],Colour[1],Colour[2],Aspect,
+                                Cutoff,GSolarDepthMax,0,0,
+                                static_cast<float>(std::fmod(static_cast<double>(Seconds),3600.0)),Seed,Reach,Contrast};
+        GPipelineEx->SetExPixelConstants(0,Params,4);
         DALib::Pipeline->SetRenderState(D3DRS_ALPHABLENDENABLE,1);
         DALib::Pipeline->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_ONE);
         DALib::Pipeline->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_ONE);

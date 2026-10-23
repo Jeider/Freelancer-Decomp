@@ -14,6 +14,7 @@
 #include "DALib.h"
 #include "common_misc.h" // SinglePlayer
 #include "render/IRenderPipeline.h"
+#include "port_config.h"
 
 #include <windows.h>
 
@@ -145,7 +146,9 @@ namespace
         // DAT_00615ba8, which stays 1 whenever the app is not a fullscreen single-player
         // session (there is nothing to release then).
         const bool bFullscreen = g_display.fullscreen != 0;
-        if (!IsSinglePlayerSession() || (kActivateOverrideByte && !bFullscreen))
+        // Port-only [Window] background_run: a windowed game keeps running and drawing without the
+        // focus (ClientRunsInBackground).
+        if (!IsSinglePlayerSession() || (kActivateOverrideByte && !bFullscreen) || ClientRunsInBackground())
             G_bPresentAllowed = true;
         else
             G_bPresentAllowed = bActive;
@@ -191,10 +194,19 @@ bool ClientAppIsActive()
     return G_bAppActive;
 }
 
+bool ClientRunsInBackground()
+{
+    // Port-only [Window] background_run (1): only windowed -- a window's Direct3D 9 device is not
+    // lost on deactivation, a fullscreen one is (the inactive gates guard that). Read live, so an
+    // Alt+Enter switch (USER_FULLSCREEN) takes effect at once.
+    static const bool S_BackgroundRun = PortConfigInt("Window", "background_run", 1) != 0;
+    return S_BackgroundRun && g_display.fullscreen == 0;
+}
+
 // FUN_00424cb0 (.text:00424cb0-00424cd3): three byte tests, 1 or 0.
 bool RenderMgrFrameReady()
 {
-    return G_bAppActive && G_bRenderPostCreate && G_bRenderFrameBegun;
+    return (G_bAppActive || ClientRunsInBackground()) && G_bRenderPostCreate && G_bRenderFrameBegun;
 }
 
 void ClientNoteEngineReady()

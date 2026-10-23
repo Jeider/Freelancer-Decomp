@@ -35,6 +35,7 @@
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h"
 #include "port_config.h"
+#include "globals.h" // GetClientElapsedTime (vein pulse)
 
 #include "cli_nebula.h"
 #include "render_ex.h"
@@ -88,7 +89,7 @@ namespace
     const char kNebulaVolumeShader[] = "SHADERS\\nebula_volume.hlsl";
     const char kNebulaCompositeShader[] = "SHADERS\\nebula_composite.hlsl";
 
-    // Must match nebula_volume.hlsl: register layout (c0..c106), loop bounds.
+    // Must match nebula_volume.hlsl: register layout (c0..c107), loop bounds.
     const int kMaxExclusions = 8;
     const int kMaxSteps = 128;
     const int kMaxShadowSteps = 6;     // NEBULA_SHADOW_STEPS
@@ -96,7 +97,7 @@ namespace
     const int kMaxPointLights = 4;     // NEBULA_MAX_POINT_LIGHTS
     const int kMaxFarSpheres = 4;      // FarSphere[]
     const int kMaxStarGlows = 3;       // StarGlow[]
-    const int kRaymarchRegisterCount = 107;
+    const int kRaymarchRegisterCount = 109;
     const int kRegShadowStep = 29;
     const int kRegExclusionCentre = 37;
     const int kRegExclusionRow0 = 45;
@@ -127,6 +128,8 @@ namespace
     const int kRegPuffTextureUv = 104; // the shape's atlas rectangle: u0, v0, u1 - u0, v1 - v0
     const int kRegPuffTextureOffset = 105; // xyz texture drift in tiles, w rounded base-shape lobes
     const int kRegAtmosphere = 106; // fog start/inverse ramp, backdrop inner radius/inverse fade
+    const int kRegVeins = 107; // x vein_emission, y pulse amplitude, z pulse phase (rad)
+    const int kRegExclusionSkip = 108; // the camera's clear exclusion sphere: centre, radius^2
     const int kCompositeRegisterCount = 24;
     // Shadow steps grow by this ratio (short near the sample, long toward the light).
     const double kShadowStepGrowth = 1.6;
@@ -228,6 +231,12 @@ namespace
         float BackdropInnerRadius;
         float BackdropInnerFade;
         float SunOcclusionHalo;
+        float VeinEmission;
+        float VeinPulse;
+        float VeinPulseRate;
+        float SunNebulaHalo;
+        float ShipHazeAura;
+        float ShipHazeAuraSize;
         float UseSunBurnthrough;
         float CloudNearFadeStart;
         float CloudNearFadeEnd;
@@ -266,6 +275,8 @@ namespace
         float Tonemap;
         float TonemapWhite;
         float UpsampleDepthThreshold;
+        float UpsampleBlur;
+        float ExclusionStepFraction;
         float ReplaceObjectFog;
         float ReplaceFogOverlay;
         float ReplaceClouds;
@@ -385,6 +396,12 @@ namespace
         {"backdrop_inner_radius", &FNebulaVolumeSettings::BackdropInnerRadius},
         {"backdrop_inner_fade", &FNebulaVolumeSettings::BackdropInnerFade},
         {"sun_occlusion_halo", &FNebulaVolumeSettings::SunOcclusionHalo},
+        {"vein_emission", &FNebulaVolumeSettings::VeinEmission},
+        {"vein_pulse", &FNebulaVolumeSettings::VeinPulse},
+        {"vein_pulse_rate", &FNebulaVolumeSettings::VeinPulseRate},
+        {"sun_nebula_halo", &FNebulaVolumeSettings::SunNebulaHalo},
+        {"ship_haze_aura", &FNebulaVolumeSettings::ShipHazeAura},
+        {"ship_haze_aura_size", &FNebulaVolumeSettings::ShipHazeAuraSize},
         {"use_sun_burnthrough", &FNebulaVolumeSettings::UseSunBurnthrough},
         {"cloud_near_fade_start", &FNebulaVolumeSettings::CloudNearFadeStart},
         {"cloud_near_fade_end", &FNebulaVolumeSettings::CloudNearFadeEnd},
@@ -421,6 +438,8 @@ namespace
         {"tonemap", &FNebulaVolumeSettings::Tonemap},
         {"tonemap_white", &FNebulaVolumeSettings::TonemapWhite},
         {"upsample_depth_threshold", &FNebulaVolumeSettings::UpsampleDepthThreshold},
+        {"upsample_blur", &FNebulaVolumeSettings::UpsampleBlur},
+        {"exclusion_step_fraction", &FNebulaVolumeSettings::ExclusionStepFraction},
         {"replace_object_fog", &FNebulaVolumeSettings::ReplaceObjectFog},
         {"replace_fog_overlay", &FNebulaVolumeSettings::ReplaceFogOverlay},
         {"replace_clouds", &FNebulaVolumeSettings::ReplaceClouds},
@@ -531,6 +550,12 @@ namespace
         S.BackdropInnerRadius = 0.0f;
         S.BackdropInnerFade = 10000.0f;
         S.SunOcclusionHalo = 0.0f;
+        S.VeinEmission = 0.0f;
+        S.VeinPulse = 0.0f;
+        S.VeinPulseRate = 0.25f;
+        S.SunNebulaHalo = -1.0f;
+        S.ShipHazeAura = -1.0f;
+        S.ShipHazeAuraSize = -1.0f;
         S.UseSunBurnthrough = 0.0f;
         S.CloudNearFadeStart = -1.0f;
         S.CloudNearFadeEnd = -1.0f;
@@ -573,6 +598,8 @@ namespace
         S.Tonemap = 2.0f;
         S.TonemapWhite = 2.0f;
         S.UpsampleDepthThreshold = 0.1f;
+        S.UpsampleBlur = 1.0f;
+        S.ExclusionStepFraction = 0.6f;
         S.ReplaceObjectFog = 1.0f;
         S.ReplaceFogOverlay = 1.0f;
         S.ReplaceClouds = 1.0f;
@@ -724,6 +751,9 @@ namespace
     int GFrameLightingCount = 0; // valid through late ship/effect passes; cleared on unregister
     bool GbHybridCloudPass = false;
     float GHybridPuffAlpha = 1.0f;
+    // NoteBackgroundFlash: retail's backdrop flash of the field controller, for the next frame.
+    FNebulaEffect const* GBackgroundFlashNebula = nullptr;
+    float GBackgroundFlash[3] = {0.0f, 0.0f, 0.0f};
     // Set by BeginFrame (the controller drawn from inside with real_background), kept through
     // Draw for the frame's clear colour; cleared by the next BeginFrame or a failed draw of the
     // controller.
@@ -935,8 +965,8 @@ namespace
                 {
                     char Name[64];
                     BaseName(Name, sizeof(Name), Reader.get_value_string());
-                    const char* Families[] = {"crow", "edge", "walker"};
-                    for (int Index = 0; Index < 3; ++Index)
+                    const char* Families[] = {"crow", "edge", "walker", "generic"};
+                    for (int Index = 0; Index < (int)(sizeof(Families) / sizeof(Families[0])); ++Index)
                     {
                         const size_t Length = strlen(Families[Index]);
                         if (_strnicmp(Name, Families[Index], Length) == 0 && Name[Length] == '_')
@@ -2147,6 +2177,7 @@ namespace
         ReadCloudParams(Nebula, FogRgb, &Clouds);
 
         // Exclusion zones: the kMaxExclusions nearest to the camera.
+        bool bExclusionSkip = false;
         FExclusionPick Picks[kMaxExclusions];
         int PickCount = 0;
         Exclusion::NebulaExclusionZoneMgr const* const Mgr = Nebula->ExclusionMgr;
@@ -2213,6 +2244,34 @@ namespace
             // The ellipsoid the shader tests lies inside the sphere of its largest radius
             // (a hair larger, against float rounding of the span test).
             RaymarchRegister(kRegExclusionRow1 + Pick)[3] = MaxZoneRadius(ExclZone) * 1.001f + 1.0f;
+
+            // c108: the camera inside the nearest zone's fully clear core (no clouds, the haze
+            // thinned to its fog_far): the march starts where the rays leave a sphere inside
+            // that core and spends its steps (exclusion_step_fraction of them) on the dust
+            // beyond. The thin haze inside is dropped -- the bubble is clear.
+            if (Pick == 0)
+            {
+                float const* const C = RaymarchRegister(kRegExclusionCentre);
+                double Local[3];
+                double MaxRow = 0.0;
+                for (int Row = 0; Row < 3; ++Row)
+                {
+                    float const* const Rw = RaymarchRegister(kRegExclusionRow0 + Row);
+                    Local[Row] = -((double)Rw[0] * C[0] + (double)Rw[1] * C[1] + (double)Rw[2] * C[2]);
+                    MaxRow = (std::max)(MaxRow, std::sqrt((double)Rw[0] * Rw[0] + (double)Rw[1] * Rw[1] +
+                                                          (double)Rw[2] * Rw[2]));
+                }
+                const double Q = std::sqrt(Local[0] * Local[0] + Local[1] * Local[1] + Local[2] * Local[2]);
+                const double Core = 1.0 - (double)Clamp(ExclZone->GetEdgeFraction(), 0.0f, 1.0f);
+                const double CoreRadius = MaxRow > 1.0e-12 ? Core / MaxRow : 0.0;
+                const double CamDistance = std::sqrt((double)C[0] * C[0] + (double)C[1] * C[1] + (double)C[2] * C[2]);
+                if (Q < Core && CamDistance < CoreRadius && S.ExclusionStepFraction > 0.0f)
+                {
+                    Set4(RaymarchRegister(kRegExclusionSkip), C[0], C[1], C[2],
+                         (float)(CoreRadius * CoreRadius));
+                    bExclusionSkip = true;
+                }
+            }
         }
 
         // Debug views: 3 haze only, 4 clouds only (the other two are drawn by the shader).
@@ -2225,7 +2284,10 @@ namespace
         const bool bShaderView = GNebulaView == 1 || GNebulaView == 2;
 
         // c10 march: steps, distance cap, step distribution, jitter.
-        Set4(RaymarchRegister(10), Clamp(S.StepCount, 1.0f, (float)(kMaxSteps)), Medium.MarchCap,
+        const float StepCount = bExclusionSkip
+            ? std::fmax(8.0f, std::floor(S.StepCount * Clamp(S.ExclusionStepFraction, 0.0f, 1.0f) + 0.5f))
+            : S.StepCount;
+        Set4(RaymarchRegister(10), Clamp(StepCount, 1.0f, (float)(kMaxSteps)), Medium.MarchCap,
              Clamp(S.StepDistribution, 0.25f, 4.0f), Clamp(S.Jitter, 0.0f, 1.0f));
         // c11 medium: the two extinctions, the clear radius ([Fog] near), the debug view.
         Set4(RaymarchRegister(11), HazeSigma, CloudSigma, FogNear,
@@ -2236,6 +2298,10 @@ namespace
              S.BackdropRadius > 1.0f && S.BackdropInnerRadius > 0.0f
                  ? S.BackdropRadius / (S.BackdropInnerFade > 1.0f ? S.BackdropInnerFade : 1.0f)
                  : 0.0f);
+        // c107 veins: edge glow strength, pulse amplitude, pulse phase (time wrapped for precision).
+        Set4(RaymarchRegister(kRegVeins), Clamp(S.VeinEmission, 0.0f, 20.0f),
+             Clamp(S.VeinPulse, 0.0f, 1.0f),
+             (float)(fmod(GetClientElapsedTime(), 3600.0) * 6.283185307 * S.VeinPulseRate), 0.0f);
 
         // Cloud scales, noise space, drift and coverage cut (ComputeNoiseFrame, shared with the
         // lightning placement).
@@ -2305,6 +2371,10 @@ namespace
              FogRgb[2] * HazeAlbedoScale, 0.0f);
         Set4(RaymarchRegister(19), FogRgb[0] * S.HazeEmission, FogRgb[1] * S.HazeEmission,
              FogRgb[2] * S.HazeEmission, FogNear > 0.0f ? 1.0f / FogNear : 0.0f);
+        // Retail's backdrop flash (NoteBackgroundFlash) for a style without volume lightning.
+        if (!(S.LightningEnabled > 0.5f) && Nebula == GBackgroundFlashNebula)
+            for (int I = 0; I < 3; ++I)
+                RaymarchRegister(19)[I] += GBackgroundFlash[I];
         const float PowderLength = (float)(DetailCell);
         RaymarchRegister(18)[3] = S.CloudNearFadeStart >= 0.0f ? 1.0f : 0.0f;
         Set4(RaymarchRegister(20), FogRgb[0] * S.Emission, FogRgb[1] * S.Emission,
@@ -2623,11 +2693,14 @@ namespace
         }
 
         // The composite's c3: exposure, mode, white -- a plain pass-through when the ray march
-        // already wrote display values (8-bit target, debug views 1 and 2).
+        // already wrote display values (8-bit target, debug views 1 and 2); w upsample_blur, the
+        // smoothing of the march's per-pixel jitter in low-resolution texels (none in the debug
+        // views).
+        const float Blur = bShaderView ? 0.0f : Clamp(S.UpsampleBlur, 0.0f, 2.0f);
         if (GbVolumeTargetFloat16 && !bShaderView)
-            Set4(OutTonemap, Exposure, TonemapMode, White, 0.0f);
+            Set4(OutTonemap, Exposure, TonemapMode, White, Blur);
         else
-            Set4(OutTonemap, 1.0f, 0.0f, 1.0f, 0.0f);
+            Set4(OutTonemap, 1.0f, 0.0f, 1.0f, Blur);
 
         *OutUpsampleThreshold = S.UpsampleDepthThreshold;
         return true;
@@ -2655,6 +2728,88 @@ namespace
     // One nebula: ray march into the low-resolution target, then the composite onto the back
     // buffer, in a pass of its own (the composite's blend states end with it). Near / Far:
     // the planes of the current projection. Returns false when nothing was composited.
+    // The part of the screen the zone can touch, in target UV (U0, V0, U1, V1), from the march
+    // constants just built: the zone's bound (sqrt(c89.w) in its unit space, rows c7..c9 = axis
+    // / radius) inside a world sphere around c6, its exact perspective extent per axis (the
+    // tangent planes through the camera) clipped to the viewport c1. Both passes are fullscreen
+    // otherwise and a nebula seen from afar paid for every pixel. Returns false when nothing of
+    // it is on screen; the camera inside the sphere or level with it gives the whole viewport.
+    bool VolumeScreenRect(float Rect[4])
+    {
+        float const* const ViewRect = RaymarchRegister(1);
+        float const* const ProjInv = RaymarchRegister(2);
+        float const* const Centre = RaymarchRegister(6);
+        double MaxAxis = 0.0;
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            float const* const R = RaymarchRegister(7 + Row);
+            const double Len = std::sqrt((double)R[0] * R[0] + (double)R[1] * R[1] + (double)R[2] * R[2]);
+            if (!(Len > 1.0e-12))
+                return true; // degenerate: leave it fullscreen
+            MaxAxis = (std::max)(MaxAxis, 1.0 / Len);
+        }
+        const double Radius = std::sqrt((std::max)(0.0, (double)RaymarchRegister(kRegHalo)[3])) * MaxAxis * 1.02;
+        Rect[0] = ViewRect[0];
+        Rect[1] = ViewRect[1];
+        Rect[2] = ViewRect[0] + ViewRect[2];
+        Rect[3] = ViewRect[1] + ViewRect[3];
+        double V[3];
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            float const* const C = RaymarchRegister(3 + Row);
+            V[Row] = (double)Centre[0] * C[0] + (double)Centre[1] * C[1] + (double)Centre[2] * C[2];
+        }
+        const double Z = -V[2]; // the game's view looks down -z
+        if (!(Z > Radius * 1.001) || !(ProjInv[0] > 0.0f) || !(ProjInv[1] > 0.0f))
+            return true;
+        const double Denom = Z * Z - Radius * Radius;
+        double Ndc[2][2];
+        for (int Axis = 0; Axis < 2; ++Axis)
+        {
+            // Tangent slopes s = a / z of the sphere: (a - s z)^2 = R^2 (1 + s^2).
+            const double A = V[Axis];
+            const double Root = Radius * std::sqrt((std::max)(0.0, A * A + Z * Z - Radius * Radius));
+            Ndc[Axis][0] = (A * Z - Root) / Denom / ProjInv[Axis];
+            Ndc[Axis][1] = (A * Z + Root) / Denom / ProjInv[Axis];
+        }
+        // ViewUv.x = (ndc + 1) / 2, ViewUv.y = (1 - ndc) / 2.
+        const double U0 = (std::max)(0.0, (Ndc[0][0] + 1.0) * 0.5);
+        const double U1 = (std::min)(1.0, (Ndc[0][1] + 1.0) * 0.5);
+        const double V0 = (std::max)(0.0, (1.0 - Ndc[1][1]) * 0.5);
+        const double V1 = (std::min)(1.0, (1.0 - Ndc[1][0]) * 0.5);
+        if (!(U1 > U0) || !(V1 > V0))
+            return false;
+        Rect[0] = (float)(ViewRect[0] + U0 * ViewRect[2]);
+        Rect[1] = (float)(ViewRect[1] + V0 * ViewRect[3]);
+        Rect[2] = (float)(ViewRect[0] + U1 * ViewRect[2]);
+        Rect[3] = (float)(ViewRect[1] + V1 * ViewRect[3]);
+        return true;
+    }
+
+    // DrawFullscreenQuad over Rect only (target UV), widened to whole pixels plus Pad of them;
+    // the same half-pixel placement, so every covered pixel samples exactly as before.
+    bool DrawVolumeRect(IRPDrawEx* DrawEx, float const Rect[4], unsigned long Width,
+                        unsigned long Height, int Pad)
+    {
+        if (Rect[0] <= 0.0f && Rect[1] <= 0.0f && Rect[2] >= 1.0f && Rect[3] >= 1.0f)
+            return DrawEx->DrawFullscreenQuad() == GR_OK;
+        const float W = (float)(Width), H = (float)(Height);
+        const float X0 = (float)((std::max)(0, (int)std::floor(Rect[0] * W) - Pad)) / W;
+        const float Y0 = (float)((std::max)(0, (int)std::floor(Rect[1] * H) - Pad)) / H;
+        const float X1 = (float)((std::min)((int)Width, (int)std::ceil(Rect[2] * W) + Pad)) / W;
+        const float Y1 = (float)((std::min)((int)Height, (int)std::ceil(Rect[3] * H) + Pad)) / H;
+        if (!(X1 > X0) || !(Y1 > Y0))
+            return true;
+        const float HalfX = 1.0f / W, HalfY = 1.0f / H;
+        const float Quad[4][5] = {
+            {X0 * 2.0f - 1.0f - HalfX, 1.0f - Y0 * 2.0f + HalfY, 0.0f, X0, Y0},
+            {X1 * 2.0f - 1.0f - HalfX, 1.0f - Y0 * 2.0f + HalfY, 0.0f, X1, Y0},
+            {X0 * 2.0f - 1.0f - HalfX, 1.0f - Y1 * 2.0f + HalfY, 0.0f, X0, Y1},
+            {X1 * 2.0f - 1.0f - HalfX, 1.0f - Y1 * 2.0f + HalfY, 0.0f, X1, Y1},
+        };
+        return DrawEx->DrawExPrimitiveUp(D3DPT_TRIANGLESTRIP, D3DFVF_XYZ | D3DFVF_TEX1, Quad, 4) == GR_OK;
+    }
+
     bool DrawEntry(FVolumeEntry const& Entry, ICamera* Camera, float Near, float Far,
                    bool bIgnoreDepth)
     {
@@ -2680,6 +2835,9 @@ namespace
                                     LowHeight, bIgnoreDepth, &UpsampleThreshold,
                                     &GCompositeConstants[12]))
             return false;
+        float Rect[4];
+        if (!VolumeScreenRect(Rect))
+            return true; // nothing of the zone on screen
         memcpy(&GCompositeConstants[0], RaymarchRegister(0), sizeof(float) * 4);
         Set4(&GCompositeConstants[4], (float)(LowWidth), (float)(LowHeight),
              1.0f / (float)(LowWidth), 1.0f / (float)(LowHeight));
@@ -2724,7 +2882,8 @@ namespace
         LinearClamp.AddressW = RPExAddressClamp;
 
         // Pass 1: ray march into the low-resolution target (rgb in-scattered light, a
-        // transmittance); every pixel is written, no clear needed.
+        // transmittance) over the zone's screen rectangle; no clear needed, the composite reads
+        // only inside it.
         FRPExPassDesc Pass;
         Pass.ColorTarget = GVolumeTarget;
         Pass.Flags = 0;
@@ -2748,7 +2907,8 @@ namespace
         if (bOk)
         {
             Ex->SetExPixelConstants(0, GRaymarchConstants, kRaymarchRegisterCount);
-            bOk = DrawEx->DrawFullscreenQuad() == GR_OK;
+            // Two texels of margin: the composite's bilinear / depth-aware taps at the edge.
+            bOk = DrawVolumeRect(DrawEx, Rect, LowWidth, LowHeight, 2);
         }
 
         // Pass 2: composite onto the back buffer, dst = dst * T + tonemap(inscatter)
@@ -2772,7 +2932,7 @@ namespace
             Pipe->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
             Pipe->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
             Ex->SetExPixelConstants(0, GCompositeConstants, kCompositeRegisterCount);
-            bOk = DrawEx->DrawFullscreenQuad() == GR_OK;
+            bOk = DrawVolumeRect(DrawEx, Rect, FullWidth, FullHeight, 1);
         }
         Ex->EndExPass();
         return bOk;
@@ -3894,13 +4054,22 @@ void NebulaVolume::BeginFrame(ICamera* Camera, FNebulaEffect* Controller, int En
     UpdateLightning(Camera);
 }
 
+void NebulaVolume::NoteBackgroundFlash(FNebulaEffect const* Nebula, float const* FlashRgb)
+{
+    GBackgroundFlashNebula = Nebula;
+    for (int I = 0; I < 3; ++I)
+        GBackgroundFlash[I] = FlashRgb != nullptr && FlashRgb[I] > 0.0f ? FlashRgb[I] : 0.0f;
+}
+
 bool NebulaVolume::SuppressesRetailLightning(FNebulaEffect const* Nebula)
 {
     if (Nebula == nullptr || !RenderEx::IsAvailable() || GbProgramFailed ||
         !(GSettings.Enabled > 0.5f))
         return false;
-    const FNebulaVolumeSettings S = SettingsFor(Nebula);
-    return S.Enabled > 0.5f && S.LightningEnabled < 0.5f;
+    // A style with its volume lightning off (lightning_enabled = 0) gets retail's: the random
+    // nebula light flash on ships stays as in the original game (and the backdrop flash, see
+    // NoteBackgroundFlash). Kept as the hook should a style ever want neither.
+    return false;
 }
 
 bool NebulaVolume::TintObjectAmbient(float const* WorldPos, unsigned char* Rgb)
@@ -4016,6 +4185,89 @@ float NebulaVolume::SunEdgeHaloStrength()
             Strength = Value;
     }
     return Clamp(Strength, 0.0f, 0.5f);
+}
+
+float NebulaVolume::SunNebulaHalo(float Default)
+{
+    // The round sun halo left inside a nebula (star_sphere.cpp): the strongest the nebulae the
+    // camera is in ask for (sun_nebula_halo; < 0 = not set), else port.ini's.
+    if (!RenderEx::IsAvailable() || GbProgramFailed || !(GSettings.Enabled > 0.5f))
+        return Default;
+    float Strength = -1.0f;
+    // GFrameLightingCount, not GEntryCount: the post-volume sun halo asks after Draw ended the frame.
+    for (int Index = 0; Index < GFrameLightingCount; ++Index)
+        if (GEntries[Index].bInside && GEntries[Index].Settings.SunNebulaHalo >= 0.0f)
+            Strength = GEntries[Index].Settings.SunNebulaHalo > Strength ? GEntries[Index].Settings.SunNebulaHalo : Strength;
+    return Strength >= 0.0f ? Clamp(Strength, 0.0f, 1.0f) : Default;
+}
+
+bool NebulaVolume::IsFrameActive()
+{
+    return GFrameLightingCount > 0;
+}
+
+float NebulaVolume::SegmentNebulaLength(float const* From, float const* To, float MaxLength)
+{
+    if (From == nullptr || To == nullptr || GNebulae.empty())
+        return 0.0f;
+    const double Dx = (double)To[0] - From[0], Dy = (double)To[1] - From[1], Dz = (double)To[2] - From[2];
+    const double Full = std::sqrt(Dx * Dx + Dy * Dy + Dz * Dz);
+    const double Length = Full < (double)MaxLength ? Full : (double)MaxLength;
+    if (!(Length > 0.0))
+        return 0.0f;
+    const int kSamples = 24;
+    int Inside = 0;
+    for (int Sample = 0; Sample < kSamples; ++Sample)
+    {
+        const double T = (Sample + 0.5) / kSamples * (Length / Full);
+        Vector Point;
+        Point.x = (float)(From[0] + Dx * T);
+        Point.y = (float)(From[1] + Dy * T);
+        Point.z = (float)(From[2] + Dz * T);
+        for (size_t Index = 0; Index < GNebulae.size(); ++Index)
+        {
+            FNebulaEffect* const Nebula = GNebulae[Index].Nebula;
+            // Ring companions are dust rings handled by the ring transmittance, not nebulae.
+            if (Nebula == nullptr || Nebula->FlagLoaded == 0 || Nebula->Zone == nullptr ||
+                GNebulae[Index].RingOwner != nullptr)
+                continue;
+            if (Nebula->Zone->GetImmersion(Point) > 0.0)
+            {
+                ++Inside;
+                break;
+            }
+        }
+    }
+    return (float)(Length * Inside / kSamples);
+}
+
+bool NebulaVolume::ShipAuraInfo(float* OutFogRgb, float* OutImmersion, float* OutStrength,
+                                float* OutSize, float DefaultStrength, float DefaultSize)
+{
+    if (!RenderEx::IsAvailable() || GbProgramFailed || !(GSettings.Enabled > 0.5f))
+        return false;
+    // The most immersed drawn nebula the camera is inside.
+    FVolumeEntry const* Best = nullptr;
+    float BestImmersion = 0.0f;
+    for (int Index = 0; Index < GFrameLightingCount; ++Index)
+    {
+        FVolumeEntry const& Entry = GEntries[Index];
+        if (!Entry.bInside)
+            continue;
+        const float Immersion = Clamp(Entry.Nebula->GetFloat294(), 0.0f, 1.0f);
+        if (Best == nullptr || Immersion > BestImmersion)
+        {
+            Best = &Entry;
+            BestImmersion = Immersion;
+        }
+    }
+    if (Best == nullptr)
+        return false;
+    Best->Nebula->CopyFogRgb(OutFogRgb);
+    *OutImmersion = BestImmersion;
+    *OutStrength = Best->Settings.ShipHazeAura >= 0.0f ? Best->Settings.ShipHazeAura : DefaultStrength;
+    *OutSize = Best->Settings.ShipHazeAuraSize >= 0.0f ? Best->Settings.ShipHazeAuraSize : DefaultSize;
+    return true;
 }
 
 void NebulaVolume::DimBackground(ICamera* Camera)

@@ -655,3 +655,77 @@ check: a ship 300 m above a station shadow left the receiver lit (ffffffff) with
 shadowed (ff060606) with the separate map. The far static cache now tolerates a sun-direction
 change of one far texel over the longest shadow (it was one texel over the whole 5 km depth
 span), which had caused most rebuilds while flying.
+
+## Authored suns first (2026-10-23)
+
+The depth rays had a fixed spoke pattern of their own (8 broad + 14 thin spokes, the same for
+every star, no motion) on top of every sun, and sun_optics_strength=0.5 halved the authored
+spines, corona, lens ghosts and attached solar ALE. Stars authored without [spines]
+(red_giant_sun, sm_red_sun, green_giant_sun) thus gained hard spokes they never had.
+
+Now solar_rays.hlsl has no spokes: a soft glow plus shafts where geometry covers the disc, its
+reach growing with the disc (0.45 + 4 x radius of the screen height; the radius clamp is now
+0.012..0.12), so giants glow wide and soft. The spikes are the star's own [spines] again, and
+sun_optics_strength defaults to 1 (authored strength).
+
+Halo restrained: reach 0.35 + 3 x disc radius, quadratic falloff, gain 0.5 -- between the first version (read as bloom) and a minimal one (cubic, 0.35) under which the shafts cut by geometry hardly showed.
+
+Alive suns ([Render] sun_alive, 1; 0 = still as retail, up to 2), all on the authored elements
+(star_sphere.cpp, SolarWobble: two sines at incommensurate rates, a per-sun phase from the
+sphere's address, client elapsed time): the crown turns 0.004 rad/s and sways +-0.035 rad, but
+the star's frame keeps its authored angle -- spines on the screen axes (horizontal, vertical)
+and the longest ones (>= 0.9 of the longest) never turn or sway; the others turn and sway +-0.012 rad; every spine breathes +-9% in length and +-15% in brightness on its own phase;
+the corona breathes +-6%; the star_glow billboard +-2.5% in size and +-5% in alpha (the stars
+without spines move through it).
+
+The sun's corona in place of its ALE ([Render] sun_corona, 1): the suns' attached ALE effects
+(fx\mod\*_sun.ale, planetflare/sarma) were heavy and, hanging on a hardpoint in the world, never
+matched the screen-space spines and glow. With sun_corona on, FParticleEffect::TickDraw and
+BuildGeometry skip an effect watched by a listed sun (StarSphereReplacesAttachedEffect): it is
+neither simulated nor drawn. FStarSphere::DrawFlare instead draws solar_corona.hlsl
+(RenderEx::DrawSolarCorona, an additive fullscreen Ex pass like the rays, hidden by geometry in
+front of the sun through the scene depth): streamers of 3D value noise over the direction around
+the disc (no angular seam) and log radius, flowing outwards and evolving, under broad lobes that
+turn over minutes; growing out of the visible core (half the rays' disc scale) with no gap, falling off to sun_corona_reach (3) disc radii;
+tinted by the star_glow inner colour, per-sun seed, clocked by sun_alive. Keys:
+sun_corona_strength (0.35), sun_corona_reach (3), sun_corona_contrast (1.8).
+(Two earlier attempts -- turning the spines with the world, then giving the ALE the camera's
+orientation -- were removed.)
+
+## Sun halo over nebulae and ship haze aura (2026-10-23)
+
+Sun halo (star_sphere.cpp `StarSphereDrawNebulaHalo`, called from space_scene_obj_draw.cpp right after
+`NebulaVolume::DrawHybridClouds`). The sun sprites are drawn with the scene, before the nebula composite, which
+attenuates them by the nebula's transmittance, so the sun vanished in and behind nebulae. Retail drew its burn-through
+over the fog. Now, while the volume drew this frame (`NebulaVolume::IsFrameActive`, valid after `Draw` ended the frame)
+and the camera is immersed or `SolarNebulaBlocked`, one screen-blend `glow2` billboard is drawn at each sun, over the
+composite, no depth: colour = the star glow's inner colour, strength = `SunNebulaHalo(sun_blocked_halo)` x the sun disc
+visibility (`SunBodyComputeCoronaFactor`) x (1 - ZoneOcclusion) x the ring transmittance, size = radius x star glow
+scale x `sun_blocked_halo_size`. The in-scene crossfaded halo of `StarGlowDrawBillboard` stays out while this one is
+active (the authored sprite's fade-out is kept).
+
+How much nebula lies toward the sun: `Through = exp(-Sigma * L)`, L the metres of the first 40 km of camera -> sun inside
+nebula zones (24 evenly spaced samples, `NebulaVolume::SegmentNebulaLength`; a sample counts when a registered nebula,
+ring companions excluded, has immersion there), Sigma = -ln(0.25)/3000 (75% lost per 3 km). The halo is scaled by
+`max(sun_halo_floor, Through)`: weaker behind more nebula, never gone. Cached per sun, frame time and camera position.
+
+Smooth exit: the hard `SolarNebulaBlocked` returns in `DrawBillboard`, `Draw`, `DrawFlare` and the attached-effect
+visibility are gone; they scale by `smoothstep(Through)` (absent at <= 0.15, whole at >= 0.6) instead, so the sprite,
+spines, corona, flare and the ALE fade in as the ship nears the nebula edge. (`SolarNebulaBlocked` remains as the
+"L > 0" shortcut: a crossing thinner than the sampling, or a camera inside, counts one sample.) For the same reason
+`StarZoneOcclusionFactor` no longer returns 1 for a nebula hit (its slow fade made the sun leak and pop; asteroid
+fields still occlude as before). The halo is multiplied by `1 - fade` so it gives way as the authored sun returns.
+
+Ship haze aura (`NebulaShipAuraDraw`, right after the sun halo): with the camera inside a drawn nebula, one `glow2`
+billboard centred on the player's ship (`Slot178` centre/radius), half size radius x `ship_haze_aura_size`, colour =
+fog colour x2 (clamped) x `ship_haze_aura` x immersion (+0x294) x (0.6 + 0.4 * `SolarSunlitAt(centre)`), screen blend,
+no depth test. Skipped in the first-person camera.
+
+Keys, port.ini `[Render]`: `sun_blocked_halo` 0.25, `sun_blocked_halo_size` 0.6, `sun_halo_floor` 0.25,
+`ship_haze_aura` 0.18, `ship_haze_aura_size` 2.5. volumetric.ini styles: `ship_haze_aura`, `ship_haze_aura_size`
+(-1 = port.ini); `sun_nebula_halo` also overrides `sun_blocked_halo`.
+
+### Easing the sun back in (2026-10-23)
+`SolarNebulaThrough` eases its result per sun: it rises at most `1 / sun_nebula_fade_seconds` per second
+([Render], default 3; 0 = at once) and falls four times faster. Leaving a nebula the line to the sun clears
+in a frame or two, so without this the sun popped in. A frame gap over 0.5 s snaps to the measured value.

@@ -745,6 +745,13 @@ ObjActivateResult CEqObj::activate(bool bOn, unsigned DockIndex)
     Archetype::EqObj const* Arch = eqobjarch();
     if (DockIndex >= Arch->DockingSpheres.size())
         return ObjActivateFailed;
+    // Port-only: flush_animations (CArchGroupManager::DestroyDeadGroups, when a ship such as a
+    // battleship loses a part) clears DockingPoints for good while the archetype keeps its
+    // spheres. Retail then swapped a byte in the vector's stale capacity; the checked STL
+    // fast-fails (c0000409) docking at such a ship. The door animations are gone with the
+    // entries: report no change, docking goes on.
+    if (DockIndex >= DockingPoints.size())
+        return ObjActivateNoChange;
     bool WasOn = DockingPoints[DockIndex].bActive;
     DockingPoints[DockIndex].bActive = bOn;
     return (bOn == WasOn) ? ObjActivateNoChange : ObjActivateChanged;

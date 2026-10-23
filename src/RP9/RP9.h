@@ -609,6 +609,12 @@ public:
     void ExPlanetEclipseConstants(float* Out12);
     bool ExPlanetSurfaceBegin();
     void ExPlanetSurfaceEnd();
+    // Planet ring band (SetPlanetRing): planet_ring.hlsl draw of the retail texture-panel band.
+    GENRESULT DACOM_API SetPlanetRing(const FRPPlanetRing* Desc) override;
+    GENRESULT DACOM_API GetPlanetRingProfile(float* Out, unsigned long Count) override;
+    const std::vector<float>* ExRingProfile(IDirect3DBaseTexture9* Texture, const FRPPlanetRing& Ring);
+    bool ExRingBegin();
+    void ExRingEnd();
     bool ExPickSun(const D3DXVECTOR3& Centre, D3DXVECTOR3* Direction, D3DLIGHT9* Light, unsigned* LightCount = nullptr);
     bool ExCompileShaderPair(const char* File, IDirect3DVertexShader9** Vs, IDirect3DPixelShader9** Ps,
                              const char* VsEntry = "VSMain", const char* PsEntry = "PSMain");
@@ -624,8 +630,11 @@ public:
     void ExGpuFrameBoundary();
     void ExGpuRelease();
     GENRESULT ExApplyFrameAntialiasing();
+    GENRESULT ExApplyFramePass(IDirect3DPixelShader9* Ps, const float* Extra4);
+    GENRESULT ExApplyWindowedGamma();
     void ExDrawWarmupOverlay();
     unsigned int ExCollectSurfaceLights(D3DLIGHT9* Out, unsigned int Capacity);
+    bool ExFindPointLightNear(const float* WorldPosition, D3DLIGHT9* Out);
     GENRESULT DACOM_API BeginLocalShadowFrame(const float*, const float*, const float*) override;
     GENRESULT DACOM_API BeginLocalShadowMap(unsigned long Cascade) override;
     GENRESULT DACOM_API EndLocalShadowMap() override;

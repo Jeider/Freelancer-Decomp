@@ -36,6 +36,11 @@ FSymFromAddr GSymFromAddr = nullptr;
 FSymGetLineFromAddr64 GSymGetLineFromAddr64 = nullptr;
 PFUNCTION_TABLE_ACCESS_ROUTINE64 GSymFunctionTableAccess64 = nullptr;
 PGET_MODULE_BASE_ROUTINE64 GSymGetModuleBase64 = nullptr;
+// The hang watchdog: the main thread, its frame counter and the stall limit.
+HANDLE GMainThread = nullptr;
+DWORD GMainThreadId = 0;
+volatile LONG GHeartbeats = 0;
+int GHangSeconds = 30;
 
 // "Common.dll+2a101" for an address inside a module.
 void ModuleOffset(DWORD64 Address, char* Out, size_t Size)
@@ -99,6 +104,7 @@ void PruneOld()
         DeleteFileA((Base.substr(0, Base.size() - 4) + ".txt").c_str());
     }
 }
+void StartWatchdog();
 } // namespace
 
 void Initialize()
@@ -138,12 +144,16 @@ void Initialize()
     GSymFunctionTableAccess64 = (PFUNCTION_TABLE_ACCESS_ROUTINE64)GetProcAddress(GDbgHelp, "SymFunctionTableAccess64");
     GSymGetModuleBase64 = (PGET_MODULE_BASE_ROUTINE64)GetProcAddress(GDbgHelp, "SymGetModuleBase64");
     if (GMiniDumpWriteDump == nullptr)
+    {
         GbEnabled = false;
+        return;
+    }
+    StartWatchdog();
 }
 
 namespace
 {
-void WriteFiles(EXCEPTION_POINTERS* Info)
+void WriteFiles(EXCEPTION_POINTERS* Info, HANDLE Thread, DWORD ThreadId, const char* Kind)
 {
     {
         CreateDirectoryA(GDirectory, nullptr);
@@ -164,7 +174,7 @@ void WriteFiles(EXCEPTION_POINTERS* Info)
         if (DumpFile != INVALID_HANDLE_VALUE)
         {
             MINIDUMP_EXCEPTION_INFORMATION Exception;
-            Exception.ThreadId = GetCurrentThreadId();
+            Exception.ThreadId = ThreadId;
             Exception.ExceptionPointers = Info;
             Exception.ClientPointers = FALSE;
             const MINIDUMP_TYPE Type = (MINIDUMP_TYPE)(MiniDumpWithPrivateReadWriteMemory | MiniDumpWithDataSegs |
@@ -182,8 +192,8 @@ void WriteFiles(EXCEPTION_POINTERS* Info)
         {
             const EXCEPTION_RECORD* Record = Info->ExceptionRecord;
             const CONTEXT* Context = Info->ContextRecord;
-            fprintf(File, "Freelancer crash %04u-%02u-%02u %02u:%02u:%02u, thread %lu\n", Now.wYear, Now.wMonth,
-                    Now.wDay, Now.wHour, Now.wMinute, Now.wSecond, GetCurrentThreadId());
+            fprintf(File, "Freelancer %s %04u-%02u-%02u %02u:%02u:%02u, thread %lu\n", Kind, Now.wYear, Now.wMonth,
+                    Now.wDay, Now.wHour, Now.wMinute, Now.wSecond, ThreadId);
             fprintf(File, "exception %08lx at %p", Record->ExceptionCode, Record->ExceptionAddress);
             if (Record->ExceptionCode == EXCEPTION_ACCESS_VIOLATION && Record->NumberParameters >= 2)
                 fprintf(File, ", %s of %08lx",
@@ -213,7 +223,7 @@ void WriteFiles(EXCEPTION_POINTERS* Info)
                 Frame.AddrStack.Mode = AddrModeFlat;
                 for (int Depth = 0; Depth < 64; ++Depth)
                 {
-                    if (!GStackWalk64(IMAGE_FILE_MACHINE_I386, Process, GetCurrentThread(), &Frame, &Walk, nullptr,
+                    if (!GStackWalk64(IMAGE_FILE_MACHINE_I386, Process, Thread, &Frame, &Walk, nullptr,
                                       GSymFunctionTableAccess64, GSymGetModuleBase64, nullptr) ||
                         Frame.AddrPC.Offset == 0)
                         break;
@@ -226,11 +236,11 @@ void WriteFiles(EXCEPTION_POINTERS* Info)
     }
 }
 
-int Guarded(EXCEPTION_POINTERS* Info)
+int Guarded(EXCEPTION_POINTERS* Info, HANDLE Thread, DWORD ThreadId, const char* Kind)
 {
     __try
     {
-        WriteFiles(Info);
+        WriteFiles(Info, Thread, ThreadId, Kind);
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
@@ -240,12 +250,84 @@ int Guarded(EXCEPTION_POINTERS* Info)
 }
 } // namespace
 
-void Write(EXCEPTION_POINTERS* Info)
+bool Write(EXCEPTION_POINTERS* Info)
 {
     if (!GbEnabled || GbWriting || Info == nullptr)
-        return;
+        return false;
     GbWriting = true; // a crash inside the writer must not recurse
-    Guarded(Info);
+    const bool bWritten = Guarded(Info, GetCurrentThread(), GetCurrentThreadId(), "crash") != 0;
     GbWriting = false;
+    return bWritten;
 }
+
+void Heartbeat()
+{
+    InterlockedIncrement(&GHeartbeats);
+}
+namespace
+{
+// Suspends the main thread, takes its registers and writes the pair as for a crash.
+void WriteHang(DWORD Seconds)
+{
+    if (SuspendThread(GMainThread) == (DWORD)-1)
+        return;
+    CONTEXT Context = {};
+    Context.ContextFlags = CONTEXT_FULL;
+    if (GetThreadContext(GMainThread, &Context))
+    {
+        EXCEPTION_RECORD Record = {};
+        Record.ExceptionCode = 0xE0000001; // "hang": no real exception
+        Record.ExceptionAddress = reinterpret_cast<PVOID>(static_cast<uintptr_t>(Context.Eip));
+        Record.NumberParameters = 1;
+        Record.ExceptionInformation[0] = Seconds;
+        EXCEPTION_POINTERS Info = {&Record, &Context};
+        GbWriting = true;
+        Guarded(&Info, GMainThread, GMainThreadId, "hang");
+        GbWriting = false;
+    }
+    ResumeThread(GMainThread);
+}
+
+DWORD WINAPI WatchdogMain(LPVOID)
+{
+    LONG Seen = GHeartbeats;
+    DWORD Stalled = 0;
+    bool bReported = false;
+    for (;;)
+    {
+        Sleep(1000);
+        const LONG Now = GHeartbeats;
+        // Not before the first frame (loading), not while another window is in front (the
+        // client draws no frames in the background), and once per stall.
+        DWORD ForegroundProcess = 0;
+        GetWindowThreadProcessId(GetForegroundWindow(), &ForegroundProcess);
+        if (Now != Seen || Now == 0 || ForegroundProcess != GetCurrentProcessId())
+        {
+            Seen = Now;
+            Stalled = 0;
+            bReported = false;
+            continue;
+        }
+        if (++Stalled >= (DWORD)GHangSeconds && !bReported && !GbWriting)
+        {
+            bReported = true;
+            WriteHang(Stalled);
+        }
+    }
+}
+
+void StartWatchdog()
+{
+    GHangSeconds = PortConfigInt("Debug", "hang_dump_seconds", 30);
+    if (GHangSeconds <= 0)
+        return;
+    GMainThreadId = GetCurrentThreadId();
+    if (!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &GMainThread,
+                         THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT | THREAD_QUERY_INFORMATION, FALSE, 0))
+        return;
+    HANDLE Thread = CreateThread(nullptr, 0, WatchdogMain, nullptr, 0, nullptr);
+    if (Thread != nullptr)
+        CloseHandle(Thread);
+}
+} // namespace
 } // namespace PortCrashDump

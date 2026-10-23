@@ -6,6 +6,7 @@
 
 #include "client_frame_tick.h"
 #include "client_tick_profile.h"
+#include "port_crash_dump.h" // port-only hang watchdog
 
 #include "client_equip_fx.h"
 #include "client_state.h"
@@ -81,7 +82,7 @@ namespace
         // 0x00424f30..0x00424f3f: DAT_006679f8 = 0; an inactive application (DAT_00610865)
         // returns that 0 straight away.
         G_bRenderFrameBegun = false;
-        if (!ClientAppIsActive())
+        if (!ClientAppIsActive() && !ClientRunsInBackground()) // port: windowed runs unfocused
             return false;
 
         // 0x00424f45..0x00424f55: FUN_005b27c0(0) behind DAT_0067ecbc.
@@ -202,6 +203,8 @@ void TickClientFrame(double DeltaSeconds)
 {
     // Port-only QPC diagnostics requested by Giperion; CLIENT-BETA-LABEL.
     FClientTickProfileFrame ProfileFrame;
+    PortCrashDump::Heartbeat(); // port-only: the hang watchdog sees the main thread alive
+
     // 0x005b289a..0x005b28b3: Timing::UpdateGlobalTime(dt) unless FUN_0042d740.
     if (!ShouldSkipLocalServerTick())
         Timing::UpdateGlobalTime(DeltaSeconds);

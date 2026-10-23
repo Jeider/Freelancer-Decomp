@@ -3531,6 +3531,8 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
     //  - MultiSampleQuality (D3D9 only) = 0 with D3DMULTISAMPLE_NONE.
     D3DSWAPEFFECT SwapEffect9 = (D3DSWAPEFFECT)(SwapEffect);
     UINT PresentInterval9 = PresentInterval;
+    if (Ex_ != nullptr)
+        Ex_->bWindowed = Windowed != FALSE; // port-only: the windowed gamma pass
     if (Windowed != FALSE)
     {
         if (SwapEffect == kD3d8SwapEffectCopyVsync)
@@ -3754,6 +3756,7 @@ GENRESULT DACOM_API FDirectX9::SwapBuffers()
     // frame timers close this frame and open the next.
     if (Ex_ != nullptr && Ex_->QualityFxaaMode == 2)
         ExApplyFrameAntialiasing();
+    ExApplyWindowedGamma(); // port-only: the game's gamma while windowed
     ExDrawWarmupOverlay();
     ExGpuFrameBoundary();
     RECT SrcRect;
@@ -4580,6 +4583,39 @@ unsigned int FDirectX9::ExCollectSurfaceLights(D3DLIGHT9* Out, unsigned int Capa
     return Count;
 }
 
+// Port-only: the point light closest to WorldPosition among every light the game has added,
+// enabled or not (a draw with no lighting of its own sees whatever the last object left on).
+bool FDirectX9::ExFindPointLightNear(const float* WorldPosition, D3DLIGHT9* Out)
+{
+    float BestDistance = 0.0f;
+    bool bFound = false;
+    for (auto const& Item : G_LightRecords)
+    {
+        D3DLIGHT9 Light;
+        if (Item.second.Data != nullptr)
+            memcpy(&Light, Item.second.Data, sizeof(Light));
+        else
+        {
+            auto Found = Ex_->SurfaceDirectLights.find(Item.first);
+            if (Found == Ex_->SurfaceDirectLights.end())
+                continue;
+            Light = Found->second;
+        }
+        if (Light.Type != D3DLIGHT_POINT || Light.Diffuse.r + Light.Diffuse.g + Light.Diffuse.b <= 0.0f)
+            continue;
+        const float Dx = Light.Position.x - WorldPosition[0], Dy = Light.Position.y - WorldPosition[1],
+                    Dz = Light.Position.z - WorldPosition[2];
+        const float Distance = Dx * Dx + Dy * Dy + Dz * Dz;
+        if (!bFound || Distance < BestDistance)
+        {
+            BestDistance = Distance;
+            *Out = Light;
+            bFound = true;
+        }
+    }
+    return bFound;
+}
+
 // RP8: FDirectX8::GetLight
 GENRESULT DACOM_API FDirectX9::GetLight(void* Handle, D3DLIGHT8* OutLight)
 {
@@ -5323,11 +5359,12 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitive(unsigned long Prim, unsigned int Fv
     if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
     const unsigned int PrimCount = PrimCountFromVerts(Prim, Count);
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
-    const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
-    const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
-    const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
-    const bool bSurface = !bPlanet && !bAtmosphere && !bSoft && ExSurfaceBegin();
-    if (!bSurface && !bSoft && !bAtmosphere && !bPlanet)
+    const bool bRing = ExRingBegin(); // port-only planet rings (RP9Ex.cpp)
+    const bool bPlanet = !bRing && ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
+    const bool bAtmosphere = !bRing && !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
+    const bool bSoft = !bRing && !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
+    const bool bSurface = !bRing && !bPlanet && !bAtmosphere && !bSoft && ExSurfaceBegin();
+    if (!bSurface && !bSoft && !bAtmosphere && !bPlanet && !bRing)
         ExSurfaceRelease(); // a fixed-function draw after a surface draw
     ExNoteDraw(PrimCount);
     Result = Device_->DrawPrimitiveUP((D3DPRIMITIVETYPE)(Prim), PrimCount, Verts, Stride);
@@ -5339,6 +5376,8 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitive(unsigned long Prim, unsigned int Fv
         ExPlanetSurfaceEnd();
     if (bAtmosphere)
         ExAtmosphereEnd();
+    if (bRing)
+        ExRingEnd();
     StreamCache_.Reset();
     if (FAILED(Result))
         FdumpHr("draw_primitive: %s", Result, 3809);
@@ -6928,6 +6967,14 @@ GENRESULT DACOM_API FDirectX9::SetGammaFunction(unsigned int ChannelMask, float 
                                                 float Brightness, float Contrast, float Bias)
 {
     // Gamma calculations retain double intermediates and float storage boundaries.
+    // Port-only: the curve is kept for the windowed gamma pass (D3D9 ignores the ramp in a window).
+    if (Ex_ != nullptr && Gamma > 0.0f)
+    {
+        Ex_->Gamma[0] = (float)(1.0 / (double)(Gamma));
+        Ex_->Gamma[1] = Brightness;
+        Ex_->Gamma[2] = Contrast;
+        Ex_->Gamma[3] = Bias;
+    }
     if ((DeviceReady_ & 1) == 0)
     {
         Rp9Fdump(kFdumpWarning, 4819, "WARNING",
@@ -7138,6 +7185,39 @@ GENRESULT DACOM_API FDirectX9::PrintScreen(void* ParentFileSystem, const char* F
         }
         GetClientRect(Window, SourceRect);
         MapWindowPoints(Window, nullptr, (POINT*)(SourceRect), 2);
+    }
+    // Port-only: the front buffer's data does not go through the hardware gamma ramp, so a
+    // fullscreen shot (ramp enabled) gets the game's curve here. A windowed frame already went
+    // through the windowed gamma pass before it was presented.
+    if (ModeFlags[1] != 0 && Ex_ != nullptr && ((DeviceReady_ >> 1) & 1) != 0 &&
+        !(std::fabs(Ex_->Gamma[0] - 1.0f) < 1e-3f && std::fabs(Ex_->Gamma[1]) < 1e-3f &&
+          std::fabs(Ex_->Gamma[2] - 1.0f) < 1e-3f && std::fabs(Ex_->Gamma[3]) < 1e-3f))
+    {
+        unsigned char Curve[256];
+        for (unsigned Index = 0; Index < 256; ++Index)
+        {
+            const double X = Index / 255.0;
+            double Base = (double)(Ex_->Gamma[2]) * X + Ex_->Gamma[3];
+            Base = Base < 0.0 ? 0.0 : (Base > 1.0 ? 1.0 : Base);
+            double Value = Ex_->Gamma[1] + pow(Base, (double)(Ex_->Gamma[0]));
+            Value = Value < 0.0 ? 0.0 : (Value > 1.0 ? 1.0 : Value);
+            Curve[Index] = (unsigned char)(Value * 255.0 + 0.5);
+        }
+        D3DLOCKED_RECT Locked;
+        if (SUCCEEDED(Surface->LockRect(&Locked, nullptr, 0)))
+        {
+            for (UINT Y = 0; Y < Mode.Height; ++Y)
+            {
+                unsigned char* Row = (unsigned char*)(Locked.pBits) + Y * Locked.Pitch;
+                for (UINT X = 0; X < Mode.Width; ++X)
+                {
+                    Row[X * 4 + 0] = Curve[Row[X * 4 + 0]];
+                    Row[X * 4 + 1] = Curve[Row[X * 4 + 1]];
+                    Row[X * 4 + 2] = Curve[Row[X * 4 + 2]];
+                }
+            }
+            Surface->UnlockRect();
+        }
     }
     Hr = D3DXSaveSurfaceToFileA(FileName,
                                 (D3DXIMAGE_FILEFORMAT)(Formats[FormatIndex].Format),

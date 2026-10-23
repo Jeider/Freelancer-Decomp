@@ -129,3 +129,17 @@ void BillboardEmitRock(FAsteroidBillboardBlock* Bb, FAsteroidBillboardRock* Rock
 // field's ExclusionMgr (+0xdc) and ExcludeType 2 (billboards).
 void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
                    Exclusion::AsteroidExclusionZoneMgr* Excl, int ExcludeType);
+
+#ifdef FREELANCER_RP9
+// Port-only: the rocks lie in a slab around the field zone's plane (a flat ring field) instead of
+// a sphere ahead of the camera, so they continue the dynamic asteroids' band. The state is kept in
+// a side map keyed by the block (its size is asserted).
+// From the ini ([AsteroidBillboards] band_thickness / band_near): a value above 0 is explicit;
+// an explicit Thickness of 0 or less forces the band off.
+void BillboardSetBandIni(FAsteroidBillboardBlock* Bb, float Thickness, float Near);
+// Every frame from the field: the dynamic managers' band (0 = none) and placement radius fill
+// whatever the ini left unset.
+void BillboardLinkDynamicBand(FAsteroidBillboardBlock* Bb, float Thickness, float PlacementRadius);
+// Drops the block's band state (the block is cleared or re-initialised).
+void BillboardForgetBand(FAsteroidBillboardBlock const* Bb);
+#endif

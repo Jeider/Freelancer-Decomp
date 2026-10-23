@@ -7,7 +7,10 @@
 #include "cli_asteroid_dynamic.h"
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h"
+#include "port_config.h"
+#include "solar_spheres.h" // SolarSunlitAt
 #include <cmath>
+#include <unordered_map>
 #endif
 #ifdef FREELANCER_ADOXA
 #include "port_plugins.h" // port-only adoxa plugins
@@ -104,6 +107,33 @@ namespace
     }
 }
 
+#ifdef FREELANCER_RP9
+namespace
+{
+    // Port-only [DynamicAsteroids] band_thickness: the field's asteroids are kept in a slab of this
+    // half-thickness around the zone's plane (a flat ring field) instead of on a sphere ahead of
+    // the camera. Kept beside FCliDynamicAsteroid (whose size is fixed at 0xE8), keyed by it.
+    std::unordered_map<FCliDynamicAsteroid const*, float>& DynamicBandThickness()
+    {
+        // Never destroyed: the atexit teardown still destroys fields after function statics.
+        static auto* const S_Band = new std::unordered_map<FCliDynamicAsteroid const*, float>();
+        return *S_Band;
+    }
+
+    float DynamicBandOf(FCliDynamicAsteroid const* This)
+    {
+        auto const Found = DynamicBandThickness().find(This);
+        return Found != DynamicBandThickness().end() ? Found->second : 0.0f;
+    }
+}
+
+// The field's billboards read the manager's band to lie in the same plane (asteroid_billboard.cpp).
+float CliDynamicAsteroidBandThickness(FCliDynamicAsteroid const* This)
+{
+    return DynamicBandOf(This);
+}
+#endif
+
 // ===========================================================================
 // DynamicAsteroid (the gameobj)
 // ===========================================================================
@@ -137,8 +167,8 @@ namespace
 
     std::map<FCliDynamicAsteroidGameobj const*, FDynastexHealth>& DynastexHealth()
     {
-        static std::map<FCliDynamicAsteroidGameobj const*, FDynastexHealth> S_Health;
-        return S_Health;
+        static auto* const S_Health = new std::map<FCliDynamicAsteroidGameobj const*, FDynastexHealth>();
+        return *S_Health;
     }
 }
 #endif
@@ -420,6 +450,9 @@ FCliDynamicAsteroid* CliDynamicAsteroidConstruct(FCliDynamicAsteroid* This,
     This->CountIni = 10;
     This->PlacementRadius = 150.0f;
     This->PlacementRadiusInner = 75.0f;
+#ifdef FREELANCER_RP9
+    DynamicBandThickness().erase(This); // a reused address must not inherit a band
+#endif
     This->Arch = nullptr;
     This->SlotPtrs = nullptr;
     This->bSpawnAllowed = 0;
@@ -521,6 +554,18 @@ void CliDynamicAsteroidParseIni(FCliDynamicAsteroid* This, INI_Reader& Reader)
                 This->PlacementRadius = Radius;
                 This->PlacementRadiusInner = static_cast<float>(Radius * 0.7);
             }
+#ifdef FREELANCER_RP9
+            else if (Reader.is_value("band_thickness"))
+            {
+                // Port-only: > 0 keeps the asteroids in a slab of this half-thickness (metres)
+                // around the zone's plane, and centres the field on the camera.
+                float const Band = Reader.get_value_float(0);
+                if (Band > 0.0f)
+                    DynamicBandThickness()[This] = Band;
+                else
+                    DynamicBandThickness().erase(This);
+            }
+#endif
             else if (Reader.is_value("max_velocity"))
             {
                 This->MaxVelocity = Reader.get_value_float(0);
@@ -713,6 +758,48 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
     Centre.x = OffsetX + CamPos[0];
     Centre.y = OffsetY + CamPos[1];
     Centre.z = OffsetZ + CamPos[2];
+#ifdef FREELANCER_RP9
+    // Port-only band_thickness: the zone's plane through its centre (origin O, normal N = local Y,
+    // in-plane U / V), and the camera itself as the centre of recycling and placement.
+    float const BandThickness = This->Zone != nullptr ? DynamicBandOf(This) : 0.0f;
+    float BandO[3] = {0.0f, 0.0f, 0.0f}, BandN[3] = {0.0f, 1.0f, 0.0f};
+    float BandU[3] = {1.0f, 0.0f, 0.0f}, BandV[3] = {0.0f, 0.0f, 1.0f};
+    if (BandThickness > 0.0f)
+    {
+        Centre.x = CamPos[0];
+        Centre.y = CamPos[1];
+        Centre.z = CamPos[2];
+        FTransform ZoneXf;
+        static_assert(sizeof(FTransform) == sizeof(Transform), "FTransform matches Transform");
+        memcpy(&ZoneXf, &This->Zone->GetTransform(), sizeof(ZoneXf));
+        I3DMathEngine* const Math = Acquire3DMathEngine();
+        FVector const Local[4] = {{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+        FVector World[4];
+        for (int K = 0; K < 4; ++K)
+            Math->TransformXform(World[K], ZoneXf, Local[K]);
+        BandO[0] = World[0].X;
+        BandO[1] = World[0].Y;
+        BandO[2] = World[0].Z;
+        float const NRaw[3] = {World[2].X - BandO[0], World[2].Y - BandO[1], World[2].Z - BandO[2]};
+        float const URaw[3] = {World[1].X - BandO[0], World[1].Y - BandO[1], World[1].Z - BandO[2]};
+        float const NLength = std::sqrt(NRaw[0] * NRaw[0] + NRaw[1] * NRaw[1] + NRaw[2] * NRaw[2]);
+        if (NLength > 0.0f)
+            for (int K = 0; K < 3; ++K)
+                BandN[K] = NRaw[K] / NLength;
+        // U re-orthogonalised against N, V = N x U.
+        float const UN = URaw[0] * BandN[0] + URaw[1] * BandN[1] + URaw[2] * BandN[2];
+        float UOrtho[3] = {URaw[0] - BandN[0] * UN, URaw[1] - BandN[1] * UN, URaw[2] - BandN[2] * UN};
+        float const ULength = std::sqrt(UOrtho[0] * UOrtho[0] + UOrtho[1] * UOrtho[1] + UOrtho[2] * UOrtho[2]);
+        if (ULength > 0.0f)
+        {
+            for (int K = 0; K < 3; ++K)
+                BandU[K] = UOrtho[K] / ULength;
+            BandV[0] = BandN[1] * BandU[2] - BandN[2] * BandU[1];
+            BandV[1] = BandN[2] * BandU[0] - BandN[0] * BandU[2];
+            BandV[2] = BandN[0] * BandU[1] - BandN[1] * BandU[0];
+        }
+    }
+#endif
 
     // 0x00525da9..0x00525e03: no spawning while the player's ship (class & 0x503) is in a
     // tradelane; otherwise only when there is no zone or its immersion at the centre is above
@@ -818,6 +905,46 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
             continue;
         }
 
+#ifdef FREELANCER_RP9
+        // Port-only band_thickness: this slot's point in the slab, decided before a gameobj is
+        // made for it. The height target is bell-shaped about the plane; the point is on the
+        // placement sphere about the camera at that height.
+        Vector BandPlace;
+        bool bBandPlace = false;
+        if (BandThickness > 0.0f)
+        {
+            float const Target = BandThickness * (rand() / 32768.0f + rand() / 32768.0f + rand() / 32768.0f - 1.5f) * 0.8f;
+            float const CamHeight = (CamPos[0] - BandO[0]) * BandN[0] + (CamPos[1] - BandO[1]) * BandN[1] +
+                                    (CamPos[2] - BandO[2]) * BandN[2];
+            float const Dv = Target - CamHeight;
+            bool bReject = std::fabs(Dv) >= This->PlacementRadius;
+            if (!bReject)
+            {
+                float const Across = std::sqrt(This->PlacementRadius * This->PlacementRadius - Dv * Dv);
+                float const Angle = rand() / 32768.0f * 6.2831853f;
+                float const Cos = std::cos(Angle) * Across;
+                float const Sin = std::sin(Angle) * Across;
+                BandPlace.x = CamPos[0] + BandN[0] * Dv + BandU[0] * Cos + BandV[0] * Sin;
+                BandPlace.y = CamPos[1] + BandN[1] * Dv + BandU[1] * Cos + BandV[1] * Sin;
+                BandPlace.z = CamPos[2] + BandN[2] * Dv + BandU[2] * Cos + BandV[2] * Sin;
+                bReject = !(This->Zone->GetImmersion(BandPlace) > kSpawnImmersion) ||
+                          (ExclusionMgr != nullptr &&
+                           ExclusionMgr->is_excluded(BandPlace, Exclusion::EOT_DynamicAsteroid, nullptr));
+            }
+            if (bReject)
+            {
+                // Released like the spawning-blocked path: it is tried again next frame.
+                if (This->SlotPtrs[Index] != nullptr)
+                {
+                    This->SlotPtrs[Index]->Slot15c(true);
+                    This->SlotPtrs[Index] = nullptr;
+                }
+                continue;
+            }
+            bBandPlace = true;
+        }
+#endif
+
         // 0x00525ee1..0x00525f55: an empty slot gets a new gameobj (FUN_00526650); both
         // conditions below only warn.
         if (This->SlotPtrs[Index] == nullptr)
@@ -848,11 +975,18 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
 
         // 0x00525f58..0x00525fa5: a random point on the placement sphere about the centre.
         float const PlaceRadius = This->PlacementRadius;
-        Vector const Unit = random_on_unit_sphere();
         Vector Place;
-        Place.x = PlaceRadius * Unit.x + Centre.x;
-        Place.y = PlaceRadius * Unit.y + Centre.y;
-        Place.z = PlaceRadius * Unit.z + Centre.z;
+#ifdef FREELANCER_RP9
+        if (bBandPlace)
+            Place = BandPlace;
+        else
+#endif
+        {
+            Vector const Unit = random_on_unit_sphere();
+            Place.x = PlaceRadius * Unit.x + Centre.x;
+            Place.y = PlaceRadius * Unit.y + Centre.y;
+            Place.z = PlaceRadius * Unit.z + Centre.z;
+        }
 
         // 0x00525fa9..0x00526002: the old effect dropped (FUN_004fcef0), collisions off, the
         // placement (FUN_00525200), collisions on.
@@ -1108,7 +1242,25 @@ void CliDynamicAsteroidDraw(FCliDynamicAsteroid* This, FSpaceCamera* Cam,
 
         // 0x00526576..0x005265be: the material, then DrawIndexedPrimitiveVb(prim +0xac,
         // lock[0], lock[2], count +0xa4, the indices, their count, 0).
+#ifdef FREELANCER_RP9
+        // Port-only: the rocks are drawn here, not through the scene's object list, so the
+        // local-shadow receiver path never sees them. In a planet's (or ring's) shadow their
+        // direct light (diffuse) drops to [Render] dynamic_asteroid_shadow_floor; ambient stays.
+        static float const S_Floor = (std::max)(0.0f, (std::min)(1.0f,
+            PortConfigFloat("Render", "dynamic_asteroid_shadow_floor", 0.15f)));
+        float Lit[0x11];
+        std::memcpy(Lit, MaterialBlock, sizeof(Lit));
+        {
+            Vector const& RockPos = This->SlotPtrs[Index]->get_position();
+            float const Sunlit = S_Floor + (1.0f - S_Floor) * SolarSunlitAt(&RockPos.x);
+            Lit[0] *= Sunlit;
+            Lit[1] *= Sunlit;
+            Lit[2] *= Sunlit;
+        }
+        Pipe->SetMaterial((const D3DMATERIAL8*)Lit);
+#else
         Pipe->SetMaterial((const D3DMATERIAL8*)MaterialBlock);
+#endif
         Pipe->DrawIndexedPrimitiveVb(This->PrimitiveType, Lock.Listing.VertexBuffer,
                                      static_cast<unsigned int>(Lock.Listing.BaseVertex),
                                      static_cast<unsigned int>(This->MeshDesc.SrcCount),

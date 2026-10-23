@@ -880,9 +880,9 @@ is ignored and the original ring path is retained. No UI quality selector is add
 ### Asset-family cloud styles
 
 `[NebulaStyle] name = crow` supplies the crow cloud look independently of the
-global defaults. The same mechanism recognises `edge` and `walker`; no presets
+global defaults. The same mechanism recognises `edge`, `walker` and `generic`; no presets
 for those families are supplied yet. The client detects a family once when
-registering a nebula, from `[Clouds] puff_shape` (`crow_`, `edge_`, `walker_`),
+registering a nebula, from `[Clouds] puff_shape` (`crow_`, `edge_`, `walker_`, `generic_`),
 falling back to the `[TexturePanels] file` base name. Generated nebula INIs do
 not need edits. Ring companions are classified by their own source INI too.
 
@@ -955,6 +955,36 @@ the lighting. Inside a volumetric controller it yields to the controller's
 burn-through draw, avoiding a full-bright sprite plus a second burn-through
 sprite now that the old opaque fog overlay no longer covers the first one.
 
+
+### Walker style (sand and dust)
+
+`[NebulaStyle] name = walker` (volumetric.ini; om15, om7 and every nebula whose puffs are
+`walker_*`): layered banks (`layer_stretch` 3) pulled into streaks (`warp` 0.55, `wispiness` 0.65,
+no `cloud_billow`), thinner than crow's clouds (`cloud_density` 1.5, `coverage` 0.46) in a dustier
+haze; fast drift (`drift_scale` 45); the walker texture projected strongly (density 0.45, colour
+0.55, tile scale 6); forward scattering (`phase_g` 0.45) at a restrained key (0.45) and exposure
+(0.75) -- om7's `sun_burnthrough_intensity` 1 overexposed the first, brighter cut -- little powder.
+Entry, distances and the hybrid puff pass follow crow.
+
+The sun shows through: a style may set `sun_nebula_halo` (the round halo kept at full immersion,
+`NebulaVolume::SunNebulaHalo`, read by star_sphere.cpp in place of port.ini's 0.12 while the camera
+is inside such a nebula); walker uses 0.22 and `sun_occlusion_halo` 0.18.
+
+Walker lightning is rare and dim (`lightning_intensity_scale` 4 against the global 20,
+`lightning_frequency_scale` 0.3, shorter, few bursts, a faint haze flash). The om7/om15 nebula data
+(Pythonlancer `om7_nebula.py`, `om15_orange_nebula.py` and their GENERATED INIs) now share
+`[Fog] near = 200, distance = 4000` (was 0 / 1000-1500: the haze hid the sun within a kilometre) and
+`[NebulaLight] sun_burnthrough_intensity = 0.6, sun_burnthrough_scaler = 1.5`.
+
+### Edge veins
+
+`vein_emission` (default 0 = off), `vein_pulse` (0..1, default 0) and `vein_pulse_rate` (Hz, default
+0.25) are ordinary `[Nebula]` / `[NebulaStyle]` / `[NebulaOverride]` keys. The raymarch shader
+(constant c107) multiplies the cloud's self-glow (`CloudEmission.rgb`, not the haze) by
+`1 + vein_emission * 4 * Cloud * (1 - Cloud)`: the glow peaks at the soft edge of a cloud and is zero in
+the core and in empty space, so the edges read as glowing membranes. The pulse scales that term by
+`1 + vein_pulse * sin(time * 2 pi * rate + ColourNoise * 2 pi)`; the phase follows the puff colour noise, so
+the pulse travels through the cloud instead of blinking all of it at once.
 
 ### Crow hybrid: exterior, nearby volume, interior detail sprites
 
@@ -1106,6 +1136,45 @@ surface shader/local-shadow architecture are documented in
 [local_surface_lighting.md](local_surface_lighting.md). The material and shadow
 parts of that document are proposals; the solar/equipment fixes are implemented.
 
+### Nebula puff layer
+
+Port-only (`port.ini [Render] nebula_puff_layer = 1`; 0 restores retail).
+Retail spawns a nebula's interior puffs (`[Clouds]`, `FNebulaClouds`) on a
+sphere around a point ahead of the camera (`LocalNebulaCloudsUpdate`), so they
+travel with the ship and there is no parallax. `NebulaLayerUpdate`
+(cli_nebula.cpp) is called from the nebula update in place of
+`NebulaCloudsUpdate` (within 300 of the surface) and places them in the world,
+the way the ring layer does for planet rings but in 3D. It returns false, and
+retail runs, for a clouds object with `layer = 0`, without an owner zone
+(`+0xc4`) or without a radius.
+
+Space is cut into cubes of `layer_cell` metres (default 2.5 x the mean puff
+size, at least 20; raised to R/10 when R/cell exceeds 10, which bounds the
+visited cells to 21^3). A clump field decides where the cloud masses are:
+`smoothstep(cov - 0.15, cov + 0.15, fbm(x / clump_size))`, with a 3-octave 3D
+value noise (splitmix64 lattice, scale x2.03, weights 0.5/0.3/0.2).
+`layer_clump_size` defaults to max(0.35 R, 3 cells), `layer_clump_coverage`
+to 0.5 (higher = fewer puffs) and `layer_clump_softness` (the edge's half-width on the noise) to
+0.05: several dense masses in view with sharp edges against the gaps. A cube whose box reaches into the sphere of
+`max_distance` R about the camera holds `min(4, ceil(clump * density * 2 -
+0.25))` puffs (`layer_density`, default 1.5). Each puff is a hash of the cube
+index and its number: a position inside the cube, and a thinning value kept
+only if it is below clump(puff) / clump(cube centre). A puff also needs
+`GetImmersion > 0` at its position and must not lie in an exclusion zone
+deeper than 0.9. `layer_wind = x, y, z` (m/s) translates the whole layer: the
+grid is evaluated at camera - wind * time and wind * time is added back.
+
+More candidates than puff slots: the nearest win. Slots are stable per clouds
+object (a port-only map keyed by the object, erased in destroy and when the
+puff table is freed): a slot keeps its puff while that stays a candidate, the
+rest are freed and refilled. Puffs get no velocity, drift or wisp. The ahead
+distance `+0xb8` is 0 and the centre `+0xf4` is the camera, because the draw
+fades puffs about the camera. The fade `+0xe0` is the retail one; at 0 every
+slot is deactivated. Rings never come here.
+
+Per-`[Clouds]` keys (all optional): `layer` (0 = off), `layer_cell`,
+`layer_density`, `layer_clump_size`, `layer_clump_coverage`, `layer_clump_softness`, `layer_wind`.
+
 ### Planet atmosphere
 
 Port-only. `FMaterial::SubmitAtmosphereLock` (Shading) queries `IRPPlanetAtmosphere`
@@ -1219,3 +1288,178 @@ cap meshes); base samples stay half a texel inside 0..1 (no wrap bleeding); with
 of a uv edge the colour fades to a blurred mip and relief/terrain shadows fade out, so two
 mismatched textures meet as a soft gradient. port.ini: `planet_seam_blend` (0.01), `gas_flow`,
 `gas_turbulence`, `gas_storms` (1 each), `gas_swirl_planets`.
+
+### Planet rings
+
+Route: `FTexturePanels::DrawPiece` (the retail ring band, a triangle strip through
+`DrawPrimitive`) queries `Iids::RPPlanetSurface` and brackets the draw with `SetPlanetRing`
+(`FRPPlanetRing`: ring centre, normal, inner/outer radius, segments, shape rectangle, detail flag,
+fade range, host planet sphere, sun sphere; all world space). The spheres come from
+`solar_spheres.cpp` (`FindHostPlanetSphere`, `FindSystemSunSphere`); a system without a sun keeps
+the retail draw. `FDirectX9::ExRingBegin` (before the planet hook in `DrawPrimitive`) binds
+`planet_ring.hlsl` (c0-c9 vertex, c0-c8 pixel), blend ONE / INVSRCALPHA, no cull, no fog, linear or
+anisotropic filtering on stages 0-1; `ExRingEnd` restores the pending state.
+
+Lighting source: the panels draw unlit, so the device lights enabled at a piece's draw are the
+previous object's (each of the 8 pieces is sorted on its own) -- taking the sun from them lit the
+band in sectors, and the sectors moved as the camera turned (the sort order changed). Even the
+sun's own light varies: a `[LightSource]` with an `atten_curve` is re-coloured per object by
+distance. So the client fills `FRPPlanetRing::SunColour` (`FindSunLightColour`, solar_spheres.cpp:
+the enabled GameLight nearest the star through `EngineLightGetEffectiveColor` at the ring centre's
+distance); without it RP9 falls back to `ExFindPointLightNear` / `ExPickSun`. The ambient too:
+`D3DRS_AMBIENT` at a piece's draw was the system's (0x28283c in tau29) for some pieces and white
+for others, which was the visible fault; the client fills `FRPPlanetRing::Ambient` from
+`StarSysAmbientColor()` (the system's `[Ambient]` plus the game's ambient option).
+
+Occlusion by the ring's planet: each piece is sorted against the planet on its own and drawn with
+the depth test on or off by its bucket, so pieces of the far arc could land on top of the planet
+(stripes with a straight edge at a piece seam). The pixel shader clips ring pixels whose view ray
+meets the host planet's sphere (radius x 0.995) before reaching them. The far pass (bucket 2) paints
+without a depth test by centre distance, planet included: a piece whose centre lay beyond the
+planet's was drawn first and covered by the planet even where it passes in front (a hard seam on
+the sunlit side, where the band is bright). `EnqueueTexturePanelPieces` therefore caps a far piece's
+sort key just under its host planet's (x 0.999), so every piece is drawn after the planet. The depth
+state stays the game's (forcing the test on in the far pass would test against an unrelated depth).
+
+Shader model: the band's radius is exact per pixel (outer vertices pushed out by 1/cos(pi/N) and
+clipped), the layer scatters sunlight singly (reflected on the lit side, diffusely transmitted on
+the other, thicker at grazing angles), the host planet's shadow falls across it, and the band fades
+out as the camera closes in. `[Exterior] fade_range = far, near` in the ring ini is port-only (the
+2002 beta's key; default 3400, 500).
+
+port.ini `[Render]`: `planet_rings` (1), `ring_brightness` (2), `ring_backlight` (1),
+`ring_opacity` (1), `ring_forward` (1.5), `ring_sun_block` (0.6).
+
+The sun behind a ring: `TexturePanelsRayTransmittance(camera, sun)` (texture_panels.cpp) intersects
+the ray with every band's plane; inside the annulus the band's opacity at that radius blocks the
+sun and the slant lengthens the path, `(1 - a)^(1/|cos|)`. The opacity is the band's own profile:
+at its first draw `ExRingBegin` converts the bound shape texture (managed pool, DXT too) to
+A8R8G8B8 on the CPU (`ExRingProfile`, once per texture and shape) and samples its alpha down the
+middle of the rectangle, with the detail average and `ring_opacity`; the client reads it back
+through `IRPPlanetSurface::GetPlanetRingProfile` into `FTexturePanels::SunProfile[128]` and
+multiplies the vertex opacity and `ring_sun_block` (1). The test averages 9 taps over the sun's
+disc where it crosses the band, so thin gaps dim smoothly. Without a profile the band's average
+(0.6, soft edges) stands in. The product scales `FStarSphere::Draw`'s spines and corona and
+`DrawFlare`'s flare and rays.
+
+Ring grain: none. The detail map is no longer sampled (its fine tile shimmered in the distance),
+and the procedural grain that replaced it was dropped too (it split the band into stripes as the
+view moved). Rings authored with a detail map keep that map's average (ringdetail: x2 colour
+0.525, alpha 0.237) so their tuned brightness and density hold. The band's shape is sampled down the middle of its atlas
+rectangle (retail alternated the two U edges per segment and the neighbouring shapes bled in).
+
+Ring puff layer (`RingLayerUpdate`, texture_panels.cpp; port.ini `[Render] ring_puff_layer`, 1): retail
+`FNebulaClouds` update (`LocalNebulaCloudsUpdate`) respawns the ring's `[Clouds]` puffs on a sphere
+of radius `max_distance` around a point ahead of the camera, so the puffs follow the camera and
+ignore the band. With the layer on, `FTexturePanels::Update` calls `RingLayerUpdate` instead. The
+ring frame is the one `DrawPiece` uses (centre = zone translation, normal from outer vertices 0
+and 2, U toward vertex 0, V = N x U; inner = zone size y, outer = size x). The annulus is cut into
+polar cells (radial width `cell_size`, angular bins `max(8, 2 pi r / cell)`); each cell holds
+`ceil(rel(r) * density * 2 - 0.25)` puffs (at most 6; `rel` = the band profile over its peak, so a detail-mapped ring, whose profile is a few percent, still fills) from a splitmix64 hash of
+(radial, angular, k), so the same puffs appear every frame without `rand()`. `profile` is
+`FTexturePanels::SunProfile` (the band's opacity across it, 0.6 until RP9 has read it back); each
+puff is also thinned by its own radius's profile relative to the cell's, so gaps stay empty.
+Puffs sit on the plane with a bell-shaped height of up to `thickness`, and are kept when within
+`max_distance` of the camera. Slots are stable: a map per clouds object holds each slot's cell
+key, a slot whose puff is still a candidate keeps it, the others are freed and refilled, and if
+there are more candidates than slots the nearest win. Per puff the drift timer is -1 and the wisp
+and velocity 0 (no drift); `+0xb8` is 0 so the draw's distance fade is about the camera (0.7 R to
+R, plus `near_fade_distance`). The map is cleared with the clouds in `Clear`. Camera further from
+the plane than `R + 3 thickness`, or outside the annulus by more than `R`, deactivates all puffs.
+Optional ring ini `[RingLayer]` (port-only): `thickness` (half-thickness in metres, default the
+zone's size z / 2, min 10), `cell_size` (default 2.5 x the mean puff size, min 20), `density` (1),
+`orbit_speed` (degrees per second at the inner edge, 0; Keplerian, `(inner / r)^1.5` outwards,
+sign = direction; the cells' angular origins rotate with `GetClientElapsedTime`).
+
+Puff heights: within +-`thickness` of the plane, denser toward it (triangular: the sum of two hashes).
+Mixed puff textures: retail binds the first puff shape's texture for all puffs, so shapes from another
+texture (e.g. `rock_wisp*` with `ice_wisp*`) drew as pieces of the first. `TexturePanelDrawClouds` now
+collects the quads when the shapes span several textures, groups them by texture (stable, or by depth with
+`cloud_sort`), writes one lock and draws one run per texture.
+
+Dynamic asteroid band (cli_asteroid_dynamic.cpp): `[DynamicAsteroids] band_thickness = <metres>`
+in an asteroid-field ini (port-only; absent or 0 = retail). The retail update recycles asteroids
+beyond `placement_radius` of a point ahead of the camera and re-places them on the sphere about it.
+With a band, the camera is the centre of both, and each re-placed asteroid gets a target height
+`band_thickness * (rand + rand + rand - 1.5) * 0.8` above the zone's plane (through the zone
+centre; normal = the zone's local Y mapped through `TransformXform`, as a flat ring field such as
+tau29's `size = 10000, 500, 10000` is thin along Y). The point is on the placement sphere about
+the camera at that height; a target farther than `placement_radius` from the camera's height, a
+zone immersion at the point of 0.001 or less, or an asteroid exclusion zone releases the slot for
+that frame. The value lives in a side map keyed by the `FCliDynamicAsteroid` (its 0xE8 size is
+asserted). Fade, collisions and effects are unchanged.
+
+Asteroid billboards in the band (asteroid_billboard.cpp `BillboardDraw`): the distant rock sprites
+follow the dynamic asteroids' plane. `[AsteroidBillboards] band_thickness = <metres>` (half-height;
+absent = the largest `band_thickness` of the field's `[DynamicAsteroids]`, 0 or less = the retail
+sphere) and `band_near = <metres>` (absent = the dynamic managers' `placement_radius`, else the
+retail start of the sphere, `Float04 - Float00`) switch the rocks from a sphere ahead of the
+camera to a slab about the zone's plane. The values live in a side map keyed by the billboard block
+(`BillboardSetBandIni` from the ini, `BillboardLinkDynamicBand` each frame from the field,
+`BillboardForgetBand` when the block is cleared); `CliDynamicAsteroidBandThickness` exports the
+manager's value. Rocks are spread over the horizontal distances `Near..Far` from the camera's foot
+on the plane (`Far = Float04 + Float00`; area-uniform, `sqrt(Near^2 + u (Far^2 - Near^2))`) at a
+random angle, with a triangular height within +-`band_thickness` (denser at the plane), on the
+camera flag or the first band frame. A rock whose horizontal distance leaves `[Near / 2, Far * 1.02]`
+is respawned at `Far`, alpha 0, as the retail respawn does; the zone immersion and exclusion tests
+are the retail ones. Alpha is the far ramp `(Far - D) / fade` times `smoothstep(0.85 Near, Near, D)`
+(D the distance to the camera) so the rocks fade in as the dynamic asteroids fade out; the retail
+depth planes are not used. A camera farther than `Far` from the plane draws no rocks.
+
+Planet shadow on puffs, rocks and the ring (port-only). `SolarSunlitAt(pos)` (solar_spheres.cpp) is
+the fraction of sunlight reaching a world point past the system's planets and moons, matching the
+ship shadows: for each planet toward the sun it takes the point's perpendicular offset from the
+planet-sun axis and a penumbra `max(50, Along * SunRadius / SunDistance)` wide (smoothstep over
+`R -+ Edge`), and the shadow ends `Reach` metres behind the surface (`shadow_max_length`, 200). The
+planets and rings are gathered once per `GetClientElapsedTime()`. A planet that carries a ring (a
+loaded `TexturePanels` whose zone lies within the planet's radius) reaches
+`max(shadow_max_length, (RingOuter - Radius) * 1.15 + 500)`, `RingOuter` being the ring zone's
+`GetSize().x`; `SolarRingShadowReach` exports it. `BuildLocalShadows` hands such a planet to
+`AddLocalShadowEclipse` (reach, sun angle `SunRadius / distance`) instead of `AddLocalShadowPlanet`,
+so ships and asteroid meshes in the ring are shadowed too; the eclipse reach and sun angle are one
+value for the frame, `AddLocalShadowEclipse` keeps the largest of its callers.
+`TexturePanelDrawClouds` scales a puff's RGB (not alpha) by
+`floor + (1 - floor) * SolarSunlitAt(puff)` (`[Render] puff_shadow_floor`, 0.2), for ring and
+nebula puffs; `BillboardDraw` does the same per rock for the corner and centre colours
+(`billboard_shadow_floor`, 0.15), the factor kept per rock for the blended pass.
+
+Puff rotation (port-only). Each puff quad is turned in its plane by a stable angle from a hash of
+its slot pointer (other bits than `PuffBaseAngle`): `[Render] puff_rotation_step` degrees times
+`hash % round(360 / step)` (90: 0/90/180/270), or, with step 0, a uniform angle in
+`+- puff_rotation_range` degrees. A `[Clouds]` section overrides both with the same key names
+(`FCloudsPortParams`, a value below 0 = not set). `SP' = SP c + SQ s`, `SQ' = SQ c - SP s`, applied
+after the facing and `puff_spin` angle.
+
+Shadow reach of a `planet_eclipses` caster (ships, puffs and billboards alike): to the far side of its
+receiver plus the receiver's ring (`SolarRingShadowReach`), so a neighbour planet shades the whole ring;
+`SolarSunlitAt` takes it through `PlanetEclipseCasterReach` (space_scene_obj_draw.cpp).
+
+Dynamic asteroids are drawn by `CliDynamicAsteroidDraw` (cli_asteroid_dynamic.cpp), outside the scene's
+object list, so the local-shadow receiver path never sees them; their material's diffuse is scaled by
+`SolarSunlitAt` at the rock (down to `dynamic_asteroid_shadow_floor`, 0.15), ambient kept.
+
+### Windowed gamma and background run
+
+Direct3D 9 ignores `SetGammaRamp` in a window, so the game's gamma slider did nothing windowed.
+`SetGammaFunction` now also keeps its curve (1/gamma, brightness, contrast, bias) and, while the
+swap chain is windowed (`CreateBuffers`), `SwapBuffers` runs `ExApplyWindowedGamma`: the finished
+frame (HUD included) through the same curve in an inline ps_3_0 shader. It shares
+`ExApplyFramePass` (scene copy, full-screen quad, state block restore) with FXAA. `[Render]
+windowed_gamma` (1). The identity curve skips the pass.
+
+Background run (`ClientRunsInBackground`, window.cpp): while windowed, `[Window] background_run` (1)
+keeps the single-player frame gate open on deactivation (`OnActivateApp`), lets `TryBeginFrame`
+(client_frame_tick.cpp) begin frames and `RenderMgrFrameReady` report ready without the focus. A window's
+device is not lost on deactivation; fullscreen still pauses. The mode is read live, so Alt+Enter
+(USER_FULLSCREEN, jflp) switches it with the window state.
+
+Screenshots (`PrintScreen`): the front buffer's data does not pass the hardware ramp, so a fullscreen
+shot with the ramp enabled gets the game's curve on the CPU (a 256-entry table); a windowed frame was
+presented through the windowed gamma pass already.
+### Nebula volume cost (2026-10-23)
+- Both passes of a nebula (half-res march, full-res composite) draw only over the zone bound's screen rectangle
+  (`VolumeScreenRect`: the bounding sphere of the halo end, exact perspective extent, clipped to the viewport;
+  fullscreen with the camera inside or level with it; skipped when off screen). Margins: 2 low-res texels for the
+  march, 1 pixel for the composite.
+- The key-light shadow loops stop at the first zero-weight sample: `shadow_steps` below 6 used to fetch the unused
+  samples anyway. A half set for haze-only samples was tried and does not fit ps_3_0's 32 temp registers.

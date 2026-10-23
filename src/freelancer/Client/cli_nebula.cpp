@@ -19,6 +19,10 @@
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h" // port-only Direct3D 9 volumetric nebula gates
 #endif
+#ifdef FREELANCER_RP9
+#include "globals.h" // GetClientElapsedTime (nebula puff layer)
+#include "port_config.h"
+#endif
 #include "pixel_format.h"   // PixelFormatFromD3D / PixelFormatGetDesc (FUN_005b7010 / 005b7030)
 #include "space_camera.h"
 #include "star_sys.h"
@@ -34,6 +38,7 @@
 #include "render/shading.h"
 #include "x86math.h"
 
+#include <algorithm>
 #include <list>
 #include <map>
 #include <math.h>
@@ -44,6 +49,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#ifdef FREELANCER_RP9
+#include <unordered_map>
+#include <vector>
+#endif
 
 I3DMathEngine* G_CloudsMath = nullptr; // DAT_00679860 (cli_nebula.h)
 
@@ -353,10 +362,23 @@ namespace
         auto Found = G_CloudsPortParams.find(Clouds);
         if (Found == G_CloudsPortParams.end())
         {
-            FCloudsPortParams Defaults = {false, 0.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            FCloudsPortParams Defaults = {false, 0.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, -1.0f,
+                                        true, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, {0.0f, 0.0f, 0.0f}};
             Found = G_CloudsPortParams.emplace(Clouds, Defaults).first;
         }
         return Found->second;
+    }
+#endif
+
+#ifdef FREELANCER_RP9
+    // Port-only nebula puff layer: per clouds object, the key of the puff each slot shows (0 =
+    // free), so a slot keeps its puff from frame to frame while it stays in range. Erased where
+    // the puff table is freed or the object destroyed, so a reused address starts empty.
+    std::unordered_map<FNebulaClouds*, std::vector<uint64_t>>& NebulaLayerSlots()
+    {
+        // Never destroyed: the atexit teardown still frees nebulae after function statics.
+        static auto* const S_Slots = new std::unordered_map<FNebulaClouds*, std::vector<uint64_t>>();
+        return *S_Slots;
     }
 #endif
 
@@ -402,6 +424,9 @@ namespace
     // +0x00. No test of the table pointer; +0x04 / +0xec are left alone.
     void LocalNebulaCloudsFreePuffTable(FNebulaClouds* Clouds)
     {
+#ifdef FREELANCER_RP9
+        NebulaLayerSlots().erase(Clouds);
+#endif
         unsigned char* const R = Clouds->Raw;
         for (int I = 0; I < *reinterpret_cast<int*>(R + 0xc); ++I)
         {
@@ -938,12 +963,353 @@ namespace
         }
     }
 
+#ifdef FREELANCER_RP9
+    // Port-only nebula puff layer (port.ini [Render] nebula_puff_layer): the [Clouds] puffs of a
+    // nebula sit at fixed places in the world instead of on a sphere that travels with the
+    // camera, so flying through the nebula has parallax. Space is cut into cubes; a smooth
+    // noise field ("clump") decides where the cloud masses are and where the gaps are, and each
+    // cube holds a fixed set of puffs from a hash of its index, so a puff is the same every
+    // frame and a slot keeps it while it stays in range. Returns false to fall back to retail.
+    uint64_t NebulaLayerHash(uint64_t X)
+    {
+        // splitmix64: deterministic (the same as the ring layer's).
+        X += 0x9e3779b97f4a7c15ull;
+        X = (X ^ (X >> 30)) * 0xbf58476d1ce4e5b9ull;
+        X = (X ^ (X >> 27)) * 0x94d049bb133111ebull;
+        return X ^ (X >> 31);
+    }
+
+    // [0, 1) from the top 24 bits.
+    double NebulaLayerUnit(uint64_t Hash)
+    {
+        return static_cast<double>(Hash >> 40) * (1.0 / 16777216.0);
+    }
+
+    double NebulaLayerLattice(int Ix, int Iy, int Iz, int Octave)
+    {
+        uint64_t H = NebulaLayerHash((static_cast<uint64_t>(static_cast<uint32_t>(Ix)) << 32) |
+                                     static_cast<uint64_t>(static_cast<uint32_t>(Iy)));
+        H = NebulaLayerHash(H ^ (static_cast<uint64_t>(static_cast<uint32_t>(Iz)) << 8) ^
+                            static_cast<uint64_t>(Octave));
+        return NebulaLayerUnit(H);
+    }
+
+    double NebulaLayerSmooth(double T)
+    {
+        return T * T * (3.0 - 2.0 * T);
+    }
+
+    // 3D value noise, trilinear with a smoothstep fade, 0..1.
+    double NebulaLayerValueNoise(double X, double Y, double Z, int Octave)
+    {
+        double const Fx = std::floor(X);
+        double const Fy = std::floor(Y);
+        double const Fz = std::floor(Z);
+        int const Ix = static_cast<int>(Fx);
+        int const Iy = static_cast<int>(Fy);
+        int const Iz = static_cast<int>(Fz);
+        double const Tx = NebulaLayerSmooth(X - Fx);
+        double const Ty = NebulaLayerSmooth(Y - Fy);
+        double const Tz = NebulaLayerSmooth(Z - Fz);
+        double Plane[2];
+        for (int Dz = 0; Dz < 2; ++Dz)
+        {
+            double const A = NebulaLayerLattice(Ix, Iy, Iz + Dz, Octave);
+            double const B = NebulaLayerLattice(Ix + 1, Iy, Iz + Dz, Octave);
+            double const C = NebulaLayerLattice(Ix, Iy + 1, Iz + Dz, Octave);
+            double const D = NebulaLayerLattice(Ix + 1, Iy + 1, Iz + Dz, Octave);
+            double const Low = A + (B - A) * Tx;
+            double const High = C + (D - C) * Tx;
+            Plane[Dz] = Low + (High - Low) * Ty;
+        }
+        return Plane[0] + (Plane[1] - Plane[0]) * Tz;
+    }
+
+    // Three octaves (scale x2.03, weights 0.5 / 0.3 / 0.2), 0..1.
+    double NebulaLayerFbm(double X, double Y, double Z)
+    {
+        double const Weights[3] = {0.5, 0.3, 0.2};
+        double Scale = 1.0;
+        double Sum = 0.0;
+        for (int Octave = 0; Octave < 3; ++Octave)
+        {
+            Sum += Weights[Octave] * NebulaLayerValueNoise(X * Scale, Y * Scale, Z * Scale, Octave);
+            Scale *= 2.03;
+        }
+        return Sum;
+    }
+
+    // The cloud masses (1) and the gaps between them (0): the noise through a smoothstep around
+    // the coverage threshold.
+    double NebulaLayerClump(double const* Pos, double ClumpSize, double Coverage, double Softness)
+    {
+        double const Noise = NebulaLayerFbm(Pos[0] / ClumpSize, Pos[1] / ClumpSize, Pos[2] / ClumpSize);
+        double const Low = Coverage - Softness;
+        double const High = Coverage + Softness;
+        double const T = (std::max)(0.0, (std::min)(1.0, (Noise - Low) / (High - Low)));
+        return NebulaLayerSmooth(T);
+    }
+
+    struct FNebulaLayerPuff
+    {
+        uint64_t Key;
+        float Pos[3];
+        float DistSq;
+    };
+
+    bool NebulaLayerUpdate(FNebulaEffect* Nebula, FNebulaClouds* Clouds, void* Camera, float Dt,
+                           float Visibility, Exclusion::NebulaExclusionZoneMgr* ExclusionMgr)
+    {
+        (void)Nebula;
+        (void)Dt;
+        if (Clouds == nullptr)
+            return false;
+        unsigned char* const C = Clouds->Raw;
+        // Nothing to place until the puff table was built.
+        if (C[0xec] == 0)
+            return true;
+
+        FCloudsPortParams const* const Params = NebulaCloudsPortParams(Clouds);
+        if (Params != nullptr && !Params->bLayer)
+            return false;
+        Universe::IZone const* const Zone = *reinterpret_cast<Universe::IZone**>(C + 0xc4);
+        unsigned char** const Table = *reinterpret_cast<unsigned char***>(C);
+        int const Count = *reinterpret_cast<int*>(C + 0xc);
+        double const R = *reinterpret_cast<float*>(C + 0x100);
+        if (Zone == nullptr || Table == nullptr || Count <= 0 || !(R > 0.0))
+            return false;
+
+        std::vector<uint64_t>& Slots = NebulaLayerSlots()[Clouds];
+        if (static_cast<int>(Slots.size()) != Count)
+            Slots.assign(static_cast<size_t>(Count), 0);
+
+        // The retail fade (00550d8c..00550ddb).
+        float const FullVisibility = *reinterpret_cast<float*>(C + 0x104);
+        if (Visibility > FullVisibility)
+            *reinterpret_cast<float*>(C + 0xe0) = 1.0f;
+        else if (Visibility <= 0.0f)
+            *reinterpret_cast<float*>(C + 0xe0) = 0.0f;
+        else
+            *reinterpret_cast<float*>(C + 0xe0) = Visibility / FullVisibility;
+
+        float const* const CamPos = static_cast<ICamera*>(Camera)->GetPosition();
+        double const P[3] = {CamPos[0], CamPos[1], CamPos[2]};
+        *reinterpret_cast<float*>(C + 0xb8) = 0.0f; // the draw fades puffs about the camera itself
+        *reinterpret_cast<float*>(C + 0xf4) = CamPos[0];
+        *reinterpret_cast<float*>(C + 0xf8) = CamPos[1];
+        *reinterpret_cast<float*>(C + 0xfc) = CamPos[2];
+        *reinterpret_cast<int*>(C + 0x10) = Count;
+
+        if (!(*reinterpret_cast<float*>(C + 0xe0) > 0.0f))
+        {
+            for (int I = 0; I < Count; ++I)
+            {
+                Table[I][0x50] = 0;
+                Slots[static_cast<size_t>(I)] = 0;
+            }
+            *reinterpret_cast<int*>(C + 0x14) = 0;
+            return true;
+        }
+
+        // Cells about two and a half puffs across: the layer is as dense as the puffs are big.
+        double PuffSize = 0.0;
+        for (int I = 0; I < Count; ++I)
+            PuffSize += *reinterpret_cast<float*>(Table[I] + 0x18);
+        PuffSize /= Count;
+        double Cell = (Params != nullptr && Params->LayerCell > 0.0f) ? static_cast<double>(Params->LayerCell)
+                                                                       : (std::max)(20.0, PuffSize * 2.5);
+        // Bounds the visited cells to 21^3.
+        if (std::ceil(R / Cell) > 10.0)
+            Cell = R / 10.0;
+        double const Density = (Params != nullptr && Params->LayerDensity >= 0.0f)
+                                   ? static_cast<double>(Params->LayerDensity)
+                                   : 1.5;
+        // Several masses in view (about a third of the puff sphere each), dense inside and with
+        // sharp edges against the gaps.
+        double const ClumpSize = (Params != nullptr && Params->LayerClumpSize > 0.0f)
+                                     ? static_cast<double>(Params->LayerClumpSize)
+                                     : (std::max)(R * 0.35, Cell * 3.0);
+        double const Coverage = (Params != nullptr && Params->LayerClumpCoverage >= 0.0f)
+                                    ? static_cast<double>(Params->LayerClumpCoverage)
+                                    : 0.5;
+        double const Softness = (Params != nullptr && Params->LayerClumpSoftness > 0.0f)
+                                    ? static_cast<double>(Params->LayerClumpSoftness)
+                                    : 0.05;
+        double const T = GetClientElapsedTime();
+        double const WT[3] = {
+            Params != nullptr ? Params->LayerWind[0] * T : 0.0,
+            Params != nullptr ? Params->LayerWind[1] * T : 0.0,
+            Params != nullptr ? Params->LayerWind[2] * T : 0.0};
+        // The grid moves with the wind: it is evaluated at Q and the world position is Q + WT.
+        double const Q[3] = {P[0] - WT[0], P[1] - WT[1], P[2] - WT[2]};
+
+        static std::vector<FNebulaLayerPuff> S_Cands;
+        std::vector<FNebulaLayerPuff>& Cands = S_Cands;
+        Cands.clear();
+
+        int Lo[3];
+        int Hi[3];
+        for (int Axis = 0; Axis < 3; ++Axis)
+        {
+            Lo[Axis] = static_cast<int>(std::floor((Q[Axis] - R) / Cell));
+            Hi[Axis] = static_cast<int>(std::floor((Q[Axis] + R) / Cell));
+        }
+        for (int Iz = Lo[2]; Iz <= Hi[2]; ++Iz)
+        {
+            for (int Iy = Lo[1]; Iy <= Hi[1]; ++Iy)
+            {
+                for (int Ix = Lo[0]; Ix <= Hi[0]; ++Ix)
+                {
+                    double const Origin[3] = {Ix * Cell, Iy * Cell, Iz * Cell};
+                    // The cell's box must reach into the sphere.
+                    double Near = 0.0;
+                    for (int Axis = 0; Axis < 3; ++Axis)
+                    {
+                        double const Delta = Q[Axis] < Origin[Axis]          ? Origin[Axis] - Q[Axis]
+                                             : Q[Axis] > Origin[Axis] + Cell ? Q[Axis] - Origin[Axis] - Cell
+                                                                             : 0.0;
+                        Near += Delta * Delta;
+                    }
+                    if (!(Near < R * R))
+                        continue;
+                    double const Centre[3] = {Origin[0] + 0.5 * Cell, Origin[1] + 0.5 * Cell,
+                                              Origin[2] + 0.5 * Cell};
+                    double const CellClump = NebulaLayerClump(Centre, ClumpSize, Coverage, Softness);
+                    int const PerCell = (std::min)(4, static_cast<int>(std::ceil(CellClump * Density * 2.0 - 0.25)));
+                    if (PerCell <= 0)
+                        continue;
+                    for (int N = 0; N < PerCell; ++N)
+                    {
+                        // 20 bits per axis (offset to stay positive), 2 for the puff, bit 63 so
+                        // a key is never 0.
+                        uint64_t const Key = (1ull << 63) |
+                                             (static_cast<uint64_t>(Ix + (1 << 19)) & 0xfffffull) << 42 |
+                                             (static_cast<uint64_t>(Iy + (1 << 19)) & 0xfffffull) << 22 |
+                                             (static_cast<uint64_t>(Iz + (1 << 19)) & 0xfffffull) << 2 |
+                                             static_cast<uint64_t>(N);
+                        uint64_t H = NebulaLayerHash(Key);
+                        double const Ux = NebulaLayerUnit(H);
+                        H = NebulaLayerHash(H);
+                        double const Uy = NebulaLayerUnit(H);
+                        H = NebulaLayerHash(H);
+                        double const Uz = NebulaLayerUnit(H);
+                        H = NebulaLayerHash(H);
+                        double const Uw = NebulaLayerUnit(H);
+                        double const Grid[3] = {Origin[0] + Ux * Cell, Origin[1] + Uy * Cell,
+                                                Origin[2] + Uz * Cell};
+                        double const Dist = (Grid[0] - Q[0]) * (Grid[0] - Q[0]) +
+                                            (Grid[1] - Q[1]) * (Grid[1] - Q[1]) +
+                                            (Grid[2] - Q[2]) * (Grid[2] - Q[2]);
+                        if (!(Dist < R * R))
+                            continue;
+                        // Gaps inside a cell stay empty: thin by the clump at the puff's own place
+                        // relative to the cell's (whose level already set the count).
+                        double const Ratio = NebulaLayerClump(Grid, ClumpSize, Coverage, Softness) /
+                                             (std::max)(CellClump, 1.0e-3);
+                        if (Uw > Ratio)
+                            continue;
+                        Vector World;
+                        World.x = static_cast<float>(Grid[0] + WT[0]);
+                        World.y = static_cast<float>(Grid[1] + WT[1]);
+                        World.z = static_cast<float>(Grid[2] + WT[2]);
+                        if (!(Zone->GetImmersion(World) > 0.0))
+                            continue;
+                        if (ExclusionMgr != nullptr)
+                        {
+                            Exclusion::NebulaExclusionZone* HitZone = nullptr;
+                            float Depth = -1.0f;
+                            if (ExclusionMgr->is_in_exclusion_zone(World, &HitZone, &Depth, true) &&
+                                Depth > kCloudsExclusionDepth)
+                                continue;
+                        }
+                        FNebulaLayerPuff Puff;
+                        Puff.Key = Key;
+                        Puff.Pos[0] = World.x;
+                        Puff.Pos[1] = World.y;
+                        Puff.Pos[2] = World.z;
+                        Puff.DistSq = static_cast<float>(Dist);
+                        Cands.push_back(Puff);
+                    }
+                }
+            }
+        }
+
+        // More candidates than slots: the nearest win.
+        if (static_cast<int>(Cands.size()) > Count)
+        {
+            std::nth_element(Cands.begin(), Cands.begin() + Count, Cands.end(),
+                             [](FNebulaLayerPuff const& L, FNebulaLayerPuff const& Rr) { return L.DistSq < Rr.DistSq; });
+            Cands.resize(static_cast<size_t>(Count));
+        }
+
+        // Stable slots: a slot whose puff is still a candidate keeps it, the rest are freed and
+        // refilled by the new candidates.
+        static std::unordered_map<uint64_t, size_t> S_Index;
+        static std::vector<char> S_Used;
+        S_Index.clear();
+        for (size_t I = 0; I < Cands.size(); ++I)
+            S_Index[Cands[I].Key] = I;
+        S_Used.assign(Cands.size(), 0);
+        for (int I = 0; I < Count; ++I)
+        {
+            uint64_t& Key = Slots[static_cast<size_t>(I)];
+            if (Key == 0)
+                continue;
+            auto const Found = S_Index.find(Key);
+            if (Found == S_Index.end())
+            {
+                Key = 0;
+                continue;
+            }
+            S_Used[Found->second] = 1;
+            memcpy(Table[I], Cands[Found->second].Pos, sizeof(float) * 3);
+        }
+        size_t Next = 0;
+        for (int I = 0; I < Count; ++I)
+        {
+            uint64_t& Key = Slots[static_cast<size_t>(I)];
+            if (Key != 0)
+                continue;
+            while (Next < Cands.size() && S_Used[Next] != 0)
+                ++Next;
+            if (Next >= Cands.size())
+                break;
+            Key = Cands[Next].Key;
+            memcpy(Table[I], Cands[Next].Pos, sizeof(float) * 3);
+            S_Used[Next] = 1;
+        }
+        int Active = 0;
+        for (int I = 0; I < Count; ++I)
+        {
+            unsigned char* const Puff = Table[I];
+            if (Slots[static_cast<size_t>(I)] == 0)
+            {
+                Puff[0x50] = 0;
+                continue;
+            }
+            Puff[0x50] = 1;
+            Puff[0x51] = 0;
+            *reinterpret_cast<float*>(Puff + 0x44) = 0.0f;
+            *reinterpret_cast<float*>(Puff + 0x48) = 0.0f;
+            *reinterpret_cast<float*>(Puff + 0x4c) = 0.0f;
+            *reinterpret_cast<float*>(Puff + 0x38) = -1.0f; // no drift
+            *reinterpret_cast<float*>(Puff + 0x3c) = 0.0f;  // no wisp
+            ++Active;
+        }
+        *reinterpret_cast<int*>(C + 0x14) = Active;
+        return true;
+    }
+#endif
+
     // FUN_00506f00 (thiscall, RET 4): FUN_005501e0, then free when bit 0 of the flags is set.
     // No test of `this`.
     void LocalNebulaCloudsDestroy(FNebulaClouds* Clouds, unsigned char Flags)
     {
 #ifdef FREELANCER_PARTICLE_FX
         G_CloudsPortParams.erase(Clouds);
+#endif
+#ifdef FREELANCER_RP9
+        NebulaLayerSlots().erase(Clouds);
 #endif
         LocalNebulaCloudsReleaseBits(Clouds);
         if ((Flags & 1u) != 0)
@@ -1189,6 +1555,44 @@ namespace
             else if (Reader.is_value("puff_spin"))
             {
                 CloudsPortParamsFor(Clouds).SpinDegPerSec = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("puff_rotation_step"))
+            {
+                CloudsPortParamsFor(Clouds).RotationStep = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("puff_rotation_range"))
+            {
+                CloudsPortParamsFor(Clouds).RotationRange = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("layer"))
+            {
+                CloudsPortParamsFor(Clouds).bLayer = Reader.get_value_float(0) != 0.0f;
+            }
+            else if (Reader.is_value("layer_cell"))
+            {
+                CloudsPortParamsFor(Clouds).LayerCell = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("layer_density"))
+            {
+                CloudsPortParamsFor(Clouds).LayerDensity = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("layer_clump_softness"))
+            {
+                CloudsPortParamsFor(Clouds).LayerClumpSoftness = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("layer_clump_size"))
+            {
+                CloudsPortParamsFor(Clouds).LayerClumpSize = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("layer_clump_coverage"))
+            {
+                CloudsPortParamsFor(Clouds).LayerClumpCoverage = Reader.get_value_float(0);
+            }
+            else if (Reader.is_value("layer_wind"))
+            {
+                FCloudsPortParams& Params = CloudsPortParamsFor(Clouds);
+                for (int Axis = 0; Axis < 3; ++Axis)
+                    Params.LayerWind[Axis] = Reader.get_value_float(Axis);
             }
             else if (Reader.is_value("soft_fade"))
             {
@@ -3276,9 +3680,22 @@ void FNebulaEffect::Update(void* Camera, float Dt)
     if (Depth < 300.0)
     {
         FNebulaCloudsListNode* const CloudSent = Nebula->Clouds.Sentinel;
+#ifdef FREELANCER_RP9
+        // Port-only (port.ini [Render] nebula_puff_layer): puffs placed in the world instead of
+        // on a sphere that travels with the camera; false = the retail update below.
+        static int const S_PuffLayer = PortConfigInt("Render", "nebula_puff_layer", 1);
+#endif
         for (FNebulaCloudsListNode* N = CloudSent->Next; N != CloudSent; N = N->Next)
+        {
+#ifdef FREELANCER_RP9
+            if (S_PuffLayer != 0 &&
+                NebulaLayerUpdate(Nebula, N->Clouds, Camera, Dt, *reinterpret_cast<float*>(B + 0x294),
+                                  Nebula->ExclusionMgr))
+                continue;
+#endif
             NebulaCloudsUpdate(N->Clouds, Camera, Dt, *reinterpret_cast<float*>(B + 0x294),
                                Nebula->ExclusionMgr);
+        }
     }
 
     // 005072ef..00507309: fully inside (TEST AH,0x1 / JNZ skips < and unordered), the ambient

@@ -64,6 +64,15 @@ struct FCloudsPortParams
     float DepthTintFar;
     float ScatterStrength;  // sun_scatter (0 = off)
     float ScatterG;         // sun_scatter 2nd value, forward bias -0.9..0.9
+    float RotationStep;     // puff_rotation_step (degrees; < 0 = not set, use port.ini)
+    float RotationRange;    // puff_rotation_range (degrees; < 0 = not set, use port.ini)
+    bool bLayer;            // layer (0 = this clouds object keeps the retail sphere of puffs)
+    float LayerCell;        // layer_cell (metres; < 0 = not set, from the puff size)
+    float LayerDensity;     // layer_density (< 0 = not set, 1.5)
+    float LayerClumpSize;   // layer_clump_size (metres; < 0 = not set)
+    float LayerClumpCoverage; // layer_clump_coverage (< 0 = not set, 0.5)
+    float LayerClumpSoftness; // layer_clump_softness (half-width of the clump edge on the noise; <= 0 = default 0.05)
+    float LayerWind[3];     // layer_wind (m/s)
 };
 // Null when the clouds' [Clouds] section had none of the keys.
 FCloudsPortParams const* NebulaCloudsPortParams(FNebulaClouds const* Clouds);

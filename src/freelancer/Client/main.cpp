@@ -139,7 +139,11 @@ namespace
         const DWORD Code = Info->ExceptionRecord->ExceptionCode;
         if (Code == 0x80000003 || Code == 0x80000004)
             return 0;
-        PortCrashDump::Write(Info); // port-only: dump + call-stack report in CRASHDUMPS
+        // Port-only: dump + call-stack report in CRASHDUMPS. Written, the process ends here:
+        // the hand-over to Dr. Watson below waits on dw15.exe, which hung the dead process
+        // (a crash in the atexit teardown left it running with no window).
+        if (PortCrashDump::Write(Info))
+            TerminateProcess(GetCurrentProcess(), Code);
 
         // 0x005a552d..0x005a5555: guarded by its own __try with a filter that returns 1.
         __try

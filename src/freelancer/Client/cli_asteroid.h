@@ -318,6 +318,34 @@ void CliAsteroidLightAround(FCliAsteroid* Field, FSpaceCamera* Cam, float Scale)
 #ifdef FREELANCER_RP9
 void CliAsteroidBeginVolumeFrame();
 void CliAsteroidDrawTransparentFields(FSpaceCamera* Cam);
+// Port-only [DynamicAsteroids] band_thickness of a manager (0 = none), cli_asteroid_dynamic.cpp.
+float CliDynamicAsteroidBandThickness(FCliDynamicAsteroid const* This);
+
+// Port-only far rocks (far_rocks.cpp): what a field's other sections say, for the defaults of its
+// [FarRocks] look. Lengths in metres, colours 0..1.
+struct FCliAsteroidFarInfo
+{
+    Universe::IZone const* Zone;
+    bool bHasBand;               // [Band]
+    float BandFade[4];           // the band's fade distances after they were multiplied by height
+    float BandColor[3];          // color_shift
+    float BandAmbient;           // ambient_intensity
+    bool bHasBillboards;         // [AsteroidBillboards]
+    float BillboardCentre;       // Float04: the distance of the rock sphere's centre ahead
+    float BillboardRadius;       // Float00: its fade radius
+    float BillboardColor[3];     // color_shift
+    float FillDist;              // fill_dist * the detail scale
+    float CubeSize;
+    bool bHasCubes;              // the cube mesh has any triangles
+    float MaxPlacementRadius;    // largest [DynamicAsteroids] placement_radius
+    float MaxBandThickness;      // largest [DynamicAsteroids] band_thickness
+    float Diffuse[3];            // the field's diffuse tint
+    float Ambient[3];            // the field's ambient tint
+    bool bFogZone;               // contains_fog_zone
+    int ExclusionCount;
+    Universe::IZone const* Exclusion[16];
+};
+bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out);
 #endif
 
 // FUN_00522070 (thiscall on the field, RET 8) -- the per-frame update: the nebula lookup once,

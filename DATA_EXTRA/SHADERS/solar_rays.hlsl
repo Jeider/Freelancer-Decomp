@@ -22,8 +22,10 @@ float4 PSMain(FFullscreenVertex In) : COLOR0
     float2 Delta=In.TexCoord-Sun.xy;
     float2 Metric=Delta*float2(Tint.w,1);
     float Distance=length(Metric);
-    // Finite screen reach; never brighten opaque hulls or the cockpit itself.
-    float Envelope=saturate(1-Distance/0.65);
+    // A moderate reach, wider for a bigger disc (giants glow wider, dwarfs stay compact): enough
+    // background glow for the shafts cut by geometry to read. Never brighten opaque hulls or the
+    // cockpit itself.
+    float Envelope=saturate(1-Distance/(0.35+3.0*Sun.z));
     [branch] if(Envelope<=0 || Sky(In.TexCoord)<0.5) return 0;
     float Sum=0;
     // Integrate the visible solar disc along the radial line. Different rays
@@ -36,9 +38,10 @@ float4 PSMain(FFullscreenVertex In) : COLOR0
         float Disc=exp2(-dot(R,R)/max(Sun.z*Sun.z,0.000004)*2);
         Sum+=Disc*Sky(Uv);
     }
-    float Angle=atan2(Metric.y,Metric.x);
-    float Spokes=pow(abs(cos(Angle*4)),24)+0.4*pow(abs(cos(Angle*7+0.4)),48);
-    float Rays=Sum*(1.0/64.0)*Envelope*Envelope*Sun.w*(0.45+Spokes*2);
+    // No spokes of its own: a soft glow, and shafts where something stands in front of the
+    // disc. The star's spikes are its own [spines], drawn by the retail path.
+    // Restrained, but bright enough behind geometry for its shafts to show.
+    float Rays=Sum*(1.0/64.0)*Envelope*Envelope*Sun.w*0.5;
     return float4(Tint.rgb*Rays,0);
 }
 

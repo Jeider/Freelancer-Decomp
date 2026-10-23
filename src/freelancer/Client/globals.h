@@ -162,6 +162,8 @@ LRESULT CALLBACK ClientWndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam
 bool ClientPresentAllowed();
 // DAT_00610865 — latched by FUN_00424c60 on WM_ACTIVATEAPP.
 bool ClientAppIsActive();
+// Port-only: a windowed game keeps running without the focus ([Window] background_run).
+bool ClientRunsInBackground();
 // FUN_00424cb0 -- DAT_00610865 && DAT_00610864 && DAT_006679f8. Callers: the loading screen's
 // Update (0x00578f8b) and WndProc's SC_CLOSE (0x005b2727).
 bool RenderMgrFrameReady();

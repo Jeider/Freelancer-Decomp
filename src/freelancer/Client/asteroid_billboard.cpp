@@ -19,6 +19,10 @@
 #include "texture_shapes.h"
 
 #include "DALib.h"
+#ifdef FREELANCER_RP9
+#include "common_csys.h"  // Acquire3DMathEngine
+#include "x86math.h"      // FTransform, FVector, I3DMathEngine::TransformXform
+#endif
 #include "common_ini.h"
 #include "common_misc.h"
 #include "common_net.h"
@@ -28,6 +32,14 @@
 
 #include <math.h>
 #include <string.h>
+#ifdef FREELANCER_RP9
+#include <algorithm>
+#include <stdlib.h>
+#include <unordered_map>
+#include <vector>
+#include "port_config.h"
+#include "solar_spheres.h"
+#endif
 
 namespace
 {
@@ -717,6 +729,103 @@ void BillboardEmitRock(FAsteroidBillboardBlock* /*Bb*/, FAsteroidBillboardRock* 
     Batch.Vertex(Apex[0], Apex[1], Apex[2]);
 }
 
+#ifdef FREELANCER_RP9
+namespace
+{
+    // Port-only band mode state, beside the block (whose size is fixed), keyed by it.
+    struct FBillboardBand
+    {
+        float Thickness = 0.0f; // half-height of the slab around the zone's plane; 0 = no band
+        float Near = 0.0f;      // horizontal distance inside which no rock lies; 0 = the retail start
+        bool bExplicitThickness = false; // from the ini (a value of 0 or less forces the band off)
+        bool bExplicitNear = false;
+        bool bScattered = false; // the rocks have been spread over the slab once
+    };
+
+    std::unordered_map<FAsteroidBillboardBlock const*, FBillboardBand>& BillboardBands()
+    {
+        // Never destroyed: the client's atexit teardown (StarSysLeave -> CliAsteroidDestruct)
+        // runs after function statics are gone and still forgets its bands here.
+        static auto* const S_Bands = new std::unordered_map<FAsteroidBillboardBlock const*, FBillboardBand>();
+        return *S_Bands;
+    }
+
+    double BandRand()
+    {
+        return rand() / 32768.0;
+    }
+
+    // The zone's plane as the dynamic asteroids use it: origin, normal = local Y, in-plane U / V.
+    void BandPlane(Universe::IZone* Zone, float* O, float* N, float* U, float* V)
+    {
+        O[0] = 0.0f; O[1] = 0.0f; O[2] = 0.0f;
+        N[0] = 0.0f; N[1] = 1.0f; N[2] = 0.0f;
+        U[0] = 1.0f; U[1] = 0.0f; U[2] = 0.0f;
+        V[0] = 0.0f; V[1] = 0.0f; V[2] = 1.0f;
+        FTransform ZoneXf;
+        static_assert(sizeof(FTransform) == sizeof(Transform), "FTransform matches Transform");
+        memcpy(&ZoneXf, &Zone->GetTransform(), sizeof(ZoneXf));
+        I3DMathEngine* const Math = Acquire3DMathEngine();
+        FVector const Local[4] = {{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+        FVector World[4];
+        for (int K = 0; K < 4; ++K)
+            Math->TransformXform(World[K], ZoneXf, Local[K]);
+        O[0] = World[0].X;
+        O[1] = World[0].Y;
+        O[2] = World[0].Z;
+        float const NRaw[3] = {World[2].X - O[0], World[2].Y - O[1], World[2].Z - O[2]};
+        float const URaw[3] = {World[1].X - O[0], World[1].Y - O[1], World[1].Z - O[2]};
+        float const NLength = sqrtf(NRaw[0] * NRaw[0] + NRaw[1] * NRaw[1] + NRaw[2] * NRaw[2]);
+        if (NLength > 0.0f)
+            for (int K = 0; K < 3; ++K)
+                N[K] = NRaw[K] / NLength;
+        // U re-orthogonalised against N, V = N x U.
+        float const UN = URaw[0] * N[0] + URaw[1] * N[1] + URaw[2] * N[2];
+        float const UOrtho[3] = {URaw[0] - N[0] * UN, URaw[1] - N[1] * UN, URaw[2] - N[2] * UN};
+        float const ULength = sqrtf(UOrtho[0] * UOrtho[0] + UOrtho[1] * UOrtho[1] + UOrtho[2] * UOrtho[2]);
+        if (ULength > 0.0f)
+        {
+            for (int K = 0; K < 3; ++K)
+                U[K] = UOrtho[K] / ULength;
+            V[0] = N[1] * U[2] - N[2] * U[1];
+            V[1] = N[2] * U[0] - N[0] * U[2];
+            V[2] = N[0] * U[1] - N[1] * U[0];
+        }
+    }
+}
+
+void BillboardSetBandIni(FAsteroidBillboardBlock* Bb, float Thickness, float Near)
+{
+    // A fresh read of the ini replaces whatever the block had.
+    FBillboardBand Band;
+    if (Thickness != 0.0f)
+    {
+        Band.Thickness = Thickness > 0.0f ? Thickness : 0.0f;
+        Band.bExplicitThickness = true;
+    }
+    if (Near > 0.0f)
+    {
+        Band.Near = Near;
+        Band.bExplicitNear = true;
+    }
+    BillboardBands()[Bb] = Band;
+}
+
+void BillboardLinkDynamicBand(FAsteroidBillboardBlock* Bb, float Thickness, float PlacementRadius)
+{
+    FBillboardBand& Band = BillboardBands()[Bb];
+    if (!Band.bExplicitThickness)
+        Band.Thickness = Thickness;
+    if (!Band.bExplicitNear)
+        Band.Near = Thickness > 0.0f ? PlacementRadius : 0.0f;
+}
+
+void BillboardForgetBand(FAsteroidBillboardBlock const* Bb)
+{
+    BillboardBands().erase(Bb);
+}
+#endif
+
 void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
                    Exclusion::AsteroidExclusionZoneMgr* Excl, int ExcludeType)
 {
@@ -809,6 +918,81 @@ void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
     double const InvFadeSq = 1.0 / FadeSq;
     double const InnerSq = RadiusSq - FadeSq;
 
+#ifdef FREELANCER_RP9
+    // Port-only band mode: the rocks lie in a slab of +-Thickness around the zone's plane, spread
+    // over the horizontal distances Near..Far from the camera's foot on the plane.
+    FBillboardBand* Band = nullptr;
+    {
+        auto const BandIt = BillboardBands().find(Bb);
+        if (BandIt != BillboardBands().end() && BandIt->second.Thickness > 0.0f && Bb->ZoneRef != nullptr)
+            Band = &BandIt->second;
+    }
+    bool const bBand = Band != nullptr;
+    float BandN[3] = {0.0f, 1.0f, 0.0f}, BandU[3] = {1.0f, 0.0f, 0.0f}, BandV[3] = {0.0f, 0.0f, 1.0f};
+    float BandFoot[3] = {0.0f, 0.0f, 0.0f};
+    float BandNear = 0.0f, BandFar = 0.0f, BandThickness = 0.0f;
+    bool bBandOut = false;     // the camera is farther from the plane than the rocks reach
+    bool bBandScatter = false; // spread every rock over the slab this frame
+    if (bBand)
+    {
+        float BandO[3];
+        BandPlane(Bb->ZoneRef, BandO, BandN, BandU, BandV);
+        BandThickness = Band->Thickness;
+        BandFar = Bb->Float04 + Bb->Float00;
+        BandNear = Band->Near > 0.0f ? Band->Near : Bb->Float04 - Bb->Float00;
+        BandNear = (std::max)(0.0f, (std::min)(BandNear, BandFar * 0.9f));
+        float const Height = (CamPos[0] - BandO[0]) * BandN[0] + (CamPos[1] - BandO[1]) * BandN[1] +
+                             (CamPos[2] - BandO[2]) * BandN[2];
+        for (int K = 0; K < 3; ++K)
+            BandFoot[K] = CamPos[K] - BandN[K] * Height;
+        bBandOut = fabsf(Height) > BandFar;
+        bBandScatter = !bBandOut && (bScatterAll != 0 || !Band->bScattered);
+        if (!bBandOut)
+            Band->bScattered = true;
+    }
+    // A rock at horizontal distance Dist from the foot, a random angle round the normal, and a
+    // height off the plane within +-Thickness, denser at the plane (triangular).
+    auto BandPlace = [&](FAsteroidBillboardRock* Rock, float Dist)
+    {
+        double const Angle = BandRand() * 6.283185307179586;
+        float const Cos = static_cast<float>(cos(Angle)) * Dist;
+        float const Sin = static_cast<float>(sin(Angle)) * Dist;
+        float const T = BandThickness * static_cast<float>(BandRand() + BandRand() - 1.0);
+        for (int K = 0; K < 3; ++K)
+            Rock->Pos[K] = BandFoot[K] + BandU[K] * Cos + BandV[K] * Sin + BandN[K] * T;
+    };
+    // The retail visibility tests (zone immersion, exclusion zones, Phase vs depth / density).
+    auto BandVisibility = [&](FAsteroidBillboardRock* Rock)
+    {
+        Vector const& RockPos = *reinterpret_cast<Vector const*>(Rock->Pos);
+        if (Bb->ZoneRef->GetImmersion(RockPos) == 0.0f)
+        {
+            Rock->bVisible = 0;
+            return;
+        }
+        Rock->bVisible = 1;
+        if (Excl == nullptr)
+            return;
+        float ExclusionDepth = -1.0f;
+        if (Excl->is_excluded(RockPos, static_cast<Exclusion::ExcludeObjectType>(ExcludeType),
+                              &ExclusionDepth))
+        {
+            Rock->bVisible = 0;
+            return;
+        }
+        if (ExclusionDepth > 0.0f)
+        {
+            if (Rock->Phase > ExclusionDepth)
+                Rock->bVisible = 0;
+        }
+        else
+        {
+            if (Rock->Phase > Bb->DensityScale)
+                Rock->bVisible = 0;
+        }
+    };
+#endif
+
     IRenderPipeline* const Pipe = DALib::Pipeline;
     // 0x0054ec35..0x0054ec42: SetModelview(camera slot 16).
     Pipe->SetModelview(Cam->GetViewTransform());
@@ -831,6 +1015,14 @@ void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
 
     // 0x0054edf6..0x0054ee3a: FUN_0054f9c0 inlined; three vertices per rock.
     int Deferred = 0;
+#ifdef FREELANCER_RP9
+    // Port-only: a rock in a planet's shadow keeps only billboard_shadow_floor of its colour. The
+    // factor is made once per rock where its alpha is final; the blended pass reuses it.
+    static float const S_ShadowFloor =
+        (std::max)(0.0f, (std::min)(1.0f, PortConfigFloat("Render", "billboard_shadow_floor", 0.15f)));
+    static std::vector<float> S_RockLit;
+    S_RockLit.assign(static_cast<size_t>((std::max)(Bb->RockCount, 0)), 1.0f);
+#endif
     int const VertexTotal = Bb->RockCount * 3;
     Batch.Reset();
     if (VertexTotal != 0)
@@ -852,6 +1044,45 @@ void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
                 Vector const& RockPos = *reinterpret_cast<Vector const*>(Rock->Pos);
                 double DistSq = 0.0;
 
+#ifdef FREELANCER_RP9
+                if (bBand)
+                {
+                    if (bBandOut)
+                    {
+                        // Too far from the plane for any rock to reach: nothing this frame, the
+                        // positions kept (the blended pass re-reads the alpha).
+                        Rock->Alpha = 0.0f;
+                        continue;
+                    }
+                    if (bBandScatter)
+                    {
+                        // Area-uniform over the annulus Near..Far.
+                        double const NearSq = static_cast<double>(BandNear) * BandNear;
+                        double const FarSq = static_cast<double>(BandFar) * BandFar;
+                        BandPlace(Rock, static_cast<float>(sqrt(NearSq + BandRand() * (FarSq - NearSq))));
+                        BandVisibility(Rock);
+                    }
+                    else
+                    {
+                        float const Rel[3] = {Rock->Pos[0] - CamPos[0], Rock->Pos[1] - CamPos[1],
+                                              Rock->Pos[2] - CamPos[2]};
+                        float const Lift = Rel[0] * BandN[0] + Rel[1] * BandN[1] + Rel[2] * BandN[2];
+                        float const Flat[3] = {Rel[0] - BandN[0] * Lift, Rel[1] - BandN[1] * Lift,
+                                               Rel[2] - BandN[2] * Lift};
+                        float const Horizontal =
+                            sqrtf(Flat[0] * Flat[0] + Flat[1] * Flat[1] + Flat[2] * Flat[2]);
+                        if (Horizontal > BandFar * 1.02f || Horizontal < BandNear * 0.5f)
+                        {
+                            // Respawned at the far edge, invisible (alpha 0) for this frame.
+                            BandPlace(Rock, BandFar);
+                            Rock->Alpha = 0.0f;
+                            BandVisibility(Rock);
+                            continue;
+                        }
+                    }
+                }
+                else
+#endif
                 if (bScatterAll != 0)
                 {
                     // 0x0054eecf..0x0054ef2b: anywhere inside the sphere.
@@ -958,6 +1189,29 @@ void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
                     static_cast<double>(Rock->Pos[1] - CamPos[1]) * Forward[1];
                 float const Depth = static_cast<float>(DepthD);
 
+#ifdef FREELANCER_RP9
+                if (bBand)
+                {
+                    // Far ramp over the fade band, near ramp crossfading with the dynamic
+                    // asteroids' fade-out; the retail depth planes do not apply.
+                    double const Dx = static_cast<double>(Rock->Pos[0]) - CamPos[0];
+                    double const Dy = static_cast<double>(Rock->Pos[1]) - CamPos[1];
+                    double const Dz = static_cast<double>(Rock->Pos[2]) - CamPos[2];
+                    double const Dist = sqrt(Dx * Dx + Dy * Dy + Dz * Dz);
+                    double const FarRamp = (std::max)(0.0, (std::min)(1.0,
+                        (BandFar - Dist) / (std::max)(static_cast<double>(Bb->Float2C), 1.0)));
+                    double NearRamp = 1.0;
+                    double const Edge0 = static_cast<double>(BandNear) * 0.85;
+                    double const Edge1 = static_cast<double>(BandNear);
+                    if (Edge1 > Edge0)
+                    {
+                        double const S = (std::max)(0.0, (std::min)(1.0, (Dist - Edge0) / (Edge1 - Edge0)));
+                        NearRamp = S * S * (3.0 - 2.0 * S);
+                    }
+                    Rock->Alpha = static_cast<float>(FarRamp * NearRamp);
+                }
+                else
+#endif
                 if (DepthD > Bb->Float04)
                 {
                     // 0x0054f03d..0x0054f0a0: beyond the sphere centre the fade band narrows
@@ -990,6 +1244,9 @@ void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
                 if (Rock->Alpha < 0.02f)
                     continue;
                 // 0x0054f25b..0x0054f2b3: the near fade planes (FUN_0054feb0's Float40/Float44).
+#ifdef FREELANCER_RP9
+                if (!bBand)
+#endif
                 if (Depth < Bb->Float40)
                 {
                     if (Depth < Bb->Float44)
@@ -999,6 +1256,10 @@ void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
                             (static_cast<double>(Depth) - Bb->Float44) /
                             (static_cast<double>(Bb->Float40) - Bb->Float44) * Rock->Alpha);
                 }
+#ifdef FREELANCER_RP9
+                if (S_ShadowFloor < 1.0f)
+                    S_RockLit[RockIndex] = S_ShadowFloor + (1.0f - S_ShadowFloor) * SolarSunlitAt(Rock->Pos);
+#endif
                 // 0x0054f2b5..0x0054f2d0: translucent rocks wait for the blended pass.
                 if (Rock->Alpha < 1.0f)
                 {
@@ -1013,7 +1274,16 @@ void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
                     static_cast<int>(Bb->Rocks[0].bFlipU) + static_cast<int>(Rock->bFlipV) * 2;
                 float const* const Pick = PickCorner(Index, Corner0, Corner1, Corner2, Corner3);
                 float CornerColor[3] = {Pick[0], Pick[1], Pick[2]};
+#ifdef FREELANCER_RP9
+                float const Lit = S_RockLit[RockIndex];
+                float LitCenter[3] = {CenterColor[0] * Lit, CenterColor[1] * Lit, CenterColor[2] * Lit};
+                CornerColor[0] *= Lit;
+                CornerColor[1] *= Lit;
+                CornerColor[2] *= Lit;
+                BillboardEmitRock(Bb, Rock, Right, Bb->Up, CornerColor, LitCenter);
+#else
                 BillboardEmitRock(Bb, Rock, Right, Bb->Up, CornerColor, CenterColor);
+#endif
             }
 
             BatchFlush(Batch);
@@ -1063,7 +1333,16 @@ void BillboardDraw(FAsteroidBillboardBlock* Bb, FSpaceCamera* Camera,
                             float const* const Pick =
                                 PickCorner(Index, Corner0, Corner1, Corner2, Corner3);
                             float CornerColor[3] = {Pick[0], Pick[1], Pick[2]};
+#ifdef FREELANCER_RP9
+                            float const Lit = S_RockLit[RockIndex];
+                            float LitCenter[3] = {CenterColor[0] * Lit, CenterColor[1] * Lit, CenterColor[2] * Lit};
+                            CornerColor[0] *= Lit;
+                            CornerColor[1] *= Lit;
+                            CornerColor[2] *= Lit;
+                            BillboardEmitRock(Bb, Rock, Right, Bb->Up, CornerColor, LitCenter);
+#else
                             BillboardEmitRock(Bb, Rock, Right, Bb->Up, CornerColor, CenterColor);
+#endif
                         }
 
                         BatchFlush(Batch);

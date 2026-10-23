@@ -159,6 +159,10 @@ float4 AsteroidFade : register(c102);
 // Fog ramp: x start, y inverse length. Hollow backdrop: z inner radius, w inverse edge width
 // in the ellipsoid's unit space; w = 0 preserves solid nebulae.
 float4 Atmosphere : register(c106);
+// Edge veins: x vein_emission, y pulse amplitude, z time * 2 pi * rate, w unused.
+float4 Veins : register(c107);
+float4 ExclusionSkip : register(c108); // xyz camera-relative centre, w radius^2 (0 = none): the
+                                       // camera inside an exclusion zone's clear core
 // The nebula's puff texture: x density weight, y colour weight, z 1 / tile (m), w 1 = bound;
 // PuffTexUv: the shape's atlas rectangle (u0, v0, du, dv).
 float4 PuffTex : register(c103);
@@ -456,6 +460,13 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
     float2 Span = NebulaZoneSpan(Dir, ZoneCentre.xyz, ZoneRow[0].xyz, ZoneRow[1].xyz,
                                  ZoneRow[2].xyz, Halo.w);
     float TStart = max(Span.x, 0.0);
+    // Inside an exclusion zone's clear core: start at the core's wall (the bubble is clear).
+    [branch] if (ExclusionSkip.w > 0.0)
+    {
+        float SkipB = dot(Dir, ExclusionSkip.xyz);
+        float SkipD = SkipB * SkipB - (dot(ExclusionSkip.xyz, ExclusionSkip.xyz) - ExclusionSkip.w);
+        TStart = max(TStart, SkipB + sqrt(max(SkipD, 0.0)));
+    }
     if (Span.y <= TStart)
         return float4(0.0, 0.0, 0.0, 1.0);
     float TFar = min(Span.y, SceneT);
@@ -473,11 +484,11 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
     float Jitter = NebulaInterleavedGradient(TexCoord * TargetSize.xy) * March.w + 0.5 * (1.0 - March.w);
 
     // Level of detail by the distance to the zone entry (0 from inside).
-    float LodF = saturate((TStart - Lod.x) * Lod.y);
+    float LodF = saturate((max(Span.x, 0.0) - Lod.x) * Lod.y); // the real zone entry, not the exclusion skip
     bool bHalfShadow = LodF >= Lod.w;
     // The large-scale haze shadow toward the key light, faded in with the entry distance (0
     // from inside, where the owner-tuned look has none).
-    float MacroWeight = saturate(TStart * Budget.w);
+    float MacroWeight = saturate(max(Span.x, 0.0) * Budget.w);
 
     // The ray's span through the exclusion zones' bounding spheres (nearest first): the
     // exclusion loop runs only there and only over the zones up to the last one hit.
@@ -621,7 +632,9 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
 
             // Key-light shadow: optical depth of the base-shape clouds toward the light, in
             // exponentially growing steps (the weights carry sigma, density and length); far
-            // away the pair-merged half set.
+            // away the pair-merged half set. A zero weight ends the set (shadow_steps below the
+            // maximum: the unused samples were fetched for nothing). A cheaper set for haze-only
+            // samples does not fit ps_3_0's temp registers.
             float Tau = 0.0;
             if (bKey)
             {
@@ -630,6 +643,8 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
                     [loop] for (int Half = 0; Half < NEBULA_SHADOW_STEPS_HALF; ++Half)
                     {
                         float4 HalfSample = ShadowStepHalf[Half];
+                        if (HalfSample.y <= 0.0)
+                            break;
                         Tau += NebulaBaseCloud(Warped + KeyDirNoise.xyz * HalfSample.x) *
                                HalfSample.y;
                     }
@@ -639,6 +654,8 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
                     [loop] for (int Shadow = 0; Shadow < NEBULA_SHADOW_STEPS; ++Shadow)
                     {
                         float4 ShadowSample = ShadowStep[Shadow];
+                        if (ShadowSample.y <= 0.0)
+                            break;
                         Tau += NebulaBaseCloud(Warped + KeyDirNoise.xyz * ShadowSample.x) *
                                ShadowSample.y;
                     }
@@ -664,8 +681,10 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
             float KeyTerm = Phase0 * ShadowT + Phase1 * exp(-Tau * Ext1) + Phase2 * exp(-Tau * Ext2);
             float Powder = lerp(1.0, 1.0 - exp(-Cloud * PuffColourA.w), PowderMix);
             float3 Albedo = PuffColourA.rgb + PuffColourDelta.rgb * ColourNoise;
+            float VeinGlow = 4.0 * Cloud * (1.0 - Cloud);
             float3 CloudRadiance = Albedo * (Key * (KeyTerm * Powder) + Ambient.rgb * Occlusion) +
-                                   CloudEmission.rgb;
+                                   CloudEmission.rgb * (1.0 + Veins.x * VeinGlow *
+                                   (1.0 + Veins.y * sin(Veins.z + ColourNoise * 6.2832)));
             float3 HazeRadiance = HazeAlbedo.rgb * (Key * (Phase0 * ShadowT) + Ambient.rgb * Occlusion) +
                                   HazeEmission.rgb;
             float3 Radiance = (SigmaH * HazeRadiance + SigmaC * CloudRadiance) / Sigma;

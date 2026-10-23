@@ -41,6 +41,13 @@
 #include "part_cache.h"
 #include "space_camera.h"
 #include "space_camera_game.h"
+#include "solar_spheres.h"
+#ifdef FREELANCER_RP9
+#include "far_rocks.h"    // FarRocksDrawAll (port-only)
+#include "field_dust.h"   // FieldDustDraw (port-only)
+#include "space_layers.h" // SpaceLayersDraw (port-only)
+#include "space_haze.h"   // SpaceHazeDraw (port-only)
+#endif
 #include "player_behavior.h"
 #include "player_spawn.h"
 #include "perf_options.h"
@@ -126,6 +133,10 @@ namespace
     constexpr float kNearBucketDistSq = 40000.0f;
     // DAT_006164d0 default (FUN_00410130); distance gate in FUN_0051f2c0.
     float G_SpaceDrawRange = 20000.0f;
+#ifdef FREELANCER_RP9
+    // Port-only: the field controller's exclusion shell waits for the volumetric composite.
+    bool GbExclusionShellAfterVolume = false;
+#endif
 
     // The queue's nodes are retail's ZItem family (RTTI: abstract base `Zitem`, TD 0x00613678,
     // no COL / vftable of its own; four leaves, each CHD {leaf, Zitem}). Two slots each; the
@@ -2108,7 +2119,20 @@ namespace
                 if(PlanetEclipseShipShadow(Go,Eclipse))
                     Shadows->AddLocalShadowEclipse(&Center.x,Radius,Eclipse[0],Eclipse[1]);
                 else
-                    Shadows->AddLocalShadowPlanet(&Center.x,Radius);
+                {
+                    // Port-only: a ringed planet's shadow reaches its ring (the long eclipse).
+                    float RingReach=SolarRingShadowReach(&Center.x,Radius);
+                    float SunSphere[4];
+                    if(RingReach>0 && FindSystemSunSphere(SunSphere))
+                    {
+                        double Sx=(double)SunSphere[0]-Center.x,Sy=(double)SunSphere[1]-Center.y,Sz=(double)SunSphere[2]-Center.z;
+                        double SunDistance=std::sqrt(Sx*Sx+Sy*Sy+Sz*Sz);
+                        Shadows->AddLocalShadowEclipse(&Center.x,Radius,RingReach,
+                            SunDistance>1 ? (float)(SunSphere[3]/SunDistance) : 0.05f);
+                    }
+                    else
+                        Shadows->AddLocalShadowPlanet(&Center.x,Radius);
+                }
                 continue;
             }
             if(!(Radius>0) || !std::isfinite(Radius)) continue;
@@ -2353,28 +2377,6 @@ namespace
         return Pairs;
     }
 
-    // The solid sphere of a solar (its archetype's solar_radius when set, else the render extent).
-    bool PlanetSphere(FClientGameobj* Go, float* Out)
-    {
-        if (Go == nullptr || Go->Object == nullptr)
-            return false;
-        Vector Center;
-        float Radius = Go->Slot178(Center);
-        auto* Arch = static_cast<Archetype::Solar*>(Go->Object->get_archetype());
-        if (Arch != nullptr && Arch->SolarRadius > 0 && std::isfinite(Arch->SolarRadius))
-        {
-            Radius = Arch->SolarRadius;
-            Center = Go->get_position();
-        }
-        if (!(Radius > 0) || !std::isfinite(Radius))
-            return false;
-        Out[0] = Center.x;
-        Out[1] = Center.y;
-        Out[2] = Center.z;
-        Out[3] = Radius;
-        return true;
-    }
-
     // One FLSpew line per distinct eclipse outcome (receiver, stage), so a missing shadow can be traced.
     void LogPlanetEclipse(unsigned Receiver, int Stage, char const* Text, float const* A = nullptr,
                           float const* B = nullptr)
@@ -2387,19 +2389,6 @@ namespace
               B ? B[0] : 0.0f, B ? B[1] : 0.0f, B ? B[2] : 0.0f, B ? B[3] : 0.0f);
     }
 
-    bool FindSystemSun(float* Out)
-    {
-        int const SolarKind = 2;
-        for (FClientGameobj* Solar = ClientObjDb_GetKindHead(&SolarKind); Solar != nullptr; Solar = Solar->ListNext)
-        {
-            unsigned Type = 0;
-            Solar->get_type(Type);
-            if ((Type & 4u) != 0 && PlanetSphere(Solar, Out))
-                return true;
-        }
-        return false;
-    }
-
     bool PlanetEclipseShipShadow(FClientGameobj* Go, float* Out)
     {
         if (Go == nullptr)
@@ -2410,12 +2399,14 @@ namespace
             if (Pair.Caster != Id)
                 continue;
             float Caster[4], Receiver[4], Sun[4];
-            if (!PlanetSphere(Go, Caster) || !PlanetSphere(ClientObjDb_FindObject(Pair.Receiver, 2), Receiver) ||
-                !FindSystemSun(Sun))
+            if (!SolarSphere(Go, Caster) || !SolarSphere(ClientObjDb_FindObject(Pair.Receiver, 2), Receiver) ||
+                !FindSystemSunSphere(Sun))
                 return false;
             float const Rx = Receiver[0] - Caster[0], Ry = Receiver[1] - Caster[1], Rz = Receiver[2] - Caster[2];
             float const Sx = Sun[0] - Caster[0], Sy = Sun[1] - Caster[1], Sz = Sun[2] - Caster[2];
-            Out[0] = std::sqrt(Rx * Rx + Ry * Ry + Rz * Rz) + Receiver[3];
+            // To the receiver's far side, and on across its ring when it carries one.
+            Out[0] = std::sqrt(Rx * Rx + Ry * Ry + Rz * Rz) + Receiver[3] +
+                     SolarRingShadowReach(Receiver, Receiver[3]);
             Out[1] = Sun[3] / (std::max)(std::sqrt(Sx * Sx + Sy * Sy + Sz * Sz), 1.0f);
             return true;
         }
@@ -2434,28 +2425,18 @@ namespace
                 continue;
             FRPPlanetEclipse Eclipse = {};
             float Receiver[4];
-            if (!PlanetSphere(ClientObjDb_FindObject(Pair.Caster, 2), Eclipse.Caster))
+            if (!SolarSphere(ClientObjDb_FindObject(Pair.Caster, 2), Eclipse.Caster))
             {
                 LogPlanetEclipse(Id, 1, "caster not found");
                 return false;
             }
-            if (!PlanetSphere(Go, Receiver))
+            if (!SolarSphere(Go, Receiver))
             {
                 LogPlanetEclipse(Id, 2, "receiver has no sphere");
                 return false;
             }
             // The system's sun: the first solar of type SUN.
-            int const SolarKind = 2;
-            bool bSun = false;
-            for (FClientGameobj* Solar = ClientObjDb_GetKindHead(&SolarKind); Solar != nullptr && !bSun;
-                 Solar = Solar->ListNext)
-            {
-                unsigned Type = 0;
-                Solar->get_type(Type);
-                if ((Type & 4u) != 0)
-                    bSun = PlanetSphere(Solar, Eclipse.Sun);
-            }
-            if (!bSun)
+            if (!FindSystemSunSphere(Eclipse.Sun))
             {
                 LogPlanetEclipse(Id, 3, "no sun", Eclipse.Caster);
                 return false;
@@ -2463,7 +2444,11 @@ namespace
             float const Dx = Receiver[0] - Eclipse.Caster[0], Dy = Receiver[1] - Eclipse.Caster[1],
                         Dz = Receiver[2] - Eclipse.Caster[2];
             Eclipse.Range = std::sqrt(Dx * Dx + Dy * Dy + Dz * Dz) + Receiver[3];
-            Eclipse.Strength = 1.0f;
+            // [Render] planet_eclipse_strength: how much of the sunlight the caster takes (1 = all,
+            // leaving the system ambient -- nearly black in a dark system; 0.7 keeps 30% of the sun).
+            static const float EclipseStrength =
+                std::fmax(0.0f, std::fmin(1.0f, PortConfigFloat("Render", "planet_eclipse_strength", 0.7f)));
+            Eclipse.Strength = EclipseStrength;
             // RP9 draws planets through a modelview: it needs the camera to bring these to view space.
             ICamera* const Camera = AsCamera(Cam);
             memcpy(Eclipse.View12, Camera->GetViewTransform(), sizeof(Eclipse.View12));
@@ -2640,7 +2625,17 @@ namespace
             // 0x0051fa43..0x0051fa6f: drain 0, FUN_00509f30 (TexturePanels list, slot 5),
             // FUN_00520170, drain 3.
             DrainBucket(Cam, 0, false);
+#ifdef FREELANCER_RP9
+            // Port-only: the field's far look as lit rocks (in place of the retail band), before
+            // the rings, the haze and the near field so they depth-test against it.
+            FarRocksDrawAll(Camera, G_DrawCtxZFar, G_FieldEnclosure);
+#endif
             TexturePanelsDrawAll(Cam);
+#ifdef FREELANCER_RP9
+            // Port-only: the fullscreen haze, then world-anchored sprite layers; not inside a nebula.
+            SpaceHazeDraw(Camera, G_DrawCtxZFar);
+            SpaceLayersDraw(Camera);
+#endif
             CliAsteroidTickFields(Cam);
             DrainBucket(Cam, 3, false);
             return;
@@ -2648,6 +2643,9 @@ namespace
 
         // 0x0051fa72..0x0051fa85: drain 0, drain 3.
         DrainBucket(Cam, 0, false);
+#ifdef FREELANCER_RP9
+        FarRocksDrawAll(Camera, G_DrawCtxZFar, G_FieldEnclosure);
+#endif
         DrainBucket(Cam, 3, false);
 
         // 0x0051fa8a..0x0051fac7: partial enclosure (== 1) -- far, controller vt+0x10, pass far.
@@ -2693,6 +2691,13 @@ namespace
         // 0x0051fb7e..0x0051fbb4: drain 1, controller vt+0x18, FUN_00520170, drain 4, controller
         // vt+0x1c.
         DrainBucket(Cam, 1, false);
+#ifdef FREELANCER_RP9
+        // Port-only: under the volumetric nebula the shell is drawn after the composite (see
+        // the volume below): it writes no depth, so the clouds beyond it were laid over it and
+        // the exclusion bubble's wall vanished.
+        GbExclusionShellAfterVolume = NebulaVolume::ReplacesClouds(G_FieldController);
+        if (!GbExclusionShellAfterVolume)
+#endif
         G_FieldController->DrawExclusionShell(Cam);
         CliAsteroidTickFields(Cam);
         DrainBucket(Cam, 4, false);
@@ -2952,6 +2957,27 @@ namespace
             // 0051c018..0051c032: camera position and view transform (vt+0x0c, vt+0x40).
             float const* const CamPos = Cam->GetPosition();
             FTransform const* const View = (FTransform const*)Cam->GetViewTransform();
+#ifdef FREELANCER_RP9
+            // Port-only: far pieces are painted (no depth test) by their centre's distance, as is
+            // the ring's planet -- a piece whose centre lay beyond the planet's went down first and
+            // the planet covered it, also where it passes in front: a hard seam at the piece's
+            // edge. With the RP9 ring every far piece sorts after its planet; planet_ring.hlsl
+            // clips what lies behind the planet itself.
+            double PlanetKey = -1.0;
+            {
+                Vector const& RingPos = Zone->GetPos();
+                float const RingCentre[3] = {RingPos.x, RingPos.y, RingPos.z};
+                float Planet[4];
+                if (PortConfigInt("Render", "planet_rings", 1) != 0 &&
+                    FindHostPlanetSphere(RingCentre, Zone->GetSize().y, Planet))
+                {
+                    double const Px = static_cast<double>(Planet[0]) - CamPos[0];
+                    double const Py = static_cast<double>(Planet[1]) - CamPos[1];
+                    double const Pz = static_cast<double>(Planet[2]) - CamPos[2];
+                    PlanetKey = (Px * Px + Pz * Pz + Py * Py) * 0.999;
+                }
+            }
+#endif
             for (int Piece = 0; Piece < Pieces; ++Piece)
             {
                 // 0051c038..0051c076: vt+0x20 radius, vt+0x1c centre; a null centre is only
@@ -2986,7 +3012,12 @@ namespace
                 // 0051c0fe..0051c14d: strictly past the threshold -> bucket 2 with the distance.
                 if (DistSq > static_cast<double>(Thresh))
                 {
-                    PushTypedNode(2, kDrawNodeTexturePanelPiece, Panels, static_cast<float>(DistSq),
+                    double FarKey = DistSq;
+#ifdef FREELANCER_RP9
+                    if (PlanetKey >= 0.0 && FarKey > PlanetKey)
+                        FarKey = PlanetKey;
+#endif
+                    PushTypedNode(2, kDrawNodeTexturePanelPiece, Panels, static_cast<float>(FarKey),
                                   static_cast<unsigned>(Piece));
                     continue;
                 }
@@ -3595,8 +3626,18 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
 #ifdef FREELANCER_RP9
     // Port-only: the volumetric nebula over the opaque scene, before the effects (which retail
     // also draws over its fog). The scene above was drawn with near = GetZNear, far = Far.
+    // The field dust first: the nebula then composites over it.
+    FieldDustDraw(Camera, Camera->GetZNear(), Far, G_FieldEnclosure);
     NebulaVolume::Draw(Camera, Camera->GetZNear(), Far);
     NebulaVolume::DrawHybridClouds(Camera);
+    if (GbExclusionShellAfterVolume && G_FieldController != nullptr)
+    {
+        // The exclusion bubble's wall over the dust (deferred above), its batch flushed here.
+        G_FieldController->DrawExclusionShell(Cam);
+        DALib::MaterialBatcher->FlushAll(1u);
+    }
+    GbExclusionShellAfterVolume = false;
+    NebulaShipAuraDraw(Camera);       // the player's ship in the haze
     CliAsteroidDrawTransparentFields(Cam);
 #endif
 
@@ -3632,6 +3673,11 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
         // 0x0051c7d4..0x0051c7d8: GameCamera slot 0x50 (no arguments) -- FUN_0051c8b0, or the
         // empty 0x00401e90 on FirstPerson. Port camera slots take `this` explicitly (__stdcall).
         ((FGameCamera*)Cam)->ScaleEnvironmentEffects();
+#ifdef FREELANCER_RP9
+        // Port-only: the sun glows through the dust over everything in space (the composite,
+        // the hybrid puffs and the effects' cloud layers).
+        StarSphereDrawNebulaHalo(Cam);
+#endif
 #ifdef FREELANCER_DBG_OPTIONS
         // Port-only: the beta's [OUTLINES] (FUN_005167a0) over the finished scene.
         DbgOutlinesDraw(Camera);
@@ -3658,6 +3704,13 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
             float Col[3];
             G_FieldController->FillFogRgb(Col);
 #ifdef FREELANCER_RP9
+            {
+                // The flash part of the fog colour, for the volume (NoteBackgroundFlash).
+                float Base[3];
+                G_FieldController->CopyFogRgb(Base);
+                const float Flash[3] = {Col[0] - Base[0], Col[1] - Base[1], Col[2] - Base[2]};
+                NebulaVolume::NoteBackgroundFlash(G_FieldController, Flash);
+            }
             if (!NebulaVolume::ShowsRealBackground())
 #endif
             {
@@ -3824,5 +3877,15 @@ void SpaceSetCockpitGlintBounds(const float* Center,float Radius)
         for(unsigned I=0;I<3;++I) if(!std::isfinite(Center[I])) {G_CockpitGlintBoundsValid=false;return;}
         std::memcpy(G_CockpitGlintCenter,Center,12);G_CockpitGlintRadius=Radius;
     }
+}
+#endif
+
+#ifdef FREELANCER_RP9
+// Port-only: how far behind its surface a planet_eclipses caster's shadow reaches (to the far side
+// of its receiver), or 0 when Go casts none. For SolarSunlitAt (solar_spheres.cpp).
+float PlanetEclipseCasterReach(FClientGameobj* Go)
+{
+    float Out[2];
+    return PlanetEclipseShipShadow(Go, Out) ? Out[0] : 0.0f;
 }
 #endif

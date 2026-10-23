@@ -423,6 +423,9 @@ void GameLightTick(FGameLight* Light, float Dt);
 // gated by GetGameOption(LIGHTING=0x18).
 void GameLightTickAll(float Dt);
 
+// Port-only: the first GameLight of DAT_00675570 (chained through ListNext), null when empty.
+FGameLight* GameLightListHead();
+
 // FUN_005383c0 (cdecl, caller StarSysLeave 00554bc2): every GameLight on DAT_00675570 gets
 // ++RefCount, its animation detached (the inlined FUN_005379b0), vtable slot 2 (disable) and
 // --RefCount with slot 0 (1) at <= 0; the ones still referenced are chained on a local list
