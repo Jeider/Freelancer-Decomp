@@ -474,6 +474,7 @@ FTexturePanels::FTexturePanels()
     FadeFar = 3400.0f;  // the 2002 beta's values
     FadeNear = 500.0f;
     bSunProfile = 0;
+    bRingLighting = true;
     RingLayerThickness = 0.0f;
     RingLayerCell = 0.0f;
     RingLayerDensity = 1.0f;
@@ -1383,6 +1384,17 @@ void FTexturePanels::DrawPiece(void* Camera, int PieceIndex)
                             Ring.Ambient[3] = 1.0f;
                         }
                     }
+                    if (!bRingLighting)
+                    {
+                        // Unlit albedo: retain the planet sphere for host-planet occlusion,
+                        // and retain the band's alpha/fade/profile independently of lighting.
+                        for (int K = 0; K < 3; ++K)
+                        {
+                            Ring.SunColour[K] = 0.0f;
+                            Ring.Ambient[K] = 1.0f;
+                        }
+                        Ring.SunColour[3] = Ring.Ambient[3] = 1.0f;
+                    }
                     if (bRing)
                         RingScope->SetPlanetRing(&Ring);
                     G_PanelBatcher.Pipeline->DrawPrimitive(G_PanelBatcher.Field00,
@@ -1457,6 +1469,9 @@ void FTexturePanels::DrawPanels(void* Camera)
 void FTexturePanels::Load(char const* IniPath,
                                        char const* Nickname)
 {
+#ifdef FREELANCER_RP9
+    bRingLighting = true;
+#endif
     // 0050a263..0050a271: a loaded ring is cleared first (slot 2).
     if (bLoaded != 0)
         Clear();
@@ -1562,6 +1577,8 @@ void FTexturePanels::Load(char const* IniPath,
                     else if (Reader.is_value("transition_dist"))
                         TransitionDist = Reader.get_value_float(0);
 #ifdef FREELANCER_RP9
+                    else if (Reader.is_value("lighting"))
+                        bRingLighting = Reader.get_value_bool(0);
                     else if (Reader.is_value("fade_range"))
                     {
                         // Port-only (2002 beta [Exterior] fade_range = far, near): the band fades

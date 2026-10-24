@@ -12,6 +12,11 @@
 
 #include "far_rocks.h"
 #include "field_dust.h"
+#include "gate_tunnel.h"
+#include "tradelane_visual.h"
+#include "jumphole_visual.h"
+#include "ship_warp_visual.h"
+#include "engine_heat_visual.h"
 #include "nebula_volume.h"
 #include "space_haze.h"
 
@@ -380,6 +385,11 @@ void RenderEx::Startup()
 
 void RenderEx::Shutdown()
 {
+    EngineHeatVisualShutdown();
+    ShipWarpVisualRenderShutdown();
+    JumpHoleVisualRenderShutdown();
+    TradeLaneVisualRenderShutdown();
+    GateTunnelRenderShutdown();
     NebulaVolume::Shutdown();
     SpaceHazeShutdown();
     FarRocksShutdown();

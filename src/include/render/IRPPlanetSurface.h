@@ -14,6 +14,7 @@ struct FRPPlanetSurface
     const char* Detail1;   // texture name on stage 2 ("" for mode 0)
     float TileRate0;       // stage 1 uv scale
     float TileRate1;       // stage 2 uv scale
+    float MeshRadius;      // v2: object-space sphere radius; 0 = unavailable, retain full detail
 };
 
 // A planet that eclipses the next planet draws (surface and atmosphere): the caster sphere and

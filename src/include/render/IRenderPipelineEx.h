@@ -107,6 +107,8 @@ struct FRPExCaps
     unsigned long MaxPixelShaderInstructionsExecuted;
     // D3DADAPTER_IDENTIFIER9::Description, truncated, NUL-terminated.
     char AdapterDescription[128];
+    // Version 3: appended IRPDrawEx::DrawExMeshInstances is available on this device.
+    unsigned long bMeshInstances;
 };
 
 // The size of the first published FRPExCaps (up to Reserved[3]); GetExCaps rejects less.
@@ -250,4 +252,8 @@ struct IRPDrawEx : IDAComponent
                                                    unsigned long Fvf, unsigned long Stride,
                                                    unsigned long FirstVertex,
                                                    unsigned long PrimitiveCount) = 0;
+    // Triangle-list geometry: XYZ, normal, UV (32 bytes). Instances: centre/radius,
+    // unit quaternion xyzw, D3DCOLOR jitter (36 bytes). Check caps.bMeshInstances first.
+    virtual GENRESULT DACOM_API DrawExMeshInstances(FRPExBuffer* Geometry, FRPExBuffer* Instances,
+        unsigned long VertexCount, unsigned long FirstInstance, unsigned long InstanceCount) = 0;
 };

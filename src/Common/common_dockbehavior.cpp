@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "common_dockbehavior.h"
+#include "common_id.h"
 #include "common_misc.h"   // SinglePlayer() -- UpdateApproachTail()'s case 0xb calls it
 #include "common_systemmanager.h"  // SystemManagerGunGroupManager::SetShieldActive -- FUN_062e9a60
 #include "common_gotobehavior.h"   // ComputeFormationFollowerEnvelope / ProxWatcherComputeSpeedCap
@@ -41,6 +42,36 @@ static void* HeaderBlockFromWatched(Watchable const* Watched)
         return nullptr;
     return const_cast<void*>(
         static_cast<void const*>(reinterpret_cast<char const*>(Watched) - 8));
+}
+
+// Opt-in prototype: preserve the jumphole type and jump/request protocol, but
+// use the authored front approach for this one entrance (NPCs and autopilot).
+// No per-object fields or ABI changes. Missing/collapsed hardpoints retain the
+// original omnidirectional path instead of feeding undefined transforms to AI.
+static bool FrontJumpHoleApproach(DockBehavior const& Dock)
+{
+    if ((Dock.StateFlags32c & 0x800) == 0)
+        return false;
+    IObjRW* const Obj = ObjRwFromWatchable(const_cast<Watchable*>(Dock.Watcher324.target()));
+    static unsigned const EntranceId = CreateID("rh_biz_jh_to_sig8");
+    if (Obj == nullptr || Obj->get_id() != EntranceId)
+        return false;
+    Transform Mount, Near, Far;
+    if (Obj->get_dock_hardpoints(0, nullptr, &Mount, &Near, &Far, nullptr) != 0)
+        return false;
+    Vector const Points[] = {Mount.Translation, Near.Translation, Far.Translation};
+    for (Vector const& P : Points)
+        if (!std::isfinite(P.x) || !std::isfinite(P.y) || !std::isfinite(P.z))
+            return false;
+    Vector const A = {Mount.Translation.x - Near.Translation.x,
+                      Mount.Translation.y - Near.Translation.y,
+                      Mount.Translation.z - Near.Translation.z};
+    Vector const B = {Near.Translation.x - Far.Translation.x,
+                      Near.Translation.y - Far.Translation.y,
+                      Near.Translation.z - Far.Translation.z};
+    return A.x*A.x + A.y*A.y + A.z*A.z > 1.0f &&
+           B.x*B.x + B.y*B.y + B.z*B.z > 1.0f &&
+           A.x*B.x + A.y*B.y + A.z*B.z > 0.0f;
 }
 
 // DockBehavior -- see common_dockbehavior.h for the full RTTI/layout writeup
@@ -507,7 +538,7 @@ void DockBehavior::RecomputeApproach()
             : nullptr;
         SubObjectA.PublishTargetId(ObjInspectOf(Obj2)->get_id());
     }
-    else if ((StateFlags32c & 0x40) != 0) // LAB_062c383b `TEST AL,0x40`
+    else if ((StateFlags32c & 0x40) != 0 || FrontJumpHoleApproach(*this))
     {
         // .text:062c3841 `MOV dword ptr [EBP + 0x43c],EBX` with EBX held at 0
         // by the function's entry `XOR EBX,EBX` (.text:062c3724). This write
@@ -803,10 +834,11 @@ void DockBehavior::SubmitGotoDirective(Vector const& ReferencePoint)
     Op.Field_60 = ProxWatcher450.Unknown08;                          // 062c55c2-062c55d0
     Op.Field_64 = ProxWatcher450.Unknown0c;                          // 062c55d4-062c55da
 
-    if ((StateFlags32c & 0xc0) != 0)                                 // 062c55c8 byte test
+    bool const FrontHole = FrontJumpHoleApproach(*this);
+    if ((StateFlags32c & 0xc0) != 0 || FrontHole)
     {
         Op.Field_0C = 1;                                             // 062c55ee
-        Op.Destination = DestPoint3cc;                               // 062c55e0-062c55fe
+        Op.Destination = FrontHole ? InterceptPoint39c : DestPoint3cc;
     }
     else
     {
@@ -945,11 +977,12 @@ void DockBehavior::EnterState(int NewState)
         Op.Field_60 = ProxWatcher450.Unknown08;
         Op.Field_64 = QueryHandleRange(&ProxWatcher450, 0);
 
-        if ((StateFlags32c & 0xc0) != 0)
+        bool const FrontHole = FrontJumpHoleApproach(*this);
+        if ((StateFlags32c & 0xc0) != 0 || FrontHole)
         {
             // 062c3e0d: Field_0C = 1, Destination <- the Vector at +0x3cc.
             Op.Field_0C = 1;
-            Op.Destination = DestPoint3cc;
+            Op.Destination = FrontHole ? InterceptPoint39c : DestPoint3cc;
         }
         else
         {
@@ -1085,7 +1118,7 @@ void DockBehavior::EnterState(int NewState)
         return;
     case 6:
         // caseD_6 at 062c41c8. `TEST AL,0xc0` then `TEST AH,8` on the same dword.
-        if ((StateFlags32c & 0xc0) != 0)
+        if ((StateFlags32c & 0xc0) != 0 || FrontJumpHoleApproach(*this))
         {
             SubObjectB.SetAngleWeight8c(BitsToFloat(0x3ec90fdbu)); // 062c41df FUN_062d93c0, pi/8
             SubObjectB.SetPosition(DestPoint3cc);           // 062c41ed FUN_062d7560
@@ -1147,7 +1180,7 @@ void DockBehavior::EnterState(int NewState)
         SubObjectA.SetRange3c(static_cast<float>(
             static_cast<double>(Field408) * kEnterState9RadiusScale));      // 062c43ab
 
-        if ((StateFlags32c & 0xc0) != 0)
+        if ((StateFlags32c & 0xc0) != 0 || FrontJumpHoleApproach(*this))
         {
             SubObjectB.SetDirection(Facing38c);             // 062c43c7 FUN_062d7590
             SubObjectA.SetField44(2);                       // 062c43d0 FUN_062d88b0
@@ -1317,7 +1350,7 @@ void DockBehavior::RefreshApproachState()
 
     // LAB_062c5387: with StateFlags32c bit 6, Facing38c = normalize(SavedPosition3fc -
     // DestPoint3cc).
-    if ((StateFlags32c & 0x40) != 0)
+    if ((StateFlags32c & 0x40) != 0 || FrontJumpHoleApproach(*this))
     {
         Vector D3;
         D3.x = SavedPosition3fc.x - DestPoint3cc.x;
@@ -1376,7 +1409,7 @@ int DockBehavior::UpdateApproachTail()
         if (Pilot->Slot7() != 2)
             return UpdateResult10;
 
-        if ((StateFlags32c & 0xc0) != 0)
+        if ((StateFlags32c & 0xc0) != 0 || FrontJumpHoleApproach(*this))
         {
             EnterState(2);
             UpdateResult10 = 1;
@@ -1526,7 +1559,7 @@ int DockBehavior::UpdateApproachTail()
     }
     case 6:
         // 062c4d14: `TEST AH,8` on the dword at +0x32c, i.e. bit 0x800.
-        if ((StateFlags32c & 0x800) != 0)
+        if ((StateFlags32c & 0x800) != 0 && !FrontJumpHoleApproach(*this))
         {
             EnterState(9);          // LAB_062c4dca, shared with case 8
             UpdateResult10 = 1;
@@ -1535,7 +1568,7 @@ int DockBehavior::UpdateApproachTail()
         {
             int MoveResult = SubObjectA.Update(DeltaTime);
             int FaceResult = SubObjectB.Update(DeltaTime);
-            if (((StateFlags32c & 0xc0) != 0) && (FaceResult == 1))
+            if (((StateFlags32c & 0xc0) != 0 || FrontJumpHoleApproach(*this)) && (FaceResult == 1))
             {
                 EnterState(8);
                 UpdateResult10 = 1;
@@ -1723,7 +1756,7 @@ bool DockBehavior::CheckCanProceed()
     case 3:
     case 6:
     {
-        if ((StateFlags32c & 0xc0) == 0)
+        if ((StateFlags32c & 0xc0) == 0 && !FrontJumpHoleApproach(*this))
             break;                                                   // 062c45a0 -> range test
         // 062c45a2-062c45c2: cache refresh (FUN_062c47c0), D = centre - DestPoint3cc
         // (FUN_06288800, one float subtraction per component).

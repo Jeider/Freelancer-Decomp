@@ -2,6 +2,7 @@
 // See field_dust.h and docs/re/asteroid_far_look.md ("Field dust").
 
 #include "field_dust.h"
+#include "field_dust_batch.h"
 
 #ifdef FREELANCER_RP9
 
@@ -30,9 +31,11 @@
 namespace
 {
     char const kShader[] = "SHADERS\\field_dust.hlsl";
-    int const kMaxFields = 4;
-    int const kFieldRegisters = 12;
+    int const kMaxFields = FieldDustBatch::MaxFields;
+    int const kMaxExclusions = 4;
+    int const kFieldRegisters = 12 + kMaxExclusions * 4;
     int const kFirstFieldRegister = 8;
+    static_assert(kFieldRegisters == FieldDustBatch::FieldRegisters, "dust batch constant layout");
     double const kPi = 3.14159265358979323846;
 
     // [FieldDust] as parsed; a negative value means "derive it from the field's other sections".
@@ -58,6 +61,7 @@ namespace
         float LodDistance = 25000.0f;
         float FarDist = -1.0f;
         float FarFade = -1.0f;
+        bool bExcludeZones = false;
     };
 
     struct FDustField
@@ -78,6 +82,8 @@ namespace
         float FarDist = 70000.0f;
         float FarFade = 10000.0f;
         double NoiseOffset[3] = {0.0, 0.0, 0.0};
+        int ExclusionCount = 0;
+        Universe::IZone const* Exclusions[kMaxExclusions] = {};
     };
 
     std::map<FCliAsteroid const*, std::unique_ptr<FDustField>> G_Fields;
@@ -200,6 +206,15 @@ namespace
         D.MaxRadius = (std::max)(D.Radii[0], (std::max)(D.Radii[1], D.Radii[2]));
         float const MinRadius = (std::min)(D.Radii[0], (std::min)(D.Radii[1], D.Radii[2]));
         ZoneLocalRows(Zone, D.Rows);
+        if (P.bExcludeZones)
+        {
+            for (int I = 0; I < Info.ExclusionCount && D.ExclusionCount < kMaxExclusions; ++I)
+            {
+                Universe::IZone const* Hole = Info.Exclusion[I];
+                if (Hole->GetShape() == Universe::ZoneShapeSphere || Hole->GetShape() == Universe::ZoneShapeEllipsoid)
+                    D.Exclusions[D.ExclusionCount++] = Hole;
+            }
+        }
 
         // sigma from the opacity straight through the centre along the shortest axis: the chord
         // integral of 1 - r^2 there is 4/3 R.
@@ -471,6 +486,8 @@ void FieldDustParseSection(FCliAsteroid* Field, INI_Reader& Reader)
             P.FarDist = static_cast<float>(Reader.get_value_float(0));
         else if (Reader.is_value("far_fade"))
             P.FarFade = static_cast<float>(Reader.get_value_float(0));
+        else if (Reader.is_value("exclude_zones"))
+            P.bExcludeZones = Reader.get_value_float(0) != 0.0f;
     }
 }
 
@@ -570,13 +587,11 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
     else
         Set4(&C[28], 0.0f, 0.0f, 1.0f, 0.0f);
 
-    // The fields on screen and in strength; the union of their rectangles.
-    float Rect[4] = {1.0f, 1.0f, 0.0f, 0.0f};
-    int Count = 0;
+    // Four is a shader batch size, not a visibility cap. Dropping further fields here
+    // made neighbouring clouds blink whenever camera rotation changed the first four.
+    std::vector<FieldDustBatch::Batch> Batches;
     for (FCandidate const& Candidate : S_Fields)
     {
-        if (Count >= kMaxFields)
-            break;
         FDustField const& D = *Candidate.Dust;
         FDustParams const& P = D.P;
         double V[3];
@@ -586,12 +601,7 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
         float FieldRect[4];
         if (!SphereScreenRect(V, static_cast<double>(D.MaxRadius) * 1.02, &C[4], &C[8], FieldRect))
             continue;
-        Rect[0] = (std::min)(Rect[0], FieldRect[0]);
-        Rect[1] = (std::min)(Rect[1], FieldRect[1]);
-        Rect[2] = (std::max)(Rect[2], FieldRect[2]);
-        Rect[3] = (std::max)(Rect[3], FieldRect[3]);
-
-        float* const R = &C[(kFirstFieldRegister + Count * kFieldRegisters) * 4];
+        float* const R = FieldDustBatch::Append(Batches, C, FieldRect);
         // The caster list and the reaches of the planets that can shade this zone (Decision 5).
         float CasterSphere[8] = {};
         float CasterReach[2] = {};
@@ -609,7 +619,9 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
         R[8 + 3] = Casters > 1 ? CasterReach[1] : 0.0f;
         R[12 + 3] = D.ThicknessUnit;
         // The camera is farther than lod_distance from the zone surface: only the closed form.
-        int const Steps = Candidate.Distance - D.MaxRadius > P.LodDistance ? 0 : P.Steps;
+        // The analytic distant LOD has no exclusion mask. Keep samples for fields with holes.
+        int const Steps = D.ExclusionCount > 0 ? (std::max)(P.Steps, 6)
+            : (Candidate.Distance - D.MaxRadius > P.LodDistance ? 0 : P.Steps);
         Set4(&R[16], D.Sigma, P.EdgeSoftness, P.Clump, static_cast<float>(Steps));
         // The noise origin: the camera in the zone's noise tiles plus the field's offset, wrapped in
         // double (the texture repeats, so only the fraction matters) to keep the floats small.
@@ -634,12 +646,22 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
             else
                 Set4(Out, 0.0f, 0.0f, 0.0f, 0.0f);
         }
-        ++Count;
+        for (int E = 0; E < D.ExclusionCount; ++E)
+        {
+            Universe::IZone const* Hole = D.Exclusions[E];
+            Vector const& Pos = Hole->GetPos();
+            float Rows[3][3];
+            ZoneLocalRows(Hole, Rows);
+            float* H = &R[(12 + E * 4) * 4];
+            Set4(H, static_cast<float>(Pos.x - CamPos[0]), static_cast<float>(Pos.y - CamPos[1]),
+                 static_cast<float>(Pos.z - CamPos[2]), 1.0f);
+            for (int Axis = 0; Axis < 3; ++Axis)
+                Set4(H + 4 + Axis * 4, Rows[Axis][0], Rows[Axis][1], Rows[Axis][2], 0.0f);
+        }
     }
     // Nothing on screen: no pass.
-    if (Count == 0 || !(Rect[2] > Rect[0]) || !(Rect[3] > Rect[1]))
+    if (Batches.empty())
         return;
-    Set4(&C[24], static_cast<float>(Count), 0.0f, 0.0f, 0.0f);
 
     if (!G_bProgramsTried)
     {
@@ -682,27 +704,29 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
     FRPExPassDesc Pass = {G_Target, 0, 0};
     if (Ex->BeginExPass(&Pass) != GR_OK)
         return;
-    bool bOk = Ex->BindExProgram(G_MarchProgram) == GR_OK && Ex->BindExTexture(0, SceneDepth, &Point) == GR_OK &&
-               Ex->BindExTexture(1, Noise, &LinearWrap) == GR_OK;
-    if (bOk)
+    for (auto It = Batches.rbegin(); It != Batches.rend(); ++It)
     {
+        FieldDustBatch::Batch const& B = *It;
+        // A target must not remain sampled when the next batch writes into it.
+        Ex->BindExTexture(2, nullptr, &LinearClamp);
+        bool bOk = Ex->SetExRenderTarget(G_Target, 0) == GR_OK &&
+                   Ex->BindExProgram(G_MarchProgram) == GR_OK && Ex->BindExTexture(0, SceneDepth, &Point) == GR_OK &&
+                   Ex->BindExTexture(1, Noise, &LinearWrap) == GR_OK;
+        if (!bOk) break;
         Pipe->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
-        Ex->SetExPixelConstants(0, C, kFirstFieldRegister + Count * kFieldRegisters);
-        bOk = DrawVolumeRect(DrawEx, Rect, LowWidth, LowHeight, 2);
-    }
+        Ex->SetExPixelConstants(0, B.Constants, kFirstFieldRegister + B.Count * kFieldRegisters);
+        if (!DrawVolumeRect(DrawEx, B.Rect, LowWidth, LowHeight, 2)) break;
 
-    // Pass 2: the composite onto the back buffer, premultiplied (ONE, INVSRCALPHA).
-    if (bOk)
+        // Composite farther batches first, premultiplied (ONE, INVSRCALPHA).
         bOk = Ex->SetExRenderTarget(nullptr, 0) == GR_OK && Ex->BindExProgram(G_CompositeProgram) == GR_OK &&
               Ex->BindExTexture(0, SceneDepth, &Point) == GR_OK && Ex->BindExTexture(2, G_Target, &LinearClamp) == GR_OK;
-    if (bOk)
-    {
+        if (!bOk) break;
         Pipe->SetRenderState(D3DRS_ALPHABLENDENABLE, 1);
         Pipe->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
         Pipe->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
         Pipe->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
         Ex->SetExPixelConstants(0, Composite, 3);
-        DrawVolumeRect(DrawEx, Rect, FullWidth, FullHeight, 1);
+        if (!DrawVolumeRect(DrawEx, B.Rect, FullWidth, FullHeight, 1)) break;
     }
     Ex->EndExPass();
     Pipe->SetRenderState(D3DRS_ALPHABLENDENABLE, SavedEnable);

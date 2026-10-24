@@ -86,6 +86,9 @@ namespace NebulaVolume
     // zone (24 evenly spaced samples; a sample counts when any registered nebula has immersion
     // there). Independent of the volume being drawn.
     float SegmentNebulaLength(float const* From, float const* To, float MaxLength);
+    // CPU haze transmission to a late world effect, independent of the current volume pass.
+    // Includes zone edges and exclusion fog ranges; not a reconstruction of cloud noise.
+    float EffectVisibility(float const* From, float const* To);
     // The camera is inside a drawn nebula: its fog colour (0..1), immersion (0..1) and the
     // style's ship_haze_aura / ship_haze_aura_size (port.ini defaults when the style has none).
     bool ShipAuraInfo(float* OutFogRgb, float* OutImmersion, float* OutStrength, float* OutSize,

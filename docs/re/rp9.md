@@ -165,6 +165,17 @@ notion of "nebula":
   program bound; they follow the same scheme as `IRPDraw::DrawPrimitive` (stream cache →
   `FlushDrawState` → `DrawPrimitiveUP` → stream cache reset).
 
+`IRPDrawEx::DrawExMeshInstances` (caps version 3, `bMeshInstances`) draws a triangle-list mesh with a
+32-byte XYZ/normal/UV stream and a 36-byte centre/radius/quaternion/colour instance stream. Callers must check
+the capability before calling the appended method, so an older RP9 DLL retains the previous render path.
+`RP9MeshInstances.h` uses a shared sequential index buffer and the indexed
+[D3D9 instancing API](https://learn.microsoft.com/en-us/windows/win32/direct3d9/efficiently-drawing-multiple-instances-of-geometry).
+It resets both stream frequencies and unbinds streams/indices after every draw, including failures. The wrapper
+resets the stream cache and invalidates its FVF cache because a custom vertex declaration was used. Geometry and
+placement buffers use the existing managed-buffer API; the index buffer and declaration are released on device
+destruction. The Cambridge debris renderer is the first consumer; `tools/check_debris_render.cpp` exercises
+the same helper on a real D3D9 device.
+
 ### Scene depth (INTZ)
 
 `CreateBuffers` asks `ExWantsIntzDepth`: when the format chosen by `PickDepthFormat` is 24-bit
@@ -1254,6 +1265,26 @@ port.ini `[Render]`: `planet_surface` (1), `planet_relief` (6), `planet_glint` (
 `planet_terminator_wrap` (0.05), `planet_detail_relief` (1), `planet_terrain_shadows` (8),
 `planet_surface_exclude` (`sw_center,bh_,blackhole,neutron`).
 
+Adaptive detail: `planet_adaptive_detail = 1` enables projected-disc-size quality; set 0
+to retain full detail for comparison. `planet_lod_pixel_scale = 1` scales the estimated
+pixel diameter (0.25..4; higher values retain detail farther away). The v2 planet surface
+interface adds the source mesh radius; Shading, RP9 and the client must be deployed together.
+RP9 combines radius, modelview scale, projection and viewport height, conservatively retaining
+full detail for unknown bounds or a camera within the sphere. No GPU readback is required.
+
+PS c21 supplies smooth fades for base relief (60..180 px), fine relief (250..700 px), gas
+eddies/spirals (180..800 px) and terrain shadows (350..900 px). Below each lower threshold,
+uniform shader branches skip that work entirely. Gas always skips solid-surface relief;
+small gas giants retain animated zonal jets, and chaotic giants blend toward a gentle drift.
+Atmosphere, water/ice specular, city/lava glow, eclipse and terminator lighting remain active.
+Storms with zero radius or spin are skipped safely. Gas angular derivatives use the analytic
+chain rule rather than finite differences across the longitude seam.
+
+`tools/benchmark_planet_lod.cpp` checks full-detail image parity, low-detail glints, gas motion,
+disabled storms, projected-size thresholds and isolated GPU timings. It is a synthetic shader
+benchmark, not game FPS or a GTX 1060 measurement. `tools/install_planet_lod.py` stages the
+matching modules, shader and two settings, with verified backup/restore.
+
 Gas giants (`planet_gas*`, sides and caps) animate within each part: the parts are separate
 textures, so the deformation is computed in longitude/latitude (object space, y the pole), mapped
 to the part's uv through the screen-derivative Jacobian of uv against longitude/latitude, and faded
@@ -1326,6 +1357,14 @@ clipped), the layer scatters sunlight singly (reflected on the lit side, diffuse
 the other, thicker at grazing angles), the host planet's shadow falls across it, and the band fades
 out as the camera closes in. `[Exterior] fade_range = far, near` in the ring ini is port-only (the
 2002 beta's key; default 3400, 500).
+
+`[Exterior] lighting = false` is a per-ring opt-out from illumination and received lighting
+shadows (default `true`, reset each load). The client sends zero direct sunlight and white
+ambient through the existing ring descriptor, giving `Albedo * Alpha` in the same shader.
+The host sphere still clips the far arc; radial shape, alpha, fade and sun-transmittance profile
+are unchanged. `[Clouds]` is independent. Tau-37's `solar/rings/tau37_ice.ini` uses this mode
+for the ring around its blue star; `tools/install_ring_lighting.py` stages the single INI key
+and client executable with a verified backup. No RP9 interface or shader change is required.
 
 port.ini `[Render]`: `planet_rings` (1), `ring_brightness` (2), `ring_backlight` (1),
 `ring_opacity` (1), `ring_forward` (1.5), `ring_sun_block` (0.6).
@@ -1437,6 +1476,212 @@ receiver plus the receiver's ring (`SolarRingShadowReach`), so a neighbour plane
 Dynamic asteroids are drawn by `CliDynamicAsteroidDraw` (cli_asteroid_dynamic.cpp), outside the scene's
 object list, so the local-shadow receiver path never sees them; their material's diffuse is scaled by
 `SolarSunlitAt` at the rock (down to `dynamic_asteroid_shadow_floor`, 0.15), ambient kept.
+
+### Exterior jumphole shader
+
+`jumphole_visual.cpp` / `SHADERS/jumphole_lens.hlsl` replace the idle and activation
+visuals of authored `JUMP_HOLE` solars across systems. A per-host registry keeps clocks,
+activation, fallback and transforms independent; rotating solars update their transform each
+simulation tick. Visible holes draw far to near. The configured-universe audit finds 22 existing
+idle anomalies covered in 17 systems; the remaining `JUMP_HOLE` is a station with no idle effect.
+The station does not acquire an idle anomaly merely from its object type.
+`port.ini [Render] jumphole_visual = 0` restores the original effect on the next load;
+the prototype defaults to 1. No universe, archetype, loadout, ALE or jump timing data is edited.
+
+The replacement integrates an asymmetric cloud volume with generated 3D noise through a
+static box mesh. A smoky funnel narrows into a dark neck along the object's local Z axis;
+the original docking approach runs from negative Z towards the centre. Broad turbulent
+walls and a soft outer cloud use blue/cyan internal light, inspired by the supplied Star Citizen
+jump-point reference and the original Freelancer smoke. The detailed version uses 64 volume
+steps, multiple noise scales and domain warps, plus two light-side probes for soft attenuation
+inside the smoke. Animation runs three times faster than the initial funnel. Activation sends
+a bright irregular pressure front through the volume over 2.4 seconds. These are spatial density
+fields, so orbiting or approaching reveals their depth. A scene-color copy feeds local refraction;
+sampled depth protects foreground objects at both the destination
+and displaced source. Both passes sample scene depth, and the volume stops its integration
+at foreground geometry. Rendering respects the camera viewport, including cinematic bars,
+and is skipped outside the view or below its visible size.
+
+`SHADERS/jumphole_optics.hlsl` adds a fresh scene-color capture after the cloud. A curved cap
+on the entrance throat (local Z = -240, radius 145) folds the visible scene into a moving, liquid
+mirror. Both world refraction and the mirror fade away before a side view and disappear from
+behind; they do not form a reflective ball around the cloud. This is a screen-space environment
+approximation and cannot reflect off-screen geometry. The outer plume/corona pass is removed; the detailed smoky funnel remains.
+The optics bound is 600 metres and the funnel visibility sphere is 920 metres. Camera rays use
+the shared `JumpHoleCameraToLocal` conversion, preserving the object's world orientation.
+
+
+Each hole resolves its own palette from its jump descriptor's tunnel layer colours. A containing
+nebula contributes up to 65% of its normalized fog hue. A copied RGB multiplier recolours the
+integrated light after ray marching without changing opacity; reflection stays neutral apart
+from a small tinted glint. The ingress keeps a palette/time snapshot even after the source solar
+is destroyed. Main PS register c7 and optics c11 hold this multiplier (neutral = 1,1,1).
+
+World visibility has no separate 120-km override. It respects the resolved companion LOD end
+(the same LODranges loading/scaling as normal solars), original effect type `pbubble` and priority,
+particle/effect options, Alchemy screen-size culling and cloak state. The pbubble limit is
+`near + (far-near)*(1-perf)`, tested against view depth minus the original effect radius; the
+loader has already applied `pbubble_scale`. Both distance limits fade over their final 10%.
+The main body effect owns this limit, not the much larger decorative sparks type.
+
+Alchemy's field-membership/radius rejection is preserved. Additionally,
+`NebulaVolume::EffectVisibility(camera, centre)` accumulates optical depth along the sightline
+through every loaded non-ring nebula, including when the camera is outside. It uses the real
+zone immersion, haze density, fog near/distance and exclusion zones, independently of the current
+volume pass. A cloud-only/legacy style falls back to fog-distance extinction. Below 1% transmission
+the effect is fully hidden, with a soft 1-3% cutoff. The resulting gain fades the funnel, lens and
+mirror together over the already-fogged scene. This CPU haze estimate does not reproduce each
+procedural cloud billow; it prevents the former unconditional overlay through nebulae.
+
+Frustum classification uses the transformed camera-space centre via `JumpHoleWorldToView`.
+Passing the world centre directly to `FSpaceCamera::ClassifySphere` incorrectly treated the
+hole's system Z coordinate as camera distance, hiding the original prototype even close up.
+
+The attached-FX wrapper replaces the five `gf_wormhole_*` body variants, `gf_wormsparks`,
+`gf_hole_01`, `gf_hole_active_01` and `hole_center` only on actual jumpholes, after all replacement
+GPU resources are ready. Activation replaces `gf_hole_01`/`wormholeactivation`. These effect IDs
+remain available to other object types. If any attached layer falls back to ALE, that host keeps
+its original owner until reload. Solar notify subcode 0 activates, 2 closes and 3 settles the hole.
+Animation advances from the solar simulation tick; the solar destructor forgets the host, and
+RenderEx shutdown releases resources.
+
+The player's confirmed docking port (`IBehaviorManager::get_docking_port`) controls the
+approach buildup along the authored negative-Z docking path; proximity or selecting the hole
+alone cannot trigger it. Cancelling docking clears the buildup. The player-only jump-effect
+constructor binds the selected hole's transit, and its destructor clears that binding without
+changing the retail object layout. Because jumpholes have zero `JumpOutTime`, `VSIngress` /
+`PSIngress` continue the smoky entry burst over the first 1.35 seconds of tunnel state 2,
+using the existing jump clock. This transient pass composites captured scene color and preserves
+near ship/cockpit pixels and cinematic bars. A subsequent optics capture deliberately refracts
+and stretches the player's silhouette during this confirmed state-2 transit. Its mask uses the
+player's projected physical sphere and depth interval, accepting either the destination or
+displaced source as a ship pixel so both silhouette edges can move. The physical sphere centre
+is already in world space. The pass rejects cockpit depth, nearer occluders and near-plane
+intersections. It runs only in the tunnel branch that renders the player, not arbitrary nearby
+world objects; ordinary approach/activation never authorizes this deformation.
+The ingress effect replaces the general launch overlay only for
+this transit; its failure falls back to the existing overlay. Jump durations and the travel
+tunnel itself keep their existing behavior.
+
+`Common/common_dockbehavior.cpp` still opts only `rh_biz_jh_to_sig8` into a front docking approach for NPCs
+and the player's docking autopilot. The object remains a jumphole: its type, clearance protocol
+and zero `JumpOutTime` are preserved. The route uses the authored `HpDockPointA02` (local Z
+-330.645), then aligns towards `HpDockPointA01` (-168.776), follows the existing gate spline and
+finishes at `HpDockMountA` (-28.158). It preserves the authored point 02 without the gate's
+lateral queue offset. The front-plane check restarts approach from point 02 after a rear-side
+clearance; state 6 no longer jumps straight to state 9. Selection requires the exact entrance
+ID, the jumphole type and three valid, ordered docking points. Other holes, gates and lanes
+keep their existing routing. This route is independent of the visual-only `jumphole_visual`
+setting; restoring the backed-up Common DLL restores the previous route too.
+
+`tools/check_jumphole_render.cpp` checks the production shader on D3D9 HAL with synthetic
+scenery, foreground depth, displaced sampling, alternate viewpoints and cinematic viewports.
+It also checks the real RH_BIZ position and rotation, continuity across the 96-second animation
+wrap, and cloud visibility against the orange nebula from 46 and 80 metres inside the volume.
+Activation/entry phases and the transient ingress shader have their own depth, identity and
+pause checks; visual clocks use the production `jumphole_visual_state.h` helpers.
+Optics checks cover mirror motion, exact absence of both world lens and mirror distortion
+from side/back views, absence of outer smoke, four palettes, zero/low gain, translated/rotated rays,
+and actual silhouette movement with a patterned ship surrogate and protected occluders.
+Its previews and isolated GPU timings are not in-game captures or GTX 1060 measurements.
+`tools/build_jumphole_dock_check.py` extracts the affected production routing branches for a
+standalone C++ check with mocked movement/clearance services: scope and invalid-point fallback,
+both goto builders, point-02 arrival, front-plane validation, alignment/spline/final approach,
+and unchanged routing for other holes/gates/lanes. It does not simulate live AI flight/physics.
+`tools/audit_jumphole_visual.py` inventories the configured universe/loadouts/effects without
+writing game data. `tools/build_nebula_effect_check.py` exercises the production optical-depth
+query with synthetic zones, including outside/inside, overlaps, exclusions and fallback fog.
+`tools/install_jumphole_visual.py` stages the client, Common DLL and shaders, then verifies hashes and
+creates a rollback backup before installation.
+
+### Ship travel lights and ion trails
+
+`Client/ship_warp_visual.cpp` and `SHADERS/ship_warp.hlsl` add a small compression
+cap ahead of the actual `HpHeadLight`, with animated layered trails on numeric
+`HpContrail*` / `HpContail*` hardpoints. Names are case insensitive; numbering gaps
+are supported. The root and articulated children are enumerated once, and world
+hardpoint transforms are queried again as the ship moves. Missing anchors are not
+fabricated. `[Render] ship_warp_visual` defaults to 1.
+
+The cap is twice the original transverse width, retaining its original fore/aft depth
+and hardpoint offset. Its glow and trails share the corridor's body/accent palette via
+`TradeLaneVisualResolveStyle`; player and NPC entry use the same resolver and route ID.
+During hyperjump the palette is copied from that jump's actual tunnel layers and RGB
+range. Bright highlights retain their tonal variation; colours are remapped rather
+than multiplied into a blue base. Missing/invalid palettes retain the original cyan.
+
+The effect runs on the player during hyperjump states 2/3 and fades in state 4.
+In tradelanes it runs on the player and NPCs; only the NPC travel particle factory
+is replaced with a sound/light companion when real anchors, shader and sampled
+depth are available. Otherwise NPC travel retains its original ALE. The player's
+existing surrounding corridor and all lane entry/exit effects remain in place.
+The player's attached effect is hidden in first person; nearby NPCs retain theirs.
+
+Each trail stores a bounded history of world positions, capped at eight physical radii.
+Tradelane glow crops that original trail after its first quarter, keeping
+the original UV scale, knot spacing, taper and animation speed instead of compressing
+the full effect into a shorter path. It fades in over U=0..0.03 and fades out over
+U=0.15..0.25, where U is still measured along the original full trail. Lane trails
+are 30% narrower. Hyperjump retains
+the full trail and adds backward flow for its nearly stationary ship. The surrounding lane
+corridor renders in first-person, third-person, turret and rear-view cameras.
+Entry takes .25 seconds and exit .45 seconds. Time/history advance only on simulation
+updates; ring handoffs keep their history, while stale objects, system changes and
+teleports discard it. Actual object ID, pointer, engine instance and system are
+checked before using a tracked ship. World effects share the original effect type's
+priority, pbubble and LOD cull, cloak visibility, and nebula optical attenuation.
+
+All visible ships share one bow-cap refraction pass followed by one additive pass,
+reusing the generated cap geometry. Trails are excluded from refraction submissions
+and rejected by the refraction shader as well. One full-resolution scene-colour
+snapshot is taken per view only when a bow cap is visible; no volume texture or new
+ALE emitter is used. Refraction follows the projected cap gradient with a maximum
+displacement of about four pixels at 1080p. It fades with the effect and stays inside its geometry. Destination
+depth and the displaced bilinear sample footprint reject foreground/cockpit leakage.
+Unavailable capture/refraction resources leave the glow operational. A nose is 392
+triangles and each full 33-point trail is 192 triangles per pass. The shader retains read-only
+hardware depth and samples depth for soft/cockpit clipping; it remaps clip depth to
+the saved viewport range and clips cinematic viewport bounds.
+
+`tools/check_ship_warp_state.cpp` tests numeric names, simulation clocks, fade/resume,
+pause and curved/clipped histories. `tools/check_ship_warp_render.cpp` checks production
+SM3 shader/geometry on D3D9 HAL: animation, finite geometry, palette output, doubled
+transverse cap width, depth occlusion, viewport bounds and nondefault depth partitions.
+Patterned-background refraction checks cover zero gain, exact pause, local coverage,
+moving distortion, and foreground source-footprint rejection with a negative control.
+Preview ships are synthetic, not game captures;
+these checks do not measure GTX 1060 performance. `tools/install_ship_warp_visual.py`
+stages only the client EXE/PDB and shader, with verified backups and restore.
+
+`SHADERS/hyperspace_refraction.hlsl` provides a separate subtle scene-wide distortion
+inside the player's actual hyperjump states 2/3. It captures the completed 3D scene
+after tunnel, ship, particles and attached glow, before the HUD. The pass is independent
+of ship hardpoints and supports the active cinematic viewport, with protected bars and
+clamped sampling. Smooth waves displace the scene by at most 3.2 pixels per axis at
+1080p, with no colour splitting or camera rotations. Animation uses the simulation's
+tunnel SpeedClock, so pause is exact. `FJumpShipEffect::ShakeAmplitude` returns zero;
+hull/shield impact shake remains separate. Shader/capture failure preserves the existing
+scene. The ship-warp installer also deploys this shader.
+
+`SHADERS/engine_heat.hlsl` adds local thermal refraction to the player's existing
+engine exhaust. `FCliEngineEquipFx::Update` supplies the same intensity sent to ALE;
+the original particle effects, colours, sounds and lifecycle are preserved. A small
+idle heat grows with thrust/cruise, smoothly cools on engine-off, and uses simulation
+time so pause is exact. Each live `CEEngine::NozzleInfos()` transform anchors an
+elongated volume behind its actual nozzle, including compound child transforms.
+The bounded 384-triangle volumes work from axial and side views, with soft ends and
+silhouettes; only their near surfaces refract. No smoke or emission is added.
+
+The player-only pass runs after normal engine particles in space and in hyperjump,
+before attached travel lights/global hyperjump refraction and the HUD. It skips first
+person, invisible/cloaked/offscreen exhaust, disabled particles and unavailable depth.
+All visible nozzles share one colour capture and draw; depth is read-only, and displaced
+sampling rejects nearer hull pixels. The prototype is disabled in the shipped
+`port.ini` (`[Render] engine_heat_visual = 0`); set it to 1 to enable it again.
+The installer above includes the new shader. `tools/check_engine_heat_render.cpp`
+checks production meshes/shaders on D3D9 HAL from front/side/rear, both depth partitions,
+pause/time wrap, viewport bounds and foreground protection. This is a synthetic GPU
+check, not an in-game visual or GTX 1060 performance measurement.
 
 ### Windowed gamma and background run
 

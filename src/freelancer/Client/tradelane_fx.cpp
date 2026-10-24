@@ -9,6 +9,8 @@
 // solar activate hook FUN_005484c0. Rewritten against the listing 2026-09-26 (claude-code:exe-w3a).
 
 #include "tradelane_fx.h"
+#include "tradelane_visual.h"
+#include "ship_warp_visual.h"
 
 #include "cli_projectile_fx.h"
 #include "client_equip_fx.h"
@@ -33,6 +35,20 @@
 
 namespace
 {
+#ifdef FREELANCER_RP9
+    // Keep the tunnel's original 2D sound and effect-companion lifetime, but never
+    // allocate its ALE particles for player trade-lane travel (including shader failure).
+    struct FTradeLaneSoundFactory : FTunnelCliEffectFactory
+    {
+        FEffectBase* CreateParticle() const override { return nullptr; }
+    };
+    FTradeLaneSoundFactory const G_TradeLaneSoundFactory;
+    struct FTradeLaneShipSoundFactory : FStandardCliEffectFactory
+    {
+        FEffectBase* CreateParticle() const override { return nullptr; }
+    };
+    FTradeLaneShipSoundFactory const G_TradeLaneShipSoundFactory;
+#endif
     // .rdata 005db798 / 005dec60 -- the source paths the FDUMP lines carry.
     char const kTradeLaneCpp[] = "E:\\FL\\Scratch\\Source\\Client\\Space\\tradelane.cpp";
     char const kIClientSCpp[] = "E:\\FL\\Scratch\\Source\\Client\\space\\IClientS.cpp";
@@ -495,8 +511,10 @@ namespace
     // (FUN_004fcef0), then flags and the node pointer zeroed.
     void TlShipLeaveRingEffects(FTradeLaneRingRuntime* /*Ring*/, FClientGameobj* Ship)
     {
+        ShipWarpVisualStopLane(Ship);
         if (Ship == TlPlayerGameobj())
         {
+            TradeLaneVisualStop();
             TlCompanionStopAndClear(TlShipCompanion(Ship, kTlShipFxBinder174));
             TlShipFlags184(Ship) = static_cast<unsigned char>(TlShipFlags184(Ship) & 0xbfu);
         }
@@ -542,6 +560,8 @@ namespace
         if ((TlShipFlags184(Ship) & 0x20u) != 0)
             return;
         TlShipFlags184(Ship) = static_cast<unsigned char>(TlShipFlags184(Ship) | 0x20u);
+        bool const ReplaceShipParticles = ShipWarpVisualStartLane(
+            Ship, TlCompanionId(Companion, kTlShipTravel)->Id, TlWatchedGameobj(Ring)->get_id());
         if (bPlayer)
         {
             Transform const& RingXform = TlWatchedGameobj(Ring)->get_transform();
@@ -557,14 +577,25 @@ namespace
             Xform.Translation.X = Pos.x;
             Xform.Translation.Y = Pos.y;
             Xform.Translation.Z = Pos.z;
+#ifdef FREELANCER_RP9
+            TradeLaneVisualStart(Xform, TlWatchedGameobj(Ring)->get_id());
+            TlCreateEffectFromId(&G_TradeLaneSoundFactory, TlCompanionId(Companion, kTlPlayerTravel),
+#else
             TlCreateEffectFromId(&G_CliEffectFactoryTunnel, TlCompanionId(Companion, kTlPlayerTravel),
+#endif
                                  Ship, -1, &Xform, TlShipCompanion(Ship, kTlShipFxBinder174));
             return;
         }
         FTransform Xform;
         TlIdentityXform(&Xform);
         long const Index = Ship->get_index();
-        TlCreateEffectFromId(&G_CliEffectFactoryC60, TlCompanionId(Companion, kTlShipTravel), Ship,
+        FCliEffectFactory const* Factory = &G_CliEffectFactoryC60;
+#ifdef FREELANCER_RP9
+        if (ReplaceShipParticles) Factory = &G_TradeLaneShipSoundFactory;
+#else
+        (void)ReplaceShipParticles;
+#endif
+        TlCreateEffectFromId(Factory, TlCompanionId(Companion, kTlShipTravel), Ship,
                              static_cast<int>(Index), &Xform,
                              TlShipCompanion(Ship, kTlShipFxBinder164));
     }
@@ -612,6 +643,7 @@ namespace
     // space for the player when it names one, else tl_ship_exit at the ship on DAT_00674c60.
     void TlOneshot14bf0(FTradeLaneRingRuntime* Ring, FClientGameobj* Ship, bool bAnnounce)
     {
+        ShipWarpVisualStopLane(Ship);
         if ((TlShipFlags185(Ship) & 4u) != 0)
             return;
         TlShipFlags185(Ship) = static_cast<unsigned char>(TlShipFlags185(Ship) | 5u);
@@ -629,6 +661,7 @@ namespace
                         NnArrivalTextShowNamed(NameIds);
                 }
             }
+            TradeLaneVisualStop();
             TlCompanionStopAndClear(TlShipCompanion(Ship, kTlShipFxBinder174));
             TlShipFlags184(Ship) = static_cast<unsigned char>(TlShipFlags184(Ship) & 0xbfu);
         }
@@ -658,12 +691,14 @@ namespace
     // player when it names one, else tl_ship_disrupt at the ship. +0x185 |= 5 either way.
     void TlLeaveOneshot14f20(FTradeLaneRingRuntime* Ring, FClientGameobj* Ship)
     {
+        ShipWarpVisualStopLane(Ship);
         if ((TlShipFlags185(Ship) & 4u) != 0)
             return;
         bool const bPlayer = Ship == TlPlayerGameobj();
         Archetype::ICliObj* const Companion = TlTradeLaneCompanion(TlWatchedGameobj(Ring));
         if (bPlayer)
         {
+            TradeLaneVisualStop();
             TlShipFlags184(Ship) = static_cast<unsigned char>(TlShipFlags184(Ship) & 0xbfu);
             TlCompanionStopAndClear(TlShipCompanion(Ship, kTlShipFxBinder174));
         }
@@ -1219,12 +1254,21 @@ void TradeLaneDetachTick(float Dt)
 {
     // FUN_005135b0 -- listing 005135b0..005137ba.
     FClientGameobj* const Player = TlPlayerGameobj();
+    if (Player)
+    {
+        Vector const& Position = Player->get_position();
+        TradeLaneVisualTick(Dt, Position.x, Position.y, Position.z);
+    }
+    else
+        TradeLaneVisualReset();
     if (Player != nullptr)
     {
         CShip* const PlayerShip = TlNarrowShip(Player);
         if (PlayerShip != nullptr && !PlayerShip->is_using_tradelane() &&
             (TlShipFlags184(Player) & 0x80u) != 0)
         {
+            // Also stop if the watched ring disappeared before detach cleanup.
+            TradeLaneVisualStop();
             FTradeLaneRingRuntime* const Ring = TlShipRingPtr(Player);
             if (Ring != nullptr)
             {
@@ -1266,10 +1310,13 @@ void TradeLaneDetachTick(float Dt)
         TlRingListInsert(&G_TlFreeRings, Node, nullptr);
         TlDestroyRingRuntime(Node);
     }
+    ShipWarpVisualTickLanes(Dt);
 }
 
 void TradeLaneShutdown()
 {
+    ShipWarpVisualReset();
+    TradeLaneVisualReset();
     // FUN_00515500 -- listing 00515500..00515631. Both walks keep retail's cursor: after a node
     // is handled the next one looked at is the successor of the handled node's successor (the
     // head again once that successor is null), so they stop as soon as that lookup is null.

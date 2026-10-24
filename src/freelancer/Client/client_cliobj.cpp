@@ -4594,6 +4594,11 @@ namespace Archetype
         return static_cast<FCliObj*>(Companion)->EnvmapMaterial.Value;
     }
 
+    float CliObjLodDistance(ICliObj* Companion)
+    {
+        return Companion ? static_cast<FCliObj*>(Companion)->LodPick : -1.0f;
+    }
+
     FCliVc6Vector<FCliMaterialPathPair> const* CliObjMaterialPaths(ICliObj* Companion)
     {
         return &static_cast<FCliObj*>(Companion)->MaterialPaths;

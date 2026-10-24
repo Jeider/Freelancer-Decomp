@@ -2315,6 +2315,24 @@ bool FMaterial::SubmitPlanetSurface(void* Context, unsigned long PrimType, unsig
     Desc.Detail1 = bTwoLayers && TexBlocks[2].Name != nullptr ? TexBlocks[2].Name : "";
     Desc.TileRate0 = DetailTileRate0;
     Desc.TileRate1 = bTwoLayers ? DetailTileRate1 : DetailTileRate0;
+    // The surface is spherical about the same origin used by the shader. Read its radius
+    // from source geometry without a GPU readback; sides and caps share this radius.
+    FMaterialSubmitContext const* Submit = static_cast<FMaterialSubmitContext const*>(Context);
+    FRpVertexSrcDesc const* Source = Submit->SourceVertices;
+    if (Count > 0 && Source && Source->Position.Base)
+    {
+        unsigned long const Index = (Source->Flags & 4) && Source->Position.IndexArray ?
+            Source->Position.IndexArray[Start] : Start;
+        unsigned long const Stride = Source->Position.Stride ? Source->Position.Stride : 12;
+        float const* P = reinterpret_cast<float const*>(Source->Position.Base + Index * Stride);
+        Desc.MeshRadius = std::sqrt(P[0] * P[0] + P[1] * P[1] + P[2] * P[2]);
+    }
+    if (!(Desc.MeshRadius > 0.0f) && Submit->Field20)
+    {
+        FVector Centre = {};
+        static_cast<IEngine*>(Submit->Field20)->GetInstanceExtent(Submit->Inst, 0,
+            &Desc.MeshRadius, &Centre.X);
+    }
     if (Surface->SetPlanetSurface(&Desc) < 0)
     {
         Surface->Release();

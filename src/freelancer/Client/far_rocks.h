@@ -11,6 +11,8 @@ struct ICamera;
 // ellipsoid (clumpy, size classes by a power law), is depth-tested against the scene, and fades in
 // where the billboards end and out where the band fades out. Data: a [FarRocks] section of the
 // field ini; DATA_EXTRA/SHADERS/far_rocks.hlsl and docs/re/asteroid_far_look.md.
+// type = debris uses the actual dynamic asteroid meshes, with static world rotations and GPU
+// instancing. This mode also replaces the field's billboard layer once it is ready.
 
 // Reads the keys of a [FarRocks] section of Field's ini (the header already consumed). The defaults
 // are filled in when the rocks are first built, from the field's other sections.
@@ -18,9 +20,11 @@ void FarRocksParseSection(FCliAsteroid* Field, INI_Reader& Reader);
 // Drops the field's rocks and entry (field reload / destruct).
 void FarRocksForget(FCliAsteroid const* Field);
 // Whether the retail band of Field is skipped: its [FarRocks] has replace_band, the feature and its
-// program are on and the field is not fog-blocked. True from the first frame, built or not yet.
+// program are on, the field is built and it is not fog-blocked.
 bool FarRocksReplacesBand(FCliAsteroid const* Field);
-// Draws the rocks of every field in one pass, with the scene depth bound. Far is the far plane the
+// Mesh debris spans the middle/far field and replaces its old billboard layer too.
+bool FarRocksReplacesBillboards(FCliAsteroid const* Field);
+// Draws solid and soft rocks of every visible field, with the scene depth bound. Far is the far plane the
 // scene was drawn with, Enclosure the field enclosure state (0 none, 1 partial, 2 inside).
 void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure);
 // Releases the program and every field's rocks (RenderEx::Shutdown, before the pipeline goes).

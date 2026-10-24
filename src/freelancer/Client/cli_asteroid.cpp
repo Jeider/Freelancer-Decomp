@@ -2156,6 +2156,16 @@ bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out)
         // The archetype's mesh material (FUN_00525800, IMesh slot 14) is what the dynamic rocks are
         // drawn with: its diffuse texture is what the far rocks wear.
         char TextureName[64];
+        if (Out->DynMeshCount < 4 && Dyn->PrimitiveType == D3DPT_TRIANGLELIST && Dyn->Mesh != nullptr &&
+            MaterialDiffuseTexture(Dyn->Material, TextureName, sizeof(TextureName)))
+        {
+            int const Slot = Out->DynMeshCount++;
+            Out->DynMesh[Slot] = Dyn->Mesh;
+            strncpy_s(Out->DynMeshTexture[Slot], sizeof(Out->DynMeshTexture[Slot]), TextureName, _TRUNCATE);
+            Out->DynMeshTint[Slot][0] = Dyn->TintedDiffuse0;
+            Out->DynMeshTint[Slot][1] = Dyn->TintedDiffuse1;
+            Out->DynMeshTint[Slot][2] = Dyn->TintedDiffuse2;
+        }
         if (Out->DynTextureCount < 4 && MaterialDiffuseTexture(Dyn->Material, TextureName, sizeof(TextureName)))
         {
             bool bKnown = false;
@@ -3325,6 +3335,9 @@ namespace
         // billboard block: FUN_00522700(camera, 100.0f), the byte set, then
         // FUN_0054e900(camera, +0xdc, 2).
         if (Field->Flag198 != 0 && GetGameOption(kGameOptAsteroidExt) > 1 &&
+#ifdef FREELANCER_RP9
+            !FarRocksReplacesBillboards(Field) &&
+#endif
             GetGameOption(kGameOptEffectsGroup) != 0 &&
             BillboardNearCamera(&Field->Billboard, CamPos))
         {

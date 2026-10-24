@@ -121,6 +121,7 @@ struct FTexturePanels : IPlanetRing
     // the first draw: the sun behind the ring is dimmed by it (TexturePanelsRayTransmittance).
     float SunProfile[128];
     unsigned char bSunProfile;
+    bool bRingLighting;                  // [Exterior] lighting (true); RP9 ring band only
 #endif
 };
 

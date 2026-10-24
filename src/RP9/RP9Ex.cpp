@@ -19,6 +19,7 @@
 //   and re-sent, shaders are unbound, colour target / depth surface / viewport are restored.
 #include "RP9Ex.h"
 #include "RP9DeviceCallCache.h"
+#include "RP9PlanetQuality.h"
 #include "readfile.h"
 
 #include <cstdarg>
@@ -806,6 +807,7 @@ void FDirectX9::ExReleaseAllGpu()
         return;
     ExReleaseDeviceResources();
     ExSurfaceEnd();
+    Ex->MeshInstances.Release();
     if (Ex->SurfaceVs != nullptr) { Ex->SurfaceVs->Release(); Ex->SurfaceVs = nullptr; }
     if (Ex->SurfaceLowPs) { Ex->SurfaceLowPs->Release(); Ex->SurfaceLowPs=nullptr; }
     if (Ex->SurfaceLowCubePs) { Ex->SurfaceLowCubePs->Release(); Ex->SurfaceLowCubePs=nullptr; }
@@ -908,6 +910,8 @@ GENRESULT DACOM_API FDirectX9::GetExCaps(FRPExCaps* Out)
     Full.MaxVertexShaderSlots = Caps.MaxVertexShader30InstructionSlots;
     Full.MaxPixelShaderSlots = Caps.MaxPixelShader30InstructionSlots;
     Full.MaxPixelShaderInstructionsExecuted = Caps.MaxPShaderInstructionsExecuted;
+    Full.bMeshInstances = Caps.VertexShaderVersion >= D3DVS_VERSION(3, 0) && Caps.MaxStreams >= 2 &&
+        (Caps.DevCaps2 & D3DDEVCAPS2_STREAMOFFSET) != 0;
     D3DADAPTER_IDENTIFIER9 Identifier;
     memset(&Identifier, 0, sizeof(Identifier));
     if (D3d_ != nullptr && SUCCEEDED(D3d_->GetAdapterIdentifier(Adapter, 0, &Identifier)))
@@ -1400,6 +1404,27 @@ GENRESULT DACOM_API FDirectX9::DrawExVertexBuffer(FRPExBuffer* Buffer, unsigned 
         ExLogf(kExFdumpWarning, "WARNING", __LINE__, "DrawPrimitive from a static buffer failed (hr 0x%08x)",
                (unsigned int)(Hr));
     return (GENRESULT)(Hr);
+}
+
+GENRESULT DACOM_API FDirectX9::DrawExMeshInstances(FRPExBuffer* Geometry, FRPExBuffer* Instances,
+    unsigned long VertexCount, unsigned long FirstInstance, unsigned long InstanceCount)
+{
+    const GENRESULT Ready = NeedExPass(this, "draw_ex_mesh_instances");
+    if (Ready != GR_OK) return Ready;
+    if (!Ex_->BoundProgram || !Geometry || !Instances || !Geometry->Vb || !Instances->Vb ||
+        (unsigned long long)VertexCount * 32 > Geometry->Bytes ||
+        ((unsigned long long)FirstInstance + InstanceCount) * 36 > Instances->Bytes)
+        return GR_INVALID_PARMS;
+    StreamCache_.SelectVertexStream(nullptr, D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1);
+    FlushDrawState(Device_);
+    HRESULT Hr = Ex_->MeshInstances.Draw(Device_, Geometry->Vb, Instances->Vb,
+                                         VertexCount, FirstInstance, InstanceCount);
+    // A custom declaration invalidates the cached FVF, even when the next draw asks for the same FVF.
+    Rp9DeviceCalls().FvfValid = false;
+    StreamCache_.Reset();
+    if (SUCCEEDED(Hr)) ExNoteDraw(VertexCount / 3 * InstanceCount);
+    else ExLogf(kExFdumpWarning, "WARNING", __LINE__, "Mesh instance draw failed (hr 0x%08x)", (unsigned)Hr);
+    return (GENRESULT)Hr;
 }
 
 // ---- soft particles ----
@@ -2066,6 +2091,8 @@ GENRESULT DACOM_API FDirectX9::SetPlanetSurface(const FRPPlanetSurface* Desc)
     {
         Ex->bPlanetConfigRead = true;
         Ex->bPlanetEnabled = ReadShadowSetting("planet_surface", 1, 0, 1) > 0.5f;
+        Ex->bPlanetAdaptiveDetail = ReadShadowSetting("planet_adaptive_detail", 1, 0, 1) > 0.5f;
+        Ex->PlanetLodPixelScale = ReadShadowSetting("planet_lod_pixel_scale", 1, 0.25f, 4.0f);
         Ex->PlanetRelief = ReadShadowSetting("planet_relief", 6.0f, 0.0f, 30.0f);
         Ex->PlanetGlint = ReadShadowSetting("planet_glint", 10.0f, 0.0f, 50.0f);
         Ex->PlanetGlintRoughness = ReadShadowSetting("planet_glint_roughness", 0.13f, 0.02f, 1.0f);
@@ -2124,6 +2151,7 @@ GENRESULT DACOM_API FDirectX9::SetPlanetSurface(const FRPPlanetSurface* Desc)
     const FPlanetLayer Layer1 = Desc->Mode == 1 ?
         ClassifyPlanetLayer(LowerString(Desc->Detail1 != nullptr ? Desc->Detail1 : ""), bWaterAllowed) : Layer0;
     Ex->PlanetMode = Desc->Mode;
+    Ex->PlanetMeshRadius = Desc->MeshRadius;
     Ex->PlanetWater = (Layer0.Water > 0.0f ? 1 : 0) | (Layer1.Water > 0.0f ? 2 : 0);
     Ex->PlanetLayers[0] = Layer0.Water;
     Ex->PlanetLayers[1] = bGas ? 0.0f : Layer0.Relief;
@@ -2324,7 +2352,7 @@ bool FDirectX9::ExPlanetSurfaceBegin()
     const float EddySpeed = (Ex->bPlanetSwirl ? 0.005f : 0.0012f) * Ex->PlanetGasTurbulence;
     const float EddyFrequency = Ex->bPlanetSwirl ? 2.5f : 4.0f;
     const float FlowPeriod = Ex->bPlanetSwirl ? 16.0f : 20.0f;
-    float PsConstants[84] = {
+    float PsConstants[88] = {
         SunDir.x, SunDir.y, SunDir.z, Ex->PlanetWrap,
         Sun.Diffuse.r * Mat.Diffuse.r, Sun.Diffuse.g * Mat.Diffuse.g, Sun.Diffuse.b * Mat.Diffuse.b, 0.0f,
         Mat.Ambient.r * Ambient[0] + Mat.Emissive.r, Mat.Ambient.g * Ambient[1] + Mat.Emissive.g,
@@ -2347,6 +2375,24 @@ bool FDirectX9::ExPlanetSurfaceBegin()
         EddyFrequency, 0.0f, Ex->bPlanetGas ? 1.0f : 0.0f, FlowPeriod,
         Ex->PlanetSurface[0], Ex->PlanetSurface[1], Ex->PlanetSurface[2], Ex->PlanetSurface[3],
     };
+    for (int I = 84; I < 88; ++I) PsConstants[I] = 1.0f;
+    if (Ex->bPlanetAdaptiveDetail)
+    {
+        float Scale = 0.0f;
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            float const* R = VsConstants + Row * 4;
+            Scale = (std::max)(Scale, std::sqrt(R[0] * R[0] + R[1] * R[1] + R[2] * R[2]));
+        }
+        D3DVIEWPORT9 Viewport = {};
+        if (SUCCEEDED(Device_->GetViewport(&Viewport)))
+            Rp9PlanetQuality(Ex->PlanetMeshRadius * Scale, C.z, VsConstants[21],
+                Viewport.Height, Ex->PlanetLodPixelScale, PsConstants + 84);
+    }
+    // Chaotic giants normally have no zonal jets. As their costly eddies fade out,
+    // introduce a gentle cheap drift so their low-detail appearance still moves.
+    if (Ex->bPlanetSwirl)
+        PsConstants[45] += 0.003f * Ex->PlanetGasFlow * (1.0f - PsConstants[86]);
     // Filtering of the three maps (stage 2 was never sampled by the retail passes).
     ExInitQualityConfig();
     for (unsigned long Stage = 0; Stage < 3; ++Stage)
@@ -2366,7 +2412,7 @@ bool FDirectX9::ExPlanetSurfaceBegin()
     Rp9SetPixelShader(Device_, Ex->PlanetPs);
     Rp9SetVertexConstants(Device_, 0, VsConstants, 8);
     ExPlanetEclipseConstants(&PsConstants[72]);
-    Rp9SetPixelConstants(Device_, 0, PsConstants, 21);
+    Rp9SetPixelConstants(Device_, 0, PsConstants, 22);
     Rp9SetRenderState(Device_, D3DRS_ALPHABLENDENABLE, FALSE);
     Rp9SetRenderState(Device_, D3DRS_ALPHATESTENABLE, FALSE);
     Rp9SetRenderState(Device_, D3DRS_FOGENABLE, FALSE);
@@ -3970,6 +4016,57 @@ void FDirectX9::ExInitQualityConfig()
     Ex_->QualityFxaaMode=(unsigned)ReadShadowSetting("fxaa",1,0,2);
     ExLogf(kExFdumpNotice,"NOTICE",__LINE__,"frame quality: AF %ux, FXAA %s, MSAA off (INTZ depth)",
         Ex_->QualityAnisotropy,Ex_->QualityFxaaMode==2 ? "full frame" : Ex_->QualityFxaaMode==1 ? "before HUD" : "off");
+}
+
+GENRESULT DACOM_API FDirectX9::CaptureSceneColor(FRPExTexture* Destination)
+{
+    FRp9ExState* const E = Ex_;
+    if (!Device_ || !E || E->bInPass || E->bShadowDrawing || E->bSurfaceActive ||
+        E->bPlanetActive || !Destination)
+        return GR_GENERIC;
+    // Check ownership before dereferencing the opaque handle (also rejects scene depth).
+    if (std::find(E->Textures.begin(), E->Textures.end(), Destination) == E->Textures.end() ||
+        Destination->Kind != Rp9ExTextureRenderTarget ||
+        Destination->Format != RPExFormatA8R8G8B8 ||
+        !Destination->Texture || !Destination->Surface)
+        return GR_GENERIC;
+
+    ExFlushSurfaceInstances();
+    IDirect3DSurface9* Source = nullptr;
+    HRESULT Hr = Device_->GetRenderTarget(0, &Source);
+    if (FAILED(Hr)) return (GENRESULT)Hr;
+    if (!Source) return GR_GENERIC;
+
+    D3DSURFACE_DESC From = {}, To = {};
+    Hr = Source->GetDesc(&From);
+    if (SUCCEEDED(Hr)) Hr = Destination->Surface->GetDesc(&To);
+    if (SUCCEEDED(Hr) && (Source == Destination->Surface || !From.Width || !From.Height ||
+        From.Width != To.Width || From.Height != To.Height ||
+        To.Format != D3DFMT_A8R8G8B8 || To.MultiSampleType != D3DMULTISAMPLE_NONE ||
+        (From.Format != D3DFMT_A8R8G8B8 && From.Format != D3DFMT_X8R8G8B8) ||
+        !(From.Usage & D3DUSAGE_RENDERTARGET) || !(To.Usage & D3DUSAGE_RENDERTARGET)))
+        Hr = D3DERR_INVALIDCALL;
+
+    // StretchRect is illegal inside a D3D9 scene. It changes no render bindings or cached
+    // draw state. Track each successful transition, including a failed restart on device loss.
+    bool const WasInScene = E->bInScene;
+    if (SUCCEEDED(Hr) && WasInScene)
+    {
+        Hr = Device_->EndScene();
+        if (SUCCEEDED(Hr)) E->bInScene = false;
+    }
+    if (SUCCEEDED(Hr))
+    {
+        Hr = Device_->StretchRect(Source, nullptr, Destination->Surface, nullptr, D3DTEXF_NONE);
+        if (WasInScene)
+        {
+            HRESULT const Restart = Device_->BeginScene();
+            E->bInScene = SUCCEEDED(Restart);
+            if (FAILED(Restart)) Hr = Restart;
+        }
+    }
+    Source->Release();
+    return (GENRESULT)Hr;
 }
 
 GENRESULT DACOM_API FDirectX9::ApplySceneAntialiasing()

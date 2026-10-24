@@ -36,6 +36,8 @@
 
 class FClientShipGameobj; // client_gameobj.h
 struct FGameLight;        // engine_light.h
+struct FGateTunnelLayerCapture; // optional shader geometry collector
+struct FJumpShipEffect;
 struct FSpaceCamera;      // space_camera.h
 
 // One cubic segment of a curve: value = ((c3 t + c2) t + c1) t + c0 (0x10 bytes).
@@ -126,12 +128,14 @@ struct FGateTunnel
     // FUN_004ff3c0 (thiscall, RET 4). Caller: FUN_00503cd0 (0x00503cf8).
     void Update(float Dt);
     // FUN_004ffab0 (thiscall, RET 4). Caller: FUN_00504890, the JumpShipEffect's tunnel draw.
-    void Draw(FSpaceCamera* Camera);
+    // Returns true when the custom cloud tunnel was drawn successfully.
+    bool Draw(FSpaceCamera* Camera);
     // FUN_004ffbb0 (thiscall, RET 8): the path frame at T -- columns (left, up, forward), the
     // point on the path as translation.
     void BuildFrame(FTransform* Out, float T) const;
     // FUN_004ffe50 (thiscall, RET 0x10): one layer's ring strips from T0 to T1.
-    void EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int LayerIndex);
+    void EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int LayerIndex,
+                   FGateTunnelLayerCapture* Capture = nullptr);
     // FUN_00500a80 (thiscall, RET 4).
     void RebuildPath(int Shift);
     // FUN_00500de0 (thiscall, RET 4).
@@ -177,7 +181,17 @@ struct FGateTunnel
     int State;                     // +0x2a4
     FGameLight* Light;             // +0x2a8
     Vector LightDirection;         // +0x2ac
+    // Port-only visual state: never feeds the path, ship velocity or transition clocks.
+    bool bHyperspaceClouds = false;
 };
+
+// Short visual launch buildup and burst, driven only by the existing jump clock.
+void GateTunnelDrawLaunch(FSpaceCamera* Camera, FJumpShipEffect const* Effect);
+// Subtle whole-scene optics, only while the player is in actual tunnel states2/3.
+void GateTunnelDrawRefraction(FSpaceCamera* Camera,FJumpShipEffect const* Effect);
+
+// Called before the Ex pipeline releases its device-owned handles.
+void GateTunnelRenderShutdown();
 
 // DAT_00674f98 (allocator byte; first DAT_00674f9c, last DAT_00674fa0, end DAT_00674fa4) -- the
 // loaded tunnels, a VC6 vector of pointers built by the static initializer LAB_004fe0c0

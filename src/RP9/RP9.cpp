@@ -1336,6 +1336,8 @@ GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
         Face = (IRPWeaponGlints*)(this);
     else if (IidEqual(Iid, Iids::RPFrameQuality))
         Face = (IRPFrameQuality*)(this);
+    else if (IidEqual(Iid, Iids::RPSceneCapture))
+        Face = (IRPSceneCapture*)(this);
     else if (IidEqual(Iid, Iids::RPPlanetAtmosphere))
         Face = (IRPPlanetAtmosphere*)(this);
     else if (IidEqual(Iid, Iids::RPPlanetSurface))

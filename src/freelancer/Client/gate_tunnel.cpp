@@ -10,6 +10,9 @@
 #include "common_cobject.h"  // CObject::beam_object (vt+0x7c)
 #include "common_ini.h"
 #include "engine_light.h"
+#include "game_options.h"
+#include "jump_effect.h"
+#include "jumphole_visual.h"
 #include "hud_target.h"      // HudTransformPoint (FUN_004e7090)
 #include "space_camera.h"    // AsCamera
 #include "win3d_immediate.h"
@@ -19,13 +22,56 @@
 #include "dacom.h" // FDUMP
 #include "render/IRenderPipeline.h"
 #include "render/shading.h" // ITextureLibrary2
+#ifdef FREELANCER_RP9
+#include "common_misc.h"
+#include "render/IRenderPipelineEx.h"
+#include "render_ex.h"
+#include "render/IRPSceneCapture.h"
+#include "dacom_iids.h"
+#include "player_behavior.h"
+#include "common_iface.h"
+#endif
 
 #include <cmath>
 #include <cstdlib>
 #include <new>
 
+// Optional capture of the existing immediate-mode geometry for the shader path.
+struct FGateTunnelVertex
+{
+    float Position[3];
+    unsigned long Color;
+    float UV[2];
+};
+static_assert(sizeof(FGateTunnelVertex) == 24, "tunnel XYZ/DIFFUSE/TEX1 layout");
+struct FGateTunnelLayerCapture
+{
+    std::vector<FGateTunnelVertex> Vertices, Strip;
+    void* Texture = nullptr;
+};
+
 namespace
 {
+    void EmitTunnelVertex(FGateTunnelLayerCapture* Capture, float X, float Y, float Z,
+                          float const* Color, float Alpha, float U, float V)
+    {
+        if (!Capture)
+        {
+            Win3DTexCoord2f(U, V);
+            Win3DColor4f(Color[0], Color[1], Color[2], Alpha);
+            Win3DVertex3f(X, Y, Z);
+            return;
+        }
+        auto Byte = [](float Value) -> unsigned long {
+            int const Scaled = static_cast<int>(static_cast<double>(Value) * 255.0);
+            return Scaled < 0 ? 0 : Scaled > 255 ? 255 : Scaled;
+        };
+        FGateTunnelVertex Vertex = {{X, Y, Z},
+            (Byte(Alpha) << 24) | (Byte(Color[0]) << 16) | (Byte(Color[1]) << 8) | Byte(Color[2]),
+            {U, V}};
+        Capture->Strip.push_back(Vertex);
+    }
+
     // .rdata 0x005da560.
     char const* const kGateTunnelCpp = "E:\\FL\\Scratch\\Source\\Client\\Space\\GateTunnel.cpp";
 
@@ -705,12 +751,308 @@ void FGateTunnel::Update(float Dt)
     }
 }
 
-void FGateTunnel::Draw(FSpaceCamera* Camera)
+#ifdef FREELANCER_RP9
+namespace
+{
+    FRPExProgram* G_HyperspaceProgram = nullptr;
+    FRPExProgram* G_HyperspaceLaunchProgram = nullptr;
+    bool G_HyperspaceLaunchTried = false;
+    FRPExTexture* G_HyperspaceNoise = nullptr;
+    bool G_HyperspaceTried = false;
+    FRPExProgram* G_HyperspaceRefraction = nullptr;
+    FRPExTexture* G_HyperspaceScene = nullptr;
+    IRPSceneCapture* G_HyperspaceCapture = nullptr;
+    bool G_HyperspaceRefractionFailed = false;
+
+    bool EnsureHyperspaceRefraction()
+    {
+        if(G_HyperspaceRefractionFailed || !RenderEx::IsAvailable()) return false;
+        if(G_HyperspaceRefraction && G_HyperspaceScene && G_HyperspaceCapture) return true;
+        auto* Ex=RenderEx::GetPipelineEx();
+        FRPExRenderTargetDesc Desc={0,0,1.0f,RPExFormatA8R8G8B8};
+        bool Ok=DALib::Pipeline->QueryInterface(Iids::RPSceneCapture,reinterpret_cast<void**>(&G_HyperspaceCapture))==GR_OK && G_HyperspaceCapture;
+        if(Ok) Ok=Ex->CreateExProgram(RenderEx::GetExtraData(),"SHADERS\\hyperspace_refraction.hlsl","VSMain","PSMain",&G_HyperspaceRefraction)==GR_OK;
+        if(Ok) Ok=Ex->CreateExRenderTarget(&Desc,&G_HyperspaceScene)==GR_OK;
+        if(!Ok)
+        {
+            if(G_HyperspaceRefraction) Ex->DestroyExProgram(G_HyperspaceRefraction);
+            if(G_HyperspaceScene) Ex->DestroyExTexture(G_HyperspaceScene);
+            if(G_HyperspaceCapture) G_HyperspaceCapture->Release();
+            G_HyperspaceRefraction=nullptr;G_HyperspaceScene=nullptr;G_HyperspaceCapture=nullptr;
+            G_HyperspaceRefractionFailed=true;
+            FDUMP(0x100002,"Hyperspace scene refraction unavailable; retaining existing tunnel.\n");
+        }
+        return Ok;
+    }
+
+    bool EnsureHyperspace()
+    {
+        if (G_HyperspaceProgram && G_HyperspaceNoise) return true;
+        if (G_HyperspaceTried || !RenderEx::IsAvailable()) return false;
+        FRPExCaps Caps = {};
+        if (!RenderEx::GetCaps(&Caps)) return false;
+        G_HyperspaceTried = true;
+        if (Caps.VertexShaderVersion < 0x300 || Caps.PixelShaderVersion < 0x300 ||
+            !Caps.bVolumeTextures || Caps.MaxVolumeExtent < 32) return false;
+        IRenderPipelineEx* Ex = RenderEx::GetPipelineEx();
+        if (Ex->CreateExProgram(RenderEx::GetExtraData(), "SHADERS\\hyperspace_tunnel.hlsl",
+                                "VSMain", "PSMain", &G_HyperspaceProgram) != GR_OK)
+        {
+            if (G_HyperspaceProgram) Ex->DestroyExProgram(G_HyperspaceProgram);
+            G_HyperspaceProgram = nullptr;
+            return false;
+        }
+        // Local fixed seed: never consumes gameplay rand() and never changes between frames.
+        std::vector<unsigned char> Noise(32 * 32 * 32);
+        unsigned Seed = 0x48595045;
+        for (unsigned char& Value : Noise)
+        {
+            Seed ^= Seed << 13; Seed ^= Seed >> 17; Seed ^= Seed << 5;
+            Value = static_cast<unsigned char>(Seed >> 24);
+        }
+        if (Ex->CreateExVolumeTexture(32, 32, 32, RPExFormatL8, Noise.data(),
+                                     &G_HyperspaceNoise) != GR_OK)
+        {
+            Ex->DestroyExProgram(G_HyperspaceProgram);
+            G_HyperspaceProgram = nullptr;
+            return false;
+        }
+        return true;
+    }
+
+    FGateTunnelLayerCapture G_CloudLayers[2];
+
+    bool DrawHyperspace(FGateTunnel& Tunnel, ICamera* Camera)
+    {
+        if (!EnsureHyperspace() || Tunnel.LayerCount < 1 || Tunnel.LayerCount > 2)
+            return false;
+        // Win3DApplyCamera has already installed these exact camera/projection matrices.
+        // GetProjection returns rows of the column-vector matrix, including RP9's depth map.
+        float V[32] = {};
+        float const* View = Camera->GetViewTransform();
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            for (int Col = 0; Col < 3; ++Col)
+                V[Row * 4 + Col] = View[Row * 3 + Col];
+            V[Row * 4 + 3] = View[9 + Row];
+        }
+        IRenderPipeline* Pipe = DALib::Pipeline;
+        if (Pipe->GetProjection(V + 12) != GR_OK) return false;
+        V[28] = V[29] = 1.0f;
+        int const* Vp = Camera->GetViewport();
+        FRPExTexture* Depth = nullptr;
+        unsigned long W = 0, H = 0;
+        IRenderPipelineEx* Ex = RenderEx::GetPipelineEx();
+        if (Ex->GetSceneDepth(&Depth) == GR_OK &&
+            Ex->GetExTextureSize(Depth, &W, &H) == GR_OK && W && H)
+        {
+            V[28] = float(Vp[2] - Vp[0] + 1) / W; V[29] = float(Vp[3] - Vp[1] + 1) / H;
+            V[30] = 2.0f * Vp[0] / W + V[28] - 1.0f;
+            V[31] = 1.0f - 2.0f * Vp[1] / H - V[29];
+        }
+        // Collect the original strips, with exactly the same stepping and layer order.
+        for (int Index = 0; Index < Tunnel.LayerCount; ++Index)
+        {
+            G_CloudLayers[Index].Vertices.clear();
+            Tunnel.NumTSteps = -Tunnel.NumTSteps;
+            Tunnel.EmitLayer(0.1f, -0.01f, &Tunnel.Layers[Index], Index, &G_CloudLayers[Index]);
+            Tunnel.NumTSteps = -Tunnel.NumTSteps;
+        }
+        FRPExPassDesc Pass = {nullptr, RPExPassKeepDepth, 0};
+        if (Ex->BeginExPass(&Pass) != GR_OK) return false;
+        Pipe->SetRenderState(D3DRS_ZENABLE, 1);
+        // Translucent clouds overlay the already drawn original tunnel.
+        Pipe->SetRenderState(D3DRS_ZWRITEENABLE, 0);
+        Pipe->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
+        Pipe->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+        Pipe->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
+        Pipe->SetRenderState(D3DRS_ALPHABLENDENABLE, 1);
+        Pipe->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+        Pipe->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+        FRPExSamplerState NoiseSampler = {RPExFilterLinear, RPExMipNone,
+            RPExAddressWrap, RPExAddressWrap, RPExAddressWrap};
+        FRPExSamplerState LayerSampler = {RPExFilterLinear, RPExMipLinear,
+            RPExAddressWrap, RPExAddressWrap, RPExAddressWrap};
+        bool Ok = Ex->BindExProgram(G_HyperspaceProgram) == GR_OK &&
+            Ex->BindExTexture(1, G_HyperspaceNoise, &NoiseSampler) == GR_OK &&
+            Ex->SetExVertexConstants(0, V, 8) == GR_OK;
+        for (int Index = 0; Ok && Index < Tunnel.LayerCount; ++Index)
+        {
+            FGateTunnelLayerCapture const& Layer = G_CloudLayers[Index];
+            Pipe->SetRenderState(D3DRS_SRCBLEND, Index == 0 ? D3DBLEND_SRCALPHA : D3DBLEND_ONE);
+            float const LayerParams[4] = {static_cast<float>(Index), 0, 0, 0};
+            Ok = Ex->BindExPipelineTexture(0, Layer.Texture, &LayerSampler) == GR_OK &&
+                Ex->SetExPixelConstants(0, LayerParams, 1) == GR_OK;
+            if (Ok && !Layer.Vertices.empty())
+                Ok = RenderEx::GetDrawEx()->DrawExPrimitiveUp(D3DPT_TRIANGLELIST,
+                    D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1, Layer.Vertices.data(),
+                    static_cast<unsigned long>(Layer.Vertices.size())) == GR_OK;
+        }
+        if (Ex->EndExPass() != GR_OK) return false;
+        return Ok;
+    }
+}
+#endif
+
+void GateTunnelDrawLaunch(FSpaceCamera* Camera, FJumpShipEffect const* Effect)
+{
+#ifdef FREELANCER_RP9
+    if (JumpHoleVisualDrawIngress(Camera,Effect)) return;
+    if (!Camera || !Effect || !Effect->Ship || !Effect->Tunnel ||
+        !Effect->Tunnel->bHyperspaceClouds || !GetGameOption(kGameOptEffectsGroup))
+        return;
+    int const State = Effect->Ship->Field_0x158;
+    float const Elapsed = Effect->Field_0x70;
+    if (!std::isfinite(Elapsed) || Elapsed < 0.0f ||
+        (State != 1 && State != 2 && State != 4) || (State == 2 && Elapsed >= 0.55f))
+        return;
+    bool const Exiting = State == 4;
+    float Build = 1.0f;
+    float After = State == 2 ? Elapsed / 0.55f : 0.0f;
+    if (State == 1)
+    {
+        if (!std::isfinite(Effect->JumpOutTime) || Effect->JumpOutTime <= 0.0f)
+            return;
+        // StartJumpOut used to spawn jg_stars at the start of state 1. Start the
+        // new stars there too, with a short fade, rather than waiting for its last second.
+        Build = Elapsed / Effect->JumpOutTime;
+        if (Build <= 0.0f) return;
+        if (Build > 1.0f) Build = 1.0f;
+    }
+    float Burst = State == 2 ? 1.0f - After : (Build - 0.8f) / 0.2f;
+    if (Burst < 0.0f) Burst = 0.0f;
+    if (Burst > 1.0f) Burst = 1.0f;
+    if (Exiting)
+    {
+        if (!std::isfinite(Effect->JumpInTime) || Effect->JumpInTime <= 0.0f) return;
+        float const Duration = Effect->JumpInTime < 0.9f ? Effect->JumpInTime : 0.9f;
+        if (Elapsed >= Duration) return;
+        Build = Elapsed / Duration;
+        Burst = After = 0.0f;
+    }
+    // Require the cloud shader too, so unavailable custom rendering keeps the legacy look.
+    if (!EnsureHyperspace()) return;
+    IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
+    if (!G_HyperspaceLaunchProgram)
+    {
+        if (G_HyperspaceLaunchTried) return;
+        G_HyperspaceLaunchTried = true;
+        if (Ex->CreateExProgram(RenderEx::GetExtraData(), "SHADERS\\hyperspace_tunnel.hlsl",
+                               "VSLaunch", "PSLaunch", &G_HyperspaceLaunchProgram) != GR_OK)
+        {
+            if (G_HyperspaceLaunchProgram) Ex->DestroyExProgram(G_HyperspaceLaunchProgram);
+            G_HyperspaceLaunchProgram = nullptr;
+            return;
+        }
+    }
+    int const* Vp = AsCamera(Camera)->GetViewport();
+    float const Width = float(Vp[2] - Vp[0] + 1);
+    float const Height = float(Vp[3] - Vp[1] + 1);
+    if (Width <= 0.0f || Height <= 0.0f) return;
+    FRPExTexture* Depth = nullptr;
+    unsigned long W = 0, H = 0;
+    if (Ex->GetSceneDepth(&Depth) != GR_OK ||
+        Ex->GetExTextureSize(Depth, &W, &H) != GR_OK || !W || !H)
+        return;
+    float const Remap[4] = {Width / W, Height / H,
+        (2.0f * Vp[0] + Width) / W - 1.0f, 1.0f - (2.0f * Vp[1] + Height) / H};
+    FVector Tint = Effect->Tunnel->Layers[0].Color;
+    if (Effect->Tunnel->LayerCount > 1)
+    {
+        Tint.X += Effect->Tunnel->Layers[1].Color.X * 0.6f;
+        Tint.Y += Effect->Tunnel->Layers[1].Color.Y * 0.6f;
+        Tint.Z += Effect->Tunnel->Layers[1].Color.Z * 0.6f;
+    }
+    float const Peak = fmaxf(Tint.X, fmaxf(Tint.Y, Tint.Z));
+    float const Params[8] = {Build, Burst, Width / Height, After,
+        Exiting ? 1.0f : 0.0f, Peak > 0.001f ? Tint.X / Peak : 1.0f,
+        Peak > 0.001f ? Tint.Y / Peak : 1.0f, Peak > 0.001f ? Tint.Z / Peak : 1.0f};
+    FGateTunnelVertex const Quad[] = {
+        {{-1, 1, 0}, 0xffffffffu, {0, 0}}, {{1, 1, 0}, 0xffffffffu, {1, 0}},
+        {{-1, -1, 0}, 0xffffffffu, {0, 1}}, {{1, -1, 0}, 0xffffffffu, {1, 1}}};
+    FRPExPassDesc Pass = {nullptr, RPExPassKeepDepth, 0};
+    if (Ex->BeginExPass(&Pass) != GR_OK) return;
+    IRenderPipeline* const Pipe = DALib::Pipeline;
+    Pipe->SetRenderState(D3DRS_ZENABLE, 0);
+    Pipe->SetRenderState(D3DRS_ZWRITEENABLE, 0);
+    Pipe->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+    Pipe->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
+    Pipe->SetRenderState(D3DRS_ALPHABLENDENABLE, 1);
+    Pipe->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+    Pipe->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+    Pipe->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+    if (Ex->BindExProgram(G_HyperspaceLaunchProgram) == GR_OK &&
+        Ex->SetExVertexConstants(7, Remap, 1) == GR_OK &&
+        Ex->SetExPixelConstants(0, Params, 2) == GR_OK)
+        RenderEx::GetDrawEx()->DrawExPrimitiveUp(D3DPT_TRIANGLESTRIP,
+            D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1, Quad, 4);
+    Ex->EndExPass();
+#endif
+}
+
+void GateTunnelDrawRefraction(FSpaceCamera* Camera,FJumpShipEffect const* Effect)
+{
+#ifdef FREELANCER_RP9
+    if(!Camera || !Effect || !Effect->Ship || !Effect->Tunnel ||
+       static_cast<void*>(static_cast<IObjRW*>(Effect->Ship))!=GetPlayerObjRW() ||
+       !GetGameOption(kGameOptEffectsGroup)) return;
+    int const State=Effect->Ship->Field_0x158;
+    if(State!=2 && State!=3) return;
+    // SpeedClock advances in FGateTunnel::Update, never from a render/wall clock.
+    float const Time=Effect->Tunnel->SpeedClock;
+    if(!std::isfinite(Time) || Time<0 || !EnsureHyperspaceRefraction()) return;
+    auto* Ex=RenderEx::GetPipelineEx();
+    unsigned long W=0,H=0;
+    if(Ex->GetExTextureSize(G_HyperspaceScene,&W,&H)!=GR_OK || !W || !H) return;
+    int const* Vp=Camera->GetViewport();
+    float const Width=float(Vp[2]-Vp[0]+1),Height=float(Vp[3]-Vp[1]+1);
+    if(Width<=1 || Height<=1) return;
+    float const Remap[4]={Width/W,Height/H,(2*Vp[0]+Width)/W-1,1-(2*Vp[1]+Height)/H};
+    float const Ramp=(std::fmin)(1.0f,Time/.3f);
+    float const Gain=Ramp*Ramp*(3-2*Ramp);
+    if(Gain<=0) return;
+    float const P[8]={std::fmod(Time,96.0f),Gain,1.0f/W,1.0f/H,
+        (Vp[0]+.5f)/W,(Vp[1]+.5f)/H,(Vp[2]+.5f)/W,(Vp[3]+.5f)/H};
+    if(G_HyperspaceCapture->CaptureSceneColor(G_HyperspaceScene)!=GR_OK) return;
+    FRPExPassDesc Pass={nullptr,0,0};
+    if(Ex->BeginExPass(&Pass)!=GR_OK) return;
+    FRPExSamplerState Linear={RPExFilterLinear,RPExMipNone,RPExAddressClamp,RPExAddressClamp,RPExAddressClamp};
+    FGateTunnelVertex const Quad[]={{{-1,1,0},0xffffffffu,{0,0}},{{1,1,0},0xffffffffu,{1,0}},
+        {{-1,-1,0},0xffffffffu,{0,1}},{{1,-1,0},0xffffffffu,{1,1}}};
+    if(Ex->BindExProgram(G_HyperspaceRefraction)==GR_OK &&
+       Ex->BindExTexture(0,G_HyperspaceScene,&Linear)==GR_OK &&
+       Ex->SetExVertexConstants(7,Remap,1)==GR_OK && Ex->SetExPixelConstants(0,P,2)==GR_OK)
+        RenderEx::GetDrawEx()->DrawExPrimitiveUp(D3DPT_TRIANGLESTRIP,
+            D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1,Quad,4);
+    Ex->EndExPass();
+#endif
+}
+
+void GateTunnelRenderShutdown()
+{
+#ifdef FREELANCER_RP9
+    IRenderPipelineEx* Ex = RenderEx::GetPipelineEx();
+    if(Ex && G_HyperspaceRefraction) Ex->DestroyExProgram(G_HyperspaceRefraction);
+    if(Ex && G_HyperspaceScene) Ex->DestroyExTexture(G_HyperspaceScene);
+    if(G_HyperspaceCapture) G_HyperspaceCapture->Release();
+    G_HyperspaceRefraction=nullptr;G_HyperspaceScene=nullptr;G_HyperspaceCapture=nullptr;
+    G_HyperspaceRefractionFailed=false;
+    if (Ex && G_HyperspaceNoise) Ex->DestroyExTexture(G_HyperspaceNoise);
+    if (Ex && G_HyperspaceProgram) Ex->DestroyExProgram(G_HyperspaceProgram);
+    if (Ex && G_HyperspaceLaunchProgram) Ex->DestroyExProgram(G_HyperspaceLaunchProgram);
+    G_HyperspaceLaunchProgram = nullptr; G_HyperspaceLaunchTried = false;
+    G_HyperspaceNoise = nullptr; G_HyperspaceProgram = nullptr; G_HyperspaceTried = false;
+    for (auto& Layer : G_CloudLayers)
+        Layer = FGateTunnelLayerCapture();
+#endif
+}
+
+bool FGateTunnel::Draw(FSpaceCamera* Camera)
 {
     // FUN_004ffab0.
     ++G_GateTunnelDrawCount;
     if (State == 0)
-        return;
+        return false;
 
     // 0x004ffac7..0x004ffadc: a light that is off is switched on (vt+4) for the draw.
     if (Light != nullptr && (Light->Flags & 0x08) == 0)
@@ -736,6 +1078,12 @@ void FGateTunnel::Draw(FSpaceCamera* Camera)
     Win3DEnable(kWin3DCullFace);
     Win3DSetDepthWrite(1);
     Win3DDisable(kWin3DBlend);
+#ifdef FREELANCER_RP9
+    // Always retain both original animated layers beneath the translucent clouds.
+    if (bHyperspaceClouds)
+        return DrawHyperspace(*this, AsCamera(Camera));
+#endif
+    return false;
 }
 
 void FGateTunnel::BuildFrame(FTransform* Out, float T) const
@@ -809,18 +1157,19 @@ void FGateTunnel::BuildFrame(FTransform* Out, float T) const
     Out->Translation = Point;
 }
 
-void FGateTunnel::EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int LayerIndex)
+void FGateTunnel::EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int LayerIndex,
+                            FGateTunnelLayerCapture* Capture)
 {
     // FUN_004ffe50.
     float Step = static_cast<float>(1.0 / NumTSteps);
     float const RingStep = static_cast<float>(1.0 / NumSSteps);
 
     // 0x004ffe89..0x004ffe9e / 0x00500a47: layer 0 blends by alpha, layer 1 additively.
-    if (LayerIndex == 0)
+    if (Capture == nullptr && LayerIndex == 0)
         Win3DSetBlendFunc(kWin3DBlendSrcAlpha, kWin3DBlendInvSrcAlpha);
-    else if (LayerIndex == 1)
+    else if (Capture == nullptr && LayerIndex == 1)
         Win3DSetBlendFunc(kWin3DBlendOne, kWin3DBlendInvSrcAlpha);
-    else
+    else if (LayerIndex < 0 || LayerIndex > 1)
     {
         FDUMP(0x100002, "%s(%d) : *** WARNING: %s", kGateTunnelCpp, 0x21e,
               "Only two render layers in the jumpgate supported");
@@ -830,6 +1179,7 @@ void FGateTunnel::EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int Lay
     // 0x004ffea3..0x004ffec0: the layer texture's frame 0 (ITextureLibrary2 vt+0x58).
     unsigned long TextureFrame[5];
     DALib::TextureLib->GetTextureFrame(Layer->Texture.Texture, 0, TextureFrame);
+    if (Capture) Capture->Texture = reinterpret_cast<void*>(TextureFrame[0]);
 
     // 0x004ffec3..0x004fff75: the window [T0, T1] around the ship, clamped to [0, 1] (NaN
     // kept); the span is measured against the unrounded start.
@@ -953,8 +1303,13 @@ void FGateTunnel::EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int Lay
         Colour1[1] = static_cast<float>(Colour1[1] * Brightness1);
         Colour1[2] = static_cast<float>(Brightness1 * Colour1[2]);
 
-        Win3DBindTexture(reinterpret_cast<void*>(TextureFrame[0]));
-        Win3DBegin(kWin3DTriangleStrip);
+        if (Capture)
+            Capture->Strip.clear();
+        else
+        {
+            Win3DBindTexture(reinterpret_cast<void*>(TextureFrame[0]));
+            Win3DBegin(kWin3DTriangleStrip);
+        }
 
         // 0x005007ed..0x00500a2f: one strip around the ring, while the (unrounded) angle stays
         // <= 1 (TEST AH,0x41 / JNP: below or equal loops, above or NaN stops).
@@ -983,21 +1338,20 @@ void FGateTunnel::EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int Lay
             FVector Rotated1;
             G_GateTunnelMath->Rotate(Rotated1, Frame1, Ring1);
 
-            Win3DTexCoord2f(static_cast<float>(static_cast<double>(Angle) + Layer->UOffset),
-                            static_cast<float>(static_cast<double>(T) * Layer->VScale +
-                                               Layer->VOffset));
-            Win3DColor4f(Colour0[0], Colour0[1], Colour0[2], Alpha0);
-            Win3DVertex3f(static_cast<float>(static_cast<double>(Frame0.Translation.X) + Rotated0.X),
-                          static_cast<float>(static_cast<double>(Frame0.Translation.Y) + Rotated0.Y),
-                          static_cast<float>(static_cast<double>(Frame0.Translation.Z) + Rotated0.Z));
-
-            Win3DTexCoord2f(static_cast<float>(static_cast<double>(Angle) + Layer->UOffset),
-                            static_cast<float>(static_cast<double>(Next) * Layer->VScale +
-                                               Layer->VOffset));
-            Win3DColor4f(Colour1[0], Colour1[1], Colour1[2], Alpha1);
-            Win3DVertex3f(static_cast<float>(static_cast<double>(Frame1.Translation.X) + Rotated1.X),
-                          static_cast<float>(static_cast<double>(Frame1.Translation.Y) + Rotated1.Y),
-                          static_cast<float>(static_cast<double>(Frame1.Translation.Z) + Rotated1.Z));
+            EmitTunnelVertex(Capture,
+                static_cast<float>(static_cast<double>(Frame0.Translation.X) + Rotated0.X),
+                static_cast<float>(static_cast<double>(Frame0.Translation.Y) + Rotated0.Y),
+                static_cast<float>(static_cast<double>(Frame0.Translation.Z) + Rotated0.Z),
+                Colour0, Alpha0,
+                static_cast<float>(static_cast<double>(Angle) + Layer->UOffset),
+                static_cast<float>(static_cast<double>(T) * Layer->VScale + Layer->VOffset));
+            EmitTunnelVertex(Capture,
+                static_cast<float>(static_cast<double>(Frame1.Translation.X) + Rotated1.X),
+                static_cast<float>(static_cast<double>(Frame1.Translation.Y) + Rotated1.Y),
+                static_cast<float>(static_cast<double>(Frame1.Translation.Z) + Rotated1.Z),
+                Colour1, Alpha1,
+                static_cast<float>(static_cast<double>(Angle) + Layer->UOffset),
+                static_cast<float>(static_cast<double>(Next) * Layer->VScale + Layer->VOffset));
 
             double const AngleSum = static_cast<double>(Angle) + RingStep;
             ++G_GateTunnelRingVertCount;
@@ -1005,7 +1359,18 @@ void FGateTunnel::EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int Lay
             if (!(AngleSum <= 1.0))
                 break;
         }
-        Win3DEnd();
+        if (Capture)
+        {
+            for (size_t I = 2; I < Capture->Strip.size(); ++I)
+            {
+                // Alternate winding exactly as in the original triangle strip.
+                Capture->Vertices.push_back(Capture->Strip[I - 2 + (I & 1)]);
+                Capture->Vertices.push_back(Capture->Strip[I - 1 - (I & 1)]);
+                Capture->Vertices.push_back(Capture->Strip[I]);
+            }
+        }
+        else
+            Win3DEnd();
 
         // 0x00500a3a: the next strip starts at the unclamped step end.
         T = Unclamped;
@@ -1075,6 +1440,8 @@ void GateTunnelIniLoad(char const* Path)
                     // FCOMP 0.0 / TEST AH,0x44 / JNP: only an exact 0 clears it (NaN sets it).
                     Tunnel->bWriteDepthBuffer = Reader.get_value_float(0) != 0.0f ? 1 : 0;
                 }
+                else if (Reader.is_value("hyperspace_clouds"))
+                    Tunnel->bHyperspaceClouds = Reader.get_value_int(0) != 0;
                 else if (Reader.is_value("num_spline_control_points"))
                     Tunnel->NumSplineControlPoints = static_cast<int>(Reader.get_value_float(0));
                 else if (Reader.is_value("x_range"))

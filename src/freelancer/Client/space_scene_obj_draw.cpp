@@ -30,9 +30,14 @@
 #include "effect_type_list.h"
 #include "game_options.h"
 #include "gate_tunnel.h"    // FGateTunnel::Draw (FUN_004ffab0)
+#include "tradelane_visual.h"
+#include "jumphole_visual.h"
+#include "ship_warp_visual.h"
+#include "engine_heat_visual.h"
 #include "globals.h"
 #include "hud_element_list.h"
 #include "jump_effect.h"    // FJumpShipEffect::Tunnel (+0x24)
+#include "particle_effect.h"
 #include "hud_waypoint.h"   // HudWaypointGetObjectCount / HudWaypointGetObject (FUN_004c83c0 / 83e0)
 #include "menu_ui_draw.h"
 #ifdef FREELANCER_RP9
@@ -1586,7 +1591,8 @@ namespace
     // of DAT_00674f50.
 
     // FUN_004f7810(Cam, Dt, TypeIndex) — walk DAT_00674ce4[Type] with death/LOD arms.
-    void EffectTypeBucketWalk(FSpaceCamera* Cam, float Dt, int TypeIndex)
+    void EffectTypeBucketWalk(FSpaceCamera* Cam, float Dt, int TypeIndex,
+                              FParticleEffect* SuppressedVisual = nullptr)
     {
         // 004f781a: `MOV EAX,[TypeIndex*0xc + DAT_00674ce4]` -- no range test.
         void* Node = G_EffectTypeBuckets[TypeIndex].Head;
@@ -1647,7 +1653,14 @@ namespace
                     TypedEffect->TickDraw(Dt, Cam);
                 if (DrawOk != 0 && UpdateOk != 0)
                 {
-                    TypedEffect->BuildGeometry(Cam);
+                    if (TypedEffect == SuppressedVisual)
+                    {
+                        // Match BuildGeometry's visibility bookkeeping while retaining
+                        // the simulation and companion sound/light for instant fallback.
+                        SuppressedVisual->Flags7C &= static_cast<unsigned char>(~1u);
+                    }
+                    else
+                        TypedEffect->BuildGeometry(Cam);
                 }
             }
 
@@ -1665,7 +1678,8 @@ namespace
 
     // FUN_004f7480(Cam, Dt, TypeIndex) — effects RS/Alchemy frame; beam batch reset+flush.
     // Call sites: 0051c2bc (Type=0x25), 0051c2d0 (0x1b), 0051c7c2 (-1).
-    void SpaceEffectsDrawFrame(FSpaceCamera* Cam, float Dt, int TypeIndex)
+    void SpaceEffectsDrawFrame(FSpaceCamera* Cam, float Dt, int TypeIndex,
+                               FParticleEffect* SuppressedVisual = nullptr)
     {
         // 0x004f749c..0x004f74a8: option 0x25 gate. No camera / pipeline null checks in retail.
         if (GetGameOption(kGameOptEffectsGroup) == 0)
@@ -1715,12 +1729,12 @@ namespace
                 {
                     if (TypeIndex >= 0)
                     {
-                        EffectTypeBucketWalk(Cam, ClampedDt, TypeIndex);
+                        EffectTypeBucketWalk(Cam, ClampedDt, TypeIndex, SuppressedVisual);
                     }
                     else
                     {
                         for (int T = 0; T < 0x2b; ++T)
-                            EffectTypeBucketWalk(Cam, ClampedDt, T);
+                            EffectTypeBucketWalk(Cam, ClampedDt, T, SuppressedVisual);
                     }
                     Alchemy->EndDraw();
                 }
@@ -3316,11 +3330,26 @@ namespace
     // FUN_00504890 (thiscall on the Ship's +0x188 JumpShipEffect object, RET 4): the gate
     // tunnel at +0x24 (built at 0x005037b5), when there is one, draws for Cam -- a tail JMP to
     // FUN_004ffab0.
-    void JumpShipEffectDrawTunnel(void* JumpFx, FSpaceCamera* Cam)
+    FParticleEffect* JumpShipEffectDrawTunnel(void* JumpFx, FSpaceCamera* Cam)
     {
-        FGateTunnel* const Tunnel = static_cast<FJumpShipEffect*>(JumpFx)->Tunnel;
-        if (Tunnel != nullptr)
-            Tunnel->Draw(Cam);
+        FJumpShipEffect* const Effect = static_cast<FJumpShipEffect*>(JumpFx);
+        FGateTunnel* const Tunnel = Effect->Tunnel;
+        if (!Tunnel) return nullptr;
+        bool SuppressStreaks = false;
+#ifdef FREELANCER_RP9
+        if (Tunnel->bHyperspaceClouds && Effect->FxB.Particle &&
+            GetGameOption(kGameOptEffectsGroup) && GetGameOption(kGameOptParticles))
+        {
+            // ID_String stores a hash; get_string() is diagnostic "0x...", not a nickname.
+            // Compare IDs, otherwise the attached ALE streaks stay visible.
+            static unsigned const StreakEffectIds[] = {CreateID("jg_stars"), CreateID("jg_stars_green"),
+                CreateID("jg_stars_walker"), CreateID("jg_stars_barrier"), CreateID("jg_stars_dark")};
+            for (unsigned const Candidate : StreakEffectIds)
+                if (Effect->TunnelEffect.Id == Candidate) SuppressStreaks = true;
+        }
+#endif
+        bool const CustomTunnelDrawn = Tunnel->Draw(Cam);
+        return CustomTunnelDrawn && SuppressStreaks ? Effect->FxB.Particle : nullptr;
     }
 
     // FUN_00504880: the dword at +0x20. On the JumpShipEffect object it is the descriptor's
@@ -3369,7 +3398,9 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
                 SpaceCameraSetHalfFovX(Cam, Gc->BaseHalfFovXDeg);
 
             // 0x0051c273..0x0051c27a: FUN_00504890 on the +0x188 object, used unchecked.
-            JumpShipEffectDrawTunnel(Ship->Field_0x188, Cam);
+            // This pointer lives only for this camera pass. No replacement state leaks
+            // to another view, transition, failed shader draw, or later effect instance.
+            FParticleEffect* const ReplacedStreaks = JumpShipEffectDrawTunnel(Ship->Field_0x188, Cam);
 
             // 0x0051c27f..0x0051c29c: the player's own draw, vt+0x188(&Lod, this, Lod, 0, 0)
             // with Lod = {word 0, word 0xffff} -- the Ship's override FUN_00546050.
@@ -3380,8 +3411,16 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
             // the same with 0x1b; FUN_0042d680 is read afresh for each call.
             if (GetGameOption(kGameOptEffectsGroup) != 0)
             {
-                SpaceEffectsDrawFrame(Cam, static_cast<float>(GetClientFrameTimeCapped()), 0x25);
+                SpaceEffectsDrawFrame(Cam, static_cast<float>(GetClientFrameTimeCapped()), 0x25,
+                                      ReplacedStreaks);
                 SpaceEffectsDrawFrame(Cam, static_cast<float>(GetClientFrameTimeCapped()), 0x1b);
+                if ((LayerFlags & 0x100u) != 0)
+                {
+                    GateTunnelDrawLaunch(Cam, static_cast<FJumpShipEffect*>(Ship->Field_0x188));
+                    EngineHeatVisualDraw(Cam);
+                    ShipWarpVisualDraw(Cam, Ship);
+                    GateTunnelDrawRefraction(Cam,static_cast<FJumpShipEffect*>(Ship->Field_0x188));
+                }
             }
 
             // 0x0051c2d8..0x0051c315: FUN_00504880's colour, when there is one, becomes the
@@ -3668,6 +3707,8 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
             // time, -1), FUN_00421ed0(0xb60).
             CameraSetNearFar(Cam, Camera->GetZNear(), Far);
             SpaceEffectsDrawFrame(Cam, static_cast<float>(GetClientFrameTimeCapped()), -1);
+            JumpHoleVisualDraw(Cam);
+            TradeLaneVisualDraw(Cam);
             Win3DDisable(kWin3DFog);
         }
         // 0x0051c7d4..0x0051c7d8: GameCamera slot 0x50 (no arguments) -- FUN_0051c8b0, or the
@@ -3724,6 +3765,17 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     Gc->ClearColor[0] = ClearR;
     Gc->ClearColor[1] = ClearG;
     Gc->ClearColor[2] = ClearB;
+    if ((LayerFlags & 0x100u) != 0 && PlayerRW)
+    {
+        FClientShipGameobj* const Ship =
+            static_cast<FClientShipGameobj*>(static_cast<IObjRW*>(PlayerRW));
+        GateTunnelDrawLaunch(Cam, static_cast<FJumpShipEffect*>(Ship->Field_0x188));
+    }
+    if ((LayerFlags & 0x100u) != 0)
+    {
+        EngineHeatVisualDraw(Cam);
+        ShipWarpVisualDraw(Cam);
+    }
     Cam->FlagBC = 0; // 0x0051c894
 }
 

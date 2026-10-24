@@ -337,6 +337,7 @@ A solar object in a system file can name a ring with `ring = <zone nickname>, <f
 
 | Key | Type | Default | Meaning / allowed values | Source |
 |---|---|---|---|---|
+| `lighting` | boolean | `true` | **RP9 only.** Set `false` to draw this ring's band with its texture color and alpha, without external lighting or lighting shadows. Geometry, host-planet occlusion, opacity, fading and the sun-transmittance profile remain unchanged. Does not affect `[Clouds]`. Resets to `true` on every load. | [texture_panels.cpp](../../src/freelancer/Client/texture_panels.cpp) |
 | `color` | number ×3 | previous value | R, G, B of the ring, each `0 ... 255` (divided by 255). | [texture_panels.cpp:1010](../../src/freelancer/Client/texture_panels.cpp#L1010) |
 | `shape` | string | none | Shape (from the `[TexturePanels]` databases) used for the ring. An unknown name logs `shape ... not found for rings`. | [texture_panels.cpp:1016](../../src/freelancer/Client/texture_panels.cpp#L1016) |
 | `detail_shape` | string | none | Optional second shape drawn as detail over the first. | [texture_panels.cpp:1025](../../src/freelancer/Client/texture_panels.cpp#L1025) |

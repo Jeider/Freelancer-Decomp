@@ -22,6 +22,7 @@
 #include "render/shading.h"       // ITextureLibrary2
 #include "render_ex.h"
 #include "solar_spheres.h"
+#include "star_sys.h" // StarSysAmbientColor: independent of the previous object's render state
 #include "space_scene_obj_draw.h" // GetSpaceFieldEnclosure
 #include "texture_shapes.h"       // FTexShape, TexShapeGetGpuHandle
 
@@ -53,9 +54,11 @@ namespace
     // [FarRocks] as parsed; a negative value means "derive it at build time".
     struct FFarParams
     {
+        bool bDebris = false;
         int Count = 8000;
         float SizeMin = 15.0f;
         float SizeMax = 250.0f;
+        float ModelScale = 0.0f; // debris: scale of authored geometry; 0 uses the size distribution
         float SizePower = 2.6f;
         float EdgeSoftness = 1.5f;
         float Thickness = -1.0f;
@@ -105,6 +108,19 @@ namespace
     };
     static_assert(sizeof(FRockVertex) == 24, "rock vertex is 24 bytes");
 
+    struct FMeshVertex { float Pos[3], Normal[3], Uv[2]; };
+    struct FMeshInstance { float CentreRadius[4], Rotation[4]; uint32_t Colour; };
+    static_assert(sizeof(FMeshVertex) == 32 && sizeof(FMeshInstance) == 36, "mesh instance stream layout");
+    struct FMeshBatch
+    {
+        float SourceRadius = 0.0f;
+        std::vector<FMeshVertex> Vertices;
+        std::vector<FMeshInstance> Instances;
+        std::vector<int> RockIndices; // maps the shared size-class prefix into this model's instances
+        FRPExBuffer* Geometry = nullptr;
+        FRPExBuffer* Placement = nullptr;
+    };
+
     struct FClassRange
     {
         int End;       // rocks [previous End, End) belong to the class
@@ -119,6 +135,7 @@ namespace
         // Resolved at build.
         double Anchor[3] = {0.0, 0.0, 0.0};
         float MaxRadius = 0.0f;
+        float MaxRockRadius = 0.0f;
         float StartDist = 0.0f;
         float StartFade = 0.0f;
         float FarDist = 0.0f;
@@ -129,6 +146,7 @@ namespace
         int TexCount = 0;
         FTextureRef Tex[4];
         float TexTint[4][3] = {};
+        FMeshBatch Meshes[4];
         // The field's light, made on the CPU (UpdateLighting): the sun, its colour at the field, the
         // planets' shadow at the field's centre, the system ambient.
         bool bHasSun = false;
@@ -151,18 +169,24 @@ namespace
 
     FRPExProgram* G_Program = nullptr;
     bool G_bProgramTried = false;
+    FRPExProgram* G_DebrisProgram = nullptr;
+    bool G_bDebrisProgramTried = false;
 
     // The vertex format of a rock corner (see FRockVertex).
     unsigned long const kRockFvf = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
 
     void ReleaseVb(FFarField& F)
     {
-        if (F.Vb == nullptr)
-            return;
         IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
-        if (Ex != nullptr)
+        if (Ex != nullptr && F.Vb != nullptr)
             Ex->DestroyExVertexBuffer(F.Vb);
         F.Vb = nullptr;
+        for (FMeshBatch& M : F.Meshes)
+        {
+            if (Ex && M.Geometry) Ex->DestroyExVertexBuffer(M.Geometry);
+            if (Ex && M.Placement) Ex->DestroyExVertexBuffer(M.Placement);
+            M.Geometry = M.Placement = nullptr;
+        }
     }
 
     // Gives the texture records back. The library may be gone already at shutdown: then the
@@ -184,6 +208,20 @@ namespace
     {
         static int const S_StaticVb = PortConfigInt("Render", "far_rocks_static_vb", 1);
         IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
+        if (F.P.bDebris)
+        {
+            for (int I = 0; I < F.TexCount; ++I)
+            {
+                FMeshBatch& M = F.Meshes[I];
+                if (M.Instances.empty()) continue;
+                if (Ex == nullptr || Ex->CreateExVertexBuffer((unsigned long)(M.Vertices.size() * sizeof(FMeshVertex)),
+                    M.Vertices.data(), &M.Geometry) != GR_OK ||
+                    Ex->CreateExVertexBuffer((unsigned long)(M.Instances.size() * sizeof(FMeshInstance)),
+                    M.Instances.data(), &M.Placement) != GR_OK)
+                { F.bFailed = true; ReleaseVb(F); return; }
+            }
+            return;
+        }
         if (S_StaticVb == 0 || Ex == nullptr || F.Verts.empty() || F.Vb != nullptr)
             return;
         if (Ex->CreateExVertexBuffer(static_cast<unsigned long>(F.Verts.size() * sizeof(FRockVertex)),
@@ -448,8 +486,9 @@ namespace
     // ambient (the value the field's own asteroids and billboards are lit with).
     void UpdateLighting(FFarField& F, unsigned Frame, bool bForce)
     {
-        unsigned char Ambient[3];
-        EngineLightGetAmbientRgbBytes(Ambient);
+        // D3DRS_AMBIENT may still contain a prior object's fullbright/fade override.
+        // Resolve the system value directly, as the asteroid lighting setup does.
+        unsigned char const* Ambient = StarSysAmbientColor();
         for (int I = 0; I < 3; ++I)
             F.AmbientRgb[I] = (static_cast<float>(Ambient[I]) / 255.0f) * F.AmbientTint[I] * F.P.Ambient;
         if (!bForce && Frame - F.SunFrame < kSunRefreshFrames)
@@ -506,8 +545,8 @@ namespace
 
         // The defaults from the field's other sections.
         int const Count = (std::max)(500, (std::min)(kMaxFarRocks, P.Count));
-        double const SizeMin = (std::max)(1.0, static_cast<double>(P.SizeMin));
-        double const SizeMax = (std::max)(SizeMin, static_cast<double>(P.SizeMax));
+        double SizeMin = (std::max)(1.0, static_cast<double>(P.SizeMin));
+        double SizeMax = (std::max)(SizeMin, static_cast<double>(P.SizeMax));
         double SizePower = P.SizePower;
         if (SizePower < 1.001)
             SizePower = 1.001;
@@ -582,7 +621,62 @@ namespace
         // colour alone, as before.
         ReleaseTextures(F);
         std::string TextureNames;
-        if (P.bDynTexture)
+        if (P.bDebris)
+        {
+            FRPExCaps Caps = {};
+            if (!RenderEx::GetCaps(&Caps) || !Caps.bMeshInstances) return false;
+            for (int I = 0; I < Info.DynMeshCount; ++I)
+            {
+                FCliDynamicAsteroidMesh const& Source = *Info.DynMesh[I];
+                if (!Source.Verts || !Source.Indices || Source.VertCount <= 0 || Source.IndexCount <= 0 ||
+                    Source.IndexCount > 65535 || Source.IndexCount % 3) return false;
+                FMeshBatch& M = F.Meshes[F.TexCount];
+                M.Vertices.resize(Source.IndexCount);
+                float Lo[3] = {1.e30f, 1.e30f, 1.e30f}, Hi[3] = {-1.e30f, -1.e30f, -1.e30f};
+                for (int J = 0; J < Source.IndexCount; ++J)
+                {
+                    if (Source.Indices[J] >= Source.VertCount) return false;
+                    unsigned char const* In = Source.Verts + Source.Indices[J] * 44;
+                    FMeshVertex& Out = M.Vertices[J];
+                    memcpy(Out.Pos, In, 12); memcpy(Out.Normal, In + 12, 12); memcpy(Out.Uv, In + 28, 8);
+                    for (int K = 0; K < 3; ++K)
+                    {
+                        if (!std::isfinite(Out.Pos[K]) || !std::isfinite(Out.Normal[K])) return false;
+                        Lo[K] = (std::min)(Lo[K], Out.Pos[K]); Hi[K] = (std::max)(Hi[K], Out.Pos[K]);
+                    }
+                }
+                double Radius2 = 0.0;
+                for (FMeshVertex& V : M.Vertices)
+                {
+                    double R2 = 0.0;
+                    for (int K = 0; K < 3; ++K) { V.Pos[K] -= (Lo[K] + Hi[K]) * 0.5f; R2 += V.Pos[K] * V.Pos[K]; }
+                    Radius2 = (std::max)(Radius2, R2);
+                }
+                if (!(Radius2 > 1.e-8)) return false;
+                float const InvRadius = static_cast<float>(1.0 / std::sqrt(Radius2));
+                M.SourceRadius = static_cast<float>(std::sqrt(Radius2));
+                for (FMeshVertex& V : M.Vertices) for (float& X : V.Pos) X *= InvRadius;
+                if (!TextureRefLoad(&F.Tex[F.TexCount], Info.DynMeshTexture[I])) return false;
+                for (int C = 0; C < 3; ++C)
+                    F.TexTint[F.TexCount][C] = P.bColor ? P.ColorA[C] : Info.DynMeshTint[I][C];
+                ++F.TexCount;
+                if (!TextureNames.empty()) TextureNames += ", ";
+                TextureNames += Info.DynMeshTexture[I];
+            }
+            if (F.TexCount == 0) return false;
+            if (P.ModelScale > 0.0f)
+            {
+                SizeMin = SizeMax = F.Meshes[0].SourceRadius * P.ModelScale;
+                for (int I = 1; I < F.TexCount; ++I)
+                {
+                    double const Radius = F.Meshes[I].SourceRadius * P.ModelScale;
+                    SizeMin = (std::min)(SizeMin, Radius); SizeMax = (std::max)(SizeMax, Radius);
+                }
+                // A single model still needs a nonzero interval for the placement sampler.
+                SizeMax = (std::max)(SizeMax, SizeMin * 1.001);
+            }
+        }
+        else if (P.bDynTexture)
         {
             for (int I = 0; I < Info.DynTextureCount && F.TexCount < 4; ++I)
             {
@@ -611,6 +705,7 @@ namespace
         if (F.AmbientTint[0] + F.AmbientTint[1] + F.AmbientTint[2] < 0.001f)
             F.AmbientTint[0] = F.AmbientTint[1] = F.AmbientTint[2] = (std::max)(0.0f, Intensity);
         UpdateLighting(F, 0, true);
+        F.MaxRockRadius = static_cast<float>(SizeMax);
 
         // The box of the walk, and the effective volume: the weight summed over a coarse grid.
         double Box[3] = {Radii[0], Radii[1], Radii[2]};
@@ -703,8 +798,13 @@ namespace
                             double const Weight = D.Weight(Pos);
                             if (!(Thin * Wc < Weight))
                                 continue;
-                            double const Radius =
+                            double Radius =
                                 std::pow(InvA - Unit(R = Hash(R)) * (InvA - InvB), 1.0 / Expo);
+                            // Select before testing exclusions so they use the real enlarged bounds.
+                            int const Pick = static_cast<int>(Unit(Hash(R ^ 0xdeb415ull)) * (std::max)(1, F.TexCount));
+                            int const Model = (std::max)(0, (std::min)(F.TexCount - 1, Pick));
+                            if (P.bDebris && P.ModelScale > 0.0f)
+                                Radius = F.Meshes[Model].SourceRadius * P.ModelScale;
                             double Off[3];
                             for (int I = 0; I < 3; ++I)
                                 Off[I] = Pos[0] * Axis[0][I] + Pos[1] * Axis[1][I] + Pos[2] * Axis[2][I];
@@ -727,10 +827,16 @@ namespace
                             // Which dynamic texture the rock wears, and a small brightness jitter
                             // (the shader maps 0..255 to 0.85..1.1); the shader turns the lumps and
                             // the texture by the seed.
-                            int const Pick = static_cast<int>(Unit(R = Hash(R)) * (std::max)(1, F.TexCount));
-                            Rock.TexIndex = static_cast<uint8_t>((std::max)(0, (std::min)(F.TexCount - 1, Pick)));
+                            int const OriginalPick = static_cast<int>(Unit(R = Hash(R)) * (std::max)(1, F.TexCount));
+                            Rock.TexIndex = static_cast<uint8_t>(P.bDebris ? Model
+                                : (std::max)(0, (std::min)(F.TexCount - 1, OriginalPick)));
                             Rock.Jitter = static_cast<uint8_t>(Unit(R = Hash(R)) * 255.0 + 0.5);
                             Rock.Class = static_cast<uint8_t>(J);
+                            if (P.bDebris && P.ModelScale > 0.0f)
+                            {
+                                Rock.Class = 0;
+                                while (Rock.Class + 1 < Classes && Radius > Edges[Rock.Class + 1]) ++Rock.Class;
+                            }
                             Rocks.push_back(Rock);
                         }
                     }
@@ -759,6 +865,28 @@ namespace
             F.Classes.push_back(Range);
         }
 
+        if (P.bDebris)
+        {
+            for (int I = 0; I < F.RockCount; ++I)
+            {
+                FRock const& Rock = Rocks[I];
+                FMeshBatch& M = F.Meshes[Rock.TexIndex];
+                FMeshInstance Instance;
+                memcpy(Instance.CentreRadius, Rock.Off, sizeof(Rock.Off));
+                Instance.CentreRadius[3] = Rock.Radius;
+                // Uniform unit quaternion: a fixed world orientation, independent of the camera.
+                uint64_t H = Mix(FieldSeed, static_cast<uint64_t>(Rock.Seed * 16777216.0f));
+                double const U = Unit(H = Hash(H)), A = 2.0 * kPi * Unit(H = Hash(H)), B = 2.0 * kPi * Unit(Hash(H));
+                Instance.Rotation[0] = static_cast<float>(std::sqrt(1.0 - U) * std::sin(A));
+                Instance.Rotation[1] = static_cast<float>(std::sqrt(1.0 - U) * std::cos(A));
+                Instance.Rotation[2] = static_cast<float>(std::sqrt(U) * std::sin(B));
+                Instance.Rotation[3] = static_cast<float>(std::sqrt(U) * std::cos(B));
+                Instance.Colour = 0xff000000u | (static_cast<uint32_t>(Rock.Jitter) << 16);
+                M.Instances.push_back(Instance); M.RockIndices.push_back(I);
+            }
+        }
+        else
+        {
         // Six vertices a rock: (-,-) (+,-) (+,+), (+,+) (-,+) (-,-).
         int const CornerX[6] = {0, 1, 1, 1, 0, 0};
         int const CornerY[6] = {0, 0, 1, 1, 1, 0};
@@ -778,6 +906,7 @@ namespace
                 Out.Radius = Rock.Radius;
                 Out.Seed = Rock.Seed;
             }
+        }
         }
         FDUMP(0x100003, "%s(%d) : NOTICE:General:far rocks built: %d rocks, %d size classes, %lu cells, "
               "%lu ms (zone radii %.0f x %.0f x %.0f, slab %.0f, start %.0f + %.0f, texture %s)", kSource,
@@ -838,22 +967,29 @@ namespace
 
     // The program, compiled on first use (the band skip asks before the first draw). False when the
     // pipeline has no Ex or the shader did not compile.
-    bool EnsureProgram()
+    bool EnsureProgram(bool bDebris)
     {
-        if (G_Program != nullptr)
+        FRPExProgram*& Program = bDebris ? G_DebrisProgram : G_Program;
+        bool& bTried = bDebris ? G_bDebrisProgramTried : G_bProgramTried;
+        if (Program != nullptr)
             return true;
-        if (G_bProgramTried)
+        if (bTried)
             return false;
         IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
         if (Ex == nullptr)
             return false;
-        G_bProgramTried = true;
-        Ex->CreateExProgram(RenderEx::GetExtraData(), kShader, "VSMain", "PSMain", &G_Program);
-        return G_Program != nullptr;
+        bTried = true;
+        if (Ex->CreateExProgram(RenderEx::GetExtraData(), kShader, bDebris ? "VSMesh" : "VSMain",
+                                bDebris ? "PSMesh" : "PSMain", &Program) != GR_OK)
+        {
+            // Failed compiles may still return a reloadable handle. It is not a usable replacement.
+            if (Program) Ex->DestroyExProgram(Program);
+            Program = nullptr;
+        }
+        return Program != nullptr;
     }
 
-    // The fields not built yet, built until the frame's budget is spent (the rest next frame; the
-    // band is already hidden, FarRocksReplacesBand does not wait for the build).
+    // Pending fields keep their band until their vertices and shader are ready.
     struct FBuildVisit
     {
         double ElapsedMs;
@@ -893,7 +1029,10 @@ void FarRocksParseSection(FCliAsteroid* Field, INI_Reader& Reader)
     FFarParams& P = Slot->P;
     while (Reader.read_value())
     {
-        if (Reader.is_value("count"))
+        if (Reader.is_value("type"))
+            P.bDebris = _stricmp(Reader.get_value_string(), "debris") == 0 ||
+                        _stricmp(Reader.get_value_string(), "mesh") == 0;
+        else if (Reader.is_value("count"))
             P.Count = (std::max)(500, (std::min)(kMaxFarRocks, static_cast<int>(Reader.get_value_float(0))));
         else if (Reader.is_value("size"))
         {
@@ -902,6 +1041,8 @@ void FarRocksParseSection(FCliAsteroid* Field, INI_Reader& Reader)
         }
         else if (Reader.is_value("size_power"))
             P.SizePower = static_cast<float>(Reader.get_value_float(0));
+        else if (Reader.is_value("model_scale"))
+            P.ModelScale = (std::max)(0.0f, (std::min)(20.0f, static_cast<float>(Reader.get_value_float(0))));
         else if (Reader.is_value("edge_softness"))
             P.EdgeSoftness = static_cast<float>(Reader.get_value_float(0));
         else if (Reader.is_value("thickness"))
@@ -961,16 +1102,19 @@ void FarRocksForget(FCliAsteroid const* Field)
 
 bool FarRocksReplacesBand(FCliAsteroid const* Field)
 {
-    // Whether the rocks are built yet does not matter: they are built before the first frame they
-    // would draw in (FarRocksDrawAll builds every field at once), and the band must not come and
-    // go with the camera. Only a program that did not compile, or a field that cannot have rocks,
-    // keeps the band.
-    if (!GatesPass() || !EnsureProgram())
+    if (!GatesPass())
         return false;
     FFarField const* const Far = EntryFor(Field, true);
-    if (Far == nullptr || Far->bFailed || !Far->P.bReplaceBand)
+    if (Far == nullptr || !Far->bBuilt || Far->bFailed || !Far->P.bReplaceBand ||
+        !EnsureProgram(Far->P.bDebris))
         return false;
     return !BlockedByFog(Field, GetSpaceFieldEnclosure());
+}
+
+bool FarRocksReplacesBillboards(FCliAsteroid const* Field)
+{
+    FFarField const* Far = EntryFor(Field, false);
+    return Far != nullptr && Far->P.bDebris && FarRocksReplacesBand(Field);
 }
 
 void FarRocksShutdown()
@@ -980,6 +1124,10 @@ void FarRocksShutdown()
         Ex->DestroyExProgram(G_Program);
     G_Program = nullptr;
     G_bProgramTried = false;
+    if (Ex != nullptr && G_DebrisProgram != nullptr)
+        Ex->DestroyExProgram(G_DebrisProgram);
+    G_DebrisProgram = nullptr;
+    G_bDebrisProgramTried = false;
     for (auto& Entry : G_Fields)
     {
         ReleaseVb(*Entry.second);
@@ -1000,8 +1148,7 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
     static unsigned S_Frame = 0;
     ++S_Frame;
 
-    // Every field is built as soon as it is known (its band is hidden from the start, see
-    // FarRocksReplacesBand), within a time budget a frame.
+    // Every field is built as soon as it is known, within a time budget a frame.
     {
         static double S_BuildTotalMs = 0.0;
         static int S_BuiltTotal = 0;
@@ -1021,8 +1168,6 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
     IRPDrawEx* const DrawEx = RenderEx::GetDrawEx();
     FRPExTexture* SceneDepth = nullptr;
     if (Ex->GetSceneDepth(&SceneDepth) != GR_OK || SceneDepth == nullptr)
-        return;
-    if (!EnsureProgram())
         return;
     unsigned long FullWidth = 0;
     unsigned long FullHeight = 0;
@@ -1062,14 +1207,25 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
         int Rocks;
     };
     std::vector<FDraw> Draws;
-    int Remaining = (std::max)(0, S_MaxTotal);
+    long long Requested = 0;
     for (FCandidate const& Candidate : S_Fields)
     {
         FFarField& F = *Candidate.Far;
-        if (!F.bBuilt)
+        if (!F.bBuilt || !EnsureProgram(F.P.bDebris))
             continue;
-        if (Remaining <= 0)
-            break;
+        // Reject a whole field before it spends the shared budget. The shader still clips
+        // individual quads. Include their corners in the conservative sphere.
+        double Centre[3];
+        for (int Row = 0; Row < 3; ++Row)
+            Centre[Row] = (F.Anchor[0] - CamPos[0]) * View[Row * 3] +
+                          (F.Anchor[1] - CamPos[1]) * View[Row * 3 + 1] +
+                          (F.Anchor[2] - CamPos[2]) * View[Row * 3 + 2];
+        double const Radius = F.MaxRadius + F.MaxRockRadius * 2.0;
+        double const Depth = -Centre[2];
+        if (Depth + Radius < Near ||
+            std::fabs(Centre[0]) * ScaleX - Depth > Radius * std::sqrt(ScaleX * ScaleX + 1.0) ||
+            std::fabs(Centre[1]) * ScaleY - Depth > Radius * std::sqrt(ScaleY * ScaleY + 1.0))
+            continue;
         double const ToRim = Candidate.Distance - F.MaxRadius;
         if (ToRim > F.FarDist)
             continue;
@@ -1083,15 +1239,25 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
                 break;
             Include = Class.End;
         }
-        int const Rocks = (std::min)(Include, Remaining);
+        int const Rocks = Include;
         if (Rocks <= 0)
             continue;
         FDraw Item = {&F, Rocks};
         Draws.push_back(Item);
-        Remaining -= Rocks;
+        Requested += Rocks;
     }
     if (Draws.empty())
         return;
+    // Share an overloaded budget proportionally instead of dropping all later fields.
+    int Remaining = (std::max)(0, S_MaxTotal);
+    for (FDraw& Item : Draws)
+    {
+        int const Want = Item.Rocks;
+        Item.Rocks = Requested > Remaining ? static_cast<int>(static_cast<long long>(Want) * Remaining / Requested)
+                                          : Want;
+        Requested -= Want;
+        Remaining -= Item.Rocks;
+    }
 
     // Camera-independent vertex constants.
     float V[9 * 4];
@@ -1118,12 +1284,10 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
     Pipe->GetRenderState(D3DRS_SRCBLEND, &SavedSrc);
     Pipe->GetRenderState(D3DRS_DESTBLEND, &SavedDest);
     Pipe->GetRenderState(D3DRS_BLENDOP, &SavedOp);
-    // The rocks are alpha blended and depth tested but write no depth: a rock fades smoothly, with
-    // no screen door, and they need no sorting (small, alike in colour).
+    // Solid silhouettes write depth; small or fading fragments only alpha blend.
     FRPExPassDesc Pass = {nullptr, RPExPassKeepDepth, 0};
     if (Ex->BeginExPass(&Pass) != GR_OK)
         return;
-    if (Ex->BindExProgram(G_Program) == GR_OK)
     {
         Pipe->SetRenderState(D3DRS_ZENABLE, 1);
         // Depth written: a nearer rock hides a farther one (blended without it they showed
@@ -1136,12 +1300,14 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
         Pipe->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
         Pipe->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
         // The rock textures wrap: each rock samples at a random offset.
-        FRPExSamplerState const Sampler = {RPExFilterLinear, RPExMipLinear, RPExAddressWrap, RPExAddressWrap,
-                                           RPExAddressWrap};
         for (FDraw const& Item : Draws)
         {
             FFarField& F = *Item.Far;
             FFarParams const& P = F.P;
+            if (Item.Rocks == 0 || Ex->BindExProgram(P.bDebris ? G_DebrisProgram : G_Program) != GR_OK)
+                continue;
+            ERPExAddress const Address = RPExAddressWrap;
+            FRPExSamplerState const Sampler = {RPExFilterLinear, RPExMipLinear, Address, Address, Address};
             UpdateLighting(F, S_Frame, false);
             // The camera relative to the anchor in double, so the floats stay small.
             Set4(&V[0], static_cast<float>(CamPos[0] - F.Anchor[0]), static_cast<float>(CamPos[1] - F.Anchor[1]),
@@ -1160,7 +1326,7 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
             // Without a sun the rocks are flat lit: the fill alone, as bright as a lit rock.
             float const Fill = F.bHasSun ? 0.0f : 0.6f;
             float const SunGain = Sun * F.Sunlit * P.Brightness;
-            float Ps[8 * 4];
+            float Ps[9 * 4];
             memset(Ps, 0, sizeof(Ps));
             for (int I = 0; I < F.TexCount; ++I)
             {
@@ -1177,14 +1343,30 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
             Set4(&Ps[24], F.SunColour[0] * SunGain, F.SunColour[1] * SunGain, F.SunColour[2] * SunGain, P.Bump);
             Set4(&Ps[28], Sun > 0.5f ? ViewSun[0] : 0.0f, Sun > 0.5f ? ViewSun[1] : 0.0f,
                  Sun > 0.5f ? ViewSun[2] : 1.0f, P.TextureScale);
-            Ex->SetExPixelConstants(0, Ps, 8);
+            Ex->SetExPixelConstants(0, Ps, 9);
             // Two passes over the same rocks (the vertex shader keeps one kind per pass): the solid
             // ones with depth written, then the soft dots without it.
             for (int Kind = 0; Kind < 2; ++Kind)
             {
                 Pipe->SetRenderState(D3DRS_ZWRITEENABLE, Kind == 0 ? 1 : 0);
-                Set4(&V[32], static_cast<float>(Kind), P.SolidPixels, 0.0f, 0.0f);
+                Set4(&V[32], static_cast<float>(Kind), P.SolidPixels, P.bDebris ? 1.0f : 0.0f, 0.0f);
                 Ex->SetExVertexConstants(0, V, 9);
+                if (P.bDebris)
+                {
+                    for (int I = 0; I < F.TexCount; ++I)
+                    {
+                        FMeshBatch const& M = F.Meshes[I];
+                        unsigned long const Count = static_cast<unsigned long>(
+                            std::lower_bound(M.RockIndices.begin(), M.RockIndices.end(), Item.Rocks) - M.RockIndices.begin());
+                        if (!Count) continue;
+                        Ex->SetExPixelConstants(0, &Ps[I * 4], 1);
+                        Ex->BindExPipelineTexture(0, TexShapeGetGpuHandle(&F.Tex[I], 0), &Sampler);
+                        if (DrawEx->DrawExMeshInstances(M.Geometry, M.Placement,
+                            static_cast<unsigned long>(M.Vertices.size()), 0, Count) != GR_OK)
+                            F.bFailed = true; // restore the original layers next frame if the GPU refuses
+                    }
+                    continue;
+                }
                 // One call from the static buffer (the contiguous prefix is the visible size
                 // classes), else the rocks go up in batches.
                 if (F.Vb != nullptr && !F.bVbBad)
@@ -1218,6 +1400,7 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
 void FarRocksParseSection(FCliAsteroid*, INI_Reader&) {}
 void FarRocksForget(FCliAsteroid const*) {}
 bool FarRocksReplacesBand(FCliAsteroid const*) { return false; }
+bool FarRocksReplacesBillboards(FCliAsteroid const*) { return false; }
 void FarRocksDrawAll(ICamera*, float, int) {}
 void FarRocksShutdown() {}
 

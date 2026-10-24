@@ -781,6 +781,11 @@ FSpaceCamera* GetTurretSpaceCamera()
     return CameraForSlot(kSpaceCameraTurret);
 }
 
+FSpaceCamera* GetRearViewSpaceCamera()
+{
+    return CameraForSlot(kSpaceCameraRearview);
+}
+
 bool IsFirstPersonCameraCurrent()
 {
     // FUN_0054bc80: CALL FUN_0040f130 (the camera at DAT_006164dc) / SUB EAX,0x00678ba4 /

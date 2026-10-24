@@ -129,6 +129,7 @@ namespace Iids
     static const char RPWeaponGlints[] = "RP9_IRPWeaponGlints_v2";
     static const char RPLocalShadows[] = "RP9_IRPLocalShadows_v1";
     static const char RPFrameQuality[] = "RP9_IRPFrameQuality_v1";
+    static const char RPSceneCapture[] = "RP9_IRPSceneCapture_v1";
     static const char RPPlanetAtmosphere[] = "RP9_IRPPlanetAtmosphere_v1";
-    static const char RPPlanetSurface[] = "RP9_IRPPlanetSurface_v1";
+    static const char RPPlanetSurface[] = "RP9_IRPPlanetSurface_v2";
 }

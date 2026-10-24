@@ -53,6 +53,7 @@ float4 Surface : register(c17);     // x airless (Lommel-Seeliger lighting), y i
 float4 EclipseCaster : register(c18);  // eclipse: caster centre (view), radius
 float4 EclipseSun : register(c19);     // eclipse: sun centre (view), radius
 float4 EclipseControl : register(c20); // eclipse: x range behind the caster, y strength, w on
+float4 Quality : register(c21); // screen-size fades: base relief, detail relief, gas eddies/storms, terrain shadows
 
 static const float3 Luma = float3(0.299, 0.587, 0.114);
 
@@ -104,9 +105,9 @@ float EdgeWeight(float2 Uv)
     return saturate(min(F.x, F.y) / max(Centre.w, 1.0e-5));
 }
 
-float Height(float2 Uv)
+float Height(float2 Uv, float2 Dx, float2 Dy)
 {
-    return HeightOf(tex2D(BaseMap, Inside(Uv)));
+    return HeightOf(tex2Dgrad(BaseMap, Inside(Uv), Dx, Dy));
 }
 
 float Hash3(float3 P)
@@ -142,16 +143,19 @@ float2 StormOffset(float2 LonLat, float Phase)
     [unroll] for (int I = 0; I < 3; ++I)
     {
         float4 S = Storms[I];
-        float2 D = LonLat - S.xy;
-        D.x -= 6.2831853 * round(D.x / 6.2831853);
-        D.x *= CosLat; // local east-north metric
-        float2 E = D / float2(S.z, S.z * 0.55);
-        float W = exp(-dot(E, E) * 2.2);
-        // A standing spiral plus the turning within the flow cycle.
-        float Angle = S.w * W * (1.6 + 0.9 * (Phase - 0.5));
-        float C = cos(Angle), Sn = sin(Angle);
-        float2 R = float2(C * D.x - Sn * D.y, Sn * D.x + C * D.y);
-        Offset += R - D;
+        [branch] if (S.z > 0.0 && S.w != 0.0)
+        {
+            float2 D = LonLat - S.xy;
+            D.x -= 6.2831853 * round(D.x / 6.2831853);
+            D.x *= CosLat; // local east-north metric
+            float2 E = D / float2(S.z, S.z * 0.55);
+            float W = exp(-dot(E, E) * 2.2);
+            // A standing spiral plus the turning within the flow cycle.
+            float Angle = S.w * W * (1.6 + 0.9 * (Phase - 0.5));
+            float C = cos(Angle), Sn = sin(Angle);
+            float2 R = float2(C * D.x - Sn * D.y, Sn * D.x + C * D.y);
+            Offset += R - D;
+        }
     }
     Offset.x /= CosLat;
     return Offset;
@@ -165,14 +169,17 @@ float2 StormMask(float2 LonLat)
     [unroll] for (int I = 0; I < 3; ++I)
     {
         float4 S = Storms[I];
-        float2 D = LonLat - S.xy;
-        D.x -= 6.2831853 * round(D.x / 6.2831853);
-        D.x *= CosLat;
-        float2 E = D / float2(S.z, S.z * 0.55);
-        float R = sqrt(dot(E, E));
-        float On = S.w != 0.0 ? 1.0 : 0.0;
-        Mask.x += On * exp(-pow((R - 0.75) / 0.18, 2.0));
-        Mask.y += On * exp(-R * R * 6.0);
+        [branch] if (S.z > 0.0 && S.w != 0.0)
+        {
+            float2 D = LonLat - S.xy;
+            D.x -= 6.2831853 * round(D.x / 6.2831853);
+            D.x *= CosLat;
+            float2 E = D / float2(S.z, S.z * 0.55);
+            float R = sqrt(dot(E, E));
+            float On = S.w != 0.0 ? 1.0 : 0.0;
+            Mask.x += On * exp(-pow((R - 0.75) / 0.18, 2.0));
+            Mask.y += On * exp(-R * R * 6.0);
+        }
     }
     return saturate(Mask);
 }
@@ -200,20 +207,29 @@ float4 GasGiantUv(float2 Uv, float2 Gx, float2 Gy, float3 On, float2 LonLat, flo
     float T = Gas.x;
     float Period = GasStyle.w;
     float CosLat = max(cos(LonLat.y), 0.15);
-    float3 East = float3(-sin(LonLat.x), 0.0, cos(LonLat.x));
-    float3 North = float3(-sin(LonLat.y) * cos(LonLat.x), cos(LonLat.y), -sin(LonLat.y) * sin(LonLat.x));
-    const float E = 0.03;
-    float Psi = Stream(On);
-    float PsiE = Stream(normalize(On + East * E)) - Psi;
-    float PsiN = Stream(normalize(On + North * E)) - Psi;
-    float2 Eddy = float2(PsiN, -PsiE) * (Gas.z / E);
+    float2 Eddy = 0.0;
+    [branch] if (Quality.z > 0.0)
+    {
+        float3 East = float3(-sin(LonLat.x), 0.0, cos(LonLat.x));
+        float3 North = float3(-sin(LonLat.y) * cos(LonLat.x), cos(LonLat.y), -sin(LonLat.y) * sin(LonLat.x));
+        const float E = 0.03;
+        float Psi = Stream(On);
+        float PsiE = Stream(normalize(On + East * E)) - Psi;
+        float PsiN = Stream(normalize(On + North * E)) - Psi;
+        Eddy = float2(PsiN, -PsiE) * (Gas.z / E) * Quality.z;
+    }
     float Jet = 0.6 * sin(LonLat.y * 7.0) + 0.4 * cos(LonLat.y * 3.0 + 0.7);
     float2 Velocity = float2(Gas.y * Jet + Eddy.x / CosLat, Eddy.y);
     float Envelope = GasEnvelope(Uv);
 
     float PhaseA = frac(T / Period), PhaseB = frac(T / Period + 0.5);
-    float2 A = Velocity * (PhaseA - 0.5) * Period + StormOffset(LonLat, PhaseA);
-    float2 B = Velocity * (PhaseB - 0.5) * Period + StormOffset(LonLat, PhaseB);
+    float2 A = Velocity * (PhaseA - 0.5) * Period;
+    float2 B = Velocity * (PhaseB - 0.5) * Period;
+    [branch] if (Quality.z > 0.0)
+    {
+        A += StormOffset(LonLat, PhaseA) * Quality.z;
+        B += StormOffset(LonLat, PhaseB) * Quality.z;
+    }
     float4 CA = tex2Dgrad(BaseMap, Inside(Uv - mul(LonLatToUv, A) * Envelope), Gx, Gy);
     float4 CB = tex2Dgrad(BaseMap, Inside(Uv - mul(LonLatToUv, B) * Envelope), Gx, Gy);
     return lerp(CA, CB, abs(PhaseA * 2.0 - 1.0));
@@ -229,35 +245,49 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float2 Uv0 = Uv * Kind.z, Uv1 = Uv * Kind.w;
 
     float2 UvDx = ddx(Uv), UvDy = ddy(Uv);
-    // Longitude/latitude of the point (object space, y the pole) and how uv changes with them
-    // (J = dUv * inverse(dLonLat), from screen derivatives, whatever the part's uv layout).
-    float3 On = normalize(In.ObjectNormal);
-    float2 LonLat = float2(atan2(On.z, On.x), asin(clamp(On.y, -1.0, 1.0)));
-    float2 LlDx = ddx(LonLat), LlDy = ddy(LonLat);
-    LlDx.x -= 6.2831853 * round(LlDx.x / 6.2831853);
-    LlDy.x -= 6.2831853 * round(LlDy.x / 6.2831853);
-    float LlDet = LlDx.x * LlDy.y - LlDy.x * LlDx.y;
-    float2x2 LonLatToUv = 0.0;
-    if (abs(LlDet) > 1.0e-14)
+    // Derivatives are evaluated before any dynamic flow control. Angular derivatives below
+    // use the chain rule, so ordinary worlds need neither longitude/latitude nor its Jacobian.
+    float3 ObjectDx = ddx(In.ObjectNormal), ObjectDy = ddy(In.ObjectNormal);
+    float3 Dp1 = ddx(In.ViewPosition), Dp2 = ddy(In.ViewPosition);
+    float2 LonLat = 0.0;
+    float4 Base = 0.0;
+    [branch] if (Kind.y > 0.5)
     {
-        float2x2 Inverse = float2x2(LlDy.y, -LlDy.x, -LlDx.y, LlDx.x) / LlDet;
-        LonLatToUv = mul(float2x2(UvDx.x, UvDy.x, UvDx.y, UvDy.y), Inverse);
+        // Longitude/latitude of the point (object space, y the pole) and how uv changes with them
+        // (J = dUv * inverse(dLonLat), from screen derivatives, whatever the part's uv layout).
+        float3 On = normalize(In.ObjectNormal);
+        LonLat = float2(atan2(On.z, On.x), asin(clamp(On.y, -1.0, 1.0)));
+        [branch] if (GasStyle.z > 0.0)
+        {
+            float InvLength = rsqrt(max(dot(In.ObjectNormal, In.ObjectNormal), 1.0e-20));
+            float3 OnDx = (ObjectDx - On * dot(On, ObjectDx)) * InvLength;
+            float3 OnDy = (ObjectDy - On * dot(On, ObjectDy)) * InvLength;
+            float InvPole = 1.0 / max(dot(On.xz, On.xz), 1.0e-12);
+            float2 LlDx = float2((On.x * OnDx.z - On.z * OnDx.x) * InvPole, OnDx.y * sqrt(InvPole));
+            float2 LlDy = float2((On.x * OnDy.z - On.z * OnDy.x) * InvPole, OnDy.y * sqrt(InvPole));
+            float LlDet = LlDx.x * LlDy.y - LlDy.x * LlDx.y;
+            float2x2 LonLatToUv = 0.0;
+            if (abs(LlDet) > 1.0e-14)
+            {
+                float2x2 Inverse = float2x2(LlDy.y, -LlDy.x, -LlDx.y, LlDx.x) / LlDet;
+                LonLatToUv = mul(float2x2(UvDx.x, UvDy.x, UvDx.y, UvDy.y), Inverse);
+            }
+            Base = GasGiantUv(Uv, UvDx, UvDy, On, LonLat, LonLatToUv);
+        }
     }
-    float4 Painted = tex2Dgrad(BaseMap, Inside(Uv), UvDx, UvDy);
-    float4 Base;
-    if (Kind.y > 0.5 && GasStyle.z > 0.0)
-        Base = GasGiantUv(Uv, UvDx, UvDy, On, LonLat, LonLatToUv);
-    else
+    [branch] if (Kind.y <= 0.5 || GasStyle.z <= 0.0)
     {
         // Near a texture edge fade to a blurred version: two textures that do not quite match
         // meet as a soft gradient instead of a line.
         float Edge = EdgeWeight(Uv);
-        Base = Painted;
+        Base = tex2Dgrad(BaseMap, Inside(Uv), UvDx, UvDy);
         float4 Soft = tex2Dlod(BaseMap, float4(Inside(Uv), 0, 4));
         Base = lerp(Soft, Base, Edge * Edge * (3.0 - 2.0 * Edge));
     }
-    float3 D0 = tex2D(Detail0, Uv0).rgb * 2.0;
-    float4 D1 = tex2D(Detail1, Uv1);
+    float2 Dx0 = UvDx * Kind.z, Dy0 = UvDy * Kind.z;
+    float2 Dx1 = UvDx * Kind.w, Dy1 = UvDy * Kind.w;
+    float3 D0 = tex2Dgrad(Detail0, Uv0, Dx0, Dy0).rgb * 2.0;
+    float4 D1 = tex2Dgrad(Detail1, Uv1, Dx1, Dy1);
     D1.rgb *= 2.0;
 
     // Albedo as the retail passes combine it.
@@ -268,10 +298,10 @@ float4 PSMain(SurfacePixel In) : COLOR0
     // DetailMap2Dm1Msk2PassMaterial: the detail fades out where the base alpha is high.
     float3 Albedo = lerp(Base.rgb * lerp(D0, 1.0, Base.a), Land, IsMasked + IsIllum + IsFullDetail);
     Albedo = lerp(Albedo, Base.rgb * D1.rgb, IsMasked * Base.a);
-    if (Kind.y > 0.5)
+    [branch] if (Kind.y > 0.5 && Quality.z > 0.0)
     {
         // Storm ovals: a darker rim around a slightly brighter, warmer core.
-        float2 Storm = StormMask(LonLat) * GasEnvelope(Uv);
+        float2 Storm = StormMask(LonLat) * GasEnvelope(Uv) * Quality.z;
         Albedo *= (1.0 - 0.35 * Storm.x) * (1.0 + Storm.y * float3(0.25, 0.12, 0.0));
     }
     float W1 = IsMasked * Base.a, W0 = 1.0 - W1;
@@ -285,63 +315,80 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float Sea = saturate(W0 * Layers.x + W1 * Layers.z) * Wet * (1.0 - Cloud);
     float LayerRelief = W0 * Layers.y + W1 * Layers.w;
 
-    // Base relief: the base map's luminance as a height field, a 4-tap gradient spaced by the
-    // pixel footprint, turned into a normal with a screen-derivative cotangent frame.
-    float2 Texel = Relief.zw;
-    float2 Footprint = max(fwidth(Uv) / Texel, 1.0);
-    float Step = max(Footprint.x, Footprint.y);
-    float2 Du = float2(Texel.x * Step, 0.0), Dv = float2(0.0, Texel.y * Step);
-    float H0 = HeightOf(Base);
-    float Gx = (Height(Uv + Du) - Height(Uv - Du)) / (2.0 * Step);
-    float Gy = (Height(Uv + Dv) - Height(Uv - Dv)) / (2.0 * Step);
-    float3 Dp1 = ddx(In.ViewPosition), Dp2 = ddy(In.ViewPosition);
-    float2 Duv1 = ddx(Uv), Duv2 = ddy(Uv);
-    float3 Dp2Perp = cross(Dp2, N), Dp1Perp = cross(N, Dp1);
-    float3 T = Dp2Perp * Duv1.x + Dp1Perp * Duv2.x;
-    float3 B = Dp2Perp * Duv1.y + Dp1Perp * Duv2.y;
-    float InvMax = rsqrt(max(max(dot(T, T), dot(B, B)), 1.0e-30));
-    T *= InvMax;
-    B *= InvMax;
-    float SeamFade = EdgeWeight(Uv);
-    // Magnified (a texel over two pixels) the base map's gradient steps texel by texel and the
-    // shading turns blocky: fade the base relief out there and leave close-ups to the detail relief.
-    float Magnified = saturate(max(fwidth(Uv).x / Texel.x, fwidth(Uv).y / Texel.y) * 2.0);
-    float ReliefAmount = Relief.x * LayerRelief * (1.0 - Sea) * (1.0 - 0.7 * Cloud) * SeamFade * Magnified;
-    float3 Nr = normalize(N - ReliefAmount * (Gx * T + Gy * B));
-
-    // Detail relief: the layer's detail map luminance as fine bumps (screen-derivative bump
-    // mapping), a fraction of a detail tile high, gone once the detail is smaller than a pixel.
-    // Forward differences one pixel over, sampled at the same mip (ddx/ddy of Hd would be per
-    // 2x2 quad and look blocky).
-    float2 Dx0 = ddx(Uv0), Dy0 = ddy(Uv0), Dx1 = ddx(Uv1), Dy1 = ddy(Uv1);
-    float Hd = W0 * dot(D0, Luma) * 0.5 + W1 * dot(D1.rgb, Luma) * 0.5;
-    float HdX = W0 * dot(tex2Dgrad(Detail0, Uv0 + Dx0, Dx0, Dy0).rgb, Luma) +
-                W1 * dot(tex2Dgrad(Detail1, Uv1 + Dx1, Dx1, Dy1).rgb, Luma);
-    float HdY = W0 * dot(tex2Dgrad(Detail0, Uv0 + Dy0, Dx0, Dy0).rgb, Luma) +
-                W1 * dot(tex2Dgrad(Detail1, Uv1 + Dy1, Dx1, Dy1).rgb, Luma);
-    float Det = dot(Dp1, Dp2Perp);
-    float3 Grad = sign(Det) * ((HdX - Hd) * Dp2Perp + (HdY - Hd) * Dp1Perp);
-    float WorldPerUv = length(Dp1) / max(length(Duv1), 1.0e-12);
-    float TileWorld = WorldPerUv / max(W0 * Kind.z + W1 * Kind.w, 1.0e-3);
-    float DetailFade = saturate(2.0 - max(fwidth(Uv0.x), fwidth(Uv0.y)) * 512.0);
-    float DetailHeight = Relief.y * LayerRelief * (1.0 - Sea) * (1.0 - Cloud) * DetailFade * 0.004 * TileWorld * SeamFade;
-    Nr = normalize(Nr * abs(Det) - DetailHeight * Grad);
-
-    // Terrain shadows: march the height field towards the sun; ridges shadow what lies behind
-    // them, long near the terminator.
+    float3 Nr = N;
     float NoL = dot(N, L);
-    float2 SunUv = float2(dot(L, T), dot(L, B));
-    SunUv /= max(length(SunUv), 1.0e-4);
-    float TanSun = NoL * rsqrt(max(1.0 - NoL * NoL, 1.0e-4));
-    float ShadowStep = Step * 3.0;
-    float Occlusion = 0.0;
-    [unroll] for (int I = 1; I <= 4; ++I)
+    float TerrainShadow = 1.0;
+    // Gas has no solid surface. Skip all height/detail reads and normal construction for it,
+    // and for small worlds whose relief has smoothly faded to zero.
+    [branch] if (Kind.y <= 0.5 &&
+        ((Relief.x != 0.0 && Quality.x > 0.0) || (Relief.y != 0.0 && Quality.y > 0.0)))
     {
-        float Along = ShadowStep * I;
-        float Above = ReliefAmount * (Height(Uv + SunUv * Texel * Along) - H0) - Along * TanSun;
-        Occlusion = max(Occlusion, Above);
+        // Base relief: the base map's luminance as a height field, a 4-tap gradient spaced by the
+        // pixel footprint, turned into a normal with a screen-derivative cotangent frame.
+        float2 Texel = Relief.zw;
+        float2 UvWidth = abs(UvDx) + abs(UvDy);
+        float2 Footprint = max(UvWidth / Texel, 1.0);
+        float Step = max(Footprint.x, Footprint.y);
+        float2 Du = float2(Texel.x * Step, 0.0), Dv = float2(0.0, Texel.y * Step);
+        float H0 = HeightOf(Base);
+        float2 Duv1 = UvDx, Duv2 = UvDy;
+        float3 Dp2Perp = cross(Dp2, N), Dp1Perp = cross(N, Dp1);
+        float3 T = Dp2Perp * Duv1.x + Dp1Perp * Duv2.x;
+        float3 B = Dp2Perp * Duv1.y + Dp1Perp * Duv2.y;
+        float InvMax = rsqrt(max(max(dot(T, T), dot(B, B)), 1.0e-30));
+        T *= InvMax;
+        B *= InvMax;
+        float SeamFade = EdgeWeight(Uv);
+        // Magnified (a texel over two pixels) the base map's gradient steps texel by texel and the
+        // shading turns blocky: fade the base relief out there and leave close-ups to the detail relief.
+        float Magnified = saturate(max(UvWidth.x / Texel.x, UvWidth.y / Texel.y) * 2.0);
+        float ReliefAmount = Relief.x * Quality.x * LayerRelief * (1.0 - Sea) * (1.0 - 0.7 * Cloud) * SeamFade * Magnified;
+        [branch] if (Relief.x != 0.0 && Quality.x > 0.0)
+        {
+            float Gx = (Height(Uv + Du, UvDx, UvDy) - Height(Uv - Du, UvDx, UvDy)) / (2.0 * Step);
+            float Gy = (Height(Uv + Dv, UvDx, UvDy) - Height(Uv - Dv, UvDx, UvDy)) / (2.0 * Step);
+            Nr = normalize(N - ReliefAmount * (Gx * T + Gy * B));
+        }
+
+        // Detail relief: the layer's detail map luminance as fine bumps (screen-derivative bump
+        // mapping), a fraction of a detail tile high, gone once the detail is smaller than a pixel.
+        // Forward differences one pixel over, sampled at the same mip (ddx/ddy of Hd would be per
+        // 2x2 quad and look blocky).
+        [branch] if (Relief.y != 0.0 && Quality.y > 0.0)
+        {
+            float Hd = W0 * dot(D0, Luma) * 0.5 + W1 * dot(D1.rgb, Luma) * 0.5;
+            float HdX = W0 * dot(tex2Dgrad(Detail0, Uv0 + Dx0, Dx0, Dy0).rgb, Luma) +
+                        W1 * dot(tex2Dgrad(Detail1, Uv1 + Dx1, Dx1, Dy1).rgb, Luma);
+            float HdY = W0 * dot(tex2Dgrad(Detail0, Uv0 + Dy0, Dx0, Dy0).rgb, Luma) +
+                        W1 * dot(tex2Dgrad(Detail1, Uv1 + Dy1, Dx1, Dy1).rgb, Luma);
+            float Det = dot(Dp1, Dp2Perp);
+            float3 Grad = sign(Det) * ((HdX - Hd) * Dp2Perp + (HdY - Hd) * Dp1Perp);
+            float WorldPerUv = length(Dp1) / max(length(Duv1), 1.0e-12);
+            float TileWorld = WorldPerUv / max(W0 * Kind.z + W1 * Kind.w, 1.0e-3);
+            float2 DetailWidth = abs(Dx0) + abs(Dy0);
+            float DetailFade = saturate(2.0 - max(DetailWidth.x, DetailWidth.y) * 512.0);
+            float DetailHeight = Relief.y * Quality.y * LayerRelief * (1.0 - Sea) * (1.0 - Cloud) * DetailFade * 0.004 * TileWorld * SeamFade;
+            Nr = normalize(Nr * abs(Det) - DetailHeight * Grad);
+        }
+
+        // Terrain shadows: march the height field towards the sun; ridges shadow what lies behind
+        // them, long near the terminator.
+        [branch] if (Glow.z > 0.0 && Quality.w > 0.0 && Relief.x != 0.0 && Quality.x > 0.0)
+        {
+            float2 SunUv = float2(dot(L, T), dot(L, B));
+            SunUv /= max(length(SunUv), 1.0e-4);
+            float TanSun = NoL * rsqrt(max(1.0 - NoL * NoL, 1.0e-4));
+            float ShadowStep = Step * 3.0;
+            float Occlusion = 0.0;
+            [unroll] for (int I = 1; I <= 4; ++I)
+            {
+                float Along = ShadowStep * I;
+                float Above = ReliefAmount * (Height(Uv + SunUv * Texel * Along, UvDx, UvDy) - H0) - Along * TanSun;
+                Occlusion = max(Occlusion, Above);
+            }
+            TerrainShadow = lerp(1.0, saturate(1.0 - Occlusion * Glow.z), Quality.w);
+        }
     }
-    float TerrainShadow = saturate(1.0 - Occlusion * Glow.z);
 
     // Lighting: the retail vertex lighting per pixel, a slightly wrapped terminator; the relief
     // only shades the day side.

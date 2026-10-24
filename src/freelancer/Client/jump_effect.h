@@ -202,3 +202,6 @@ void JumpEffectIniLoad();
 // FUN_00502aa0 (cdecl, no arguments; caller: the space teardown at 0x0054afb1) -- empties the
 // DAT_00674fd8 list and frees DAT_00674fd0.
 void JumpEffectDescsClear();
+// Silent read-only lookup for client visuals; zero uses the normal default descriptor.
+// Pointer is valid only until JumpEffectDescsClear; callers must copy any retained data.
+FJumpEffectDesc const* JumpEffectFindDesc(unsigned Id);

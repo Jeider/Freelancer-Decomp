@@ -102,6 +102,8 @@ namespace Archetype
     // FUN_004022d0 (cdecl) -- *OutScale = DAT_006101d4 when OutScale is not null; returns the
     // byte DAT_00616470. Caller: the gameobj draw submit FUN_00539980 (0x005399f9).
     unsigned char CliObjGetArchLodGlobals(float* OutScale);
+    // Resolved LODranges end after the existing renderer/performance scaling; -1 if unset.
+    float CliObjLodDistance(ICliObj* Companion);
 
     class FCliObjFactory final : public ICliObjFactory
     {

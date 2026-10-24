@@ -8,6 +8,8 @@
 // Agent: cursor:equip-fx-factory.
 
 #include "client_equip_fx.h"
+#include "jumphole_visual.h"
+#include "engine_heat_visual.h"
 #ifdef FREELANCER_RP9
 #include "port_config.h"
 #endif
@@ -2464,6 +2466,11 @@ namespace
         if (View->Particles.IsEmpty())
             return;
 
+        // The selected prototype owns only its ordinary hole/spark attachments. If its
+        // renderer cannot initialize, leave the complete original ALE creation path intact.
+        if (JumpHoleVisualReplaceAttached(Host, View->Particles.Id))
+            return;
+
         // 0x00532357..0x00532375: FUN_0040f080 on the id, then FUN_00503070 on DAT_00674c60
         // with the host, the part, the frame and &this+0x10.
         CliCreateEffectOneShot(FindEffectArch(&View->Particles.Id), Host, static_cast<int>(Part),
@@ -3000,6 +3007,7 @@ namespace
         {
         case EquipDestroying:
         {
+            EngineHeatVisualForget(Host,static_cast<CEEngine const*>(Equip));
             // 0x00527eae..0x00527ef6: per nozzle, the trail (+4) is killed (vtable +4),
             // released and cleared; the cruise (+8) is killed, then released through
             // FUN_005298c0.
@@ -3083,6 +3091,7 @@ namespace
 
     FCliEngineEquipFx::~FCliEngineEquipFx()
     {
+        EngineHeatVisualForget(Host,static_cast<CEEngine const*>(Equip));
         // FUN_00527d10. 0x00527d38..0x00527d8d: per nozzle, trail (+4) then cruise (+8):
         // kill (vtable +4), then -- re-read -- release (FUN_004f7a90) and clear.
         for (FCliEngineNozzleSlot* Slot = Nozzles.First(); Slot != Nozzles.Last(); ++Slot)
@@ -3226,6 +3235,9 @@ namespace
             {
                 Intensity = static_cast<float>(static_cast<double>(NewThrottle) * MaxFx);
             }
+
+            // Additional optics follows the same intensity; original ALEs below are untouched.
+            EngineHeatVisualUpdate(Host,Engine,Intensity,Dt);
 
             // 0x0052818f..0x0052820d: every nozzle's trail (+4) and cruise (+8) particle gets
             // slot +0xc (SetIntensity) with the intensity, floored at 0 (TEST AH,0x41, JNZ

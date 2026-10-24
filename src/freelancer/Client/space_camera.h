@@ -186,6 +186,8 @@ FSpaceCamera* GetActiveSpaceCamera();
 FSpaceCamera* GetFirstPersonSpaceCamera();
 FSpaceCamera* GetThirdPersonSpaceCamera();
 FSpaceCamera* GetTurretSpaceCamera();
+// Port-only accessor for player effects that also render while looking backwards.
+FSpaceCamera* GetRearViewSpaceCamera();
 
 // FUN_0054bd50 (cdecl, no arguments) -- `if (DAT_00679738) DAT_00679738->+0xbc = 1`: the active
 // camera's FlagBC raised, the same flag a hard cut raises (FUN_00549bc0). Callers: the jump-in

@@ -19,11 +19,12 @@ scene. It fades in where the billboards end and out where the band fades out.
 History: v1 was the procedural lumpy sphere (glints, spin, screen-door fade, depth write, no texture). v2 replaced
 it with the billboards' texture on flat sprites (no flicker, cross-fade with the billboards) but the flat sprites
 were rejected. v3 is v1's shape with v2's fixes: no `clip` / dither (outline and fades are alpha), no spin (a
-static per-rock turn from the seed), no depth write, per-field lighting, the dynamic asteroids' texture and tint.
+static per-rock turn from the seed), per-field lighting, the dynamic asteroids' texture and tint. The current
+renderer splits large, opaque rocks (alpha cutout and depth write) from small or fading rocks (alpha blend).
 
 Switches (`bin/port.ini [Render]`): `far_rocks = 1` (master), `far_rocks_auto = 0` (1 = every field with a
 `[Band]` and no `[FarRocks]` gets a default one that replaces the band; for testing without data edits),
-`far_rocks_max_total = 24000` (rocks drawn per frame over all fields, nearest field first),
+`far_rocks_max_total = 24000` (rocks drawn per frame, shared proportionally among visible fields),
 `far_rocks_static_vb = 1` (each field's rocks in a static GPU vertex buffer, uploaded once; 0 = sent every frame
 with `DrawExPrimitiveUp`). Also off with the Effects option off, the Asteroids option off, or Asteroid Ext
 outside 1..2 (the band's own gates), and on RP8.
@@ -35,8 +36,10 @@ from the field's other sections and are read when the rocks are built.
 
 | key | default | meaning |
 |---|---|---|
+| `type` | rock | `mesh` (also `debris`, for compatibility) instances the actual geometry of up to four dynamic asteroid models from this field; missing geometry or unsupported GPU keeps the old layers |
 | `count` | 8000 | rocks generated for the field (500..20000) |
 | `size` | 15, 250 | min, max rock radius in metres (the quad's half size) |
+| `model_scale` | 0 | debris only: positive value scales each authored model by this factor instead of choosing a radius from `size`; actual bounds feed exclusions, size classes and frustum culling |
 | `size_power` | 2.6 | slope q of the radius pdf r^-q (q > 1): many small, few big |
 | `edge_softness` | 1.5 | exponent e of the ellipsoid profile `(1 - \|q\|^2)^e` |
 | `thickness` | max dynamic `band_thickness` (0 = none) | half-height of a slab about the zone's local XZ plane |
@@ -53,9 +56,10 @@ from the field's other sections and are read when the rocks are built.
 | `brightness` | 1.0 | gain of the sun term |
 | `ambient` | 1.0 | scale of the system ambient term |
 | `min_pixels` | 1.5 | smallest drawn radius in pixels (smaller rocks keep it and lose alpha by area) |
+| `solid_pixels` | 4 | radius in pixels above which fully faded-in sprites use the depth-writing cutout pass |
 | `replace_band` | 1 | skip the retail band (and the field's exclusion bands) while the rocks draw |
 
-Removed (ignored if present): `shape` (v2), `color_b`, `spin`, `surge`, `sparkle`, `sparkle_strength` (v1 extras).
+Removed (ignored if present): `shape`, `color_b`, `spin`, `surge`, `sparkle`, `sparkle_strength`.
 
 ### The hand-over from the billboards
 
@@ -79,10 +83,8 @@ keeps the old default (cubes and placement radius).
 
 Built the first frame the field is known, all fields at once (`FarRocksDrawAll` walks the registry; the frame's
 budget is 100 ms, the rest follow the next frame; a log line gives the count, classes, cells, start distance and
-texture per field and the running total). The band is already hidden by then: `FarRocksReplacesBand` is true
-whenever the feature and the program are on, the field has `replace_band` and did not fail to build, and the field
-is not fog-blocked, built or not. (v1 hid the band only once the field was built, one field per frame, so a field
-popped between the band and the rocks as the camera turned.) Size classes `J = clamp(ceil(log2(max/min)), 1, 6)`
+texture per field and the running total). The band stays until the field is built and its shader is ready;
+`replace_band`, feature gates and the fog gate must also pass. Size classes `J = clamp(ceil(log2(max/min)), 1, 6)`
 with geometric edges; each class gets its share of `count` from the power law. A class walks cells of its own size
 `c = max(cbrt(1.5 / n), 2 * r_hi, box / 48)` in the zone-local frame, takes `floor(E + u)` rocks per cell from
 the expected number (at most 12), places each at a hashed offset, keeps it with probability `w(p) / w_cell`
@@ -124,8 +126,9 @@ not computed (the texture is reached; no CPU lock of a mip).
 `UpdateLighting` on the CPU: the unit sun direction from the zone's centre (`FindSystemSunSphere`), the sun's
 colour there (`FindSunLightColour`), one planet-shadow factor at the centre (`SolarSunlitAt`), refreshed every 16
 frames (the sun does not move, the planets barely), and the system ambient every frame
-(`EngineLightGetAmbientRgbBytes` / 255 times `ambient_intensity` times the field's ambient tint, as
-`BillboardComputeLighting` forms it, times `ambient`). Per draw the CPU turns the sun direction into view space
+(`StarSysAmbientColor` / 255 times `ambient_intensity` times the field's ambient tint and `ambient`). Reading
+the system colour directly avoids inheriting a previous object's fullbright `D3DRS_AMBIENT` state.
+Per draw the CPU turns the sun direction into view space
 (the view rotation rows) and sends it with the sun colour * sunlit * `brightness` and the ambient as pixel
 constants. The pixel shader lights the impostor normal:
 
@@ -136,6 +139,13 @@ constants. The pixel shader lights the impostor normal:
 A rock under 2 px radius uses the sunlit share of a Lambert sphere at its phase angle instead of a normal. With no
 sun the rocks are flat lit with a fill of 0.6. No per-rock shadow (v1 baked one per rock).
 
+Mesh debris shares `AsteroidDiffuse` and `AsteroidPhase` with resolved asteroid impostors, using its real
+rotated normals and the direction toward the camera. Thin panels orient their visible normal toward the viewer;
+the sun term uses clamped N.L, not its absolute value, and there is no artificial minimum sun contribution.
+Colour, direction, ambient and the field-level planet shadow still come from the same cached lighting data.
+Instancing and draw count are unchanged. FXC reports 42 slots (one texture fetch) for `PSMesh`; this is a static
+shader count, not a frame-time measurement.
+
 ### Per frame and draw order
 
 `FarRocksDrawAll` runs right after the opaque bucket (`DrainBucket(Cam, 0, false)`) in both paths of
@@ -143,27 +153,31 @@ sun the rocks are flat lit with a fill of 0.6. No per-rock shadow (v1 baked one 
 pieces are drawn earlier in the frame, which is why the band skip (`FarRocksReplacesBand`, called by
 `CliAsteroidDrawFarPiece`) is a predicate with no distance test.
 
-For each field in reach (`|cam - centre| - largest radius <= far_dist`, nearest first) the CPU picks the size
+Fields outside the camera frustum are rejected with a conservative bounding sphere before spending the
+shared budget. For each field in reach (`|cam - centre| - largest radius <= far_dist`) the CPU picks the size
 classes whose projected radius is at least a quarter of `min_pixels` (`r_hi * PxPerUnit / dNear`) and draws that
-prefix (cut by the remaining `far_rocks_max_total`): one `DrawExVertexBuffer` call per field from the field's
-static buffer (`far_rocks_static_vb`), or `DrawExPrimitiveUp` in batches of at most 8192 rocks. One Ex pass for
-all fields, scene depth kept, `ZENABLE 1, ZWRITEENABLE 0, ZFUNC LESSEQUAL`, alpha blend SRCALPHA / INVSRCALPHA, no
+prefix, reduced proportionally if all visible fields exceed `far_rocks_max_total`. Each field is drawn twice,
+once for solid sprites and once for soft sprites, from its static buffer (`far_rocks_static_vb`), or using
+`DrawExPrimitiveUp` in batches of at most 8192 rocks. One Ex pass encloses the draws, scene depth kept,
+`ZENABLE 1, ZFUNC LESSEQUAL`, alpha blend SRCALPHA / INVSRCALPHA, no
 culling. The dynamic textures are bound on samplers 0..3 (`BindExPipelineTexture`, linear, linear mips, wrap) from
 `TexShapeGetGpuHandle(ref, 0)`.
 
 The shader (vs_3_0 / ps_3_0) makes the quad in view space (1.2 radii or `1.2 * min_pixels` wide), with alpha
 `cover * nearFade * farFade` (cover = area ratio under `min_pixels`; the fades are smoothsteps of the distance)
-times the pixel shader's outline coverage (`saturate((edge - r) / fwidth(r))`), so a rock fades in alpha and never
-pops: no `clip` dither, no interleaved-gradient dissolve, no spin (its wrap was a pop), no depth write.
+times the pixel shader's outline coverage (`saturate((edge - r) / fwidth(r))`). Large, fully visible rocks use
+an alpha cutout and write depth; small or fading ones blend without writing depth. There is no animated spin
+or screen-door dissolve. Mesh debris uses its authored UVs, real normals and vertex depth, with a fixed seeded
+quaternion rotation in world space. Fully visible meshes write depth; fading meshes blend without writing it.
 
 ### The depth decision
 
 The rocks draw inside the scene with the scene depth buffer bound for the test (not a manual INTZ compare): an Ex
 pass cannot sample INTZ and depth-test at once (`ExSelectTarget` unbinds the sampler when the depth surface is
 kept), the scene's far plane in FL_MOD is mostly 50-100 km (`space_farclip`, sig8 = 60000) so most rocks lie
-inside it, and real depth gives correct occlusion against stations, planets and ships. v2 does not write depth
-(blended impostors): the space haze, the field dust and the nebula volume after it no longer see the rocks in the
-depth buffer. Rocks beyond the scene far plane are not clipped: the vertex shader clamps their clip z to
+inside it, and real depth gives correct occlusion against stations, planets and ships. Solid sprites write
+depth, so subsequent depth-aware volumes can see them; soft sprites only test depth. Rocks beyond the scene
+far plane are not clipped: the vertex shader clamps their clip z to
 `w * (1 - 2^-22)`, just in front of the cleared depth, so they draw over the sky only, behind everything the scene
 drew. Far-bucket solars beyond the far plane write no depth and may be overdrawn by beyond-far rocks (accepted,
 rare).
@@ -189,14 +203,17 @@ back to the upload path for that field.
 
 6 vertices (24 bytes each, 144 bytes) a rock, no index buffer: 8000 rocks are 48000 vertices, 1.15 MB, 24000
 rocks 3.5 MB. With the static buffer that is uploaded once per field (when it is built or after a device
-re-creation) and nothing per frame but 8 vertex and 8 pixel constants, up to 4 texture binds and one draw call per field; the
+re-creation). Per field there are 9 vertex and 9 pixel constants, up to 4 texture binds and two draw calls; the
 upload path (`far_rocks_static_vb = 0`) copies up to 1.15 MB per field per frame (about 0.1-0.2 ms CPU for 8000).
-GPU: 16-48k triangles, mostly 1-4 px, blended without depth write, about 0.1-0.2 ms. Lighting: three small
+GPU timing for the current two-pass renderer and debris mode has not been measured. Lighting: three small
 `FindSun*` / `SolarSunlitAt` calls per field every 16 frames. Memory 1.15 MB per built field in the client plus
 the same in the pipeline's copy and the GPU buffer. Build once per field: about 14k coarse-grid weights plus about
-60k cell bounds for an 8000-rock field, a few tens of ms (see the log line). Shader (v3): vs 59 instruction slots, ps 288 (4 texture
-slots, one fetch per pixel; the arithmetic is the sphere normal, outline, atan2 and the lighting), more per pixel
-than v2's 18, but the rocks are mostly 1-4 px, so the fill cost stays small.
+60k cell bounds for an 8000-rock field, a few tens of ms (see the log line). The 100 ms synchronous build budget
+can still cause a noticeable first-frame hitch. Mesh debris uses indexed hardware instancing, one 32-byte
+vertex stream per model and a 36-byte placement record per object. Geometry is stored once per model per field;
+up to four models need eight draws per field across solid/soft passes. Cambridge's four models have
+712/226/204/534 triangles. The profile requests 1000 objects per field, so instancing saves draw calls and
+geometry duplication but does not remove the GPU cost of those triangles. In-game timing is still unmeasured.
 
 ## Field dust ([FieldDust], 2026-10-24)
 
@@ -208,13 +225,13 @@ defaults, for testing), `field_dust_resolution` (0.5, 0.25..1: scale of the marc
 
 ### The model
 
-One analytic volume per field, no real ray march. The view ray against the zone ellipsoid (the zone radii as
+One analytic base volume per field, with sampled density modulation. The view ray against the zone ellipsoid (the zone radii as
 `nebula_volume.cpp` `ZoneRadii`, the ray in the zone's unit space by `NebulaZoneSpan`), clamped by the scene
-depth (the INTZ depth; the far rocks write none since v2). The density profile is `(1 - |q|^2)` (q = the point in
+depth (the INTZ depth, including solid far rocks). The density profile is `(1 - |q|^2)` (q = the point in
 unit space) whose chord integral is closed form; taken about the chord midpoint `Tm` with half length `H` it is
 `2 H (1 - |Pm|^2) - 2 A H^3 / 3` (A = |L|^2 the squared length of the direction in unit space; the odd terms drop
 out, nothing cancels badly at long range). The exact optical depth is `tau = sigma * I * mean`, where `mean`
-is a ratio estimator over `steps` stratified jittered samples (`sum(p m) / sum(p)`, p the profile, m the
+is a ratio estimator over `steps` stable segment-midpoint samples (`sum(p m) / sum(p)`, p the profile, m the
 modulation: `p^(edge_softness - 1)`, the slab, the clump noise, the clear zone round the camera), so the
 profile's exact shape stays smooth and the noise only modulates it. With steps = 0 (beyond `lod_distance` of the
 zone surface) it is the closed form times the clear zone at the midpoint. `sigma` comes from `opacity`: the
@@ -239,8 +256,14 @@ position decides its offset in the tile).
 Pass 1 marches at `field_dust_resolution` into an own render target (FP16 when `bFloat16Target`, else
 A8R8G8B8: premultiplied rgb, 1 - transmittance), pass 2 composites it depth-aware (four low-res texels, relative
 depth threshold 0.1, the best match across a depth edge: `nebula_composite.hlsl`'s upsample) with ONE / INVSRCALPHA.
-Both cover only the union of the fields' screen rectangles (the bounding sphere's exact perspective extent);
-nothing on screen is no pass. Up to 4 fields per pass, nearest first, front to back. Drawn in `SpaceObjDrawPass`
+Both cover only the union of each batch's screen rectangles (the bounding sphere's exact perspective extent);
+nothing on screen is no pass. All visible fields are packed into batches of at most four by `field_dust_batch.h`.
+Within a batch the shader integrates nearest first; batches composite farthest first. The old four-field
+visibility cap made neighbouring clouds blink when camera rotation admitted a closer field. There is now
+an extra march/composite pair for every additional batch, so dense views cost more than the capped version.
+Stable quadrature replaces screen-pixel IGN sample offsets, which produced a diagonal density lattice over
+bright backgrounds without a temporal resolve. Sample counts and the spatial density texture remain the same.
+Drawn in `SpaceObjDrawPass`
 after the opaque scene and the far rocks, before `NebulaVolume::Draw`: the space haze and the sprite layers
 (drawn earlier) lie under the dust, the nebula over it. Known limit: a nebula BEHIND a dust field on screen dims
 the dust slightly (its march does not know the dust). Estimate at 1080p, one field covering the screen: march
@@ -274,4 +297,86 @@ asteroids off, no scene depth.
 | `clear_radius` | billboard Float04, else 2000 | density x `smoothstep(0.5 r, r, t)` along the ray |
 | `steps` | 6 | noise samples per field per pixel (0..8) |
 | `lod_distance` | 25000 | beyond this from the zone surface only the closed form |
+| `exclude_zones` | 0 | mask up to four sphere/ellipsoid field exclusions; forces at least six samples, including at distant LOD |
 | `far_dist`, `far_fade` | band fade[3], fade[3] - fade[2], else 70000, 10000 | the whole field's strength `saturate((far_dist - d) / far_fade)` |
+
+### Ordinary asteroid mesh fields
+
+`DATA_EXTRA/ASTEROIDS/dynamic_mesh_fields.ini` selects `type = mesh`, 1000 objects, authored scale 3,
+and the accepted 5200..4500 m approach fade. Geometry, diffuse textures and tints are read from each field's
+own `DynamicAsteroids`; the renderer does not select models by system nickname. Up to four models per field
+are supported. Existing field dust, exclusions, physical objects and loot remain in the source INIs.
+
+`python -B tools/install_asteroid_mesh_fields.py` prepares a package for existing generated `*_asteroids.ini`
+fields that have both `FarRocks` and `DynamicAsteroids`. `--apply` installs only changed files after hash
+validation, with backups under `FL_MOD/BACKUP/codex_asteroid_mesh_<timestamp>`; `--restore <backup>` reverses
+an installation if its files have not changed afterward. The current dataset has 62 eligible fields across
+16 systems, including all five `sig8_ast1..5` fields, which use `ast_tau29_normal_a/b/c`. Five om11 fields
+without dynamic models retain the prior renderer. The 18 source models have 320..400 triangles each.
+
+`tools/export_asteroid_render_check.py` exports those actual assets into ignored `src/obj` for validation by
+`check_debris_render`. `tools/benchmark_field_mesh.cpp` measures the production shader and instancing helper
+with D3D9 GPU timestamp queries, 16 warm-up frames and 64 samples, two passes, 1000 instances per field.
+On RTX 5080 at 1920x1080 using the three Cambridge asteroid models (320 triangles each, scale 2 at measurement), isolated elapsed
+times were 0.064 ms median / 0.065 ms p95 for one field, 0.261 / 0.267 ms for four. The fixed synthetic scene
+does not include field dust, other objects, shadow rendering or postprocessing and is not an in-game FPS result.
+
+### Ordinary-world Band rollout (2026-10-24)
+
+`tools/install_band_mesh_fields.py` follows active `universe.ini` system references rather
+than scanning every asteroid file. Both debris and ordinary fields require a `[Band]`,
+an empty `[Cube]` and existing dynamic models. Resources used by special/mission/dungeon
+systems are protected, including shared resources; `om11`, `tau44`/`m8_tau44`, and `sphere*`
+are explicitly excluded. Filled Cube sections and fields without Band remain unchanged.
+
+The current scope is 113 fields (52 debris, 61 ordinary). 48 debris fields and the legacy
+`omicron1_corsair_field.ini` need new profiles; the other 64 are already configured.
+Debris uses the Cambridge 1000-object, scale-2 profile and faint dust. Ordinary fields use
+their own dynamic meshes at scale 3 and 1000 objects; their existing dust remains intact.
+The 22 source models are single-material triangle lists, 204..712 triangles each.
+
+The same package patches `Assets/Pythonlancer/universe/content/asteroid_definition.py`,
+via the reproducible `tools/pythonlancer_band_patch.py` transformation. Profiles are embedded
+in the generator, independent of this repository. Ordinary `SYSTEMS_MOD` definitions with
+Band and dynamic asteroids get the new profiles unless Cube contains active directives;
+story/special systems and explicit FarRocks/FieldDust opt-outs retain their prior output.
+The generator patch is idempotent and validated against protected-field output, empty and
+populated cubes, profiles, opt-outs and newline preservation. No full-world rebuild is run.
+
+Prepare with `python -B tools/install_band_mesh_fields.py`, install with `--apply`, or
+restore with `--restore <backup>`. The package contains field INIs and generator source only.
+It checks active universe/system/field hashes before installation, backs up all changes,
+verifies protected fields afterward, and preserves physical dynamic asteroids, loot,
+exclusions and the fallback Band. Backups use `BACKUP/codex_band_mesh_<timestamp>`.
+
+### Original Cambridge trial
+
+`DATA_EXTRA/ASTEROIDS/br_cam_debris.ini` is an append-only profile for the four generated
+`br_cam_deb1_debris.ini` through `br_cam_deb4_debris.ini` files in FL_MOD. It requests 1000 actual meshes per field,
+using existing `dyn_debris_1.3db` through `dyn_debris_4.3db`, each at twice its authored dimensions
+(`model_scale = 2`), 55 km reach and faint grey dust (`opacity = 0.06`, `max_opacity = 0.10`). Existing physical
+near-field objects, loot and `debrisdust` particles stay in the data. Approaching a copy, it fades between
+5200 and 4500 m from its centre, then disappears. Once its buffers and shader are ready, the mesh layer suppresses
+the old debris billboards as well as the band. These distant meshes are visual objects without physics; close
+dynamic objects still provide the existing gameplay. The four source models are single-material triangle lists,
+matching the existing dynamic mesh loader. There is no distant billboard LOD: small geometry fades out.
+Dust exclusions use sampled masks with a 10% outward feather, so narrow holes can be missed between samples.
+Only sphere and ellipsoid exclusions are supported by this dust prototype; rock placement retains its existing
+exclusion tests. Four fields use 112 pixel constant registers from c8, within ps_3_0 limits.
+
+From the repository root, run `tools/install_br_cam_debris.ps1` to prepare ten files under `src/obj` without
+changing the game. Run it with `-Apply` after closing Freelancer to install the client EXE/PDB, RP9 DLL/PDB, the two matching
+shaders and the four field INIs. It checks source/destination hashes, backs up every replaced file beneath
+`FL_MOD/BACKUP/codex_br_cam_debris_<timestamp>` and restores originals if installation fails. Use
+`-RestoreBackup <backup-directory>` to undo the trial; restoration refuses to overwrite files edited afterward.
+
+Validation: the RP9 client builds, FXC accepts the affected shader entries, and `tools/check_debris_render.cpp`
+runs the actual shaders and production instancing helper on a hidden D3D9 device. Export test inputs with
+`python -B tools/export_debris_render_check.py D:/games/FL_MOD`, then pass each exported `.bin` and `.texture`
+pair to the check. It tests real geometry, two rotated instances, a nonzero instance offset, depth occlusion,
+stream-frequency cleanup and all four dust slots with exclusions. Lighting checks reverse the sun, remove direct
+light and change its colour on every real model. The old absolute-N.L shader fails the reversal check (identical
+front/back brightness); the shared asteroid model passes. Dust checks also verify identical physical rays
+give identical density regardless of screen pixel, and render 13 coloured volumes through the production
+batching helper, comparing with one-field-per-draw composition (within A8R8G8B8 rounding). The old jittered
+shader fails the identical-ray check. The checks do not establish in-game appearance or frame rate.

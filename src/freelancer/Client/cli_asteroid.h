@@ -353,6 +353,11 @@ struct FCliAsteroidFarInfo
     int DynTextureCount;
     char DynTexture[4][64];
     float DynTint[4][3];
+    // Actual dynamic geometry and its own material (not deduplicated by texture).
+    int DynMeshCount;
+    FCliDynamicAsteroidMesh const* DynMesh[4];
+    char DynMeshTexture[4][64];
+    float DynMeshTint[4][3];
 };
 bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out);
 #endif

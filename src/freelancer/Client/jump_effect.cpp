@@ -5,6 +5,8 @@
 // Author: Giperion.
 
 #include "jump_effect.h"
+#include "jumphole_visual.h"
+#include "ship_warp_visual.h"
 
 #include "cli_projectile_fx.h" // CliEffectCompanionArmStop / Clear, CliEffectListRemove
 #include "client_gameobj.h"
@@ -26,6 +28,23 @@
 
 namespace
 {
+    // The old jg_stars ALE is disabled at creation, throughout every jump state.
+    // Keep its sound/light companions and their normal attachment/lifetime handling.
+    struct FJumpNoStarsFactory : FJumpCliEffectFactory
+    {
+        FEffectBase* CreateParticle() const override { return nullptr; }
+    };
+    FJumpNoStarsFactory const G_JumpNoStarsFactory;
+
+    bool IsJumpStars(unsigned Id)
+    {
+        static unsigned const Ids[] = {CreateID("jg_stars"), CreateID("jg_stars_green"),
+            CreateID("jg_stars_walker"), CreateID("jg_stars_barrier"), CreateID("jg_stars_dark")};
+        for (unsigned Candidate : Ids)
+            if (Id == Candidate) return true;
+        return false;
+    }
+
     // .rdata 0x005da80c.
     char const* const kJumpEffectCpp = "E:\\FL\\Scratch\\Source\\Client\\Space\\JumpEffect.cpp";
 
@@ -37,9 +56,6 @@ namespace
     // by JumpEffectIniLoad (FUN_005020a0, 0x0054ac15) and emptied by JumpEffectDescsClear
     // (FUN_00502aa0, 0x0054afb1).
     std::list<FJumpEffectDesc> G_JumpEffectDescs;
-
-    // DAT_005d1f04 -- the jump camera-shake amplitude.
-    constexpr float kJumpShakeAmplitude = 0.015f;
 
     // FUN_004215b0 on a Transform's rotation, then a zero translation (the inline sequences
     // at 0x005034a7..0x005034cb / 0x0050366e..0x005036a0 / 0x00503730..0x00503758).
@@ -83,6 +99,14 @@ FJumpGateRingFx::FJumpGateRingFx()
     Position.x = 0.0f;
     Position.y = 0.0f;
     Position.z = 0.0f;
+}
+
+FJumpEffectDesc const* JumpEffectFindDesc(unsigned Id)
+{
+    if (Id == 0) Id = CreateID("jump_effect_default");
+    for (FJumpEffectDesc const& Desc : G_JumpEffectDescs)
+        if (Desc.Nickname.Id == Id) return &Desc;
+    return nullptr;
 }
 
 FJumpGateEffect::FJumpGateEffect(FClientSolarGameobj* InSolar)
@@ -191,6 +215,8 @@ void FJumpGateEffect::Update(float Dt)
         // 0x00502fc0..0x00502ffd: the descriptor ring's effect (+4 + 0xc * Ring) through
         // DAT_00674c60 (FUN_00503070) into the ring's companion, the solar as the list owner.
         ID_String const& Effect = Desc->Rings[Ring].Effect;
+        if (JumpHoleVisualReplaceActivation(Solar, Effect.Id))
+            continue;
         if (!Effect.IsEmpty() &&
             CliCreateEffectOneShot(FindEffectArch(&Effect.Id), Solar, Index, &Local,
                                    &RingFx.Fx) != 0)
@@ -593,6 +619,7 @@ FJumpShipEffect::FJumpShipEffect(FClientShipGameobj* InShip, FClientSolarGameobj
             Found->Frame = Field_0xa8;
         }
         Field_0xa4 = SolarObj->DestSystem;
+        JumpHoleVisualBindTransit(this, GateSolar);
     }
 
     // 0x005037ed..0x00503896: a temporary gate is destroyed (FUN_00502e40 inline) and freed.
@@ -601,6 +628,8 @@ FJumpShipEffect::FJumpShipEffect(FClientShipGameobj* InShip, FClientSolarGameobj
 
 FJumpShipEffect::~FJumpShipEffect()
 {
+    ShipWarpVisualForgetJump(this);
+    JumpHoleVisualForgetTransit(this);
     // FUN_00503a80 (thiscall). The three stop-and-clear blocks are the inline
     // CliEffectCompanionArmStop sequence followed by FUN_00502d90.
     // 0x00503aa2..0x00503b10: +0x28.
@@ -621,29 +650,9 @@ FJumpShipEffect::~FJumpShipEffect()
 
 double FJumpShipEffect::ShakeAmplitude() const
 {
-    // FUN_00503e20: switch on the ship's +0x158 - 1 (JA past 3 -> the 0.0f already loaded
-    // from DAT_005c7474).
-    switch (Ship->Field_0x158)
-    {
-    case 1:
-        // 0x00503e3c..0x00503e5a: JumpOutTime FCOMP 0.0f, TEST AH,0x41 / JNZ -- not above
-        // (NaN included) returns the amplitude itself; otherwise amplitude / JumpOutTime * +0x70.
-        if (JumpOutTime > 0.0f)
-            return static_cast<double>(kJumpShakeAmplitude) / JumpOutTime * Field_0x70;
-        return kJumpShakeAmplitude;
-    case 2:
-    case 3:
-        // 0x00503e87..0x00503e8f.
-        return kJumpShakeAmplitude;
-    case 4:
-        // 0x00503e5b..0x00503e86: JumpInTime not above 0 (NaN included) -> 0.0f; otherwise
-        // (1.0f (DAT_005c75dc) - +0x70 / JumpInTime) * amplitude.
-        if (JumpInTime > 0.0f)
-            return (1.0 - static_cast<double>(Field_0x70) / JumpInTime) * kJumpShakeAmplitude;
-        return 0.0;
-    default:
-        return 0.0;
-    }
+    // Port override of FUN_00503e20: hyperspace uses smooth optical distortion
+    // instead of retail's random camera rotations. Hull/shield impact shake is independent.
+    return 0.0;
 }
 
 namespace
@@ -697,7 +706,10 @@ void FJumpShipEffect::StartJumpOut()
     if (!TunnelEffect.IsEmpty())
     {
         bStarted = CliCreateEffectWorldOneShotOn(
-                       &G_CliEffectFactoryJump, FindEffectArch(&TunnelEffect.Id),
+                       IsJumpStars(TunnelEffect.Id)
+                           ? static_cast<FCliEffectFactory const*>(&G_JumpNoStarsFactory)
+                           : &G_CliEffectFactoryJump,
+                       FindEffectArch(&TunnelEffect.Id),
                        reinterpret_cast<FTransform const*>(&Field_0xa8), Velocity, &FxB) != 0;
     }
     if (!bStarted)
@@ -826,6 +838,7 @@ void FJumpShipEffect::Update(float Dt)
     int const State = Ship->Field_0x158;
     if ((State == 2 || State == 3) && Tunnel != nullptr)
         Tunnel->Update(Dt);
+    ShipWarpVisualTickJump(this, Dt);
 
     // 0x00503cfd..0x00503d07: everything else only in state 4 (jump in). The state is read
     // again from the ship; FGateTunnel::Update does not touch it.

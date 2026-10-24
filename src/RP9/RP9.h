@@ -27,6 +27,7 @@
 #include "render/IRPLocalShadows.h"
 #include "render/IRPWeaponGlints.h"
 #include "render/IRPFrameQuality.h"
+#include "render/IRPSceneCapture.h"
 #include "render/IRPPlanetAtmosphere.h"
 #include "render/IRPPlanetSurface.h"
 
@@ -380,7 +381,7 @@ class FDirectX9 final : public IRenderPipeline,
                         public IRPDrawEx,
                         public IRPSurfaceShader, public IRPSurfaceContext,
                         public IRPLocalShadows, public IRPFrameQuality, public IRPWeaponGlints,
-                        public IRPPlanetAtmosphere, public IRPPlanetSurface
+                        public IRPPlanetAtmosphere, public IRPPlanetSurface, public IRPSceneCapture
 {
 public:
     FDirectX9();
@@ -580,6 +581,8 @@ public:
     GENRESULT DACOM_API DrawExVertexBuffer(FRPExBuffer* Buffer, unsigned long Prim, unsigned long Fvf,
                                            unsigned long Stride, unsigned long FirstVertex,
                                            unsigned long PrimitiveCount) override;
+    GENRESULT DACOM_API DrawExMeshInstances(FRPExBuffer* Geometry, FRPExBuffer* Instances,
+        unsigned long VertexCount, unsigned long FirstInstance, unsigned long InstanceCount) override;
 
     // RP9 Ex hooks into the RP8-mirrored lifetime (RP9Ex.cpp). With no Ex object ever created
     // and no INTZ support they do nothing, so the RP8 behaviour is unchanged.
@@ -668,6 +671,7 @@ public:
 
     GENRESULT QueryLocal(const char* Iid, void** Out);
     GENRESULT DACOM_API ApplySceneAntialiasing() override;
+    GENRESULT DACOM_API CaptureSceneColor(FRPExTexture* Destination) override;
     void ExInitQualityConfig();
     void FlushDrawState(IDirect3DDevice9* Device); // formerly static FlushDrawState
     GENRESULT ApplySectionName(const FRp9AggDesc* Desc);

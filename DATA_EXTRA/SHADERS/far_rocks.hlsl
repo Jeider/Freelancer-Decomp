@@ -8,8 +8,7 @@
 // once per field on the CPU) plus the system ambient. The surface colour is the diffuse texture of
 // one of the field's dynamic asteroids (the rock carries one of up to four by its hash), sampled
 // through the bumped sphere normal with a per-rock turn and offset, times that asteroid's tint.
-// Everything fades in alpha (outline, distance, size): drawn alpha blended with the scene depth
-// bound for the test only (no depth write, no clip, no dither), so nothing flickers. A rock beyond
+// Solid silhouettes write depth with an alpha cutout; small or fading ones only blend. A rock beyond
 // the scene's far plane gets its clip depth clamped just in front of the cleared depth, so it
 // draws over the sky only.
 
@@ -20,7 +19,7 @@ float4 Proj : register(c4);          // ScaleX, ScaleY, ProjA, ProjB
 float4 Remap : register(c5);         // viewport remap: Sx, Sy, Bx, By (the pass viewport is the whole target)
 float4 Lod : register(c6);           // far plane, pixels per unit at depth 1, min_pixels, 1 - 2^-22
 float4 Range : register(c7);         // start, 1 / start_fade, far_dist - far_fade, 1 / far_fade
-float4 RockPass : register(c8);          // x 0 = the solid rocks, 1 = the soft dots; y solid_pixels
+float4 RockPass : register(c8);      // x 0 solid / 1 soft, y solid_pixels
 
 struct RockVertex
 {
@@ -102,6 +101,87 @@ float RockHash(float Seed, float K)
     return frac(sin(Seed * K + K * 0.618) * 43758.5453);
 }
 
+struct MeshVertex
+{
+    float3 Position : POSITION0;
+    float3 Normal : NORMAL0;
+    float2 Uv : TEXCOORD0;
+    float4 CentreRadius : TEXCOORD1;
+    float4 Rotation : TEXCOORD2;
+    float4 Colour : COLOR0;
+};
+struct MeshInterp
+{
+    float4 Position : POSITION0;
+    float2 Uv : TEXCOORD0;
+    float3 Normal : TEXCOORD1;
+    float3 FadeJitterSolid : TEXCOORD2;
+    float3 ToEye : TEXCOORD3;
+};
+// Shared by mesh debris and the resolved asteroid impostors. The unlit hemisphere
+// receives ambient only; reversing the sun must not light the same surface equally.
+float AsteroidDiffuse(float3 N, float3 L, float3 V)
+{
+    float Mu0 = saturate(dot(N, L));
+    float Mu = saturate(dot(N, V));
+    return 0.7 * Mu0 + 0.3 * Mu0 / (Mu0 + Mu + 1.0e-3);
+}
+float AsteroidPhase(float3 L, float3 V)
+{
+    float C = saturate(dot(L, V));
+    float C2 = C * C;
+    return 0.85 + 0.5 * C2 * C2 * C2;
+}
+float3 MeshRotate(float3 V, float4 Q)
+{
+    return V + 2.0 * cross(Q.xyz, cross(Q.xyz, V) + Q.w * V);
+}
+MeshInterp VSMesh(MeshVertex In)
+{
+    MeshInterp Out;
+    float3 Centre = In.CentreRadius.xyz - CamRel.xyz;
+    float Depth = -dot(Centre, ViewRow[2].xyz);
+    float Dist = length(Centre);
+    float Fade = smoothstep(0.0, 1.0, saturate((Dist - Range.x) * Range.y)) *
+                 smoothstep(0.0, 1.0, saturate(1.0 - (Dist - Range.z) * Range.w));
+    float PxRadius = In.CentreRadius.w * Lod.y / max(Depth, 1.0);
+    Fade *= smoothstep(0.0, Lod.z, PxRadius); // fade subpixel geometry; never inflate it into a quad
+    float Solid = Fade >= 0.999 ? 1.0 : 0.0;
+    Out.Position = float4(0.0, 0.0, -2.0, 1.0);
+    Out.Uv = In.Uv;
+    float3 Normal = MeshRotate(In.Normal, In.Rotation);
+    Out.Normal = float3(dot(Normal, ViewRow[0].xyz), dot(Normal, ViewRow[1].xyz), dot(Normal, ViewRow[2].xyz));
+    Out.FadeJitterSolid = float3(Fade, In.Colour.r, Solid);
+    Out.ToEye = float3(0.0, 0.0, 1.0);
+    [branch] if (Depth + In.CentreRadius.w >= 1.0 && Fade >= 1.0 / 255.0 && Solid != RockPass.x)
+    {
+        float3 Rel = Centre + MeshRotate(In.Position * In.CentreRadius.w, In.Rotation);
+        float3 V = float3(dot(Rel, ViewRow[0].xyz), dot(Rel, ViewRow[1].xyz), dot(Rel, ViewRow[2].xyz));
+        float D = -V.z;
+        Out.ToEye = -V;
+        Out.Position = float4(V.x * Proj.x, V.y * Proj.y, Proj.z * D + Proj.w, D);
+        if (D > Lod.x) Out.Position.z = D * Lod.w;
+        Out.Position.xy = Out.Position.xy * Remap.xy + Remap.zw * D;
+    }
+    return Out;
+}
+float4 PSMesh(MeshInterp In) : COLOR0
+{
+    float4 Sample = tex2D(RockTex0, In.Uv);
+    float3 V = normalize(In.ToEye);
+    float3 N = normalize(In.Normal);
+    // Show either side of thin panels, but light only the side facing the viewer.
+    N *= dot(N, V) < 0.0 ? -1.0 : 1.0;
+    float3 L = normalize(SunView.xyz);
+    float Light = AsteroidDiffuse(N, L, V) * AsteroidPhase(L, V);
+    float3 Albedo = TexTint[0].rgb * lerp(float3(1.0, 1.0, 1.0), Sample.rgb, TexTint[0].w);
+    float3 Colour = Albedo * lerp(0.85, 1.1, In.FadeJitterSolid.y) *
+                    (AmbientLight.rgb + SunLight.rgb * Light);
+    float Alpha = lerp(1.0, Sample.a, TexTint[0].w) * In.FadeJitterSolid.x;
+    if (In.FadeJitterSolid.z > 0.5) clip(Alpha - 0.5);
+    return float4(saturate(Colour), Alpha);
+}
+
 float4 PSMain(RockInterp In) : COLOR0
 {
     float2 Q = In.QFade.xy;
@@ -171,11 +251,9 @@ float4 PSMain(RockInterp In) : COLOR0
     }
     else
     {
-        float Mu0 = saturate(dot(N, L));
-        float Mu = saturate(N.z);
-        Lit = 0.7 * Mu0 + 0.3 * Mu0 / (Mu0 + Mu + 1.0e-3);
+        Lit = AsteroidDiffuse(N, L, float3(0.0, 0.0, 1.0));
     }
-    float Phase = 0.85 + 0.5 * pow(saturate(L.z), 6.0);
+    float Phase = AsteroidPhase(L, float3(0.0, 0.0, 1.0));
     float3 Colour = Albedo * (SunLight.rgb * (Lit * Phase) + AmbientLight.rgb);
     // Solid: a rock of at least min_pixels drops the pixels it covers less than half (its
     // antialiased rim stays), so its inside is opaque; a smaller one stays a soft dot.

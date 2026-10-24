@@ -4206,6 +4206,95 @@ bool NebulaVolume::IsFrameActive()
     return GFrameLightingCount > 0;
 }
 
+float NebulaVolume::EffectVisibility(float const* From, float const* To)
+{
+    if (From == nullptr || To == nullptr)
+        return 0.0f;
+    double Direction[3], LengthSq = 0.0;
+    for (int Axis = 0; Axis < 3; ++Axis)
+    {
+        if (!std::isfinite(From[Axis]) || !std::isfinite(To[Axis]))
+            return 0.0f;
+        Direction[Axis] = (double)To[Axis] - From[Axis];
+        LengthSq += Direction[Axis] * Direction[Axis];
+    }
+    if (!(LengthSq > 1.0e-12))
+        return 1.0f;
+    double const Length = std::sqrt(LengthSq);
+    for (int Axis = 0; Axis < 3; ++Axis)
+        Direction[Axis] /= Length;
+    double OpticalDepth = 0.0;
+    for (size_t Index = 0; Index < GNebulae.size(); ++Index)
+    {
+        FNebulaEffect const* const Nebula = GNebulae[Index].Nebula;
+        if (Nebula == nullptr || Nebula->FlagLoaded == 0 || Nebula->Zone == nullptr ||
+            GNebulae[Index].RingOwner != nullptr)
+            continue;
+        Vector const& Centre = Nebula->Zone->GetPos();
+        double const Offset[3] = {(double)From[0] - Centre.x,
+                                 (double)From[1] - Centre.y, (double)From[2] - Centre.z};
+        double const Radius = Nebula->Zone->GetRadius();
+        if (!(Radius > 0.0) || !std::isfinite(Radius))
+            continue;
+        double B = 0.0, C = -Radius * Radius;
+        for (int Axis = 0; Axis < 3; ++Axis)
+        {
+            B += Offset[Axis] * Direction[Axis];
+            C += Offset[Axis] * Offset[Axis];
+        }
+        double const Discriminant = B * B - C;
+        if (!(Discriminant > 0.0))
+            continue;
+        double const Root = std::sqrt(Discriminant);
+        double const Begin = -B - Root > 0.0 ? -B - Root : 0.0;
+        double const End = -B + Root < Length ? -B + Root : Length;
+        if (!(End > Begin))
+            continue;
+        FNebulaVolumeSettings Settings = SettingsFor(Nebula);
+        FMediumParams Medium;
+        ComputeMedium(Nebula, Settings, &Medium);
+        // With retail fog, or a cloud-only style, use a conservative fog-distance extinction.
+        // DensityScale=0 on an enabled volume remains a deliberately transparent medium.
+        bool const Volume = Settings.Enabled > 0.5f && !GbProgramFailed && RenderEx::IsAvailable();
+        double Sigma = Medium.HazeSigma;
+        if (!Volume || (!(Sigma > 0.0) && Medium.CloudSigma > 0.0f))
+            Sigma = -std::log(0.01) / Medium.FogDistance;
+        if (!Volume)
+            Settings.ExclusionDensityScale = 1.0f;
+        if (!(Sigma > 0.0) || !std::isfinite(Sigma))
+            continue;
+        auto const* const Manager = Nebula->ExclusionMgr;
+        int const Exclusions = Manager != nullptr ? FNebulaVolumeExclusionAccess::Count(Manager) : 0;
+        double const Step = (End - Begin) / 64.0;
+        for (int Sample = 0; Sample < 64; ++Sample)
+        {
+            double const Distance = Begin + (Sample + 0.5) * Step;
+            Vector Point;
+            Point.x = (float)(From[0] + Direction[0] * Distance);
+            Point.y = (float)(From[1] + Direction[1] * Distance);
+            Point.z = (float)(From[2] + Direction[2] * Distance);
+            double Density = Clamp((float)Nebula->Zone->GetImmersion(Point), 0.0f, 1.0f);
+            if (!(Density > 0.0))
+                continue;
+            for (int Ex = 0; Ex < Exclusions; ++Ex)
+            {
+                auto const* const Zone = FNebulaVolumeExclusionAccess::At(Manager, Ex);
+                if (Zone == nullptr || Zone->ZonePtr == nullptr)
+                    continue;
+                float const Immersion = Clamp((float)Zone->ZonePtr->GetImmersion(Point), 0.0f, 1.0f);
+                Density *= 1.0 + (ExclusionInsideScale(Zone, Medium, Settings) - 1.0) * Immersion;
+            }
+            double const Near = Medium.FogNear > 0.0f ? Clamp((float)(Distance / Medium.FogNear), 0.0f, 1.0f) : 1.0;
+            OpticalDepth += Sigma * Density * Near * Near * (3.0 - 2.0 * Near) * Step;
+            if (OpticalDepth >= -std::log(0.01))
+                return 0.0f;
+        }
+    }
+    float const Transmission = (float)std::exp(-OpticalDepth);
+    float const Fade = Clamp((Transmission - 0.01f) / 0.02f, 0.0f, 1.0f);
+    return Transmission * Fade * Fade * (3.0f - 2.0f * Fade);
+}
+
 float NebulaVolume::SegmentNebulaLength(float const* From, float const* To, float MaxLength)
 {
     if (From == nullptr || To == nullptr || GNebulae.empty())

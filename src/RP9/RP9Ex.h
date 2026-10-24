@@ -98,12 +98,15 @@ struct FRPExBuffer
     IDirect3DVertexBuffer9* Vb;
 };
 
+#include "RP9MeshInstances.h"
+
 struct FRp9ExState
 {
     FRp9ExState();
 
     std::vector<FRPExProgram*> Programs;
     std::vector<FRPExBuffer*> Buffers;
+    FRp9MeshInstances MeshInstances;
     // Render targets and volume textures created through the interface.
     std::vector<FRPExTexture*> Textures;
     // The INTZ depth buffer; Texture/Surface null when the device has no INTZ depth.
@@ -166,6 +169,8 @@ struct FRp9ExState
     // [Render] settings (read once), the classification of the requested material and planet_surface.hlsl.
     bool bPlanetRequested = false, bPlanetActive = false, bPlanetConfigRead = false;
     bool bPlanetEnabled = true, bPlanetFailed = false;
+    bool bPlanetAdaptiveDetail = true;
+    float PlanetLodPixelScale = 1.0f, PlanetMeshRadius = 0.0f;
     std::string PlanetName, PlanetExclude;
     unsigned long PlanetMode = 0, PlanetWater = 0;
     float PlanetTile0 = 1.0f, PlanetTile1 = 1.0f, PlanetReliefNow = 0.0f, PlanetGlintNow = 0.0f;
