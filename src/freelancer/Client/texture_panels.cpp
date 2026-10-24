@@ -478,6 +478,7 @@ FTexturePanels::FTexturePanels()
     RingLayerCell = 0.0f;
     RingLayerDensity = 1.0f;
     RingLayerOrbit = 0.0f;
+    RingLayerBodyClear = 0.0f;
 #endif
     DetailTileU = 10.0f;
     DetailTileV = 2;
@@ -828,7 +829,9 @@ namespace
         double const Cell = This->RingLayerCell > 0.0f ? static_cast<double>(This->RingLayerCell)
                                                        : (std::max)(20.0, PuffSize * 2.5);
         double const Density = (std::max)(0.0f, This->RingLayerDensity);
-        static const float ClearScale = std::fmax(0.0f, PortConfigFloat("Render", "ring_puff_clear", 3.0f));
+        // [RingLayer] body_clear, per ring: a light cloud round the sun keeps off the bodies; a
+        // planet's own ring does not use it.
+        const float ClearScale = std::fmax(0.0f, This->RingLayerBodyClear);
         double const OrbitRad = This->RingLayerOrbit * (Pi2 / 360.0);
         double const T = GetClientElapsedTime();
 
@@ -934,12 +937,14 @@ namespace
                     if (!(Dist < R * R))
                         continue;
                     // No cloud over the sun or in front of a planet: clear of every body by
-                    // [Render] ring_puff_clear (body radii) plus the puff's own size.
+                    // [RingLayer] body_clear (body radii) plus the puff's own size.
                     if (ClearScale > 0.0f)
                     {
                         const float At[3] = {static_cast<float>(W[0]), static_cast<float>(W[1]),
                                              static_cast<float>(W[2])};
-                        if (SolarNearBody(At, ClearScale, static_cast<float>(PuffSize)))
+                        const float Host[3] = {static_cast<float>(C[0]), static_cast<float>(C[1]),
+                                               static_cast<float>(C[2])};
+                        if (SolarNearBody(At, ClearScale, static_cast<float>(PuffSize), Host))
                             continue;
                     }
                     FRingPuff Puff;
@@ -1486,6 +1491,7 @@ void FTexturePanels::Load(char const* IniPath,
     RingLayerCell = 0.0f;
     RingLayerDensity = 1.0f;
     RingLayerOrbit = 0.0f;
+    RingLayerBodyClear = 0.0f;
 #endif
 
     // 0050a2c5..0050a303: the path is resolved against DALib::Data into a MAX_PATH buffer. A
@@ -1580,6 +1586,8 @@ void FTexturePanels::Load(char const* IniPath,
                         RingLayerDensity = Reader.get_value_float(0);
                     else if (Reader.is_value("orbit_speed"))
                         RingLayerOrbit = Reader.get_value_float(0);
+                    else if (Reader.is_value("body_clear"))
+                        RingLayerBodyClear = Reader.get_value_float(0);
                 }
             }
             else if (Reader.is_header("Volumetric"))

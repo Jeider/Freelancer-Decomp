@@ -89,11 +89,21 @@ struct FRPExTexture
     std::vector<unsigned char> VolumeData;
 };
 
+// A static vertex buffer (CreateExVertexBuffer): D3DPOOL_MANAGED, so it survives a Reset; the bytes
+// are kept for a device re-creation after ShutdownPipeline.
+struct FRPExBuffer
+{
+    unsigned long Bytes;
+    std::vector<unsigned char> Data;
+    IDirect3DVertexBuffer9* Vb;
+};
+
 struct FRp9ExState
 {
     FRp9ExState();
 
     std::vector<FRPExProgram*> Programs;
+    std::vector<FRPExBuffer*> Buffers;
     // Render targets and volume textures created through the interface.
     std::vector<FRPExTexture*> Textures;
     // The INTZ depth buffer; Texture/Surface null when the device has no INTZ depth.

@@ -2069,6 +2069,44 @@ void CliAsteroidForEach(FCliAsteroidVisitFn Fn, void* Ctx)
 }
 
 #ifdef FREELANCER_RP9
+namespace
+{
+    // The diffuse texture name (the string parameter Dt_name) of a dynamic asteroid's mesh material,
+    // read the way FSwappedMaterial::CaptureOriginal reads it. False for a material without one.
+    bool MaterialDiffuseTexture(IMaterial* Material, char* Name, size_t Size)
+    {
+        unsigned long Count = 0;
+        if (Material == nullptr || Material->GetParameterCount(&Count) < 0)
+            return false;
+        bool bFound = false;
+        for (unsigned long Index = 0; Index < Count && !bFound; ++Index)
+        {
+            FShadingPropertyRecord Descriptor = {};
+            Material->GetParameterDescriptor(Index, &Descriptor);
+            if (Descriptor.Name != nullptr && strcmp(Descriptor.Name, "Dt_name") == 0)
+            {
+                FShadingPropertyValue Value = {};
+                Material->GetParameterValue(Index, &Value);
+                if (Value.Type == 7 && Value.Payload0 != 0)
+                {
+                    char const* const Text = reinterpret_cast<char const*>(Value.Payload0);
+                    if (Text[0] != 0 && _stricmp(Text, "(None)") != 0)
+                    {
+                        strncpy_s(Name, Size, Text, _TRUNCATE);
+                        bFound = true;
+                    }
+                }
+                Value.ReleaseOwnedPayload();
+            }
+            // The descriptor owns copies of its strings (the records of FSwappedMaterial).
+            Descriptor.Saved.ReleaseOwnedPayload();
+            Descriptor.Default.ReleaseOwnedPayload();
+            Descriptor.Current.ReleaseOwnedPayload();
+        }
+        return bFound;
+    }
+}
+
 bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out)
 {
     if (Field == nullptr || Out == nullptr || Field->Zone == nullptr)
@@ -2097,7 +2135,11 @@ bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out)
         Out->BillboardColor[0] = Field->Billboard.ColorShift0;
         Out->BillboardColor[1] = Field->Billboard.ColorShift1;
         Out->BillboardColor[2] = Field->Billboard.ColorShift2;
+        Out->BillboardFade = Field->Billboard.Float2C;
+        Out->BillboardAmbient = Field->Billboard.AmbientIntensity;
+        Out->BillboardShape = Field->Billboard.Shape;
     }
+    Out->Shapes = ShapeDBAt(const_cast<unsigned char*>(Field->ShapeDbE0));
 
     Out->FillDist = static_cast<float>(static_cast<double>(Field->FillDistAt24) * static_cast<double>(Field->Scale230));
     Out->CubeSize = static_cast<float>(Field->CubeSize);
@@ -2110,6 +2152,24 @@ bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out)
             continue;
         Out->MaxPlacementRadius = (std::max)(Out->MaxPlacementRadius, Dyn->PlacementRadius);
         Out->MaxBandThickness = (std::max)(Out->MaxBandThickness, CliDynamicAsteroidBandThickness(Dyn));
+
+        // The archetype's mesh material (FUN_00525800, IMesh slot 14) is what the dynamic rocks are
+        // drawn with: its diffuse texture is what the far rocks wear.
+        char TextureName[64];
+        if (Out->DynTextureCount < 4 && MaterialDiffuseTexture(Dyn->Material, TextureName, sizeof(TextureName)))
+        {
+            bool bKnown = false;
+            for (int I = 0; I < Out->DynTextureCount && !bKnown; ++I)
+                bKnown = _stricmp(Out->DynTexture[I], TextureName) == 0;
+            if (!bKnown)
+            {
+                int const Slot = Out->DynTextureCount++;
+                strncpy_s(Out->DynTexture[Slot], sizeof(Out->DynTexture[Slot]), TextureName, _TRUNCATE);
+                Out->DynTint[Slot][0] = Dyn->TintedDiffuse0;
+                Out->DynTint[Slot][1] = Dyn->TintedDiffuse1;
+                Out->DynTint[Slot][2] = Dyn->TintedDiffuse2;
+            }
+        }
     }
 
     Out->Diffuse[0] = Field->TintB4;

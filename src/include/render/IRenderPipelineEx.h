@@ -34,6 +34,7 @@ struct IFileSystem;
 // Opaque handles.
 struct FRPExProgram;
 struct FRPExTexture;
+struct FRPExBuffer;
 
 // Texture formats an Ex texture can be created with.
 enum ERPExFormat : unsigned int
@@ -210,6 +211,16 @@ struct IRenderPipelineEx : IDAComponent
     // Overrides the current kind's fade distance (metres; 0 = the kind's own) until the next
     // SetSoftParticles. A kind switched off in port.ini is switched on by a positive value.
     virtual GENRESULT DACOM_API SetSoftParticleFade(float Metres) = 0;
+
+    // A static vertex buffer, filled once with Data (Bytes long) and drawn many times by
+    // IRPDrawEx::DrawExVertexBuffer, so a large fixed set of vertices is not sent to the driver
+    // every frame (DrawExPrimitiveUp copies it each call). The pipeline keeps a copy of Data and
+    // re-creates the GPU buffer after a device re-creation; the handle stays valid (managed pool,
+    // it survives a Reset). Create works inside or outside a pass, Destroy outside one. Appended at
+    // the end of the interface: the earlier slots keep their order.
+    virtual GENRESULT DACOM_API CreateExVertexBuffer(unsigned long Bytes, const void* Data,
+                                                     FRPExBuffer** Out) = 0;
+    virtual GENRESULT DACOM_API DestroyExVertexBuffer(FRPExBuffer* Buffer) = 0;
 };
 
 enum ERPExSoftKind : unsigned long
@@ -231,4 +242,12 @@ struct IRPDrawEx : IDAComponent
     // Direct3D 8 and 9). Count is the vertex count, as in IRenderPipeline::DrawPrimitive.
     virtual GENRESULT DACOM_API DrawExPrimitiveUp(unsigned long Prim, unsigned long Fvf,
                                                   const void* Verts, unsigned long Count) = 0;
+    // DrawPrimitive from a static vertex buffer (CreateExVertexBuffer): stream 0 = Buffer with
+    // Stride bytes a vertex, FVF Fvf, PrimitiveCount primitives from vertex FirstVertex. Pass
+    // only; a program must be bound. It lives here, not on IRenderPipelineEx, because it is a draw
+    // like DrawExPrimitiveUp (same preconditions, same stream-cache handling).
+    virtual GENRESULT DACOM_API DrawExVertexBuffer(FRPExBuffer* Buffer, unsigned long Prim,
+                                                   unsigned long Fvf, unsigned long Stride,
+                                                   unsigned long FirstVertex,
+                                                   unsigned long PrimitiveCount) = 0;
 };

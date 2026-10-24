@@ -313,6 +313,37 @@ namespace
         }
     }
 
+    // The managed vertex buffer of a static buffer, filled from its kept bytes. Failure leaves it
+    // without a GPU object (a draw from it then fails).
+    HRESULT CreateBufferGpu(IDirect3DDevice9* Device, FRPExBuffer* Buffer)
+    {
+        IDirect3DVertexBuffer9* Vb = nullptr;
+        HRESULT Hr = Device->CreateVertexBuffer((UINT)(Buffer->Bytes), D3DUSAGE_WRITEONLY, 0,
+                                                D3DPOOL_MANAGED, &Vb, nullptr);
+        if (FAILED(Hr))
+            return Hr;
+        void* Bits = nullptr;
+        Hr = Vb->Lock(0, (UINT)(Buffer->Bytes), &Bits, 0);
+        if (FAILED(Hr))
+        {
+            Vb->Release();
+            return Hr;
+        }
+        memcpy(Bits, &Buffer->Data[0], Buffer->Bytes);
+        Vb->Unlock();
+        Buffer->Vb = Vb;
+        return S_OK;
+    }
+
+    void ReleaseBufferGpu(FRPExBuffer* Buffer)
+    {
+        if (Buffer->Vb != nullptr)
+        {
+            Buffer->Vb->Release();
+            Buffer->Vb = nullptr;
+        }
+    }
+
     // A D3DPOOL_DEFAULT render target at its requested size (absolute, or a fraction of the
     // back buffer). Failure leaves the handle without GPU objects (binding it then fails).
     HRESULT CreateRenderTargetGpu(IDirect3DDevice9* Device, FRPExTexture* Target,
@@ -715,6 +746,11 @@ HRESULT FDirectX9::ExCreateDeviceResources(bool bIntzDepth, D3DFORMAT DepthForma
         else if (Texture->Kind == Rp9ExTextureVolume)
             CreateVolumeGpu(Device_, Texture);
     }
+    for (size_t Index = 0; Index < Ex->Buffers.size(); ++Index)
+    {
+        if (Ex->Buffers[Index]->Vb == nullptr)
+            CreateBufferGpu(Device_, Ex->Buffers[Index]);
+    }
     if (ReadPortFade("surface_shaders") > 0.5f)
         StartSurfaceShaderWarmup();
     return S_OK;
@@ -799,6 +835,8 @@ void FDirectX9::ExReleaseAllGpu()
         ReleaseProgramShaders(Ex->Programs[Index]);
     for (size_t Index = 0; Index < Ex->Textures.size(); ++Index)
         ReleaseExTextureGpu(Ex->Textures[Index]);
+    for (size_t Index = 0; Index < Ex->Buffers.size(); ++Index)
+        ReleaseBufferGpu(Ex->Buffers[Index]);
 }
 
 void FDirectX9::ExDestroyAll()
@@ -818,6 +856,9 @@ void FDirectX9::ExDestroyAll()
     for (size_t Index = 0; Index < Ex->Textures.size(); ++Index)
         delete Ex->Textures[Index];
     Ex->Textures.clear();
+    for (size_t Index = 0; Index < Ex->Buffers.size(); ++Index)
+        delete Ex->Buffers[Index];
+    Ex->Buffers.clear();
 }
 
 // ---- IRenderPipelineEx ----
@@ -1271,6 +1312,94 @@ GENRESULT DACOM_API FDirectX9::DrawExPrimitiveUp(unsigned long Prim, unsigned lo
     if (Ex_->BoundProgram == nullptr)
         return GR_GENERIC;
     return ExDrawUp(this, Prim, Fvf, Verts, Count);
+}
+
+GENRESULT DACOM_API FDirectX9::CreateExVertexBuffer(unsigned long Bytes, const void* Data,
+                                                    FRPExBuffer** Out)
+{
+    if (Out == nullptr)
+        return GR_INVALID_PARMS;
+    *Out = nullptr;
+    if (Bytes == 0 || Data == nullptr)
+        return GR_INVALID_PARMS;
+    FRPExBuffer* Buffer = new FRPExBuffer();
+    Buffer->Bytes = Bytes;
+    Buffer->Vb = nullptr;
+    const unsigned char* Source = (const unsigned char*)(Data);
+    Buffer->Data.assign(Source, Source + Bytes);
+    if (Device_ != nullptr)
+    {
+        const HRESULT Hr = CreateBufferGpu(Device_, Buffer);
+        if (FAILED(Hr))
+        {
+            delete Buffer;
+            return (GENRESULT)(Hr);
+        }
+    }
+    Ex_->Buffers.push_back(Buffer);
+    *Out = Buffer;
+    return GR_OK;
+}
+
+GENRESULT DACOM_API FDirectX9::DestroyExVertexBuffer(FRPExBuffer* Buffer)
+{
+    FRp9ExState* Ex = Ex_;
+    if (Ex->bInPass)
+    {
+        ExLogf(kExFdumpWarning, "WARNING", __LINE__, "destroy_ex_vertex_buffer() inside an Ex pass");
+        return GR_GENERIC;
+    }
+    for (size_t Index = 0; Index < Ex->Buffers.size(); ++Index)
+    {
+        if (Ex->Buffers[Index] != Buffer)
+            continue;
+        ReleaseBufferGpu(Buffer);
+        Ex->Buffers.erase(Ex->Buffers.begin() + (std::ptrdiff_t)(Index));
+        delete Buffer;
+        return GR_OK;
+    }
+    return GR_INVALID_PARMS;
+}
+
+GENRESULT DACOM_API FDirectX9::DrawExVertexBuffer(FRPExBuffer* Buffer, unsigned long Prim,
+                                                  unsigned long Fvf, unsigned long Stride,
+                                                  unsigned long FirstVertex,
+                                                  unsigned long PrimitiveCount)
+{
+    const GENRESULT Ready = NeedExPass(this, "draw_ex_vertex_buffer");
+    if (Ready != GR_OK)
+        return Ready;
+    if (Ex_->BoundProgram == nullptr)
+        return GR_GENERIC;
+    if (Buffer == nullptr || Buffer->Vb == nullptr || Stride == 0 || PrimitiveCount == 0)
+        return GR_INVALID_PARMS;
+    // The vertices the primitives read must lie inside the buffer.
+    unsigned long Verts = 0;
+    switch (Prim)
+    {
+    case D3DPT_POINTLIST: Verts = PrimitiveCount; break;
+    case D3DPT_LINELIST: Verts = PrimitiveCount * 2; break;
+    case D3DPT_LINESTRIP: Verts = PrimitiveCount + 1; break;
+    case D3DPT_TRIANGLELIST: Verts = PrimitiveCount * 3; break;
+    case D3DPT_TRIANGLESTRIP:
+    case D3DPT_TRIANGLEFAN: Verts = PrimitiveCount + 2; break;
+    default: return GR_INVALID_PARMS;
+    }
+    if (((unsigned long long)(FirstVertex) + Verts) * Stride > Buffer->Bytes)
+        return GR_INVALID_PARMS;
+    // The stream cache selects the FVF and FlushDrawState sends the queued render states; the
+    // stream is then pointed at the buffer, and put back to none (as DrawPrimitiveUP leaves it).
+    StreamCache_.SelectVertexStream(nullptr, Fvf);
+    FlushDrawState(Device_);
+    HRESULT Hr = Device_->SetStreamSource(0, Buffer->Vb, 0, (UINT)(Stride));
+    if (SUCCEEDED(Hr))
+        Hr = Device_->DrawPrimitive((D3DPRIMITIVETYPE)(Prim), (UINT)(FirstVertex), (UINT)(PrimitiveCount));
+    Device_->SetStreamSource(0, nullptr, 0, 0);
+    StreamCache_.Reset();
+    if (FAILED(Hr))
+        ExLogf(kExFdumpWarning, "WARNING", __LINE__, "DrawPrimitive from a static buffer failed (hr 0x%08x)",
+               (unsigned int)(Hr));
+    return (GENRESULT)(Hr);
 }
 
 // ---- soft particles ----

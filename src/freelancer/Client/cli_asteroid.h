@@ -334,6 +334,10 @@ struct FCliAsteroidFarInfo
     float BillboardCentre;       // Float04: the distance of the rock sphere's centre ahead
     float BillboardRadius;       // Float00: its fade radius
     float BillboardColor[3];     // color_shift
+    float BillboardFade;         // Float2C: the length of their fade-out below the outer reach Float04 + Float00
+    float BillboardAmbient;      // ambient_intensity
+    FTexShape const* BillboardShape; // their shape (null when the pipeline has no texture for it)
+    FShapeDB* Shapes;            // the field's shape DB (for a [FarRocks] shape)
     float FillDist;              // fill_dist * the detail scale
     float CubeSize;
     bool bHasCubes;              // the cube mesh has any triangles
@@ -344,6 +348,11 @@ struct FCliAsteroidFarInfo
     bool bFogZone;               // contains_fog_zone
     int ExclusionCount;
     Universe::IZone const* Exclusion[16];
+    // The diffuse textures of the field's dynamic asteroids (each [DynamicAsteroids] archetype's mesh
+    // material, parameter Dt_name), duplicates dropped, with that manager's tinted diffuse colour.
+    int DynTextureCount;
+    char DynTexture[4][64];
+    float DynTint[4][3];
 };
 bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out);
 #endif

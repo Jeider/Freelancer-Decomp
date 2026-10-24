@@ -569,11 +569,17 @@ public:
                                               const FRPExSamplerState* State) override;
     GENRESULT DACOM_API SetSoftParticles(unsigned long Kind) override;
     GENRESULT DACOM_API SetSoftParticleFade(float Metres) override;
+    GENRESULT DACOM_API CreateExVertexBuffer(unsigned long Bytes, const void* Data,
+                                             FRPExBuffer** Out) override;
+    GENRESULT DACOM_API DestroyExVertexBuffer(FRPExBuffer* Buffer) override;
 
     // IRPDrawEx (RP9Ex.cpp).
     GENRESULT DACOM_API DrawFullscreenQuad() override;
     GENRESULT DACOM_API DrawExPrimitiveUp(unsigned long Prim, unsigned long Fvf,
                                           const void* Verts, unsigned long Count) override;
+    GENRESULT DACOM_API DrawExVertexBuffer(FRPExBuffer* Buffer, unsigned long Prim, unsigned long Fvf,
+                                           unsigned long Stride, unsigned long FirstVertex,
+                                           unsigned long PrimitiveCount) override;
 
     // RP9 Ex hooks into the RP8-mirrored lifetime (RP9Ex.cpp). With no Ex object ever created
     // and no INTZ support they do nothing, so the RP8 behaviour is unchanged.

@@ -30,7 +30,9 @@ int SolarShadowCasters(const float* At, float MaxDistance, float* OutSphere, flo
 // Port-only: whether Position lies within Scale times the radius plus Pad of the sun, a planet or a
 // moon -- the ring puff layer keeps its clouds off the bodies (a light cloud round the sun must not
 // hang in front of a planet or over the sun). Cached per frame.
-bool SolarNearBody(const float* Position, float Scale, float Pad);
+// HostAt (may be null): a planet centred there is the ring's own host and is skipped (its ring
+// lies inside a few of its radii); the sun is never skipped.
+bool SolarNearBody(const float* Position, float Scale, float Pad, const float* HostAt);
 // Port-only: how far behind its surface (metres) the shadow of the planet at Centre / Radius must
 // reach to cover its ring, or 0 when it carries no ring.
 float SolarRingShadowReach(const float* Centre, float Radius);

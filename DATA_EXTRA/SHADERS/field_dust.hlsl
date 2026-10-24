@@ -209,7 +209,23 @@ float4 PSComposite(float2 TexCoord : TEXCOORD0) : COLOR0
     float MaxDiff = max(max(Diff.x, Diff.y), max(Diff.z, Diff.w));
 
     if (MaxDiff < Upsample.z)
+    {
+        // Smooth: four bilinear taps around the pixel (about a 3x3 low-res tent) where each tap
+        // sees this pixel's depth too -- the march's per-pixel step jitter otherwise shows as a
+        // fine diagonal lattice over a bright sky (as nebula_composite.hlsl does).
+        float2 R = LowSize.zw * 0.75;
+        float4 TapDepth = float4(LinearDepthAt(TexCoord + float2(-R.x, -R.y)),
+                                 LinearDepthAt(TexCoord + float2(R.x, -R.y)),
+                                 LinearDepthAt(TexCoord + float2(-R.x, R.y)),
+                                 LinearDepthAt(TexCoord + float2(R.x, R.y)));
+        float4 TapDiff = abs(TapDepth - Depth) / max(Depth, 1.0e-3);
+        if (max(max(TapDiff.x, TapDiff.y), max(TapDiff.z, TapDiff.w)) < Upsample.z)
+            return 0.25 * (tex2Dlod(Dust, float4(TexCoord + float2(-R.x, -R.y), 0.0, 0.0)) +
+                           tex2Dlod(Dust, float4(TexCoord + float2(R.x, -R.y), 0.0, 0.0)) +
+                           tex2Dlod(Dust, float4(TexCoord + float2(-R.x, R.y), 0.0, 0.0)) +
+                           tex2Dlod(Dust, float4(TexCoord + float2(R.x, R.y), 0.0, 0.0)));
         return tex2Dlod(Dust, float4(TexCoord, 0.0, 0.0));
+    }
 
     float2 BestUv = Uv00;
     float Best = Diff.x;

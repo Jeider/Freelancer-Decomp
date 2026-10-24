@@ -149,9 +149,9 @@ float SolarRingShadowReach(const float* Centre, float Radius)
     return Outer > 0.0f ? ShadowReachFor(Radius, Outer) : 0.0f;
 }
 
-bool SolarNearBody(const float* Position, float Scale, float Pad)
+bool SolarNearBody(const float* Position, float Scale, float Pad, const float* HostAt)
 {
-    static std::vector<float> S_Bodies; // xyz, radius
+    static std::vector<float> S_Bodies; // xyz, radius (negative: the sun)
     static double S_Time = -1.0;
     double const Now = GetClientElapsedTime();
     if (Now != S_Time)
@@ -167,14 +167,20 @@ bool SolarNearBody(const float* Position, float Scale, float Pad)
             // Planets and moons (bits 1|2) and the sun (4, as FindSystemSunSphere tests).
             if ((Type & 7u) == 0 || !SolarSphere(Solar, Sphere))
                 continue;
+            if ((Type & 4u) != 0)
+                Sphere[3] = -Sphere[3];
             S_Bodies.insert(S_Bodies.end(), Sphere, Sphere + 4);
         }
     }
     for (size_t I = 0; I + 3 < S_Bodies.size(); I += 4)
     {
+        bool const bSun = S_Bodies[I + 3] < 0.0f;
+        if (!bSun && HostAt != nullptr && std::fabs(S_Bodies[I] - HostAt[0]) < 1.0f &&
+            std::fabs(S_Bodies[I + 1] - HostAt[1]) < 1.0f && std::fabs(S_Bodies[I + 2] - HostAt[2]) < 1.0f)
+            continue;
         double const Dx = (double)Position[0] - S_Bodies[I], Dy = (double)Position[1] - S_Bodies[I + 1],
                      Dz = (double)Position[2] - S_Bodies[I + 2];
-        double const Reach = (double)S_Bodies[I + 3] * Scale + Pad;
+        double const Reach = std::fabs((double)S_Bodies[I + 3]) * Scale + Pad;
         if (Dx * Dx + Dy * Dy + Dz * Dz < Reach * Reach)
             return true;
     }

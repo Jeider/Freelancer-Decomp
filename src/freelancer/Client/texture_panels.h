@@ -114,6 +114,8 @@ struct FTexturePanels : IPlanetRing
     float RingLayerThickness;             // half-thickness in metres (default zone height / 2, min 10)
     float RingLayerCell;                  // cell size in metres (default max_distance * 0.35, min 20)
     float RingLayerDensity;               // multiplier on the puffs per cell (1)
+    float RingLayerBodyClear;             // [RingLayer] body_clear: no puff within this many radii (plus a puff)
+                                          // of the sun or another planet/moon (0 = off; light clouds round a sun)
     float RingLayerOrbit;                 // degrees per second at the inner edge, Keplerian outwards (0)
     // The band's opacity across it (inner edge .. outer, before Opacity), read back from RP9 at
     // the first draw: the sun behind the ring is dimmed by it (TexturePanelsRayTransmittance).
