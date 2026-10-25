@@ -196,9 +196,11 @@ void HUD_Targeting::ReconcileVisibility()
         windowState.Restore(GetSavedTargetingWindowOpen(), GetSavedTargetingWindowLocked());
     }
     windowState.SetLocked(GetSavedTargetingWindowLocked());
-    windowState.Observe(source ? source->TargetingObjectId() : 0);
+    windowState.Observe(source ? source->TargetingObjectId() : 0,
+                        source && source->TargetingIsHostileShip());
     // Losing the target hides the panel temporarily; keep its saved preference.
-    if (windowState.targetId && !IsSpaceInitInProgress()) SetSavedTargetingWindowOpen(windowState.open);
+    if (windowState.targetId && !windowState.restorePending && !IsSpaceInitInProgress())
+        SetSavedTargetingWindowOpen(windowState.open);
     if (CanShow() && !IsAnimating() && collapsed == windowState.open) TogglePanel();
 }
 
@@ -296,17 +298,11 @@ bool HUD_Targeting::Init()
         }
         NormalizeIcon(button, i + 2);
     }
-    // HUD_Target uses this same mesh at depth -1.5. Match its projected size,
-    // keeping the desired screen anchor by multiplying XY by the same depth.
-    float const closePos[] = {(center.X + PanelHalfWidth + 0.004f) * 1.5f,
-                              (center.Y + 0.073f) * 1.5f, -0.5f};
-    float const cornerHalf[] = {0.014f, 0.014f, 0.0f};
-    closeButton = CreateButtonControl("TargetingClose", "interface\\NeuroNet\\Inventory\\x.3db",
-        nullptr, "ui_window_close", nullptr, closePos, nullptr, cornerHalf, 0, 1, 0, 0, HudIds::TargetClose, 0, 0);
     float const openPos[] = {center.X, center.Y - 0.067f, 0.0f};
+    float const slideHalf[] = {0.014f, 0.014f, 0.0f};
     openButton = CreateButtonControl("TargetingOpen", "interface\\hud\\hud_targetedobject.3db",
-        nullptr, "ui_window_open", nullptr, openPos, nullptr, cornerHalf, 0, 1, 0, 0, HudIds::TargetWindow, 0, 0);
-    if (!closeButton || !openButton) return false;
+        nullptr, "ui_window_open", nullptr, openPos, nullptr, slideHalf, 0, 1, 0, 0, HudIds::TargetWindow, 0, 0);
+    if (!openButton) return false;
     NormalizeIcon(openButton, ProjectionCount + 2);
     SetOffset(0.0f, 0.0f, -1.0f);
     SetPosition(Position);
@@ -437,8 +433,6 @@ bool HUD_Targeting::HostProperty(int msg, uintptr_t a, uintptr_t /*b*/)
     if (msg == 0x26 && CanShow())
     {
         ReconcileVisibility();
-        windowState.SetLocked(GetSavedTargetingWindowLocked());
-        windowState.Observe(Source()->TargetingObjectId());
         if (button == windowButton) windowState.ToggleOpen();
         else
         {
@@ -496,7 +490,6 @@ void HUD_Targeting::Draw()
     if (autoselectButton->Flags & kWin3DVisible) autoselectButton->Draw();
     for (auto* button : projections)
         if (button->Flags & kWin3DVisible) button->Draw();
-    closeButton->Draw();
 }
 
 bool HUD_Targeting::HitTest(float const* ray)
@@ -521,12 +514,10 @@ void HUD_Targeting::UpdateButtons()
     bool const visible = CanShow();
     bool const expanded = visible && windowState.targetId && !collapsed && !IsAnimating();
     HudTarget* const source = Source();
-    // Every equipment object with live subsystems, including ordinary fighters.
     bool const hasTarget = source && source->ViewObject.target();
     for (auto const& saved : subtargetButtons)
         if (saved.button) saved.button->SetProperty(1, 1, 0);
-    // The toggle must be reachable before selecting the first target as well.
-    autoselectButton->SetProperty(1, expanded ? 0 : 1, 0);
+    autoselectButton->SetProperty(1, expanded && source && source->TargetingIsCruiser() ? 0 : 1, 0);
     autoselectButton->SetProperty(3, VulnerableAutoselectEnabled() ? HudIds::AutoselectDisable : HudIds::AutoselectEnable, 0);
     autoselectButton->SetProperty(0xc, VulnerableAutoselectEnabled() ? 1 : 0, 0);
     for (int i = 0; i < ProjectionCount; ++i)
@@ -534,7 +525,6 @@ void HUD_Targeting::UpdateButtons()
         projections[i]->SetProperty(1, expanded && hasTarget ? 0 : 1, 0);
         projections[i]->SetProperty(0xc, static_cast<int>(projection) == i ? 1 : 0, 0);
     }
-    closeButton->SetProperty(1, expanded ? 0 : 1, 0);
     openButton->SetProperty(1, visible && ButtonMover::IsActive() ? 0 : 1, 0);
     openButton->Flags &= ~(kWin3DActive | kWin3DPickable);
     UpdateHostButtons();
@@ -544,16 +534,10 @@ intptr_t HUD_Targeting::SetProperty(int msg, uintptr_t a, uintptr_t b)
 {
     if (msg == 0x26 && CanShow() && !IsAnimating())
     {
-        if (!collapsed && a == reinterpret_cast<uintptr_t>(closeButton))
-        {
-            windowState.open = false;
-            SetSavedTargetingWindowOpen(false);
-            ReconcileVisibility();
-            return 1;
-        }
         if (!collapsed)
         {
-            if (a == reinterpret_cast<uintptr_t>(autoselectButton))
+            if (a == reinterpret_cast<uintptr_t>(autoselectButton) &&
+                Source() && Source()->TargetingIsCruiser())
             {
                 SetVulnerableAutoselect(!VulnerableAutoselectEnabled());
                 UpdateButtons();

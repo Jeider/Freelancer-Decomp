@@ -7,7 +7,7 @@ namespace RadarProjection
 {
     struct Vec3 { float x, y, z; };
     struct Viewport { int left, top, right, bottom; }; // inclusive, like ICamera
-    struct Layout { float x, y, radius, ellipse, elevation; };
+    struct Layout { float x, y, radius, ellipse, elevation, contactTop, contactBottom; };
     struct Contact { float x, baseY, tipY, distanceSquared; bool below; };
     struct BatchSpace { float left, top, scaleX, scaleY; };
 
@@ -42,19 +42,22 @@ namespace RadarProjection
         double const height = double(viewport.bottom) - viewport.top + 1.0;
         if (width < 64 || height < 64 || width > 32768 || height > 32768)
             return false;
-        out.ellipse = Bounded(ellipse, 0.15f, 0.9f, 0.42f);
-        out.elevation = Bounded(elevation, 0.1f, 1.0f, 0.65f);
+        out.ellipse = Bounded(ellipse, 0.15f, 0.9f, 0.32f);
+        out.elevation = Bounded(elevation, 0.1f, 1.0f, 0.94f);
         float const verticalExtent = out.ellipse + out.elevation;
         // Reserve space for selected brackets as well as the point itself.
         float const maxRadius = (std::min)(float(width - 24) * 0.5f / 1.04f,
                                             float(height - 24) * 0.5f / (verticalExtent + 0.04f));
-        out.radius = (std::min)(float(height) * Bounded(heightRadius, 0.025f, 0.3f, 0.095f), maxRadius);
+        out.radius = (std::min)(float(height) * Bounded(heightRadius, 0.025f, 0.3f, 0.30f), maxRadius);
         float const blipMargin = (std::max)(10.0f, out.radius * 0.026f + 6.0f);
         float const marginX = out.radius + blipMargin;
-        float const marginY = out.radius * verticalExtent + blipMargin;
-        out.x = Bounded(float(viewport.left) + Bounded(centerX, 0, 1, 0.84f) * float(width - 1),
+        // Keep the plane low; tall stems stop at the viewport's safe edge.
+        float const marginY = out.radius * (out.ellipse + 0.025f) + blipMargin;
+        out.contactTop = viewport.top + blipMargin;
+        out.contactBottom = viewport.bottom - blipMargin;
+        out.x = Bounded(float(viewport.left) + Bounded(centerX, 0, 1, 0.50f) * float(width - 1),
                         viewport.left + marginX, viewport.right - marginX, float(viewport.left) + float(width) * 0.5f);
-        out.y = Bounded(float(viewport.top) + Bounded(centerY, 0, 1, 0.72f) * float(height - 1),
+        out.y = Bounded(float(viewport.top) + Bounded(centerY, 0, 1, 0.845f) * float(height - 1),
                         viewport.top + marginY, viewport.bottom - marginY, float(viewport.top) + float(height) * 0.5f);
         return out.radius > 0;
     }
@@ -66,6 +69,10 @@ namespace RadarProjection
         return scannerRange * Bounded(factor, 0.01f, 1.0f, 1.0f);
     }
 
+    // Zoom-in lowers displayed range; never extends scanner detection distance.
+    inline int ZoomIndex(int current, bool zoomIn)
+    { return (std::max)(0, (std::min)(2, current + (zoomIn ? -1 : 1))); }
+
     inline bool Accept(unsigned id, unsigned playerId, unsigned type, unsigned mask,
                        bool targetable, bool dying)
     {
@@ -75,13 +82,15 @@ namespace RadarProjection
     // FL orientation is local-to-world. Its transpose converts the relative
     // position back into ship axes; forward is -Z. Camera movement is irrelevant.
     inline bool Project(Vec3 world, Vec3 player, float const rotation[3][3],
-                        float range, Layout const& layout, Contact& out)
+                        float range, Layout const& layout, Contact& out, float objectRadius=0)
     {
         if (!std::isfinite(range) || range <= 0)
             return false;
         double const delta[3] = {double(world.x) - player.x, double(world.y) - player.y, double(world.z) - player.z};
         double const distanceSquared = delta[0]*delta[0] + delta[1]*delta[1] + delta[2]*delta[2];
-        if (!std::isfinite(distanceSquared) || distanceSquared > double(range)*range)
+        if (!std::isfinite(objectRadius) || objectRadius<0) return false;
+        double const reach=double(range)+objectRadius;
+        if (!std::isfinite(distanceSquared) || distanceSquared > reach*reach)
             return false;
         double local[3] = {};
         for (int axis = 0; axis != 3; ++axis)
@@ -92,7 +101,9 @@ namespace RadarProjection
         double const scale = double(layout.radius) / range;
         out.x = float(layout.x + local[0] * scale);
         out.baseY = float(layout.y + local[2] * scale * layout.ellipse);
-        out.tipY = float(out.baseY - local[1] * scale * layout.elevation);
+        float const tip=float(out.baseY - local[1] * scale * layout.elevation);
+        // Extended objects retain their true centres; the renderer clips their edges.
+        out.tipY = objectRadius>0 ? tip : Bounded(tip,layout.contactTop,layout.contactBottom,out.baseY);
         out.distanceSquared = float(distanceSquared);
         out.below = local[1] < 0;
         return true;

@@ -16,7 +16,7 @@ int main(int argc,char** argv)
     bool enabled=false;int sections=0,index=2;float cx=.84f,cy=.72f,r=.095f,e=.42f,h=.65f,a=.8f;
     while(reader.read_header())
     {
-        bool const radar=reader.is_header("StarlancerRadar");if(radar)++sections;
+        bool const radar=reader.is_header("Radar");if(radar)++sections;
         while(reader.read_value())if(radar)
         {
             if(reader.is_value("enabled"))enabled=reader.get_value_bool(0);
@@ -41,7 +41,8 @@ int main(int argc,char** argv)
         for(int i:indices)vertices.push_back(q[i]);
     };
     // Empty/suppressed scanner must still produce a visible frame.
-    RadarFrame::Emit(layout,index,a*.55f,emit);assert(lines==135);
+    RadarFrame::Emit(layout,index,a*.55f,emit);
+    unsigned const counts[]={825,833,845};assert(index>=0&&index<3&&lines==counts[index]);
     WNDCLASSW wc={};wc.lpfnWndProc=DefWindowProcW;wc.hInstance=GetModuleHandleW(nullptr);wc.lpszClassName=L"RadarCheckHidden";
     RegisterClassW(&wc);HWND wnd=CreateWindowW(wc.lpszClassName,L"",WS_OVERLAPPED,0,0,1280,720,nullptr,nullptr,wc.hInstance,nullptr);
     assert(wnd);IDirect3D9* d3d=Direct3DCreate9(D3D_SDK_VERSION);assert(d3d);
@@ -62,7 +63,8 @@ int main(int argc,char** argv)
     unsigned lit=0;for(int y=0;y<720;++y)for(int x=0;x<1280;++x)
     {
         unsigned const pixel=*reinterpret_cast<unsigned*>(static_cast<char*>(locked.pBits)+y*locked.Pitch+x*4);
-        if(pixel&0xffffff){++lit;assert(x>950 && x<1200 && y>400 && y<650);}
+        if(pixel&0xffffff){++lit;assert(std::abs(float(x)-layout.x)<layout.radius+4 &&
+            std::abs(float(y)-layout.y)<layout.radius*layout.ellipse+24);}
     }
     read->UnlockRect();assert(lit>300);read->Release();rt->Release();device->Release();d3d->Release();DestroyWindow(wnd);
     printf("PASS native installed INI: enabled=%d sections=%d; production frame=%u lines; hidden D3D9 draw=%u visible pixels with NO scanner/contacts.\n",enabled,sections,lines,lit);

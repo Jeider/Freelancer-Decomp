@@ -187,7 +187,7 @@ void SetSavedTargetingWindowLocked(bool locked);
 bool GetSavedHealthWindowLocked();
 void SetSavedHealthWindowLocked(bool locked);
 // Bits 9..14: Health closed/left view, Targeting closed, active weapon group (0..5).
-// Bits 15..16 mark explicit Health/Targeting visibility, preserving legacy lock defaults.
+// Bits 15..16 mark explicit Health/Targeting visibility. Health defaults closed.
 bool GetSavedHealthWindowOpen();
 void SetSavedHealthWindowOpen(bool open);
 bool GetSavedHealthViewLeft();
@@ -197,6 +197,11 @@ void SetSavedTargetingWindowOpen(bool open);
 unsigned GetSavedWeaponGroup();
 void SetSavedWeaponGroup(unsigned group);
 unsigned GetGameSessionLoadRevision();
+bool GetSavedRadarEnabled();
+void SetSavedRadarEnabled(bool enabled);
+// Bits 18..19: 0 means use the HUD INI default, 1..3 store range index + 1.
+unsigned GetSavedRadarRange(unsigned defaultRange);
+void SetSavedRadarRange(unsigned range);
 // Temporary USER_MINIMIZE_HUD overlay; does not change saved window choices.
 bool AreAuxiliaryHudWindowsMinimized();
 void ToggleAuxiliaryHudWindowsMinimized();

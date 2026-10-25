@@ -168,6 +168,9 @@ namespace
     constexpr unsigned WeaponGroupMask = 7u << WeaponGroupShift;
     constexpr unsigned HealthVisibilitySaved = 1u << 15;
     constexpr unsigned TargetingVisibilitySaved = 1u << 16;
+    constexpr unsigned RadarEnabled = 1u << 17; // New/legacy saves default to off.
+    constexpr unsigned RadarRangeShift = 18;
+    constexpr unsigned RadarRangeMask = 3u << RadarRangeShift; // 0 unset; 1..3 range index + 1.
     unsigned GSessionLoadRevision = 0;
     bool GAuxiliaryHudMinimized = false;
 }
@@ -235,8 +238,7 @@ void SetSavedHealthWindowLocked(bool locked)
 
 bool GetSavedHealthWindowOpen()
 {
-    return (GSessionFlags & HealthVisibilitySaved) ? (GSessionFlags & HealthWindowClosed) == 0
-                                                  : !GetSavedHealthWindowLocked();
+    return (GSessionFlags & HealthVisibilitySaved) && (GSessionFlags & HealthWindowClosed) == 0;
 }
 void SetSavedHealthWindowOpen(bool open)
 {
@@ -272,6 +274,21 @@ void SetSavedWeaponGroup(unsigned group)
         SetGameSessionFlagValue(WeaponGroupMask, group << WeaponGroupShift);
 }
 unsigned GetGameSessionLoadRevision() { return GSessionLoadRevision; }
+bool GetSavedRadarEnabled() { return (GSessionFlags & RadarEnabled) != 0; }
+void SetSavedRadarEnabled(bool enabled)
+{
+    SetGameSessionFlagValue(RadarEnabled, enabled ? RadarEnabled : 0);
+}
+unsigned GetSavedRadarRange(unsigned defaultRange)
+{
+    unsigned const saved = (GSessionFlags & RadarRangeMask) >> RadarRangeShift;
+    return saved ? saved - 1 : defaultRange < 3 ? defaultRange : 2;
+}
+void SetSavedRadarRange(unsigned range)
+{
+    if (range < 3 && ((GSessionFlags & RadarRangeMask) >> RadarRangeShift) != range + 1)
+        SetGameSessionFlagValue(RadarRangeMask, (range + 1) << RadarRangeShift);
+}
 bool AreAuxiliaryHudWindowsMinimized() { return GAuxiliaryHudMinimized; }
 void ToggleAuxiliaryHudWindowsMinimized() { GAuxiliaryHudMinimized = !GAuxiliaryHudMinimized; }
 

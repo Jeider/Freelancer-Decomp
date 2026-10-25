@@ -99,7 +99,7 @@ HUD_Health::HUD_Health(INI_Reader& reader)
     HitCenter.Y += 0.0115f;
     HitHalfWidth = PanelHalfWidth - 0.008f;
     HitHalfHeight = 0.0615f;
-    bExpanded = 1;
+    bExpanded = 0;
 }
 
 HUD_Health::~HUD_Health() { ReleaseHost(); }
@@ -170,13 +170,9 @@ bool HUD_Health::Init()
     ViewPanel = CreateStaticControl("HealthBackground", "Interface\\hud\\hud_target2.cmp",
         &center.X, nullptr, zero, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, zero);
     if (!ViewPanel || !ClientMeshHolderHasInstance(&ViewPanel->MeshHolder)) return false;
-    float const closePos[] = {(center.X - PanelHalfWidth - 0.004f) * 1.5f,
-                              (center.Y + 0.073f) * 1.5f, -0.5f};
-    closeButton = CreateButtonControl("HealthClose", "interface\\NeuroNet\\Inventory\\x.3db",
-        nullptr, "ui_window_close", nullptr, closePos, nullptr, half, 0, 1, 0, 0, HudIds::HealthClose, 0, 0);
     slideIcon = CreateButtonControl("HealthSlide", HealthMesh, nullptr, nullptr, nullptr,
         zero, nullptr, half, 0, 1, 0, 0, 0, 0, 0);
-    if (!closeButton || !slideIcon) return false;
+    if (!slideIcon) return false;
     NormalizeIcon(slideIcon, 4, 0.022f);
     char const* const names[] = {"HealthWingPlay", "HealthWingPause", "HealthWingLock", "HealthTop", "HealthLeft"};
     char const* const meshes[] = {"interface\\hud\\HUD_health_wing.3db",
@@ -430,7 +426,6 @@ void HUD_Health::OnMoveFinished()
 void HUD_Health::UpdateVisibility()
 {
     bExpanded = CanShow() && open && !IsAnimating();
-    closeButton->SetProperty(1, bExpanded ? 0 : 1, 0);
     slideIcon->SetProperty(1, CanShow() && ButtonMover::IsActive() ? 0 : 1, 0);
     slideIcon->Flags &= ~(kWin3DPickable | kWin3DActive);
     bool const wing = WingAnimAvailable();
@@ -503,7 +498,6 @@ void HUD_Health::Draw()
     DrawShip();
     for (auto* button : toolbar)
         if (button->Flags & kWin3DVisible) button->Draw();
-    closeButton->Draw();
 }
 
 bool HUD_Health::HitTest(float const* ray)
@@ -544,11 +538,6 @@ intptr_t HUD_Health::SetProperty(int msg, uintptr_t a, uintptr_t b)
                 UpdateVisibility();
                 return 1;
             }
-    }
-    if (msg == 0x26 && a == reinterpret_cast<uintptr_t>(closeButton) && CanShow())
-    {
-        TogglePanel();
-        return 1;
     }
     return WinControl::SetProperty(msg, a, b);
 }

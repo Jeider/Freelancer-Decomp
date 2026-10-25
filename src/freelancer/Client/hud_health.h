@@ -50,7 +50,6 @@ private:
     WinControl* hostButton = nullptr;
     WinControl* lockButton = nullptr;
     WinControl* groups[3] = {};
-    WinControl* closeButton = nullptr;
     WinControl* slideIcon = nullptr;
     WinControl* toolbar[5] = {};
     bool viewLeft = false;
@@ -63,5 +62,5 @@ private:
     float savedConsumableOffsets[4][3] = {};
     FVector center = {0.152f, -0.300f, -1.0f};
     bool enabled = true;
-    bool open = true;
+    bool open = false;
 };

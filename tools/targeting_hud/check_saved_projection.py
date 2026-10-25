@@ -27,6 +27,45 @@ unsigned GetPlayerConnectionId() { return 7; }
 '''
 checks = r'''
 int main() {
+    assert(!GetSavedRadarEnabled());
+    assert(!GetSavedHealthWindowOpen());
+    for(unsigned defaultRange=0;defaultRange<3;++defaultRange)
+        assert(GetSavedRadarRange(defaultRange)==defaultRange);
+    assert(GetSavedRadarRange(99)==2);
+    for(unsigned range=0;range<3;++range)for(unsigned on=0;on<2;++on) {
+        unsigned const untouched=0xa530800fu & ~((3u<<18)|(1u<<17));
+        AssignGameSessionFlags(untouched);
+        SetSavedRadarEnabled(on!=0);SetSavedRadarRange(range);
+        unsigned const saved=server.word;
+        assert(saved==(untouched | (on<<17) | ((range+1)<<18)));
+        unsigned const writes=server.sends;
+        SetSavedRadarRange(range);SetSavedRadarRange(3);SetSavedRadarRange(~0u);
+        assert(server.sends==writes);
+        ToggleAuxiliaryHudWindowsMinimized();
+        assert(GetSavedRadarEnabled()==(on!=0)&&GetSavedRadarRange(2)==range);
+        assert(server.sends==writes);
+        AssignGameSessionFlags(3);assert(!GetSavedRadarEnabled()&&GetSavedRadarRange(1)==1);
+        AssignGameSessionFlags(saved);
+        assert(GetSavedRadarEnabled()==(on!=0)&&GetSavedRadarRange(0)==range);
+        assert(server.sends==writes);
+        for(unsigned bit=1;bit<=8;bit<<=1) {
+            SetGameSessionFlags(bit,true);SetGameSessionFlags(bit,false);
+            assert(GetSavedRadarEnabled()==(on!=0)&&GetSavedRadarRange(2)==range);
+        }
+    }
+    AssignGameSessionFlags(3);
+    puts("PASS: radar on/off and all ranges round trip independently of Backspace/native HUD bits; legacy INI fallback; no repeat writes");
+    AssignGameSessionFlags(0x5a01000f);
+    SetSavedRadarEnabled(true);
+    assert(GetSavedRadarEnabled() && server.word==0x5a03000f);
+    auto const radarSaved=server.word;
+    AssignGameSessionFlags(3);
+    assert(!GetSavedRadarEnabled());
+    AssignGameSessionFlags(radarSaved);
+    assert(GetSavedRadarEnabled());
+    SetSavedRadarEnabled(false);
+    assert(server.word==0x5a01000f);
+    AssignGameSessionFlags(3);
     assert(GetSavedTargetingProjection() == 0);
     assert(GetSavedTargetingAutoselect() && !GetSavedTargetingWindowLocked());
     for (unsigned native = 0; native < 16; ++native) {
@@ -134,7 +173,7 @@ int main() {
         unsigned const revision=GetGameSessionLoadRevision();
         AssignGameSessionFlags(3);
         assert(GetGameSessionLoadRevision()==revision+1&&!AreAuxiliaryHudWindowsMinimized());
-        assert(GetSavedHealthWindowOpen()&&GetSavedTargetingWindowOpen());
+        assert(!GetSavedHealthWindowOpen()&&GetSavedTargetingWindowOpen());
         assert(!GetSavedHealthViewLeft()&&GetSavedWeaponGroup()==0);
         AssignGameSessionFlags(saved);
         assert(server.sends==sent);
@@ -143,13 +182,13 @@ int main() {
         assert(GetSavedHealthViewLeft()==left&&GetSavedTargetingProjection()==projection&&GetSavedWeaponGroup()==group);
         TargetingWindowState target;
         target.Restore(targetOpen,targetLock);
-        target.Observe(0);target.Observe(0);assert(!target.open); // Empty/waypoint never opens.
-        target.Observe(17);assert(target.open==targetOpen); // First real target uses saved preference.
-        target.Observe(17);assert(target.open==targetOpen);
-        target.Observe(0);assert(!target.open);
-        target.Observe(18);assert(target.open==!targetLock); // Subsequent targets use auto-open.
+        target.Observe(0, false);target.Observe(0, false);assert(!target.open); // Empty/waypoint never opens.
+        target.Observe(17, true);assert(target.open==targetOpen); // First real target uses saved preference.
+        target.Observe(17, true);assert(target.open==targetOpen);
+        target.Observe(0, false);assert(!target.open);
+        target.Observe(18, true);assert(target.open==!targetLock); // Subsequent targets use auto-open.
         target.ToggleOpen();assert(target.open==targetLock); // Manual override remains possible.
-        target.Restore(!targetOpen,!targetLock);target.Observe(19);assert(target.open==!targetOpen);
+        target.Restore(!targetOpen,!targetLock);target.Observe(19, true);assert(target.open==!targetOpen);
     }
     AssignGameSessionFlags(3|0x180u); // Old locked saves predate visibility markers.
     assert(!GetSavedHealthWindowOpen()&&!GetSavedTargetingWindowOpen());

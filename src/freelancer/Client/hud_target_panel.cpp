@@ -602,7 +602,7 @@ bool HudTarget::Create(Win3D* NewParent, void* Data)
                                              "ui_item_select", nullptr, CommPos, nullptr,
                                              SmallHalf, 0, 1, 0, 0, 0x621, 0, 0);
 
-    float const TradePos[3] = {-0.202f, -0.37f, 0.0f};
+    float const TradePos[3] = {-0.202f, -0.325f, 0.0f};
     TradeButton = CreateButtonControl("TargetTradeButton", "interface\\hud\\HUD_trade.3db",
                                       nullptr, "ui_item_select", nullptr, TradePos, nullptr,
                                       SmallHalf, 0, 1, 0, 0, 0xbc3, 0, 0);
@@ -741,6 +741,24 @@ unsigned HudTarget::TargetingObjectId() const
     if (!object) return 0;
     if (IsClass(object, 0x303) && static_cast<CSolar*>(object)->is_waypoint()) return 0;
     return WatchedObjRw(ViewObject)->get_id();
+}
+
+bool HudTarget::TargetingIsHostileShip() const
+{
+    IObjRW* const target = WatchedObjRw(ViewObject);
+    CObject* const object = CObjectOfObjRw(target);
+    // Use the same live attitude classification as the native target HUD.
+    return object && IsClass(object, 0x503) &&
+        GetAttitudeClass(static_cast<IObjRW*>(GetPlayerObjRW()), target) == -1;
+}
+
+bool HudTarget::TargetingIsCruiser() const
+{
+    IObjRW* const target = WatchedObjRw(ViewObject);
+    CObject* const object = CObjectOfObjRw(target);
+    unsigned type = 0;
+    return object && IsClass(object, 0x503) && target->get_type(type) == 0 &&
+        (type & 0x80000u) != 0; // shiparch type = CRUISER, including destroyers in this mod.
 }
 
 void HudTarget::Slot14()

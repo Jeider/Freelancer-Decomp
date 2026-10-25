@@ -502,6 +502,8 @@ public:
                            TargetingProjection projection);
     void UpdateTargetingHover(FVector const& center, float halfWidth, float halfHeight);
     unsigned TargetingObjectId() const;
+    bool TargetingIsHostileShip() const;
+    bool TargetingIsCruiser() const;
 
 private:
     void DrawTargetView(float screenShift, TargetingProjection projection = TargetingProjection::Vanilla);

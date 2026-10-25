@@ -38,7 +38,7 @@ def merge(raw, block, begin, end, section=None):
             raise ValueError('Ambiguous configuration markers')
         return raw[:raw.index(begin)] + block + raw[raw.index(end) + len(end):]
     if section is None:
-        if re.search(rb'(?mi)^\[StarlancerRadar\]', raw):
+        if re.search(rb'(?mi)^\[Radar\]', raw):
             raise ValueError('Existing unmarked radar configuration needs reconciliation')
         return raw.rstrip() + b'\r\n\r\n' + block + b'\r\n'
     headers = list(re.finditer(rb'(?mi)^\[' + re.escape(section) + rb'\][ \t]*\r?\n', raw))
@@ -66,14 +66,14 @@ def main():
         block = reference[reference.index(begin):reference.index(end) + len(end)]
         prepared = {PORT: merge(safe(game, PORT).read_bytes(), block, begin, end, b'Render')}
         radar = args.radar_template.read_bytes()
-        begin, end = b'; BEGIN STARLANCER RADAR', b'; END STARLANCER RADAR'
+        begin, end = b'; BEGIN HUD RADAR', b'; END HUD RADAR'
         block = radar[radar.index(begin):radar.index(end) + len(end)]
         if not re.search(rb'(?mi)^enabled[ \t]*=[ \t]*false\b', block):
             raise ValueError('Radar foundation must initially be disabled')
         original_hud = safe(game, HUD).read_bytes()
         enabled = args.radar_enabled
         if enabled == 'keep':
-            existing = re.search(rb'(?mis)^\[StarlancerRadar\][^\[]*?^enabled[ \t]*=[ \t]*(true|false)\b', original_hud)
+            existing = re.search(rb'(?mis)^\[Radar\][^\[]*?^enabled[ \t]*=[ \t]*(true|false)\b', original_hud)
             enabled = existing[1].decode('ascii').lower() if existing else 'false'
         block = re.sub(rb'(?mi)^(enabled[ \t]*=[ \t]*)false\b', lambda m: m[1] + enabled.encode('ascii'), block)
         prepared[HUD] = merge(original_hud, block, begin, end)

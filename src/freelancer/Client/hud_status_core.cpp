@@ -1538,7 +1538,8 @@ void HUD_Status::Update()
                         {
                             SpecialModeTextCancel->SetProperty(
                                 0x1d, reinterpret_cast<uintptr_t>(Caption.Text), 0);
-                            SpecialModeTextCancel->Flags |= 3;
+                            // Keep the destination cached, but suppress its HUD caption.
+                            SpecialModeTextCancel->Flags &= 0xfc;
                         }
                     }
                 }
@@ -1549,7 +1550,7 @@ void HUD_Status::Update()
                 if (Ship->is_using_tradelane())
                 {
                     SpecialModeTextCancel->SetProperty(0x1d, reinterpret_cast<uintptr_t>(Caption.Text), 0);
-                    SpecialModeTextCancel->Flags |= 3;
+                    SpecialModeTextCancel->Flags &= 0xfc;
                     Byte5cd = 1;
                 }
                 else
@@ -1761,6 +1762,14 @@ void HUD_Status::UpdateSpecialModeCaptions()
         bHideText = false;
     }
 
+    // Suppress mouse-flight and turret-view captions together with their exit hints.
+    // Cruise charge/disruption has its own HUD_CruiseProgress control.
+    if (bTurretView != 0 || (bRearView == 0 && !bTradelane))
+    {
+        SpecialModeText->SetProperty(1, 1, 0);
+        SpecialModeTextCancel->SetProperty(1, 1, 0);
+        return;
+    }
     SpecialModeText->SetProperty(1, bHideText ? 1u : 0u, 0);
     SpecialModeTextCancel->SetProperty(1, bHideCancel ? 1u : 0u, 0);
     if (bHideText)

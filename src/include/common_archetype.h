@@ -732,6 +732,8 @@ namespace Archetype
 
 
         bool bDestructible;       // +0x94
+        bool bRadarMining;        // +0x95 formerly padding: opt-in mining navigation marker
+        bool bRadarHidden;        // +0x96 formerly padding: omit this solar from the radar
         float SolarRadius;        // +0x98 default 500
         int Toughness;            // +0x9C
         CacheString OpenAnim;     // +0xA0
@@ -741,6 +743,8 @@ namespace Archetype
 
     static_assert(sizeof(Solar) == 0xAC, "Solar sizeof 0xAC");
     static_assert(offsetof(Solar, bDestructible) == 0x94, "Solar+0x94 destructible");
+    static_assert(offsetof(Solar, bRadarMining) == 0x95, "Solar+0x95 radar_mining");
+    static_assert(offsetof(Solar, bRadarHidden) == 0x96, "Solar+0x96 radar_hidden");
     static_assert(offsetof(Solar, SolarRadius) == 0x98, "Solar+0x98 solar_radius");
     static_assert(offsetof(Solar, Loadout) == 0xA8, "Solar+0xA8 loadout");
 

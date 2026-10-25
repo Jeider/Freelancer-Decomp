@@ -894,6 +894,8 @@ namespace Archetype
     Solar::Solar(ICliObj* InCompanion)
         : EqObj(InCompanion)
         , bDestructible(false)
+        , bRadarMining(false)
+        , bRadarHidden(false)
         , SolarRadius(500.0f)
         , Toughness(0)
     {
@@ -926,6 +928,17 @@ namespace Archetype
         if (Reader.is_value("toughness"))
         {
             Toughness = Reader.get_value_int(0);
+            return true;
+        }
+
+        if (Reader.is_value("radar_mining"))
+        {
+            bRadarMining = Reader.get_value_bool(0);
+            return true;
+        }
+        if (Reader.is_value("radar_hidden"))
+        {
+            bRadarHidden = Reader.get_value_bool(0);
             return true;
         }
 
@@ -966,6 +979,8 @@ namespace Archetype
     {
         Root::redefine(Other);
         Solar const* Donor = (Solar const*)&Other;
+        bRadarMining = Donor->bRadarMining;
+        bRadarHidden = Donor->bRadarHidden;
         if (Donor->Toughness != Toughness)
             Toughness = Donor->Toughness;
     }

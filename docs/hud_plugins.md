@@ -35,13 +35,15 @@ disabled, 7/8 are Targeting/Health auto-open locks, 9 is Health closed, 10 is He
 left view, 11 is Targeting closed, 12..14 are weapon group 0..5, and 15/16 mark
 explicit Health/Targeting visibility. Loading another player reapplies these values
 even when the HUD survives the load. Targeting remains hidden without an eligible
-target and applies its saved visibility to the first eligible selection; subsequent
+target and applies its saved visibility to the first hostile ship selection; subsequent
 selection changes follow its normal auto-open rules. Weapon-group restore activates
 the saved group once a ship is available, instead of forcing group 1.
 
 Backspace (`USER_MINIMIZE_HUD`) temporarily hides the detached windows too; pressing
 it again restores their desired state. This temporary override is not saved and
-does not alter either window's open/closed preference.
+does not alter either window's open/closed preference. Radar and its buttons are
+independent of Backspace. Its enabled flag is saved in bit 17; bits 18..19 store
+range index + 1 (zero uses the HUD INI default).
 
 `hud_interface_ids.h` reserves IDs **238200..238224** in NameResources.dll for all
 new buttons and the weapon-list icon. The editable translations are in the mod's
@@ -86,10 +88,10 @@ Damage colours and part visibility still update, but the preview does not follow
 animated wings or turrets. The WingAnim buttons control the actual ship independently
 of this cached preview.
 
-Health restores its saved visibility and top/left projection. Legacy saves start
-open unless the auto-open lock is set. Its first button in
-HUD_Status toggles it; the cross closes it using the same scale/slide sequence as
-Targeting. New damage severity transitions or accepted NN damage warnings reopen
+Health restores its saved visibility and top/left projection. New/legacy saves
+without an explicit visibility setting start closed. Its first button in
+HUD_Status opens/closes it using the same scale/slide sequence as Targeting.
+The detached Health and Targeting panels have no close crosses. New damage severity transitions or accepted NN damage warnings reopen
 it when unlocked. Merely retaining the same damage, critical-colour pulsing, hover,
 repairs and loading an already damaged ship do not count as new damage. The monitor
 uses hull, collision-group and equipment health bands (75%, 50%, below 25%, destroyed),
@@ -162,10 +164,15 @@ the view. New host-owned buttons occupy the old list slot and the slot to its le
 Targeting window and automatic-opening lock. Formation moves to 0.029 right of scan
 in the expanded HUD_Target toolbar, retaining separate hit boxes.
 The view is independent of the contact list's collapsed state. It starts hidden,
-opens on a new eligible selection and closes when selection is cleared or is a waypoint
+opens automatically only on selection of a hostile ship and closes when selection is cleared or is a waypoint
 (`CSolar::is_waypoint`, independent of name-fix options). Lock blocks automatic opening,
 but allows automatic closing and manual opening for an eligible target. Enabling lock
-does not close an already open view. Unlocking opens the current eligible selection.
+does not close an already open view. Unlocking opens the current selection only if
+it is a hostile ship. Hostility uses the native HUD attitude classification
+(`GetAttitudeClass(player, target) == -1`, target attitude <= -0.6); hostile solars,
+neutral and friendly ships do not trigger automatic opening. Manual opening remains
+available for every eligible target, and switching away from a hostile ship does not
+automatically close an already open panel.
 Manual close stays closed until a new target is selected. Rapid target changes update
 desired visibility even during animation, so the latest selection wins.
 Mouse hover and
@@ -185,6 +192,8 @@ for marked groups.
 The "Toggle autoselect subtarget" button (using `HUD_nextsub.3db`) enables direct
 weak-point and turret selection on a ship's world model without holding Ctrl. It defaults on,
 stays enabled across target changes and shows its selected state on the button.
+The Targeting toolbar exposes this toggle only for a live ship of type CRUISER
+(including the mod's destroyers). Other targets hide it without changing the saved mode.
 Autoselect and the auto-opening lock are stored per player in bits 6 and 7 of the
 native save `interface` word, alongside projection bits 4..5. Bit 6 means disabled,
 so old/new saves default to autoselect enabled and lock off. Each click updates the
@@ -250,9 +259,8 @@ the updated word through `SetInterfaceState`; native saves/autosaves and charact
 loading handle persistence. Old saves default to Vanilla. Existing projection indices
 retain their button positions under the new order. The HUD reads restored state
 even when it survives a load, and native HUD toggles preserve the projection bits.
-The cross at the far right collapses this
-panel into `hud_targetedobject.3db` centred on its bottom edge; clicking that icon
-restores it with the same projection. Both directions use HUD_Target's native
+The window button on HUD_Target collapses/restores this panel with the same
+projection; the detached panel has no close cross. Both directions use HUD_Target's native
 ButtonScaler/ButtonMover sequence: 0.3-second cosine-eased scaling between
 1.0 and 0.1, followed by a 0.3-second icon slide (reversed when opening).
 Content and input are suppressed during the animation, as in HUD_Target.

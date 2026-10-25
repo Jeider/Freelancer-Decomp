@@ -51,7 +51,7 @@ int main(){
     tracker.Begin();tracker.Sample(0x10001,1);tracker.Sample(0x20001,.5);assert(tracker.Finish()); // Distinct group/equipment IDs.
     tracker.Begin();tracker.Sample(0x10001,1);tracker.Sample(0x20001,.5);tracker.Sample(0x20002,.1);assert(!tracker.Finish());
     puts("PASS: colour thresholds, repair re-arm, critical pulse stability, destruction/removal, ship reset and independent part IDs");
-    HealthWindowState window;window.ToggleOpen();assert(!window.open);
+    HealthWindowState window;assert(!window.open);
     window.Damage();assert(window.open);window.ToggleOpen();assert(!window.open);
     window.SetLocked(true);window.Damage();assert(!window.open);
     window.ToggleOpen();assert(window.open); // Manual open still works when locked.

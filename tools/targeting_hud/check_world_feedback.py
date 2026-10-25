@@ -49,8 +49,15 @@ struct CArchGroup {
 };
 struct CObject {unsigned ObjectClass=0;};
 struct CSolar:CObject {unsigned TypeBits=0;bool is_waypoint() const;};
-struct IObjRW {CObject* object=nullptr;unsigned id=0;unsigned get_id(){return id;}};
-struct HudTarget {IObjRW* ViewObject=nullptr;unsigned TargetingObjectId() const;};
+struct IObjInspect {
+    float attitude=0;int queryResult=0;
+    int get_attitude_towards(float& out,IObjInspect const*)const{out=attitude;return queryResult;}
+};
+struct IObjRW:IObjInspect {CObject* object=nullptr;unsigned id=0;unsigned get_id(){return id;}};
+IObjRW player;
+IObjRW* playerPointer=&player;
+IObjRW* GetPlayerObjRW(){return playerPointer;}
+struct HudTarget {IObjRW* ViewObject=nullptr;unsigned TargetingObjectId() const;bool TargetingIsHostileShip() const;};
 IObjRW* WatchedObjRw(IObjRW* const& rw){return rw;}
 CObject* CObjectOfObjRw(IObjRW* rw){return rw?rw->object:nullptr;}
 bool IsClass(CObject* object,unsigned mask){return (object->ObjectClass&mask)==mask;}
@@ -61,32 +68,63 @@ int main(){
     HudTarget target;
     assert(target.TargetingObjectId()==0);
     CSolar solar;solar.ObjectClass=0x303;
-    IObjRW selection={&solar,42};target.ViewObject=&selection;
+    IObjRW selection;selection.object=&solar;selection.id=42;target.ViewObject=&selection;
     assert(target.TargetingObjectId()==42);
     solar.TypeBits=0x200;assert(target.TargetingObjectId()==0);
     solar.ObjectClass=0x503;assert(target.TargetingObjectId()==42); // Ship, not a waypoint solar.
     selection.object=nullptr;assert(target.TargetingObjectId()==0);
     puts("PASS: actual target eligibility filters waypoint solars, accepts ships/other solars, handles missing objects");
+    assert(!target.TargetingIsHostileShip());
+    selection.object=&solar;
+    for(unsigned objectClass:{0x303u,0x503u}) for(float attitude:{-1.f,-.6f,-.5999f,0.f,.6f,1.f}) {
+        solar.ObjectClass=objectClass;selection.attitude=attitude;
+        assert(target.TargetingIsHostileShip()==(objectClass==0x503&&attitude<=-.6f));
+    }
+    solar.ObjectClass=0x503;selection.attitude=-1;
+    playerPointer=nullptr;assert(!target.TargetingIsHostileShip());playerPointer=&player;
+    selection.queryResult=1;assert(!target.TargetingIsHostileShip());selection.queryResult=0;
+    target.ViewObject=nullptr;assert(!target.TargetingIsHostileShip());target.ViewObject=&selection;
+    puts("PASS: production ship/solar filter and native hostility threshold; missing player, target and failed attitude query reject auto-open");
     TargetingWindowState window;
     assert(!window.open&&!window.locked);
     window.ToggleOpen();assert(!window.open); // No target cannot open manually.
-    window.Observe(10);assert(window.open);
-    window.ToggleOpen();window.Observe(10);assert(!window.open); // Manual close stays closed.
-    window.Observe(11);assert(window.open);
+    window.Observe(10, true);assert(window.open);
+    window.ToggleOpen();window.Observe(10, true);assert(!window.open); // Manual close stays closed.
+    window.Observe(11, true);assert(window.open);
     window.ToggleLock();assert(window.locked&&window.open); // Lock does not force a close.
-    window.Observe(12);assert(window.open);
-    window.Observe(0);assert(!window.open); // Missing target / waypoint.
-    window.Observe(13);assert(!window.open);
+    window.Observe(12, true);assert(window.open);
+    window.Observe(0, false);assert(!window.open); // Missing target / waypoint.
+    window.Observe(13, true);assert(!window.open);
     window.ToggleOpen();assert(window.open); // Manual override while locked.
-    window.Observe(0);assert(!window.open);
-    window.Observe(14);assert(!window.open);
+    window.Observe(0, false);assert(!window.open);
+    window.Observe(14, true);assert(!window.open);
     window.ToggleLock();assert(window.open&&!window.locked);
-    window.Observe(0);window.Observe(15);window.Observe(0);assert(!window.open);
-    window.Observe(16);assert(window.open); // Rapid changes retain latest desired state.
-    window.SetLocked(true);window.Observe(0);window.Observe(17);assert(!window.open);
+    window.Observe(0, false);window.Observe(15, true);window.Observe(0, false);assert(!window.open);
+    window.Observe(16, true);assert(window.open); // Rapid changes retain latest desired state.
+    window.SetLocked(true);window.Observe(0, false);window.Observe(17, true);assert(!window.open);
     window.SetLocked(false);assert(window.open); // Loaded unlocked state is immediately applied.
     window.ToggleOpen();window.SetLocked(false);assert(!window.open); // Reading a save bit cannot reopen every frame.
     puts("PASS: auto-hide/open, manual override, lock/unlock and rapid target changes");
+    window = {};
+    window.Observe(20,false);assert(!window.open); // Friendly/neutral/solar: manual only.
+    window.SetLocked(true);window.SetLocked(false);assert(!window.open);
+    window.ToggleOpen();assert(window.open); // Manual opening still works.
+    window.Observe(21,false);assert(window.open); // Only opening is restricted.
+    window.ToggleOpen();window.Observe(22,false);assert(!window.open);
+    window.Observe(23,true);assert(window.open);
+    window.ToggleOpen();window.Observe(23,true);assert(!window.open);
+    window.Observe(24,false);window.Observe(24,true);assert(!window.open); // No reselect.
+    window.Observe(25,true);assert(window.open);
+    window.Restore(true,false);
+    window.Observe(26,false);assert(!window.open&&window.restorePending);
+    window.Observe(27,false);assert(!window.open&&window.restorePending);
+    window.Observe(28,true);assert(window.open&&!window.restorePending);
+    window.Restore(false,false);window.Observe(29,false);window.Observe(30,true);assert(!window.open);
+    window.Observe(31,true);assert(window.open);
+    window.Restore(true,true);window.Observe(32,false);assert(!window.open);
+    window.ToggleOpen();assert(window.open&&!window.restorePending); // Manual overrides pending restore.
+    window.Observe(0,false);window.Observe(33,true);assert(!window.open); // Lock continues to apply.
+    puts("PASS: hostile-only auto-open/unlock/restore, manual non-hostile opening, retained open state and selection changes");
     GroupArch arch;CArchGroup group={&arch,1};
     unsigned const orange=HudCollisionGroupWireColor(&group,false);
     assert((orange&0xffffffu)==0xb2592cu);
@@ -206,6 +244,8 @@ void CheckWireTransforms(){
 code += function('hud_vulnerable.cpp', 'bool BuildWireQuad(')
 code += function('../../Common/common_csolar.cpp', 'bool CSolar::is_waypoint() const')
 code += function('hud_target_panel.cpp', 'unsigned HudTarget::TargetingObjectId() const')
+code += function('star_sys.cpp', 'int GetAttitudeClass(')
+code += function('hud_target_panel.cpp', 'bool HudTarget::TargetingIsHostileShip() const')
 for signature in ('int ClampByte(', 'int DimChromeByte(', 'unsigned PackPartTag(',
                   'unsigned long ChromeColourArgb()', 'unsigned long* HudDamageColorArgb(',
                   'unsigned HudCollisionGroupWireColor(', 'unsigned long EquipmentHealthColor(',

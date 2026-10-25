@@ -62,7 +62,6 @@ private:
     } subtargetButtons[2];
     WinControl* projections[ProjectionCount] = {};
     WinControl* autoselectButton = nullptr;
-    WinControl* closeButton = nullptr;
     WinControl* openButton = nullptr;
     WinControl* windowButton = nullptr;
     WinControl* lockButton = nullptr;

@@ -8,6 +8,7 @@ struct TargetingWindowState
     bool locked = false;
     bool restorePending = false;
     bool restoredOpen = false;
+    bool autoOpenAllowed = false;
 
     void Restore(bool wasOpen, bool wasLocked)
     {
@@ -16,13 +17,15 @@ struct TargetingWindowState
         locked = wasLocked;
         restorePending = true;
         restoredOpen = wasOpen;
+        autoOpenAllowed = false;
     }
 
-    void Observe(unsigned eligibleTarget)
+    void Observe(unsigned eligibleTarget, bool hostileShip)
     {
+        autoOpenAllowed = eligibleTarget != 0 && hostileShip;
         if (!eligibleTarget) open = false;
-        else if (restorePending) { open = restoredOpen; restorePending = false; }
-        else if (eligibleTarget != targetId && !locked) open = true;
+        else if (restorePending && autoOpenAllowed) { open = restoredOpen; restorePending = false; }
+        else if (eligibleTarget != targetId && autoOpenAllowed && !locked) open = true;
         targetId = eligibleTarget;
     }
     void ToggleOpen() { open = targetId != 0 && !open; restorePending = false; }
@@ -31,7 +34,7 @@ struct TargetingWindowState
         if (locked == value) return;
         locked = value;
         restorePending = false;
-        if (!locked && targetId) open = true;
+        if (!locked && autoOpenAllowed) open = true;
     }
     void ToggleLock() { SetLocked(!locked); }
 };

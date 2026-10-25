@@ -1,7 +1,7 @@
 param([string]$HudIni, [string]$GameBin)
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
-$out = Join-Path $repo 'src/obj/starlancer_radar_check'
+$out = Join-Path $repo 'src/obj/radar_check'
 New-Item -ItemType Directory -Path $out -Force | Out-Null
 $vc = 'C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231'
 $sdk = 'C:/Program Files (x86)/Windows Kits/10'
@@ -14,7 +14,15 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Radar test build failed' }
     & (Join-Path $out 'check.exe')
     if ($LASTEXITCODE -ne 0) { throw 'Radar geometry checks failed' }
+    & "$vc/bin/Hostx64/x86/cl.exe" /nologo /std:c++17 /O2 /W4 /WX /MT /EHsc (Join-Path $PSScriptRoot 'test_vectors.cpp') /Fevectors.exe
+    if ($LASTEXITCODE -ne 0) { throw 'Radar vectors build failed' }
+    & (Join-Path $out 'vectors.exe')
+    if ($LASTEXITCODE -ne 0) { throw 'Radar vectors checks failed' }
     if ($HudIni) {
+        & "$vc/bin/Hostx64/x86/cl.exe" /nologo /std:c++17 /O2 /W4 /WX /MT /EHsc (Join-Path $PSScriptRoot 'test_symbols.cpp') /Fesymbols.exe
+        if ($LASTEXITCODE -ne 0) { throw 'Radar symbols build failed' }
+        & (Join-Path $out 'symbols.exe')
+        if ($LASTEXITCODE -ne 0) { throw 'Radar symbols checks failed' }
         if (-not $GameBin) { throw 'Use -GameBin with -HudIni for native Common.dll' }
         $env:INCLUDE += ";$repo/src/include"
         $env:LIB += ";$repo/bin"

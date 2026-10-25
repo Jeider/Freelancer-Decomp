@@ -292,7 +292,7 @@
     <ClInclude Include="Client\hud_maneuvers.h" />
     <ClInclude Include="Client\hud_waypoint.h" />
     <ClInclude Include="Client\hud_widescreen.h" />
-    <ClInclude Include="Client\hud_starlancer_radar.h" />
+    <ClInclude Include="Client\hud_radar.h" />
     <ClInclude Include="Client\hud_targeting.h" />
     <ClInclude Include="Client\hud_health.h" />
     <ClInclude Include="Client\health_window_state.h" />
@@ -300,6 +300,9 @@
     <ClInclude Include="Client\hud_vulnerable.h" />
     <ClInclude Include="Client\radar_projection.h" />
     <ClInclude Include="Client\radar_frame.h" />
+    <ClInclude Include="Client\radar_ring_geometry.h" />
+    <ClInclude Include="Client\radar_contacts.h" />
+    <ClInclude Include="Client\radar_motion.h" />
     <ClInclude Include="Client\jump_effect.h" />
     <ClInclude Include="Client\best_path.h" />
     <ClInclude Include="Client\client_cliobj.h" />
@@ -516,7 +519,7 @@
     <ClCompile Include="Client\hud_maneuvers.cpp" />
     <ClCompile Include="Client\hud_waypoint.cpp" />
     <ClCompile Include="Client\hud_widescreen.cpp" />
-    <ClCompile Include="Client\hud_starlancer_radar.cpp" />
+    <ClCompile Include="Client\hud_radar.cpp" />
     <ClCompile Include="Client\hud_targeting.cpp" />
     <ClCompile Include="Client\hud_health.cpp" />
     <ClCompile Include="Client\hud_vulnerable.cpp" />

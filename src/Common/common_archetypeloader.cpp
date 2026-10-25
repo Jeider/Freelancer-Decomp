@@ -394,6 +394,8 @@ namespace
 
             Record->EqObj::operator=(*Donor);                      // 062f383d
             Record->bDestructible = Donor->bDestructible;          // 062f37cf..062f3897: +0x94..+0xa8
+            Record->bRadarMining = Donor->bRadarMining;
+            Record->bRadarHidden = Donor->bRadarHidden;
             Record->SolarRadius = Donor->SolarRadius;
             Record->Toughness = Donor->Toughness;
             Record->OpenAnim = Donor->OpenAnim;

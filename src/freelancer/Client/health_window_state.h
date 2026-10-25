@@ -45,7 +45,7 @@ struct HealthDamageState
 
 struct HealthWindowState
 {
-    bool open = true;
+    bool open = false;
     bool locked = false;
     bool automaticOpening = false;
     void Damage()
