@@ -103,6 +103,7 @@ Describes one destructible/detachable part of the nearest preceding record ([com
 | `separable` | none | false | Presence alone makes the part separable; any value is ignored. | [L516](../../src/Common/common_archetype_ships.cpp#L516) |
 | `destroy_parent` | bool, optional | false | `destroy_parent` with no value means true; with a value it is parsed as a bool. | [L520](../../src/Common/common_archetype_ships.cpp#L520) |
 | `root_health_proxy` | bool | false | Damage to the part is applied to the root. | [L527](../../src/Common/common_archetype_ships.cpp#L527) |
+| `vulnerable` | bool | false | Port extension: marks this group orange in the HUD wireframe even at full health. Real heavy damage still uses the red/critical colours. Does not deal damage, change damage multipliers or activate fuses. | `ReadCollisionGroup`, `HudTargetBase::ColourGroupParts` |
 | `parent_impulse` | float | 0.0 | Impulse on the parent when the part breaks off. | [L531](../../src/Common/common_archetype_ships.cpp#L531) |
 | `child_impulse` | float | 0.0 | Impulse on the detached part. | [L535](../../src/Common/common_archetype_ships.cpp#L535) |
 | `mass` | float | 1.0 | Mass of the part. | [L539](../../src/Common/common_archetype_ships.cpp#L539) |

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "hud_weapon_groups.h"
+#include "game_options.h"
 
 #include "hud_command_dispatch.h" // FSpaceCommand, SpaceSendCommand (FUN_0054bcb0)
 #include "login_mgr.h"            // G_Server (DAT_0067ecd0)
@@ -446,13 +447,14 @@ void FWeaponGroups::ReadFromServer(char const* Data, int Size)
 int FWeaponGroups::GetCurrent() const
 {
     // FUN_004f6170.
-    return Current;
+    return static_cast<int>(GetSavedWeaponGroup());
 }
 
 void FWeaponGroups::SetCurrent(int Group)
 {
     // FUN_004f6180.
     Current = Group;
+    if (Group >= 0 && Group < 6) SetSavedWeaponGroup(static_cast<unsigned>(Group));
 }
 
 void FWeaponGroups::Clear()

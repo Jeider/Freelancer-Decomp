@@ -395,6 +395,7 @@ namespace Archetype
         , bSeparable(false)
         , bDestroyParent(false)
         , bRootHealthProxy(false)
+        , bVulnerable(false)
         , ParentImpulse(0.0f)
         , ChildImpulse(0.0f)
         , Mass(1.0f)
@@ -430,6 +431,7 @@ namespace Archetype
         , bSeparable(Other.bSeparable)
         , bDestroyParent(Other.bDestroyParent)
         , bRootHealthProxy(Other.bRootHealthProxy)
+        , bVulnerable(Other.bVulnerable)
         , ParentImpulse(Other.ParentImpulse)
         , ChildImpulse(Other.ChildImpulse)
         , Mass(Other.Mass)
@@ -481,6 +483,7 @@ namespace Archetype
         bSeparable = Other.bSeparable;
         bDestroyParent = Other.bDestroyParent;
         bRootHealthProxy = Other.bRootHealthProxy;
+        bVulnerable = Other.bVulnerable;
         ParentImpulse = Other.ParentImpulse;
         ChildImpulse = Other.ChildImpulse;
         Mass = Other.Mass;
@@ -538,6 +541,10 @@ namespace Archetype
             else if (Reader.is_value("root_health_proxy"))
             {
                 Group->bRootHealthProxy = Reader.get_value_bool(0);
+            }
+            else if (Reader.is_value("vulnerable"))
+            {
+                Group->bVulnerable = Reader.get_value_bool(0);
             }
             else if (Reader.is_value("parent_impulse"))
             {

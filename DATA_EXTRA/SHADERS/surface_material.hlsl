@@ -1,5 +1,5 @@
 // RP9 reflective surface profile. Authored diffuse/envmap/specular/emissive and fog
-// remain material inputs. No object-name or ship-only assumptions; no normal-map fiction.
+// remain material inputs. The explicitly selected ice profile adds authored packed layers.
 // All lights and vertices use the same D3D view space, avoiding large world coordinates.
 row_major float4x4 WorldView : register(c0);
 row_major float4x4 Projection : register(c4);
@@ -98,6 +98,9 @@ float4 MaterialStyle : register(c94); // cockpit, glass, glass strength, cockpit
 // x far-map texel size; y shadow reach of casters stored with a negative depth (NPC ships);
 // z simple receiver (one bilinear comparison instead of PCSS); w the far static map is valid.
 float4 ShadowExtra : register(c95);
+// Explicit opaque crystal profile: enabled, parallax depth, frost coverage, back-light gain.
+float4 IceStyle : register(c96);
+sampler2D IceLayers : register(s13); // RGB independent fractures at three depths; A frost
 sampler2D ShadowNearMap : register(s8);
 sampler2D ShadowFarMap : register(s9);
 // Stations (the cached far map, same projection as ShadowFarMap, which then holds only
@@ -310,9 +313,10 @@ float GgxDistribution(float NoH, float A2)
 float4 PSMain(SurfacePixel In) : COLOR0
 {
 #ifdef SURFACE_LOW_DETAIL
-    const bool Cockpit=false,Glass=false;
+    const bool Cockpit=false,Glass=false,Ice=false;
 #else
     bool Cockpit=MaterialStyle.x>0.5,Glass=MaterialStyle.y>0.5;
+    bool Ice=IceStyle.x>0.5;
 #endif
     float3 RawNormal=In.Normal;
     if(Glass && dot(RawNormal,RawNormal)<1.e-8)
@@ -339,14 +343,56 @@ float4 PSMain(SurfacePixel In) : COLOR0
     else if (BaseOps.y > 4.5) Albedo.a *= 2.0;
 
 #ifndef SURFACE_LOW_DETAIL
+    float Frost=0.0,IceCracks=0.0;
+    [branch] if(Ice)
+    {
+        // Derivative frame respects mirrored UVs and needs no tangent channel in
+        // the original XYZ/N/UV CMP. All patterns stay attached to the UV surface.
+        float3 Dx=ddx(In.ViewPosition),Dy=ddy(In.ViewPosition);
+        float2 Ux=ddx(In.Uv),Uy=ddy(In.Uv);
+        float Det=Ux.x*Uy.y-Ux.y*Uy.x;
+        float Sign=Det<0 ? -1.0 : 1.0;
+        float3 It=(Dx*Uy.y-Dy*Ux.y)*Sign;
+        It-=N*dot(N,It);
+        if(dot(It,It)<1.e-12) It=cross(abs(N.y)<0.9 ? float3(0,1,0) : float3(1,0,0),N);
+        It=SafeNormal(It);
+        float3 Ib=SafeNormal(cross(N,It))*Sign;
+        float2 ViewUv=float2(dot(V,It),dot(V,Ib))/max(dot(V,N),0.35);
+        // The original asteroid repeats its diffuse UVs roughly four times.
+        // A half-rate crystal field gives broad readable fractures, not glitter.
+        float2 Uv=In.Uv*0.5;
+        // Offset only the submerged layers, not the surface crust. TextureGrad
+        // avoids unstable implicit gradients after the uniform material branch.
+        float2 Gx=Ux*0.5,Gy=Uy*0.5;
+        float4 Skin=tex2Dgrad(IceLayers,Uv,Gx,Gy);
+        float2 Shift=ViewUv*IceStyle.y;
+        float A=tex2Dgrad(IceLayers,Uv-Shift*0.30,Gx,Gy).r;
+        float B=tex2Dgrad(IceLayers,Uv-Shift*0.68,Gx,Gy).g;
+        float C=tex2Dgrad(IceLayers,Uv-Shift,Gx,Gy).b;
+        // Frost occupies discrete cloudy islands, leaving most cleavage clear.
+        // A broad midpoint mask would turn every face into blue rough stone.
+        Frost=smoothstep(0.50,0.70,Skin.a)*IceStyle.z;
+        IceCracks=saturate(A*0.62+B*0.33+C*0.18);
+        float Grain=saturate(dot(T.rgb,float3(0.299,0.587,0.114)));
+        float3 Deep=lerp(float3(0.045,0.18,0.28),T.rgb*float3(0.70,0.90,1.0),0.38);
+        float3 Interior=lerp(Deep,float3(0.48,0.76,0.86),IceCracks*(1.0-Frost*0.7));
+        Albedo.rgb=lerp(Interior,float3(0.57,0.67,0.70)*(0.80+0.20*Grain),Frost)*Base.rgb;
+        // Fine surface cleavage, separate from the three submerged crack layers.
+        float Hx=tex2Dgrad(IceLayers,Uv+float2(1.0/512.0,0),Gx,Gy).r-Skin.r;
+        float Hy=tex2Dgrad(IceLayers,Uv+float2(0,1.0/512.0),Gx,Gy).r-Skin.r;
+        N=SafeNormal(N-(It*Hx+Ib*Hy)*lerp(1.3,0.28,Frost));
+        NoV=max(dot(N,V),1.e-4);
+    }
     float3 FinishStyle=SurfaceFinish.w>0.5 ? SurfaceFinish.xyz : float3(1.35,0.9,0.8);
-    bool Reflective=(BaseOps.w>=0 && Surface.z>0) || Cockpit || Glass;
+    if(Ice) FinishStyle=float3(0.90,0.32,0.0); // no metal brushing on crystal ice
+    bool Reflective=(BaseOps.w>=0 && Surface.z>0) || Cockpit || Glass || Ice;
     if(Cockpit) FinishStyle*=MaterialStyle.w;
     float PanelGloss=saturate(dot(T.rgb,float3(0.299,0.587,0.114)));
     float FinishMask=lerp(0.35,1.0,PanelGloss);
     float Roughness = Reflective ? clamp(MaterialSpecular.w*lerp(1.12,0.88,PanelGloss),0.24,1.0) : MaterialSpecular.w;
     if(Cockpit) Roughness=clamp(Roughness,0.32,0.65);
     if(Glass) Roughness=0.13;
+    if(Ice) Roughness=lerp(0.18,0.78,Frost);
     float NormalVariance=max(dot(ddx(N),ddx(N)),dot(ddy(N),ddy(N)));
     float A2 = max(pow(Roughness, 4.0)+NormalVariance*0.25, 1.0e-4);
     // Derive the brushing direction from authored UVs. No synthetic bump normals
@@ -388,9 +434,23 @@ float4 PSMain(SurfacePixel In) : COLOR0
             }
         }
         float NoL = saturate(dot(N, L));
+#ifndef SURFACE_LOW_DETAIL
+        if(Ice) NoL=saturate((dot(N,L)+0.22)/1.22); // shallow scattering around a lit cleavage
+#endif
         if(Directional) SunFacing=max(SunFacing,NoL);
         if(Directional && dot(SafeNormal(Light.DirectionRange.xyz),ShadowSunRay.xyz)>0.98)
             Attenuation *= SunVisibility;
+#ifndef SURFACE_LOW_DETAIL
+        [branch] if(Ice)
+        {
+            // Bounded light-dependent translucency approximation, not emission
+            // and not scene transparency. A thickness bake can refine this later.
+            float Back=pow(saturate(dot(V,-L-N*0.28)),3.0)*saturate(-dot(N,L));
+            float Transmission=IceStyle.w*(1.0-Frost)*(0.35+IceCracks*0.65);
+            DiffuseLighting+=float3(0.12,0.39,0.50)*Light.DiffuseFalloff.rgb*
+                (Back*Transmission*Attenuation);
+        }
+#endif
         // Every lobe below is multiplied by NoL * Attenuation. Keep reflected
         // environment/ambient outside this loop; skip only zero-contribution light.
         [branch] if(NoL<=0 || Attenuation<=0) continue;
@@ -487,9 +547,15 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float ReflectionLighting=lerp(0.15,1.0,sqrt(SunFacing)) *
         lerp(1.0,lerp(0.20,1.0,SunVisibility),SunFacing);
     Colour += Environment.rgb * Reflection * Surface.z * (1.0 - 0.5 * Roughness) * ReflectionLighting;
+    [branch] if(Ice)
+    {
+        float IceFresnel=0.025+0.975*pow(1.0-saturate(NoV),5.0);
+        Colour=DiffuseLighting+Environment.rgb*Surface.z*(0.025+IceFresnel*0.40)*
+            (1.0-Frost*0.75)*ReflectionLighting;
+    }
     // A soft shoulder only on added gloss preserves the authored diffuse texture.
     // Bright source texels and emissive windows are not globally tone-mapped.
-    if(BaseOps.w<0.0 && !Cockpit && !Glass) Highlights=0.0;
+    if(BaseOps.w<0.0 && !Cockpit && !Glass && !Ice) Highlights=0.0;
     float GlassFresnel=0;
     [branch] if(Glass)
     {
@@ -525,6 +591,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
 #endif
     Colour += MaterialEmission.rgb;
     float Alpha=Albedo.a*Environment.a;
+    if(Ice) Alpha=1.0; // solid depth-writing hull, including the clear-looking parts
 #ifndef SURFACE_LOW_DETAIL
     [branch] if(Glass)
     {

@@ -23,6 +23,7 @@
 #include "hud_command_dispatch.h"
 #include "menu_keymap_config.h"
 #include "nn_modal.h" // NnMainButtonOnUnclaimedMouse (FUN_0045a270)
+#include "hud_vulnerable.h"
 #include "texture_shapes.h"
 #include "win3d_immediate.h"
 
@@ -981,6 +982,7 @@ void ClientInputOnFocusGained()
 
 void ClientInputOnFocusLost()
 {
+    VulnerableTargetingReset();
 #ifdef FREELANCER_WALK_MODE
     BaseWalkFocusLost();
 #endif
@@ -1033,6 +1035,8 @@ void MouseDispatchEvents()
             continue;
 #endif
 
+        if (VulnerableTargetingMouse(Event))
+            continue;
         if (Event.bMove != 0)
         {
             HudPostCommand(5, 0); // FUN_005763b0(5, 0)

@@ -1,0 +1,70 @@
+{
+  "shared_vms": "D:\\games\\FL_MOD\\DATA\\INTERFACE\\interface.generic.vms",
+  "shared_sha256": "a92ad4eb05cfdef51715ad2da79a7e06376d80d0ea293d185edbdf910fd1021c",
+  "icons": [
+    {
+      "mesh": "HUD_target_view1_icon.lod0.vms",
+      "mesh_crc": "02e485e5",
+      "material": "UI_HUD_target_view1_icon_mat",
+      "material_crc": "e7d236e4",
+      "texture": "HUD_target_view1_icon.tga",
+      "texture_crc": "054e408d",
+      "vertices": 8,
+      "triangles": 4,
+      "sha256": "5dbba4bc3f7f9f12638840b0db6d8ad2f6c4796c952b0246581fa4847a56a434",
+      "source": "D:\\games\\FL_MOD\\DATA\\INTERFACE\\HUD\\HUD_target_view1.3db",
+      "source_sha256": "3da47115b1129adaf862dc00cde893f8855ec5f9e2ba82fb7ca72e223d30a220",
+      "texture_sha256": "7909fb3bd331e849296e0cf42975234e5879bed8f615eb694998cb7f73735cce",
+      "embedded_mesh_bytes": 212,
+      "file": "bin\\targeting_icons\\DATA\\INTERFACE\\HUD\\HUD_target_view1.3db"
+    },
+    {
+      "mesh": "HUD_target_view2_icon.lod0.vms",
+      "mesh_crc": "049f1770",
+      "material": "UI_HUD_target_view2_icon_mat",
+      "material_crc": "1613c3f1",
+      "texture": "HUD_target_view2_icon.tga",
+      "texture_crc": "f48fb598",
+      "vertices": 8,
+      "triangles": 4,
+      "sha256": "5c61d79b16d78c5097f7ce32227974ef0077ac3507e2918a871ce30d431a4d20",
+      "source": "D:\\games\\FL_MOD\\DATA\\INTERFACE\\HUD\\HUD_target_view2.3db",
+      "source_sha256": "3357031cb1b745b3b2b3faffbeae82bf05aa9dcad1b8ab1017285f29ce3d954f",
+      "texture_sha256": "3d84ee289c7529b8de1863f3697dbd461305e8c65c81743fc1316d92f89f9063",
+      "embedded_mesh_bytes": 212,
+      "file": "bin\\targeting_icons\\DATA\\INTERFACE\\HUD\\HUD_target_view2.3db"
+    },
+    {
+      "mesh": "HUD_target_view3_icon.lod0.vms",
+      "mesh_crc": "e0d1e0eb",
+      "material": "UI_HUD_target_view3_icon_mat",
+      "material_crc": "12fd56d9",
+      "texture": "HUD_target_view3_icon.tga",
+      "texture_crc": "f06120b0",
+      "vertices": 8,
+      "triangles": 4,
+      "sha256": "3672779db75c77ae302199db95b8787fdeb9a99f678dff6c69f9cb180e9123c4",
+      "source": "D:\\games\\FL_MOD\\DATA\\INTERFACE\\HUD\\HUD_target_view3.3db",
+      "source_sha256": "9f3b0c5d989ccdc16ff104a15eadd379bbc44e63a3e60d175936236e3164abd0",
+      "texture_sha256": "449a6706e055faff4317f4ed105a516ae77cd4a92c7c7d70c00b11cdb348b035",
+      "embedded_mesh_bytes": 212,
+      "file": "bin\\targeting_icons\\DATA\\INTERFACE\\HUD\\HUD_target_view3.3db"
+    },
+    {
+      "mesh": "HUD_target_view4_icon.lod0.vms",
+      "mesh_crc": "1698f113",
+      "material": "UI_HUD_target_view4_icon_mat",
+      "material_crc": "f4e24a49",
+      "texture": "HUD_target_view4_icon.tga",
+      "texture_crc": "167e3c20",
+      "vertices": 8,
+      "triangles": 4,
+      "sha256": "f1e946707707c284eab3faab341ff32a2601a26457f34383ec475cfc5fc34bcc",
+      "source": "D:\\games\\FL_MOD\\DATA\\INTERFACE\\HUD\\HUD_target_view4.3db",
+      "source_sha256": "9c3ec036855b9ea8be328417503e8ba826dc1a5eb6bbb9878053993f9193f6c1",
+      "texture_sha256": "6cc42fdd2501ba70f6c54b87bbf9a2418c2bafacddc2f7397caf7cc4b463a660",
+      "embedded_mesh_bytes": 212,
+      "file": "bin\\targeting_icons\\DATA\\INTERFACE\\HUD\\HUD_target_view4.3db"
+    }
+  ]
+}

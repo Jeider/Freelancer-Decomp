@@ -44,6 +44,7 @@
 #include "win3d_immediate.h"
 #include "screen_quad_state.h"
 #include "texture_shapes.h" // FTexShape, TexShapeGetGpuHandle (puff_texture_*)
+#include "nebula_faceted_noise.h"
 #include "star_sphere.h"
 
 #include "DALib.h"
@@ -204,6 +205,9 @@ namespace
         float Coverage;
         float CloudSoftness;
         float CloudBillow; // rounded Worley lobes added to the base shape (0 = original)
+        float IceCrystal; // separate frozen-fold shader; opt-in per nebula style
+        float FacetedClouds; // walker-like layered clouds with piecewise-planar density
+        float FogColour[3]; // optional volume/horizon colour, -1 = authored nebula colour
         float LayerStretch;
         float DetailScale;
         float Erosion;
@@ -378,6 +382,8 @@ namespace
         {"wispiness", &FNebulaVolumeSettings::Wispiness},
         {"warp", &FNebulaVolumeSettings::Warp},
         {"puff_texture_density", &FNebulaVolumeSettings::PuffTextureDensity},
+        {"ice_crystal", &FNebulaVolumeSettings::IceCrystal},
+        {"faceted_clouds", &FNebulaVolumeSettings::FacetedClouds},
         {"puff_texture_colour", &FNebulaVolumeSettings::PuffTextureColour},
         {"puff_texture_scale", &FNebulaVolumeSettings::PuffTextureScale},
         {"drift_scale", &FNebulaVolumeSettings::DriftScale},
@@ -499,6 +505,7 @@ namespace
     };
 
     const FSettingVectorKey kSettingVectorKeys[] = {
+        {"fog_colour", &FNebulaVolumeSettings::FogColour},
         {"key_light_dir", &FNebulaVolumeSettings::KeyLightDir},
         {"key_light_colour", &FNebulaVolumeSettings::KeyLightColour},
         {"lightning_colour", &FNebulaVolumeSettings::LightningColour},
@@ -526,6 +533,9 @@ namespace
         S.Coverage = 0.4f;
         S.CloudSoftness = 0.6f;
         S.CloudBillow = 0.0f;
+        S.IceCrystal = 0.0f;
+        S.FacetedClouds = 0.0f;
+        S.FogColour[0] = S.FogColour[1] = S.FogColour[2] = -1.0f;
         S.LayerStretch = 1.6f;
         S.DetailScale = 4.0f;
         S.Erosion = 0.5f;
@@ -620,7 +630,7 @@ namespace
         S.AsteroidSpawnTransmittance = 0.05f;
         S.AsteroidMaxSpawnDistance = 6000.0f;
         S.AsteroidFadeFraction = 0.25f;
-        S.LightningEnabled = 1.0f;
+        S.LightningEnabled = 0.0f; // vanilla flashes unless explicitly opted into volume sources
         S.LightningIntensityScale = 20.0f;
         S.LightningRadius = 0.0f;
         S.LightningCoreSize = 0.45f;
@@ -646,7 +656,7 @@ namespace
         S.LightningColour[1] = 0.0f;
         S.LightningColour[2] = 0.0f;
         S.LightningHazeFlash = 0.025f;
-        S.LightningLightsShips = 2.0f;
+        S.LightningLightsShips = 0.0f;
         S.LightningShipIntensity = 1.5f;
         S.LightningShipDistance = 0.0f;
         S.ShellWidth = 0.35f;
@@ -699,8 +709,16 @@ namespace
     // ---- GPU objects and frame state ------------------------------------------------------
 
     FRPExProgram* GRaymarchProgram = nullptr;
+    FRPExProgram* GIceRaymarchProgram = nullptr;
+    bool GbIceProgramCreated = false;
+    bool GbIceProgramFailed = false;
+    FRPExProgram* GFacetedProgram = nullptr;
+    bool GbFacetedProgramCreated = false;
+    bool GbFacetedProgramFailed = false;
     FRPExProgram* GCompositeProgram = nullptr;
     FRPExTexture* GNoiseVolume = nullptr;
+    FRPExTexture* GFacetedNoiseVolume = nullptr;
+    bool GbFacetedNoiseFailed = false;
     FRPExTexture* GVolumeTarget = nullptr;
     float GVolumeTargetScale = 0.0f;
     // The target that was actually created is FP16 (HDR, tonemapped in the composite); an
@@ -721,6 +739,8 @@ namespace
     // Histogram of the noise volume's R bytes (the cloud base shape): turns coverage (a fraction
     // of space) into the threshold the shader cuts at.
     unsigned long GBaseHistogram[256];
+    unsigned long GFacetedBaseHistogram[256];
+    bool GbFacetedHistogramValid = false;
     bool GbBaseHistogramValid = false;
     // The noise volume's texels, kept after the upload: the lightning places its strikes in
     // the clouds by evaluating the shader's base shape on the CPU (WorldBaseCloud).
@@ -940,6 +960,14 @@ namespace
             break;
         }
         return Settings;
+    }
+
+    void VolumeFogColour(FNebulaEffect* Nebula, FNebulaVolumeSettings const& S, float* Rgb)
+    {
+        Nebula->CopyFogRgb(Rgb);
+        if (S.FogColour[0] >= 0.0f && S.FogColour[1] >= 0.0f && S.FogColour[2] >= 0.0f)
+            for (int I = 0; I < 3; ++I)
+                Rgb[I] = Clamp(S.FogColour[I], 0.0f, 1.0f);
     }
 
     // Detect the asset family once at registration, never by per-frame disk reads.
@@ -1208,7 +1236,7 @@ namespace
     // Coverage (the fraction of space inside clouds, before erosion) -> the base value where the
     // cloud starts (OutLow) and 1 / the width of its soft ramp: Softness of the cloud volume is
     // the ramp, the rest is full density.
-    void CoverageRemap(float Coverage, float Softness, float* OutLow, float* OutInvWidth)
+    void CoverageRemap(float Coverage, float Softness, float* OutLow, float* OutInvWidth, bool Faceted)
     {
         Coverage = Clamp(Coverage, 0.0f, 1.0f);
         Softness = Clamp(Softness, 0.02f, 1.0f);
@@ -1222,7 +1250,10 @@ namespace
         float High = 0.8f;
         if (GbBaseHistogramValid)
         {
-            const double Total = (double)(kNoiseSize) * (double)(kNoiseSize) * (double)(kNoiseSize);
+            const bool UseFaceted = Faceted && GbFacetedHistogramValid;
+            const unsigned long* Histogram = UseFaceted ? GFacetedBaseHistogram : GBaseHistogram;
+            const double Size = UseFaceted ? NebulaFacetedNoise::Size : kNoiseSize;
+            const double Total = Size * Size * Size;
             const double LowTarget = (double)(Coverage) * Total;
             const double HighTarget = (double)(Coverage) * (1.0 - (double)(Softness)) * Total;
             double Above = 0.0;
@@ -1231,7 +1262,7 @@ namespace
             bool bHighFound = false;
             for (int Byte = 255; Byte >= 0; --Byte)
             {
-                Above += (double)(GBaseHistogram[Byte]);
+                Above += (double)(Histogram[Byte]);
                 if (!bHighFound && Above >= HighTarget)
                 {
                     HighByte = Byte;
@@ -1307,6 +1338,32 @@ namespace
         if (GRaymarchProgram == nullptr || GCompositeProgram == nullptr || GbProgramFailed)
             return false;
 
+        if (Settings.IceCrystal > 0.5f)
+        {
+            if (!GbIceProgramCreated)
+            {
+                GbIceProgramCreated = true;
+                GbIceProgramFailed = Ex->CreateExProgram(RenderEx::GetExtraData(),
+                    "SHADERS\\nebula_ice.hlsl", "VSMain", "PSRaymarch",
+                    &GIceRaymarchProgram) != GR_OK;
+            }
+            if (GbIceProgramFailed || GIceRaymarchProgram == nullptr)
+                return false;
+        }
+
+        if (Settings.FacetedClouds > 0.5f)
+        {
+            if (!GbFacetedProgramCreated)
+            {
+                GbFacetedProgramCreated = true;
+                GbFacetedProgramFailed = Ex->CreateExProgram(RenderEx::GetExtraData(),
+                    "SHADERS\\nebula_walker_ice.hlsl", "VSMain", "PSRaymarch",
+                    &GFacetedProgram) != GR_OK;
+            }
+            if (GbFacetedProgramFailed || GFacetedProgram == nullptr)
+                return false;
+        }
+
         if (GNoiseVolume == nullptr)
         {
             if (GbNoiseFailed)
@@ -1330,6 +1387,22 @@ namespace
             }
         }
 
+        if (Settings.FacetedClouds > 0.5f && GFacetedNoiseVolume == nullptr)
+        {
+            if (GbFacetedNoiseFailed) return false;
+            const DWORD Start = GetTickCount();
+            std::vector<unsigned long> Texels;
+            NebulaFacetedNoise::Generate(GNoiseTexels, &Texels);
+            memset(GFacetedBaseHistogram, 0, sizeof(GFacetedBaseHistogram));
+            for (auto Texel : Texels) ++GFacetedBaseHistogram[(Texel >> 16) & 255];
+            GbFacetedHistogramValid = true;
+            const int Size = NebulaFacetedNoise::Size;
+            GbFacetedNoiseFailed = Ex->CreateExVolumeTexture(Size, Size, Size, RPExFormatA8R8G8B8,
+                Texels.data(), &GFacetedNoiseVolume) != GR_OK;
+            FDUMP(0x100003, "%s(%d) : NOTICE:General:faceted nebula noise prepared in %lu ms",
+                  kNebulaVolumeSource, __LINE__, (unsigned long)(GetTickCount()-Start));
+            if (GbFacetedNoiseFailed || GFacetedNoiseVolume == nullptr) return false;
+        }
         const float Scale = Clamp(Settings.ResolutionScale, 0.125f, 1.0f);
         if (GVolumeTarget == nullptr || Scale != GVolumeTargetScale)
         {
@@ -1755,7 +1828,7 @@ namespace
         Out->WarpAmplitude = CloudScale * (S.Warp > 0.0f ? (double)(S.Warp) : 0.0);
         Out->RemapLow = 0.6f;
         Out->RemapInvWidth = 5.0f;
-        CoverageRemap(S.Coverage, S.CloudSoftness, &Out->RemapLow, &Out->RemapInvWidth);
+        CoverageRemap(S.Coverage, S.CloudSoftness, &Out->RemapLow, &Out->RemapInvWidth, S.FacetedClouds > 0.5f);
     }
 
     // The tile coordinate (0..1, wrapped) of lookup Lookup (0 base, 1 detail, 2 warp) for an
@@ -2169,7 +2242,7 @@ namespace
         // Nebula values: [Fog] near / distance / colour (+0x29c / +0x298 / +0x2a0),
         // [NebulaLight] ambient / sun_burnthrough_intensity, [Clouds].
         float FogRgb[3];
-        Nebula->CopyFogRgb(FogRgb);
+        VolumeFogColour(Nebula, S, FogRgb);
         FMediumParams Medium;
         ComputeMedium(Nebula, S, &Medium);
         const float FogNear = Medium.FogNear;
@@ -2385,6 +2458,20 @@ namespace
         Set4(RaymarchRegister(22), Clouds.ColourB[0] * S.CloudBrightness,
              Clouds.ColourB[1] * S.CloudBrightness, Clouds.ColourB[2] * S.CloudBrightness,
              1.0f / FadeWidth);
+        if (S.IceCrystal > 0.5f)
+        {
+            // Deep blue cavities and pearl/cyan frost, independently of retail's white puffs.
+            const float IceA[3] = {0.09f, 0.18f, 0.26f};
+            const float IceB[3] = {0.38f, 0.57f, 0.62f};
+            for (int I = 0; I < 3; ++I)
+            {
+                RaymarchRegister(21)[I] = IceA[I] * S.CloudBrightness;
+                RaymarchRegister(22)[I] = IceB[I] * S.CloudBrightness;
+            }
+            RaymarchRegister(20)[0] = 0.32f * S.Emission;
+            RaymarchRegister(20)[1] = 0.65f * S.Emission;
+            RaymarchRegister(20)[2] = 0.72f * S.Emission;
+        }
         Set4(RaymarchRegister(kRegPuffColourDelta),
              RaymarchRegister(22)[0] - RaymarchRegister(21)[0],
              RaymarchRegister(22)[1] - RaymarchRegister(21)[1],
@@ -2602,7 +2689,8 @@ namespace
         // exterior_shadow_fade_in.
         const bool bMacroShadow = S.ExteriorShadowDensity > 0.0f;
         Set4(RaymarchRegister(kRegBudget),
-             kExecutedPerStep + kExecutedPerLightStep * (float)(LightCount),
+             S.FacetedClouds > 0.5f ? 850.0f : S.IceCrystal > 0.5f ? 600.0f :
+                 kExecutedPerStep + kExecutedPerLightStep * (float)(LightCount),
              kExecutedPerExclusionStep,
              GExecutedLimit - kExecutedReserve,
              bMacroShadow ? 1.0f / (S.ExteriorShadowFadeIn > 1.0f ? S.ExteriorShadowFadeIn : 1.0f)
@@ -2671,7 +2759,14 @@ namespace
         GPuffTextureHandle = nullptr;
         if (S.PuffTextureDensity > 0.0f || S.PuffTextureColour > 0.0f)
         {
-            FTexShape const* const Shape = FirstPuffShape(Nebula);
+            FTexShape const* Shape = FirstPuffShape(Nebula);
+            if (S.IceCrystal > 0.5f)
+            {
+                // Already owned/loaded by white_shapes.ini; no asset duplication, no retained
+                // pointer across system unloads. This variant samples RGB and ignores alpha.
+                // Find only updates the database's last-lookup cache.
+                Shape = const_cast<FShapeDB&>(Nebula->Shapes).Find("white_circle");
+            }
             void* const Handle = Shape != nullptr ? TexShapeGetGpuHandle(Shape, 0) : nullptr;
             const double Tile = (double)(Clouds.PuffRadius) *
                                 (S.PuffTextureScale > 0.1f ? (double)(S.PuffTextureScale) : 0.1);
@@ -2685,9 +2780,10 @@ namespace
                 // The projection must follow the world and drift, rather than the camera.
                 // Wrap in double precision to retain detail far from the system origin.
                 float* Offset = RaymarchRegister(kRegPuffTextureOffset);
+                const double Period = S.IceCrystal > 0.5f ? 2.0 : 1.0;
                 for (int Axis = 0; Axis < 3; ++Axis)
-                    Offset[Axis] = (float)(Frac((CamNoise[Axis] - kDriftDir[1][Axis] *
-                        Frame.DriftSpeed * kDriftMul[1] * Frame.Time) / Tile));
+                    Offset[Axis] = (float)(Period * Frac((CamNoise[Axis] - kDriftDir[1][Axis] *
+                        Frame.DriftSpeed * kDriftMul[1] * Frame.Time) / (Tile * Period)));
                 Offset[3] = Clamp(S.CloudBillow, 0.0f, 1.0f);
             }
         }
@@ -2861,8 +2957,9 @@ namespace
         memcpy(&GCompositeConstants[19 * 4], RaymarchRegister(6), sizeof(float) * 16);
         GCompositeConstants[19 * 4 + 3] = 1.0f; // real zone, excluding the thin exterior halo
         float SimpleFogRgb[3];
-        Entry.Nebula->CopyFogRgb(SimpleFogRgb);
-        Set4(&GCompositeConstants[23 * 4], SimpleFogRgb[0], SimpleFogRgb[1], SimpleFogRgb[2], 0.0f);
+        VolumeFogColour(Entry.Nebula, S, SimpleFogRgb);
+        Set4(&GCompositeConstants[23 * 4], SimpleFogRgb[0], SimpleFogRgb[1], SimpleFogRgb[2],
+             S.IceCrystal > 0.5f ? 1.0f : 0.0f);
 
         FRPExSamplerState Point;
         Point.MinMagFilter = RPExFilterPoint;
@@ -2890,9 +2987,15 @@ namespace
         Pass.ClearColor = 0;
         if (Ex->BeginExPass(&Pass) != GR_OK)
             return false;
-        bool bOk = Ex->BindExProgram(GRaymarchProgram) == GR_OK;
+        const bool bIce = Entry.Settings.IceCrystal > 0.5f;
+        const bool bFaceted = Entry.Settings.FacetedClouds > 0.5f;
+        bool bOk = Ex->BindExProgram(bFaceted ? GFacetedProgram : bIce ? GIceRaymarchProgram : GRaymarchProgram) == GR_OK;
         if (!bOk)
-            GbProgramFailed = true;
+        {
+            if (bFaceted) GbFacetedProgramFailed = true;
+            else if (bIce) GbIceProgramFailed = true;
+            else GbProgramFailed = true;
+        }
         if (bOk)
             bOk = Ex->BindExTexture(0, SceneDepth, &Point) == GR_OK &&
                   Ex->BindExTexture(1, GNoiseVolume, &LinearWrap) == GR_OK;
@@ -2904,6 +3007,8 @@ namespace
             if (Ex->BindExPipelineTexture(2, GPuffTextureHandle, &PuffSampler) != GR_OK)
                 Set4(RaymarchRegister(kRegPuffTexture), 0.0f, 0.0f, 0.0f, 0.0f);
         }
+        if (bOk && bFaceted)
+            bOk = Ex->BindExTexture(3, GFacetedNoiseVolume, &LinearWrap) == GR_OK;
         if (bOk)
         {
             Ex->SetExPixelConstants(0, GRaymarchConstants, kRaymarchRegisterCount);
@@ -3576,7 +3681,7 @@ namespace
                     continue;
 
                 float FogRgb[3];
-                Entry.Nebula->CopyFogRgb(FogRgb);
+                VolumeFogColour(Entry.Nebula, S, FogRgb);
                 FMediumParams Medium;
                 ComputeMedium(Entry.Nebula, S, &Medium);
                 FCloudParams Clouds;
@@ -3807,6 +3912,8 @@ void NebulaVolume::OnProgramsReloaded()
     // The next frame tries the programs again; a bind that still fails switches the volume off
     // again (Draw), a compile that failed keeps logging its errors in RP9.
     GbProgramFailed = false;
+    GbIceProgramFailed = false;
+    GbFacetedProgramFailed = false;
 }
 
 void NebulaVolume::Shutdown()
@@ -3817,16 +3924,31 @@ void NebulaVolume::Shutdown()
     {
         if (GRaymarchProgram != nullptr)
             Ex->DestroyExProgram(GRaymarchProgram);
+        if (GIceRaymarchProgram != nullptr)
+            Ex->DestroyExProgram(GIceRaymarchProgram);
+        if (GFacetedProgram != nullptr)
+            Ex->DestroyExProgram(GFacetedProgram);
         if (GCompositeProgram != nullptr)
             Ex->DestroyExProgram(GCompositeProgram);
         if (GNoiseVolume != nullptr)
             Ex->DestroyExTexture(GNoiseVolume);
+        if (GFacetedNoiseVolume != nullptr)
+            Ex->DestroyExTexture(GFacetedNoiseVolume);
         if (GVolumeTarget != nullptr)
             Ex->DestroyExTexture(GVolumeTarget);
     }
     GRaymarchProgram = nullptr;
+    GIceRaymarchProgram = nullptr;
+    GbIceProgramCreated = false;
+    GbIceProgramFailed = false;
+    GFacetedProgram = nullptr;
+    GbFacetedProgramCreated = false;
+    GbFacetedProgramFailed = false;
     GCompositeProgram = nullptr;
     GNoiseVolume = nullptr;
+    GFacetedNoiseVolume = nullptr;
+    GbFacetedNoiseFailed = false;
+    GbFacetedHistogramValid = false;
     GVolumeTarget = nullptr;
     GVolumeTargetScale = 0.0f;
     GbVolumeTargetFloat16 = false;
@@ -4352,7 +4474,7 @@ bool NebulaVolume::ShipAuraInfo(float* OutFogRgb, float* OutImmersion, float* Ou
     }
     if (Best == nullptr)
         return false;
-    Best->Nebula->CopyFogRgb(OutFogRgb);
+    VolumeFogColour(Best->Nebula, Best->Settings, OutFogRgb);
     *OutImmersion = BestImmersion;
     *OutStrength = Best->Settings.ShipHazeAura >= 0.0f ? Best->Settings.ShipHazeAura : DefaultStrength;
     *OutSize = Best->Settings.ShipHazeAuraSize >= 0.0f ? Best->Settings.ShipHazeAuraSize : DefaultSize;
@@ -4398,6 +4520,22 @@ void NebulaVolume::DimBackground(ICamera* Camera)
     Win3DVertex3f(W, H, 0.0f); Win3DVertex3f(0.0f, H, 0.0f);
     Win3DEnd();
     Win3DApplyCameraPerspective(Camera);
+}
+
+bool NebulaVolume::DynamicAsteroidOpaqueAt(float const* Position)
+{
+    if (!Position || !std::isfinite(Position[0]) || !std::isfinite(Position[1]) ||
+        !std::isfinite(Position[2])) return false;
+    Vector Point;
+    Point.x = Position[0]; Point.y = Position[1]; Point.z = Position[2];
+    for (size_t Index = 0; Index < GNebulae.size(); ++Index)
+    {
+        FNebulaEffect const* Nebula = GNebulae[Index].Nebula;
+        // Ring companion volumes are decorative, not an enclosing nebula.
+        if (GNebulae[Index].RingOwner || !Nebula || !Nebula->FlagLoaded || !Nebula->Zone) continue;
+        if (Nebula->Zone->GetImmersion(Point) > 0.0) return true;
+    }
+    return false;
 }
 
 bool NebulaVolume::DynamicAsteroidFade(Universe::IZone const* FieldZone, float* Fraction, float* Seconds)

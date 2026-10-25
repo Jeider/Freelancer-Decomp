@@ -477,7 +477,10 @@ void NnTextControl::Update()
             // run starts (FUN_00564650(0xb)) and takes a typing reference once.
             if (TypeElapsed == 0.0f)
             {
-                PlayUiSoundSlotFlag1(0xb);
+                // Targeting keeps the typewriter effect without its repeated sound.
+                // Keep the normal typing lifetime so pending text still flushes fully.
+                if (!Parent || strcmp(Parent->Name, "HUD_Targeting") != 0)
+                    PlayUiSoundSlotFlag1(0xb);
                 if (bTyping == 0)
                 {
                     bTyping = 1;

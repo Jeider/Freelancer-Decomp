@@ -210,6 +210,8 @@ extern FGateTunnelList G_GateTunnels;
 // FUN_004fedd0 (cdecl) -- the tunnel whose +4 id equals *Id, else FDUMP 0x100002 (line 0xfc)
 // and null. Caller: FUN_00503440 (0x0050377f).
 FGateTunnel* GateTunnelFind(ID_String const* Id);
+// Shared authored palette for the tunnel transition and its approaching gate vortex.
+void GateTunnelGetTint(FGateTunnel const* Tunnel, float* Rgb);
 
 // FUN_004ff3b0 (thiscall, RET 4) -- +0x260 = Ship. Caller: FUN_00503440 (0x005037c0).
 void GateTunnelSetShip(FGateTunnel* Tunnel, FClientShipGameobj* Ship);

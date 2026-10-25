@@ -239,6 +239,7 @@ int main()
             {1,1,0,0xffffffff,1,0},{-1,-1,0,0xffffffff,0,1},
             {1,1,0,0xffffffff,1,0},{1,-1,0,0xffffffff,1,1}};
         float style[4]={0,1,1,1}; Check(dev->SetPixelShaderConstantF(1,style,1));
+        float launchStyle[4]={0,0,0,0}; Check(dev->SetPixelShaderConstantF(2,launchStyle,1));
         float phases[][4]={{0,0,960.f/324,0},{.55f,0,960.f/324,0},
             {.96f,.8f,960.f/324,0},{1,1,960.f/324,0},
             {1,.5f,960.f/324,.5f},{1,0,960.f/324,1}, {.96f,.8f,960.f/324,0}};
@@ -265,6 +266,31 @@ int main()
             }
         }
         if(energies[2]<=energies[1] || energies[3]<energies[2] || energies[4]>=energies[3]) return 11;
+        // Claimed gates keep the flash and match their star trails to the future tunnel.
+        launchStyle[0]=1;Check(dev->SetPixelShaderConstantF(2,launchStyle,1));
+        style[1]=style[3]=160.f/303;style[2]=1;
+        Check(dev->SetPixelShaderConstantF(1,style,1));
+        double starEnergy[7]={};
+        for(int phase=0;phase<7;++phase) {
+            Check(dev->SetPixelShaderConstantF(0,phases[phase],1));
+            Check(dev->Clear(0,nullptr,D3DCLEAR_TARGET,0xff000000,1,0));Check(dev->BeginScene());
+            Check(dev->DrawPrimitiveUP(D3DPT_TRIANGLELIST,2,quad,sizeof(Vertex)));Check(dev->EndScene());
+            auto pixels=Read(dev,target);unsigned count=0;
+            for(DWORD p:pixels){count+=(p&0xffffff)!=0;starEnergy[phase]+=((p>>16)&255)+((p>>8)&255)+(p&255);}
+            if((phase==0||phase==5)?count!=0:count<500)return 18;
+            if(phase==3&&!(pixels[270*960+480]&0xffffff))return 19;
+            if(phase==1) {
+                double red=0,green=0,blue=0;
+                for(DWORD p:pixels){red+=(p>>16)&255;green+=(p>>8)&255;blue+=p&255;}
+                if(green<red*1.3||green<blue*1.3)return 22;
+                std::printf("gate tunnel matched trail RGB: %.0f %.0f %.0f\n",red,green,blue);
+            }
+            if(phase==2)repeat=pixels;
+            if(phase==6&&pixels!=repeat)return 20;
+            std::printf("gate portal stars phase %d: %u lit, energy %.0f\n",phase,count,starEnergy[phase]);
+            if(phase==3)Check(D3DXSaveSurfaceToFileA("src/obj/hyperspace_gate_flash.png",D3DXIFF_PNG,target,nullptr,nullptr));
+        }
+        if(starEnergy[2]<=starEnergy[1]||starEnergy[3]<starEnergy[2]||starEnergy[4]>=starEnergy[3])return 21;
         // Stars are visible at 3% of jump-out, where the old delayed buildup was absent.
         {
             float early[4]={.03f,0,960.f/324,0}; Check(dev->SetPixelShaderConstantF(0,early,1));

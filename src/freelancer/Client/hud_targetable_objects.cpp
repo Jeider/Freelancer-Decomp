@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "hud_targetable_objects.h"
+#include "hud_vulnerable.h"
 
 #include "best_path.h"        // BestPathGetWaypointCount / BestPathGetWaypoint / resolvers
 #include "cargo_bar_control.h" // ToolTipHoverInit
@@ -328,6 +329,7 @@ HudTargetableObjects::HudTargetableObjects(INI_Reader& /*Reader*/)
 
 HudTargetableObjects::~HudTargetableObjects()
 {
+    VulnerableTargetingReset();
     // FUN_004ea7b0. 0x004ea7f3..0x004ea82d: the five Font::Strings emptied (FUN_004144f0).
     FontStringClearContents(&WaypointLabel);
     FontStringClearContents(&BestPathLabel);
@@ -388,6 +390,7 @@ HudTargetableObjects::~HudTargetableObjects()
 
 void HudTargetableObjects::SetTarget(IObjRW* Target)
 {
+    VulnerableTargetingReset();
     // LAB_004ead20.
     HUDItem::SetTarget(Target);   // FUN_004c81a0
     Scanner = nullptr;

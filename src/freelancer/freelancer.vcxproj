@@ -187,6 +187,9 @@
     <ClInclude Include="Client\ship_warp_state.h" />
     <ClInclude Include="Client\tradelane_visual.h" />
     <ClInclude Include="Client\jumphole_visual.h" />
+    <ClInclude Include="Client\jumpgate_visual.h" />
+    <ClInclude Include="Client\jumpgate_visual_state.h" />
+    <ClInclude Include="Client\jumpgate_visual_geometry.h" />
     <ClInclude Include="Client\jumphole_visual_geometry.h" />
     <ClInclude Include="Client\jumphole_visibility.h" />
     <ClInclude Include="Client\jumphole_visual_state.h" />
@@ -289,6 +292,14 @@
     <ClInclude Include="Client\hud_maneuvers.h" />
     <ClInclude Include="Client\hud_waypoint.h" />
     <ClInclude Include="Client\hud_widescreen.h" />
+    <ClInclude Include="Client\hud_starlancer_radar.h" />
+    <ClInclude Include="Client\hud_targeting.h" />
+    <ClInclude Include="Client\hud_health.h" />
+    <ClInclude Include="Client\health_window_state.h" />
+    <ClInclude Include="Client\targeting_window_state.h" />
+    <ClInclude Include="Client\hud_vulnerable.h" />
+    <ClInclude Include="Client\radar_projection.h" />
+    <ClInclude Include="Client\radar_frame.h" />
     <ClInclude Include="Client\jump_effect.h" />
     <ClInclude Include="Client\best_path.h" />
     <ClInclude Include="Client\client_cliobj.h" />
@@ -404,6 +415,7 @@
     <ClCompile Include="Client\engine_heat_visual.cpp" />
     <ClCompile Include="Client\tradelane_visual.cpp" />
     <ClCompile Include="Client\jumphole_visual.cpp" />
+    <ClCompile Include="Client\jumpgate_visual.cpp" />
     <ClCompile Include="Client\effect_base.cpp" />
     <ClCompile Include="Client\effect_vertex_batch.cpp" />
     <ClCompile Include="Client\beam_effect.cpp" />
@@ -504,6 +516,10 @@
     <ClCompile Include="Client\hud_maneuvers.cpp" />
     <ClCompile Include="Client\hud_waypoint.cpp" />
     <ClCompile Include="Client\hud_widescreen.cpp" />
+    <ClCompile Include="Client\hud_starlancer_radar.cpp" />
+    <ClCompile Include="Client\hud_targeting.cpp" />
+    <ClCompile Include="Client\hud_health.cpp" />
+    <ClCompile Include="Client\hud_vulnerable.cpp" />
     <ClCompile Include="Client\jump_effect.cpp" />
     <ClCompile Include="Client\best_path.cpp" />
     <ClCompile Include="Client\client_cliobj.cpp" />

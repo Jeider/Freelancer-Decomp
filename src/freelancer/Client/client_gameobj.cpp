@@ -6,6 +6,7 @@
 
 #include "client_gameobj.h"
 #include "jumphole_visual.h"
+#include "jumpgate_visual.h"
 #ifdef FREELANCER_ADOXA
 #include "port_plugins.h" // port-only adoxa plugins
 #include "vis_effect_arch.h" // FindEffectArch (burn)
@@ -1892,6 +1893,7 @@ FClientSolarGameobj::FClientSolarGameobj()
 FClientSolarGameobj::~FClientSolarGameobj()
 {
     JumpHoleVisualForget(this);
+    JumpGateVisualForget(this);
     // FUN_00547680.
     // 0x005476bf..005476de: the JumpGateEffect at +0x204, when set -- its destructor
     // FUN_00502e40 (0x005476d3) and the global operator delete FUN_005b7e1d. The field is not
@@ -1950,6 +1952,7 @@ void FClientSolarGameobj::update(float Dt)
     if (Field_0x204 != nullptr)
         static_cast<FJumpGateEffect*>(Field_0x204)->Update(Dt);
     JumpHoleVisualTick(this, Dt);
+    JumpGateVisualTick(this, Dt);
 
     // 0x005478db..0x005478e8: the star, when there is one, through its slot 2 (+8,
     // LAB_00511690, RET 4).
@@ -2757,6 +2760,7 @@ void FClientSolarGameobj::notify(Event Code, void* Param)
         // calls, as retail makes them.
         int const Sub = *static_cast<int const*>(Param);
         JumpHoleVisualEvent(this, Sub);
+        JumpGateVisualEvent(this, Sub);
         if (Sub == 0)
         {
             // 0x00547beb..0x00547e37: open sound, then, if there is none, the JumpGateEffect at

@@ -825,6 +825,15 @@ void NnButtonControl::ShowToolTip()
     Info.HalfExtents[1] = HalfExtents[1];
     Info.HalfExtents[2] = HalfExtents[2];
     Info.bLive = 1;
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
+    // ToolTip is a screen-wide root, outside this button's shifted HUD subtree.
+    // Convert its anchor once, and lay out/clamp against the unshifted camera.
+    float const ShiftPx = WidescreenHudShiftPixelsFor(this);
+    FWidescreenHudShiftScope TooltipScope(0.0f, false);
+    auto const* Camera = GetWin3DSceneCamera();
+    if (Camera && Camera->XScale > 0.0f)
+        Info.WorldPos[0] += ShiftPx * -Info.WorldPos[2] / Camera->XScale;
+#endif
     NnToolTipFeedHover(&Info);
 }
 

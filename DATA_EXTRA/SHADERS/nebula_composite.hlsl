@@ -42,7 +42,7 @@ float4 FarSphere[4] : register(c14); // depthless far planets: centre, centre^2 
 float4 VisibilityFade : register(c18); // start/inverse width in metres, exterior strength
 float4 FadeZoneCentre : register(c19); // xyz centre, w bound radius squared in zone space
 float4 FadeZoneRow[3] : register(c20);
-float4 SimpleFogColour : register(c23); // original [Fog] color, no radiance amplification
+float4 SimpleFogColour : register(c23); // fog colour; w = close ice sky behind existing scatter
 
 FFullscreenVertex VSMain(float3 Position : POSITION, float2 TexCoord : TEXCOORD0)
 {
@@ -52,6 +52,28 @@ FFullscreenVertex VSMain(float3 Position : POSITION, float2 TexCoord : TEXCOORD0
 float LinearDepthAt(float2 Uv)
 {
     return RPExLinearDepth(tex2Dlod(SceneDepth, float4(Uv, 0.0, 0.0)).r, ProjZ);
+}
+
+float MarchedDepthAt(float2 Uv)
+{
+    return LinearDepthAt(NebulaDepthSampleUv(Uv, Upsample.xy));
+}
+
+float VolumeFootprintDepthDiff(float2 Uv, float Depth)
+{
+    // A bilinear colour tap reads four low-res texels, not the full-res depth at
+    // its centre. Check the exact scene-depth taps that produced all four colours.
+    // Clamp centres before adding the raymarch offset, matching the volume sampler
+    // at screen borders as well.
+    float2 Base = floor(Uv * LowSize.xy - 0.5 + 0.0001);
+    float2 Lo = clamp((Base + 0.5) * LowSize.zw, LowSize.zw * 0.5, 1 - LowSize.zw * 0.5);
+    float2 Hi = clamp((Base + 1.5) * LowSize.zw, LowSize.zw * 0.5, 1 - LowSize.zw * 0.5);
+    float4 D = float4(MarchedDepthAt(Lo),
+                      MarchedDepthAt(float2(Hi.x, Lo.y)),
+                      MarchedDepthAt(float2(Lo.x, Hi.y)),
+                      MarchedDepthAt(Hi));
+    float4 Diff = abs(D - Depth) / max(Depth, 1.0e-3);
+    return max(max(Diff.x, Diff.y), max(Diff.z, Diff.w));
 }
 
 float4 FinishVolume(float4 Value, float2 Uv)
@@ -83,7 +105,17 @@ float4 FinishVolume(float4 Value, float2 Uv)
             // Never divide by the current opacity or amplify a nearly clear sample:
             // that promoted sun scattering into bright asteroid silhouettes.
             float Fade = saturate((FogLength - VisibilityFade.x) * VisibilityFade.y) * VisibilityFade.z;
-            Value.rgb = lerp(Value.rgb, SimpleFogColour.rgb, Fade);
+            if (SimpleFogColour.w > 0.5)
+            {
+                // Ice has a distant fog backdrop, not a translucent overlay on the system sky.
+                // Fill only the unabsorbed SKY fraction behind the marched layers: replacing
+                // all RGB would erase their shape. Finite-depth ships/asteroids/planets retain
+                // the ray-integrated fog (including exclusion zones), with no extra overlay.
+                Fade *= SceneT > 1.0e20 ? 1.0 : 0.0;
+                Value.rgb += Value.a * SimpleFogColour.rgb * Fade;
+            }
+            else
+                Value.rgb = lerp(Value.rgb, SimpleFogColour.rgb, Fade);
             Value.a *= 1.0 - Fade;
         }
         if (StarWeight.w > 0.0 && DeviceDepth >= 1.0)
@@ -110,7 +142,7 @@ float4 PSComposite(float2 TexCoord : TEXCOORD0) : COLOR0
 
     // The four low-resolution texels around this pixel.
     float2 Low = TexCoord * LowSize.xy - 0.5;
-    float2 Base = floor(Low);
+    float2 Base = floor(Low + 0.0001);
     float2 Frac = Low - Base;
     float2 Uv00 = (Base + float2(0.5, 0.5)) * LowSize.zw;
     float2 Uv10 = Uv00 + float2(LowSize.z, 0.0);
@@ -118,10 +150,10 @@ float4 PSComposite(float2 TexCoord : TEXCOORD0) : COLOR0
     float2 Uv11 = Uv00 + LowSize.zw;
 
     // Their depths: the full-res texel each one was marched with (half a texel in).
-    float D00 = LinearDepthAt(Uv00 + Upsample.xy);
-    float D10 = LinearDepthAt(Uv10 + Upsample.xy);
-    float D01 = LinearDepthAt(Uv01 + Upsample.xy);
-    float D11 = LinearDepthAt(Uv11 + Upsample.xy);
+    float D00 = MarchedDepthAt(Uv00);
+    float D10 = MarchedDepthAt(Uv10);
+    float D01 = MarchedDepthAt(Uv01);
+    float D11 = MarchedDepthAt(Uv11);
     float4 Diff = abs(float4(D00, D10, D01, D11) - Depth) / max(Depth, 1.0e-3);
     float MaxDiff = max(max(Diff.x, Diff.y), max(Diff.z, Diff.w));
 
@@ -132,15 +164,13 @@ float4 PSComposite(float2 TexCoord : TEXCOORD0) : COLOR0
         // diagonal lattice, the coarser the fewer the steps and the lower the resolution.
         [branch] if (Tonemap.w > 0.0)
         {
-            // The taps reach past the four texels tested above: each must see this pixel's depth
-            // too, or the fog behind a silhouette is smeared onto its edge (a ragged halo round
-            // distant asteroids) -- then plain bilinear.
+            // Validate each tap's entire bilinear footprint. Testing only its centre
+            // let neighbouring fog leak onto ships and asteroids, especially at 1/4 res.
             float2 R = LowSize.zw * (0.75 * Tonemap.w);
-            float4 TapDepth = float4(LinearDepthAt(TexCoord + float2(-R.x, -R.y)),
-                                     LinearDepthAt(TexCoord + float2(R.x, -R.y)),
-                                     LinearDepthAt(TexCoord + float2(-R.x, R.y)),
-                                     LinearDepthAt(TexCoord + float2(R.x, R.y)));
-            float4 TapDiff = abs(TapDepth - Depth) / max(Depth, 1.0e-3);
+            float4 TapDiff = float4(VolumeFootprintDepthDiff(TexCoord + float2(-R.x, -R.y), Depth),
+                                    VolumeFootprintDepthDiff(TexCoord + float2(R.x, -R.y), Depth),
+                                    VolumeFootprintDepthDiff(TexCoord + float2(-R.x, R.y), Depth),
+                                    VolumeFootprintDepthDiff(TexCoord + float2(R.x, R.y), Depth));
             if (max(max(TapDiff.x, TapDiff.y), max(TapDiff.z, TapDiff.w)) < Upsample.z)
             {
                 float4 Sum = tex2Dlod(Volume, float4(TexCoord + float2(-R.x, -R.y), 0.0, 0.0)) +

@@ -6,6 +6,7 @@
 
 #include "jump_effect.h"
 #include "jumphole_visual.h"
+#include "jumpgate_visual.h"
 #include "ship_warp_visual.h"
 
 #include "cli_projectile_fx.h" // CliEffectCompanionArmStop / Clear, CliEffectListRemove
@@ -215,7 +216,8 @@ void FJumpGateEffect::Update(float Dt)
         // 0x00502fc0..0x00502ffd: the descriptor ring's effect (+4 + 0xc * Ring) through
         // DAT_00674c60 (FUN_00503070) into the ring's companion, the solar as the list owner.
         ID_String const& Effect = Desc->Rings[Ring].Effect;
-        if (JumpHoleVisualReplaceActivation(Solar, Effect.Id))
+        if (JumpHoleVisualReplaceActivation(Solar, Effect.Id) ||
+            JumpGateVisualReplaceActivation(Solar, Effect.Id))
             continue;
         if (!Effect.IsEmpty() &&
             CliCreateEffectOneShot(FindEffectArch(&Effect.Id), Solar, Index, &Local,
@@ -620,6 +622,7 @@ FJumpShipEffect::FJumpShipEffect(FClientShipGameobj* InShip, FClientSolarGameobj
         }
         Field_0xa4 = SolarObj->DestSystem;
         JumpHoleVisualBindTransit(this, GateSolar);
+        JumpGateVisualBindTransit(this, GateSolar);
     }
 
     // 0x005037ed..0x00503896: a temporary gate is destroyed (FUN_00502e40 inline) and freed.
@@ -630,6 +633,7 @@ FJumpShipEffect::~FJumpShipEffect()
 {
     ShipWarpVisualForgetJump(this);
     JumpHoleVisualForgetTransit(this);
+    JumpGateVisualForgetTransit(this);
     // FUN_00503a80 (thiscall). The three stop-and-clear blocks are the inline
     // CliEffectCompanionArmStop sequence followed by FUN_00502d90.
     // 0x00503aa2..0x00503b10: +0x28.

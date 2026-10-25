@@ -560,7 +560,7 @@ namespace Archetype
 
         CollisionGroup* Next;                         // +0x00
         unsigned short Id;                            // +0x04 CollGroupIdMaker
-        // +0x06, +0x17 and +0x25..+0x27 are alignment padding: no retail ctor, copy or
+        // +0x06 and +0x25..+0x27 are alignment padding: no retail ctor, copy or
         // operator= (062f9930 / 0626fa70 / 0626fbc0) writes them and nothing reads them.
         char const* ObjName;                          // +0x08 obj
         unsigned Type;                                // +0x0C default 1
@@ -568,6 +568,7 @@ namespace Archetype
         bool bSeparable;                              // +0x14
         bool bDestroyParent;                          // +0x15
         bool bRootHealthProxy;                        // +0x16
+        bool bVulnerable;                             // +0x17 port-only HUD marker; former padding
         float ParentImpulse;                          // +0x18
         float ChildImpulse;                           // +0x1C
         float Mass;                                   // +0x20 default 1
@@ -589,6 +590,7 @@ namespace Archetype
     static_assert(offsetof(CollisionGroup, Id) == 0x04, "CollisionGroup+0x04 id");
     static_assert(offsetof(CollisionGroup, ObjName) == 0x08, "CollisionGroup+0x08 obj");
     static_assert(offsetof(CollisionGroup, HitPts) == 0x10, "CollisionGroup+0x10 hit_pts");
+    static_assert(offsetof(CollisionGroup, bVulnerable) == 0x17, "CollisionGroup+0x17 vulnerable");
     static_assert(offsetof(CollisionGroup, ParentImpulse) == 0x18, "CollisionGroup+0x18 parent_impulse");
     static_assert(offsetof(CollisionGroup, RotationInertiaX) == 0x28, "CollisionGroup+0x28 rotation_inertia");
     static_assert(offsetof(CollisionGroup, DmgObjs) == 0x40, "CollisionGroup+0x40 dmg list");

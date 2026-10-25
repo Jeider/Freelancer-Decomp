@@ -13,6 +13,7 @@
 #include "game_options.h"
 #include "jump_effect.h"
 #include "jumphole_visual.h"
+#include "jumpgate_visual.h"
 #include "hud_target.h"      // HudTransformPoint (FUN_004e7090)
 #include "space_camera.h"    // AsCamera
 #include "win3d_immediate.h"
@@ -956,17 +957,10 @@ void GateTunnelDrawLaunch(FSpaceCamera* Camera, FJumpShipEffect const* Effect)
         return;
     float const Remap[4] = {Width / W, Height / H,
         (2.0f * Vp[0] + Width) / W - 1.0f, 1.0f - (2.0f * Vp[1] + Height) / H};
-    FVector Tint = Effect->Tunnel->Layers[0].Color;
-    if (Effect->Tunnel->LayerCount > 1)
-    {
-        Tint.X += Effect->Tunnel->Layers[1].Color.X * 0.6f;
-        Tint.Y += Effect->Tunnel->Layers[1].Color.Y * 0.6f;
-        Tint.Z += Effect->Tunnel->Layers[1].Color.Z * 0.6f;
-    }
-    float const Peak = fmaxf(Tint.X, fmaxf(Tint.Y, Tint.Z));
-    float const Params[8] = {Build, Burst, Width / Height, After,
-        Exiting ? 1.0f : 0.0f, Peak > 0.001f ? Tint.X / Peak : 1.0f,
-        Peak > 0.001f ? Tint.Y / Peak : 1.0f, Peak > 0.001f ? Tint.Z / Peak : 1.0f};
+    float Params[12] = {Build, Burst, Width / Height, After,
+        Exiting ? 1.0f : 0.0f,1,1,1,
+        JumpGateVisualMatchesTransit(Effect) ? 1.0f : 0.0f,0,0,0};
+    GateTunnelGetTint(Effect->Tunnel,Params+5);
     FGateTunnelVertex const Quad[] = {
         {{-1, 1, 0}, 0xffffffffu, {0, 0}}, {{1, 1, 0}, 0xffffffffu, {1, 0}},
         {{-1, -1, 0}, 0xffffffffu, {0, 1}}, {{1, -1, 0}, 0xffffffffu, {1, 1}}};
@@ -983,7 +977,7 @@ void GateTunnelDrawLaunch(FSpaceCamera* Camera, FJumpShipEffect const* Effect)
     Pipe->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
     if (Ex->BindExProgram(G_HyperspaceLaunchProgram) == GR_OK &&
         Ex->SetExVertexConstants(7, Remap, 1) == GR_OK &&
-        Ex->SetExPixelConstants(0, Params, 2) == GR_OK)
+        Ex->SetExPixelConstants(0, Params, 3) == GR_OK)
         RenderEx::GetDrawEx()->DrawExPrimitiveUp(D3DPT_TRIANGLESTRIP,
             D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1, Quad, 4);
     Ex->EndExPass();
@@ -1379,6 +1373,20 @@ void FGateTunnel::EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int Lay
 
 // ---------------------------------------------------------------------------------------------
 // The tunnel list
+
+void GateTunnelGetTint(FGateTunnel const* Tunnel,float* Rgb)
+{
+    Rgb[0]=Rgb[1]=Rgb[2]=1;
+    if(!Tunnel || Tunnel->LayerCount<1)return;
+    FVector Tint=Tunnel->Layers[0].Color;
+    if(Tunnel->LayerCount>1) {
+        Tint.X+=Tunnel->Layers[1].Color.X*.6f;
+        Tint.Y+=Tunnel->Layers[1].Color.Y*.6f;
+        Tint.Z+=Tunnel->Layers[1].Color.Z*.6f;
+    }
+    float Peak=fmaxf(Tint.X,fmaxf(Tint.Y,Tint.Z));
+    if(Peak>.001f){Rgb[0]=Tint.X/Peak;Rgb[1]=Tint.Y/Peak;Rgb[2]=Tint.Z/Peak;}
+}
 
 FGateTunnel* GateTunnelFind(ID_String const* Id)
 {

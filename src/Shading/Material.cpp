@@ -10,6 +10,7 @@
 #include "engine/engbase.h"
 #include "render/IRPPlanetAtmosphere.h"
 #include "render/IRPPlanetSurface.h"
+#include "render/IRPSurfaceShader.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -2452,6 +2453,30 @@ GENRESULT FMaterial::SubmitAlphaTest(void* Context, unsigned long PrimType, unsi
 
 GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, unsigned long Start, unsigned long Count, unsigned long Zero, unsigned long Field, unsigned long Flags)
 {
+    // This authored crystal material is used by the large Tau31 ice CMPs. Select
+    // by material identity, never by colour/texture size or the asteroid draw pass.
+    // Older RP9 versions reject the new profile without changing their state.
+    struct IceScope
+    {
+        IRPSurfaceShader* Surface=nullptr;
+        bool Applied=false;
+        IceScope(IRenderPipeline* Pipeline,const char* Name,bool Blended)
+        {
+            if(Pipeline && Name && !Blended && !_stricmp(Name,"ast_icecrystal2"))
+            {
+                Pipeline->QueryInterface(Iids::RPSurfaceShader,reinterpret_cast<void**>(&Surface));
+                if(Surface) Applied=Surface->SetSurfaceShader(RPSurfaceIce,0,-1)>=0;
+            }
+        }
+        ~IceScope()
+        {
+            if(Surface)
+            {
+                if(Applied) Surface->SetSurfaceShader(RPSurfaceAuto,0,-1);
+                Surface->Release();
+            }
+        }
+    } Ice(Pipeline,InstanceName,bAlphablend!=0);
     if (SubmitKind == SubmitNull)
         return GR_OK;
     if (SubmitKind == SubmitStub)

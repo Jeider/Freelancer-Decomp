@@ -14,6 +14,15 @@
 
 #include "common.hlsli"
 
+// Bias the half-full-texel depth offset 0.01 pixels inside the selected texel
+// (above the sampler's subpixel quantization, still far below a visible pixel).
+// At 1:1 resolution the old UV landed exactly between depth texels; arithmetic
+// rounding could make the march and its upsampler pick opposite sides of an edge.
+float2 NebulaDepthSampleUv(float2 RayUv, float2 HalfFullTexel)
+{
+    return RayUv + HalfFullTexel * 1.02;
+}
+
 
 // Interleaved gradient noise (Jimenez 2014): a per-pixel 0..1 offset with little visible
 // structure, used to jitter the ray-march samples.

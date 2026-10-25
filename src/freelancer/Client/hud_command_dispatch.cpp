@@ -7,6 +7,9 @@
 #include "hud_command_dispatch.h"
 
 #include "event_handler.h"
+#include "game_options.h"
+#include "hud_target.h"
+#include "nn_tooltip.h"
 
 #include "client_gameobj.h"
 #include "space_camera.h"
@@ -227,6 +230,13 @@ int HudDispatchCommand(unsigned MsgId, int Mode)
     }
 
     // 005764b9..005764d6: call in reverse order — handler vt[0](MsgId); non-zero consumes.
+    // Observe the accepted minimize command once, before native panels consume it.
+    // This hides detached windows without changing their saved open/closed state.
+    if (MsgId == 0x6d && Count != 0 && !HudIsMousePickBlocked())
+    {
+        ToggleAuxiliaryHudWindowsMinimized();
+        NnToolTipHideGlobal();
+    }
     for (int Index = Count - 1; Index >= 0; --Index)
     {
         FHudCmdHandler* Handler = Collected[Index];

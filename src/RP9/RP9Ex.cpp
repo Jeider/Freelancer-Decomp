@@ -815,6 +815,8 @@ void FDirectX9::ExReleaseAllGpu()
     if (Ex->SurfaceCubePs != nullptr) { Ex->SurfaceCubePs->Release(); Ex->SurfaceCubePs = nullptr; }
     if (Ex->SurfaceNoShadowPs) { Ex->SurfaceNoShadowPs->Release(); Ex->SurfaceNoShadowPs=nullptr; }
     if (Ex->SurfaceNoShadowCubePs) { Ex->SurfaceNoShadowCubePs->Release(); Ex->SurfaceNoShadowCubePs=nullptr; }
+    if (Ex->IceLayers) { Ex->IceLayers->Release(); Ex->IceLayers=nullptr; }
+    Ex->bIceTextureTried=false;
     Ex->SurfaceDirectLights.clear();
     Ex->bSurfaceMaterialValid = false;
     if (Ex->SoftVs != nullptr)
@@ -2714,7 +2716,7 @@ GENRESULT DACOM_API FDirectX9::GetPlanetRingProfile(float* Out, unsigned long Co
 GENRESULT DACOM_API FDirectX9::SetSurfaceShader(unsigned long Shader, float Roughness,
                                                float EnvironmentStrength)
 {
-    if (Shader > RPSurfaceReflective || !std::isfinite(Roughness) || !std::isfinite(EnvironmentStrength))
+    if (Shader > RPSurfaceIce || !std::isfinite(Roughness) || !std::isfinite(EnvironmentStrength))
         return GR_INVALID_PARMS;
     Ex_->SurfaceShader = Shader;
     Ex_->SurfaceRoughness = Roughness;
@@ -2748,9 +2750,14 @@ bool FDirectX9::ExSurfaceBegin()
         Ex->bGlassShader=ReadShadowSetting("glass_shader",1,0,1)>0.5f;
         Ex->SurfaceCockpitStrength=ReadShadowSetting("cockpit_finish",0.65f,0,2);
         Ex->SurfaceGlassStrength=ReadShadowSetting("glass_reflections",1.5f,0,4);
+        Ex->bIceShader=ReadShadowSetting("ice_shader",1,0,1)>0.5f;
+        Ex->IceDepth=ReadShadowSetting("ice_depth",0.09f,0,0.25f);
+        Ex->IceFrost=ReadShadowSetting("ice_frost",0.65f,0,1);
+        Ex->IceTransmission=ReadShadowSetting("ice_transmission",0.22f,0,0.8f);
     }
+    const bool Ice=Ex->SurfaceShader==RPSurfaceIce && Ex->bIceShader;
     if (!Ex->bSurfaceEnabled || Ex->SurfaceShader == RPSurfaceLegacy ||
-        (Ex->SurfaceDistanceTier==2 && !Ex->bSurfaceCockpit))
+        (Ex->SurfaceDistanceTier==2 && !Ex->bSurfaceCockpit && !Ice))
         return false;
     const bool Blended=RenderStates_.GetPending(kRsAlphaBlendEnable)!=0;
     const bool Glass=Ex->bSurfaceGlass && Ex->bGlassShader && Blended;
@@ -2788,7 +2795,7 @@ bool FDirectX9::ExSurfaceBegin()
     }
     const bool PlainShadowReceiver = EnvStage < 0 &&
         ((Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u) ||
-         (Ex->bWeaponGlintReceiver && Ex->WeaponGlintReceiverMask!=0) || Cockpit || Glass);
+         (Ex->bWeaponGlintReceiver && Ex->WeaponGlintReceiverMask!=0) || Cockpit || Glass || Ice);
     if ((!PlainShadowReceiver && EnvStage < 0) ||
         Tss(EnvStage < 0 ? 1 : EnvStage + 1, kTssColorOp, D3DTOP_DISABLE) != D3DTOP_DISABLE)
         return false;
@@ -2842,7 +2849,9 @@ bool FDirectX9::ExSurfaceBegin()
          EnvTransform != (D3DTTFF_COUNT3 | D3DTTFF_PROJECTED)))
         return false;
 
-    const bool LowDetail=Ex->SurfaceDistanceTier==1 && !Cockpit && !Glass;
+    // Ice keeps one profile at every distance: mipmaps fade its interior detail
+    // continuously instead of switching back to a brighter legacy material.
+    const bool LowDetail=Ex->SurfaceDistanceTier==1 && !Cockpit && !Glass && !Ice;
     const bool ShadowReceiver=!LowDetail && Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u;
     // Non-receivers use a variant without the shadow code: fewer registers for every pixel.
     IDirect3DPixelShader9*& SurfacePs = LowDetail ?
@@ -2928,7 +2937,23 @@ bool FDirectX9::ExSurfaceBegin()
     Vs[65] = (float)BaseUv;
     Vs[66] = (float)EnvTransform;
 
-    float Ps[96 * 4] = {};
+    if(Ice && !Ex->bIceTextureTried)
+    {
+        Ex->bIceTextureTried=true;
+        char Module[MAX_PATH]={};GetModuleFileNameA(nullptr,Module,MAX_PATH);
+        char* Slash=strrchr(Module,'\\');
+        if(Slash)
+        {
+            Slash[1]=0;
+            const std::string Path=std::string(Module)+"../DATA_EXTRA/TEXTURES/ice_layers.dds";
+            D3DXCreateTextureFromFileExA(Device_,Path.c_str(),D3DX_DEFAULT,D3DX_DEFAULT,D3DX_DEFAULT,
+                0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,D3DX_DEFAULT,D3DX_DEFAULT,0,nullptr,nullptr,&Ex->IceLayers);
+        }
+        ExLogf(Ex->IceLayers ? kExFdumpNotice : kExFdumpWarning,Ex->IceLayers ? "NOTICE" : "WARNING",
+            __LINE__,"crystal ice layers %s",Ex->IceLayers ? "loaded" : "missing; keeping native material");
+    }
+    if(Ice && !Ex->IceLayers) return false;
+    float Ps[97 * 4] = {};
     auto Set = [&](unsigned Reg, float X, float Y, float Z, float W) {
         float* D = Ps + Reg * 4; D[0] = X; D[1] = Y; D[2] = Z; D[3] = W;
     };
@@ -3042,6 +3067,7 @@ bool FDirectX9::ExSurfaceBegin()
     // The far map's station cache this frame (built or reused): sampled beside the far map.
     const bool StationMap=ShadowReceiver && Ex->bShadowStaticPrepared && Ex->ShadowStaticMap;
     Set(95,1.0f/Ex->ShadowResolution[1],Ex->ShadowShortReach,Tier==2 ? 1.0f : 0.0f,StationMap ? 1.0f : 0.0f);
+    Set(96,Ice ? 1.0f : 0.0f,Ex->IceDepth,Ex->IceFrost,Ex->IceTransmission);
 
     // Device state is re-sent only where it differs from what the previous surface draw left
     // and nothing else has written since (the device-call write counters).
@@ -3088,6 +3114,12 @@ bool FDirectX9::ExSurfaceBegin()
         EnvState(17, D3DTEXF_LINEAR), EnvState(18, D3DTEXF_LINEAR),
         EnvState(21, 1), EnvState(19, 0)};
     BindHigh(2, EnvTexture, EnvStates);
+    if(Ice)
+    {
+        static const unsigned long IceStates[8]={D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,
+            D3DTEXF_LINEAR,D3DTEXF_LINEAR,D3DTEXF_LINEAR,1,0};
+        BindHigh(5,Ex->IceLayers,IceStates);
+    }
     Ex->SurfaceSamplerWrites = Calls.HighSamplerWrites;
 
     if (Calls.ShaderWrites != Ex->SurfaceShaderWrites)
@@ -3125,7 +3157,7 @@ bool FDirectX9::ExSurfaceBegin()
     {
         Upload(52, 25);
         Upload(77, 17);
-        Upload(94, 2);
+        Upload(94, 3);
     }
     Ex->SurfacePsWrites = Calls.PixelConstantWrites;
     Ex->bSurfaceActive = true;
@@ -3194,13 +3226,13 @@ bool FDirectX9::ExQueueSurfaceInstance(unsigned long Prim,unsigned int Min,unsig
     auto Append=[&](const void* P,size_t S){Key.append(static_cast<const char*>(P),S);};
     unsigned long Draw[]={Prim,(unsigned long)DeviceBaseVertex_,Min,Vertices,Start,Count,Fvf};
     Append(Draw,sizeof(Draw));Append(&Vb->Gpu,sizeof(Vb->Gpu));Append(&Ib->Gpu,sizeof(Ib->Gpu));
-    Append(Calls.Pc,96*16);Append(Calls.Vc+16,64);Append(Calls.Vc+48,80);
+    Append(Calls.Pc,97*16);Append(Calls.Vc+16,64);Append(Calls.Vc+48,80);
     Append(Calls.Render,sizeof(Calls.Render));Append(Calls.RenderValid,sizeof(Calls.RenderValid));
     Append(Calls.Textures,4*sizeof(Calls.Textures[0]));Append(Calls.TextureValid,4);
     Append(Calls.Samplers,4*sizeof(Calls.Samplers[0]));Append(Calls.SamplerValid,4*sizeof(Calls.SamplerValid[0]));
-    // The surface route's environment and shadow maps (samplers 8..12).
-    Append(Calls.Textures+8,5*sizeof(Calls.Textures[0]));Append(Calls.TextureValid+8,5);
-    Append(Calls.Samplers+8,5*sizeof(Calls.Samplers[0]));Append(Calls.SamplerValid+8,5*sizeof(Calls.SamplerValid[0]));
+    // The surface route's environment, shadow and ice maps (samplers 8..13).
+    Append(Calls.Textures+8,6*sizeof(Calls.Textures[0]));Append(Calls.TextureValid+8,6);
+    Append(Calls.Samplers+8,6*sizeof(Calls.Samplers[0]));Append(Calls.SamplerValid+8,6*sizeof(Calls.SamplerValid[0]));
     D3DVIEWPORT9 Viewport={};if(FAILED(Device_->GetViewport(&Viewport))) return false;
     Append(&Viewport,sizeof(Viewport));
     auto Found=E->SurfaceInstanceGroups.find(Key);

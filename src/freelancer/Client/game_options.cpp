@@ -150,17 +150,31 @@ char const* GetGameOptionName(int Index)
 namespace
 {
     // .data:00612274. See the header's "Session/game-mode flags word" section. Its initialised
-    // value in the PE is 3 (bits 1 and 2 set); the writers are FUN_004c8120 / FUN_004c8190 only.
+    // value in the PE is 3 (masks 1 and 2 set). The port also stores targeting projection here.
     unsigned GSessionFlags = 3;
+
+    // Port-only: bits 0..3 retain their native HUD meanings. Bits 4..5 store
+    // Targeting's Vanilla/Fit/Top/Side choice in the existing save "interface" word.
+    constexpr unsigned TargetingProjectionShift = 4;
+    constexpr unsigned TargetingProjectionMask = 3u << TargetingProjectionShift;
+    // Inverted autoselect bit gives legacy/new saves the enabled default.
+    constexpr unsigned TargetingAutoselectOff = 1u << 6;
+    constexpr unsigned TargetingWindowLocked = 1u << 7;
+    constexpr unsigned HealthWindowLocked = 1u << 8;
+    constexpr unsigned HealthWindowClosed = 1u << 9;
+    constexpr unsigned HealthViewLeft = 1u << 10;
+    constexpr unsigned TargetingWindowClosed = 1u << 11;
+    constexpr unsigned WeaponGroupShift = 12;
+    constexpr unsigned WeaponGroupMask = 7u << WeaponGroupShift;
+    constexpr unsigned HealthVisibilitySaved = 1u << 15;
+    constexpr unsigned TargetingVisibilitySaved = 1u << 16;
+    unsigned GSessionLoadRevision = 0;
+    bool GAuxiliaryHudMinimized = false;
 }
 
-void SetGameSessionFlags(unsigned Mask, bool bSet)
+static void SetGameSessionFlagValue(unsigned Mask, unsigned Value)
 {
-    // 0x004c8120..0x004c8155: `if (param_2 == 0) flags &= ~Mask; else flags |= Mask;`
-    if (!bSet)
-        GSessionFlags &= ~Mask;
-    else
-        GSessionFlags |= Mask;
+    GSessionFlags = (GSessionFlags & ~Mask) | (Value & Mask);
 
     // 0x004c815a..0x004c817e: the new word in the first dword of a 0x80-byte local, sent with
     // IServer slot 77 (+0x134) SetInterfaceState(DAT_00673344, &local, 4) when DAT_0067ecd0 is
@@ -171,10 +185,102 @@ void SetGameSessionFlags(unsigned Mask, bool bSet)
         G_Server->SetInterfaceState(GetPlayerConnectionId(), Buffer, 4);
 }
 
+void SetGameSessionFlags(unsigned Mask, bool bSet)
+{
+    // 0x004c8120..0x004c8155: set or clear the native flags, preserving other bits.
+    SetGameSessionFlagValue(Mask, bSet ? Mask : 0);
+}
+
+unsigned GetSavedTargetingProjection()
+{
+    return (GSessionFlags & TargetingProjectionMask) >> TargetingProjectionShift;
+}
+
+void SetSavedTargetingProjection(unsigned Projection)
+{
+    if (Projection > 3) return;
+    // Replace both bits in one message; never send an intermediate projection.
+    SetGameSessionFlagValue(TargetingProjectionMask, Projection << TargetingProjectionShift);
+}
+
+bool GetSavedTargetingAutoselect()
+{
+    return (GSessionFlags & TargetingAutoselectOff) == 0;
+}
+
+void SetSavedTargetingAutoselect(bool enabled)
+{
+    SetGameSessionFlagValue(TargetingAutoselectOff, enabled ? 0 : TargetingAutoselectOff);
+}
+
+bool GetSavedTargetingWindowLocked()
+{
+    return (GSessionFlags & TargetingWindowLocked) != 0;
+}
+
+void SetSavedTargetingWindowLocked(bool locked)
+{
+    SetGameSessionFlagValue(TargetingWindowLocked, locked ? TargetingWindowLocked : 0);
+}
+
+bool GetSavedHealthWindowLocked()
+{
+    return (GSessionFlags & HealthWindowLocked) != 0;
+}
+
+void SetSavedHealthWindowLocked(bool locked)
+{
+    SetGameSessionFlagValue(HealthWindowLocked, locked ? HealthWindowLocked : 0);
+}
+
+bool GetSavedHealthWindowOpen()
+{
+    return (GSessionFlags & HealthVisibilitySaved) ? (GSessionFlags & HealthWindowClosed) == 0
+                                                  : !GetSavedHealthWindowLocked();
+}
+void SetSavedHealthWindowOpen(bool open)
+{
+    if (!(GSessionFlags & HealthVisibilitySaved) || GetSavedHealthWindowOpen() != open)
+        SetGameSessionFlagValue(HealthWindowClosed | HealthVisibilitySaved,
+                               HealthVisibilitySaved | (open ? 0 : HealthWindowClosed));
+}
+bool GetSavedHealthViewLeft() { return (GSessionFlags & HealthViewLeft) != 0; }
+void SetSavedHealthViewLeft(bool left)
+{
+    if (GetSavedHealthViewLeft() != left)
+        SetGameSessionFlagValue(HealthViewLeft, left ? HealthViewLeft : 0);
+}
+bool GetSavedTargetingWindowOpen()
+{
+    return (GSessionFlags & TargetingVisibilitySaved) ? (GSessionFlags & TargetingWindowClosed) == 0
+                                                     : !GetSavedTargetingWindowLocked();
+}
+void SetSavedTargetingWindowOpen(bool open)
+{
+    if (!(GSessionFlags & TargetingVisibilitySaved) || GetSavedTargetingWindowOpen() != open)
+        SetGameSessionFlagValue(TargetingWindowClosed | TargetingVisibilitySaved,
+                               TargetingVisibilitySaved | (open ? 0 : TargetingWindowClosed));
+}
+unsigned GetSavedWeaponGroup()
+{
+    unsigned const group = (GSessionFlags & WeaponGroupMask) >> WeaponGroupShift;
+    return group < 6 ? group : 0;
+}
+void SetSavedWeaponGroup(unsigned group)
+{
+    if (group < 6 && ((GSessionFlags & WeaponGroupMask) >> WeaponGroupShift) != group)
+        SetGameSessionFlagValue(WeaponGroupMask, group << WeaponGroupShift);
+}
+unsigned GetGameSessionLoadRevision() { return GSessionLoadRevision; }
+bool AreAuxiliaryHudWindowsMinimized() { return GAuxiliaryHudMinimized; }
+void ToggleAuxiliaryHudWindowsMinimized() { GAuxiliaryHudMinimized = !GAuxiliaryHudMinimized; }
+
 void AssignGameSessionFlags(unsigned Value)
 {
     // 0x004c8190: unconditional overwrite, no broadcast in retail either.
     GSessionFlags = Value;
+    ++GSessionLoadRevision;
+    GAuxiliaryHudMinimized = false;
 }
 
 bool TestGameSessionFlags(unsigned Mask)

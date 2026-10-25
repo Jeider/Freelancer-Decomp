@@ -91,6 +91,7 @@ Interp VSLaunch(Vertex In)
 }
 float4 LaunchParams : register(c0); // build, burst, viewport aspect, post-entry progress
 float4 TransitionStyle : register(c1); // exit mode, tunnel RGB tint
+float4 LaunchStyle : register(c2); // x: match ordinary-gate star trails to the upcoming tunnel
 float LaunchHash(float X) { return frac(sin(X * 127.1 + 311.7) * 43758.5453); }
 float LaunchStars(float2 P, float Build, float After, float Lanes, float Seed)
 {
@@ -159,7 +160,13 @@ float4 PSLaunch(Interp In) : COLOR0
     float Glow = exp2(-Radius * Radius / (0.006 + Burst * 0.045));
     float RingRadius = 0.025 + After * 1.3;
     float Ring = exp2(-pow((Radius - RingRadius) / (0.025 + After * 0.14), 2.0));
-    float3 Color = Stars * float3(0.73, 0.86, 1.0);
+    float3 StarColour = float3(0.73, 0.86, 1.0);
+    // Same luminance-preserving palette as the gate vortex and future tunnel.
+    float3 Palette = .16 + saturate(TransitionStyle.yzw) * 1.25;
+    Palette /= max(dot(Palette, float3(.2126,.7152,.0722)), .001);
+    StarColour = lerp(StarColour, dot(StarColour, float3(.2126,.7152,.0722))*Palette,
+        saturate(LaunchStyle.x));
+    float3 Color = Stars * StarColour;
     Color += Glow * (Charge * 0.13 + Burst * 0.65) * float3(0.65, 0.84, 1.0);
     Color += Ring * Burst * 0.23 * float3(0.22, 0.55, 1.0);
     Color += Burst * float3(0.025, 0.045, 0.075);

@@ -171,3 +171,32 @@ void AssignGameSessionFlags(unsigned Value);
 // FUN_004c8110 -- `(DAT_00612274 & Mask) != 0`. Named here for symmetry with the setters above;
 // FUN_004c8110 itself stays a separate decomp-tracker item (blocked, not this pair's to reclassify).
 bool TestGameSessionFlags(unsigned Mask);
+
+// Port-only: saved in bits 4..5 of the native "interface" word; old saves use Vanilla (0).
+// Values: 0 Vanilla, 1 Fit, 2 Top, 3 Side. Invalid writes are ignored.
+unsigned GetSavedTargetingProjection();
+void SetSavedTargetingProjection(unsigned Projection);
+
+// Bits 6 (autoselect disabled) and 7 (auto-open locked) in the same save word.
+// Legacy/default saves therefore enable autoselect and leave auto-opening unlocked.
+bool GetSavedTargetingAutoselect();
+void SetSavedTargetingAutoselect(bool enabled);
+bool GetSavedTargetingWindowLocked();
+void SetSavedTargetingWindowLocked(bool locked);
+// Bit 8: Health damage-warning auto-open lock; legacy saves leave it unlocked.
+bool GetSavedHealthWindowLocked();
+void SetSavedHealthWindowLocked(bool locked);
+// Bits 9..14: Health closed/left view, Targeting closed, active weapon group (0..5).
+// Bits 15..16 mark explicit Health/Targeting visibility, preserving legacy lock defaults.
+bool GetSavedHealthWindowOpen();
+void SetSavedHealthWindowOpen(bool open);
+bool GetSavedHealthViewLeft();
+void SetSavedHealthViewLeft(bool left);
+bool GetSavedTargetingWindowOpen();
+void SetSavedTargetingWindowOpen(bool open);
+unsigned GetSavedWeaponGroup();
+void SetSavedWeaponGroup(unsigned group);
+unsigned GetGameSessionLoadRevision();
+// Temporary USER_MINIMIZE_HUD overlay; does not change saved window choices.
+bool AreAuxiliaryHudWindowsMinimized();
+void ToggleAuxiliaryHudWindowsMinimized();

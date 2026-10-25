@@ -33,12 +33,14 @@ namespace
     float G_BaseView[9] = {};
     float G_BaseViewPos[3] = {};
 
-    // Children that stay centred inside a shifted window: HUD_Status's special-mode captions
-    // (hud_status_core.cpp) span the whole screen from x = -0.513; NN_MainButton's
-    // "ScaledBackground" grows into the frame of the centred NeuroNet screen.
+    // Children that stay centred inside a shifted window: the loot/trade buttons flank
+    // HUD_Core; HUD_Status's special-mode captions span the screen from x = -0.513;
+    // NN_MainButton's "ScaledBackground" grows into the centred NeuroNet screen.
     bool IsCentredChild(Win3D const* Object)
     {
-        return strcmp(Object->Name, "SpecialModeText") == 0 ||
+        return strcmp(Object->Name, "LootButton") == 0 ||
+               strcmp(Object->Name, "TargetTradeButton") == 0 ||
+               strcmp(Object->Name, "SpecialModeText") == 0 ||
                strcmp(Object->Name, "SpecialModeTextCancel") == 0 ||
                strcmp(Object->Name, "ScaledBackground") == 0;
     }
@@ -73,9 +75,10 @@ namespace
     // window (Root is Object's root).
     float CornerShare(Win3D const* Root, Win3D const* Object)
     {
-        if (strcmp(Root->Name, "HUD_Status") == 0)
+        if (strcmp(Root->Name, "HUD_Status") == 0 || strcmp(Root->Name, "HUD_Health") == 0)
             return 1.0f;
-        if (strcmp(Root->Name, "HUD_Target") == 0 || strcmp(Root->Name, "HUD_ContactList") == 0)
+        if (strcmp(Root->Name, "HUD_Target") == 0 || strcmp(Root->Name, "HUD_Targeting") == 0 ||
+            strcmp(Root->Name, "HUD_ContactList") == 0)
             return -1.0f;
         if (dynamic_cast<HUD_Receiver const*>(Root) != nullptr)
             return -1.0f;

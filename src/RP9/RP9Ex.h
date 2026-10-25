@@ -225,6 +225,9 @@ struct FRp9ExState
     float SurfaceHighlights = 1.35f;
     float SurfaceCoat = 0.9f;
     float SurfaceBrushed = 0.8f;
+    bool bIceShader = true, bIceTextureTried = false;
+    float IceDepth = 0.09f, IceFrost = 0.65f, IceTransmission = 0.22f;
+    IDirect3DTexture9* IceLayers = nullptr;
     D3DMATERIAL9 SurfaceMaterial = {};
     std::map<unsigned long, D3DLIGHT9> SurfaceDirectLights;
     IDirect3DVertexShader9* SurfaceVs = nullptr;
@@ -244,11 +247,11 @@ struct FRp9ExState
     std::uint32_t SurfaceShaderWrites = 0, SurfacePsWrites = 0, SurfaceSamplerWrites = 0;
     IDirect3DVertexShader9* SurfaceBoundVs = nullptr;
     IDirect3DPixelShader9* SurfaceBoundPs = nullptr;
-    float SurfacePsMirror[96 * 4] = {};
-    bool SurfacePsMirrorValid[96] = {};
-    IDirect3DBaseTexture9* SurfaceSamplerTexture[5] = {};
-    unsigned long SurfaceSamplerStates[5][8] = {};
-    bool SurfaceSamplerValid[5] = {};
+    float SurfacePsMirror[97 * 4] = {};
+    bool SurfacePsMirrorValid[97] = {};
+    IDirect3DBaseTexture9* SurfaceSamplerTexture[6] = {};
+    unsigned long SurfaceSamplerStates[6][8] = {};
+    bool SurfaceSamplerValid[6] = {};
 
     struct WeaponGlintGroup
     {

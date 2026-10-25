@@ -41,6 +41,13 @@
 
 #include "nebula_volume.hlsli"
 
+#ifndef NEBULA_ICE
+#define NEBULA_ICE 0
+#endif
+#ifndef NEBULA_FACETED
+#define NEBULA_FACETED 0
+#endif
+
 #define NEBULA_MAX_STEPS 128
 // The key-light shadow ray: fixed steps; volumetric.ini shadow_steps (0..6) gives the trailing
 // ones zero weight. Far away (level of detail) the 3 pair-merged samples of ShadowStepHalf.
@@ -182,10 +189,44 @@ float3 NebulaToNoise(float3 P)
 }
 
 // Base-shape cloud amount (no erosion) at a noise-space point: shadow rays and occlusion.
+#if NEBULA_FACETED
+// The tetrahedral field is baked once on the CPU. A single filtered lookup keeps
+// the same faceted macro shape in view/shadow rays without overflowing SM3 registers.
+sampler3D FacetedNoise : register(s3);
+float4 NebulaFacetedNoise(float3 Q)
+{
+    return tex3Dlod(FacetedNoise, float4(Q, 0.0));
+}
+#endif
+
+#if NEBULA_ICE
+// Integer wave vectors make the folds periodic across the CPU's wrapped world coordinates.
+// Noise bends the strata; a finer harmonic splits them into frost filaments. Both view and
+// shadow rays use this same macro field, so the ice has volume and self-shadowing.
+float2 NebulaIceField(float3 Pn, float4 Base)
+{
+    float3 Q = Pn * BaseNoise.w + BaseNoise.xyz;
+    float Phase = dot(Q, float3(1.0, 1.0, 0.0)) * 6.2831853 +
+                  (Base.r - 0.5) * 5.0 + (Base.a - 0.5) * 3.0;
+    float Fold = saturate(1.0 - abs(sin(Phase)));
+    float Fibre = saturate(1.0 - abs(sin(Phase * 4.0 + Base.b * 8.0)));
+    return float2(lerp(Base.r, 0.20 + 0.64 * Fold * Fold, 0.9),
+                  saturate(Fold * 0.9 + Fibre * Fibre * 0.25));
+}
+#endif
+
 float NebulaBaseCloud(float3 Pn)
 {
+#if NEBULA_ICE
+    float4 Base = tex3Dlod(Noise, float4(Pn * BaseNoise.w + BaseNoise.xyz, 0.0));
+    return NebulaCloudFromBase(NebulaIceField(Pn, Base).x, Shape.xy);
+#elif NEBULA_FACETED
+    float2 Base = NebulaFacetedNoise(Pn * BaseNoise.w + BaseNoise.xyz).rg;
+    return NebulaCloudFromBase(saturate(Base.x + (Base.y - 0.5) * PuffTexOffset.w), Shape.xy);
+#else
     float2 Base = tex3Dlod(Noise, float4(Pn * BaseNoise.w + BaseNoise.xyz, 0.0)).rg;
     return NebulaCloudFromBase(saturate(Base.x + (Base.y - 0.5) * PuffTexOffset.w), Shape.xy);
+#endif
 }
 
 // One exclusion zone (centre + 1 / edge fraction, the three local rows, row 0's w the haze
@@ -212,6 +253,17 @@ void NebulaExclusionZone(float3 P, float4 Centre, float4 Row0, float3 Row1, floa
 float2 NebulaPuffTexture(float3 Pn)
 {
     float3 Q = Pn * PuffTex.z + PuffTexOffset.xyz;
+#if NEBULA_ICE
+    // Mirrored tiles avoid seams in the non-tileable white_circle image. RGB only:
+    // its sprite silhouette must never cut holes in the volume. Explicit mip 2
+    // suppresses sub-step sparkle from the 2048px source at kilometre scales.
+    float3 A = tex2Dlod(PuffTexture, float4(PuffTexUv.xy +
+        (0.005 + 0.99 * abs(frac(Q.xy * 0.5) * 2.0 - 1.0)) * PuffTexUv.zw, 0, 2)).rgb;
+    float3 B = tex2Dlod(PuffTexture, float4(PuffTexUv.xy +
+        (0.005 + 0.99 * abs(frac(Q.yz * 0.5 + 0.25) * 2.0 - 1.0)) * PuffTexUv.zw, 0, 2)).rgb;
+    float Frost = saturate((RPExLuminance((A + B) * 0.5) - 0.52) * 2.5);
+    return float2(0.35 + 0.65 * Frost, Frost);
+#else
     // Retain only coverage and brightness between texture fetches.
     float4 Tx = tex2Dlod(PuffTexture,
         float4(PuffTexUv.xy + (0.005 + 0.99 * frac(Q.xy)) * PuffTexUv.zw, 0.0, 0.0));
@@ -222,6 +274,7 @@ float2 NebulaPuffTexture(float3 Pn)
     Tx = tex2Dlod(PuffTexture,
         float4(PuffTexUv.xy + (0.005 + 0.99 * frac(Q.zx + 0.25)) * PuffTexUv.zw, 0.0, 0.0));
     return (Result + float2(Tx.a, RPExLuminance(Tx.rgb))) * (1.0 / 3.0);
+#endif
 }
 
 void NebulaMedium(float3 P, float T, float3 ExRange, float DetailFade, float LodF,
@@ -306,12 +359,30 @@ void NebulaMedium(float3 P, float T, float3 ExRange, float DetailFade, float Lod
     // the shell the threshold rises toward 1 (Outer^2 * Shell.w of the way: sparse puffs and
     // wisps near the surface, none beyond it), and far away the ramp widens about its middle
     // (LOD 0 = exactly NebulaCloudFromBase).
+#if NEBULA_ICE
+    // Only the low-frequency channels bend the ice. The 8/16-cell Worley channels
+    // would crumple thin sheets below the ray step size and turn them into grain.
+    float4 WarpSample = tex3Dlod(Noise, float4(Pn * WarpNoise.w + WarpNoise.xyz, 0.0));
+    float3 Warp = float3(WarpSample.r, WarpSample.a, (WarpSample.r + WarpSample.a) * 0.5) - 0.5;
+#elif NEBULA_FACETED
+    float3 Warp = NebulaFacetedNoise(Pn * WarpNoise.w + WarpNoise.xyz).rgb - 0.5;
+#else
     float3 Warp = tex3Dlod(Noise, float4(Pn * WarpNoise.w + WarpNoise.xyz, 0.0)).rgb - 0.5;
+#endif
     Warped = Pn + Warp * ShapeMore.x;
+#if NEBULA_FACETED
+    float4 Base = NebulaFacetedNoise(Warped * BaseNoise.w + BaseNoise.xyz);
+#else
     float4 Base = tex3Dlod(Noise, float4(Warped * BaseNoise.w + BaseNoise.xyz, 0.0));
+#endif
     ColourNoise = Base.a;
     // A second scale of rounded cellular lobes builds cumulus-like cloud shoulders.
     Base.r = saturate(Base.r + (Base.g - 0.5) * PuffTexOffset.w);
+#if NEBULA_ICE
+    float2 Ice = NebulaIceField(Warped, Base);
+    Base.r = Ice.x;
+    ColourNoise = Ice.y;
+#endif
     float Rise = Outer * Outer * Shell.w * (1.0 - Shape.x);
     float C = saturate((Base.r - ShellMore.w - Rise) * (Shape.y / (1.0 + LodF * ShellMore.y)) + 0.5);
     if (C > 0.0)
@@ -438,7 +509,7 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
 
     // The scene depth of the full-resolution texel this pixel stands for (the composite reads
     // the same one).
-    float2 DepthUv = TexCoord + ProjInv.zw;
+    float2 DepthUv = NebulaDepthSampleUv(TexCoord, ProjInv.zw);
     float Device = tex2Dlod(SceneDepth, float4(DepthUv, 0.0, 0.0)).r;
 
     // View ray: D3D view space (x right, y up, z forward) at z = 1, then into world axes
@@ -682,6 +753,9 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
             float Powder = lerp(1.0, 1.0 - exp(-Cloud * PuffColourA.w), PowderMix);
             float3 Albedo = PuffColourA.rgb + PuffColourDelta.rgb * ColourNoise;
             float VeinGlow = 4.0 * Cloud * (1.0 - Cloud);
+#if NEBULA_ICE
+            VeinGlow *= pow(saturate(ColourNoise), 3.0);
+#endif
             float3 CloudRadiance = Albedo * (Key * (KeyTerm * Powder) + Ambient.rgb * Occlusion) +
                                    CloudEmission.rgb * (1.0 + Veins.x * VeinGlow *
                                    (1.0 + Veins.y * sin(Veins.z + ColourNoise * 6.2832)));
@@ -755,7 +829,7 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
     // nebula behind it.
     if (bSceneDepth)
     {
-        float Keep = NebulaAsteroidKeep(RPExLinearDepth(tex2Dlod(SceneDepth, float4(TexCoord + ProjInv.zw,
+        float Keep = NebulaAsteroidKeep(RPExLinearDepth(tex2Dlod(SceneDepth, float4(NebulaDepthSampleUv(TexCoord, ProjInv.zw),
                                                                                    0.0, 0.0)).r,
                                                         ProjZ));
         float2 SpanAll = NebulaZoneSpan(Dir, ZoneCentre.xyz, ZoneRow[0].xyz, ZoneRow[1].xyz,

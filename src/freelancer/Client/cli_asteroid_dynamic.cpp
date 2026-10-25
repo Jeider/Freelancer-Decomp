@@ -887,6 +887,10 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
                 if (Alpha > Go->Alpha + Rise)
                     Alpha = Go->Alpha + Rise;
             }
+            // Fog supplies the atmospheric fading. The mesh itself stays solid
+            // inside an actual nebula, including at the recycling sphere's edge.
+            if (NebulaVolume::DynamicAsteroidOpaqueAt(&Go->get_position().x))
+                Alpha = 1.0;
 #endif
             This->SlotPtrs[Index]->Alpha = static_cast<float>(Alpha);
             if (Alpha > kVisibleAlpha)
@@ -996,7 +1000,9 @@ void CliDynamicAsteroidUpdate(FCliDynamicAsteroid* This, FSpaceCamera* Cam, floa
             PhySys::SetCollisionState(This->SlotPtrs[Index]->GetObject(), false);
         This->SlotPtrs[Index]->Place(&Place, This->MaxVelocity, This->MaxAngularVelocity);
 #ifdef FREELANCER_RP9
-        if (SmoothVolumeFade)
+        if (NebulaVolume::DynamicAsteroidOpaqueAt(&Place.x))
+            This->SlotPtrs[Index]->Alpha = 1.0f;
+        else if (SmoothVolumeFade)
             This->SlotPtrs[Index]->Alpha = 0.0f;
 #endif
         if (This->SlotPtrs[Index]->GetObject() != nullptr)

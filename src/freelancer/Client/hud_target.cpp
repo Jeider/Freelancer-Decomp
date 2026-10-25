@@ -1746,6 +1746,44 @@ void HudTargetBase::ColourViewParts()
     ColourEquipParts();
 }
 
+unsigned HudCollisionGroupWireColor(CArchGroup* Group, bool hovered)
+{
+    // Mark vulnerable groups immediately, even at full health. This is only
+    // a wireframe colour; hit points and fuse activation remain untouched.
+    bool const Vulnerable = Group->Arch->bVulnerable;
+    unsigned long Colour = Vulnerable ? 0xff4080ffu : ChromeColourArgb();
+    float const Damage = 1.0f - Group->GetRelativeHealth();
+    // Keep the orange baseline through light damage; actual heavier damage
+    // still progresses through the native orange/red/critical pulse bands.
+    if (Damage > 0.0f && (!Vulnerable || Damage >= 0.25f))
+    {
+        unsigned long Damaged = 0;
+        Colour = *HudDamageColorArgb(&Damaged, Damage);
+    }
+
+    // 0x004e6d66: each byte * 0.7f, ftol, clamped to 0..255 inline.
+    unsigned long const Dim0 = static_cast<unsigned long>(
+        ClampByte(DimChromeByte(static_cast<unsigned char>(Colour))));
+    unsigned long const Dim1 = static_cast<unsigned long>(
+        ClampByte(DimChromeByte(static_cast<unsigned char>(Colour >> 8))));
+    unsigned long const Dim2 = static_cast<unsigned long>(
+        ClampByte(DimChromeByte(static_cast<unsigned char>(Colour >> 16))));
+    unsigned long const Dim3 = static_cast<unsigned long>(
+        ClampByte(DimChromeByte(static_cast<unsigned char>(Colour >> 24))));
+    Colour = Dim0 | (Dim1 << 8) | (Dim2 << 16) | (Dim3 << 24);
+
+    // The sub-target pulses (FUN_00561f20 round the dimmed colour) unless the mouse may not
+    // pick (FUN_0045a740).
+    if (hovered && !HudIsMousePickBlocked())
+    {
+        unsigned long Pulsed = 0;
+        NnUiPulseBlendFromArgb(&Pulsed, Colour);
+        Colour = Pulsed;
+    }
+
+    return PackPartTag(Colour);
+}
+
 void HudTargetBase::ColourGroupParts()
 {
     // FUN_004e6cb0: only for a CEqObj (class & 0x103 == 0x103).
@@ -1764,40 +1802,27 @@ void HudTargetBase::ColourGroupParts()
     CArchGroup* Group = EqObj->ArchGroups.Traverse(GroupWalk);
     while (Group != nullptr)
     {
-        // The chrome colour, or the damage colour while 1 - relative health > 0 (TEST AH,0x41).
-        unsigned long Colour = ChromeColourArgb();
-        float const Damage = 1.0f - Group->GetRelativeHealth();
-        if (Damage > 0.0f)
-        {
-            unsigned long Damaged = 0;
-            Colour = *HudDamageColorArgb(&Damaged, Damage);
-        }
-
-        // 0x004e6d66: each byte * 0.7f, ftol, clamped to 0..255 inline.
-        unsigned long const Dim0 = static_cast<unsigned long>(
-            ClampByte(DimChromeByte(static_cast<unsigned char>(Colour))));
-        unsigned long const Dim1 = static_cast<unsigned long>(
-            ClampByte(DimChromeByte(static_cast<unsigned char>(Colour >> 8))));
-        unsigned long const Dim2 = static_cast<unsigned long>(
-            ClampByte(DimChromeByte(static_cast<unsigned char>(Colour >> 16))));
-        unsigned long const Dim3 = static_cast<unsigned long>(
-            ClampByte(DimChromeByte(static_cast<unsigned char>(Colour >> 24))));
-        Colour = Dim0 | (Dim1 << 8) | (Dim2 << 16) | (Dim3 << 24);
-
-        // The sub-target pulses (FUN_00561f20 round the dimmed colour) unless the mouse may not
-        // pick (FUN_0045a740).
-        if (SubTargetId == Group->GetID() && !HudIsMousePickBlocked())
-        {
-            unsigned long Pulsed = 0;
-            NnUiPulseBlendFromArgb(&Pulsed, Colour);
-            Colour = Pulsed;
-        }
-
         // Re-activated without recursion; the root index is not tested against -1.
         PartCacheActivatePart(&PartCache, InstanceFromIndex(Group->GetRootIndex()), false,
-                              PackPartTag(Colour));
+                              HudCollisionGroupWireColor(Group, SubTargetId == Group->GetID()));
         Group = EqObj->ArchGroups.Traverse(GroupWalk);
     }
+}
+
+namespace
+{
+    unsigned long EquipmentHealthColor(CEquip* equip)
+    {
+        unsigned long color = G_NnPaletteArgb_679b98;
+        float const damage = static_cast<float>(1.0f - equip->GetRelativeHealth());
+        if (damage > 0.0f) HudDamageColorArgb(&color, damage);
+        return color;
+    }
+}
+
+unsigned HudEquipmentDamageWireColor(CEquip* equip)
+{
+    return PackPartTag(EquipmentHealthColor(equip));
 }
 
 void HudTargetBase::ColourEquipParts()
@@ -1821,13 +1846,7 @@ void HudTargetBase::ColourEquipParts()
     CEquip* Equip = EqObj->EquipManager.Traverse(EquipWalk);
     while (Equip != nullptr)
     {
-        unsigned long Colour = G_NnPaletteArgb_679b98;
-        float const Damage = 1.0f - Equip->GetRelativeHealth();
-        if (Damage > 0.0f)
-        {
-            unsigned long Damaged = 0;
-            Colour = *HudDamageColorArgb(&Damaged, Damage);
-        }
+        unsigned long Colour = EquipmentHealthColor(Equip);
 
         // A launcher that is a gun without auto_turret (Gun +0xba): amber while active, else the
         // chrome colour -- in place of the damage colour.
@@ -1861,7 +1880,7 @@ void HudTargetBase::ColourEquipParts()
     }
 }
 
-void HudTargetBase::UpdateSubTargetToolTip()
+void HudTargetBase::UpdateSubTargetToolTip(bool showTooltip)
 {
     // FUN_004e75b0.
     if (HudIsMousePickBlocked())
@@ -1883,6 +1902,7 @@ void HudTargetBase::UpdateSubTargetToolTip()
         return;
     }
     SubTargetId = PickedSub;
+    if (!showTooltip) return;
 
     if (PickedCount > 1)
     {

@@ -10,6 +10,7 @@ enum ERPSurfaceShader : unsigned long
     RPSurfaceAuto = 0,
     RPSurfaceLegacy = 1,
     RPSurfaceReflective = 2,
+    RPSurfaceIce = 3, // opaque crystal ice; no alpha/refraction scene pass
 };
 
 struct IRPSurfaceShader : IDAComponent

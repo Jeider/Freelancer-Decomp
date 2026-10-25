@@ -149,6 +149,12 @@ unsigned HudCollisionGroupTypeIds(unsigned CollisionGroupType);
 // G = ftol(R * t). Callers: 0x004e6d58 (ColourGroupParts), 0x004e6f82 (ColourEquipParts).
 unsigned long* HudDamageColorArgb(unsigned long* OutArgb, float Damage);
 
+class CArchGroup;
+// Shared HUD/world collision-group colour, including damage and hover pulses; D3D ARGB.
+unsigned HudCollisionGroupWireColor(CArchGroup* group, bool hovered);
+// Equipment health colour without the manual-gun active/inactive override; D3D ARGB.
+unsigned HudEquipmentDamageWireColor(CEquip* equip);
+
 // FUN_004c71b0 (cdecl, returns Out4) -- the screen rectangle of two points through the Win3D
 // camera (DAT_0067dbf8) slot 0x34 Project: A gives left / top, B right / bottom, each
 // truncated with ftol. A failed projection writes nothing, so that pair keeps whatever the
@@ -335,6 +341,8 @@ protected:
     // Win3DSetViewport, the perspective, and bSubTargetPickEnabled = 1. Caller: HUD_Target
     // Slot14 0x004e3d0f (GetGameOption(0xc) != 0, -0.0125f).
     void SetupViewCamera(bool bFixedOrbit, float ScreenShift);
+    // Fit an independent Targeting/Health viewport to the rendered ship geometry.
+    void FitDetachedView(bool fitGeometry);
 
     // FUN_004e7070 -- recolour the part cache for the damage view: clear the active flag of the
     // hidden non-root parts (FUN_004059d0), then the collision groups (FUN_004e6cb0) and the
@@ -353,7 +361,7 @@ protected:
     void ColourEquipParts();
 
     // FUN_004e75b0 -- mouse-over sub-target of the viewed object -> SubTargetId and the ToolTip.
-    void UpdateSubTargetToolTip();
+    void UpdateSubTargetToolTip(bool showTooltip = true);
 
     // FUN_004e79f0 (thiscall, RET 0x10) -- ids_name of the part under screen point (X, Y);
     // *OutSubId / *OutCount describe it (see .cpp).
@@ -435,6 +443,9 @@ struct FHudSubTargetFlash
 //   Update, 13 FUN_004e1bb0 Draw, 19 FUN_004e4af0 MouseEvent, 42 FUN_004e19e0 SetProperty;
 //   mover 0 FUN_004e3320; handler FUN_004e2970; scaler 0 FUN_004e3480.
 // -------------------------------------------------------------------------------------------
+// Values are persisted in the save's interface word; keep their numbering stable.
+enum class TargetingProjection { Vanilla = 0, Fit = 1, Top = 2, Side = 3 };
+
 class HudTarget : public HudTargetBase, public ButtonScaler
 {
 public:
@@ -486,7 +497,15 @@ public:
     // FUN_004e54c0 -- start a cargo scan of the player's target (see .cpp).
     void OpenScanner();
 
+    // Port-only detached view; the native target state and part cache stay here.
+    void DrawTargetingView(FVector const& center, float halfWidth, float halfHeight,
+                           TargetingProjection projection);
+    void UpdateTargetingHover(FVector const& center, float halfWidth, float halfHeight);
+    unsigned TargetingObjectId() const;
+
 private:
+    void DrawTargetView(float screenShift, TargetingProjection projection = TargetingProjection::Vanilla);
+    void UpdateViewControls();
     // FUN_004e22b0 (RET 4)
     void UpdateButtons(bool bFull);
     // FUN_004e27e0

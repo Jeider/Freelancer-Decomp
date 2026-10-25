@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "nn_messaging.h"
+#include "hud_health.h"
 
 #include "menu_sound_arch.h"  // PlayClientSoundArchIfIdle (FUN_004285f0), SetClientSoundSourceType
 #include "player_behavior.h"  // GetPlayerObjRW (FUN_0054baf0)
@@ -124,6 +125,7 @@ namespace
         }
         // 0x00489b95..0x00489bda: push_back of {MsgId, flag, null} (FUN_00489f40 + FUN_0059f7e0);
         // the stack temporary's destructor at 0x00489bdd has no source to release.
+        HealthNotifyDamageMessage(MsgId);
         G_NnVoiceQueue.emplace_back(MsgId, bKeyBit2);
         // 0x00489c04..0x00489c10: the queue was empty -- start the new head now.
         if (CountBefore == 0)

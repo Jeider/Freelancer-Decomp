@@ -1,3 +1,4 @@
+#include "hud_interface_ids.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -32,6 +33,7 @@
 #include "hud_command_dispatch.h"
 #include "hud_targetable_objects.h"
 #include "hud_weapon_groups.h"
+#include "hud_health.h"
 #include "ids_strings.h"
 #include "login_mgr.h"
 #include "menu_keymap_config.h"
@@ -144,6 +146,7 @@ namespace
 {
     // DAT_00674aa0.
     HUD_Status* G_HudStatus = nullptr;
+    unsigned G_StatusSavedStateRevision = ~0u;
 }
 
 HudTargetBase* G_HudTargetPanel = nullptr;
@@ -640,6 +643,7 @@ HUD_Status::HUD_Status(INI_Reader& /*Reader*/)
     // publish this in DAT_00674aa0. HomePosition, Field5a0 / Field5a4 and the HUDItem name are
     // written before the Create call; the rest after it (Create reads none of them).
     G_HudStatus = this;
+    G_StatusSavedStateRevision = ~0u;
 
     HomePosition.X = 0.295f;   // +0x4d4 {0.295, -0.367, 0}
     HomePosition.Y = -0.367f;
@@ -703,6 +707,7 @@ void HUD_Status::Slot13(bool bHide)
 #ifdef FREELANCER_HUD_STATUS_VIEW
 void HUD_Status::Slot14()
 {
+    if (HealthOwnsShipView(this)) return;
     // Port-only, from HudStatus.dll (0x00418d90): HUD_Target::Slot14's part-cache branch
     // (FUN_004e3c90 0x004e3ce6..0x004e3ed2) for the status panel's view object, the player ship.
     // Gated by option 0xa ("HUD") rather than 0xb, always the fixed orbit, no wire sphere, no
@@ -757,9 +762,12 @@ bool HUD_Status::Create(Win3D* NewParent, void* Data)
 
     // 0x004daac0..0x004dab09: the open button sits at HomePosition (+0x4d4).
     float const OpenHalf[3] = {0.02f, 0.02f, 0.0f};
-    ToggleButton = CreateButtonControl("HudStatusOpen", "interface\\hud\\hud_ShipInfo_button.3db",
+    ToggleButton = CreateButtonControl("HudStatusOpen", "interface\\hud\\hud_weaponlist.3db",
                                        nullptr, "ui_window_open", nullptr, &HomePosition.X,
-                                       nullptr, OpenHalf, 0, 1, 0, 0, 0x3ff, 0, 0);
+                                       nullptr, OpenHalf, 0, 1, 0, 0, HudIds::WeaponList, 0, 0);
+    // The fixed-scale montage skips mesh loading in Init. Hover rotation draws
+    // the actual mesh instead, so explicitly load it while retaining the tile.
+    ToggleButton->SetMesh("interface\\hud\\hud_weaponlist.3db", nullptr);
     ToggleButton->SetProperty(0x36, 1, 0);
 
     // 0x004dab0f..0x004dacc1: ten rows. Step = float(Index * 0.018f) (FILD, FMUL DAT_005d3ee8,
@@ -1134,6 +1142,7 @@ void HUD_Status::RefreshWeaponRows()
 
 void HUD_Status::Draw()
 {
+    HealthUpdateHostButtons(this);
     // FUN_004db2c0 (this = the WinControl face).
     if (IsSpaceInitInProgress()) // FUN_0054bd40
     {
@@ -1396,6 +1405,7 @@ bool HUD_Status::MouseEvent(FWin3DMouseEvent const* Event)
 
 intptr_t HUD_Status::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 {
+    if (HealthHostProperty(this, Msg, A, B)) return 1;
     // FUN_004db1c0 (this = the WinControl face).
     if (Msg == 0x26)
     {
@@ -1457,6 +1467,14 @@ namespace
 void HUD_Status::Update()
 {
     // LAB_004db340 (this = the WinControl face).
+
+    unsigned const revision = GetGameSessionLoadRevision();
+    if (G_StatusSavedStateRevision != revision)
+    {
+        G_StatusSavedStateRevision = revision;
+        Byte500 = 1; // Re-apply the loaded group once the watched ship is ready.
+        Byte5cc = 1;
+    }
 
     // 0x004db347..0x004db384: once the view object is live, sync the panel with session flag 2
     // (HUDItem slot 12 through the vftable when they differ). FUN_004c8110 answers 0 or 1.
@@ -1547,7 +1565,13 @@ void HUD_Status::Update()
 
     // 0x004db554..0x004db586: HUD_Target_Base's update FUN_004e7980, the scaler's FUN_0055e5e0;
     // nothing more while either animation runs.
-    HudTargetBase::Update();
+    if (HealthOwnsShipView(this))
+    {
+        Win3D::Update();
+        ButtonMover::Update();
+        SubTargetId = SUBOBJ_ID_NONE;
+    }
+    else HudTargetBase::Update();
     ButtonScaler::Update();
     if (!ButtonMover::IsActive() && !ButtonScaler::IsActive())
     {
@@ -1579,29 +1603,16 @@ void HUD_Status::Update()
             }
         }
 
-        // 0x004db66c..0x004db6b9: the first update with a live view object selects weapon
-        // group 0 -- stored from the active launchers when it does not exist yet.
+        // Port: retain the saved selected group instead of forcing group zero.
         if (Byte500 != 0 && ObjRwFromWatchable(const_cast<Watchable*>(ViewObject.target())) != nullptr)
         {
             Byte500 = 0;
-#ifdef FREELANCER_JFLP
-            // Port-only (jflp.dll ADDR_WG1/WG2, from Whiskas): group 0 is also made current and
-            // activated when it exists, and activated after being stored.
-            if (G_WeaponGroups.FindGroupIndex(0) == -1) // FUN_004f5540
-                G_WeaponGroups.StoreActive(0);          // FUN_004f5580
-            G_WeaponGroups.SetCurrent(0);               // FUN_004f6180
-            G_WeaponGroups.Activate(0);                 // FUN_004f5920
-#else
-            if (G_WeaponGroups.FindGroupIndex(0) == -1) // FUN_004f5540
-            {
-                G_WeaponGroups.StoreActive(0);          // FUN_004f5580
-                G_WeaponGroups.SetCurrent(0);           // FUN_004f6180
-            }
-            else
-            {
-                G_WeaponGroups.Activate(0);             // FUN_004f5920
-            }
-#endif
+            int const group = static_cast<int>(GetSavedWeaponGroup());
+            if (G_WeaponGroups.FindGroupIndex(group) == -1)
+                G_WeaponGroups.StoreActive(group);
+            G_WeaponGroups.SetCurrent(group);
+            G_WeaponGroups.Activate(group);
+            ActiveWeaponGroup = group;
         }
 
         // 0x004db6be..0x004db6f0: with a live HUDItem target, the rest runs once Field588 (plus

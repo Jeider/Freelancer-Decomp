@@ -13,6 +13,7 @@
 // run shows the press arriving.
 
 #include "hud_target.h"
+#include "hud_targeting.h"
 
 #include "character_select_equip.h" // GetPlayerStarSystemIdRetail (FUN_004c4830)
 #include "chat_init.h"              // ChatFindPlayerName (FUN_0046b400), ChatAcquireEntry, ...
@@ -64,6 +65,9 @@
 #endif
 
 #include <math.h>
+#include <algorithm>
+#include <cmath>
+#include <limits>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -716,16 +720,167 @@ void HudTarget::Slot13(bool bHide)
     // FUN_004e1930.
     uintptr_t const Hide = bHide ? 1 : 0;
     ViewPanel->SetProperty(1, Hide, 0);
-    ShipName->SetProperty(1, Hide, 0);
-    SubtargetName->SetProperty(1, Hide, 0);
+    if (!TargetingOwnsContent(this))
+    {
+        ShipName->SetProperty(1, Hide, 0);
+        SubtargetName->SetProperty(1, Hide, 0);
+        RankText->SetProperty(1, Hide, 0);
+    }
     CloseButton->SetProperty(1, Hide, 0);
-    RankText->SetProperty(1, Hide, 0);
-    PreviousButton->SetProperty(1, Hide, 0);
-    NextButton->SetProperty(1, Hide, 0);
+    if (!TargetingOwnsContent(this))
+    {
+        PreviousButton->SetProperty(1, Hide, 0);
+        NextButton->SetProperty(1, Hide, 0);
+    }
     TradeButton->SetProperty(1, Hide, 0);
 }
 
+unsigned HudTarget::TargetingObjectId() const
+{
+    CObject* object = CObjectOfObjRw(WatchedObjRw(ViewObject));
+    if (!object) return 0;
+    if (IsClass(object, 0x303) && static_cast<CSolar*>(object)->is_waypoint()) return 0;
+    return WatchedObjRw(ViewObject)->get_id();
+}
+
 void HudTarget::Slot14()
+{
+    if (!TargetingOwnsContent(this)) DrawTargetView(-0.0125f);
+}
+
+void HudTarget::DrawTargetingView(FVector const& center, float halfWidth, float halfHeight,
+                                 TargetingProjection projection)
+{
+    FVector const savedCenter = HitCenter;
+    float const savedWidth = HitHalfWidth, savedHeight = HitHalfHeight;
+    HitCenter = center;
+    HitHalfWidth = halfWidth;
+    HitHalfHeight = halfHeight;
+    DrawTargetView(0.0f, projection);
+    HitCenter = savedCenter;
+    HitHalfWidth = savedWidth;
+    HitHalfHeight = savedHeight;
+}
+
+void HudTarget::UpdateTargetingHover(FVector const& center, float halfWidth, float halfHeight)
+{
+    FVector const savedCenter = HitCenter;
+    float const savedWidth = HitHalfWidth, savedHeight = HitHalfHeight;
+    unsigned char const savedExpanded = bExpanded;
+    HitCenter = center;
+    HitHalfWidth = halfWidth;
+    HitHalfHeight = halfHeight;
+    bExpanded = 1;
+    UpdateSubTargetToolTip(false);
+    HitCenter = savedCenter;
+    HitHalfWidth = savedWidth;
+    HitHalfHeight = savedHeight;
+    bExpanded = savedExpanded;
+}
+
+void HudTarget::UpdateViewControls()
+{
+    if (!TargetingOwnsContent(this)) HudTargetBase::Update();
+    else
+    {
+        // The detached panel updates the hover using its own viewport.
+        ContactListButton->SetProperty(1, 1, 0);
+        Win3D::Update();
+        ButtonMover::Update();
+    }
+}
+
+void HudTargetBase::FitDetachedView(bool fitGeometry)
+{
+    // Use the whole rectangle above the toolbar, without the retail 1/8 inset.
+    FVector const topLeft = {HitCenter.X - HitHalfWidth, HitCenter.Y + HitHalfHeight, HitCenter.Z};
+    FVector const bottomRight = {HitCenter.X + HitHalfWidth, HitCenter.Y - HitHalfHeight, HitCenter.Z};
+    int viewport[4] = {};
+    HudProjectScreenRect(viewport, &topLeft, &bottomRight);
+    if (viewport[2] - viewport[0] <= 4 || viewport[3] - viewport[1] <= 4) return;
+    SpaceCameraSetViewportEx(&ViewCamera, viewport, 1);
+    if (!fitGeometry)
+    {
+        // Keep the native ViewRadius / max-width distance and orbit.
+        SpaceCameraSetHalfFovX(&ViewCamera, 35.0f);
+        Win3DSetViewport(AsCamera(&ViewCamera), __FILE__, __LINE__);
+        Win3DApplyCameraPerspective(AsCamera(&ViewCamera));
+        return;
+    }
+
+    IObjRW* const view = WatchedObjRw(ViewObject);
+    auto const& object = *reinterpret_cast<FTransform const*>(&view->get_transform());
+    auto const& camera = *reinterpret_cast<FMatrix const*>(ViewCamera.World);
+    CObject* const cobject = GetViewCObject();
+    bool const sphere = cobject && IsClass(cobject, 3) &&
+        (static_cast<CSimple*>(cobject)->TypeBits & 7u) != 0;
+    if (sphere) SpaceCameraSetFovY(&ViewCamera, 45.0f);
+    else SpaceCameraSetHalfFovX(&ViewCamera, 35.0f);
+    double const scaleX = std::fabs(ViewCamera.XScale) / (ViewCamera.HalfWidth - 2.0);
+    double const scaleY = std::fabs(ViewCamera.YScale) / (ViewCamera.HalfHeight - 2.0);
+    double centerX = 0.0, centerY = 0.0, distance = 0.0;
+    if (sphere)
+    {
+        Vector unusedCenter;
+        double const radius = static_cast<CSimple*>(cobject)->get_physical_radius_r(unusedCenter);
+        double const scale = (std::max)(scaleX, scaleY);
+        distance = radius * std::sqrt(1.0 + scale * scale);
+    }
+    else
+    {
+        // Fit the actual rendered wire vertices in camera axes, including depth.
+        // Using object-relative vectors avoids precision loss far from system origin.
+        auto visit = [&](auto&& point)
+        {
+            for (unsigned part = 0; part < PartCache.PartCount; ++part)
+            {
+                auto const& entry = PartCache.Entries[part];
+                if (!entry.bActive || !entry.Vertices || !entry.Indices) continue;
+                for (unsigned index = 0; index < entry.IndexCount; ++index)
+                {
+                    auto const& v = entry.Vertices[entry.Indices[index]];
+                    double const local[] = {v.X, v.Y, v.Z};
+                    double axes[3] = {};
+                    for (int row = 0; row < 3; ++row)
+                    {
+                        double world = 0.0;
+                        for (int col = 0; col < 3; ++col)
+                            world += object.Rotation.D[row][col] * local[col];
+                        for (int axis = 0; axis < 3; ++axis)
+                            axes[axis] += camera.D[row][axis] * world;
+                    }
+                    if (std::isfinite(axes[0]) && std::isfinite(axes[1]) && std::isfinite(axes[2]))
+                        point(axes[0], axes[1], axes[2]);
+                }
+            }
+        };
+        double minX = std::numeric_limits<double>::infinity(), minY = minX;
+        double maxX = -minX, maxY = -minX, nearDistance = -minX;
+        visit([&](double x, double y, double z) {
+            minX = (std::min)(minX, x * scaleX - z);
+            maxX = (std::max)(maxX, x * scaleX + z);
+            minY = (std::min)(minY, y * scaleY - z);
+            maxY = (std::max)(maxY, y * scaleY + z);
+            nearDistance = (std::max)(nearDistance, z + double(ViewCamera.ZNear) * 1.01);
+        });
+        // The side-plane intervals intersect at this minimum camera distance.
+        // Their midpoint also centres asymmetric geometry under perspective.
+        centerX = (minX + maxX) / (2.0 * scaleX);
+        centerY = (minY + maxY) / (2.0 * scaleY);
+        distance = (std::max)(nearDistance, (std::max)((maxX - minX) * 0.5, (maxY - minY) * 0.5));
+    }
+    if (std::isfinite(centerX) && std::isfinite(centerY) && std::isfinite(distance))
+    {
+        for (int row = 0; row < 3; ++row)
+            ViewCamera.WorldPos[row] = static_cast<float>((&object.Translation.X)[row] +
+                camera.D[row][0] * centerX + camera.D[row][1] * centerY + camera.D[row][2] * distance);
+        ViewCamera.bViewDirty = 1;
+    }
+    Win3DSetViewport(AsCamera(&ViewCamera), __FILE__, __LINE__);
+    Win3DApplyCameraPerspective(AsCamera(&ViewCamera));
+}
+
+void HudTarget::DrawTargetView(float screenShift, TargetingProjection projection)
 {
     // FUN_004e3c90 -- the target view, drawn by HudTargetBase::Draw right after ViewPanel.
     IObjRW* const View = WatchedObjRw(ViewObject);
@@ -743,7 +898,7 @@ void HudTarget::Slot14()
     }
 #ifndef FREELANCER_HUD_TARGET_VIEW
     // Port-only switch (HudTarget.dll, 0x004e3ce0 JNZ -> NOP): the view is drawn in every mode.
-    if (Mode != 1)
+    if (Mode != 1 && !TargetingOwnsContent(this))
     {
         return;
     }
@@ -753,7 +908,21 @@ void HudTarget::Slot14()
     // the object (FUN_004e70e0, the fixed orbit when option 0xc is set, shifted -0.0125 screens).
     int SavedViewport[4];
     Win3DGetViewport(0xba2, SavedViewport);
-    SetupViewCamera(GetGameOption(0xc) != 0, -0.0125f);
+    SetupViewCamera(projection == TargetingProjection::Top || projection == TargetingProjection::Side ||
+                    GetGameOption(0xc) != 0, screenShift);
+    if (projection == TargetingProjection::Side)
+    {
+        // Object-local starboard view: camera right = -Z, up = +Y, back = +X.
+        auto const& object = *reinterpret_cast<FTransform const*>(&View->get_transform());
+        for (int row = 0; row < 3; ++row)
+        {
+            ViewCamera.World[row * 3] = -object.Rotation.D[row][2];
+            ViewCamera.World[row * 3 + 1] = object.Rotation.D[row][1];
+            ViewCamera.World[row * 3 + 2] = object.Rotation.D[row][0];
+        }
+        ViewCamera.bViewDirty = 1;
+    }
+    if (TargetingOwnsContent(this)) FitDetachedView(projection != TargetingProjection::Vanilla);
 
     // 0x004e3d14: a CSimple (class & 3) is drawn -- as a wire sphere when TypeBits & 7, else as
     // its coloured part cache -- and the scan sweep over it; anything else draws nothing.
@@ -858,8 +1027,8 @@ void HudTarget::Slot15()
 
     // 0x004e4061..0x004e408f: the labels show only while expanded and neither the slide nor
     // the scale animation runs; SetProperty(1, x) takes "hide", so every show below is !bShow.
-    bool const bShow =
-        bExpanded != 0 && !ButtonMover::IsActive() && !ButtonScaler::IsActive(); // FUN_0055e280
+    bool const bShow = TargetingOwnsContent(this) ||
+        (bExpanded != 0 && !ButtonMover::IsActive() && !ButtonScaler::IsActive());
     uintptr_t const Hide = bShow ? 0 : 1;
 
     wchar_t IdsText[0x80];    // [ESP+0x28]
@@ -1106,6 +1275,7 @@ void HudTarget::Slot16()
 
 intptr_t HudTarget::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 {
+    if (TargetingHostProperty(this, Msg, A, B)) return 1;
     // FUN_004e19e0.
     if (Msg == 0x26)
     {
@@ -1170,6 +1340,8 @@ intptr_t HudTarget::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 
 void HudTarget::Draw()
 {
+    TargetingUpdateHostButtons(this);
+    if (TargetingOwnsContent(this)) ContactListButton->SetProperty(1, 1, 0);
     // FUN_004e1bb0.
     if (IsSpaceInitInProgress())
     {
@@ -1249,7 +1421,7 @@ void HudTarget::Update()
         ToggleButton->SetProperty(1, Hide, 0);
         ButtonScaler::Update();
         UpdateTradeButton();
-        HudTargetBase::Update();
+        UpdateViewControls();
         return;
     }
 
@@ -1365,7 +1537,7 @@ void HudTarget::Update()
     // sub-target, rank, the sub-target and trade buttons) next to the contact / formation list.
     if (false)
 #else
-    if (bExpanded != 0 && Mode != 1)
+    if (bExpanded != 0 && Mode != 1 && !TargetingOwnsContent(this))
 #endif
     {
         if (ShownMode == 1)
@@ -1376,7 +1548,7 @@ void HudTarget::Update()
             Flags |= 3;
             SetFlagBits(ViewPanel);
             SetFlagBits(CloseButton);
-            SetFlagBits(ContactListButton);
+            if (!TargetingOwnsContent(this)) SetFlagBits(ContactListButton);
             SetFlagBits(NextEnemyButton);
             SetFlagBits(TargetButton);
             FormationButton->SetProperty(1, bFormationAvailable == 0 ? 1 : 0, 0);
@@ -1400,20 +1572,20 @@ void HudTarget::Update()
         SetFlagBits(ShipName);
         SetFlagBits(SubtargetName);
         SetFlagBits(RankText);
-        SetFlagBits(PreviousButton);
-        SetFlagBits(NextButton);
+        if (!TargetingOwnsContent(this)) SetFlagBits(PreviousButton);
+        if (!TargetingOwnsContent(this)) SetFlagBits(NextButton);
         SetFlagBits(TradeButton);
         ClearFlagBits(ToggleButton);
     }
 
-    HudTargetBase::Update();
+    UpdateViewControls();
 
     if (PlayerShip != nullptr && WatchedObjRw(ViewObject) != nullptr)
     {
         unsigned short const Sub = PlayerShip->get_sub_target();
         bool const bChanged = Sub != SubTargetFlash.SubId;
         SubTargetFlash.Update(static_cast<float>(GetClientFrameTimeCapped()), Sub);
-        if (bExpanded != 0 && bChanged)
+        if ((bExpanded != 0 || TargetingOwnsContent(this)) && bChanged)
         {
             Slot15();
             SubtargetName->SetProperty(0x50, 1, 0x14);
@@ -1425,8 +1597,8 @@ void HudTarget::Update()
     ShipName->SetProperty(1, 1, 0);
     SubtargetName->SetProperty(1, 1, 0);
     RankText->SetProperty(1, 1, 0);
-    ClearFlagBits(PreviousButton);
-    ClearFlagBits(NextButton);
+    if (!TargetingOwnsContent(this)) ClearFlagBits(PreviousButton);
+    if (!TargetingOwnsContent(this)) ClearFlagBits(NextButton);
     ClearFlagBits(TradeButton);
     UpdateButtons(true);
 }
@@ -1512,11 +1684,14 @@ void HudTarget::OnScaleFinished()
             Flags |= 3;
             SetFlagBits(ViewPanel);
             SetFlagBits(CloseButton);
-            ClearFlagBits(ShipName);
-            ClearFlagBits(SubtargetName);
-            ClearFlagBits(RankText);
-            ClearFlagBits(PreviousButton);
-            ClearFlagBits(NextButton);
+            if (!TargetingOwnsContent(this))
+            {
+                ClearFlagBits(ShipName);
+                ClearFlagBits(SubtargetName);
+                ClearFlagBits(RankText);
+            }
+            if (!TargetingOwnsContent(this)) ClearFlagBits(PreviousButton);
+            if (!TargetingOwnsContent(this)) ClearFlagBits(NextButton);
             ClearFlagBits(TradeButton);
         }
         else
@@ -1525,13 +1700,13 @@ void HudTarget::OnScaleFinished()
             ClearFlagBits(MinimizedFrame);
             Slot15();
             SetFlagBits(RankText);
-            SetFlagBits(PreviousButton);
-            SetFlagBits(NextButton);
+            if (!TargetingOwnsContent(this)) SetFlagBits(PreviousButton);
+            if (!TargetingOwnsContent(this)) SetFlagBits(NextButton);
             SetFlagBits(TradeButton);
         }
 
         LabelRefreshTimer = kOne;
-        SetFlagBits(ContactListButton);
+        if (!TargetingOwnsContent(this)) SetFlagBits(ContactListButton);
         SetFlagBits(TargetButton);
         SetFlagBits(NextEnemyButton);
 #ifdef FREELANCER_HUD_TARGET_VIEW
@@ -1880,7 +2055,7 @@ void HudTarget::UpdateButtons(bool bFull)
     }
     LabelRefreshTimer = LabelRefreshTimer - kOne;
 
-    if (bExpanded != 0 && WatchedObjRw(ViewObject) != nullptr && bFull)
+    if ((bExpanded != 0 || TargetingOwnsContent(this)) && WatchedObjRw(ViewObject) != nullptr && bFull)
     {
         if (WatchedObjRw(HUDItem::Target) != nullptr && WatchedObjRw(ViewObject) != nullptr &&
             ShipName != nullptr && SubtargetName != nullptr)
@@ -1908,11 +2083,11 @@ void HudTarget::UpdateButtons(bool bFull)
         bSubTargets = false;
     }
     uintptr_t const ArrowHide = (bSubTargets && bExpanded != 0) ? 0 : 1;
-    if (PreviousButton != nullptr && bFull)
+    if (PreviousButton != nullptr && bFull && !TargetingOwnsContent(this))
     {
         PreviousButton->SetProperty(1, ArrowHide, 0);
     }
-    if (NextButton != nullptr)
+    if (NextButton != nullptr && !TargetingOwnsContent(this))
     {
         if (!bFull)
         {
@@ -1928,7 +2103,7 @@ void HudTarget::UpdateButtons(bool bFull)
     // The rank line (0x004e249e): only for a ship view, while open and not sliding.
     if (ViewShip != nullptr)
     {
-        if (bExpanded != 0 && !ButtonMover::IsActive())
+        if (TargetingOwnsContent(this) || (bExpanded != 0 && !ButtonMover::IsActive()))
         {
             SetFlagBits(RankText);
             Rank = static_cast<float>(WatchedObjRw(ViewObject)->get_toughness());

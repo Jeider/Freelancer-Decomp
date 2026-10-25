@@ -22,6 +22,7 @@ PRESETS = {
     'default_jump_gate', 'gate_tunnel_asteroid_belt', 'gate_tunnel_bretonia',
     'gate_tunnel_liberty', 'gate_tunnel_br', 'gate_tunnel_ku', 'gate_tunnel_orange',
     'gate_tunnel_rhor', 'gate_tunnel_edge', 'gate_tunnel_crow', 'gate_tunnel_walker',
+    'gate_tunnel_barrier', 'gate_tunnel_dark',
 }
 FLAG = re.compile(r'^hyperspace_clouds[ \t]*=[^\r\n]*(?:\r?\n|$)', re.M | re.I)
 

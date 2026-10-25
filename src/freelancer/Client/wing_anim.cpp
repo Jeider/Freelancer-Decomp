@@ -48,7 +48,12 @@ namespace
     EPending G_Pending = EPending::None;
     bool G_bCruiseLast = false;
     bool G_bDockFolded = false;
-    bool G_bManualRequest = false;
+    enum class EManual { None, Toggle, Pause, Resume };
+    EManual G_Manual = EManual::None;
+    bool G_bPaused = false;
+    bool G_bCruiseLocked = false;
+    bool G_bPendingCruise = false;
+    int G_PausedHandle = -1;
 
     char const* WingScript()
     {
@@ -85,11 +90,26 @@ namespace
         return G_State == EWing::Launching || G_State == EWing::Folding || G_State == EWing::Extending;
     }
 
-    void RequestFold()
+    bool Resume()
     {
+        if (!G_bPaused) return false;
+        int const handle = ModShipOneShotAnim(G_Ship);
+        if (handle == -1 || handle != G_PausedHandle) return false;
+        // StopPlayback retains each channel's time. -2 continues those times,
+        // including the launch script; only Extending plays in reverse.
+        Play(handle, G_State == EWing::Extending ? 1 : 0);
+        G_bPaused = false;
+        G_PausedHandle = -1;
+        return true;
+    }
+
+    void RequestFold(bool fromCruise = false)
+    {
+        Resume();
         if (IsMoving())
         {
             G_Pending = EPending::Fold;
+            G_bPendingCruise = fromCruise;
             return;
         }
         if (G_State != EWing::Extended)
@@ -101,11 +121,13 @@ namespace
         G_State = EWing::Folding;
     }
 
-    void RequestExtend()
+    void RequestExtend(bool fromCruise = false)
     {
+        Resume();
         if (IsMoving())
         {
             G_Pending = EPending::Extend;
+            G_bPendingCruise = fromCruise;
             return;
         }
         if (G_State != EWing::Folded)
@@ -122,6 +144,7 @@ namespace
     {
         EPending const Pending = G_Pending;
         G_Pending = EPending::None;
+        G_bPendingCruise = false;
         if (Pending == EPending::Fold)
             RequestFold();
         else if (Pending == EPending::Extend)
@@ -156,26 +179,34 @@ void WingAnimTick()
         G_State = (Ship != nullptr && ModShipOneShotAnim(Ship) != -1) ? EWing::Launching : EWing::None;
         G_bCruiseLast = Ship != nullptr && GetPlayerEngineCruiseActive();
         G_bDockFolded = false;
-        G_bManualRequest = false;
+        G_Manual = EManual::None;
+        G_bPaused = false;
+        G_PausedHandle = -1;
+        G_bCruiseLocked = false;
+        G_bPendingCruise = false;
         G_Pending = EPending::None;
         return;
     }
     if (Ship == nullptr || G_State == EWing::None)
     {
-        G_bManualRequest = false;
+        G_Manual = EManual::None;
         return;
     }
     int const Handle = ModShipOneShotAnim(Ship);
     if (Handle == -1)
     {
         G_State = EWing::None;
+        G_bPaused = false;
+        G_PausedHandle = -1;
+        G_Manual = EManual::None;
+        G_Pending = EPending::None;
         return;
     }
 
     // Finished transitions: forward ends at the script's duration, reverse at 0.
     float const Current = DALib::Anim->GetStoredDuration(static_cast<unsigned long>(Handle));
     float const Total = DALib::Anim->GetScriptDuration(reinterpret_cast<void*>(static_cast<intptr_t>(Handle)));
-    switch (G_State)
+    if (!G_bPaused) switch (G_State)
     {
     case EWing::Launching:
         if (!(Current < Total))
@@ -218,10 +249,12 @@ void WingAnimTick()
     if (bCruise != G_bCruiseLast)
     {
         G_bCruiseLast = bCruise;
-        if (bCruise)
-            RequestFold();
-        else
-            RequestExtend();
+        // Track changes even while locked: unlocking does not replay old events.
+        if (!G_bCruiseLocked)
+        {
+            if (bCruise) RequestFold(true);
+            else RequestExtend(true);
+        }
     }
 
     // Docking with a base: fold once.
@@ -236,10 +269,26 @@ void WingAnimTick()
     else
         G_bDockFolded = false;
 
-    // The key: toggle the position the wing will end up in (queued while it moves).
-    if (G_bManualRequest)
+    // Both the key and Health use this command path. A Resume captured while
+    // paused must not toggle direction if an automatic event resumed it first.
+    EManual const command = G_Manual;
+    G_Manual = EManual::None;
+    if (command == EManual::Pause && IsMoving() && !G_bPaused)
     {
-        G_bManualRequest = false;
+        int const currentHandle = ModShipOneShotAnim(Ship);
+        if (currentHandle != -1)
+        {
+            DALib::Anim->StopPlayback(static_cast<unsigned long>(currentHandle));
+            G_bPaused = true;
+            G_PausedHandle = currentHandle;
+        }
+    }
+    else if (command == EManual::Resume || (command == EManual::Toggle && G_bPaused))
+    {
+        Resume();
+    }
+    else if (command == EManual::Toggle)
+    {
         bool bWillBeFolded;
         if (G_Pending != EPending::None)
             bWillBeFolded = G_Pending == EPending::Fold;
@@ -265,8 +314,42 @@ bool WingAnimHandleKey(unsigned Message, unsigned Wparam)
                      ((GetKeyState(VK_MENU) & 0x8000) ? 4 : 0);
     if (Held != S_Modifiers || G_State == EWing::None)
         return false;
-    G_bManualRequest = true;
+    return WingAnimRequestToggle();
+}
+
+bool WingAnimAvailable()
+{
+    return PORT_PLUGIN_ON("WingAnim") && G_Ship && PlayerShip() == G_Ship &&
+        G_State != EWing::None && ModShipOneShotAnim(G_Ship) != -1;
+}
+
+bool WingAnimPaused() { return WingAnimAvailable() && G_bPaused; }
+bool WingAnimCanPause() { return WingAnimAvailable() && IsMoving(); }
+bool WingAnimCruiseLocked() { return WingAnimAvailable() && G_bCruiseLocked; }
+
+bool WingAnimRequestToggle()
+{
+    if (!WingAnimAvailable()) return false;
+    G_Manual = G_bPaused ? EManual::Resume : EManual::Toggle;
     return true;
+}
+
+bool WingAnimTogglePause()
+{
+    if (!WingAnimCanPause()) return false;
+    G_Manual = G_bPaused ? EManual::Resume : EManual::Pause;
+    return true;
+}
+
+void WingAnimSetCruiseLocked(bool locked)
+{
+    if (!WingAnimAvailable()) return;
+    G_bCruiseLocked = locked;
+    if (locked && G_bPendingCruise)
+    {
+        G_Pending = EPending::None;
+        G_bPendingCruise = false;
+    }
 }
 
 int WingAnimDisplayState()

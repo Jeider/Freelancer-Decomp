@@ -16,6 +16,7 @@
 #include "cli_asteroid.h"
 #include "cli_nebula.h"
 #include "cli_projectile_fx.h" // CliEffectCompanionClear (FUN_00502d90)
+#include "hud_vulnerable.h"
 #include "client_equip_fx.h"   // RemoveAppearanceInstanceValue (FUN_00532170)
 #include "client_objdb.h"
 #include "common_archetype.h"
@@ -32,6 +33,7 @@
 #include "gate_tunnel.h"    // FGateTunnel::Draw (FUN_004ffab0)
 #include "tradelane_visual.h"
 #include "jumphole_visual.h"
+#include "jumpgate_visual.h"
 #include "ship_warp_visual.h"
 #include "engine_heat_visual.h"
 #include "globals.h"
@@ -3708,6 +3710,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
             CameraSetNearFar(Cam, Camera->GetZNear(), Far);
             SpaceEffectsDrawFrame(Cam, static_cast<float>(GetClientFrameTimeCapped()), -1);
             JumpHoleVisualDraw(Cam);
+            JumpGateVisualDraw(Cam);
             TradeLaneVisualDraw(Cam);
             Win3DDisable(kWin3DFog);
         }
@@ -3793,6 +3796,8 @@ void SpaceCameraRenderSlot78(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Pa
     RenderEx::AfterSpaceScene();
 #endif
 
+    // World-space weak-point overlay must use the scene depth before HUD clears it.
+    VulnerableTargetingDraw(Cam);
     if (GetGameOption(kGameOptHud) != 0)
         ClearWin3DBuffers(kWin3DClearDepth);
 

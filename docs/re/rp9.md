@@ -522,7 +522,17 @@ exposure)`; only the volume's light is tone mapped, the scene behind it is only 
 target (no FP16) the ray march tone maps itself and the composite passes the values through. A
 depth-aware upsample: if the depths of the four neighbouring low-res texels differ from the pixel's
 depth by less than `upsample_depth_threshold` (a fraction), bilinear, otherwise the best one by
-depth is taken (no halos around ships). Everything is camera-relative: positions are subtracted in
+depth is taken (no halos around ships). The optional blur checks all four low-resolution
+texels contributing to each bilinear tap, using the exact depth pixels sampled by the
+raymarch. The earlier centre-only blur check still let fog leak across ship and asteroid
+silhouettes; Tau37's generic quarter-resolution volume made this conspicuous. Depth UVs
+are biased 0.01 full-resolution pixels into the selected texel with a shared helper, avoiding ambiguous
+point samples on texel boundaries at full resolution. The D3D9 regression
+`tools/build_nebula_composite_check.py` tests curved and thin silhouettes at 25%, 35%,
+50% and 100% resolution, four translations and blur widths 0/1/2. All 48 combinations
+reject cross-edge contamination where a matching low-resolution sample exists; features
+missed entirely by the coarse raymarch remain a separate sampling limitation.
+Everything is camera-relative: positions are subtracted in
 double on the CPU (a system spans up to ±200 km). The ray runs from the zone entry (from inside —
 from the camera) to min(zone exit, scene depth, entry + march limit); the sky (depth 1.0) has no
 scene limit. Steps cluster towards the entry (`step_distribution`), samples are jittered by
@@ -934,6 +944,13 @@ from each fresh placement. Crow uses a 70% distance band and a four-second
 fade-in; fade-out follows the smooth spatial curve to zero before recycling.
 Collision, damage, asteroid count and spawn radius are unchanged. The cube
 asteroids' existing distance fade is widened separately to 65%.
+
+Dynamic asteroids inside a loaded nebula now override both spatial and temporal
+mesh fading with alpha 1, from the first placement frame. Membership uses each
+asteroid's world position against the nebula zone, not the camera or the whole
+field's bounding sphere; decorative ring companions do not qualify. Outside a
+nebula the previous fade remains. Fog and lighting still affect the opaque rock;
+the change removes transparency through its mesh, not atmospheric attenuation.
 
 
 Crow background/distance revision: `background_scale` dims only the sky in a
@@ -1477,6 +1494,185 @@ Dynamic asteroids are drawn by `CliDynamicAsteroidDraw` (cli_asteroid_dynamic.cp
 object list, so the local-shadow receiver path never sees them; their material's diffuse is scaled by
 `SolarSunlitAt` at the rock (down to `dynamic_asteroid_shadow_floor`, 0.15), ambient kept.
 
+### Jumpgate ignition, aperture and alternate donut shooter
+
+`jumpgate_visual.cpp` / `SHADERS/jumpgate_aperture.hlsl` replace the activation
+group on the ordinary `jumpgate` archetype only when **every** descriptor ring
+belongs to `mod_jumpgate_tunnel`, `jg_bubble`, `jg_sphere`, `jumpgate_end`, and the
+group contains `mod_jumpgate_tunnel`. The reference is `sig8_jg_to_rh_ber`,
+`jump_effect_edge`, at (15000, 0, -30000), rotated 180 degrees about Y.
+The configured FL_MOD universe audit found 68 ordinary gates and 24 alternate
+corsair gates. Alternate admission requires `big_jumpgate_tunnel` together with
+`jg_donutshooter`, no ordinary tunnel or bubble, and no unknown effect in the group.
+Both variants use the `jumpgate` model. Three ordinary-model gates with no named
+jump effect, plus nomad gates, virtual gates and airlocks, remain excluded.
+
+The alternate reference is `rh_mnh_jg_to_rh_kgb`, at (5000,0,-35000), Y rotation
+180, loadout `jumpgate_special`, descriptor `jump_effect_corsair_dark`. It shares
+the mirror, inward vortex, full launch flash and tunnel-coloured star trails with
+ordinary gates. Only the two stationary plasma rings are replaced by travelling
+volumetric energy toroids (`PSDonuts`, 112 ray samples). A failed alternate program
+retains its complete native ALE group without disabling ordinary gate shaders.
+
+The actual effect mapping is `jg_donutshooter` -> `tradelanedonutshooter` in
+`FX/MISC/gf_tradelaneinship01.ale`. Its cube emitter has Z=-40.7961426, X rotation
+90 degrees, zero extents/spread, frequency 2/s, pressure 600 and lifespan 1.5455 s.
+`FxParticleAppearance` spawns `tradelaneship01donut` with identity rotation; that
+child cone adds Z=-550, X rotation -90 and radial band 100.7866..100.9950. At HpFX5
+(1.039,-0.1357,120.4996), the resulting mean ring starts at Z=-470.2965 and travels
+solar-local +Z at 600 m/s in the original ALE. The redesigned shooter runs at
+425 m/s and 2.25 emissions/s, with heads about 189 m apart. Its lifetime is extended to
+2.1819 s to preserve the travel distance and fade location. Five pulse slots cover
+that lifetime; unborn pulses are hidden during activation and the 192-second clock
+wraps exactly. Each head fades in with a smoothstep over 0.3 s; the overall shooter
+also ramps up over its first 0.85 s.
+
+The redesign keeps that direction, with a requested 100 m shift toward
+the approaching ship: launch Z=-570.2965 rather than the ALE's -470.2965. The child
+appearance's `BasicApp_Size=20` is a sprite half-size (40 m square, aspect 1), not
+the torus radius. The first redesign's 23..36 m radial and 38..50 m axial Gaussian
+widths, plus its broad halo, were too large for the attached metal rings.
+
+`jumpgate_special` attaches eight `solar/misc/jump_ring.3db` meshes. Their minimum
+vertex radius is 115.466 m, but the actual polygon edges narrow the opening to
+111.666 m. The shader retains the 100.891 m mean centreline, shapes most of the
+thickness inward, and smoothly extinguishes both body and halo at radius 107 m.
+Even allowing the 1.05 m emitter offset, this leaves over 3.6 m to the metal.
+Soft plasma heads carry curling smoky wakes up to 240 m long (0.565 s of travel),
+limited by pulse age so the trail cannot precede its emitter. Each wake narrows
+inward and fades behind its head; asymmetric pulse selection preserves the trail
+between successive heads. Lower contrast, softer density and subdued highlights
+replace the sharp discharge veins. The same 107 m clearance mask bounds heads,
+halos and wakes. A side-view render check verifies emission behind the head and
+none at the corresponding point ahead. Soft birth/death and highlight compression
+preserve detail on the LDR target. Depth clipping and
+local-space projection are shared with the ordinary gate, with a 750 m alternate
+culling sphere covering the shifted launch point.
+
+Hyperspace travel has separate preset admission (`hyperspace_clouds = 1` in
+`DATA/FX/gate_tunnel.ini`). The installer enables 13 ordinary tunnel presets,
+including `gate_tunnel_barrier` and `gate_tunnel_dark`. Those two were initially
+omitted despite being used by 27 and 14 configured transitions respectively.
+All three Tau29 exits (to br_cam, br_avl and br_wrw) use barrier. The configured
+universe audit now covers every `jumpgate` route's travel preset; special airlock,
+black-hole and nomad presets retain their existing settings. This does not change
+the separate eligibility rules for the ordinary gate's activation effect above.
+
+The original reference starts four ALE effects at time zero. Inspecting
+`FX/MISC/mod_jumpgate.ale` found cone emitters at radius 200 and 130; frequency
+tracks include approximately 701/s initially and 791/s after three seconds,
+with one initial lifespan track of three seconds. These are authored parameters,
+not a measured live particle count. The new activation replaces this entire group;
+loadout running lights, sounds, docking animations and jump durations are retained.
+
+The geometry is in the model's local coordinates: approach along -Z, HpFX2 at
+Z=-490.1961, HpFX4 at -100.9682, jump-out HpFX7 at +300. The first pass renders a
+circular mirror at the actual jump-out hardpoint, including its position and
+orientation from `FindHardpoint_PS`. Its radius is 195; a dense pearl lip, inner
+blue light and outer amber corona define the edge. It uses the jumphole core's
+folded screen-environment reflection, with liquid normals and foreground protection.
+This reflects the currently visible scene, not an offscreen cubemap. The second
+pass raymarches 64 samples through the two original concentric plasma rings.
+`FX/MOD/gf_jumpgate_bubble.ale` shell cone emitters `#1` and `#2` use radial bands
+120..140 and 180..200, respectively. Both have translation (0,0,8), X rotation
+90 degrees and min/max spread 90 degrees. The existing activation factory attaches
+them at the descriptor's hardpoint position with identity rotation. Consequently
+the shader's fixed ring centres are `jg_bubble`'s actual hardpoint plus (0,0,8),
+with both planes parallel to solar-local XY. On the reference gate that is HpFX4:
+centre (1.039, -0.1357, -92.9682), mean radii 130 and 190. The ring attachment is
+resolved independently of the mirror's HpFX7.
+
+All noise scales, filaments and hot knots rotate together in material coordinates:
+the inner ring advances +30 degrees/second, the outer -22.5 degrees/second. Their
+centres stay fixed. The radial and axial cross-sections are now twice as thick,
+and emission is twice as bright. Volume density is halved to compensate for the
+doubled depth, keeping brightness and thickness independent. Pearl-white cores, amber scattering and
+soft volume edges replace the original particle glow. The former prototype's four
+axially separated bands are removed; there are two concentric plasma rings plus
+the separate mirrored portal lip.
+
+A third pass builds one coherent vortex from `mod_jumpgate_tunnel`'s actual
+attachment (HpFX2 on the reference gate). 448 curved ribbons follow five spiral
+arms, from radii 125..190 to radii 15..48 on the jump-out HP plane. Each trajectory
+turns 1.4 revolutions while accelerating both axially and angularly; the entire
+field also rotates once every 12 seconds. Fine streaks retain 0.22 seconds of
+history and soft blue wisps retain 1.25 seconds, all on the same velocity field.
+There are no separate straight jets. Each ribbon has 24 curved segments with
+tapered ends, and volume noise shapes the translucent wisps. The radial frame
+handles the reversed exit HP without pinching or reversing midway. Trajectories
+are solar-local; only ribbon width faces the eye. The vortex uses the same
+simulation clock, activation gain and foreground depth protection.
+
+The vortex resolves the gate descriptor's `jump_tunnel` on activation and uses
+`GateTunnelGetTint`, shared with the hyperspace transition: layer 0 plus 0.6 of
+layer 1, normalized by its peak channel. The shader recolours luminance with the
+tunnel's `0.16 + tint * 1.25` palette while preserving the vortex's brightness.
+Thus `sig8_jg_to_rh_ber` previews `gate_tunnel_edge`'s green hue automatically;
+other ordinary gate presets use their own tunnel colours. Plasma rings and the
+mirror retain their existing colours. This matches the authored palette, not the
+tunnel's random per-vertex colour fluctuations; a missing tunnel keeps the prior
+blue-white vortex as a fallback.
+
+| Activation age | Visible development |
+| --- | --- |
+| 0..1.1 s | Both original ring positions ignite and fill with plasma |
+| 0.1..1.8 s | Spiral wisps and streaks fade in and accelerate toward the portal |
+| 1.1..2.8 s | Counter-rotating plasma rings reach sustained intensity |
+| 2.8..5.2 s | Liquid membrane resolves as the mechanical doors open |
+| After 5.2 s | Counter-rotating rings and the reflective portal |
+| Close | 1.4 s visual decay, or immediate removal at solar subcode 3 |
+
+Ray reconstruction uses the active projection matrix after `Win3DApplyCamera`.
+The camera's nominal horizontal angle remains a 4:3 value under Hor+ and must not
+be used here: it caused horizontal stretching and displacement relative to the
+gate, particularly when the camera moved the gate away from screen centre.
+The portal plane is fixed to the hardpoint; only its reflection changes with view.
+
+The clock advances only from the solar simulation update. Duplicate open events
+do not restart ignition; closing and reopening do. The world transform is read
+each draw. All three passes clip against scene depth and the camera's depth partition;
+the lens also checks displaced sampling footprints to protect foreground objects.
+The gain includes range, cloak and nebula visibility. All three programs, noise and capture
+resources must exist before any ALE ring is suppressed. A failed admission keeps
+the original group for that activation. Host destruction and render shutdown clear
+the registry/resources without changing retail object layouts.
+
+`RenderEx::Startup` prepares both variants' programs, noise, capture resources and the
+reusable ribbon allocation before gameplay. RP9 supports pre-device bytecode and
+retained texture data; it creates their GPU resources when the device appears.
+Activation and drawing only check readiness and never compile or generate noise.
+This removes the former first-activation preparation stall (about 570 ms of shader
+compilation plus 54 ms noise generation/upload in the standalone HAL fixture;
+these are diagnostic timings, not an in-game frame trace). Startup logs its own
+shader and resource preparation durations. Preparation failure retains native ALE.
+
+The player transit binding matches the ordinary gate's launch star colour to the
+same upcoming tunnel palette as its vortex, preserving star luminance. The full
+central glow, expanding flash ring and short light veil are enabled. All three
+star populations gather, stretch into radial trails and fade through the first
+0.55 seconds of tunnel entry. Do not return early for a claimed gate, as that
+removes the entire launch effect. The travel and arrival visuals continue
+through their existing paths. `port.ini [Render] jumpgate_visual = 0`, followed by
+a system/game reload, restores the original activation.
+
+The lens and glow compile separately as shader model 3 programs with the normal
+June 2010 D3DX compile flags; no compiler/cache changes are needed.
+
+`python tools/build_jumpgate_check.py` compiles using D3DX9 and renders on D3D9 HAL.
+It checks zero-gain/closed identity, pause determinism, temporal animation, visible
+reflection, foreground/cockpit occlusion, letterboxing and finite FP32 output from
+front/side/back/inside/on-cap views. Placement tests reproduce Hor+ at 4:3, 16:9 and
+21:9, check circular bounds and independently project points on the hardpoint rim
+under camera translation/orbit and a transformed solar. Angular correlation of
+isolated ring renders measures +30 and -23 degrees over one second (one-degree
+measurement bins), checking both rotation directions at the original radii and
+exact pause behaviour. `--frames` exports a 7.5-second launch
+sequence under `src/obj/jumpgate_check`; these are synthetic-scene renders, not
+in-game screenshots. `tools/install_jumpgate_visual.py` stages the client/PDB and
+shader, then provides hash-checked installation, backup and restoration. It does
+not change game INIs or ALE files. In-game artistic review of the full docking
+sequence remains necessary after installation.
+
 ### Exterior jumphole shader
 
 `jumphole_visual.cpp` / `SHADERS/jumphole_lens.hlsl` replace the idle and activation
@@ -1708,3 +1904,131 @@ presented through the windowed gamma pass already.
   march, 1 pixel for the composite.
 - The key-light shadow loops stop at the first zero-weight sample: `shadow_steps` below 6 used to fetch the unused
   samples anyway. A half set for haze-only samples was tried and does not fit ps_3_0's 32 temp registers.
+
+
+### Tau37 ice prototype (2026-10-25)
+
+`ice_crystal = 1` selects `nebula_ice.hlsl`, a separately compiled variant of the existing
+volume raymarch. Only `gen_tau37_neb1_nebula`, `gen_tau37_neb2_nebula` and
+`gen_tau37_neb3_nebula` select the `tau37_ice` style in volumetric.ini. Other styles default
+to zero. Resource creation, shader reload and shutdown track the ice program separately;
+a failed ice compile/bind does not poison other nebula programs.
+
+The density field forms folded strata using periodic integer wave vectors, bent by the
+low-frequency noise channels. Shadow/AO probes sample the same folded macro field.
+Finer harmonics add frost ridges. The existing `white_circle` shape is borrowed from the
+nebula's own loaded ShapeDB each frame (no retained texture reference across system unload),
+with RGB luminance detail and no sprite alpha. Mirrored tiles use a two-tile CPU offset
+period; both noise and texture projection remain world anchored as the camera moves.
+The crystal palette spans blue cavities and pearl/cyan ridges with slow weak emission pulses.
+Tau37 disables point lightning in this variant to fit SM3's 32 temporary registers. The
+instruction-budget estimate for ice is 600 per step, retaining the device execution cap.
+
+The style uses 0.5 render scale, up to 128 march steps, 4.8km macro cells, slow drift,
+less uniform haze, and no retail puff sprites/fullscreen fog overlay. Retail object fog,
+original asteroid spawn distances and the opaque dynamic-asteroid-in-nebula fix remain.
+Shared depth-aware compositing and exclusions are retained.
+
+Validation: Release Win32 client build; both raymarch variants create successfully on D3D9;
+the composite silhouette regression reports zero contaminated pixels in 48 combinations.
+`tools/build_nebula_ice_check.py` renders the production ice shader with production noise
+and representative constants at two positions (standalone preview, not in-game captures).
+Its `check.exe --warm-only` fills the actual RP9 cache using the same include expansion and
+compiler identity. `tools/install_tau37_ice.py` stages the binary/shaders and merges only the
+marked Tau37 block into the installed config, validating hashes and creating backups.
+
+
+### Tau37 ice: background closure and muted palette
+
+The first ice profile left 85% haze transmission per fog distance and disabled the haze tail
+and visibility closure, exposing Tau37's bright white_nebula.cmp behind the translucent layers.
+The revised profile uses transmission 0.22, density 0.9, a 400m/3200m haze ramp, a haze tail,
+and background_scale 0.32. The existing visibility fade (4--10km through the real zone) closes
+only sky pixels in the ice variant: it adds remaining transmission times the horizon colour
+behind the existing scattering and removes that transmission. It never replaces the cloud RGB.
+Finite scene depth and depthless planet sphere hits bypass this closure, retaining their
+ray-integrated fog and exclusions. Ordinary styles keep their original composite behavior.
+
+`fog_colour` is an optional RGB 0..1 volume/horizon/aura override (-1 defaults to source INI).
+Tau37 uses 0.10,0.19,0.25 and a muted slate/teal cloud palette. Object fog is replaced by the
+existing depth-clipped volume only in this profile, avoiding a second authored white fog tint.
+Cloud emission and fixed-key intensity are reduced; spawn, collision and opacity rules are
+unchanged. The existing source sky remains enabled behind the fog and is visible again when
+leaving the nebula.
+
+Validation now includes the complete half-resolution FP16 march plus production composite,
+ACES exposure and black/white sky backgrounds. Both representative positions report zero sky
+leak pixels and zero clipped-white pixels. The 48 silhouette cases remain clean; three extra
+GPU tests check sky closure while opaque objects and depthless planets retain their fog values.
+The preview is a standalone rendering test, not an in-game verification.
+
+
+### Walker ice for Tau37; vanilla lightning globally
+
+The white prototype remains available as `[NebulaStyle] name = tau37_white`, with unchanged
+visual settings and `nebula_ice.hlsl`. A verified snapshot of its source, all shader includes,
+config, EXE and PDB is in `src/obj/tau37_white_backup_20261025_172000/manifest.json`.
+The three Tau37 nebula overrides now select `tau37_walker_ice`, based on the existing walker
+profile (layered banks, atmospheric distances, retail object fog and hybrid interior puffs).
+It uses a colder fixed key, slower drift, a narrower cloud ramp and less warp/erosion.
+
+`faceted_clouds = 1` selects the separately compiled `nebula_walker_ice.hlsl`. A periodic
+12-cell tetrahedral interpolation of the existing noise is baked once into a shared 128^3
+volume. Channel normalization and its own coverage histogram keep the authored coverage
+meaningful. Both shadow probes and primary density sample it; the ordinary detail noise
+remains. This creates continuous densities with planar changes of slope rather than sine
+folds or voxel steps. Baking measured 94ms on the standalone D3D9 fixture; the GPU lookup
+is one sample and fits SM3 temporary registers. Resource failure/reload/shutdown is isolated
+from ordinary and white shader programs. Standard/white noise volumes are unchanged.
+
+All installed `lightning_enabled` and `lightning_lights_ships` entries are set to zero;
+engine defaults are zero too. Retail background/puff flashes and native dynamic lightning
+continue through their existing paths and timers; the additional volume point lights,
+cores and generated ship light are disabled. The installer merges only the marked Tau37
+profile block plus these explicitly requested global lightning flags.
+
+Release build and D3D9 creation of all three raymarch variants pass. Depth silhouette and
+ice-horizon regression tests pass. `build_nebula_ice_check.py --walker` renders the new volume
+through the production half-resolution composite; the two representative views have no
+clipped-white pixels. The fixture is a rendering check, not a claim of in-game validation.
+
+The walker ice profile now leaves `background_scale = 1`: fog controls sky attenuation,
+without the previous extra black overlay (0.55 sky multiplier on immersion). Retail object
+fog remains enabled. Tau37's authored miner exclusions are 3000m spheres with `fog_far =
+15000`; near their centers this substantially weakens object fog relative to the surrounding
+nebula's 200m near / 3000m span. These exclusion settings are preserved.
+
+### Tau37: coherent distant-object fog and a brighter interior
+
+The subsequent in-game report showed pale, flat distant-object silhouettes against darker
+volume scattering, including views through the medium from outside the miner exclusions.
+The Tau37 walker profile now replaces both retail object fog and the retail fullscreen
+fog overlay. Its single depth-clipped volume handles objects and sky, retaining the authored
+exclusions. This avoids painting the object's surface with the bright linear-fog colour
+before applying the differently lit volume. Other nebula profiles remain unchanged.
+
+Background scale remains 1. Ambient, haze/cloud fill and the fixed key are brighter;
+the haze ramp is 200m/3000m, transmission 0.18 and the haze continues beyond the march cap.
+The existing D3D9 fixture now checks finite-depth surfaces at 600m, 3km, 8km and 15km, plus
+outside/inside-exclusion views. Remaining black/white object contrast is about 1.7% at 8km
+and 0.3% at 15km in this fixture, with no clipped-white sky pixels. This is a synthetic
+production-shader check; the revised settings still need confirmation in the reported view.
+
+### Common li_cal fog profile (including the native veil)
+
+At the user's request, the global defaults and active walker, edge, generic and Tau37
+walker-ice styles now use the fog settings of crow, the style selected by li_cal's five
+generated nebulae. Native object fog and the fullscreen veil are both enabled
+(`replace_object_fog = 0`, `replace_fog_overlay = 0`). Haze transmission is 0.18,
+the ramp is 1000m/7000m, albedo/emission are 0.9/0.12, the march cap is 10km,
+cloud distance fade is 4km and the analytic haze tail is off. There is no additional
+black background multiplier or artificial visibility closure. This supersedes the
+preceding Tau37 volume-only fog experiment.
+
+Source INI fog colours, near/distance and exclusion fog_far remain authored per nebula.
+Cloud geometry, density scales, lighting and Tau37 exposure 1.1 are retained, so their
+artistic appearance and absolute extinction can still differ. The archived tau37_white
+style and the decorative li_cal_light_cloud_volume override are unchanged.
+Configuration checks verify the common fog keys across all active styles and preservation
+of other settings; no shader or binary rebuild is needed. Earlier standalone walker
+rendering numbers above describe the volume-only experiment, not this native-fog composite.

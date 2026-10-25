@@ -101,6 +101,8 @@ namespace NebulaVolume
     void DrawHybridClouds(ICamera* Camera); // detail sprites after the volume composite
 
     bool DynamicAsteroidFade(Universe::IZone const* FieldZone, float* Fraction, float* Seconds);
+    // Actual asteroid position, independent of camera/field overlap and distance fade.
+    bool DynamicAsteroidOpaqueAt(float const* Position);
 
     // True between BeginFrame and Draw when at least one nebula will be drawn.
     bool IsActive();

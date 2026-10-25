@@ -19,6 +19,10 @@
 //   - the [WingAnim] key toggles it by hand.
 // A request made while the wing moves (the launch included) is queued and runs when the move
 // ends; the last request wins, and one the move already satisfies is dropped.
+// Health shares this controller: pause retains channel times/direction, manual
+// play or an allowed automatic request resumes, and cruise lock blocks future
+// cruise transitions (including an already queued cruise request). Dock/launch
+// requests are independent of that lock. Paused/locked state resets on ship change.
 
 #ifdef FREELANCER_MOD_PLUGINS
 
@@ -28,7 +32,25 @@ void WingAnimTick();
 // From KeyMapRouteInputMessage: true when the message was the wing key.
 bool WingAnimHandleKey(unsigned Message, unsigned Wparam);
 
+// Shared keyboard/Health actions. Play toggles the destination, or resumes a pause.
+bool WingAnimRequestToggle();
+bool WingAnimTogglePause();
+bool WingAnimAvailable();
+bool WingAnimPaused();
+bool WingAnimCanPause();
+bool WingAnimCruiseLocked();
+void WingAnimSetCruiseLocked(bool locked);
+
 // For a HUD indicator: 0 none (the ship has no wing), 1 folded, 2 moving, 3 extended.
 int WingAnimDisplayState();
 
+#else
+inline bool WingAnimRequestToggle() { return false; }
+inline bool WingAnimTogglePause() { return false; }
+inline bool WingAnimAvailable() { return false; }
+inline bool WingAnimPaused() { return false; }
+inline bool WingAnimCanPause() { return false; }
+inline bool WingAnimCruiseLocked() { return false; }
+inline void WingAnimSetCruiseLocked(bool) {}
+inline int WingAnimDisplayState() { return 0; }
 #endif

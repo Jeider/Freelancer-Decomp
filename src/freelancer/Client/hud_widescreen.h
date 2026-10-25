@@ -18,12 +18,13 @@
 // submission), Project / Unproject (text, screen quads, sub-viewports) and mouse rays all
 // agree. Nothing in a window's own placement code changes.
 //
-// The windows: HUD_Status and the NeuroNet buttons (NN_MainButton; a button flying into a
+// The windows: HUD_Status, HUD_Health and the NeuroNet buttons (NN_MainButton; a button flying into a
 // centred NeuroNet screen loses its shift with the move, and the panel under it has none) to
-// the right; HUD_Target, HUD_ContactList and the comm window (HUD_Receiver) to the
+// the right; HUD_Target, HUD_Targeting, HUD_ContactList and the comm window (HUD_Receiver) to the
 // left; the main menu column (TypeSelect) to the left with its "Version" caption to the right.
-// Children that belong to the centre (HUD_Status's special-mode captions, NN_MainButton's
-// "ScaledBackground") stay in the middle. The Win3D walks and the Draw of the common controls
+// Children that belong to the centre (the loot/trade buttons beside HUD_Core, HUD_Status's
+// special-mode captions, NN_MainButton's "ScaledBackground") stay in the middle.
+// The Win3D walks and the Draw of the common controls
 // (WinControl, NnButtonControl, NnStaticControl, NnTextControl) each set the shift of the object
 // they handle, so owners that walk their children themselves still get it right.
 

@@ -15,6 +15,7 @@
 #include "gate_tunnel.h"
 #include "tradelane_visual.h"
 #include "jumphole_visual.h"
+#include "jumpgate_visual.h"
 #include "ship_warp_visual.h"
 #include "engine_heat_visual.h"
 #include "nebula_volume.h"
@@ -371,6 +372,7 @@ void RenderEx::Startup()
     GPipelineEx = PipelineEx;
     GDrawEx = DrawEx;
     LoadSettings();
+    JumpGateVisualRenderStartup();
     ResolveHotReloadPaths();
     GLastPollTick = GetTickCount();
     GIniStamp = ComputeIniStamp();
@@ -388,6 +390,7 @@ void RenderEx::Shutdown()
     EngineHeatVisualShutdown();
     ShipWarpVisualRenderShutdown();
     JumpHoleVisualRenderShutdown();
+    JumpGateVisualRenderShutdown();
     TradeLaneVisualRenderShutdown();
     GateTunnelRenderShutdown();
     NebulaVolume::Shutdown();
