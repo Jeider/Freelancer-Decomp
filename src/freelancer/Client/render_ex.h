@@ -46,6 +46,11 @@ namespace RenderEx
     // scene_depth_view pass. (The volumetric nebula is drawn earlier, inside SpaceObjDrawPass --
     // nebula_volume.h.)
     void AfterSpaceScene();
+    void AntialiasScene(); // Completed 3D frame (space/cockpit/rooms), before UI.
+    void RoomMaterialFrame(bool Enabled);
+    void RoomContactShadows();
+    bool BeginRoomShadow(const float* CameraView12, const float* Center, float Radius, bool Character);
+    bool EndRoomShadow();
     void NoteSolarSceneDepth(float Near,float Far);
     void DrawSolarRays(float U,float V,float Radius,float Strength,const float* Colour,float Aspect,float SunFrontDistance);
     // The sun's corona (solar_corona.hlsl), drawn in place of its attached ALE: DiscRadius in

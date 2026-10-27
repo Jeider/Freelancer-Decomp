@@ -7,6 +7,14 @@ int main()
 {
     using namespace RadarSymbols;
     using namespace RadarProjection;
+    assert(Classify(MissileMask)==Kind::Missile);
+    for(int attitude:{-1,0,1}) {
+        assert(MissileColor(attitude,true,0)==0xff4438u);
+        assert(MissileColor(attitude,true,.249f)==0xff4438u);
+        assert(MissileColor(attitude,true,.25f)==0xffe35bu);
+        assert(MissileColor(attitude,true,.499f)==0xffe35bu);
+        assert(MissileColor(attitude,false,.3f)==ContactColor(Kind::Missile,attitude));
+    }
     assert(Classify(2)==Kind::Planet && Classify(1)==Kind::Planet);
     assert(Classify(0x10000)==Kind::Triangle && Classify(0x20000)==Kind::Triangle && Classify(LootMask)==Kind::Triangle);
     assert(Classify(0x200000)==Kind::Capital && Classify(0x80000)==Kind::Capital);
@@ -18,6 +26,15 @@ int main()
     Layout l;assert(MakeLayout({0,0,1023,767},.5f,.845f,.3f,.32f,.94f,l));
     // No internal wire edges: nonhorizontal sphere lines must join silhouette vertices.
     Contact const sphere={l.x,l.y,l.y,0,false};
+    unsigned circleEdges=0;
+    Emit(sphere,Kind::Missile,0,1000,l,0xff4438u,false,.8f,4,
+        [&](float x,float y,float bx,float by,unsigned rgb,float) {
+            assert((rgb&0xffffffu)==0xff4438u);
+            assert(std::fabs(std::hypot(x-l.x,y-l.y)-5.f)<.001f);
+            assert(std::fabs(std::hypot(bx-l.x,by-l.y)-5.f)<.001f);
+            ++circleEdges;
+        });
+    assert(circleEdges==16); // Hollow circle, no diamond or interior fill.
     float const sphereRadius=80.f/1000.f*l.radius;
     unsigned outlines=0,fills=0;
     Emit(sphere,Kind::Planet,80,1000,l,ContactColor(Kind::Planet,1),false,.8f,5,
@@ -54,6 +71,10 @@ int main()
         assert(emitted>before);
     }
     // Real planetary radius doubles on zoom-in, without a marker-size clamp.
+    for(auto const& marker:{Contact{l.x,l.y,l.y-40,0,false},
+                           Contact{l.x+l.radius,l.y,l.y,0,false},
+                           Contact{l.x,l.y,l.contactBottom,0,true}})
+        Emit(marker,Kind::Missile,0,1000,l,0xffe35bu,true,.8f,5,draw);
     float extents[2]={};
     p={l.x,l.y,l.y-70,0,false};
     for(int mode=0;mode<2;++mode)
@@ -76,5 +97,5 @@ int main()
             });
     }
     std::fclose(catalog);
-    puts("PASS: six original Beta symbols, fighter/freighter/loot triangles, physical planetary size, range intersection, zoom scaling and clipped bounded drawing");
+    puts("PASS: Beta symbols, triangles, hollow missile circles, threat colors, planetary size, zoom and clipped drawing");
 }

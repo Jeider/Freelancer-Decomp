@@ -1,3 +1,4 @@
+#include "runtime_hitch_log.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -13,6 +14,7 @@
 #include "RP9.h"
 #include "RP9Ex.h"
 #include "RP9DeviceCallCache.h"
+#include "RP9LightCompatibility.h"
 #include "Mgsdb.h"
 #include "readfile.h"
 #include "x86math.h"
@@ -1081,7 +1083,11 @@ HRESULT FRp9LightManager::Flush(IDirect3DDevice9* Device)
         if (Record->bDataDirty != 0 && Record->bWantEnabled != 0)
         {
             Record->bDataDirty = 0;
-            Hr = Device->SetLight((DWORD)Record->D3dIndex, Record->Data);
+            D3DLIGHT9 Light;
+            if (Record->Data != nullptr)
+                Light = Rp9CompatibleLight(*Record->Data);
+            Hr = Device->SetLight((DWORD)Record->D3dIndex,
+                                  Record->Data != nullptr ? &Light : nullptr);
         }
         if (Record->bWantEnabled != Record->bEnabled && Hr >= 0)
         {
@@ -1328,8 +1334,16 @@ GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
         Face = (IRPDrawEx*)(this);
     else if (IidEqual(Iid, Iids::RPSurfaceContext))
         Face = (IRPSurfaceContext*)(this);
+    else if (IidEqual(Iid, Iids::RPRoomMaterials))
+        Face = (IRPRoomMaterials*)(this);
+    else if (IidEqual(Iid, Iids::RPRoomShadows))
+        Face = (IRPRoomShadows*)(this);
     else if (IidEqual(Iid, Iids::RPSurfaceShader))
         Face = (IRPSurfaceShader*)(this);
+    else if (IidEqual(Iid, Iids::RPCodeBeam))
+        Face = (IRPCodeBeam*)(this);
+    else if (IidEqual(Iid, Iids::RPShipNormals))
+        Face = (IRPShipNormals*)(this);
     else if (IidEqual(Iid, Iids::RPLocalShadows))
         Face = (IRPLocalShadows*)(this);
     else if (IidEqual(Iid, Iids::RPWeaponGlints))
@@ -3756,7 +3770,7 @@ GENRESULT DACOM_API FDirectX9::SwapBuffers()
         return Ready;
     // Port-only: [Render] fxaa = 2 filters the finished frame, HUD included, then the GPU
     // frame timers close this frame and open the next.
-    if (Ex_ != nullptr && Ex_->QualityFxaaMode == 2)
+    if (Ex_ != nullptr && !Ex_->QualitySmaaEnabled && Ex_->QualityFxaaMode == 2)
         ExApplyFrameAntialiasing();
     ExApplyWindowedGamma(); // port-only: the game's gamma while windowed
     ExDrawWarmupOverlay();
@@ -4534,8 +4548,11 @@ GENRESULT DACOM_API FDirectX9::SetLight(void* Handle, const D3DLIGHT8* Light)
     const int Index = LightManager_.FindOrCreate(
                                         (unsigned long)(uintptr_t)Handle,
                                         nullptr);
+    D3DLIGHT9 Compatible;
+    if (Light != nullptr)
+        Compatible = Rp9CompatibleLight(*Light);
     const HRESULT Hr =
-        Device_->SetLight((DWORD)Index, Light);
+        Device_->SetLight((DWORD)Index, Light != nullptr ? &Compatible : nullptr);
     if (SUCCEEDED(Hr) && Light != nullptr)
         Ex_->SurfaceDirectLights[(unsigned long)(uintptr_t)Handle] = *Light;
     if (Hr < 0)
@@ -4574,12 +4591,12 @@ unsigned int FDirectX9::ExCollectSurfaceLights(D3DLIGHT9* Out, unsigned int Capa
         if(Count==Capacity) break;
         FRp9LightRecord const& Record = *Item.second;
         if (Record.Data != nullptr)
-            Out[Count++] = *Record.Data;
+            Out[Count++] = Rp9CompatibleLight(*Record.Data);
         else
         {
             auto Found = Ex_->SurfaceDirectLights.find(Item.first);
             if (Found != Ex_->SurfaceDirectLights.end())
-                Out[Count++] = Found->second;
+                Out[Count++] = Rp9CompatibleLight(Found->second);
         }
     }
     return Count;
@@ -5411,13 +5428,16 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveUp(unsigned long Prim, unsign
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
     const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
     const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
-    const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
-    const bool bSurface = !bPlanet && !bAtmosphere && !bSoft && ExSurfaceBegin();
-    if (!bSurface && !bSoft && !bAtmosphere && !bPlanet)
+    const bool bBeam = !bPlanet && !bAtmosphere && ExCodeBeamBegin();
+    const bool bSoft = !bBeam && !bPlanet && !bAtmosphere && ExSoftBegin();
+    const bool bSurface = !bBeam && !bPlanet && !bAtmosphere && !bSoft && ExSurfaceBegin();
+    if (!bBeam && !bSurface && !bSoft && !bAtmosphere && !bPlanet)
         ExSurfaceRelease(); // a fixed-function draw after a surface draw
     ExNoteDraw(PrimCount);
     Result = Device_->DrawIndexedPrimitiveUP((D3DPRIMITIVETYPE)(Prim), 0, VertCount,
                                              PrimCount, Indices, D3DFMT_INDEX16, Verts, Stride);
+    if (bBeam)
+        ExCodeBeamEnd();
     if (bSurface)
         ExSurfaceEnd();
     if (bSoft)
@@ -5604,6 +5624,10 @@ GENRESULT DACOM_API FDirectX9::SetWorldN(int WorldIndex, const float* M12)
     Scratch[7] = 0.0f;
     Scratch[11] = 0.0f;
     Scratch[15] = 1.0f;
+    if (Ex_ && WorldIndex >= 0 && WorldIndex < 64)
+        memcpy(Ex_->RoomBones[WorldIndex], Scratch, sizeof(Scratch));
+    else if (Ex_ && WorldIndex >= 64)
+        Ex_->bRoomPaletteUnsupported = true;
     const HRESULT Hr = Rp9SetTransform(Device_,
         (D3DTRANSFORMSTATETYPE)((unsigned long)WorldIndex + D3DTS_WORLDMATRIX(0)),
         (D3DMATRIX*)(Scratch));
@@ -7333,6 +7357,7 @@ namespace
 GENRESULT DACOM_API FDirectX9::LoadTexture(IFileSystem* FileSystem, const char* FileName,
                                            void** OutHandle)
 {
+    RuntimeHitchScope Hitch("texture", FileName);
     // FUN_06d148d4 (interface this = object+0x18, RET 0x10), traced line by line.
     if (Device_ == nullptr)
     {

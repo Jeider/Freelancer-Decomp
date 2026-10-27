@@ -12,6 +12,12 @@ cloud_sort = 1
 cloud_smooth_fade = 1
 ```
 
+The block above is an opt-in example. The workspace `bin/port.ini` has
+`soft_particles_effects = 0`. On 2026-10-27 the user's installed configuration was
+also set to 0 at their request, disabling this added fade for explosion/fire/smoke
+particles, including appearances using `XP_HERM`. Original ALE/texture data remain
+unchanged. This is depth fading, not heat refraction; restart the game after changing it.
+
 ## Soft particles
 
 Retail particles are flat sprites with a hard depth test: where an explosion, a fire or a

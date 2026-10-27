@@ -165,6 +165,7 @@ void HUD_CruiseProgress::Draw()
     NnTextControl* const Text = static_cast<NnTextControl*>(CruiseProgressText);
     float anchorX=0,anchorY=0;
     if (RadarMessageAnchor(anchorX,anchorY)) Text->SetOffset(anchorX-.2425f,anchorY,0);
+    else Text->SetOffset(-.243f,-.263f,0); // Restore the retail position after switching radar off.
     wchar_t Line[0x3c]; // the 0x78-byte frame buffer at [ESP + 0x10]
 
     // 0x004d5f90..0x004d5f9f: TEST AH,5 / JP -- falls through only when Ratio < 0.

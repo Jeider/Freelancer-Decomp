@@ -34,6 +34,8 @@
 #include "hud_targetable_objects.h"
 #include "hud_weapon_groups.h"
 #include "hud_health.h"
+#include "player_turret_hud.h"
+#include "hud_radar.h"
 #include "ids_strings.h"
 #include "login_mgr.h"
 #include "menu_keymap_config.h"
@@ -676,6 +678,7 @@ HUD_Status::HUD_Status(INI_Reader& /*Reader*/)
 
 HUD_Status::~HUD_Status()
 {
+    PlayerTurretHud::Release(this);
     // FUN_004da740: the vptrs put back, then 0x004da799: DAT_00674aa0 = 0. It frees HpRowCache
     // (+0x5dc), the caption (+0x5d0) and Weapons (+0x58c) next -- here the member destructors,
     // in that same (reverse declaration) order; the ButtonScaler list at +0x4e8 and the
@@ -1405,6 +1408,7 @@ bool HUD_Status::MouseEvent(FWin3DMouseEvent const* Event)
 
 intptr_t HUD_Status::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 {
+    if (PlayerTurretHud::Property(this, Msg, A)) return 1;
     if (HealthHostProperty(this, Msg, A, B)) return 1;
     // FUN_004db1c0 (this = the WinControl face).
     if (Msg == 0x26)
@@ -1455,6 +1459,7 @@ namespace
     // IsMouseFlightHoldThresholdReached Update saw. Only Update reads or writes them.
     unsigned char G_StatusLastMouseFlightUnlocked = 0;
     unsigned char G_StatusLastMouseFlightHoldReached = 0;
+    bool G_StatusLastRadarEnabled = false;
 
     // Retail's shared scratch buffers (nn_text_scratch.h): the special-mode caption's format
     // is DAT_0066dc60 (0x004dcb44), its line DAT_0066fc60 (0x004dcc23), and the weapon rows'
@@ -1486,6 +1491,15 @@ void HUD_Status::Update()
         {
             Slot12();
         }
+    }
+
+    // Restore native captions immediately on radar toggle, even if flight mode
+    // did not change. The docking/tradelane update below restores its own text.
+    bool const RadarOn = RadarIsEnabled();
+    if (RadarOn != G_StatusLastRadarEnabled)
+    {
+        G_StatusLastRadarEnabled = RadarOn;
+        UpdateSpecialModeCaptions();
     }
 
     // 0x004db387..0x004db3c0: the captions follow the mouse-flight state.
@@ -1538,8 +1552,7 @@ void HUD_Status::Update()
                         {
                             SpecialModeTextCancel->SetProperty(
                                 0x1d, reinterpret_cast<uintptr_t>(Caption.Text), 0);
-                            // Keep the destination cached, but suppress its HUD caption.
-                            SpecialModeTextCancel->Flags &= 0xfc;
+                            SpecialModeTextCancel->Flags |= 3;
                         }
                     }
                 }
@@ -1550,7 +1563,7 @@ void HUD_Status::Update()
                 if (Ship->is_using_tradelane())
                 {
                     SpecialModeTextCancel->SetProperty(0x1d, reinterpret_cast<uintptr_t>(Caption.Text), 0);
-                    SpecialModeTextCancel->Flags &= 0xfc;
+                    SpecialModeTextCancel->Flags |= 3;
                     Byte5cd = 1;
                 }
                 else
@@ -1562,6 +1575,14 @@ void HUD_Status::Update()
                 }
             }
         }
+    }
+
+    // Apply after the native docking/tradelane writes, which can show the labels
+    // again. Cruise progress is a separate control and remains visible above radar.
+    if (RadarOn)
+    {
+        SpecialModeText->SetProperty(1, 1, 0);
+        SpecialModeTextCancel->SetProperty(1, 1, 0);
     }
 
     // 0x004db554..0x004db586: HUD_Target_Base's update FUN_004e7980, the scaler's FUN_0055e5e0;
@@ -1716,6 +1737,12 @@ void HUD_Status::Update()
 
 void HUD_Status::UpdateSpecialModeCaptions()
 {
+    if (RadarIsEnabled())
+    {
+        SpecialModeText->SetProperty(1, 1, 0);
+        SpecialModeTextCancel->SetProperty(1, 1, 0);
+        return;
+    }
     // FUN_004dca20 (this = the HUDItem face).
     // 0x004dca2b..0x004dca7e: the player ship (inline FUN_0054baf0 / +0xc / Object / 0x503
     // chain): in a tradelane, and whether the current behaviour is 10.
@@ -1762,14 +1789,6 @@ void HUD_Status::UpdateSpecialModeCaptions()
         bHideText = false;
     }
 
-    // Suppress mouse-flight and turret-view captions together with their exit hints.
-    // Cruise charge/disruption has its own HUD_CruiseProgress control.
-    if (bTurretView != 0 || (bRearView == 0 && !bTradelane))
-    {
-        SpecialModeText->SetProperty(1, 1, 0);
-        SpecialModeTextCancel->SetProperty(1, 1, 0);
-        return;
-    }
     SpecialModeText->SetProperty(1, bHideText ? 1u : 0u, 0);
     SpecialModeTextCancel->SetProperty(1, bHideCancel ? 1u : 0u, 0);
     if (bHideText)

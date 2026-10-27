@@ -110,3 +110,5 @@ void EffectVertexBatchSetColor(FEffectVertexBatch* Batch, float R, float G, floa
 // …) of G_EffectVertexBatch, restore.
 struct ICamera;
 void EffectVertexBatchFlush(ICamera* Cam);
+struct FTransform;
+void EffectVertexBatchSetBeamFrame(int FirstVertex, const FTransform& Transform, unsigned Seed);

@@ -36,6 +36,19 @@ viewport safe bounds so contact markers remain visible. A native textured disk
 uses the existing HUD backgroundpattern.tga with opacity 0.25 at HUD depth -1.
 make_assets.py generates standalone disk and button meshes without changing shared VMS.
 
+Guided missiles/torpedoes use hollow circles with height stems. Hostile launchers
+produce red markers, friendly/own launchers green, unknown/neutral launchers pale
+blue-white. A live missile targeting the player alternates red/yellow every 0.25 s
+(two full cycles per second), regardless of launcher attitude or availability.
+The phase advances with HUD frame time independently of sweep_speed. The actual
+current target is read each draw, so retargeting/countermeasures stop the warning.
+An independent missile-only object-database walk avoids the shared scanner cache's
+256-entry limit. It respects targetability, alive/dying state, scanner range,
+zoom and target interference, and retains at most max_contacts missile candidates.
+Incoming missiles take priority, followed by the selected target and nearest
+contacts, under the overall max_contacts limit. The same ship-relative markers
+work in cockpit and external views. No projectile gameplay or lock-on changes.
+
 Ordinary contacts come from the native CEScanner cache and its interference-adjusted
 range. Dead, self, untargetable and out-of-range contacts are rejected.
 An explicit [Solar] radar_mining = true opts a mining solar into triangle navigation
@@ -50,11 +63,10 @@ stage_solars.py stages the vetted 24 mining / 8 hidden archetypes, audits the 40
 main systems and preserves every other byte in solararch.ini. The hidden archetypes
 are docking_fixture*, tr_point_* parked transports and their cargo, not flying ships. Solar objects with
 nonempty CSolar::GetParentNickname() (the system [Object] parent key) are excluded
-from this radar without altering the shared scanner cache or other HUD lists. Selected then
-nearest contacts win at the max_contacts limit. show_solars includes stations,
+from this radar without altering the shared scanner cache or other HUD lists. show_solars includes stations,
 gates, holes, docking rings, platforms, depots, satellites, planets/moons and trade-lane
-rings, not stars, asteroids or projectiles. Loot is included independently of show_solars
-and uses the triangle marker, within the same scanner detection range.
+rings, not stars or asteroids. Missiles and loot are included independently of show_solars.
+Loot uses the triangle marker, within the same scanner detection range.
 Without a scanner the empty frame dims.
 No engine object pointer is retained between frames or across system changes.
 
@@ -69,18 +81,21 @@ Bits 18..19 store range index + 1, with zero falling back to the hud.ini range_i
 Both settings are restored on save loads, including while the HUD remains alive.
 Only the toggle remains when off, and no scanner work occurs.
 Plus zooms in (less range); minus zooms out. Limits disable the corresponding button;
-circle size stays fixed. No target-picking controls yet. The mouse-flight caption
-and its cancel hint are temporarily hidden (other mode warnings remain native).
+circle size stays fixed. No target-picking controls yet. While radar is enabled,
+special-mode captions and exit hints (mouse flight, turret/rear view, docking and
+tradelane destination) are hidden; cruise charge/disruption remains above the disk.
+Switching radar off restores native captions and their original positions, including
+the cruise label at (-0.243, -0.263). Without an active Radar item the native layout
+also remains in use. Caption restoration does not wait for a flight-mode change.
 Backspace's temporary HUD hide does not affect Radar or its controls. NeuroNet, letterbox, transitions and hidden HUD suppress it.
-Only its buttons intercept mouse input. Cruise charge/disruption countdowns sit
-above the disk; trade-lane destination captions are hidden.
+Only its buttons intercept mouse input.
 Entering a trade lane or arriving in a new system returns the rim to its forward
-arrow by retracing the last manual turn, capped at 8 degrees/second. The return
-heading is latched: it does not switch to a closer arrow after half a turn.
-A new manual direction replaces that preference on the next return.
+direction using the nearest of its four identical arrows, capped at 8 degrees/second.
+The return covers at most 45 degrees; previous turn direction is not remembered.
 Weak turning (below 8% of the ship's maximum pitch/yaw rate) or releasing mouse
 flight also returns the rim smoothly. Maneuvering above 14% interrupts that return;
-the gap prevents flicker between the modes. Return decelerates near forward.
+the gap prevents flicker between the modes. Return decelerates near forward and
+snaps angle and angular speed to zero when aligned, keeping the rim stopped.
 
 Rendering uses the native late Win3D line batch, with its capacity flushing and
 viewport-to-ortho conversion. There are no extra pipeline hooks or raw state writes.
@@ -95,7 +110,9 @@ wide viewports; runs the production ring/grid/contact emitters at three animatio
 phases and exports CSV previews. A hidden D3D9 draw/readback confirms the empty
 frame renders from the native Common.dll INI reader (825/833/845 lines by range).
 check_controls.py
-exercises production parent filtering, zoom handlers, limits and button placement. This is not an
+exercises production parent filtering, zoom handlers, limits, button placement and
+the enabled-only cruise anchor. tools/targeting_hud/check_hud_feedback.py checks
+caption restoration across six flight modes and cruise position round-trips. This is not an
 in-game flight capture. tools/export_radar_ring.py validates original wire indices
 and leaves the source asset unchanged.
 check_solars.ps1 exercises the real newly built Common.dll loader and metadata inheritance/reload.
@@ -112,3 +129,7 @@ Friendly planets use the neutral colour. Height stems stop at the surface.
 Other glyphs use a fixed readable size. Large symbols are clipped
 to the contact area; the scanner cache and interference rules still determine detection.
 test_symbols.cpp covers these mappings, zoom/radius scaling, clipping and bounded work.
+It also checks hollow missile circles, clipping and threat colors; it runs even
+without -HudIni. python tools/radar/check_missiles.py extracts the production
+collector and exercises live ownership/retargeting, missing owners, dead objects,
+scanner/zoom limits, a 600-missile scene, priority and bounded storage with stubs.

@@ -5,6 +5,11 @@
 // Author: Giperion.
 
 #include "menu_keymap_config.h"
+#include "player_auto_turrets.h"
+#include "player_behavior.h"
+#include "space_letterbox.h"
+#include "nn_modal.h"
+#include "cutscene_skip.h"
 #ifdef FREELANCER_MOD_PLUGINS
 #include "wing_anim.h" // port-only wing animation key
 #endif
@@ -29,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <list>
+#include <algorithm>
 #include <string.h>
 #include <vector>
 #include <windows.h>
@@ -36,7 +42,11 @@
 namespace
 {
     // Retail PTR_s_USER_NONE_00614dd8 — 0xcc entries (listing .data:00614dd8..00615104).
-    unsigned const kKeyCmdNicknameCount = 0xCCu;
+    unsigned const kKeyCmdNicknameCount = 0xCCu
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+        + 4
+#endif
+        ;
 
     char const* const GKeyCmdNicknames[kKeyCmdNicknameCount] = {
 #include "menu_keymap_nicknames.inc"
@@ -247,6 +257,19 @@ namespace
     // FUN_00576410 — real body in hud_command_dispatch.cpp (KeyMap handler tree).
     bool DispatchKeyCommand(unsigned NicknameId, int EventKind)
     {
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+        if (NicknameId >= 0xcc && NicknameId < 0xd0 && PlayerAutoTurrets::Enabled())
+        {
+            auto const* record = HudCommandRecord();
+            if (!record->Byte18 || record->Byte19) return true;
+            if (NicknameId == 0xcf) { PlayerAutoTurrets::SetMode(PlayerAutoTurrets::Mode::Manual); return true; }
+            if (HudGetInputFocus() || G_bNnScreenUp || IsLetterboxVisible() || !GetPlayerObjRW()) return false;
+            using namespace PlayerAutoTurrets;
+            SetMode(NicknameId == 0xcc ? (GetMode() == Mode::Manual ? GetPreferredMode() : Mode::Manual) :
+                    NicknameId == 0xcd ? Mode::Target : Mode::Hostiles);
+            return true;
+        }
+#endif
         return HudDispatchCommand(NicknameId, EventKind) != 0;
     }
 }
@@ -557,6 +580,24 @@ namespace
         if (Loaded == 0)
             return; // retail still resolves the group after a failed load
         G_bKeyMapLoaded = true;
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+        if (PlayerAutoTurrets::Enabled())
+        {
+            auto* cockpit = FindKeyMapGroup("IDR_COCKPIT");
+            for (unsigned id = 0xcc; id < 0xd0; ++id)
+            {
+                auto* command = FindKeyCmdByNicknameId(id);
+                if (!command)
+                {
+                    GKeyCmds.push_back({id, 0x7fee0020 + id - 0xcc, 0x7fee0020 + id - 0xcc,
+                        kKeyCmdStateKeyDown, {}});
+                    command = &GKeyCmds.back();
+                }
+                if (cockpit && std::find(cockpit->Commands.begin(), cockpit->Commands.end(), command) == cockpit->Commands.end())
+                    cockpit->Commands.push_back(command);
+            }
+        }
+#endif
         LoadUserKeyMapIni(EnsureUserKeyMapPath());
     }
 }
@@ -618,6 +659,10 @@ void UnregisterAcceleratorGroup(char const* GroupNickname)
 
 bool KeyMapRouteInputMessage(unsigned Message, unsigned Wparam, unsigned Lparam)
 {
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+    if (Message == WM_KILLFOCUS || (Message == WM_ACTIVATEAPP && !Wparam))
+        PlayerAutoTurrets::SetMode(PlayerAutoTurrets::Mode::Manual);
+#endif
 #ifdef FREELANCER_DBG_OPTIONS
     if (DbgConsoleHandleMessage(Message, Wparam, Lparam))
         return true;
@@ -626,6 +671,8 @@ bool KeyMapRouteInputMessage(unsigned Message, unsigned Wparam, unsigned Lparam)
     if (DbgOptionsHandleKey(Message, Wparam))
         return true;
 #endif
+    if (CutsceneSkipHandleKey(Message, Wparam, Lparam))
+        return true;
 #ifdef FREELANCER_WALK_MODE
     if (BaseWalkHandleKey(Message, Wparam))
         return true;
@@ -696,6 +743,17 @@ bool KeyMapRouteInputMessage(unsigned Message, unsigned Wparam, unsigned Lparam)
     if (Kind > 2)
         Mode = 2;
 
+    // A bound STOP revokes permission before the pause/menu focus filter consumes the key.
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+    if (Kind == 1 && Record->Byte18 && !Record->Byte19 && PlayerAutoTurrets::GetMode() != PlayerAutoTurrets::Mode::Manual)
+        if (auto const* stop = FindKeyCmdByNicknameId(0xcf))
+            for (auto const& binding : stop->Bindings)
+                if (unsigned(binding.VirtualKey) == Record->Key && BindingMatchesState(stop, &binding, Record))
+                {
+                    PlayerAutoTurrets::SetMode(PlayerAutoTurrets::Mode::Manual);
+                    return true;
+                }
+#endif
     // 00577958..0057796e: the raw kind (1 = key, 2 = char) goes to the handler tree first.
     if (HudDispatchCommand(Kind, Mode) != 0)
         return true;

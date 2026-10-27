@@ -19,6 +19,8 @@ pages assume it.
 
 ## Contents
 
+Port-only extension: [player auto turrets](player-auto-turrets.md) — enablement, energy reserve and saved character/hull preferences.
+
 | Area | Page | What it covers |
 |------|------|----------------|
 | Parsing | [parsers.md](parsers.md) | `INI_Reader` and the DACOM `IProfileParser`; value parsing rules; path resolution |

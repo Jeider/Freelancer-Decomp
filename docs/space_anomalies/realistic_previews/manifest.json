@@ -1,0 +1,60 @@
+{
+  "renderer": "D3D9 HAL, SM3, FP16 HDR",
+  "style": "realistic",
+  "quality": "epic",
+  "resolution": [
+    3840,
+    2160
+  ],
+  "checks": {
+    "01_monkey": {
+      "motion": false,
+      "orbit_changed": true
+    },
+    "02_intro": {
+      "motion": true,
+      "orbit_changed": true
+    },
+    "03_einstein": {
+      "motion": true,
+      "orbit_changed": true
+    },
+    "04_pulsar": {
+      "motion": true,
+      "orbit_changed": true
+    },
+    "05_magnetar": {
+      "motion": true,
+      "orbit_changed": true
+    },
+    "06_quasar": {
+      "motion": true,
+      "orbit_changed": true
+    },
+    "07_microquasar": {
+      "motion": true,
+      "orbit_changed": true
+    },
+    "08_interior": {
+      "motion": true,
+      "orbit_changed": true
+    }
+  },
+  "source_sha256": {
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\active_nuclei.hlsl": "aef54e1513006b40c338b4d18b85c6894a1f990fde6155e2b498ac208a0836ef",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\black_holes.hlsl": "4fc8cf97f74988fc3e9a592110bb2fc7a10462d12f29ef87c88ad98b11b22720",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\common.hlsli": "564cf15621a0010071c6f6700cb74b038095b79b8e9ffa03380361ee6e08094d",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\interior.hlsl": "600e4b5968ea8a0109fdef9e55558b4514a31e1ca9c7f896a5041614b7efd8d3",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\neutron_stars.hlsl": "b92ff8c28a6f1e44b2f1962e74b71efe684399f9f825a41a1aba6983e6a1a4af",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\post.hlsl": "6b7732d2b01f67fc228dac568ca20f31f1ef9fe2ee7e8d2257798fe258efce84",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\realism_active_nuclei.hlsl": "6dd4949fef5746787daafdf10ccd76037e44acb5761a403c24ab854f3d11e5dc",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\realism_black_holes.hlsl": "f6b8dcc9a0d3f9826f310e0764b6bde17116a3d0b73449a63c8a224bd72288d4",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\realism_common.hlsli": "d438d79d13b36874607d0e361c7b4407c7e7e3bc0db0d015b6f042e3264ba772",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\realism_gr.hlsli": "ad91ca22d09f68cced9ee7e19ba310e8d8e5a3ada118227b4e613fa8a63cfad1",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\realism_horizon.hlsl": "a6fc6ea849bd5b117cf61b4a1fed8991eaa181764d32f3ae2f6c77a4ee1cb389",
+    "DATA_EXTRA\\SHADERS\\ANOMALIES\\realism_neutron_stars.hlsl": "b7fa94ce575a20e20658cd8f015f2d8ddc8477004df03ae714de4e1f3c8b31ff",
+    "tools\\space_anomalies\\presets.realistic.json": "d88dea5c0c5462aa788db513b513cc6f425e50f1dab5cd153f14dcbbbe490121",
+    "tools\\space_anomalies\\render.cpp": "67f5f18b797b23ad347e3bbcd426b60fd12e3208a8646c7dfa89cadb250f183e"
+  },
+  "limitation": "GPU laboratory captures, not in-game screenshots or a full physical/spectral simulation."
+}

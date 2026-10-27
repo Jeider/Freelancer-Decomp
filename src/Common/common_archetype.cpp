@@ -1,3 +1,4 @@
+#include "runtime_hitch_log.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -5,6 +6,9 @@
 // Author: Giperion.
 
 #include "common_archetype.h"
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+#include "equipment_slots.h"
+#endif
 #include "common_archetype_internal.h"
 
 #include "common_cobject.h" // CollisionGroupDesc (get_undamaged_collision_group_list)
@@ -464,6 +468,9 @@ namespace Archetype
 
     Root::~Root()
     {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        EquipmentSlots::ResetDefinition(*this);
+#endif
         if (Companion != nullptr)
         {
             Companion->Release();
@@ -595,6 +602,9 @@ namespace Archetype
     //   - every other scalar/ID_String/CacheString field: raw copy.
     Root const& Root::operator=(Root const& Other)
     {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        EquipmentSlots::CopyDefinition(*this, Other);
+#endif
         CliObjRelease(Companion);
         Companion = Other.Companion;
         CliObjAddRef(Companion);
@@ -657,6 +667,7 @@ namespace Archetype
 
     bool __cdecl Load(char const* Path, long* EngineIndex, int* AnimIndex)
     {
+    RuntimeHitchScope Hitch("model_load", Path);
         // Retail 0x062efe40. No test of Path.
         if (EngineIndex != nullptr && AnimIndex == nullptr)
         {

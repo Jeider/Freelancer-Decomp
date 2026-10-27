@@ -10,6 +10,9 @@
 
 #ifdef FREELANCER_DBG_OPTIONS
 
+// Common owns this explicit STL instantiation. Import it before any local use;
+// otherwise DebugASan links two strong ushort-vector destructors (LNK2005).
+#include "common_fuses.h"
 #include "font_atlas.h"
 #include "font_imp.h"
 #include "font_string.h"

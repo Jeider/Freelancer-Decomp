@@ -6,6 +6,9 @@
 
 // CShip (retail CShip.cpp), FAnimScriptRef and the CShip-only helpers.
 #include "common_cobject.h"
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+#include "equipment_slots.h"
+#endif
 #ifdef FREELANCER_ADOXA
 #include "common_adoxa_api.h" // AmmoLimit
 #endif
@@ -513,7 +516,15 @@ double CShip::get_cargo_hold_remaining() const
             Used = (float)((double)(((CECargo const*)Equip)->Count) *
                                       Equip->Arch->Volume + Used);
         else
+        {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+            // Named internal slots follow the docked EquipDesc accounting: volume is
+            // consumed in cargo, not while installed. Legacy internal equipment is unchanged.
+            if (EquipmentSlots::Enabled() && EquipmentClasses::IsType(unsigned(Equip->Arch->get_hp_type())))
+                continue;
+#endif
             Used = (float)((double)(Used) + Equip->Arch->Volume);
+        }
     }
 
     float const Hold = shiparch()->HoldSize;
@@ -2486,6 +2497,9 @@ IObjRW* CShip::next_enemy()
     // 062b1cfd..062b1d29. A missing scanner (062b1d15 JZ) skips the first pass only.
     CEScanner const* const Scanner =
         (CEScanner const*)EquipManager.FindFirst(EquipTypeScanner);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled() && Scanner == nullptr) return nullptr;
+#endif
 
     // 062b1d1b..062b1e48: the nearest hostile, live (is_dying() slot 0x38 false) scanned
     // object farther away than the current target. `FCOM MinAbove; TEST AH,5; JP` needs
@@ -2542,6 +2556,9 @@ IObjRW* CShip::previous_enemy()
     // 062b207d..062b20a9: a missing scanner (062b2095 JZ) skips the first pass only.
     CEScanner const* const Scanner =
         (CEScanner const*)EquipManager.FindFirst(EquipTypeScanner);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled() && Scanner == nullptr) return nullptr;
+#endif
 
     // 062b20b0..062b21c8: the farthest hostile, live scanned object nearer than the current
     // target. `FCOM MaxBelow; TEST AH,0x41; JNZ` needs Dist > MaxBelow; `FCOM CurrentDist;

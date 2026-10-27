@@ -1,0 +1,76 @@
+{
+  "generated_utc": "2026-10-26T20:31:09.801028+00:00",
+  "renderer": "D3D9 HAL; vs_3_0 / ps_3_0; FP16 HDR + bloom + tone mapping",
+  "gpu": "NVIDIA GeForce RTX 5080",
+  "size": [
+    1600,
+    900
+  ],
+  "source_sha256": {
+    "DATA_EXTRA/SHADERS/ANOMALIES/active_nuclei.hlsl": "aef54e1513006b40c338b4d18b85c6894a1f990fde6155e2b498ac208a0836ef",
+    "DATA_EXTRA/SHADERS/ANOMALIES/black_holes.hlsl": "4fc8cf97f74988fc3e9a592110bb2fc7a10462d12f29ef87c88ad98b11b22720",
+    "DATA_EXTRA/SHADERS/ANOMALIES/common.hlsli": "564cf15621a0010071c6f6700cb74b038095b79b8e9ffa03380361ee6e08094d",
+    "DATA_EXTRA/SHADERS/ANOMALIES/interior.hlsl": "600e4b5968ea8a0109fdef9e55558b4514a31e1ca9c7f896a5041614b7efd8d3",
+    "DATA_EXTRA/SHADERS/ANOMALIES/neutron_stars.hlsl": "b92ff8c28a6f1e44b2f1962e74b71efe684399f9f825a41a1aba6983e6a1a4af",
+    "DATA_EXTRA/SHADERS/ANOMALIES/post.hlsl": "c50cf0563a0f6b515d9c0cf456d1890ab9646005ed7fc2f4dd13b7c588ee8bf8",
+    "tools/space_anomalies/render.cpp": "f529148d2028b47675950abeeab9857412d910176ce1db0fa666b47f47512a26",
+    "tools/space_anomalies/presets.json": "a4b4f6b40abe74c95e3096372a71cbbd214c2b015b8dbe5b57715784919ec6cd"
+  },
+  "static_ps_slots": {
+    "01_monkey": 277,
+    "02_intro": 374,
+    "03_einstein": 288,
+    "04_pulsar": 303,
+    "05_magnetar": 310,
+    "06_quasar": 388,
+    "07_microquasar": 399,
+    "08_interior": 268
+  },
+  "checks": {
+    "01_monkey": {
+      "changed_pixels_time_fraction": 0.016775,
+      "changed_pixels_orbit_fraction": 0.854036
+    },
+    "02_intro": {
+      "changed_pixels_time_fraction": 0.18684,
+      "changed_pixels_orbit_fraction": 0.418368
+    },
+    "03_einstein": {
+      "changed_pixels_time_fraction": 0.166905,
+      "changed_pixels_orbit_fraction": 0.645395
+    },
+    "04_pulsar": {
+      "changed_pixels_time_fraction": 0.204605,
+      "changed_pixels_orbit_fraction": 0.60273
+    },
+    "05_magnetar": {
+      "changed_pixels_time_fraction": 0.235365,
+      "changed_pixels_orbit_fraction": 0.514527
+    },
+    "06_quasar": {
+      "changed_pixels_time_fraction": 0.117253,
+      "changed_pixels_orbit_fraction": 0.557917
+    },
+    "07_microquasar": {
+      "changed_pixels_time_fraction": 0.060356,
+      "changed_pixels_orbit_fraction": 0.529405
+    },
+    "08_interior": {
+      "changed_pixels_time_fraction": 0.978741,
+      "changed_pixels_orbit_fraction": 0.996063
+    }
+  },
+  "identical_constants_identical_pixels": true,
+  "flare_changed_fraction": 0.37885416666666666,
+  "limitation": "Offline fixture. No game scene/depth integration, device-loss recovery or performance acceptance test.",
+  "image_sha256": {
+    "01_monkey.png": "7fc2dda3e50394a1fbef7b1c31e158cf1bab14c8530d9701b609069022cf9215",
+    "02_intro.png": "33ca44cac4371dcf8fbbf54431ae0bc81c14d57e20d852904f432b4630be0fde",
+    "03_einstein.png": "31b8cea21bee6b6e237990affe6b5fbab649cc899af5ec2366797ce21153a4d3",
+    "04_pulsar.png": "03bd8338415855207ee4a16ce1103f672bac8ad4ae3d03474365a61128727954",
+    "05_magnetar.png": "79c27b2cad002667745adf626ab9b2decdace7d403cbd1582d13118b52d2f224",
+    "06_quasar.png": "8eb213c5d9eb02fbbf3cc10fd4ff7b2e64c2c7f52f135fa7d745214e60124205",
+    "07_microquasar.png": "ded0253662912c15fe7ba5154ef66e32e56a47f78c80f10d5516a57e1cc69c69",
+    "08_interior.png": "b3ed1d539a5fbe41e2cb13ac79375c388b23e92e1ac2375b4a331b47ea534eb7"
+  }
+}

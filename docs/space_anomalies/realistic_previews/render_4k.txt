@@ -1,0 +1,36 @@
+LOOK realistic quality=2 spectral-response=per-preset
+GPU NVIDIA GeForce RTX 5080
+CAPS PS=ffff0300 slots=4096 VS=fffe0300
+CACHE post.hlsl VSMain HIT
+COMPILED post.hlsl VSMain variant=0 bytes=264
+CACHE post.hlsl PSExtract HIT
+COMPILED post.hlsl PSExtract variant=0 bytes=664
+CACHE post.hlsl PSBlur HIT
+COMPILED post.hlsl PSBlur variant=0 bytes=492
+CACHE post.hlsl PSResolve HIT
+COMPILED post.hlsl PSResolve variant=0 bytes=656
+CACHE realism_black_holes.hlsl PSMain STORED
+COMPILED realism_black_holes.hlsl PSMain variant=0 bytes=4492
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\realistic\final/01_monkey.png finite_nonnegative=PASS max=0.7085 mean=0.006349
+CACHE realism_black_holes.hlsl PSMain STORED
+COMPILED realism_black_holes.hlsl PSMain variant=1 bytes=7580
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\realistic\final/02_intro.png finite_nonnegative=PASS max=2.7539 mean=0.013820
+CACHE realism_black_holes.hlsl PSMain STORED
+COMPILED realism_black_holes.hlsl PSMain variant=2 bytes=7580
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\realistic\final/03_einstein.png finite_nonnegative=PASS max=56.8438 mean=0.232383
+CACHE realism_neutron_stars.hlsl PSMain HIT
+COMPILED realism_neutron_stars.hlsl PSMain variant=0 bytes=6584
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\realistic\final/04_pulsar.png finite_nonnegative=PASS max=56.9688 mean=0.029974
+CACHE realism_neutron_stars.hlsl PSMain HIT
+COMPILED realism_neutron_stars.hlsl PSMain variant=1 bytes=7092
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\realistic\final/05_magnetar.png finite_nonnegative=PASS max=90.7500 mean=0.341992
+CACHE realism_active_nuclei.hlsl PSMain HIT
+COMPILED realism_active_nuclei.hlsl PSMain variant=0 bytes=8764
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\realistic\final/06_quasar.png finite_nonnegative=PASS max=603.0000 mean=0.011705
+CACHE realism_active_nuclei.hlsl PSMain HIT
+COMPILED realism_active_nuclei.hlsl PSMain variant=1 bytes=8132
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\realistic\final/07_microquasar.png finite_nonnegative=PASS max=155.1250 mean=0.030827
+CACHE realism_horizon.hlsl PSMain HIT
+COMPILED realism_horizon.hlsl PSMain variant=0 bytes=6900
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\realistic\final/08_interior.png finite_nonnegative=PASS max=36.0000 mean=0.973095
+PASS shader compilation, HAL creation, rendering, finite HDR readback and PNG export

@@ -7,7 +7,7 @@
 // Retail NN_Dealer -- see nn_dealer.h for the class, its vftable and layout.
 
 #include "nn_dealer.h"
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
 #include "common_adoxa_api.h" // AmmoLimit
 #include "adoxa_engclass.h"   // engclass.dll's mountable engines / powerplants
 #endif
@@ -795,7 +795,7 @@ void NnDealer::Update()
                         // all (FUN_00585f20(GoodId, 1)) -- reason 7; with something to buy, no
                         // free one (FUN_00585f20(GoodId, 0)) -- reason 8.
                         int Filter = Inventory->Mode;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
                         // Port-only, adoxa's engclass.dll (docs/adoxa.md; DealerSelected_Hook
                         // at 0x004804e8, GetEquipment on the good id): a mountable engine /
                         // powerplant needs a hardpoint like a weapon.
@@ -939,7 +939,7 @@ void NnDealer::Update()
             }
             Archetype::Equipment* const Shown = Archetype::GetEquipment(Field390);
             bool bEngineCheck = Shown != nullptr;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
             // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0048089d JE -> NOP + JMP):
             // engines can be traded.
             if (EngclassOn())
@@ -961,7 +961,7 @@ void NnDealer::Update()
             }
             Archetype::Equipment* const Shown = Archetype::GetEquipment(Field390);
             bool bEngineCheck = Shown != nullptr;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
             // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x00480936 JE -> JMP): engines
             // can be sold.
             if (EngclassOn())
@@ -1360,6 +1360,15 @@ void NnDealer::SelectDealerRow(int Row, int /*Unused*/)
 
 void NnDealer::BuyShip()
 {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    // Validate against the destination hull before stock, credits or either model change.
+    if (EquipmentSlots::Enabled() &&
+        !EquipmentSlots::Validate(Archetype::GetShip(Ship.ShipArchId), Inventory->Ship.Loadout))
+    {
+        NnVoiceEnqueue(G_NnVoiceNoPlaceToMountId, 0);
+        return;
+    }
+#endif
     // FUN_00483ae0. The cost: the package's price less the old ship's trade-in, less what the
     // market pays for this window's loadout, plus what it pays for the partner's.
     int const OwnResale = NnLoadoutResaleValue(&Ship.Loadout, &Ship,
@@ -1401,8 +1410,19 @@ void NnDealer::BuyShip()
 
     // 00483c62..00483c84: cash, loadout, ship, hull.
     ReqPlayerCashRetail(static_cast<int>(GetPlayerCreditsRetail()) - Cost); // FUN_004c4cc0
-    ReqPlayerEquipmentRetail(&NewLoadout);  // FUN_004c4040
-    ReqPlayerShipArchRetail(ShipArchId);    // FUN_004c3df0
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled())
+    {
+        // The server's loadout validator must see the destination hull, not the traded-in one.
+        ReqPlayerShipArchRetail(ShipArchId);
+        ReqPlayerEquipmentRetail(&NewLoadout);
+    }
+    else
+#endif
+    {
+        ReqPlayerEquipmentRetail(&NewLoadout);  // FUN_004c4040
+        ReqPlayerShipArchRetail(ShipArchId);    // FUN_004c3df0
+    }
     ReqPlayerHullStatusRetail(1.0f);        // FUN_004c4f50
 
     // 00483c89..00483c8b: FUN_004427e0(1) -- the NavBar's repair tab disabled (the new ship
@@ -1562,7 +1582,7 @@ bool NnDealer::CanBuyGood(unsigned GoodId)
     // 00482ea1..00482ecf: the partner's weapons / equipment filters (+0x32c 0 or 2; the partner
     // is not null-tested): no hardpoint for the good at all (FUN_00585f20(GoodId, 1)) -- false.
     int Filter = Inventory->Mode;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
     // Port-only, adoxa's engclass.dll (docs/adoxa.md; Dealer_Hook at 0x00482ea7, GetEquipment on
     // the good id): a mountable engine / powerplant needs a hardpoint like a weapon.
     Filter = EngclassFilterMode(Filter, Good2Arch(GoodId));
@@ -1828,10 +1848,10 @@ int NnDealer::GetMaxBuyCount(unsigned GoodId, int* OutReason)
             Inventory->Field394.clear();
             unsigned const Selected = GetSelectedMarketGood(); // FUN_00483580
             bool bHardpointModes = Mode == 0 || Mode == 2;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
             // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x00483869 JE -> JMP): the hint
             // is looked up in every mode.
-            if (EngclassOn())
+            if (MountableInternalsOn())
                 bHardpointModes = true;
 #endif
             if (Selected != 0 && bHardpointModes)

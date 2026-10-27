@@ -48,12 +48,12 @@ int main()
     for(int i=0;i<432;++i)home144.Step(1,0,0,1,1,1.f/144);
     assert(std::fabs(home30.angle-home144.angle)<.002f);
     puts("PASS: weak steering and mouse release return home, steering resumes, hysteresis, return speed cap and 30/144 FPS");
-    // Retrace the last turn even past 180 degrees; never pick the nearer arrow.
-    for(float start:{.4f,-.4f,6.1f,-6.1f,3.f,-3.f})
+    // Lane/system alignment always uses the nearest of the four rim arrows.
+    for(float start:{.4f,-.4f,6.1f,-6.1f,3.f,-3.f,.78539f,.78541f,1.57079632679f})
     {
-        RadarMotion::State home;home.ship=1;home.angle=start;home.lastTurn=start>0?1:-1;home.FaceForward();
-        float previous=std::fabs(start);
-        for(int i=0;i<3600 && home.aligning;++i)
+        RadarMotion::State home;home.ship=1;home.angle=start;home.FaceForward();
+        float previous=std::fabs(std::remainder(start,RadarMotion::ArrowSpacing));
+        for(int i=0;i<360 && home.aligning;++i)
         {
             home.Step(1,1,1,1,1,1.f/60); // Homing overrides steering until aligned.
             float const next=std::fabs(home.angle);
@@ -63,24 +63,31 @@ int main()
         }
         assert(!home.aligning && home.angle==0 && home.rate==0);
     }
-    for(float start:{3.5f,-3.5f,.4f,-.4f}) for(int direction:{-1,1}) {
-        RadarMotion::State home;home.ship=1;home.angle=start;home.lastTurn=direction;
-        home.Step(1,0,0,1,1,1.f/60,false);
-        assert(home.rate*direction<0); // Return reverses the last manual motion, not the shortest arc.
-        float const selectedHome=home.homeAngle;
-        for(int i=0;i<3600 && (home.angle!=0 || home.rate!=0);++i) {
-            home.Step(1,0,0,1,1,1.f/60,false);
-            if(home.angle!=0)assert(home.homeAngle==selectedHome); // No mid-return arrow switch.
+    for(float start:{0.f,.00001f,.4f,.78539f,.78541f,1.57079632679f,3.5f,6.1f,12.5f})
+        for(float sign:{-1.f,1.f}) for(float initialRate:{-RadarMotion::MaxRate,0.f,RadarMotion::MaxRate})
+        for(int fps:{4,30,60,144}) for(bool steering:{false,true})
+    {
+        RadarMotion::State home;home.ship=1;home.angle=start*sign;home.rate=initialRate;
+        float const nearest=std::remainder(home.angle,RadarMotion::ArrowSpacing);
+        float previous=home.angle,travel=0;
+        for(int i=0;i<12*fps;++i) {
+            home.Step(1,0,steering?.04f:1.f,1,1,1.f/fps,steering);
+            travel+=std::fabs(std::remainder(home.angle-previous,RadarMotion::ArrowSpacing));
+            previous=home.angle;
+            assert(home.returning && std::isfinite(home.angle));
+            assert(std::fabs(home.rate)<=RadarMotion::MaxRate+.000001f);
+            if(i==0 && initialRate==0 && nearest!=0)
+                assert(home.rate*nearest<0 || (home.angle==0 && home.rate==0));
         }
         assert(home.angle==0 && home.rate==0);
+        // Allow the short exponential braking distance, but never a full turn.
+        assert(travel<=RadarMotion::ArrowSpacing*.5f+.1f);
+        for(int i=0;i<5*fps;++i) {
+            home.Step(1,0,steering?.04f:1.f,1,1,1.f/fps,steering);
+            assert(home.angle==0 && home.rate==0); // Stay stopped on later frames.
+        }
     }
-    RadarMotion::State reverse;reverse.ship=1;reverse.angle=3.5f;reverse.lastTurn=1;
-    reverse.Step(1,0,0,1,1,.1f,false);assert(reverse.rate<0);
-    for(int i=0;i<30;++i)reverse.Step(1,0,1,1,1,1.f/60,true);
-    assert(!reverse.returning&&reverse.lastTurn==-1);
-    reverse.Step(1,0,0,1,1,.25f,false);
-    assert(reverse.homeAngle>reverse.angle); // New manual direction replaces the old preference.
-    puts("PASS: last-turn return direction, beyond-half-turn paths, latched arrow, manual reversal and forced forward alignment");
+    puts("PASS: nearest arrow within 45 degrees, forced alignment, wrap boundaries, residual rotation and sustained stop at 4/30/60/144 FPS");
     using namespace RadarProjection;
     float const identity[3][3]={{1,0,0},{0,1,0},{0,0,1}};
     for(int width:{1024,1920,3440})

@@ -95,7 +95,7 @@ Status: OPEN — intentional port-only feature, requested in the Jeider/Freelanc
 
 Retail: the client ini is the literal `Freelancer.ini` (`FUN_005621a0`), the resource DLL `resources.dll` (`WinMain`); `INI_Reader::open` opens the path it is given.
 
-Port with the define: `port.ini [Language]` (or `-lang:xx`) picks `freelancer_ini`, `resources`, `data_overlay` (inis under `..\DATA\` read from an overlay folder when present there), `skip_any_cutscene` (the Russian exe's `0x0045685f` patch) and the plugins' language files. Compiled, not yet run.
+Port with the define: `port.ini [Language]` (or `-lang:xx`) picks `freelancer_ini`, `resources`, `data_overlay` (inis under `..\DATA\` read from an overlay folder when present there) and the plugins' language files. Compiled, not yet run.
 
 ## Client: the beta's console and chase camera (DBG-OPTIONS, 2026-10-20)
 

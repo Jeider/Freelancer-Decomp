@@ -24,6 +24,9 @@
 #include "far_rocks.h"     // FarRocksParseSection / FarRocksForget / FarRocksReplacesBand (port-only)
 #include "field_dust.h"    // FieldDustParseSection / FieldDustForget (port-only)
 #include "nebula_volume.h" // NebulaVolume::AsteroidSpawnReach (port-only Direct3D 9 nebula)
+#include "asteroid_frustum.h"
+#include "render/IRPSurfaceShader.h"
+#include <unordered_map>
 #endif
 #include "render/RenderPipeline.h"
 #include "render/mesh_iface.h"
@@ -42,7 +45,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <vector>
+#include <string>
+#include <cctype>
 #include <windows.h>
+
+#ifdef FREELANCER_RP9
+namespace {
+    struct NearFieldBounds { float Radius=0; bool Dyson=false; };
+    std::unordered_map<FCliAsteroid*,NearFieldBounds>& NearBounds() {
+        static auto* map=new std::unordered_map<FCliAsteroid*,NearFieldBounds>(); return *map;
+    }
+}
+#endif
 
 // FUN_00524880's inlined AsteroidExclusionZoneMgr::set_max_cliasteroid_exclusion_distance
 // (0x00524932..0x00524936): FLD ST0 / FMUL ST1 squares the distance still on the x87 stack,
@@ -955,6 +969,7 @@ void CliAsteroidLoadFieldIni(FCliAsteroid* This, char const* FieldIniRel)
     DynVectorClear(This);
 #ifdef FREELANCER_RP9
     FarRocksForget(This); // port-only: a reload reads [FarRocks] afresh
+    NearBounds().erase(This);
     FieldDustForget(This);
 #endif
 
@@ -1385,6 +1400,7 @@ void CliAsteroidDestruct(FCliAsteroid* This)
 #ifdef FREELANCER_RP9
     BillboardForgetBand(&This->Billboard);
     FarRocksForget(This);
+    NearBounds().erase(This);
     FieldDustForget(This);
 #endif
     // 0x00520784..0x005207a5: the band vector's storage freed, its three words 0.
@@ -2641,6 +2657,20 @@ namespace
         // indices. The chunk list is destroyed on return (0x00521aa3..0x00521b01).
         CliAsteroidFillMeshDesc(&Field->MeshDesc, Field->MeshVerts,
                                 static_cast<unsigned short>(TotalVerts));
+#ifdef FREELANCER_RP9
+        NearFieldBounds bounds;
+        double radius2=0;
+        for(int i=0;i<TotalVerts;++i) {
+            const float* p=reinterpret_cast<const float*>(static_cast<const unsigned char*>(Field->MeshVerts)+i*kCubeVertStride);
+            radius2=(std::max)(radius2,double(p[0])*p[0]+double(p[1])*p[1]+double(p[2])*p[2]);
+        }
+        bounds.Radius=static_cast<float>(std::sqrt(radius2));
+        // One explicit authored solid wall field; ordinary rocks retain one-pass drawing.
+        std::string path=FieldIniRel ? FieldIniRel : "";
+        for(char& c:path) { if(c=='/') c='\\'; else c=static_cast<char>(tolower(static_cast<unsigned char>(c))); }
+        bounds.Dyson=path=="solar\\asteroids_mod\\dyson\\sphere_field.ini";
+        NearBounds()[Field]=bounds;
+#endif
         Field->MeshIndexCount = static_cast<unsigned>(TotalIdx);
     }
 
@@ -2852,6 +2882,12 @@ namespace
             return;
         ICamera* const Camera = AsCamera(Cam);
         CmnAsteroid::CAsteroidField* const Cmn = Field->CmnField;
+#ifdef FREELANCER_RP9
+        const auto boundsIt=NearBounds().find(Field);
+        const float meshRadius=boundsIt!=NearBounds().end() && boundsIt->second.Radius>0 ?
+            boundsIt->second.Radius : Field->CubeSize*0.866026f;
+        const bool dyson=boundsIt!=NearBounds().end() && boundsIt->second.Dyson;
+#endif
 
         // 0x00522a89..0x00522aa7: camera slot 16 (+0x40), the view transform, twelve dwords.
         FTransform ViewXform;
@@ -2987,6 +3023,12 @@ namespace
             }
         }
 
+#ifdef FREELANCER_RP9
+        // Enumeration must include centres outside the view cone whose meshes cross it.
+        // Add a cell for closest_cube_pos rounding, including negative world coordinates.
+        const int padding=(static_cast<int>(std::ceil(meshRadius/Field->CubeSize))+1)*Field->CubeSize;
+        MinX-=padding;MaxX+=padding;MinY-=padding;MaxY+=padding;MinZ-=padding;MaxZ+=padding;
+#endif
         // 0x0052378e..0x005237b4: RS 0x18 saved (zeroed local); the drawn and visited counters.
         IRenderPipeline* const Pipe = DALib::Pipeline;
         int Saved18 = 0;
@@ -3060,6 +3102,11 @@ namespace
         // [ESP+0x60]: the plane test's depth, read by the fade. DAT_00613854 is never cleared, so
         // the test always writes it first.
         double Depth = 0.0;
+#ifdef FREELANCER_RP9
+        struct VisibleCube {FTransform Transform;float Alpha;};
+        std::vector<VisibleCube> visibleCubes;
+        if(dyson) visibleCubes.reserve(2048);
+#endif
 
         // 0x0052399f..0x00523bdd: X, Y, Z from the minimum to the maximum in steps of +0x20 (re-read
         // at every step), signed compares.
@@ -3078,6 +3125,14 @@ namespace
 
                     if (G_AsteroidPlaneTest != 0)
                     {
+#ifdef FREELANCER_RP9
+                        const Vector offset=AsteroidSub(CubePos,Eye);
+                        const double forward=AsteroidPlaneDot(NegZ,offset);
+                        if(!AsteroidBoundsInFrustum(AsteroidPlaneDot(Col0,offset),AsteroidPlaneDot(Col1,offset),
+                            forward,meshRadius,TanX,TanY,Fill)) continue;
+                        // Keep the existing distance fade; only the culling volume changes.
+                        Depth=(std::max)(0.0,forward+Margin);
+#else
                         // 0x00523aa5..0x00523aea: depth = |(n.x*d.x + n.z*d.z) + n.y*d.y| with
                         // n = NegZ, kept as a double; beyond the reach (strictly) -> next cube.
                         Depth = fabs(AsteroidPlaneDot(NegZ, Delta));
@@ -3112,8 +3167,8 @@ namespace
                             else if (AsteroidPlaneDot(D3, Delta) < 0.0)
                                 continue;
                         }
+#endif
                     }
-
                     // 0x00523ccc..0x00523ce6: zone slot 0 (+0x00) strictly above 0.001f
                     // (DAT_005d1494), otherwise next cube.
                     if (!(Field->Zone->GetImmersion(CubePos) > 0.001f))
@@ -3196,6 +3251,10 @@ namespace
                     }
 
                     // 0x005240b8..0x005241d1: blend switch, material, draw; drawn += 1.
+#ifdef FREELANCER_RP9
+                    if(dyson) visibleCubes.push_back({CubeXform,Material[3]});
+                    else
+#endif
                     AsteroidDrawCube(Field, Material, &bBlendState, &Desc);
                     ++Drawn;
                 }
@@ -3238,12 +3297,56 @@ namespace
                     CubeXform.Translation.Z = PlayerPos.z;
                     AsteroidBindCubeTransform(CubeXform, ViewXform);
                     Material[3] = Field->ScaleCC;
+#ifdef FREELANCER_RP9
+                    if(dyson) visibleCubes.push_back({CubeXform,Material[3]});
+                    else
+#endif
                     AsteroidDrawCube(Field, Material, &bBlendState, &Desc);
                     ++Drawn;
                 }
             }
         }
 
+#ifdef FREELANCER_RP9
+        if(dyson && !visibleCubes.empty()) {
+            // Depth first: hidden wall layers execute only the cheap depth pass.
+            // This is camera depth, not a shadow map or an occlusion-history guess.
+            IRPSurfaceShader* surface=nullptr;
+            Pipe->QueryInterface(Iids::RPSurfaceShader,reinterpret_cast<void**>(&surface));
+            int colourWrite=15,zfunc=4,alphaTest=0,zEnable=1;
+            Pipe->GetRenderState(D3DRS_COLORWRITEENABLE,&colourWrite);
+            Pipe->GetRenderState(D3DRS_ZFUNC,&zfunc);
+            Pipe->GetRenderState(D3DRS_ALPHATESTENABLE,&alphaTest);
+            Pipe->GetRenderState(D3DRS_ZENABLE,&zEnable);
+            Pipe->SetRenderState(D3DRS_ZENABLE,D3DZB_TRUE);
+            Pipe->SetRenderState(D3DRS_ZFUNC,D3DCMP_LESSEQUAL);
+            Pipe->SetRenderState(D3DRS_COLORWRITEENABLE,0);
+            Pipe->SetRenderState(D3DRS_ZWRITEENABLE,1);
+            // Solid authored boxes: the depth-only PS returns no meaningful alpha.
+            Pipe->SetRenderState(D3DRS_ALPHATESTENABLE,0);
+            if(surface) surface->SetSurfaceShader(RPSurfaceDyson,0.48f,0);
+            for(const auto& cube:visibleCubes) if(cube.Alpha>=1) {
+                AsteroidBindCubeTransform(cube.Transform,ViewXform);
+                Material[3]=1;AsteroidDrawCube(Field,Material,&bBlendState,&Desc);
+            }
+            Pipe->SetRenderState(D3DRS_COLORWRITEENABLE,colourWrite);
+            // Opaque depth-equal pixels alone run the relief shader. The shader
+            // writes no depth and contains no discard. Fading boundary cubes retain
+            // their native blending/depth behavior and are NOT solid occluders.
+            for(const auto& cube:visibleCubes) {
+                AsteroidBindCubeTransform(cube.Transform,ViewXform);
+                const bool opaque=cube.Alpha>=1;
+                Pipe->SetRenderState(D3DRS_ZFUNC,opaque?D3DCMP_EQUAL:D3DCMP_LESSEQUAL);
+                Pipe->SetRenderState(D3DRS_ZWRITEENABLE,opaque?0:SavedE);
+                Pipe->SetRenderState(D3DRS_ALPHATESTENABLE,opaque?0:alphaTest);
+                Material[3]=cube.Alpha;AsteroidDrawCube(Field,Material,&bBlendState,&Desc);
+            }
+            if(surface){surface->SetSurfaceShader(RPSurfaceAuto,0,-1);surface->Release();}
+            Pipe->SetRenderState(D3DRS_ZFUNC,zfunc);
+            Pipe->SetRenderState(D3DRS_ALPHATESTENABLE,alphaTest);
+            Pipe->SetRenderState(D3DRS_ZENABLE,zEnable);
+        }
+#endif
         // 0x00524690..0x005246fd: RS 0x18 and RS 0xe restored; the frame counters accumulate
         // (triangles = (+0xac / 3) * drawn, unsigned).
         Pipe->SetRenderState(D3DRS_ALPHAREF, Saved18);

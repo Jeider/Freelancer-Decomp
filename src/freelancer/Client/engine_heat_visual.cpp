@@ -75,7 +75,7 @@ void EngineHeatVisualDraw(FSpaceCamera* Camera)
 #ifdef FREELANCER_RP9
     if(!Camera||Camera==GetFirstPersonSpaceCamera()||!G_Heat.Host||G_Heat.Heat<.005f||
         !GetGameOption(kGameOptEffectsGroup)||!GetGameOption(kGameOptParticles)||
-        !PortConfigInt("Render","engine_heat_visual",1)||!RenderEx::IsAvailable())return;
+        !PortConfigInt("Render","engine_heat_visual",0)||!RenderEx::IsAvailable())return;
     // Check the live player before touching cached pointers (death, respawn, docking).
     if(GetPlayerObjRW()!=G_Heat.Host)return;
     auto* Host=G_Heat.Host;auto* Obj=Host->GetObject();

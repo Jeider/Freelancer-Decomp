@@ -89,9 +89,11 @@ The `Story` message handler picks the continuation by the completion code: code 
 and an immediate launch of `Mission_01b`; code 4 (`01b`) → "wait for money" (chapter 5); codes 8, 11, 14, 17, 26 →
 the next number (9, 12, 15, 18, 27) waiting for money; codes 20, 29, 32, 35, 38 → the next chapter
 and an immediate launch of `Mission_07`, `10`, `11`, `12`, `13` respectively; code 23 → chapter 24 (wait);
-code 41 → chapter 42 (the campaign is over). "Money" is the `delta_worth` threshold from a table indexed by the number
+code 41 → chapter 42 (the campaign is over). `delta_worth` stores current cash plus asset value
+at chapter completion, plus an increment from a table indexed by the number
 (indices 5, 9, 12, 15, 18, 24, 27 — 3500, 5200, 7000, 10000, 16000, 36000, 30000; indices 21, 30,
-33, 36, 39, 42 — 0); the `Story` heartbeat launches `Mission_02` … `Mission_13` from the "money" numbers
+33, 36, 39, 42 — 0); `Story` handles `PlayerWorthChanged` and `PlayerMissionChanged` (mission slot freed)
+to launch `Mission_02` … `Mission_13` from the "money" numbers
 5, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39 (see [content.md](content.md)).
 Within a single mission the script "stages" are trigger nicknames and `MissionStateNum`, not `MissionNum`
 values.

@@ -42,7 +42,8 @@ namespace
                strcmp(Object->Name, "TargetTradeButton") == 0 ||
                strcmp(Object->Name, "SpecialModeText") == 0 ||
                strcmp(Object->Name, "SpecialModeTextCancel") == 0 ||
-               strcmp(Object->Name, "ScaledBackground") == 0;
+               strcmp(Object->Name, "ScaledBackground") == 0 ||
+               strcmp(Object->Name, "NeuroNetNavMap") == 0;
     }
 
     bool ChainContains(Win3D const* Object, Win3D const* Root, Win3D const* Wanted)

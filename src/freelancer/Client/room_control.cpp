@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "room_control.h"
+#ifdef FREELANCER_RP9
+#include "render_ex.h"
+#endif
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
 #endif
@@ -55,6 +58,8 @@
 #include "render/shading.h"
 
 #include <list>
+#include <algorithm>
+#include <float.h>
 #include <math.h>
 #include <new>
 #include <set>
@@ -67,6 +72,10 @@
 
 namespace
 {
+#ifdef FREELANCER_RP9
+    bool G_RoomSilhouettePass=false;
+    std::set<unsigned long> G_RoomSilhouetteInstances;
+#endif
     // .rdata 0x005cbf24 -- the source path RoomControl.cpp hands FDUMP and FUN_00422610.
     char const kRoomControlCpp[] = "E:\\FL\\Scratch\\Source\\Client\\gf\\RoomControl.cpp";
 
@@ -2584,6 +2593,9 @@ void RoomControlDrawObject(FRoomRuntime* Room, FRoomObject* Object)
 void RoomControlDrawShadow(FRoomRuntime* Room, unsigned long A, unsigned long B,
                            unsigned char bFlag)
 {
+#ifdef FREELANCER_RP9
+    if(G_RoomSilhouettePass || G_RoomSilhouetteInstances.count(A))return;
+#endif
     // FUN_0044b370. 0x0044b389..0x0044b3be: the SHADOWS option (0x2b), "shadow_glare" and the
     // room's shadow light (RoomData +0xe4).
     if (GetGameOption(kGameOptShadows) == 0)
@@ -2618,6 +2630,9 @@ void RoomControlLightObject(FRoomRuntime* Room, FRoomObject* Object)
 
 void RoomControlDraw(FRoomRuntime* Runtime)
 {
+#ifdef FREELANCER_RP9
+    G_RoomSilhouetteInstances.clear();
+#endif
     // FUN_0044b570. 0x0044b58e: FUN_0041a670.
     RoomBatcherBegin();
 
@@ -2647,18 +2662,109 @@ void RoomControlDraw(FRoomRuntime* Runtime)
             Layers.insert(static_cast<signed char>((*It)->Layer));
     }
 
+    // Contact AO belongs to the environment. Draw characters after it so their
+    // low-poly faces cannot receive depth-reconstructed self-occlusion. Their
+    // native shadows and depth tests still run against the opaque environment.
+    bool SeparateCharacters = false;
+#ifdef FREELANCER_RP9
+    SeparateCharacters = RenderEx::IsAvailable();
+#endif
+    std::vector<FRoomObject*> DeferredCharacters;
     // 0x0044b66c..0x0044b6e6: slot 7, each object tagged into the batcher records.
     std::set<signed char>::iterator LayerIt = Layers.begin();
     for (; LayerIt != Layers.end(); ++LayerIt)
     {
-        ForEachRoomObjectInLayer(Runtime, static_cast<unsigned char>(*LayerIt), [Runtime](FRoomObject* Object) {
+        ForEachRoomObjectInLayer(Runtime, static_cast<unsigned char>(*LayerIt), [Runtime, SeparateCharacters, &DeferredCharacters](FRoomObject* Object) {
+            if (SeparateCharacters && (dynamic_cast<FCharacterObject*>(Object) != nullptr ||
+                dynamic_cast<FObjectShip*>(Object) != nullptr || dynamic_cast<FDealerShipObject*>(Object) != nullptr))
+            {
+                DeferredCharacters.push_back(Object);
+                return;
+            }
             RoomBatcherTagObject(Runtime, Object);
             Object->DrawOpaque(Runtime->Camera);
             RoomBatcherUntagObject();
         });
     }
-    // 0x0044b6e8: FUN_0041a6b0.
-    RoomBatcherEnd();
+    // DrawOpaque also submits alpha meshes to bin 1. Keep those records until
+    // characters and ships have filled the background behind the room glass.
+    // Flushing here would blend lamps against an empty room and let their
+    // depth writes hide the actors drawn later. AO needs opaque depth only.
+    if (SeparateCharacters)
+    {
+        if (DALib::MaterialBatcher)
+            DALib::MaterialBatcher->FlushBin(0, 1);
+    }
+    else
+        RoomBatcherEnd(); // retail renderer keeps its original single pass
+
+#ifdef FREELANCER_RP9
+    // Contact shading uses opaque depth; glass, flares, effects and UI follow it.
+    RenderEx::RoomContactShadows();
+
+    // Only room ships use the silhouette map. Characters retain their native
+    // blob in DrawOpaque and must never enter G_RoomSilhouetteInstances.
+    if(GetGameOption(kGameOptShadows)!=0)
+    for(FRoomObject* Object : DeferredCharacters)
+    {
+        if(dynamic_cast<FCharacterObject*>(Object))continue;
+        float Center[3]={},Radius=0;
+        void* Instance=Object->GetEngineInstance();
+        if(!Instance || Instance==kRoomObjectNoInstance)continue;
+        {
+            if(auto* Ship=dynamic_cast<FObjectShip*>(Object))
+                if(!Ship->bShadow || GetGameOption(kGameOptObjectsGroup)==0 || GetGameOption(kGameOptShips)==0 ||
+                   GetGameOption(kGameOptLikePetal)!=0)continue;
+            if(auto* Ship=dynamic_cast<FDealerShipObject*>(Object))if(!Ship->bShadow)continue;
+            float* Transform=DALib::Engine->GetInstanceTransform(Instance);if(!Transform)continue;
+            void* Archetype=DALib::Engine->GetInstanceArchetype(Instance);
+            if(!Archetype || Archetype==kRoomObjectNoInstance)continue;
+            float Bounds[6]={};int Result=DALib::Renderer->GetBounds(Archetype,1.f,Bounds);
+            DALib::Engine->ReleaseHandle(Archetype);if(Result<0)continue;
+            // Bounds are maxX,minX,maxY,minY,maxZ,minZ. Transform every corner
+            // to include compound offsets and scaled showroom models.
+            float Low[3]={FLT_MAX,FLT_MAX,FLT_MAX},High[3]={-FLT_MAX,-FLT_MAX,-FLT_MAX};
+            for(unsigned Corner=0;Corner<8;++Corner)
+            for(unsigned Axis=0;Axis<3;++Axis)
+            {
+                float P=Transform[9+Axis];
+                for(unsigned K=0;K<3;++K)P+=Bounds[K*2+((Corner>>K)&1)]*Transform[Axis*3+K];
+                Low[Axis]=(std::min)(Low[Axis],P);High[Axis]=(std::max)(High[Axis],P);
+            }
+            for(unsigned Axis=0;Axis<3;++Axis){Center[Axis]=(Low[Axis]+High[Axis])*.5f;Radius=(std::max)(Radius,(High[Axis]-Low[Axis])*.5f);}
+        }
+        if(!RenderEx::BeginRoomShadow(Runtime->Camera->GetViewTransform(),Center,Radius,false))continue;
+        G_RoomSilhouettePass=true;
+        // Submit shadow geometry immediately, without consuming the pending
+        // room transparency or adding shadow-view records to its queue.
+        // Disabling bin 1 preserves its records; RP9 rejects blended casters.
+        if(DALib::MaterialBatcher)DALib::MaterialBatcher->SetBinOrder(1,-1);
+        RoomBatcherTagObject(Runtime,Object);
+        RoomControlDrawObject(Runtime,Object);
+        RoomBatcherUntagObject();
+        if(DALib::MaterialBatcher)
+        {
+            DALib::MaterialBatcher->FlushBin(0,1);
+            DALib::MaterialBatcher->SetBinOrder(1,1);
+        }
+        G_RoomSilhouettePass=false;
+        if(RenderEx::EndRoomShadow())G_RoomSilhouetteInstances.insert(reinterpret_cast<unsigned long>(Instance));
+    }
+#endif
+
+    if (!DeferredCharacters.empty())
+    {
+        for (FRoomObject* Object : DeferredCharacters)
+        {
+            RoomBatcherTagObject(Runtime, Object);
+            Object->DrawOpaque(Runtime->Camera);
+            RoomBatcherUntagObject();
+        }
+    }
+    // One sorted transparent pass contains both room and actor materials.
+    // The original record tags restore each object's lighting at flush time.
+    if (SeparateCharacters)
+        RoomBatcherEnd();
 
     // 0x0044b6ed..0x0044b744: slot 8.
     for (LayerIt = Layers.begin(); LayerIt != Layers.end(); ++LayerIt)
@@ -2706,4 +2812,7 @@ void RoomControlDraw(FRoomRuntime* Runtime)
 
     // 0x0044b8dd..0x0044b8f3: dither restored; the set is freed on return.
     Pipe->SetRenderState(D3DRS_DITHERENABLE, SavedDither);
+#ifdef FREELANCER_RP9
+    G_RoomSilhouetteInstances.clear();
+#endif
 }

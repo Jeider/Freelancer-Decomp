@@ -25,7 +25,6 @@ language = ru            ; ключ командной строки -lang:en в�
 [Language.ru]
 freelancer_ini = freelancer.ini
 resources = resources.dll
-skip_any_cutscene = 1
 
 [Language.en]
 freelancer_ini = freelan_en_port.ini
@@ -38,7 +37,7 @@ data_overlay = ..\BUILDS\EN_NORMAL\DATA
 | `freelancer_ini` | литерал `"Freelancer.ini"` (`FUN_005621a0`) | `startup_config.cpp`; за ним следует всё, что перечислено в ini клиента: ресурсные DLL, звуки и озвучка, эффекты |
 | `resources` | `LoadLibraryA("resources.dll")` в `WinMain` | `main.cpp` |
 | `data_overlay` | копирование лаунчером поверх `DATA` | `INI_Reader::open` (`common_ini.cpp`): ini из `..\DATA\`, который есть в одной из перечисленных папок (через запятую, относительно exe), читается оттуда |
-| `skip_any_cutscene` | `EB 0C` русского exe по `0x0045685f` | `gf_script_object.cpp` `FGfScriptManager::OnEvent`: клавиша пропуска пропускает любую сцену с полосами |
+| `skip_any_cutscene` | устаревшая правка exe | Больше не используется: Esc показывает подтверждение, Enter пропускает сюжетную сцену независимо от языка |
 
 За языком следуют и тексты плагинов: `engclass_resources` (DLL строк engclass) и
 `territory_ini` ([adoxa.md](adoxa.md)). Без `[Language] language` каждый ключ берёт имя ретейла.

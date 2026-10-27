@@ -39,6 +39,13 @@ docking_sphere = berth, HpDockMountA, 2, Sc_open dock A
 
 Ключи `Root` + `EqObj` плюс следующие. Корабль также несёт часть *CommReferrable*.
 
+Дополнительная возможность порта: при `FreelancerEquipmentSlots=1` и
+`[Equipment] internal_classes=1` ключ `equipment_slot = Имя, armor|scanner|tractor, МаксимальныйКласс`
+добавляет логический внутренний слот для классов от 1 до указанного максимума (1–10).
+Точка в CMP не нужна. Также принимается точный класс:
+`hp_type = hp_armor_special_N|hp_scanner_special_N|hp_tractor_special_N, Имя`.
+Примеры и ограничения совместимости — в [документации слотов](../re/equipment_mount_classes.md).
+
 | Ключ | Тип | По умолчанию | Значение / допустимые значения | Источник |
 |---|---|---|---|---|
 | `inherit` | nickname | - | Обрабатывается загрузчиком до `read()`; копирует корабль-донор, см. ниже. | [loader L298](../../../src/Common/common_archetypeloader.cpp#L298) |

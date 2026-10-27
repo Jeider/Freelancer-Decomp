@@ -198,8 +198,9 @@ void HUD_Targeting::ReconcileVisibility()
     windowState.SetLocked(GetSavedTargetingWindowLocked());
     windowState.Observe(source ? source->TargetingObjectId() : 0,
                         source && source->TargetingIsHostileShip());
-    // Losing the target hides the panel temporarily; keep its saved preference.
-    if (windowState.targetId && !windowState.restorePending && !IsSpaceInitInProgress())
+    // Unlocked target loss is temporary; a locked window keeps its open/closed
+    // preference even while empty and across save loads.
+    if ((windowState.targetId || windowState.locked) && !windowState.restorePending && !IsSpaceInitInProgress())
         SetSavedTargetingWindowOpen(windowState.open);
     if (CanShow() && !IsAnimating() && collapsed == windowState.open) TogglePanel();
 }
@@ -481,7 +482,7 @@ void HUD_Targeting::Draw()
         return;
     }
     background->Draw();
-    if (HudTarget* source = Source())
+    if (HudTarget* source = windowState.targetId ? Source() : nullptr)
     {
         source->DrawTargetingView(viewCenter, ViewHalfWidth, ViewHalfHeight, projection);
         // Keep the native labels attached for later placement, but devote the

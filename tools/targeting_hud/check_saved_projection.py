@@ -182,12 +182,12 @@ int main() {
         assert(GetSavedHealthViewLeft()==left&&GetSavedTargetingProjection()==projection&&GetSavedWeaponGroup()==group);
         TargetingWindowState target;
         target.Restore(targetOpen,targetLock);
-        target.Observe(0, false);target.Observe(0, false);assert(!target.open); // Empty/waypoint never opens.
+        target.Observe(0, false);target.Observe(0, false);assert(target.open==(targetLock&&targetOpen));
         target.Observe(17, true);assert(target.open==targetOpen); // First real target uses saved preference.
         target.Observe(17, true);assert(target.open==targetOpen);
-        target.Observe(0, false);assert(!target.open);
-        target.Observe(18, true);assert(target.open==!targetLock); // Subsequent targets use auto-open.
-        target.ToggleOpen();assert(target.open==targetLock); // Manual override remains possible.
+        target.Observe(0, false);assert(target.open==(targetLock&&targetOpen));
+        target.Observe(18, true);assert(target.open==(!targetLock||targetOpen)); // Lock freezes either state.
+        target.ToggleOpen();assert(target.open==(targetLock&&!targetOpen)); // Manual override remains possible.
         target.Restore(!targetOpen,!targetLock);target.Observe(19, true);assert(target.open==!targetOpen);
     }
     AssignGameSessionFlags(3|0x180u); // Old locked saves predate visibility markers.

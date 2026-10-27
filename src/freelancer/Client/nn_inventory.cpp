@@ -7,7 +7,7 @@
 // Retail NN_Inventory -- see nn_inventory.h for the class, its vftable and layout.
 
 #include "nn_inventory.h"
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
 #include "common_adoxa_api.h" // AmmoLimit
 #include "adoxa_engclass.h"   // engclass.dll's mountable engines / powerplants
 #endif
@@ -248,6 +248,23 @@ bool FInventoryShipModel::MountItem(EquipDesc* Desc, CacheString const* Hardpoin
     int Mount = Count;
     if (Mount == 0)
         Mount = Desc->Count;
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    Archetype::Equipment const* SlotArch = EquipmentSlots::Enabled() ? Archetype::GetEquipment(Desc->ArchId) : nullptr;
+    if (SlotArch && EquipmentClasses::IsManaged(unsigned(SlotArch->get_hp_type())) &&
+        Hardpoint->Value != EquipDesc::CARGO_BAY_HP_NAME.Value)
+    {
+        if (Mount != 1 || !EquipmentSlots::CanMount(Archetype::GetShip(ShipArchId), Loadout, *Desc, Hardpoint->Value))
+            return false;
+        EquipDesc Mounted(*Desc);
+        Mounted.set_hardpoint(*Hardpoint);
+        Mounted.set_count(1);
+        Mounted.set_equipped(true);
+        Loadout.add_equipment_item(Mounted, false);
+        if (bPlaySound) PlayMountSound(Desc->ArchId);
+        ShipView->LoadEquipment(&Loadout);
+        return true;
+    }
+#endif
     float Volume = 0.0f;
     if (Desc->ArchId != 0)
     {
@@ -493,7 +510,12 @@ void FInventoryShipModel::SortFrom(EquipDescList const* Source)
         // hardpoint, ammo a launcher in Source.
         if (Good != nullptr && ShipView != nullptr)
         {
-            if (Filter == 0 || Filter == 2)
+            bool NeedsSlot = Filter == 0 || Filter == 2;
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+            if (EquipmentSlots::Enabled() && Record.Arch &&
+                EquipmentClasses::IsManaged(unsigned(Record.Arch->get_hp_type()))) NeedsSlot = true;
+#endif
+            if (NeedsSlot)
             {
                 if (ShipView->FindHardpointForGood(Good->Id, true) == nullptr) // FUN_00585f20
                     Record.bUsable = 0;
@@ -820,7 +842,10 @@ int NnItemFilterMode(unsigned ArchId)
 
     // 0047e4d3..0047e4ea: get_hp_type (vt+0x18) - 2 through the byte table 0x0047e540.
     int const HpType = static_cast<int>(Arch->get_hp_type());
-#ifdef FREELANCER_ADOXA
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled() && EquipmentClasses::IsManaged(unsigned(HpType))) return 3;
+#endif
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
     // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0047e4de range 0x40 -> 0x7c, table
     // 0x0047e540 -> its equip_index): the engine / powerplant types stay internal equipment.
     if (EngclassOn() && HpType >= ENGCLASS_HP_TYPE && HpType < ENGCLASS_HP_TYPE_END)
@@ -1313,12 +1338,17 @@ void NnInventory::TransferEquipmentFromDealer()
             static_cast<int>(Archetype::GetEquipment(SourceIt->ArchId)->get_class_type()); // vt+0x10
         bool bSkipClass = Class == Archetype::AClassEngine || Class == Archetype::AClassScanner ||
                           Class == Archetype::AClassTractor || Class == Archetype::AClassPower;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
         // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0047b022 0x0c -> 0x14, 0x0047b03d
         // 0x0b -> 0x16): only scanners and tractors stay out; engines and powerplants are
         // mounted onto the new ship like the rest.
         if (EngclassOn())
             bSkipClass = Class == Archetype::AClassScanner || Class == Archetype::AClassTractor;
+#endif
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        if (EquipmentSlots::Enabled() &&
+            EquipmentClasses::IsType(unsigned(Archetype::GetEquipment(SourceIt->ArchId)->get_hp_type())))
+            bSkipClass = false;
 #endif
         if (GoodId == 0 || bSkipClass)
         {
@@ -1476,6 +1506,30 @@ void NnInventory::BuyFromDealer(int Count)
     FClientMarketGood* const Entry = ClientMarketFindEntry(Market, GoodId);
     if (Entry != nullptr && Entry->Stock > 0)
     {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        bool ClassedPurchase = false;
+        if (EquipmentSlots::Enabled())
+        {
+            Archetype::Equipment const* Arch = Archetype::GetEquipment(Good->ArchId);
+            ClassedPurchase = Arch && EquipmentClasses::IsManaged(unsigned(Arch->get_hp_type()));
+            if (ClassedPurchase)
+            {
+                if (!EquipmentClasses::IsType(unsigned(Arch->get_hp_type())) || Count != 1) return;
+                EquipDesc Proposed;
+                Proposed.set_arch_id(Good->ArchId);
+                Proposed.set_id(SUBOBJ_ID_NONE);
+                // Recheck a stale UI hint before sending stock/cash requests.
+                if (Field394.Value[0] && !EquipmentSlots::CanMount(Archetype::GetShip(Ship.ShipArchId),
+                    Ship.Loadout, Proposed, Field394.Value)) Field394.clear();
+                if (!Field394.Value[0])
+                {
+                    float Capacity, Used;
+                    Ship.GetCargoCapacityAndUsed(&Capacity, &Used);
+                    if (Arch->Volume > Capacity - Used) return;
+                }
+            }
+        }
+#endif
         // 0047eb2b..0047eb4b: Count = min(Count, stock) (JNC: unsigned), the market loses it and
         // the server is asked to sell it (FUN_00438220(base, good, Count)).
         if (static_cast<unsigned>(Entry->Stock) < static_cast<unsigned>(Count))
@@ -1518,7 +1572,11 @@ void NnInventory::BuyFromDealer(int Count)
                 NnVoiceEnqueue(G_NnVoiceMountedId, 0); // FUN_00489e80(DAT_00671c70, 0)
                 FInventoryShipModel::PlayMountSound(Good->ArchId);
             }
-            else if (NnItemFilterMode(Good->ArchId) == 3 && Count == 1 &&
+            else if (
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+                     !ClassedPurchase &&
+#endif
+                     NnItemFilterMode(Good->ArchId) == 3 && Count == 1 &&
                      Good->ArchId != G_NanobotArchId && Good->ArchId != G_ShieldBatteryArchId &&
                      !HasEquippedOfClass(Good->ArchId))
             {
@@ -2974,7 +3032,7 @@ void NnInventory::ToggleEquip(EquipDesc* Item, int State)
     if (Item != nullptr)
     {
         Filter = NnItemFilterMode(Item->ArchId);
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
         // Port-only, adoxa's engclass.dll (docs/adoxa.md; Mount_Hook at 0x0047f73a): a
         // mountable engine / powerplant goes onto a hardpoint like a weapon.
         Filter = EngclassFilterMode(Filter, Item->ArchId);
@@ -3163,7 +3221,11 @@ static char const* const G_NnGoodDealIcons[6] = {
 // table's entry 10, which also covers 0x23 / 0x24, and the JA default).
 static int NnHpTypeClassNumber(int HpType)
 {
-#ifdef FREELANCER_ADOXA
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled() && EquipmentClasses::IsType(unsigned(HpType)))
+        return EquipmentClasses::Level(unsigned(HpType));
+#endif
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
     // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0047c940 range 0x33 -> 0x6f, table
     // 0x0047d2bc -> its level_index): the six engine / powerplant families carry classes 1..10.
     if (EngclassOn() && HpType >= ENGCLASS_HP_TYPE && HpType < ENGCLASS_HP_TYPE_END)
@@ -3264,10 +3326,10 @@ bool NnInventory::FillItemRow(int* Counter, unsigned ArchId, int FilterMode, int
                 {
                     int ClassNumber = 0;
                     bool bClassModes = Mode == 0 || Mode == 2;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
                     // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0047c8de JE -> JMP):
                     // every mode shows the class number.
-                    if (EngclassOn())
+                    if (MountableInternalsOn())
                         bClassModes = true;
 #endif
                     if (bClassModes)
@@ -3439,7 +3501,7 @@ bool NnInventory::FillItemRow(int* Counter, unsigned ArchId, int FilterMode, int
         {
             unsigned char bToggle = bShowToggle;
             int ToggleMode = Mode;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
             // Port-only, adoxa's engclass.dll (docs/adoxa.md; InvIcon_Hook at 0x0047ce7d): a
             // mountable engine / powerplant needs a hardpoint like a weapon.
             ToggleMode = EngclassFilterMode(Mode, ArchId);
@@ -4358,11 +4420,11 @@ void NnInventory::RefreshItemList(EquipDescList const* List, int Arg2, unsigned 
             unsigned char bEquipped = 0;   // V_38
             unsigned char bMission = 0;    // V_3c
             int RowMode = (Entry->Group == 1) ? 2 : 0; // V_24
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
             // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0047d608 MOV EDX -> MOV EBX,
             // XOR EBX -> XOR EDX): the row's mode is its group (0, 2, or 3 for the engine /
             // powerplant hardpoints, which list with the internal equipment).
-            if (EngclassOn())
+            if (MountableInternalsOn())
                 RowMode = Entry->Group;
 #endif
 
@@ -4489,10 +4551,10 @@ void NnInventory::RefreshItemList(EquipDescList const* List, int Arg2, unsigned 
         // 0047d974..0047d981: mounted weapons and equipment are already on the hardpoint rows.
         bool bSelected = false;
         bool bOnHardpointRow = Filter == 0 || Filter == 2;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
         // Port-only, adoxa's engclass.dll (docs/adoxa.md; InvMnt_Hook at 0x0047d974): a mounted
         // engine / powerplant is on its hardpoint row too.
-        if (Filter == 3 && Good != nullptr && EngclassOn() && EngclassIsMountable(Good->ArchId))
+        if (Filter == 3 && Good != nullptr && MountableInternalsOn() && EngclassIsMountable(Good->ArchId))
             bOnHardpointRow = true;
 #endif
         if (!(bOnHardpointRow && bEquipped != 0))
@@ -4505,7 +4567,7 @@ void NnInventory::RefreshItemList(EquipDescList const* List, int Arg2, unsigned 
             // unmounted weapon / equipment of an own inventory, a launcher for ammo.
             bool bUnusable = false;
             int UsableMode = Mode;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
             // Port-only, adoxa's engclass.dll (docs/adoxa.md; Inv_Hook at 0x0047d9bb): a
             // mountable engine / powerplant needs a free hardpoint like a weapon.
             if (Good != nullptr)
@@ -4722,10 +4784,15 @@ void NnInventory::RefreshItemList(EquipDescList const* List, int Arg2, unsigned 
     {
         if (SelectedHpClass != -1)
         {
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
             // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0047e041 table -> its
             // MountDesc): classes 10..15 show the plugin's local ids 0..5.
-            if (SelectedHpClass >= 10)
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+            if (EquipmentSlots::Enabled() && SelectedHpClass >= 16 && SelectedHpClass < 19)
+                ShowInfoCard(0, EquipmentClasses::DescriptionBase + unsigned(SelectedHpClass - 16));
+            else
+#endif
+            if (SelectedHpClass >= 10 && SelectedHpClass < 16)
                 ShowInfoCard(0, EngclassIdsBase() + static_cast<unsigned>(SelectedHpClass - 10));
             else
 #endif
@@ -4797,10 +4864,10 @@ EquipDesc* NnInventory::GetSelectedItem()
             if (Entry == nullptr)
                 continue;
             int RowMode = (Entry->Group == 1) ? 2 : 0;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
             // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0047e820 MOV ECX -> MOV EDI,
             // XOR EDI -> XOR ECX): the row's mode is its group, as in RefreshItemList.
-            if (EngclassOn())
+            if (MountableInternalsOn())
                 RowMode = Entry->Group;
 #endif
             if (bAllModes == 0 && RowMode != Mode)
@@ -4833,7 +4900,7 @@ EquipDesc* NnInventory::GetSelectedItem()
         if (bAllModes == 0 && Filter != Mode)
             continue;
         int MountMode = Mode;
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
         // Port-only, adoxa's engclass.dll (docs/adoxa.md; InvSell_Hook at 0x0047e8d7): a
         // mounted engine / powerplant came from its hardpoint row.
         MountMode = EngclassFilterMode(Mode, Item->ArchId);

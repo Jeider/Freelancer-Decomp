@@ -5,9 +5,7 @@
 // Author: Giperion.
 
 #include "gf_script_object.h"
-#ifdef FREELANCER_LANGUAGE
-#include "port_config.h" // port-only language switch
-#endif
+#include "cutscene_skip.h"
 
 #include "DALib.h"
 #include "character_info.h"
@@ -741,6 +739,7 @@ FGfScriptSequence::FGfScriptSequence()
 // (FUN_004539e0).
 FGfScriptSequence::~FGfScriptSequence()
 {
+    CutsceneSkipInvalidate(this);
     if (bStopped == 0)
         StopPlayback(1);
     delete[] Entries;
@@ -831,6 +830,7 @@ void FGfScriptSequence::Play()
 //   0x004550f2..0x00455286: kind 1 -- the offer dialog FUN_00455850; kind 4 -- the info box.
 void FGfScriptSequence::StartEntry(int Index)
 {
+    CutsceneSkipInvalidate(this);
     RefreshLoadingProgress();
     Current = Index;
     FGfScriptEntry& Entry = Entries[Index];
@@ -1034,6 +1034,7 @@ void FGfScriptSequence::Setup()
 //   +0x2c = 1; +0x24 -> IServer slot 69 (+0x114)(session, +0x24); +0x18 -> the callback.
 void FGfScriptSequence::StopPlayback(unsigned char bArg)
 {
+    CutsceneSkipInvalidate(this);
     if (bStopped != 0)
         return;
     RefreshLoadingProgress();
@@ -1472,6 +1473,13 @@ bool FGfScriptSequence::Update(int Ms)
         {
             if (bDone)
                 break;
+            // Choices and looping traffic must never be fast-forwarded. This
+            // also guards native/automatic skip requests, not just keyboard input.
+            if (!CutsceneSkipIsCinematicEntry(Entries[Current].Kind))
+            {
+                bSkip = 0;
+                break;
+            }
             Entries[Current].Script->Pause();
             Entries[Current].Script->Update(0);
             if (Entries[Current].Script != nullptr)
@@ -1486,7 +1494,7 @@ bool FGfScriptSequence::Update(int Ms)
             if (!bDone)
             {
                 int const Kind = Entries[Current].Kind;
-                if (Kind == 1 || Kind == 4)
+                if (!CutsceneSkipIsCinematicEntry(Kind))
                     bSkip = 0;
                 StartEntry(Current);
             }
@@ -1646,36 +1654,8 @@ FThornComponent* FGfScriptManager::FindCreatedEntity(int Type, char const* Entit
 // true. Otherwise false.
 bool FGfScriptManager::OnEvent(unsigned MsgId)
 {
-    if (MsgId != 0xf)
-        return false;
-    bool bAny = false;
-    std::list<FGfScriptSequence*>::iterator It = Sequences.begin();
-    for (; It != Sequences.end(); ++It)
-    {
-        FGfScriptSequence* const Sequence = *It;
-        if (Sequence->bLetterbox == 0)
-            continue;
-#ifdef FREELANCER_LANGUAGE
-        // Port-only (docs/language.md): port.ini [Language.<code>] skip_any_cutscene = 1 is the
-        // mod's Russian exe patch at 0x0045685f (EB 0C): every letterboxed sequence is skipped,
-        // playing and skippable or not.
-        static int const S_SkipAny = []() {
-            char Value[16];
-            PortLanguageString("skip_any_cutscene", "0", Value, sizeof(Value));
-            return Value[0] == '1' || Value[0] == 't' || Value[0] == 'T' || Value[0] == 'y' || Value[0] == 'Y';
-        }() ? 1 : 0;
-        if (S_SkipAny != 0 || (Sequence->bPlaying != 0 && Sequence->Field_0x15 != 0))
-            Sequence->bSkip = 1;
-#else
-        if (Sequence->bPlaying != 0 && Sequence->Field_0x15 != 0)
-            Sequence->bSkip = 1;
-#endif
-        bAny = true;
-    }
-    if (!bAny)
-        return false;
-    NnArrivalTextHurry();
-    return true;
+    // Native skippable scenes end immediately; locked story scenes open the hint.
+    return MsgId == 0xf && CutsceneSkipRequest();
 }
 
 // FUN_004568a0. False at the first sequence with +0x06 and without +0x15; true otherwise.
@@ -1724,6 +1704,7 @@ FGfScriptManager::~FGfScriptManager()
 // FUN_00456930. Every sequence deleted, every node erased.
 void FGfScriptManager::DestroyAll()
 {
+    CutsceneSkipReset();
     std::list<FGfScriptSequence*>::iterator It = Sequences.begin();
     while (It != Sequences.end())
     {

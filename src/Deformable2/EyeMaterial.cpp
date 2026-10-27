@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "EyeMaterial.h"
+#include "render/RoomMaterialScope.h"
 
 #include <cstdint>
 #include <cstring>
@@ -847,6 +848,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::Submit(void* Context, unsigned long PrimTy
                                           unsigned long IbStart, unsigned long IndexSpan,
                                           unsigned long Flags)
 {
+    FRPRoomMaterialScope Room(Pipeline, Name, TextureRowCount > 0 && TextureRows ? TextureRows[0].Name : nullptr);
     // LAB_065fea00 (RET 0x20), 065fea00..ebf7.
     FMaterialSubmitContext* const Ctx = (FMaterialSubmitContext*)(Context);
     GENRESULT Result;

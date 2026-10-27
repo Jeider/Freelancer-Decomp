@@ -21,6 +21,13 @@ your own installation of Freelancer (see [Local layout](#local-layout)).
 | Call into another module / find out what an interface slot is | [re/cross_dll_protocol.md](re/cross_dll_protocol.md) — the method |
 | See what the port does differently from retail | [re/deviations.md](re/deviations.md) — the ledger of known divergences; [re/substitutions.md](re/substitutions.md) explains the concept of "substitution" |
 | Work on one subsystem | the module documents below |
+| Design black holes, pulsars, magnetars or quasars | [Cosmic anomaly research](space_anomalies/README.md) — physics, game references and proposed RP9 effects |
+| Add quests from NPCs, rumors or system entry | [Story scripts and open world missions](re/content_open_world_missions.md) — StoryLauncher, RandomMissions, mbases and independent cutscenes |
+| Design combat, trade, exploration and faction progression | [Experience and careers](re/content_progression.md) — current wealth rank, game comparisons and proposed XP architecture |
+| Design delivery, scanning, interception and smuggling contracts | [Cargo contracts](re/content_cargo_contracts.md) — contract variants, patrol scans, cargo identity and implementation scope |
+| Let player turrets aim and fire under explicit orders | [Player auto-turrets](re/player_auto_turrets.md) — existing AI mechanisms, manual control, energy budget and SP/MP plan |
+| Design perks, boosters, critical hits and overheating | [Perks and boosters](re/perks_and_boosters.md) — calculation hooks, effect lifecycle, heat and cooling equipment |
+| Give armor, scanners and tractors equipment slots and classes | [Equipment slots](re/equipment_mount_classes.md) — engclass, logical mounts, serialization and server validation |
 | Check the status of a single function | the decomp-tracker (MCP server), not markdown — markdown holds only what does not fit a per-function record |
 
 ## Module documents (`re/`)

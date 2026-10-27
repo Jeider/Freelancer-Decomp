@@ -348,6 +348,8 @@ protected:
     // hidden non-root parts (FUN_004059d0), then the collision groups (FUN_004e6cb0) and the
     // equipment (FUN_004e6ec0, tail jump). Caller: HUD_Target Slot14 0x004e3e73.
     void ColourViewParts();
+    // Draw-only persistent selection, independent of mouse hover and picking.
+    void HighlightSelectedViewPart(unsigned short subId);
 
     // FUN_004e6cb0 -- for a CEqObj view: every collision group root re-activated (no recursion)
     // in the chrome colour, or the damage colour (FUN_0045a1a0) while damaged, dimmed to 70 %
@@ -504,6 +506,7 @@ public:
     unsigned TargetingObjectId() const;
     bool TargetingIsHostileShip() const;
     bool TargetingIsCruiser() const;
+    unsigned short TargetingSelectedPart() const;
 
 private:
     void DrawTargetView(float screenShift, TargetingProjection projection = TargetingProjection::Vanilla);

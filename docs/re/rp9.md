@@ -1874,10 +1874,33 @@ person, invisible/cloaked/offscreen exhaust, disabled particles and unavailable 
 All visible nozzles share one colour capture and draw; depth is read-only, and displaced
 sampling rejects nearer hull pixels. The prototype is disabled in the shipped
 `port.ini` (`[Render] engine_heat_visual = 0`); set it to 1 to enable it again.
+The source fallback is also 0: omitting the key does not enable exhaust refraction.
 The installer above includes the new shader. `tools/check_engine_heat_render.cpp`
 checks production meshes/shaders on D3D9 HAL from front/side/rear, both depth partitions,
 pause/time wrap, viewport bounds and foreground protection. This is a synthetic GPU
 check, not an in-game visual or GTX 1060 performance measurement.
+
+### SMAA 1x High (2026-10-26)
+
+RP9 now defaults to SMAA 1x High before UI. The upstream MIT-licensed shader and
+DX9 area/search tables are in `DATA_EXTRA/SHADERS/SMAA` (provenance in `UPSTREAM.txt`).
+`scene_smaa.hlsl` supplies three ps_3_0 entry points: color edges, blending weights,
+and neighborhood blending. There is no temporal history or motion-vector dependency.
+
+Space uses the existing `AfterSpaceScene` hook. First person explicitly filters
+the world and cockpit together after the cabin pass, before `HudCameraDraw`.
+`DrawClientLocation` filters rooms for bases, Thorn cutscenes and the animated
+menu before UI/logo rendering. FXAA is retained and used before UI on SMAA
+failure; it is not stacked with SMAA. User-facing mode configuration is deferred;
+existing `fxaa` settings do not disable this initial SMAA default.
+
+Intermediate targets are cleared each frame and recreated on size changes.
+RT/depth bindings are restored explicitly; a state block restores viewport,
+shaders, constants and other device state. Device reset releases all resources
+and permits a fresh SMAA attempt. `tools/smaa/check_gpu.py` exercises the actual
+pass and device cache on D3D9 HAL, including 1080p, resize, reset and edge clearing.
+Visual quality and performance in representative game scenes still need manual
+evaluation. `tools/cockpit/check_scene_pass.py` checks AA ordering before HUD.
 
 ### Windowed gamma and background run
 
@@ -2032,3 +2055,26 @@ style and the decorative li_cal_light_cloud_volume override are unchanged.
 Configuration checks verify the common fog keys across all active styles and preservation
 of other settings; no shader or binary rebuild is needed. Earlier standalone walker
 rendering numbers above describe the volume-only experiment, not this native-fog composite.
+
+### D3D8 spotlight compatibility without dxwrapper
+
+RP9 translates spotlight copies at both native submission points (`SetLight` and
+the queued light-manager flush), and in the room/surface shader light collector.
+The original source data is never rewritten, so repeated light updates do not
+compound the correction. Point and directional lights are unchanged.
+
+The inner angle is divided by 1.75 as in
+[d3d8to9's SetLight](https://github.com/crosire/d3d8to9/blob/main/source/d3d8to9_device.cpp).
+Equal half-angle cosines instead use theta=0 and falloff=1e-6, following the
+[Freelancer lighting fix](https://github.com/FLHDE/fl-lighting-bug-fix), avoiding
+the modern fixed-function equal-cone division by zero. Room and surface shaders
+retain this tiny positive exponent. Authored scene/light files are untouched.
+
+`tools/room_materials/check.py` verifies both submission paths against actual D3D
+light state and shader collection, repeated updates, non-spot preservation,
+distinct angles rounding to equal cosine, and GPU cone samples. Hard cones and
+penumbrae match native output within 3/255. The soft inner core still differs:
+modern FFP can exceed unit cone attenuation, while the material shader clamps
+(10/255 difference in the fixture). This is compatibility with the wrapper's
+correction, not a replacement lighting model. The reported bar scene still needs
+visual confirmation in game.

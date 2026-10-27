@@ -25,8 +25,8 @@ Common values:
 |---|---|---|
 | `Cnd_BaseEnter` | `s0` base \| `ANY` | The player entered a base (`GetBaseID`) |
 | `Cnd_BaseExit` | same | The player left a base |
-| `Cnd_CargoScanned` | `s0` scanner, `s1` target (neither empty) | Cargo scan of a pair of objects. INI: `Player, PEscort1` |
-| `Cnd_CharSelect` | `s0` NPC, `s1` room, `s2` base | Character selection in a base room (`FindLocation`). INI: `juni, Bar, Li01_01_Base` |
+| `Cnd_CargoScanned` | `s0` scanner, `s1` target (neither empty) | Matches the scan notification's object IDs; does not verify success or cargo contents. INI: `Player, PEscort1`. See [scan limitations](content_cargo_contracts.md#why-cnd_cargoscanned-is-insufficient) |
+| `Cnd_CharSelect` | `s0` character role, `s1` room, `s2` base | Character selection in a base room (`FindLocation`, `FindCharacter`). Matches the role, not necessarily `GF_NPC.nickname`. INI: `juni, Bar, Li01_01_Base` |
 | `Cnd_CommComplete` | `s0` comm id (`GetNicknameId`); opt. `s1` | The communication/overlay finished playing. INI: `DX_M01_0700_KING` |
 | `Cnd_CmpToPlane` | `s0` inside\|outside, `s1` object, `f2…f5` plane | Object on one side of a plane (not found in the SP INI) |
 | `Cnd_Destroyed` | `s0` object `CreateID`; opt. `i1` count; `s2` `EXPLODE`\|`SILENT`; `s3` `ALL`\|`ALL_IGNORE_LANDING` | Destruction. INI: `escort, 1, EXPLODE` |
@@ -55,7 +55,7 @@ Common values:
 | `Cnd_ProjHit` | `s0` target, `i1` hit count; opt. `s2` shooter | Projectile hit. INI: `r_cruiser, 1, o_hostile1` |
 | `Cnd_ProjHitShipToLbl` | `s0` ship, `i1` hits, opt. `s2` label `CreateID` | A ship's hit on a label. INI: `us, 3, base_hostile1` |
 | `Cnd_RTCDone` | `s0` RTC ini path | The RTC scene ended |
-| `Cnd_RumorHeard` | like CharSelect (NPC / room / base) | Rumor heard (absent from m0N.ini) |
+| `Cnd_RumorHeard` | like CharSelect (role / room / base) | Matches the player, current room and speaker role, not the rumor IDS. BaseSupport emits the event on character selection, not speech completion. See [open world missions](content_open_world_missions.md). |
 | `Cnd_SpaceEnter` | system \| `no_params` | The player entered the space of a system |
 | `Cnd_SpaceExit` | same | The player left space (to a base / jump) |
 | `Cnd_SystemEnter` | `s0` dest \| `ANY`; opt. `s1` prev | Entering a system. INI: `Li02, Li01` |

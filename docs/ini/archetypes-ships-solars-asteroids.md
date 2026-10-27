@@ -39,6 +39,12 @@ docking_sphere = berth, HpDockMountA, 2, Sc_open dock A
 
 `Root` + `EqObj` keys plus the following. A ship also carries a *CommReferrable* part.
 
+Optional port feature: with `FreelancerEquipmentSlots=1` and `[Equipment] internal_classes=1`,
+`equipment_slot = Name, armor|scanner|tractor, MaximumClass` adds a logical internal slot
+accepting classes 1 through MaximumClass (1..10). No CMP hardpoint is needed. Exact-class
+`hp_type = hp_armor_special_N|hp_scanner_special_N|hp_tractor_special_N, Name` is also accepted.
+See [equipment slots](../re/equipment_mount_classes.md) for examples and compatibility limits.
+
 | Key | Type | Default | Meaning / allowed values | Source |
 |---|---|---|---|---|
 | `inherit` | nickname | - | Handled by the loader before `read()`; copies the donor ship, see below. | [loader L298](../../src/Common/common_archetypeloader.cpp#L298) |

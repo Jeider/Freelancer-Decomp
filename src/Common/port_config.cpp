@@ -8,7 +8,7 @@
 
 #include "port_config.h"
 
-#if defined(FREELANCER_ADOXA) || defined(FREELANCER_MOD_PLUGINS) || defined(FREELANCER_LANGUAGE)
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_MOD_PLUGINS) || defined(FREELANCER_LANGUAGE) || defined(FREELANCER_EQUIPMENT_SLOTS) || defined(FREELANCER_PLAYER_AUTO_TURRETS)
 
 #include <cstdlib>
 #include <cstring>

@@ -5,6 +5,7 @@ body=f(s,'unsigned int FDirectX9::ExCollectSurfaceLights(').replace('FDirectX9::
 prefix=r'''
 #include <windows.h>
 #include <d3d9.h>
+#include "../../src/RP9/RP9LightCompatibility.h"
 #include <map>
 #include <vector>
 #include <cassert>
@@ -24,7 +25,7 @@ int main(){
  auto check=[&](){for(unsigned capacity=0;capacity<=8;capacity++){
   D3DLIGHT9 got[8]={},ref[8]={};unsigned n=0;
   for(auto const& item:G_LightRecords){if(n==capacity)break;if(!item.second.bEnabled)continue;
-   if(item.second.Data)ref[n++]=*item.second.Data;else{auto it=c.E.SurfaceDirectLights.find(item.first);if(it!=c.E.SurfaceDirectLights.end())ref[n++]=it->second;}}
+   if(item.second.Data)ref[n++]=Rp9CompatibleLight(*item.second.Data);else{auto it=c.E.SurfaceDirectLights.find(item.first);if(it!=c.E.SurfaceDirectLights.end())ref[n++]=Rp9CompatibleLight(it->second);}}
   unsigned actual=c.ExCollectSurfaceLights(got,capacity);assert(actual==n&&!memcmp(got,ref,n*sizeof(D3DLIGHT9)));
  }};
  check();check();lights[3].Range=12345;check();

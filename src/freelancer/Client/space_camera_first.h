@@ -42,7 +42,7 @@ struct FFirstPersonCamera : FHudCamera
     float HeadPosition[3];           // +0x130  zeroed; loader fills it from IEngine slot 0x90
     float HeadOrientation[9];        // +0x13c  identity; loader fills it from IEngine slot 0x98
     float PositionC[3];              // +0x160  zeroed
-    float OrientationC[9];           // +0x16c  identity
+    float OrientationC[9];           // +0x16c  port: smoothed local head look-ahead
 
     // FUN_00420d40 builds the cockpit mesh holder in place here (0x005171a7); FUN_00420dd0
     // loads it from the mesh and material-library names the loader collected, and its +0x04
@@ -65,8 +65,8 @@ static_assert(offsetof(FFirstPersonCamera, OrientationC) == 0x16c, "FP +0x16c");
 static_assert(offsetof(FFirstPersonCamera, Mesh) == 0x190, "FP +0x190");
 static_assert(offsetof(FFirstPersonCamera, bFlag1A0) == 0x1a0, "FP +0x1a0");
 
-// [Cockpit] head_turn, which retail keeps in two globals rather than on the camera --
-// DAT_006135a0 and DAT_006135a4 (.data 30.0f / 25.0f; written by the loader, read by nothing).
+// [Cockpit] head_turn: horizontal/vertical look-ahead limits in degrees (0..90).
+// Retail only loaded these globals; the port now consumes them. Zero disables an axis.
 extern float G_CockpitHeadTurnX;    // DAT_006135a0
 extern float G_CockpitHeadTurnY;    // DAT_006135a4
 
@@ -98,8 +98,10 @@ void FirstPersonCameraUpdate(FFirstPersonCamera* Cam, float DeltaSeconds);
 // Slot 0x78 (LAB_00518420, thiscall RET 8): with an object watched, the scene pass
 // (FUN_0051c200), a depth clear (always when the "cockpit" option is applied above 0.999,
 // otherwise only with the HUD option), FUN_0051c970, the cockpit mesh pass (near / far 0.05 /
-// 500, the cockpit lighting or the jump ambient, the mesh drawn in depth range [0.75, 1]),
+// 500, the cockpit lighting or the jump lighting, the mesh drawn in depth range [0.75, 1]),
 // HUDCamera's draw (FUN_0051daa0) and FUN_0051c9e0.
+// Port: the world weak-point wire is drawn before the depth clear; the tunnel
+// uses the player's full lighting setup, including its animated directional light.
 void FirstPersonCameraSceneDraw(FFirstPersonCamera* Cam, unsigned LayerFlags, unsigned Param2);
 
 // FUN_005183e0 -- slot 0 of the FirstPerson Event::Handler face (+0xf8, table 0x005db93c):

@@ -12,6 +12,7 @@
 // registered only by the WINFACTORY global below.
 
 #include "nn_preferences.h"
+#include "player_auto_turrets.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
 #include "gameflow.h"              // ResetGameflowRoomLetterbox (FUN_00558d60)
@@ -1648,6 +1649,15 @@ void NnPreferences::LoadKeyList(char const* Path)
             AddKeyRow(CommandId, Group);
         }
     }
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+    if (PlayerAutoTurrets::Enabled())
+        for (unsigned id = 0xcc; id < 0xd0; ++id)
+        {
+            bool found = false;
+            for (auto const& row : KeyGroups[0]) if (row.CommandId == id) found = true;
+            if (!found) AddKeyRow(static_cast<int>(id), 0);
+        }
+#endif
     Reader.close();
 }
 

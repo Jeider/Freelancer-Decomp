@@ -170,8 +170,8 @@ bool StarSphereIsListedOwner(void const* Owner);
 // the effect is then neither simulated nor drawn.
 bool StarSphereReplacesAttachedEffect(void const* Owner);
 struct ICamera;
-// Port-only (space_scene_obj_draw.cpp, right after the nebula composite): the sun's round halo over
-// the nebula, and the player's ship haze aura.
+// Port-only: the sun halo after all world effects and cockpit, without geometric
+// occlusion, before AA and HUD; and the player's ship haze aura.
 void StarSphereDrawNebulaHalo(void* Cam); // the FSpaceCamera, as DrawBillboard takes it
 void NebulaShipAuraDraw(ICamera* Camera);
 #endif

@@ -35,6 +35,9 @@
     <!-- Port-only behaviour of adoxa's plugins (docs/adoxa.md), FREELANCER_ADOXA in the client,
          Common.dll, Server.dll and Content.dll; each plugin is switched in port.ini [Plugins]. -->
     <FreelancerAdoxa Condition="'$(FreelancerAdoxa)'==''">0</FreelancerAdoxa>
+    <!-- Port-only armor/scanner/tractor slots; independent of adoxa engclass. -->
+    <FreelancerEquipmentSlots Condition="'$(FreelancerEquipmentSlots)'==''">0</FreelancerEquipmentSlots>
+    <FreelancerPlayerAutoTurrets Condition="'$(FreelancerPlayerAutoTurrets)'==''">0</FreelancerPlayerAutoTurrets>
     <!-- Port-only behaviour of other mod plugins (AnimKey, MultiCruise, Invisibility, Interceptor,
          PowerDamage; docs/mod_plugins.md), FREELANCER_MOD_PLUGINS; off by default. -->
     <FreelancerModPlugins Condition="'$(FreelancerModPlugins)'==''">0</FreelancerModPlugins>

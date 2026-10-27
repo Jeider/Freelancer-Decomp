@@ -1,0 +1,18 @@
+PASS 200000 conservative frustum witnesses and explicit material identities
+GPU NVIDIA GeForce RTX 5080
+PSMain ps_3_0 34096 bytes
+PSMain ps_3_0 34096 bytes
+PSMain ps_3_0 13296 bytes
+PSMain ps_3_0 13296 bytes
+PSMain ps_3_0 5304 bytes
+PSMain ps_3_0 5304 bytes
+PASS unrelated surface bytecode identical to pre-change working tree
+VSMain vs_3_0 900 bytes
+PSMain ps_3_0 28672 bytes
+PSMain ps_3_0 7960 bytes
+PSMain ps_3_0 27668 bytes
+PSMain ps_3_0 7048 bytes
+PSNomadDepth ps_3_0 136 bytes
+PASS strong relief, authored illumination, fog, identical depth transform and hidden-layer rejection
+PASS finite float HDR: regular/mirrored/degenerate UV, grazing normals and maximum relief
+PASS saved actual material texture previews

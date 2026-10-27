@@ -28,4 +28,6 @@ namespace HudIds
     constexpr int WeaponGroup2 = 238222;
     constexpr int WeaponGroup3 = 238223;
     constexpr int WeaponList = 238224;
+    constexpr int TargetList = 238225;
+    constexpr int CutsceneSkipPrompt = 238226;
 }

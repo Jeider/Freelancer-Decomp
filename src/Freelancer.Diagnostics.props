@@ -15,6 +15,8 @@
     <FreelancerFlsharp>1</FreelancerFlsharp>
     <FreelancerDbgOptions>1</FreelancerDbgOptions>
     <FreelancerAdoxa>1</FreelancerAdoxa>
+    <FreelancerEquipmentSlots>0</FreelancerEquipmentSlots>
+    <FreelancerPlayerAutoTurrets>0</FreelancerPlayerAutoTurrets>
     <FreelancerModPlugins>1</FreelancerModPlugins>
     <FreelancerLanguage>1</FreelancerLanguage>
     <FreelancerPreciseRender>1</FreelancerPreciseRender>

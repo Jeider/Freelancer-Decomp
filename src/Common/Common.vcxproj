@@ -60,6 +60,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\common_exports.h" />
+    <ClInclude Include="..\include\equipment_class_rules.h" />
+    <ClInclude Include="..\include\equipment_slots.h" />
     <ClInclude Include="..\include\common_tradeoffer.h" />
     <ClInclude Include="..\include\common_timing.h" />
     <ClInclude Include="..\include\common_async.h" />
@@ -243,6 +245,7 @@
     <ClCompile Include="common_archetype.cpp" />
     <ClCompile Include="common_archetype_ships.cpp" />
     <ClCompile Include="common_archetype_equipment.cpp" />
+    <ClCompile Include="common_equipment_slots.cpp" />
     <ClCompile Include="common_archetype_weapons.cpp" />
     <ClCompile Include="common_archetype_misc.cpp" />
     <ClCompile Include="common_universe.cpp" />

@@ -1,0 +1,52 @@
+GPU NVIDIA GeForce RTX 5080
+CAPS PS=ffff0300 slots=4096 VS=fffe0300
+COMPILED post.hlsl VSMain variant=0 bytes=264
+COMPILED post.hlsl PSExtract variant=0 bytes=392
+COMPILED post.hlsl PSBlur variant=0 bytes=492
+COMPILED post.hlsl PSResolve variant=0 bytes=656
+COMPILED black_holes.hlsl PSMain variant=0 bytes=4832
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/01_monkey.png finite_nonnegative=PASS max=10.0000 mean=0.054323
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/01_monkey_time.png finite_nonnegative=PASS max=10.0000 mean=0.054340
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/01_monkey_orbit.png finite_nonnegative=PASS max=10.0000 mean=0.034773
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/01_monkey_repeat.png finite_nonnegative=PASS max=10.0000 mean=0.054323
+COMPILED black_holes.hlsl PSMain variant=1 bytes=5640
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/02_intro.png finite_nonnegative=PASS max=4.3906 mean=0.093652
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/02_intro_time.png finite_nonnegative=PASS max=4.3906 mean=0.093561
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/02_intro_orbit.png finite_nonnegative=PASS max=4.3828 mean=0.093237
+COMPILED black_holes.hlsl PSMain variant=2 bytes=4616
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/03_einstein.png finite_nonnegative=PASS max=8.0703 mean=0.116139
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/03_einstein_time.png finite_nonnegative=PASS max=8.5469 mean=0.116363
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/03_einstein_orbit.png finite_nonnegative=PASS max=8.7656 mean=0.116386
+COMPILED neutron_stars.hlsl PSMain variant=0 bytes=4784
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/04_pulsar.png finite_nonnegative=PASS max=8.2188 mean=0.046678
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/04_pulsar_time.png finite_nonnegative=PASS max=7.6797 mean=0.045963
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/04_pulsar_orbit.png finite_nonnegative=PASS max=8.3984 mean=0.046720
+COMPILED neutron_stars.hlsl PSMain variant=1 bytes=4860
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/05_magnetar.png finite_nonnegative=PASS max=5.9648 mean=0.067248
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/05_magnetar_time.png finite_nonnegative=PASS max=8.4609 mean=0.069526
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/05_magnetar_orbit.png finite_nonnegative=PASS max=8.3125 mean=0.068843
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/05_magnetar_flare.png finite_nonnegative=PASS max=8.9219 mean=0.318923
+COMPILED active_nuclei.hlsl PSMain variant=0 bytes=6048
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/06_quasar.png finite_nonnegative=PASS max=3.4395 mean=0.029003
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/06_quasar_time.png finite_nonnegative=PASS max=3.4551 mean=0.028943
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/06_quasar_orbit.png finite_nonnegative=PASS max=3.4336 mean=0.028189
+COMPILED active_nuclei.hlsl PSMain variant=1 bytes=6124
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/07_microquasar.png finite_nonnegative=PASS max=4.5977 mean=0.034954
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/07_microquasar_time.png finite_nonnegative=PASS max=4.5898 mean=0.034883
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/07_microquasar_orbit.png finite_nonnegative=PASS max=4.5781 mean=0.036072
+COMPILED interior.hlsl PSMain variant=0 bytes=3448
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/08_interior.png finite_nonnegative=PASS max=3.0020 mean=0.164901
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/08_interior_time.png finite_nonnegative=PASS max=2.9199 mean=0.168504
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/08_interior_orbit.png finite_nonnegative=PASS max=2.5840 mean=0.161951
+PASS shader compilation, HAL creation, rendering, finite HDR readback and PNG export
+GPU NVIDIA GeForce RTX 5080
+CAPS PS=ffff0300 slots=4096 VS=fffe0300
+COMPILED post.hlsl VSMain variant=0 bytes=264
+COMPILED post.hlsl PSExtract variant=0 bytes=392
+COMPILED post.hlsl PSBlur variant=0 bytes=492
+COMPILED post.hlsl PSResolve variant=0 bytes=656
+COMPILED black_holes.hlsl PSMain variant=2 bytes=4380
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/03_einstein.png finite_nonnegative=PASS max=8.0703 mean=0.119922
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/03_einstein_time.png finite_nonnegative=PASS max=8.5469 mean=0.120085
+HDR D:\work\Freelancer-Decomp\src\obj\space_anomalies\checks/03_einstein_orbit.png finite_nonnegative=PASS max=8.7656 mean=0.120166
+PASS shader compilation, HAL creation, rendering, finite HDR readback and PNG export

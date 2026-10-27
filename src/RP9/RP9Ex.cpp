@@ -1,3 +1,4 @@
+#include "runtime_hitch_log.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -184,6 +185,7 @@ namespace
                       const std::string& Entry, const char* Profile,
                       std::vector<unsigned char>* OutCode)
     {
+    RuntimeHitchScope Hitch("shader", Path.c_str());
         std::string Messages;bool Hit=false,Stored=false;
         ULONGLONG Start=GetTickCount64();
         const HRESULT Hr=Rp9ShaderCache::Compile(Source,Include,Entry,Profile,0,OutCode,&Messages,&Hit,&Stored);
@@ -754,6 +756,9 @@ HRESULT FDirectX9::ExCreateDeviceResources(bool bIntzDepth, D3DFORMAT DepthForma
     }
     if (ReadPortFade("surface_shaders") > 0.5f)
         StartSurfaceShaderWarmup();
+    // Prepare this small pair during device creation, never on the first weapon shot.
+    ExCodeBeamPrepare();
+    ExShipNormalsPrepare();
     return S_OK;
 }
 
@@ -761,6 +766,7 @@ void FDirectX9::ExReleaseDeviceResources()
 {
     ExReleaseSurfaceInstances();
     Rp9DeviceCalls().Invalidate();
+    ExRoomShadowRelease();
     ExShadowRelease();
     FRp9ExState* Ex = Ex_;
     if (Ex == nullptr)
@@ -776,10 +782,15 @@ void FDirectX9::ExReleaseDeviceResources()
     Ex->SurfaceBoundVs=nullptr;Ex->SurfaceBoundPs=nullptr;
     ExGpuRelease();
     if(Ex->QualitySavedState) {Ex->QualitySavedState->Release();Ex->QualitySavedState=nullptr;}
+    if(Ex->RoomAoState) {Ex->RoomAoState->Release();Ex->RoomAoState=nullptr;}
     if(Ex->WarmupFont) {Ex->WarmupFont->Release();Ex->WarmupFont=nullptr;}
     if(Ex->WarmupSavedState) {Ex->WarmupSavedState->Release();Ex->WarmupSavedState=nullptr;}
     if(Ex->QualitySceneCopy) {Ex->QualitySceneCopy->Release();Ex->QualitySceneCopy=nullptr;}
     if(Ex->QualityFxaaPs) {Ex->QualityFxaaPs->Release();Ex->QualityFxaaPs=nullptr;}
+    for(auto*& Shader : Ex->QualitySmaaPs) {if(Shader) Shader->Release();Shader=nullptr;}
+    for(auto*& Texture : Ex->QualitySmaaLookup) {if(Texture) Texture->Release();Texture=nullptr;}
+    for(auto*& Texture : Ex->QualitySmaaTargets) {if(Texture) Texture->Release();Texture=nullptr;}
+    Ex->bQualitySmaaFailed=false;
     if(Ex->GammaPs) {Ex->GammaPs->Release();Ex->GammaPs=nullptr;}
     if (Ex->bInPass)
         ExEndPassInternal(this);
@@ -807,6 +818,8 @@ void FDirectX9::ExReleaseAllGpu()
         return;
     ExReleaseDeviceResources();
     ExSurfaceEnd();
+    ExRoomMaterialRelease();
+    ExShipNormalsRelease();
     Ex->MeshInstances.Release();
     if (Ex->SurfaceVs != nullptr) { Ex->SurfaceVs->Release(); Ex->SurfaceVs = nullptr; }
     if (Ex->SurfaceLowPs) { Ex->SurfaceLowPs->Release(); Ex->SurfaceLowPs=nullptr; }
@@ -815,6 +828,12 @@ void FDirectX9::ExReleaseAllGpu()
     if (Ex->SurfaceCubePs != nullptr) { Ex->SurfaceCubePs->Release(); Ex->SurfaceCubePs = nullptr; }
     if (Ex->SurfaceNoShadowPs) { Ex->SurfaceNoShadowPs->Release(); Ex->SurfaceNoShadowPs=nullptr; }
     if (Ex->SurfaceNoShadowCubePs) { Ex->SurfaceNoShadowCubePs->Release(); Ex->SurfaceNoShadowCubePs=nullptr; }
+    for(auto*& Ps:Ex->GreenhousePs) if(Ps){Ps->Release();Ps=nullptr;}
+    for(auto*& Ps:Ex->NomadPs) if(Ps){Ps->Release();Ps=nullptr;}
+    if(Ex->NomadVs){Ex->NomadVs->Release();Ex->NomadVs=nullptr;}
+    if(Ex->NomadDepthPs){Ex->NomadDepthPs->Release();Ex->NomadDepthPs=nullptr;}
+    if(Ex->NomadLayers){Ex->NomadLayers->Release();Ex->NomadLayers=nullptr;}
+    Ex->bNomadTextureTried=false;Ex->bNomadCompileFailed=false;
     if (Ex->IceLayers) { Ex->IceLayers->Release(); Ex->IceLayers=nullptr; }
     Ex->bIceTextureTried=false;
     Ex->SurfaceDirectLights.clear();
@@ -829,6 +848,9 @@ void FDirectX9::ExReleaseAllGpu()
         Ex->SoftPs->Release();
         Ex->SoftPs = nullptr;
     }
+    if (Ex->CodeBeamVs) { Ex->CodeBeamVs->Release(); Ex->CodeBeamVs = nullptr; }
+    if (Ex->CodeBeamPs) { Ex->CodeBeamPs->Release(); Ex->CodeBeamPs = nullptr; }
+    Ex->bCodeBeamRequested = false;
     if (Ex->AtmosphereVs != nullptr) { Ex->AtmosphereVs->Release(); Ex->AtmosphereVs = nullptr; }
     if (Ex->AtmospherePs != nullptr) { Ex->AtmospherePs->Release(); Ex->AtmospherePs = nullptr; }
     if (Ex->PlanetVs != nullptr) { Ex->PlanetVs->Release(); Ex->PlanetVs = nullptr; }
@@ -1588,6 +1610,18 @@ void StartSurfaceShaderWarmup()
     for (const char* Variant : Variants)
         for (const char* Cube : {"", "#define SURFACE_ENV_CUBE 1\n"})
             Jobs.push_back({std::string(Variant) + Cube + Source, "PSMain", "ps_3_0"});
+    if(Source.find("SURFACE_GREENHOUSE")!=std::string::npos)
+        for(const char* Variant : {"", "#define SURFACE_NO_SHADOW 1\n"})
+            for(const char* Cube : {"", "#define SURFACE_ENV_CUBE 1\n"})
+                Jobs.push_back({std::string("#define SURFACE_GREENHOUSE 1\n")+Variant+Cube+Source,"PSMain","ps_3_0"});
+    Jobs.push_back({std::string("#define SURFACE_NOMAD 1\n")+Source,"VSMain","vs_3_0"});
+    Jobs.push_back({std::string("#define SURFACE_NOMAD 1\n#define SURFACE_NOMAD_LIGHT 1\n#define SURFACE_NO_SHADOW 1\n")+Source,"PSNomadDepth","ps_3_0"});
+    for(const char* Detail:{"", "#define SURFACE_NOMAD_LIGHT 1\n"})
+        for(const char* Shadow:{"", "#define SURFACE_NO_SHADOW 1\n"})
+            Jobs.push_back({std::string("#define SURFACE_NOMAD 1\n")+Detail+Shadow+Source,"PSMain","ps_3_0"});
+    for(const char* Shadow:{"", "#define SURFACE_NO_SHADOW 1\n"})
+        for(const char* Cube:{"", "#define SURFACE_ENV_CUBE 1\n"})
+            Jobs.push_back({std::string("#define SURFACE_SHIP_NORMALS 1\n")+Shadow+Cube+Source,"PSMain","ps_3_0"});
     G_SurfaceWarmTotal = (int)Jobs.size();
     G_SurfaceWarmPending = (int)Jobs.size();
     for (FJob& Job : Jobs)
@@ -1646,6 +1680,68 @@ GENRESULT DACOM_API FDirectX9::SetSoftParticles(unsigned long Kind)
     Ex->SoftKind = Kind <= RPExSoftClouds ? Kind : RPExSoftOff;
     Ex->SoftFadeOverride = 0.0f;
     return GR_OK;
+}
+
+GENRESULT DACOM_API FDirectX9::SetCodeBeamEnabled(unsigned long Enabled)
+{
+    Ex_->bCodeBeamRequested = Enabled != 0;
+    return GR_OK;
+}
+
+void FDirectX9::ExCodeBeamPrepare()
+{
+    FRp9ExState* Ex = Ex_;
+    Ex->bCodeBeamEnabled = ReadShadowSetting("code_beam_shader", 1, 0, 1) > 0.5f;
+    Ex->CodeBeamStrength = ReadShadowSetting("code_beam_strength", 1, 0, 2);
+    Ex->CodeBeamRipple = ReadShadowSetting("code_beam_ripple", 0.045f, 0, 0.15f);
+    D3DCAPS9 Caps = {};
+    if (!Ex->bCodeBeamEnabled || !Device_ || FAILED(Device_->GetDeviceCaps(&Caps)) ||
+        Caps.VertexShaderVersion < D3DVS_VERSION(3,0) || Caps.PixelShaderVersion < D3DPS_VERSION(3,0))
+        return;
+    if (Ex->CodeBeamVs && Ex->CodeBeamPs) return; // survives an ordinary device Reset
+    if (!ExCompileShaderPair("code_beam.hlsl", &Ex->CodeBeamVs, &Ex->CodeBeamPs, "VSMain", "PSMain"))
+        ExLogf(kExFdumpWarning, "WARNING", __LINE__, "code beam: native rendering fallback (shader unavailable)");
+    else
+        ExLogf(kExFdumpNotice, "NOTICE", __LINE__, "code beam: single-pass shader ready, strength %.2f",
+               double(Ex->CodeBeamStrength));
+}
+
+bool FDirectX9::ExCodeBeamBegin()
+{
+    FRp9ExState* Ex = Ex_;
+    if (!Ex || !Ex->bCodeBeamRequested || !Ex->bCodeBeamEnabled || !Device_ ||
+        Ex->bInPass || Ex->bShadowDrawing || !Ex->CodeBeamVs || !Ex->CodeBeamPs ||
+        StreamCache_.Fvf != RPCodeBeamFvf ||
+        !RenderStates_.GetPending(kRsZEnable) || RenderStates_.GetPending(kRsZWriteEnable) ||
+        !RenderStates_.GetPending(kRsAlphaBlendEnable) || RenderStates_.GetPending(kRsLighting) ||
+        RenderStates_.GetPending(kRsSrcBlend) != D3DBLEND_ONE ||
+        RenderStates_.GetPending(20) != D3DBLEND_ONE)
+        return false;
+    float Matrices[32];
+    MulMatrix4(Transforms_.World.Values, Transforms_.View.Values, Matrices);
+    memcpy(Matrices + 16, Transforms_.Projection.Values, sizeof(float) * 16);
+    unsigned long FogMode = D3DFOG_NONE;
+    if (RenderStates_.GetPending(kRsFogEnable))
+    {
+        FogMode = RenderStates_.GetPending(kRsFogTableMode);
+        if (FogMode == D3DFOG_NONE) FogMode = RenderStates_.GetPending(kRsFogVertexMode);
+    }
+    // Exact wrap after 16 cycles: no phase discontinuity or float precision loss in long sessions.
+    const float Constants[8] = {
+        float(GetTickCount64() % 20000) * 0.0008f, Ex->CodeBeamStrength, Ex->CodeBeamRipple, 0,
+        FloatBits(RenderStates_.GetPending(kRsFogStart)), FloatBits(RenderStates_.GetPending(kRsFogEnd)),
+        FloatBits(RenderStates_.GetPending(kRsFogDensity)), float(FogMode)};
+    Rp9SetVertexShader(Device_, Ex->CodeBeamVs);
+    Rp9SetPixelShader(Device_, Ex->CodeBeamPs);
+    Rp9SetVertexConstants(Device_, 0, Matrices, 8);
+    Rp9SetPixelConstants(Device_, 0, Constants, 2);
+    return true;
+}
+
+void FDirectX9::ExCodeBeamEnd()
+{
+    Rp9SetVertexShader(Device_, nullptr);
+    Rp9SetPixelShader(Device_, nullptr);
 }
 
 GENRESULT DACOM_API FDirectX9::SetSoftParticleFade(float Metres)
@@ -2716,9 +2812,12 @@ GENRESULT DACOM_API FDirectX9::GetPlanetRingProfile(float* Out, unsigned long Co
 GENRESULT DACOM_API FDirectX9::SetSurfaceShader(unsigned long Shader, float Roughness,
                                                float EnvironmentStrength)
 {
-    if (Shader > RPSurfaceIce || !std::isfinite(Roughness) || !std::isfinite(EnvironmentStrength))
+    if (Shader > RPSurfaceNomadInterior || !std::isfinite(Roughness) || !std::isfinite(EnvironmentStrength))
         return GR_INVALID_PARMS;
     Ex_->SurfaceShader = Shader;
+    // Keep both field passes on the same transform path if menu warm-up completes
+    // during traversal. The scope ends only when the caller resets the profile.
+    Ex_->bNomadScopeNative=Shader>=RPSurfaceNomadLair && G_SurfaceWarmState==1;
     Ex_->SurfaceRoughness = Roughness;
     Ex_->SurfaceEnvironment = EnvironmentStrength;
     return GR_OK;
@@ -2728,6 +2827,7 @@ GENRESULT DACOM_API FDirectX9::SetCockpitSurface(unsigned long Enabled)
 {
     Ex_->bSurfaceCockpit=Enabled!=0;return GR_OK;
 }
+
 GENRESULT DACOM_API FDirectX9::SetGlassSurface(unsigned long Enabled)
 {
     Ex_->bSurfaceGlass=Enabled!=0;return GR_OK;
@@ -2736,6 +2836,7 @@ GENRESULT DACOM_API FDirectX9::SetGlassSurface(unsigned long Enabled)
 bool FDirectX9::ExSurfaceBegin()
 {
     FRp9ExState* Ex = Ex_;
+    if (Ex && Ex->bRoomFrame && ExRoomMaterialBegin()) return true;
     if (Ex == nullptr || Device_ == nullptr || Ex->bInPass || Ex->bShadowDrawing || Ex->bSoftActive ||
         Ex->bSurfaceActive || !Ex->bSurfaceMaterialValid)
         return false;
@@ -2754,14 +2855,23 @@ bool FDirectX9::ExSurfaceBegin()
         Ex->IceDepth=ReadShadowSetting("ice_depth",0.09f,0,0.25f);
         Ex->IceFrost=ReadShadowSetting("ice_frost",0.65f,0,1);
         Ex->IceTransmission=ReadShadowSetting("ice_transmission",0.22f,0,0.8f);
+        Ex->bNomadShader=ReadShadowSetting("nomad_shader",1,0,1)>0.5f;
+        Ex->NomadRelief=ReadShadowSetting("nomad_relief",1.15f,0,2);
+        Ex->NomadGlow=ReadShadowSetting("nomad_glow",0.32f,0,1);
     }
     const bool Ice=Ex->SurfaceShader==RPSurfaceIce && Ex->bIceShader;
+    const bool Nomad=Ex->bNomadShader && Ex->SurfaceShader>=RPSurfaceNomadLair && Ex->SurfaceShader<=RPSurfaceNomadInterior;
+    const bool Dyson=Nomad && Ex->SurfaceShader==RPSurfaceDyson;
+    if(Nomad && Ex->bNomadScopeNative) return false;
     if (!Ex->bSurfaceEnabled || Ex->SurfaceShader == RPSurfaceLegacy ||
-        (Ex->SurfaceDistanceTier==2 && !Ex->bSurfaceCockpit && !Ice))
+        (Ex->SurfaceDistanceTier==2 && !Ex->bSurfaceCockpit && !Ice && !Nomad))
         return false;
     const bool Blended=RenderStates_.GetPending(kRsAlphaBlendEnable)!=0;
-    const bool Glass=Ex->bSurfaceGlass && Ex->bGlassShader && Blended;
+    const bool Greenhouse=Ex->SurfaceShader==RPSurfaceGreenhouse && Ex->bGlassShader && Blended;
+    const bool Glass=(Ex->bSurfaceGlass && Ex->bGlassShader && Blended) || Greenhouse;
     const bool Cockpit=Ex->bSurfaceCockpit && Ex->bCockpitShader && !Blended;
+    const bool ShipNormals=Ex->bShipNormalScope && Ex->ShipNormalCurrent && Ex->ShipNormalCurrent->Texture &&
+        !Ex->bRoomFrame && !Cockpit && !Glass && !Blended && !Ice && !Nomad;
     // Native glass back-face/opaque pass is retained. Only its authored alpha pass
     // receives the glass finish; unrelated transparent materials remain excluded.
     if(Ex->bSurfaceGlass && !Blended) return false;
@@ -2776,8 +2886,10 @@ bool FDirectX9::ExSurfaceBegin()
     if ((Fvf & D3DFVF_POSITION_MASK) != D3DFVF_XYZ || (!(Fvf & D3DFVF_NORMAL) && !Glass) ||
         (TexCount == 0 && !Glass && !Cockpit) || TexCount > 3 || (Fvf & 0xffff0000ul) != 0 ||
         RenderStates_.GetPending(kRsLighting) == 0 ||
-        (Blended && !Glass))
+        (Blended && !Glass && !Dyson))
         return false;
+    if(Dyson && Blended && (RenderStates_.GetPending(D3DRS_SRCBLEND)!=D3DBLEND_SRCALPHA ||
+        RenderStates_.GetPending(D3DRS_DESTBLEND)!=D3DBLEND_INVSRCALPHA)) return false;
     auto Tss = [&](unsigned Stage, unsigned Type, unsigned Default) -> unsigned long {
         auto const& S = DeviceStates_.TextureStates[Stage][Type];
         return S.bValid ? S.Value : Default;
@@ -2795,9 +2907,19 @@ bool FDirectX9::ExSurfaceBegin()
     }
     const bool PlainShadowReceiver = EnvStage < 0 &&
         ((Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u) ||
-         (Ex->bWeaponGlintReceiver && Ex->WeaponGlintReceiverMask!=0) || Cockpit || Glass || Ice);
+         (Ex->bWeaponGlintReceiver && Ex->WeaponGlintReceiverMask!=0) || Cockpit || Glass || Ice || Nomad || ShipNormals);
+    // Preserve the author's second detail / illumination layer independently
+    // of new relief. Unknown multistage layouts retain the native material.
+    const unsigned DetailOp=Tss(1,kTssColorOp,D3DTOP_DISABLE);
+    const bool NomadDetail=Nomad && EnvStage<0 &&
+        (DetailOp==D3DTOP_MODULATE || DetailOp==D3DTOP_MODULATE2X || DetailOp==D3DTOP_MODULATE4X || DetailOp==D3DTOP_ADDSIGNED || DetailOp==D3DTOP_ADD) &&
+        Tss(1,D3DTSS_TEXCOORDINDEX,0)<3 && Tss(1,D3DTSS_TEXTURETRANSFORMFLAGS,0)<=D3DTTFF_COUNT2 &&
+        Tss(1,kTssColorArg1,D3DTA_TEXTURE)==D3DTA_TEXTURE && Tss(1,kTssColorArg2,D3DTA_CURRENT)==D3DTA_CURRENT &&
+        Tss(1,kTssAlphaOp,D3DTOP_MODULATE)==D3DTOP_MODULATE &&
+        Tss(1,kTssAlphaArg1,D3DTA_TEXTURE)==D3DTA_TEXTURE && Tss(1,kTssAlphaArg2,D3DTA_CURRENT)==D3DTA_CURRENT &&
+        Tss(2,kTssColorOp,D3DTOP_DISABLE)==D3DTOP_DISABLE;
     if ((!PlainShadowReceiver && EnvStage < 0) ||
-        Tss(EnvStage < 0 ? 1 : EnvStage + 1, kTssColorOp, D3DTOP_DISABLE) != D3DTOP_DISABLE)
+        (!NomadDetail && Tss(EnvStage < 0 ? 1 : EnvStage + 1, kTssColorOp, D3DTOP_DISABLE) != D3DTOP_DISABLE))
         return false;
     const unsigned long EnvColorOp = PlainShadowReceiver ? D3DTOP_MODULATE2X : Tss(EnvStage, kTssColorOp, D3DTOP_MODULATE2X);
     if (!PlainShadowReceiver && ((EnvColorOp != D3DTOP_SELECTARG1 && EnvColorOp != D3DTOP_MODULATE &&
@@ -2814,7 +2936,7 @@ bool FDirectX9::ExSurfaceBegin()
                                  EnvTexture->GetType() != D3DRTYPE_CUBETEXTURE)))
         return false;
     const bool IsCube = EnvTexture && EnvTexture->GetType() == D3DRTYPE_CUBETEXTURE;
-    bool& CompileFailed = IsCube ? Ex->bSurfaceCubeCompileFailed : Ex->bSurfaceCompileFailed;
+    bool& CompileFailed = Nomad ? Ex->bNomadCompileFailed : IsCube ? Ex->bSurfaceCubeCompileFailed : Ex->bSurfaceCompileFailed;
     if (CompileFailed)
         return false;
     const bool WantsBase=EnvStage>0 || PlainShadowReceiver;
@@ -2851,18 +2973,20 @@ bool FDirectX9::ExSurfaceBegin()
 
     // Ice keeps one profile at every distance: mipmaps fade its interior detail
     // continuously instead of switching back to a brighter legacy material.
-    const bool LowDetail=Ex->SurfaceDistanceTier==1 && !Cockpit && !Glass && !Ice;
-    const bool ShadowReceiver=!LowDetail && Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u;
+    const bool LowDetail=Ex->SurfaceDistanceTier==1 && !Cockpit && !Glass && !Ice && !Nomad && !ShipNormals;
+    const bool ShadowReceiver=!Dyson && !LowDetail && Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u;
     // Non-receivers use a variant without the shadow code: fewer registers for every pixel.
-    IDirect3DPixelShader9*& SurfacePs = LowDetail ?
+    const bool NomadDepth=Dyson && RenderStates_.GetPending(D3DRS_COLORWRITEENABLE)==0;
+    IDirect3DPixelShader9*& SurfacePs = ShipNormals ? Ex->ShipNormalPs[(ShadowReceiver?0:2)+(IsCube?1:0)] : NomadDepth ? Ex->NomadDepthPs : Nomad ? Ex->NomadPs[(Dyson?2:0)+(ShadowReceiver?0:1)] : Greenhouse ? Ex->GreenhousePs[(ShadowReceiver ? 0:2)+(IsCube ? 1:0)] : LowDetail ?
         (IsCube ? Ex->SurfaceLowCubePs : Ex->SurfaceLowPs) :
         (ShadowReceiver ? (IsCube ? Ex->SurfaceCubePs : Ex->SurfacePs) :
                           (IsCube ? Ex->SurfaceNoShadowCubePs : Ex->SurfaceNoShadowPs));
+    IDirect3DVertexShader9*& SurfaceVs=Nomad?Ex->NomadVs:Ex->SurfaceVs;
     // The warm-up is still compiling: draw this one with the native material rather than
     // stall the render thread on the same compile.
-    if ((Ex->SurfaceVs == nullptr || SurfacePs == nullptr) && G_SurfaceWarmState == 1)
+    if ((SurfaceVs == nullptr || SurfacePs == nullptr) && G_SurfaceWarmState == 1)
         return false;
-    if (Ex->SurfaceVs == nullptr || SurfacePs == nullptr)
+    if (SurfaceVs == nullptr || SurfacePs == nullptr)
     {
         char Module[MAX_PATH] = {};
         DWORD Length = GetModuleFileNameA(nullptr, Module, MAX_PATH);
@@ -2884,12 +3008,15 @@ bool FDirectX9::ExSurfaceBegin()
         std::vector<unsigned char> Vs, Ps;
         const char* Variant = LowDetail ? "#define SURFACE_LOW_DETAIL 1\n" :
             (ShadowReceiver ? "" : "#define SURFACE_NO_SHADOW 1\n");
-        const std::string PixelSource = std::string(Variant) +
+        const std::string PixelSource = std::string(ShipNormals ? "#define SURFACE_SHIP_NORMALS 1\n" : "") + std::string(Nomad ? "#define SURFACE_NOMAD 1\n" : "") +
+            (Dyson ? "#define SURFACE_NOMAD_LIGHT 1\n" : "") +
+            std::string(Greenhouse ? "#define SURFACE_GREENHOUSE 1\n" : "") + std::string(Variant) +
             (IsCube ? "#define SURFACE_ENV_CUBE 1\n" : "") + Source;
-        bool Ok = !Source.empty() && CompileStage(Source, Path, nullptr, "VSMain", "vs_3_0", &Vs) &&
-            CompileStage(PixelSource, Path, nullptr, "PSMain", "ps_3_0", &Ps);
-        if (Ok && Ex->SurfaceVs == nullptr)
-            Ok = SUCCEEDED(Device_->CreateVertexShader((const DWORD*)Vs.data(), &Ex->SurfaceVs));
+        const std::string VertexSource=std::string(Nomad?"#define SURFACE_NOMAD 1\n":"")+Source;
+        bool Ok = !Source.empty() && CompileStage(VertexSource, Path, nullptr, "VSMain", "vs_3_0", &Vs) &&
+            CompileStage(PixelSource, Path, nullptr, NomadDepth?"PSNomadDepth":"PSMain", "ps_3_0", &Ps);
+        if (Ok && SurfaceVs == nullptr)
+            Ok = SUCCEEDED(Device_->CreateVertexShader((const DWORD*)Vs.data(), &SurfaceVs));
         if (Ok && SurfacePs == nullptr)
             Ok = SUCCEEDED(Device_->CreatePixelShader((const DWORD*)Ps.data(), &SurfacePs));
         if (!Ok)
@@ -2936,6 +3063,7 @@ bool FDirectX9::ExSurfaceBegin()
     Vs[64] = ColourVertex ? 1.0f : 0.0f;
     Vs[65] = (float)BaseUv;
     Vs[66] = (float)EnvTransform;
+    Vs[67] = (float)TexCount;
 
     if(Ice && !Ex->bIceTextureTried)
     {
@@ -2953,7 +3081,18 @@ bool FDirectX9::ExSurfaceBegin()
             __LINE__,"crystal ice layers %s",Ex->IceLayers ? "loaded" : "missing; keeping native material");
     }
     if(Ice && !Ex->IceLayers) return false;
-    float Ps[97 * 4] = {};
+    if(Nomad && !Ex->bNomadTextureTried) {
+        Ex->bNomadTextureTried=true;
+        char module[MAX_PATH]={};GetModuleFileNameA(nullptr,module,MAX_PATH);
+        char* slash=strrchr(module,'\\');
+        if(slash){slash[1]=0;const std::string path=std::string(module)+"../DATA_EXTRA/TEXTURES/nomad_layers.dds";
+            D3DXCreateTextureFromFileExA(Device_,path.c_str(),D3DX_DEFAULT,D3DX_DEFAULT,D3DX_DEFAULT,
+                0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,D3DX_DEFAULT,D3DX_DEFAULT,0,nullptr,nullptr,&Ex->NomadLayers);}
+        ExLogf(Ex->NomadLayers?kExFdumpNotice:kExFdumpWarning,Ex->NomadLayers?"NOTICE":"WARNING",__LINE__,
+            "organic nomad layers %s",Ex->NomadLayers?"loaded":"missing; native material retained");
+    }
+    if(Nomad && !Ex->NomadLayers) return false;
+    float Ps[102 * 4] = {};
     auto Set = [&](unsigned Reg, float X, float Y, float Z, float W) {
         float* D = Ps + Reg * 4; D[0] = X; D[1] = Y; D[2] = Z; D[3] = W;
     };
@@ -3029,17 +3168,25 @@ bool FDirectX9::ExSurfaceBegin()
     Ps[6]+=Mat.Ambient.b*Ex->SurfaceLightAmbient[2];
 
     memcpy(Ps+52*4,Ex->ShadowMatrices[0],64); memcpy(Ps+56*4,Ex->ShadowMatrices[1],64);
-    Set(60,ShadowReceiver ? 1.0f : 0.0f,1.0f/Ex->ShadowResolution[0],
+    // 2: player hull; 3: nearby static surfaces also receive the detailed ship
+    // silhouette. NPC hulls retain the shared far map and their cheaper budget.
+    const bool NearReceiver=ShadowReceiver && (Ex->bShadowReceiverIsPlayer || !Ex->bShadowReceiverIsShip);
+    Set(60,ShadowReceiver ? (Ex->bShadowReceiverIsPlayer ? 2.0f : (!Ex->bShadowReceiverIsShip ? 3.0f : 1.0f)) : 0.0f,1.0f/Ex->ShadowResolution[0],
         Ex->ShadowFarRadius*0.9f,Ex->ShadowFarRadius);
     memcpy(Ps+61*4,Ex->ShadowSunDirection,16);
     // y: the near map's moving casters (ships, asteroids) are in their own map (cascade 2).
-    const bool NearLive=ShadowReceiver && (Ex->ShadowReadyMask&4u) && Ex->ShadowMaps[2];
+    const bool NearLive=NearReceiver &&
+        (Ex->ShadowReadyMask&4u) && Ex->ShadowMaps[2];
     Set(62,(float)Ex->ShadowPlanetCount,NearLive ? 1.0f : 0.0f,Ex->ShadowEclipseRange,Ex->ShadowEclipseSunAngle);
     memcpy(Ps+64*4,Ex->ShadowPlanets,sizeof(Ex->ShadowPlanets));
     Set(63,Ex->ShadowMaxLength,Ex->ShadowMaxLength*0.8f,
         Ex->ShadowNearRadius*2,Ex->ShadowFarRadius*2);
+    const unsigned SearchSamples=Ex->bShadowReceiverIsPlayer ? Ex->ShadowSearchSamples :
+        (std::min)(Ex->ShadowSearchSamples,Ex->ShadowWorldSearchSamples);
+    const unsigned FilterSamples=Ex->bShadowReceiverIsPlayer ? Ex->ShadowFilterSamples :
+        (std::min)(Ex->ShadowFilterSamples,Ex->ShadowWorldFilterSamples);
     Set(72,std::tan(Ex->ShadowLightAngle*0.00872664626f),
-        (float)Ex->ShadowSearchSamples,(float)Ex->ShadowFilterSamples,Ex->ShadowStrength);
+        (float)SearchSamples,(float)FilterSamples,Ex->ShadowStrength);
     Set(73,Ex->ShadowNearRadius*2/Ex->ShadowResolution[0],
         Ex->ShadowFarRadius*2/Ex->ShadowResolution[1],Ex->ShadowBiasScale,0);
     Set(74,Ex->ShadowDepthSpan[0],Ex->ShadowDepthSpan[1],0,0);
@@ -3063,11 +3210,17 @@ bool FDirectX9::ExSurfaceBegin()
     Set(77,(float)GlintCount,Ex->WeaponGlintStrength,
         1.0f/(Ex->WeaponGlintRadius*Ex->WeaponGlintRadius),
         Ex->WeaponGlintDistance*Ex->WeaponGlintDistance);
-    Set(94,Cockpit ? 1.0f : 0.0f,Glass ? 1.0f : 0.0f,Ex->SurfaceGlassStrength,Ex->SurfaceCockpitStrength);
+    Set(94,Cockpit ? 1.0f : 0.0f,Greenhouse ? 2.0f : (Glass ? 1.0f : 0.0f),Ex->SurfaceGlassStrength,Ex->SurfaceCockpitStrength);
     // The far map's station cache this frame (built or reused): sampled beside the far map.
     const bool StationMap=ShadowReceiver && Ex->bShadowStaticPrepared && Ex->ShadowStaticMap;
     Set(95,1.0f/Ex->ShadowResolution[1],Ex->ShadowShortReach,Tier==2 ? 1.0f : 0.0f,StationMap ? 1.0f : 0.0f);
     Set(96,Ice ? 1.0f : 0.0f,Ex->IceDepth,Ex->IceFrost,Ex->IceTransmission);
+    if(Nomad) Set(96,Dyson?2.0f:(Ex->SurfaceShader==RPSurfaceNomadInterior?3.0f:1.0f),Ex->NomadRelief,Ex->NomadGlow,
+        static_cast<float>(GetTickCount64()%1024000)*0.001f);
+    if(NomadDetail) {
+        Set(97,(float)DetailOp,(float)Tss(1,D3DTSS_TEXCOORDINDEX,0),(float)Tss(1,D3DTSS_TEXTURETRANSFORMFLAGS,0),1);
+        memcpy(Ps+98*4,DeviceStates_.TextureTransforms[1].Values,64);
+    }
 
     // Device state is re-sent only where it differs from what the previous surface draw left
     // and nothing else has written since (the device-call write counters).
@@ -3093,12 +3246,11 @@ bool FDirectX9::ExSurfaceBegin()
     {
         static const unsigned long ShadowStates[8] = {D3DTADDRESS_CLAMP, D3DTADDRESS_CLAMP, D3DTADDRESS_CLAMP,
             D3DTEXF_POINT, D3DTEXF_POINT, D3DTEXF_NONE, 1, 0};
-        BindHigh(0, Ex->ShadowMaps[0], ShadowStates);
+        BindHigh(0, NearReceiver ? Ex->ShadowMaps[0] : nullptr, ShadowStates);
         BindHigh(1, Ex->ShadowMaps[1], ShadowStates);
         if (StationMap)
             BindHigh(3, Ex->ShadowStaticMap, ShadowStates);
-        if (NearLive)
-            BindHigh(4, Ex->ShadowMaps[2], ShadowStates);
+        BindHigh(4, NearLive ? Ex->ShadowMaps[2] : nullptr, ShadowStates);
     }
     // The authored addressing and filtering of the stage holding the environment map.
     // An entry the cache does not know (e.g. after soft particles saved the stage) is read back
@@ -3114,20 +3266,31 @@ bool FDirectX9::ExSurfaceBegin()
         EnvState(17, D3DTEXF_LINEAR), EnvState(18, D3DTEXF_LINEAR),
         EnvState(21, 1), EnvState(19, 0)};
     BindHigh(2, EnvTexture, EnvStates);
-    if(Ice)
+    if(Ice || Nomad)
     {
         static const unsigned long IceStates[8]={D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,
             D3DTEXF_LINEAR,D3DTEXF_LINEAR,D3DTEXF_LINEAR,1,0};
-        BindHigh(5,Ex->IceLayers,IceStates);
+        BindHigh(5,Nomad?Ex->NomadLayers:Ex->IceLayers,IceStates);
     }
     Ex->SurfaceSamplerWrites = Calls.HighSamplerWrites;
+    if(ShipNormals)
+    {
+        static const unsigned long NormalStates[8]={D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,
+            D3DTEXF_LINEAR,D3DTEXF_LINEAR,D3DTEXF_LINEAR,1,0};
+        BindHigh(5,Ex->ShipNormalCurrent->Texture,NormalStates);
+        // DXT5nm is linear data, irrespective of the previous material's sampler state.
+        Rp9SetSamplerState(Device_,13,D3DSAMP_SRGBTEXTURE,0);
+        Set(97,Ex->ShipNormalStrength,Ex->ShipNormalRange>0 ? Ex->ShipNormalRange*.8f : 2000,
+            Ex->ShipNormalRange>0 ? Ex->ShipNormalRange : 6000,2.0f);
+        Ex->SurfaceSamplerWrites=Calls.HighSamplerWrites;
+    }
 
     if (Calls.ShaderWrites != Ex->SurfaceShaderWrites)
         Ex->SurfaceBoundVs = nullptr, Ex->SurfaceBoundPs = nullptr;
-    if (SUCCEEDED(Hr) && Ex->SurfaceBoundVs != Ex->SurfaceVs)
+    if (SUCCEEDED(Hr) && Ex->SurfaceBoundVs != SurfaceVs)
     {
-        Hr = Rp9SetVertexShader(Device_, Ex->SurfaceVs);
-        Ex->SurfaceBoundVs = SUCCEEDED(Hr) ? Ex->SurfaceVs : nullptr;
+        Hr = Rp9SetVertexShader(Device_, SurfaceVs);
+        Ex->SurfaceBoundVs = SUCCEEDED(Hr) ? SurfaceVs : nullptr;
     }
     if (SUCCEEDED(Hr) && Ex->SurfaceBoundPs != SurfacePs)
     {
@@ -3158,6 +3321,8 @@ bool FDirectX9::ExSurfaceBegin()
         Upload(52, 25);
         Upload(77, 17);
         Upload(94, 3);
+        if(Nomad) Upload(97,5);
+        else if(ShipNormals) Upload(97,1);
     }
     Ex->SurfacePsWrites = Calls.PixelConstantWrites;
     Ex->bSurfaceActive = true;
@@ -3201,6 +3366,7 @@ bool FDirectX9::ExQueueSurfaceInstance(unsigned long Prim,unsigned int Min,unsig
                                       unsigned int Start,unsigned int Count)
 {
     auto* E=Ex_;
+    if (E->bRoomFrame || E->bShipNormalScope) return false;
     if(!E->bInstanceConfigRead)
     {
         E->bInstanceConfigRead=true;
@@ -3211,6 +3377,7 @@ bool FDirectX9::ExQueueSurfaceInstance(unsigned long Prim,unsigned int Min,unsig
            (Params.BehaviorFlags&D3DCREATE_SOFTWARE_VERTEXPROCESSING)) E->bSurfaceInstancing=false;
     }
     auto* Vb=StreamCache_.VertexBuffer;auto* Ib=StreamCache_.IndexBuffer;
+    if(E->SurfaceShader>=RPSurfaceNomadLair && E->SurfaceShader<=RPSurfaceNomadInterior) return false;
     if(!E->bInstanceScope || !E->bSurfaceInstancing || E->bInstanceFailed || !E->bSurfaceActive ||
        E->bShadowDrawing || E->bInPass || E->bSurfaceCockpit || E->bSurfaceGlass ||
        Prim!=D3DPT_TRIANGLELIST || !Vb || !Vb->Gpu || !Ib || !Ib->Gpu || Ib==&ScratchIb_ ||
@@ -3630,6 +3797,7 @@ GENRESULT DACOM_API FDirectX9::SetLocalShadowReceiver(unsigned long Enabled)
     Ex_->bInstanceScope=Scope;
     Ex_->bShadowReceiver = (Enabled&1u)!=0;
     Ex_->bShadowReceiverIsShip = (Enabled&2u)!=0;
+    Ex_->bShadowReceiverIsPlayer = Ex_->bShadowReceiver && Ex_->bShadowReceiverIsShip && (Enabled&128u)!=0;
     Ex_->ShadowReceiverTier = (std::min)((unsigned)((Enabled>>5)&3u),2u);
     return GR_OK;
 }
@@ -3647,6 +3815,7 @@ GENRESULT DACOM_API FDirectX9::BeginLocalShadowFrame(const float* View12, const 
     ExFlushSurfaceInstances();
     FRp9ExState* E = Ex_;
     E->ShadowReadyMask = 0; E->ShadowPlanetCount = 0; E->bShadowReceiver = false;
+    E->bShadowReceiverIsPlayer=false;
     E->ShadowEclipseRange = 0.0f; E->ShadowEclipseSunAngle = 0.0f;
     E->bShadowFrameValid=false;
     E->bShadowStaticPrepared=false;
@@ -3680,6 +3849,8 @@ GENRESULT DACOM_API FDirectX9::BeginLocalShadowFrame(const float* View12, const 
         E->ShadowLightAngle=ReadShadowSetting("shadow_light_angle",2,0,10);
         E->ShadowSearchSamples=(unsigned)ReadShadowSetting("shadow_search_samples",16,8,64);
         E->ShadowFilterSamples=(unsigned)ReadShadowSetting("shadow_filter_samples",32,16,192);
+        E->ShadowWorldSearchSamples=(unsigned)ReadShadowSetting("shadow_world_search_samples",16,2,64);
+        E->ShadowWorldFilterSamples=(unsigned)ReadShadowSetting("shadow_world_filter_samples",32,2,192);
         E->ShadowBiasScale=ReadShadowSetting("shadow_bias",0.5f,0.05f,4);
         E->bShadowAdaptiveQuality=ReadShadowSetting("shadow_adaptive_quality",1,0,1)>0.5f;
         E->ShadowStaticQualityDistance=ReadShadowSetting("shadow_static_quality_distance",500,50,5000);
@@ -3954,6 +4125,7 @@ GENRESULT DACOM_API FDirectX9::BeginLocalShadowMap(unsigned long Cascade)
 bool FDirectX9::ExShadowDrawBegin()
 {
     FRp9ExState* E=Ex_;
+    if (E && E->bRoomShadowDrawing) return ExRoomShadowDrawBegin();
     if (!E || !E->bShadowDrawing) return true;
     unsigned long Fvf=StreamCache_.Fvf;
     if(!Fvf && StreamCache_.VertexBuffer) Fvf=StreamCache_.VertexBuffer->Fvf;
@@ -4021,6 +4193,7 @@ void FDirectX9::ExShadowRelease()
     FRp9ExState* E=Ex_; if(!E) return;
     if(E->bShadowDrawing && Device_) EndLocalShadowMap();
     E->ShadowReadyMask=0; E->bShadowReceiver=false;
+    E->bShadowReceiverIsPlayer=false;
     E->bShadowFrameValid=false;
     // The device holds a reference to bound textures: unbind before releasing the maps.
     if(Device_) {Rp9SetTexture(Device_,8,nullptr);Rp9SetTexture(Device_,9,nullptr);Rp9SetTexture(Device_,11,nullptr);
@@ -4046,7 +4219,7 @@ void FDirectX9::ExInitQualityConfig()
     // 0 off, 1 the space scene before the HUD, 2 the whole frame at SwapBuffers (HUD included;
     // FXAA damages small interface text, so it is opt-in).
     Ex_->QualityFxaaMode=(unsigned)ReadShadowSetting("fxaa",1,0,2);
-    ExLogf(kExFdumpNotice,"NOTICE",__LINE__,"frame quality: AF %ux, FXAA %s, MSAA off (INTZ depth)",
+    ExLogf(kExFdumpNotice,"NOTICE",__LINE__,"frame quality: SMAA 1x High before UI, AF %ux, fallback FXAA %s, MSAA off (INTZ depth)",
         Ex_->QualityAnisotropy,Ex_->QualityFxaaMode==2 ? "full frame" : Ex_->QualityFxaaMode==1 ? "before HUD" : "off");
 }
 
@@ -4106,7 +4279,7 @@ GENRESULT DACOM_API FDirectX9::ApplySceneAntialiasing()
     // Called after the space scene, before the HUD (fxaa = 1). fxaa = 2 filters the finished
     // frame at SwapBuffers instead (HUD and wireframes included).
     ExInitQualityConfig();
-    if(!Ex_ || Ex_->QualityFxaaMode!=1) return GR_OK;
+    if(!Ex_ || (!Ex_->QualitySmaaEnabled && Ex_->QualityFxaaMode!=1)) return GR_OK;
     return ExApplyFrameAntialiasing();
 }
 
@@ -4116,7 +4289,14 @@ GENRESULT FDirectX9::ExApplyFrameAntialiasing()
     if(!Device_ || !Ex_ || Ex_->bInPass || Ex_->bShadowDrawing || Ex_->bSurfaceActive) return GR_GENERIC;
     ExInitQualityConfig();
     FRp9ExState* E=Ex_;
-    if(!E->QualityFxaaMode || E->bQualityFxaaFailed) return GR_OK;
+    if(E->QualitySmaaEnabled && !E->bQualitySmaaFailed)
+    {
+        GENRESULT Result=ExApplySmaa();
+        if(Result>=0) return Result;
+        E->bQualitySmaaFailed=true;
+        ExLogf(kExFdumpWarning,"WARNING",__LINE__,"SMAA unavailable (0x%08x); using FXAA before UI",(unsigned)Result);
+    }
+    if((!E->QualitySmaaEnabled && !E->QualityFxaaMode) || E->bQualityFxaaFailed) return GR_OK;
     if(!E->QualityFxaaPs)
     {
         char Module[MAX_PATH]={};GetModuleFileNameA(nullptr,Module,MAX_PATH);
@@ -4130,6 +4310,159 @@ GENRESULT FDirectX9::ExApplyFrameAntialiasing()
         {E->bQualityFxaaFailed=true;return GR_GENERIC;}
     }
     return ExApplyFramePass(E->QualityFxaaPs, nullptr);
+}
+
+GENRESULT FDirectX9::ExApplySmaa()
+{
+    FRp9ExState* E=Ex_;
+    if(!Device_ || !E) return GR_GENERIC;
+    char Module[MAX_PATH]={};GetModuleFileNameA(nullptr,Module,MAX_PATH);
+    char* Slash=strrchr(Module,'\\');if(!Slash) return GR_GENERIC;Slash[1]=0;
+    std::string Directory=std::string(Module)+"../DATA_EXTRA/SHADERS/";
+    if(!E->QualitySmaaPs[0] || !E->QualitySmaaPs[1] || !E->QualitySmaaPs[2])
+    {
+        auto Read=[](std::string const& Path) {
+            std::string Text;FILE* File=fopen(Path.c_str(),"rb");
+            if(File) {char B[4096];size_t N;while((N=fread(B,1,sizeof(B),File))!=0) Text.append(B,N);fclose(File);}
+            return Text;
+        };
+        std::string Library=Read(Directory+"SMAA/SMAA.hlsl"),Entry=Read(Directory+"scene_smaa.hlsl");
+        if(Library.empty() || Entry.empty()) return GR_GENERIC;
+        std::string Source="float4 PixelSize : register(c0);\n#define SMAA_RT_METRICS PixelSize\n"
+            "#define SMAA_HLSL_3 1\n#define SMAA_PRESET_HIGH 1\n"+Library+"\n"+Entry;
+        char const* Names[]={"EdgesPS","WeightsPS","BlendPS"};
+        for(unsigned I=0;I<3;++I) if(!E->QualitySmaaPs[I])
+        {
+            std::vector<unsigned char> Code;
+            if(!CompileStage(Source,Directory+"scene_smaa.hlsl",nullptr,Names[I],"ps_3_0",&Code)) return GR_GENERIC;
+            HRESULT Hr=Device_->CreatePixelShader((DWORD*)Code.data(),&E->QualitySmaaPs[I]);
+            if(FAILED(Hr)) return (GENRESULT)Hr;
+        }
+    }
+    char const* Tables[]={"SMAA/AreaTexDX9.dds","SMAA/SearchTex.dds"};
+    for(unsigned I=0;I<2;++I) if(!E->QualitySmaaLookup[I])
+    {
+        HRESULT Hr=D3DXCreateTextureFromFileExA(Device_,(Directory+Tables[I]).c_str(),
+            D3DX_DEFAULT_NONPOW2,D3DX_DEFAULT_NONPOW2,1,0,D3DFMT_UNKNOWN,D3DPOOL_MANAGED,
+            D3DX_FILTER_NONE,D3DX_FILTER_NONE,0,nullptr,nullptr,&E->QualitySmaaLookup[I]);
+        if(FAILED(Hr)) return (GENRESULT)Hr;
+    }
+
+    ExSurfaceRelease();FlushDrawState(Device_);
+    IDirect3DSurface9* Target=nullptr;
+    HRESULT Hr=Device_->GetRenderTarget(0,&Target);if(FAILED(Hr)) return (GENRESULT)Hr;
+    D3DSURFACE_DESC Desc={};Hr=Target->GetDesc(&Desc);
+    auto Ensure=[&](IDirect3DTexture9*& Texture,D3DFORMAT Format) {
+        if(FAILED(Hr)) return;
+        if(Texture)
+        {
+            D3DSURFACE_DESC Old={};Texture->GetLevelDesc(0,&Old);
+            if(Old.Width!=Desc.Width || Old.Height!=Desc.Height || Old.Format!=Format)
+            {Texture->Release();Texture=nullptr;}
+        }
+        if(!Texture) Hr=Device_->CreateTexture(Desc.Width,Desc.Height,1,D3DUSAGE_RENDERTARGET,
+                                               Format,D3DPOOL_DEFAULT,&Texture,nullptr);
+    };
+    Ensure(E->QualitySceneCopy,Desc.Format);
+    for(auto*& Texture:E->QualitySmaaTargets) Ensure(Texture,D3DFMT_A8R8G8B8);
+    IDirect3DSurface9* Surfaces[3]={};
+    if(SUCCEEDED(Hr)) Hr=E->QualitySceneCopy->GetSurfaceLevel(0,&Surfaces[0]);
+    for(unsigned I=0;I<2 && SUCCEEDED(Hr);++I) Hr=E->QualitySmaaTargets[I]->GetSurfaceLevel(0,&Surfaces[I+1]);
+
+    // State blocks do not save RT/depth bindings. Save those explicitly, and restore
+    // them before the block so SetRenderTarget cannot overwrite the saved viewport.
+    IDirect3DSurface9* Depth=nullptr;IDirect3DSurface9* ExtraTargets[3]={};
+    D3DCAPS9 Caps={};Device_->GetDeviceCaps(&Caps);
+    unsigned ExtraCount=(std::min)(Caps.NumSimultaneousRTs,4ul);if(ExtraCount) --ExtraCount;
+    Device_->GetDepthStencilSurface(&Depth);
+    for(unsigned I=0;I<ExtraCount;++I) Device_->GetRenderTarget(I+1,&ExtraTargets[I]);
+    bool Captured=false;
+    if(SUCCEEDED(Hr))
+    {
+        Hr=E->QualitySavedState ? E->QualitySavedState->Capture() :
+            Device_->CreateStateBlock(D3DSBT_ALL,&E->QualitySavedState);
+        Captured=SUCCEEDED(Hr);
+    }
+    bool const WasInScene=E->bInScene;
+    if(SUCCEEDED(Hr) && E->bInScene)
+    {
+        Hr=Device_->EndScene();if(SUCCEEDED(Hr)) E->bInScene=false;
+    }
+    if(SUCCEEDED(Hr)) Hr=Device_->StretchRect(Target,nullptr,Surfaces[0],nullptr,D3DTEXF_NONE);
+    // Restore the caller's scene even on copy failure; outside a scene only open
+    // one when there is a pass to draw. bInScene always follows successful calls.
+    if(!E->bInScene && (WasInScene || SUCCEEDED(Hr)))
+    {
+        HRESULT Begin=Device_->BeginScene();E->bInScene=SUCCEEDED(Begin);
+        if(SUCCEEDED(Hr)) Hr=Begin;
+    }
+    if(SUCCEEDED(Hr))
+    {
+        ExGpuMark(FRp9GpuTimers::AaBegin);
+        Hr=Device_->SetDepthStencilSurface(nullptr);
+        for(unsigned I=0;I<ExtraCount && SUCCEEDED(Hr);++I) Hr=Device_->SetRenderTarget(I+1,nullptr);
+        Rp9SetVertexShader(Device_,nullptr);Rp9SetFvf(Device_,D3DFVF_XYZRHW|D3DFVF_TEX1);
+        float Metrics[4]={1.f/Desc.Width,1.f/Desc.Height,(float)Desc.Width,(float)Desc.Height};
+        Rp9SetPixelConstants(Device_,0,Metrics,1);
+        Device_->SetTextureStageState(0,D3DTSS_TEXCOORDINDEX,0);
+        Device_->SetTextureStageState(0,D3DTSS_TEXTURETRANSFORMFLAGS,D3DTTFF_DISABLE);
+        Rp9SetRenderState(Device_,D3DRS_ZENABLE,FALSE);Rp9SetRenderState(Device_,D3DRS_ZWRITEENABLE,FALSE);
+        Rp9SetRenderState(Device_,D3DRS_ALPHATESTENABLE,FALSE);Rp9SetRenderState(Device_,D3DRS_ALPHABLENDENABLE,FALSE);
+        Rp9SetRenderState(Device_,D3DRS_FOGENABLE,FALSE);Rp9SetRenderState(Device_,D3DRS_CULLMODE,D3DCULL_NONE);
+        Rp9SetRenderState(Device_,D3DRS_SCISSORTESTENABLE,FALSE);Rp9SetRenderState(Device_,D3DRS_SRGBWRITEENABLE,FALSE);
+        Rp9SetRenderState(Device_,D3DRS_CLIPPLANEENABLE,0);Rp9SetRenderState(Device_,D3DRS_STENCILENABLE,FALSE);
+        Rp9SetRenderState(Device_,D3DRS_FILLMODE,D3DFILL_SOLID);Rp9SetRenderState(Device_,D3DRS_COLORWRITEENABLE,15);
+        for(unsigned I=0;I<3;++I)
+        {
+            Rp9SetSamplerState(Device_,I,D3DSAMP_MINFILTER,D3DTEXF_LINEAR);
+            Rp9SetSamplerState(Device_,I,D3DSAMP_MAGFILTER,D3DTEXF_LINEAR);
+            Rp9SetSamplerState(Device_,I,D3DSAMP_MIPFILTER,D3DTEXF_NONE);
+            Rp9SetSamplerState(Device_,I,D3DSAMP_SRGBTEXTURE,FALSE);
+            Rp9SetSamplerState(Device_,I,D3DSAMP_ADDRESSU,D3DTADDRESS_CLAMP);
+            Rp9SetSamplerState(Device_,I,D3DSAMP_ADDRESSV,D3DTADDRESS_CLAMP);
+        }
+        struct Vertex {float X,Y,Z,W,U,V;};
+        Vertex Quad[]={{-.5f,-.5f,0,1,0,0},{Desc.Width-.5f,-.5f,0,1,1,0},
+            {-.5f,Desc.Height-.5f,0,1,0,1},{Desc.Width-.5f,Desc.Height-.5f,0,1,1,1}};
+        D3DVIEWPORT9 View={0,0,Desc.Width,Desc.Height,0,1};
+        for(unsigned Pass=0;Pass<3 && SUCCEEDED(Hr);++Pass)
+        {
+            // A texture must not be sampled while its surface is the render target.
+            for(unsigned I=0;I<3;++I) Rp9SetTexture(Device_,I,nullptr);
+            Hr=Device_->SetRenderTarget(0,Pass<2 ? Surfaces[Pass+1] : Target);
+            if(SUCCEEDED(Hr)) Hr=Device_->SetViewport(&View);
+            // Edge detection discards pixels without edges; clear to avoid ghosts.
+            if(SUCCEEDED(Hr) && Pass<2) Hr=Device_->Clear(0,nullptr,D3DCLEAR_TARGET,0,1,0);
+            Rp9SetPixelShader(Device_,E->QualitySmaaPs[Pass]);
+            Rp9SetTexture(Device_,0,Pass==1 ? E->QualitySmaaTargets[0] : E->QualitySceneCopy);
+            Rp9SetTexture(Device_,1,Pass==1 ? E->QualitySmaaLookup[0] : Pass==2 ? E->QualitySmaaTargets[1] : nullptr);
+            Rp9SetTexture(Device_,2,Pass==1 ? E->QualitySmaaLookup[1] : nullptr);
+            if(SUCCEEDED(Hr)) Hr=Device_->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,Quad,sizeof(Vertex));
+        }
+        ExGpuMark(FRp9GpuTimers::AaEnd);
+    }
+    if(Captured)
+    {
+        for(unsigned I=0;I<3;++I) Rp9SetTexture(Device_,I,nullptr);
+        HRESULT Restore=Device_->SetRenderTarget(0,Target);
+        for(unsigned I=0;I<ExtraCount;++I)
+        {
+            HRESULT R=Device_->SetRenderTarget(I+1,ExtraTargets[I]);if(SUCCEEDED(Restore)) Restore=R;
+        }
+        HRESULT R=Device_->SetDepthStencilSurface(Depth);if(SUCCEEDED(Restore)) Restore=R;
+        R=E->QualitySavedState->Apply();if(SUCCEEDED(Restore)) Restore=R;
+        if(SUCCEEDED(Hr)) Hr=Restore;
+        Rp9DeviceCalls().Invalidate();
+    }
+    if(!WasInScene && E->bInScene)
+    {
+        HRESULT End=Device_->EndScene();if(SUCCEEDED(End)) E->bInScene=false;
+        if(SUCCEEDED(Hr)) Hr=End;
+    }
+    for(auto* Surface:Surfaces) if(Surface) Surface->Release();
+    for(auto* Surface:ExtraTargets) if(Surface) Surface->Release();
+    if(Depth) Depth->Release();Target->Release();
+    return (GENRESULT)Hr;
 }
 
 // The finished frame through one pixel shader (c0 = 1/width, 1/height; c1 = Extra4): the scene
@@ -4235,3 +4568,7 @@ GENRESULT FDirectX9::ExApplyWindowedGamma()
     }
     return ExApplyFramePass(E->GammaPs, E->Gamma);
 }
+
+#include "RP9RoomMaterials.inl"
+#include "RP9ShipNormals.inl"
+#include "RP9RoomShadows.inl"

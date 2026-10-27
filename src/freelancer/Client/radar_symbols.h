@@ -4,15 +4,16 @@
 
 namespace RadarSymbols
 {
-    constexpr unsigned ShipMask=0x7f0000u, LootMask=0x10000000u;
+    constexpr unsigned ShipMask=0x7f0000u, LootMask=0x10000000u, MissileMask=0x1000000u;
     constexpr unsigned SolarMask=0x3u|0x10u|0x20u|0x40u|0x80u|0x100u|0x400u|0x800u|0x1000u|0x2000u|0x8000u;
-    enum class Kind {Triangle,Diamond,Planet,Capital,Transport,Dockable,Platform,TradeLane};
+    enum class Kind {Triangle,Diamond,Planet,Capital,Transport,Dockable,Platform,TradeLane,Missile};
     inline unsigned ContactColor(Kind kind,int attitude)
     {
         return attitude<0 ? 0xff4438u : attitude>0 && kind!=Kind::Planet ? 0x55f293u : 0xc1d8deu;
     }
     inline Kind Classify(unsigned type)
     {
+        if(type&MissileMask) return Kind::Missile;
         if(type&0x3u) return Kind::Planet; // PLANET and MOON.
         if(type&0x80u) return Kind::TradeLane;
         if(type&0x1000u) return Kind::Platform;
@@ -21,6 +22,11 @@ namespace RadarSymbols
         if(type&(0x10000u|0x20000u|LootMask)) return Kind::Triangle;
         if(type&SolarMask) return Kind::Dockable;
         return Kind::Diamond;
+    }
+    // Two red/yellow cycles per second, independent of the decorative sweep.
+    inline unsigned MissileColor(int attitude,bool incoming,float phase)
+    {
+        return incoming ? (phase<.25f ? 0xff4438u : 0xffe35bu) : ContactColor(Kind::Missile,attitude);
     }
     inline RadarSymbolsData::Mesh const* Mesh(Kind kind)
     {
@@ -59,6 +65,25 @@ namespace RadarSymbols
     void Emit(RadarProjection::Contact const& p,Kind kind,float physicalRadius,float range,
               RadarProjection::Layout const& layout,unsigned rgb,bool selected,float alpha,float size,DrawLine draw)
     {
+        if(kind==Kind::Missile)
+        {
+            if(!std::isfinite(size)||size<=0) return;
+            auto clipped=[&](float ax,float ay,float bx,float by,unsigned color,float width) {
+                if(Clip(layout,ax,ay,bx,by)) draw(ax,ay,bx,by,color,width);
+            };
+            float const radius=size*1.25f;
+            auto stem=p;
+            stem.tipY=p.tipY+(p.baseY>p.tipY ? radius : -radius);
+            if(std::fabs(p.baseY-p.tipY)>radius) RadarContacts::Stem(stem,rgb,alpha,clipped);
+            for(int i=0;i<16;++i)
+            {
+                float const a=i*(6.28318530718f/16),b=(i+1)*(6.28318530718f/16);
+                clipped(p.x+std::cos(a)*radius,p.tipY+std::sin(a)*radius,
+                        p.x+std::cos(b)*radius,p.tipY+std::sin(b)*radius,RadarFrame::Color(rgb,alpha),1.2f);
+            }
+            if(selected) RadarContacts::Selection(p,alpha,radius,clipped);
+            return;
+        }
         auto const* mesh=Mesh(kind);
         if(!mesh) {RadarContacts::Emit(p,rgb,selected,kind==Kind::Triangle,alpha,size,draw);return;}
         if(!std::isfinite(range)||range<=0) return;

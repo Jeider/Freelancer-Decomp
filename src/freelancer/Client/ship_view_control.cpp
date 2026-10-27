@@ -16,7 +16,7 @@
 #include "hud_element_list.h"  // HudMatrixRotationY / RotateRows12 / RotateRows01
 #include "hud_target.h"        // FHudInstanceBounds, HudInverseTransformPoint
 #include "nn_ui_pulse.h"       // G_HudChromeColorRgba (DAT_00679bb4)
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
 #include "adoxa_engclass.h"    // engclass.dll's mountable engines / powerplants
 #endif
 #ifdef FREELANCER_HUD_INVENTORY_VIEW
@@ -95,7 +95,7 @@ namespace
     // hp types 0x43..0x7e captioned by the plugin's local ids 6..65.
     int ShipViewCaptionRows()
     {
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
         if (EngclassOn())
             return 0x78;
 #endif
@@ -104,7 +104,7 @@ namespace
 
     FHpTypeCaption ShipViewCaption(int Row)
     {
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
         if (Row >= 0x3c)
         {
             FHpTypeCaption Caption;
@@ -116,7 +116,7 @@ namespace
         return G_ShipViewHpTypeCaptions[Row];
     }
 
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
     // Port-only, adoxa's engclass.dll (docs/adoxa.md): FUN_00586b70's grouping with its
     // patches -- range 4..0x7e (0x00586c89), the byte table 0x00587008 replaced by MountList
     // (0x00586c8f) and the two upper cases renumbered 1 -> 2 (0x00586c9f) and 2 -> 3
@@ -237,8 +237,12 @@ int ShipViewEquipDescHpClass(EquipDesc const* Desc, Archetype::Equipment const**
 
 int ShipViewHpTypeClass(int HpType)
 {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled() && EquipmentClasses::IsType(unsigned(HpType)))
+        return 16 + EquipmentClasses::Family(unsigned(HpType));
+#endif
     // FUN_00585b10: switch on HpType - 4 through the byte table 0x00585b90.
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
     // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x00585b17 range 0x3e -> 0x7a, table ->
     // MountDescIdx, jump table cases 11..16 -> Get_MountDesc): the six new families are the
     // hardpoint description classes 10..15.
@@ -962,6 +966,14 @@ void ShipViewControl::LoadEquipment(EquipDescList const* List)
     while (It != Equipment.Items.end())
     {
         EquipDesc const& Desc = *It;
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        Archetype::Equipment const* Arch = EquipmentSlots::Enabled() ? Archetype::GetEquipment(Desc.ArchId) : nullptr;
+        if (Arch && EquipmentClasses::IsManaged(unsigned(Arch->get_hp_type())))
+        {
+            It = Equipment.Items.erase(It); // internal devices have no external visual attachment
+            continue;
+        }
+#endif
         if (Desc.is_internal() || Summary->find_name(Desc.Hardpoint) == -1)
         {
             It = Equipment.Items.erase(It);
@@ -970,6 +982,10 @@ void ShipViewControl::LoadEquipment(EquipDescList const* List)
         ++It;
     }
     Visuals->AttachAll(&Equipment); // FUN_004581b0
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    // Occupancy is the full loadout, not the subset that happens to have a 3D attachment.
+    if (EquipmentSlots::Enabled()) Equipment.Items = List->Items;
+#endif
 
     // 0x00585230..0x0058535b: one mountpoint marker per hardpoint.
     for (size_t HolderIndex = 0; HolderIndex < MountHolders.size(); ++HolderIndex)
@@ -1300,12 +1316,38 @@ long ShipViewControl::GetInstanceOnHardpoint(char const* Name) const
     return -1;
 }
 
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+namespace
+{
+    char const* FindInternalSlot(Archetype::Ship const* Ship, EquipDescList const& Items,
+                                EquipDesc const& Item, bool FirstMatch)
+    {
+        if (!Ship) return nullptr;
+        Archetype::Equipment const* Arch = Archetype::GetEquipment(Item.ArchId);
+        if (!Arch) return nullptr;
+        unsigned const Type = unsigned(Arch->get_hp_type());
+        EquipDescList Empty;
+        for (auto const& Legal : Ship->LegalHps)
+            if (unsigned(Legal.Type) == Type)
+                for (auto const& Hp : Legal.Hardpoints)
+                    if (EquipmentSlots::CanMount(Ship, FirstMatch ? Empty : Items, Item, Hp.Value))
+                        return Hp.Value;
+        return nullptr;
+    }
+}
+#endif
+
 char const* ShipViewControl::FindHardpointForEquipDesc(EquipDesc const* Desc,
                                                        bool bFirstMatch) const
 {
     // FUN_00585ef0 (RET 8).
     if (Desc == nullptr)
         return nullptr;
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    Archetype::Equipment const* Arch = Archetype::GetEquipment(Desc->ArchId);
+    if (EquipmentSlots::Enabled() && Arch && EquipmentClasses::IsManaged(unsigned(Arch->get_hp_type())))
+        return FindInternalSlot(Archetype::GetShipByName(ShipId), Equipment, *Desc, bFirstMatch);
+#endif
     return FindHardpointForGood(Arch2Good(Desc->ArchId), bFirstMatch);
 }
 
@@ -1318,6 +1360,16 @@ char const* ShipViewControl::FindHardpointForGood(unsigned GoodId, bool bFirstMa
     Archetype::Equipment const* Weapon = nullptr;
     Archetype::Equipment const* Shield = nullptr;
     GoodInfo const* const Good = GoodList::find_by_id(GoodId);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    Archetype::Equipment const* Arch = Good ? Archetype::GetEquipment(Good->ArchId) : nullptr;
+    if (EquipmentSlots::Enabled() && Arch && EquipmentClasses::IsManaged(unsigned(Arch->get_hp_type())))
+    {
+        EquipDesc Item;
+        Item.set_arch_id(Good->ArchId);
+        Item.set_id(SUBOBJ_ID_NONE);
+        return FindInternalSlot(Archetype::GetShipByName(ShipId), Equipment, Item, bFirstMatch);
+    }
+#endif
     int const HpClass =
         (Good != nullptr) ? ShipViewEquipmentHpClass(Good->ArchId, &Weapon, &Shield) : 0;
 
@@ -1641,8 +1693,8 @@ void ShipViewControl::BuildHardpointList()
             Entry.Ids = ShipViewCaption(BestRow).Ids;
             Entry.Name = Name;
             Entry.SortKey = BestRow;
-#ifdef FREELANCER_ADOXA
-            Entry.Group = EngclassOn() ? EngclassHpTypeGroup(BestType) : HpTypeGroup(BestType);
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
+            Entry.Group = MountableInternalsOn() ? EngclassHpTypeGroup(BestType) : HpTypeGroup(BestType);
 #else
             Entry.Group = HpTypeGroup(BestType);
 #endif
@@ -1651,6 +1703,34 @@ void ShipViewControl::BuildHardpointList()
         }
     }
 
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled())
+    {
+        Archetype::Ship const* Hull = Archetype::GetShipByName(ShipId);
+        if (Hull)
+            for (auto const& Legal : Hull->LegalHps)
+            {
+                unsigned const Type = unsigned(Legal.Type);
+                if (!EquipmentClasses::IsType(Type)) continue;
+                for (auto const& Hp : Legal.Hardpoints)
+                {
+                    FShipViewHpEntry* Existing = nullptr;
+                    for (auto& Entry : Collected)
+                        if (_stricmp(Entry.Name.c_str(), Hp.Value) == 0) { Existing = &Entry; break; }
+                    int const SortKey = 0x78 + int(Type - EquipmentClasses::First);
+                    if (Existing && Existing->SortKey >= SortKey) continue;
+                    FShipViewHpEntry Entry;
+                    Entry.Name = Hp.Value;
+                    Entry.Ids = EquipmentClasses::CaptionBase + int(Type - EquipmentClasses::First);
+                    Entry.SortKey = SortKey;
+                    Entry.Group = 3;
+                    Entry.Class = 16 + EquipmentClasses::Family(Type);
+                    if (Existing) *Existing = Entry;
+                    else Collected.push_back(Entry);
+                }
+            }
+    }
+#endif
     // 0x00586d7f..0x00586e77: an index list bubble-sorted by row descending, then by name
     // descending (swap when the left one is smaller).
     std::vector<int> Order;

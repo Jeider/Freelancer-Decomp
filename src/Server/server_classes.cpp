@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "../include/common_server.h"
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+#include "../include/equipment_slots.h"
+#endif
 #ifdef FREELANCER_MOD_PLUGINS
 #include "../include/port_config.h" // port-only mod server patches
 #endif
@@ -1338,6 +1341,17 @@ static unsigned short PlayerData_NextEquipId(PlayerSlot& Slot) {
     return Slot.equip_id_maker.CreateEquipID();
 }
 
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+static bool PlayerData_CheckEquipmentSlots(PlayerSlot& Slot, EquipDescList const& Candidate)
+{
+    if (EquipmentSlots::Validate(Archetype::GetShip(Slot.ship_archetype), Candidate)) return true;
+    FDUMP(0x100001, "Rejected incompatible internal equipment for client %u", Slot.client_id);
+    EquipDescVector Current(Slot.equipment);
+    ::g_pClientInterface->SendServerSetEquipment(Slot.client_id, Current);
+    return false;
+}
+#endif
+
 unsigned short __cdecl PlayerData_AddEquipment(PlayerSlot& Slot, unsigned int ArchId,
                                                CacheString const& Hardpoint, int Count,
                                                float Health, unsigned char bEquipped,
@@ -1346,6 +1360,19 @@ unsigned short __cdecl PlayerData_AddEquipment(PlayerSlot& Slot, unsigned int Ar
     if (!PlayerData_EquipGateOpen(Slot))
         return SUBOBJ_ID_NONE;
 
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled())
+    {
+        EquipDescList Candidate(Slot.equipment);
+        EquipDesc Added;
+        Added.set_arch_id(ArchId);
+        Added.set_hardpoint(Hardpoint);
+        Added.set_count(Count);
+        Added.set_equipped(bEquipped);
+        Candidate.Items.push_back(Added);
+        if (!PlayerData_CheckEquipmentSlots(Slot, Candidate)) return SUBOBJ_ID_NONE;
+    }
+#endif
     unsigned short EquipId = 0;
     bool bCombine = false;
 
@@ -1460,6 +1487,17 @@ void __cdecl PlayerData_ModifyEquipment(PlayerSlot& Slot, unsigned short Id,
         return;
     }
 
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled())
+    {
+        EquipDescList Candidate(Slot.equipment);
+        EquipDesc* Changed = Candidate.find_equipment_item(Id);
+        Changed->set_hardpoint(Hardpoint);
+        Changed->set_count(Count);
+        Changed->set_equipped(bEquipped);
+        if (!PlayerData_CheckEquipmentSlots(Slot, Candidate)) return;
+    }
+#endif
     // .text:06d4f1ad .. .text:06d4f1d4 -- four setters; no set_arch_id here.
     Item->set_hardpoint(Hardpoint);
     Item->set_count(Count);
@@ -1887,6 +1925,10 @@ void __cdecl PlayerData_LoadEquipment(PlayerSlot& Slot, EquipDescList const& New
     // .text:06d4eecb -- same gate.
     if (!PlayerData_EquipGateOpen(Slot))
         return;
+
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (!PlayerData_CheckEquipmentSlots(Slot, NewList)) return;
+#endif
 
     // .text:06d4eee5 .. .text:06d4ef0b -- the slot's list is erased and then
     // assigned from the incoming one.

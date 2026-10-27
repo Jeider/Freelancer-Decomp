@@ -56,6 +56,7 @@
 #include "space_haze.h"   // SpaceHazeDraw (port-only)
 #endif
 #include "player_behavior.h"
+#include "render/IRPShipNormals.h"
 #include "player_spawn.h"
 #include "perf_options.h"
 #if defined(FREELANCER_RP9)
@@ -2485,6 +2486,8 @@ namespace
         size_t const Count = Nodes.size();
 #ifdef FREELANCER_RP9
         IRPLocalShadows* SurfaceScope=G_LocalShadows;
+        IRPShipNormals* ShipNormals=nullptr;
+        if(DALib::Pipeline) DALib::Pipeline->QueryInterface(Iids::RPShipNormals,reinterpret_cast<void**>(&ShipNormals));
         bool OwnSurfaceScope=false;
         if(!SurfaceScope && DALib::Pipeline)
         {
@@ -2501,14 +2504,38 @@ namespace
             }
 #ifdef FREELANCER_RP9
             FClientGameobj* Go=nullptr;
-            if(SurfaceScope || G_WeaponGlints)
+            if(SurfaceScope || G_WeaponGlints || ShipNormals)
             {
                 FZItemGameObject* Item=dynamic_cast<FZItemGameObject*>(Nodes[I]);
                 Go=Item ? static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object)) : nullptr;
             }
+            if(ShipNormals)
+            {
+                unsigned Type=0;if(Go)Go->get_type(Type);
+                auto* Arch=Go && Go->Object ? Go->Object->get_archetype() : nullptr;
+                unsigned Scope=0;
+                if(Go && Arch)
+                {
+                    const bool Player=Go->ManagerKind==1 && IsPlayerShipId(Go->get_id());
+                    if(ShipNormalEligible(Type,Player,Arch->DaArchetype.Value))
+                    {
+                        auto* EqArch=dynamic_cast<Archetype::EqObj*>(Arch);
+                        const bool Dockable=EqArch && !EqArch->DockingSpheres.empty();
+                        // Conservative object rejection; the shader fades individual surfaces
+                        // by their actual camera distance, not the station's centre/radius.
+                        Vector Center;const float Radius=std::fmax(0.0f,Go->Slot178(Center));
+                        const float* Eye=Cam->GetPosition();
+                        const float X=Center.x-Eye[0],Y=Center.y-Eye[1],Z=Center.z-Eye[2];
+                        Scope=ShipNormalScope(Type,Player,Arch->DaArchetype.Value,Dockable,
+                            std::fmax(0.0f,std::sqrt(X*X+Y*Y+Z*Z)-Radius));
+                    }
+                }
+                ShipNormals->SetShipNormalScope(Scope,Arch ? Arch->DaArchetype.Value : nullptr);
+            }
             if(SurfaceScope)
             {
                 unsigned Receiver=G_LocalShadows && LocalShadowEligible(Go) ? (Go->ManagerKind==1 ? 3u : 1u) : 0u;
+                if(Receiver==3u && IsPlayerShipId(Go->get_id())) Receiver|=128u;
                 if(Receiver==3u && IsNpcShip(Go))
                 {
                     Vector Center; const float Radius=std::fmax(0.0f,Go->Slot178(Center));
@@ -2576,11 +2603,13 @@ namespace
                 EclipseScope->Release();
             }
             if(G_WeaponGlints) G_WeaponGlints->SetWeaponGlintReceiver(0);
+            if(ShipNormals) ShipNormals->SetShipNormalScope(0);
 #endif
         }
 #ifdef FREELANCER_RP9
         if(SurfaceScope) SurfaceScope->SetLocalShadowReceiver(0);
         if(OwnSurfaceScope) SurfaceScope->Release();
+        if(ShipNormals) ShipNormals->Release();
 #endif
         if (bToggleDepthRs)
         {
@@ -3407,7 +3436,18 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
             // 0x0051c27f..0x0051c29c: the player's own draw, vt+0x188(&Lod, this, Lod, 0, 0)
             // with Lod = {word 0, word 0xffff} -- the Ship's override FUN_00546050.
             unsigned Lod = 0xffff0000u;
+            IRPShipNormals* JumpNormals=nullptr;
+            if(Pipe->QueryInterface(Iids::RPShipNormals,reinterpret_cast<void**>(&JumpNormals))>=0 && JumpNormals)
+            {
+                auto* Arch=Ship->Object ? Ship->Object->get_archetype() : nullptr;
+                JumpNormals->SetShipNormalScope(1,Arch ? Arch->DaArchetype.Value : nullptr);
+            }
             Ship->Slot188(&Lod, Cam, Lod, nullptr, nullptr);
+            if(JumpNormals)
+            {
+                DALib::MaterialBatcher->FlushAll(1u);
+                JumpNormals->SetShipNormalScope(0);JumpNormals->Release();
+            }
 
             // 0x0051c2a2..0x0051c2d5: [EFFECTS] -> FUN_004f7480(this, frame time, 0x25), then
             // the same with 0x1b; FUN_0042d680 is read afresh for each call.
@@ -3670,6 +3710,9 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     // The field dust first: the nebula then composites over it.
     FieldDustDraw(Camera, Camera->GetZNear(), Far, G_FieldEnclosure);
     NebulaVolume::Draw(Camera, Camera->GetZNear(), Far);
+    // Background fog glow uses the intact opaque depth. Foreground transparent
+    // geometry/effects and the first-person cockpit are composited afterwards.
+    if ((LayerFlags & 0x100u) != 0) StarSphereDrawNebulaHalo(Cam);
     NebulaVolume::DrawHybridClouds(Camera);
     if (GbExclusionShellAfterVolume && G_FieldController != nullptr)
     {
@@ -3717,11 +3760,6 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
         // 0x0051c7d4..0x0051c7d8: GameCamera slot 0x50 (no arguments) -- FUN_0051c8b0, or the
         // empty 0x00401e90 on FirstPerson. Port camera slots take `this` explicitly (__stdcall).
         ((FGameCamera*)Cam)->ScaleEnvironmentEffects();
-#ifdef FREELANCER_RP9
-        // Port-only: the sun glows through the dust over everything in space (the composite,
-        // the hybrid puffs and the effects' cloud layers).
-        StarSphereDrawNebulaHalo(Cam);
-#endif
 #ifdef FREELANCER_DBG_OPTIONS
         // Port-only: the beta's [OUTLINES] (FUN_005167a0) over the finished scene.
         DbgOutlinesDraw(Camera);

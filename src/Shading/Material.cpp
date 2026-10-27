@@ -11,6 +11,8 @@
 #include "render/IRPPlanetAtmosphere.h"
 #include "render/IRPPlanetSurface.h"
 #include "render/IRPSurfaceShader.h"
+#include "render/NomadSurfacePolicy.h"
+#include "render/RoomMaterialScope.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -2453,22 +2455,29 @@ GENRESULT FMaterial::SubmitAlphaTest(void* Context, unsigned long PrimType, unsi
 
 GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, unsigned long Start, unsigned long Count, unsigned long Zero, unsigned long Field, unsigned long Flags)
 {
+    FRPRoomMaterialScope Room(Pipeline, InstanceName, TexCount > 0 && TexBlocks ? TexBlocks[0].Name : nullptr);
     // This authored crystal material is used by the large Tau31 ice CMPs. Select
     // by material identity, never by colour/texture size or the asteroid draw pass.
     // Older RP9 versions reject the new profile without changing their state.
-    struct IceScope
+    struct SurfaceProfileScope
     {
         IRPSurfaceShader* Surface=nullptr;
         bool Applied=false;
-        IceScope(IRenderPipeline* Pipeline,const char* Name,bool Blended)
+        SurfaceProfileScope(IRenderPipeline* Pipeline,const char* Name,bool Blended)
         {
-            if(Pipeline && Name && !Blended && !_stricmp(Name,"ast_icecrystal2"))
+            unsigned Profile=RPSurfaceAuto;
+            if(Name && !Blended && !_stricmp(Name,"ast_icecrystal2")) Profile=RPSurfaceIce;
+            // Shared by the standard, split, damaged and Freeport7 domes. Do
+            // not classify arbitrary transparent girders or ship glass by colour.
+            if(Name && Blended && !_stricmp(Name,"space_girder01_op")) Profile=RPSurfaceGreenhouse;
+            if(!Blended && NomadSurfaceProfile(Name)) Profile=NomadSurfaceProfile(Name);
+            if(Pipeline && Profile!=RPSurfaceAuto)
             {
                 Pipeline->QueryInterface(Iids::RPSurfaceShader,reinterpret_cast<void**>(&Surface));
-                if(Surface) Applied=Surface->SetSurfaceShader(RPSurfaceIce,0,-1)>=0;
+                if(Surface) Applied=Surface->SetSurfaceShader(Profile,0,-1)>=0;
             }
         }
-        ~IceScope()
+        ~SurfaceProfileScope()
         {
             if(Surface)
             {
@@ -2476,7 +2485,7 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
                 Surface->Release();
             }
         }
-    } Ice(Pipeline,InstanceName,bAlphablend!=0);
+    } SurfaceProfile(Pipeline,InstanceName,bAlphablend!=0);
     if (SubmitKind == SubmitNull)
         return GR_OK;
     if (SubmitKind == SubmitStub)

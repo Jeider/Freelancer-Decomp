@@ -10,6 +10,9 @@
 // common_archetype.cpp (retail Archetype.cpp, one TU) in CMN-SPLIT phase B.
 
 #include "common_archetype.h"
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+#include "equipment_slots.h"
+#endif
 #ifdef FREELANCER_MOD_PLUGINS
 #include "port_plugins.h" // port-only mod plugins
 #include "common_mod_plugins_api.h"
@@ -152,6 +155,9 @@ namespace Archetype
     {
         if (Root::read(Reader))
             return true;
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        if (EquipmentSlots::ReadEquipment(*this, Reader)) return true;
+#endif
 
 #ifdef FREELANCER_ADOXA
         // Port-only, adoxa's EquipDrag.dll (docs/adoxa.md; hooked at 062f426a): linear_drag on
@@ -402,6 +408,9 @@ namespace Archetype
                     CliObjRelease(Companion);
                     Companion = OwnCompanion;
                 }(*Donor);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+                EquipmentSlots::CopyDefinition(*this, *Donor);
+#endif
                 return true;
             }
 
@@ -458,6 +467,9 @@ namespace Archetype
     {
         Root::redefine(Other);
         Equipment const* Donor = (Equipment const*)&Other;
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        EquipmentSlots::CopyDefinition(*this, *Donor);
+#endif
         if (Donor->bUseCount != bUseCount)
             bUseCount = Donor->bUseCount;
         if (Donor->UnitsPerContainer != UnitsPerContainer)
@@ -870,7 +882,11 @@ namespace Archetype
 
     HpAttachmentType Armor::get_hp_type() const
     {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        return static_cast<HpAttachmentType>(EquipmentSlots::GetType(*this));
+#else
         return HpTypeInternal;
+#endif
     }
 
     // Retail Archetype::Armor::operator= (Common.dll.c 127978/127981/127984) -- one leaf of
@@ -1208,7 +1224,11 @@ namespace Archetype
 
     HpAttachmentType Scanner::get_hp_type() const
     {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        return static_cast<HpAttachmentType>(EquipmentSlots::GetType(*this));
+#else
         return HpTypeInternal;
+#endif
     }
 
     Light::Light(ICliObj* InCompanion)
@@ -1285,7 +1305,11 @@ namespace Archetype
 
     HpAttachmentType Tractor::get_hp_type() const
     {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        return static_cast<HpAttachmentType>(EquipmentSlots::GetType(*this));
+#else
         return HpTypeInternal;
+#endif
     }
 
     CargoPod::CargoPod(ICliObj* InCompanion)

@@ -70,8 +70,10 @@ struct HUD_Radar:WinControl {
     WinControl* zoomButtons[2]={};int rangeIndex=2;unsigned defaultRangeIndex=2;bool enabled=true;
     float centerX=.5f,centerY=.845f,radius=.30f,ellipse=.32f,elevation=.94f;
     bool CanShow()const;
+    bool MessageAnchor(float&,float&)const;
     void UpdateButtons();intptr_t SetProperty(int,uintptr_t,uintptr_t)override;
 };
+HUD_Radar* ActiveRadar=nullptr;
 '''
 checks=r'''
 int main(){
@@ -80,11 +82,17 @@ int main(){
     solar.parent.value=123;assert(IsParentedSolar(&solar));
     solar.ObjectClass=0x503;assert(!IsParentedSolar(&solar)); // Ship is not a child solar.
     HUD_Radar radar;NnButtonControl plus,minus,toggle;WinControl bg;
+    float anchorX=0,anchorY=0;
+    radarOn=true;assert(!RadarIsEnabled()&&!RadarMessageAnchor(anchorX,anchorY));
+    ActiveRadar=&radar;radarOn=false;
+    assert(!RadarIsEnabled()&&!RadarMessageAnchor(anchorX,anchorY));
     radar.zoomButtons[0]=&plus;radar.zoomButtons[1]=&minus;radar.toggleButton=&toggle;radar.background=&bg;
     radar.UpdateButtons();assert(plus.hidden&&minus.hidden&&bg.hidden&&!toggle.hidden);
     assert(toggle.Offset[0]==-.195f && toggle.Offset[1]==-.37f && toggle.Offset[2]==0);
     radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&plus),0);assert(radar.rangeIndex==2);
     assert(radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&toggle),0));assert(radarOn&&!bg.hidden&&bg.offset[2]==-1.f);
+    assert(RadarIsEnabled()&&RadarMessageAnchor(anchorX,anchorY));
+    assert(std::isfinite(anchorX)&&std::isfinite(anchorY));
     radar.UpdateButtons();assert(!plus.hidden&&!minus.hidden&&(plus.flags&2)&&!(minus.flags&2));
     auxiliaryMinimized=true;radar.UpdateButtons();assert(!bg.hidden&&!toggle.hidden&&!plus.hidden);
     auxiliaryMinimized=false;radar.UpdateButtons();assert(!bg.hidden);
@@ -120,6 +128,7 @@ int main(){
     }
     radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&toggle),0);
     assert(!radarOn&&plus.hidden&&minus.hidden&&bg.hidden&&!toggle.hidden);
+    assert(!RadarIsEnabled()&&!RadarMessageAnchor(anchorX,anchorY));
     mouseBlocked=true;radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&toggle),0);assert(!radarOn);
     mouseBlocked=false;radar.enabled=false;radar.UpdateButtons();assert(toggle.hidden);
     // Only tagged mining solars bypass the native targetability restriction.
@@ -138,7 +147,8 @@ int main(){
 }
 '''
 code=stub+''.join(function(sig) for sig in ['bool IsParentedSolar(', 'Archetype::Solar const* SolarArch(',
-    'bool MiningInRange(', 'bool HUD_Radar::CanShow() const', 'void HUD_Radar::UpdateButtons(', 'intptr_t HUD_Radar::SetProperty('])+checks
+    'bool MiningInRange(', 'bool HUD_Radar::CanShow() const', 'bool HUD_Radar::MessageAnchor(',
+    'bool RadarMessageAnchor(', 'bool RadarIsEnabled(', 'void HUD_Radar::UpdateButtons(', 'intptr_t HUD_Radar::SetProperty('])+checks
 (out/'check.cpp').write_text(code)
 vc=Path('C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231')
 sdk=Path('C:/Program Files (x86)/Windows Kits/10');version='10.0.26100.0'

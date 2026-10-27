@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "cli_projectile_fx.h"
+#include "player_auto_turrets.h"
 
 // Before anything that could instantiate std::vector<unsigned short>: Common.dll exports that
 // instantiation (extern template in common_fuses.h); CliShipFireWeapons' shot-id vector must
@@ -1104,6 +1105,7 @@ namespace
         CEGun* Gun = CEGun::cast(Equip);
         if (Gun == nullptr)
             return static_cast<int>(0xfffffffd);
+        if (bLocal && PlayerAutoTurrets::Owns(Gun)) return 0;
 
         CSimple* TargetSimple = nullptr;
         if (Target != nullptr)
@@ -1351,6 +1353,9 @@ int CliShipActivateEquip(void* AdjustorThis, unsigned short const* HardpointId,
     if (Active == bOn)
         return 0;
     Equip->Activate(bOn != 0);
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+    if (bLocal) PlayerAutoTurrets::ActivationChanged(Equip, bOn != 0);
+#endif
 
     // 0x0053541c..0x00535453: a local request goes to the server -- XActivateEquip {the
     // gameobj's vt+0x20 get_id, *HardpointId, bOn (+7 never written; zero here)} through
@@ -1368,8 +1373,9 @@ int CliShipActivateEquip(void* AdjustorThis, unsigned short const* HardpointId,
     return 0;
 }
 
-unsigned CliShipFireWeapons(void* AdjustorThis, unsigned short const* HardpointIds,
-                            unsigned HardpointCount, Vector const* TargetPos, int PlayerId)
+static unsigned CliShipFireWeaponsImpl(void* AdjustorThis, unsigned short const* HardpointIds,
+                            unsigned HardpointCount, Vector const* TargetPos, int PlayerId,
+                            bool Automatic, bool* ActuallyFired)
 {
     // FUN_00534870 (thiscall on the IObjAffect sub-object, RET 0x10) -- listing
     // 0x00534870..0x00534e59. Every launcher that fired is remembered (at most ten, retail's
@@ -1404,6 +1410,7 @@ unsigned CliShipFireWeapons(void* AdjustorThis, unsigned short const* HardpointI
             for (unsigned I = 0; I < HardpointCount; ++I)
             {
                 CEquip* const Equip = Ship->EquipManager.FindByID(HardpointIds[I]);
+                if (!Automatic && PlayerAutoTurrets::Owns(Equip)) continue;
                 FEquipFxListNode* Node = Head->Next;
                 while (Node != Head && Node->Wrapper->Equip != Equip)
                     Node = Node->Next;
@@ -1413,6 +1420,7 @@ unsigned CliShipFireWeapons(void* AdjustorThis, unsigned short const* HardpointI
                 if (Launcher == nullptr || Launcher->Equip == nullptr)
                     continue;
                 CELauncher* const Launch = CELauncher::cast(Launcher->Equip);
+                if (Automatic && (!Launch || !Launch->IsFunctioning())) continue;
                 unsigned char bFired = 0;
                 if (TargetPos != nullptr &&
                     !static_cast<Archetype::Projectile const*>(Launch->Projectile)->bForceGunOri)
@@ -1425,6 +1433,7 @@ unsigned CliShipFireWeapons(void* AdjustorThis, unsigned short const* HardpointI
                 {
                     bFired = Launcher->FireBarrelAim();
                 }
+                if (bFired != 0 && ActuallyFired) *ActuallyFired = true;
                 if (bFired != 0 && FiredCount < 10u)
                 {
                     Fired[FiredCount] = Launcher;
@@ -1442,6 +1451,7 @@ unsigned CliShipFireWeapons(void* AdjustorThis, unsigned short const* HardpointI
                 CELauncher* const Launch = CELauncher::cast(Node->Wrapper->Equip);
                 if (Launch == nullptr || !Launch->IsActive())
                     continue;
+                if (!Automatic && PlayerAutoTurrets::Owns(Launch)) continue;
                 FCliLauncherFx* const Launcher = static_cast<FCliLauncherFx*>(Node->Wrapper);
                 unsigned char bFired = 0;
                 if (TargetPos != nullptr &&
@@ -1584,6 +1594,27 @@ unsigned CliShipFireWeapons(void* AdjustorThis, unsigned short const* HardpointI
     }
     return 0;
 }
+
+unsigned CliShipFireWeapons(void* AdjustorThis, unsigned short const* HardpointIds,
+                            unsigned HardpointCount, Vector const* TargetPos, int PlayerId)
+{
+    PlayerAutoTurrets::Reconcile();
+    return CliShipFireWeaponsImpl(AdjustorThis, HardpointIds, HardpointCount, TargetPos, PlayerId, false, nullptr);
+}
+
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+bool CliShipFireAutomatic(void* AdjustorThis, unsigned short HardpointId, Vector const& Aim)
+{
+    if (!SinglePlayer() || !PlayerAutoTurrets::Enabled()) return false;
+    auto* host = static_cast<FClientEquippedObj*>(static_cast<IObjAffect*>(AdjustorThis));
+    auto* ship = static_cast<CEqObj*>(host->Object);
+    if (!PlayerAutoTurrets::Owns(ship->EquipManager.FindByID(HardpointId))) return false;
+    bool fired = false;
+    CliShipFireWeaponsImpl(AdjustorThis, &HardpointId, 1, &Aim,
+        static_cast<int>(GetPlayerConnectionId()), true, &fired);
+    return fired;
+}
+#endif
 
 unsigned char EquippedObjHandleEquipMsg(FClientEquippedObj* Host,
                                         FCliEquipFirePacket const* Packet)
@@ -1860,6 +1891,7 @@ unsigned char CliShipHandleEquipUpdate(FClientEquippedObj* Host,
                 CEquip* const Equip = Ship->EquipManager.Traverse(Trav);
                 if (Equip == nullptr)
                     break;
+                if (PlayerAutoTurrets::Owns(Equip)) continue;
                 unsigned short HpId = Equip->Id;
                 CliEquippedObjSetGunTarget(static_cast<IObjAffect*>(Host), &HpId, TargetRw, SubId, PlayerId);
             }

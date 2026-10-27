@@ -8,6 +8,9 @@
 // Declared in common_cequip.h; helpers shared with the sibling TUs are in
 // common_cequip_internal.h (namespace CmnCequip).
 #include "common_cequip.h"
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+#include "equipment_slots.h"
+#endif
 #include "x86math.h"
 
 #include "common_animdb.h"  // AnimDB::Add/Rem (common_animdb.cpp)
@@ -124,6 +127,10 @@ bool CECounterMeasureDropper::Update(float Dt, unsigned Flags)
         {
             // 0629a36e: FindFirst's result is used as the scanner with no cast and no test.
             CEScanner const* Scanner = (CEScanner const*)Owner->EquipManager.FindFirst(EquipTypeScanner);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+            // A removable scanner can be absent; preserve the normal refire/attachment update.
+            if (EquipmentSlots::Enabled() && Scanner == nullptr) return CELauncher::Update(Dt, Flags);
+#endif
             for (int Index = 0; Index < Scanner->Scans.Count; ++Index)
             {
                 Watchable const* Watched = Scanner->Scans.Entries[Index].target();

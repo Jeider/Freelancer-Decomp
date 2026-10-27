@@ -5,6 +5,8 @@
 // Author: Giperion.
 
 #include "ids_strings.h"
+#include "equipment_slot_text.h"
+#include "player_turret_hud.h"
 #include "msvcrt_compat.h" // MsvcrtWtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
 #include "common_text.h"
@@ -86,6 +88,30 @@ HMODULE GetIdsResourceModule(unsigned int Ids)
 
 unsigned int GetIdsStringW(unsigned int Ids, wchar_t* Dest, int DestChars)
 {
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+    std::wstring TurretText;
+    if (PlayerTurretHud::Text(Ids, TurretText))
+    {
+        if (!Dest) return static_cast<unsigned>(TurretText.size());
+        if (DestChars <= 0) return 0;
+        unsigned const Count = (std::min)(static_cast<unsigned>(TurretText.size()), unsigned(DestChars - 1));
+        wmemcpy(Dest, TurretText.c_str(), Count);
+        Dest[Count] = L'\0';
+        return Count;
+    }
+#endif
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    std::wstring SlotText;
+    if (EquipmentSlotText(Ids, SlotText))
+    {
+        if (!Dest) return static_cast<unsigned>(SlotText.size());
+        if (DestChars <= 0) return 0;
+        unsigned const Count = (std::min)(static_cast<unsigned>(SlotText.size()), unsigned(DestChars - 1));
+        wmemcpy(Dest, SlotText.c_str(), Count);
+        Dest[Count] = L'\0';
+        return Count;
+    }
+#endif
     // FUN_00434720 (.text:00434720-004347d2), cdecl(unused, ids, dest, count); the first
     // argument is never read. FUN_0057d980 runs on the ids copy first, so the block and entry
     // below come from the low word only when the high word named a registered module; a null

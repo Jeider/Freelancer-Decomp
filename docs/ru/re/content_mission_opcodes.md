@@ -25,8 +25,8 @@
 |---|---|---|
 | `Cnd_BaseEnter` | `s0` база \| `ANY` | Игрок вошёл на базу (`GetBaseID`) |
 | `Cnd_BaseExit` | то же | Игрок покинул базу |
-| `Cnd_CargoScanned` | `s0` сканер, `s1` цель (оба не empty) | Скан груза пары объектов. INI: `Player, PEscort1` |
-| `Cnd_CharSelect` | `s0` NPC, `s1` room, `s2` база | Выбор персонажа в комнате базы (`FindLocation`). INI: `juni, Bar, Li01_01_Base` |
+| `Cnd_CargoScanned` | `s0` сканер, `s1` цель (оба не empty) | Сопоставляет ID объектов уведомления; не проверяет успех и состав груза. INI: `Player, PEscort1`. См. [ограничения скана](content_cargo_contracts.md#почему-cnd_cargoscanned-недостаточно) |
+| `Cnd_CharSelect` | `s0` роль персонажа, `s1` room, `s2` база | Выбор персонажа в комнате базы (`FindLocation`, `FindCharacter`). Сопоставляется роль, не обязательно `GF_NPC.nickname`. INI: `juni, Bar, Li01_01_Base` |
 | `Cnd_CommComplete` | `s0` comm id (`GetNicknameId`); опц. `s1` | Коммуникация/оверлей доиграла. INI: `DX_M01_0700_KING` |
 | `Cnd_CmpToPlane` | `s0` inside\|outside, `s1` объект, `f2…f5` плоскость | Объект по одну сторону плоскости (в SP INI не встречен) |
 | `Cnd_Destroyed` | `s0` объект `CreateID`; опц. `i1` счёт; `s2` `EXPLODE`\|`SILENT`; `s3` `ALL`\|`ALL_IGNORE_LANDING` | Уничтожение. INI: `escort, 1, EXPLODE` |
@@ -55,7 +55,7 @@
 | `Cnd_ProjHit` | `s0` цель, `i1` число попаданий; опц. `s2` стрелок | Попадание снарядом. INI: `r_cruiser, 1, o_hostile1` |
 | `Cnd_ProjHitShipToLbl` | `s0` корабль, `i1` hits, опц. `s2` label `CreateID` | Попадание корабля по label. INI: `us, 3, base_hostile1` |
 | `Cnd_RTCDone` | `s0` путь RTC ini | RTC-сцена закончилась |
-| `Cnd_RumorHeard` | как CharSelect (NPC / room / база) | Слух услышан (в m0N.ini нет) |
+| `Cnd_RumorHeard` | как CharSelect (роль / room / база) | Сопоставляет игрока, текущую комнату и роль говорящего, не IDS слуха. BaseSupport отправляет событие при выборе NPC, не по окончании речи. См. [задания открытого мира](content_open_world_missions.md). |
 | `Cnd_SpaceEnter` | система \| `no_params` | Игрок вышел в космос системы |
 | `Cnd_SpaceExit` | то же | Игрок ушёл из космоса (на базу / прыжок) |
 | `Cnd_SystemEnter` | `s0` dest \| `ANY`; опц. `s1` prev | Вход в систему. INI: `Li02, Li01` |

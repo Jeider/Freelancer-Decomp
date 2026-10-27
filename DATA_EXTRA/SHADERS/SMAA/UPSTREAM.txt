@@ -1,0 +1,9 @@
+SMAA by Jorge Jimenez, Jose I. Echevarria, Tiago Sousa and Diego Gutierrez.
+https://github.com/iryoku/smaa
+Vendored from commit 71c806a838bdd7d517df19192a20f0c61b3ca29d (master, 2026-10-26).
+Unmodified upstream files: SMAA.hlsl, Textures/AreaTexDX9.dds,
+Textures/SearchTex.dds and LICENSE.txt. License retained alongside the assets.
+
+Integration: ../scene_smaa.hlsl and src/RP9/RP9Ex.cpp.
+SMAA 1x High, HLSL 3, color edge detection, no temporal reprojection.
+DX9 area lookup uses the red/alpha channels (A8L8), search uses red (L8).

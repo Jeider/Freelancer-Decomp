@@ -1,0 +1,27 @@
+Greenhouse glazing profile
+==========================
+RPSurfaceGreenhouse is selected in Shading only for the blended material named
+space_girder01_op. Standard ship glass retains its separate ~33% opacity.
+The original texture alpha distinguishes metal ribs from glass panes:
+- nearly opaque ribs keep their texture and direct lighting;
+- pane tint, reflection and optical density use 1.34x the first preset
+  (33% less than the doubled preset);
+- panes use pale neutral grey; environmental reflection keeps only 20% chroma;
+- ~37% pane opacity face-on, increasing at grazing angles with reflections;
+- original UVs, textures, geometry, sorting and two-sided submission are retained.
+No scene refraction, bloom pass, additional map, or animated procedural noise.
+
+Inspected installed SOLAR models using this material:
+DOCKABLE/freeport7.cmp
+MISC/space_dome.cmp, space_domea.3db, space_domeb.3db, space_dome_alt.cmp
+MISC/space_dome_dmg.cmp, space_dome_dmg2.cmp
+MISC/RMBASE/space_dome.cmp, space_dome2.cmp
+
+space_large_dome.3db uses a different opaque space_girder01special material.
+It is intentionally not reclassified as transparent by this profile: that needs
+an asset/sorting change, not just a pixel-shader override.
+
+Checks: ship_glass/check.py tests actual SM3 tint/opacity/solid ribs, edge response
+and unchanged ship glass. player_shadow_quality/check.py checks production RP9
+profile selection and reset, alongside the existing nearby-station shadow tests.
+These GPU fixtures do not replace visual confirmation on the actual station.

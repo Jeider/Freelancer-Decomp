@@ -8,6 +8,7 @@
 
 #include "ids_rdl.h"
 #include "ids_strings.h"
+#include "equipment_slot_text.h"
 
 #include <stdlib.h>
 
@@ -292,6 +293,14 @@ namespace
 
 bool LoadIdsIntoRdl(unsigned int Ids, RenderDisplayList& Rdl)
 {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    std::wstring SlotText;
+    if (EquipmentSlotText(Ids, SlotText))
+    {
+        AppendTextAsRdl(SlotText.c_str(), static_cast<unsigned>(SlotText.size()), Rdl, false);
+        return true;
+    }
+#endif
     HMODULE const Module = GetIdsResourceModule(Ids);
     if (Module == nullptr)
         return false;

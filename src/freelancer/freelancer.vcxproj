@@ -165,6 +165,7 @@
     <ClInclude Include="Client\player_spawn.h" />
     <ClInclude Include="Client\space_env_fx.h" />
     <ClInclude Include="Client\star_sphere.h" />
+    <ClInclude Include="Client\solar_nebula_transition.h" />
     <ClInclude Include="Client\star_sys.h" />
     <ClInclude Include="Client\effect_vertex_batch.h" />
     <ClInclude Include="Client\effect_base.h" />
@@ -259,6 +260,7 @@
     <ClInclude Include="Client\room_camera.h" />
     <ClInclude Include="Client\gf_script.h" />
     <ClInclude Include="Client\gf_script_object.h" />
+    <ClInclude Include="Client\cutscene_skip.h" />
     <ClInclude Include="Client\gf_thorn_component.h" />
     <ClInclude Include="Client\gf_thorn_compound.h" />
     <ClInclude Include="Client\gf_thorn_deformable.h" />
@@ -295,6 +297,9 @@
     <ClInclude Include="Client\hud_radar.h" />
     <ClInclude Include="Client\hud_targeting.h" />
     <ClInclude Include="Client\hud_health.h" />
+    <ClInclude Include="Client\player_auto_turrets.h" />
+    <ClInclude Include="Client\player_turret_rules.h" />
+    <ClInclude Include="Client\player_turret_hud.h" />
     <ClInclude Include="Client\health_window_state.h" />
     <ClInclude Include="Client\targeting_window_state.h" />
     <ClInclude Include="Client\hud_vulnerable.h" />
@@ -303,6 +308,7 @@
     <ClInclude Include="Client\radar_ring_geometry.h" />
     <ClInclude Include="Client\radar_contacts.h" />
     <ClInclude Include="Client\radar_motion.h" />
+    <ClInclude Include="Client\cockpit_head_motion.h" />
     <ClInclude Include="Client\jump_effect.h" />
     <ClInclude Include="Client\best_path.h" />
     <ClInclude Include="Client\client_cliobj.h" />
@@ -486,6 +492,7 @@
     <ClCompile Include="Client\room_camera.cpp" />
     <ClCompile Include="Client\gf_script.cpp" />
     <ClCompile Include="Client\gf_script_object.cpp" />
+    <ClCompile Include="Client\cutscene_skip.cpp" />
     <ClCompile Include="Client\gf_thorn_component.cpp" />
     <ClCompile Include="Client\gf_thorn_compound.cpp" />
     <ClCompile Include="Client\gf_thorn_deformable.cpp" />
@@ -522,6 +529,8 @@
     <ClCompile Include="Client\hud_radar.cpp" />
     <ClCompile Include="Client\hud_targeting.cpp" />
     <ClCompile Include="Client\hud_health.cpp" />
+    <ClCompile Include="Client\player_auto_turrets.cpp" />
+    <ClCompile Include="Client\player_turret_hud.cpp" />
     <ClCompile Include="Client\hud_vulnerable.cpp" />
     <ClCompile Include="Client\jump_effect.cpp" />
     <ClCompile Include="Client\best_path.cpp" />

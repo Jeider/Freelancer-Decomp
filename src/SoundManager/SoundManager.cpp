@@ -1,3 +1,4 @@
+#include "runtime_hitch_log.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -524,6 +525,7 @@ namespace
     unsigned char WavLibAcmDecode(const WAVEFORMATEX* Src, const unsigned char* Data, unsigned long DataSize,
                                   unsigned long TrimSamples, unsigned long FactSamples, FWavSink* Sink)
     {
+    RuntimeHitchScope Hitch("sound_decode", "ACM compressed WAV");
         if (G_WavLibDriver == nullptr) // 06ee86cc
             WavLibInitAcmDriver();
         ACMSTREAMHEADER Header;
@@ -2800,6 +2802,7 @@ int DACOM_API FSoundManager::CreateArchetypeFromSource(void* Source, unsigned lo
 int DACOM_API FSoundManager::CreateArchetypeFromWav(IDAComponent* FileSystem,
                                                     unsigned long ArchFlags)
 {
+    RuntimeHitchScope Hitch("sound_buffer", "WAV decode and DirectSound buffer");
     // LAB_06ee2f90 RET 0xC: new 0x30 + FUN_06ee11f0; device missing or FUN_06ee1240 < 0 ->
     // Release, WARNING 0x5C5 with the unchanged next id, -1; else id = next++, map insert.
     // No file-system null test in retail.
@@ -3807,6 +3810,7 @@ GENRESULT DACOM_API FSoundManager::MixerTick(ISoundListenerPose* ListenerPose)
             else
                 LocFlags = DSBPLAY_LOCSOFTWARE;
         }
+        RuntimeHitchScope PlaybackHitch("sound_play", "DirectSound Play and fallback");
         HRESULT Hr = Node->Buffer->Play(0, 0, PlayFlags | LocFlags);
         if (Hr < 0)
         {

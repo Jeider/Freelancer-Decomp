@@ -123,7 +123,11 @@ namespace Iids
     static const char RenderPipelineEx[] = "RP9_IRenderPipelineEx";
     static const char RPDrawEx[] = "RP9_IRPDrawEx";
     static const char RPSurfaceContext[] = "RP9_IRPSurfaceContext_v1";
+    static const char RPRoomMaterials[] = "RP9_IRPRoomMaterials_v1";
+    static const char RPRoomShadows[] = "RP9_IRPRoomShadows_v2";
     static const char RPSurfaceShader[] = "RP9_IRPSurfaceShader_v1";
+    static const char RPCodeBeam[] = "RP9_IRPCodeBeam_v2";
+    static const char RPShipNormals[] = "RP9_IRPShipNormals_v1";
     static const char AlchemyEffectColour[] = "Alchemy_IEffectColour_v1";
     static const char AlchemyRenderOpacity[] = "Alchemy_IRenderOpacity_v1";
     static const char RPWeaponGlints[] = "RP9_IRPWeaponGlints_v2";

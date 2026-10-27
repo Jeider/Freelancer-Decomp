@@ -14,6 +14,9 @@ struct IRPLocalShadows : IDAComponent
     // Bit 3 selects diffuse/env-only static surfaces; bit 4 uses native materials.
     // Bits 5..6 (value 0..2) lower a ship receiver's shadow quality: 0 the full filter,
     // 1 a moderate fixed filter, 2 a simple single bilinear comparison.
+    // Bit 7 marks the player's ship: it uses the high-resolution near maps and
+    // full filter budget. Static receivers also sample near maps locally, with
+    // cheaper filtering; NPC hulls and distant surfaces use the shared far map.
     // Existing callers passing 0/1 retain their meaning and vtable layout.
     virtual GENRESULT DACOM_API SetLocalShadowReceiver(unsigned long Enabled) = 0;
     virtual GENRESULT DACOM_API AddLocalShadowPlanet(const float* Center3, float Radius) = 0;

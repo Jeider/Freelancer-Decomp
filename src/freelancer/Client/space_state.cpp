@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "space_state.h"
+#include "player_auto_turrets.h"
 #ifdef FREELANCER_MOD_PLUGINS
 #include "wing_anim.h" // port-only wing animation system
 #endif
@@ -1031,6 +1032,7 @@ bool InitSpaceState(SpaceApp* State, int Param)
 
 int UpdateSpaceState(SpaceApp* State, float DeltaSeconds)
 {
+    PlayerAutoTurrets::Reconcile();
     // LAB_0054b000 -- slot 14 (+0x38) of the space state vftable .rdata 0x005e0554, thiscall,
     // RET 4. The whole in-space frame: simulation, camera, sound, then the render bracket
     // FUN_00424f30 .. FUN_00425080 / FUN_00425140 with the scene drawn through the active
@@ -1099,6 +1101,7 @@ int UpdateSpaceState(SpaceApp* State, float DeltaSeconds)
             ((FGameCamera*)Cam)->Update(DeltaSeconds);
 
         // 0x0054b0a3: FUN_00554eb0(Dt).
+        PlayerAutoTurrets::Tick(DeltaSeconds, State->bDockingPending != 0);
         StarSysUpdate(DeltaSeconds);
         // 0x0054b0a9: FUN_0041b2e0(Dt).
         TickMaterialAnimationPlayback(DeltaSeconds);
@@ -1337,6 +1340,7 @@ void DestroySpaceState(SpaceApp* State)
 
 void ShutdownSpaceState(SpaceApp* State)
 {
+    PlayerAutoTurrets::Reset();
     // FUN_0054ab20 (slot 9, +0x24), thiscall, no arguments.
     // 0x0054ab23: FUN_00554e80 -- FUN_00554ab0(0), leave the system without a player.
     StarSysLeaveWithoutPlayer();

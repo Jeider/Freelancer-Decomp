@@ -104,6 +104,52 @@ struct FRp9ExState
 {
     FRp9ExState();
 
+    struct RoomProfile
+    {
+        std::string Map;
+        float Normal = 0, Roughness = .75f, Specular = .3f, Skin = 0;
+        IDirect3DTexture9* Texture = nullptr;
+        unsigned long LastFrame = 0;
+        bool Tried = false;
+    };
+    bool bRoomFrame = false, bRoomRead = false, bRoomEnabled = true, bRoomFailed = false;
+    unsigned long RoomFrame = 0;
+    std::map<std::string, RoomProfile> RoomProfiles;
+    RoomProfile* RoomCurrent = nullptr;
+    struct ShipNormalMap { IDirect3DTexture9* Texture=nullptr; };
+    std::map<std::string, ShipNormalMap> ShipNormalMaps;
+    std::map<std::string, ShipNormalMap*> ShipNormalProfiles;
+    std::map<std::string, ShipNormalMap*> SolarNormalProfiles;
+    bool bSolarNormalScope=false;
+    std::set<std::string> ShipNormalExcludedModels;
+    std::set<std::string> ShipNormalHumanSolars;
+    ShipNormalMap* ShipNormalCurrent=nullptr;
+    bool bShipNormalScope=false, bShipNormalsPrepared=false;
+    float ShipNormalStrength=0.25f;
+    float ShipNormalRange=0;
+    IDirect3DPixelShader9* ShipNormalPs[4]={};
+    IDirect3DVertexShader9* RoomVs = nullptr;
+    IDirect3DVertexShader9* RoomSkinVs = nullptr;
+    IDirect3DPixelShader9* RoomPs = nullptr;
+    IDirect3DPixelShader9* RoomAoPs = nullptr;
+    IDirect3DStateBlock9* RoomAoState = nullptr;
+    bool bRoomAoFailed = false;
+    bool bRoomPaletteUnsupported = false, bRoomAoLogged = false;
+    std::set<std::string> RoomLoggedMaps;
+    float RoomBones[64][16] = {};
+    bool bRoomShadowDrawing = false, bRoomShadowFailed = false;
+    unsigned RoomShadowDraws = 0;
+    IDirect3DTexture9* RoomShadowMap = nullptr;
+    IDirect3DSurface9* RoomShadowDepth = nullptr;
+    IDirect3DVertexShader9* RoomShadowVs = nullptr;
+    IDirect3DVertexShader9* RoomShadowSkinVs = nullptr;
+    IDirect3DPixelShader9* RoomShadowPs = nullptr;
+    IDirect3DPixelShader9* RoomShadowApplyPs = nullptr;
+    float RoomShadowMatrix[16] = {}, RoomShadowRadius = 1;
+    float RoomShadowCamera[16] = {}, RoomShadowCameraInverse[16] = {};
+    float RoomShadowSavedBones[64][16] = {};
+    bool bRoomShadowSavedPaletteUnsupported = false;
+
     std::vector<FRPExProgram*> Programs;
     std::vector<FRPExBuffer*> Buffers;
     FRp9MeshInstances MeshInstances;
@@ -150,6 +196,12 @@ struct FRp9ExState
     IDirect3DVertexShader9* SoftVs;
     IDirect3DPixelShader9* SoftPs;
     FRp9ExStageSave SoftSavedStage1;
+
+    // Explicit code_beam batch only; hardware depth test, no depth texture or extra pass.
+    bool bCodeBeamRequested = false, bCodeBeamEnabled = true;
+    float CodeBeamStrength = 1.0f, CodeBeamRipple = 0.045f;
+    IDirect3DVertexShader9* CodeBeamVs = nullptr;
+    IDirect3DPixelShader9* CodeBeamPs = nullptr;
 
     // Planet atmosphere (SetPlanetAtmosphere): requested by Shading around the shell draw,
     // port.ini [Render] settings (read once) and the shaders of planet_atmosphere.hlsl.
@@ -239,6 +291,15 @@ struct FRp9ExState
     // Receivers without a shadow this frame (SURFACE_NO_SHADOW): no shadow registers or taps.
     IDirect3DPixelShader9* SurfaceNoShadowPs = nullptr;
     IDirect3DPixelShader9* SurfaceNoShadowCubePs = nullptr;
+    IDirect3DPixelShader9* GreenhousePs[4] = {}; // full/no-shadow, 2D/cube
+    IDirect3DPixelShader9* NomadPs[4] = {}; // lair/dyson, shadow/no-shadow
+    IDirect3DVertexShader9* NomadVs = nullptr;
+    IDirect3DPixelShader9* NomadDepthPs = nullptr;
+    IDirect3DTexture9* NomadLayers = nullptr;
+    bool bNomadTextureTried=false, bNomadCompileFailed=false;
+    bool bNomadScopeNative=false;
+    bool bNomadShader=true;
+    float NomadRelief=1.15f, NomadGlow=0.32f;
     // What the surface route last left on the device. Shaders stay bound after a surface draw
     // (a fixed-function draw unbinds them, ExSurfaceRelease); the shadow maps (s8/s9) and the
     // environment map (s10) sit on samplers fixed-function rendering never uses, so no stage
@@ -247,8 +308,8 @@ struct FRp9ExState
     std::uint32_t SurfaceShaderWrites = 0, SurfacePsWrites = 0, SurfaceSamplerWrites = 0;
     IDirect3DVertexShader9* SurfaceBoundVs = nullptr;
     IDirect3DPixelShader9* SurfaceBoundPs = nullptr;
-    float SurfacePsMirror[97 * 4] = {};
-    bool SurfacePsMirrorValid[97] = {};
+    float SurfacePsMirror[102 * 4] = {};
+    bool SurfacePsMirrorValid[102] = {};
     IDirect3DBaseTexture9* SurfaceSamplerTexture[6] = {};
     unsigned long SurfaceSamplerStates[6][8] = {};
     bool SurfaceSamplerValid[6] = {};
@@ -271,6 +332,7 @@ struct FRp9ExState
     bool bShadowFrameValid = false;
     bool bShadowReceiver = false;
     bool bShadowReceiverIsShip = false;
+    bool bShadowReceiverIsPlayer = false;
     bool bShadowAdaptiveQuality = true;
     float ShadowStaticQualityDistance = 500.0f;
     float ShadowShipQualityDistance = 150.0f;
@@ -290,6 +352,7 @@ struct FRp9ExState
     float ShadowLightAngle = 2.0f;
     unsigned ShadowSearchSamples = 16;
     unsigned ShadowFilterSamples = 32;
+    unsigned ShadowWorldSearchSamples = 16, ShadowWorldFilterSamples = 32;
     // NPC ship receivers (SetLocalShadowReceiver bits 5..6): 0 best, 1 moderate, 2 simple.
     unsigned ShadowReceiverTier = 0;
     float ShadowModerateSearchSamples = 8.0f, ShadowModerateFilterSamples = 8.0f;
@@ -302,6 +365,13 @@ struct FRp9ExState
     bool bQualityConfigRead = false;
     unsigned QualityAnisotropy = 16;
     unsigned QualityFxaaMode = 1;
+    // Initial SMAA release: enabled before UI; keep FXAA as the fallback.
+    // User-facing mode selection will be added separately.
+    bool QualitySmaaEnabled = true;
+    bool bQualitySmaaFailed = false;
+    IDirect3DPixelShader9* QualitySmaaPs[3] = {};
+    IDirect3DTexture9* QualitySmaaLookup[2] = {};
+    IDirect3DTexture9* QualitySmaaTargets[2] = {};
     // Between a successful BeginScene and EndScene.
     bool bInScene = false;
     bool bQualityFxaaFailed = false;

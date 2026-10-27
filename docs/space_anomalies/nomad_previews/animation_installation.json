@@ -1,0 +1,13 @@
+{
+  "game": "D:\\games\\FL_MOD",
+  "files": [
+    {
+      "relative": "DATA_EXTRA/SHADERS/surface_material.hlsl",
+      "original": "380702686b476677bd7bbd1339075d4c2731624d26c5f7f5b1b63f90b1b1833a",
+      "prepared": "46fd7137cf3f2f2129e08f8ae5e992f0e8477a994175ac0e04b4a6fd029544df"
+    }
+  ],
+  "scope": "ET-only interior organic animation; shader source only; compilation deferred at user request",
+  "backup": "D:/games/FL_MOD/BACKUP/codex_nomad_surfaces_20261027_004304_416555",
+  "validation": "Static review only; final shader compilation/GPU tests deferred at user request."
+}

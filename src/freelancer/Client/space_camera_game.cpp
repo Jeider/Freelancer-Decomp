@@ -19,6 +19,7 @@
 // and the HUDCamera Event::Handler face (FUN_0051d7f0), then HUDCamera 0x6c (FUN_0051d070).
 
 #include "space_camera_game.h"
+#include "player_auto_turrets.h"
 
 #include "character_select_equip.h" // Get/SetPlayerVisitFlagsRetail, GetPlayerStarSystemIdRetail
 #include "cli_projectile_fx.h"  // FCliEquipFirePacket, CliShipHandleEquipUpdate (FUN_00544d70)
@@ -842,7 +843,7 @@ void HudCameraUpdate(FHudCamera* Cam, float DeltaSeconds)
         CEGun* Gun = CEGun::cast(Ship->EquipManager.Traverse(Walk));
         while (Gun != nullptr)
         {
-            Gun->SetTargetPoint(Aim);
+            if (!PlayerAutoTurrets::Owns(Gun)) Gun->SetTargetPoint(Aim);
             Gun = CEGun::cast(Ship->EquipManager.Traverse(Walk));
         }
     }

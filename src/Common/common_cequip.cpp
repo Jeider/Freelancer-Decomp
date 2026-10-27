@@ -6,6 +6,9 @@
 
 // CEquip, CInternalEquip, CExternalEquip, CEquipTraverser, CEquipManager -- split out of common_cequip.cpp (CMN-B2).
 #include "common_cequip.h"
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+#include "equipment_slots.h"
+#endif
 #include "x86math.h"
 
 #include "common_animdb.h"  // AnimDB::Add/Rem (common_animdb.cpp)
@@ -147,6 +150,9 @@ CEquip::CEquip()
 
 CEquip::~CEquip()
 {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    EquipmentSlots::Forget(this);
+#endif
 }
 
 void* CEquip::operator new(size_t Size) noexcept
@@ -456,6 +462,9 @@ CInternalEquip::CInternalEquip(unsigned TypeBits, CEqObj* OwnerObj, unsigned sho
 CInternalEquip::CInternalEquip(CInternalEquip const& Other)
     : CEquip(Other)
 {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    EquipmentSlots::CopyBinding(this, &Other);
+#endif
 }
 
 CInternalEquip::~CInternalEquip()
@@ -467,6 +476,9 @@ bool CInternalEquip::GetEquipDesc(EquipDesc& Desc) const
     // Common.dll.c 66784-66792 (listing 0x3f300): fill in the base descriptor, then flag it
     // as internal (retail EquipDesc::make_internal).
     bool Result = CEquip::GetEquipDesc(Desc);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (Result && EquipmentSlots::RestoreBinding(this, Desc)) return Result;
+#endif
     Desc.make_internal();
     return Result;
 }

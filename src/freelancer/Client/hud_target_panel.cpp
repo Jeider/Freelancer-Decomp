@@ -13,7 +13,9 @@
 // run shows the press arriving.
 
 #include "hud_target.h"
+#include "hud_vulnerable.h"
 #include "hud_targeting.h"
+#include "hud_interface_ids.h"
 
 #include "character_select_equip.h" // GetPlayerStarSystemIdRetail (FUN_004c4830)
 #include "chat_init.h"              // ChatFindPlayerName (FUN_0046b400), ChatAcquireEntry, ...
@@ -546,9 +548,9 @@ bool HudTarget::Create(Win3D* NewParent, void* Data)
     HitOffset[2] = 0.0f;
 
     float const ToggleHalf[3] = {0.02f, 0.02f, 0.0f};
-    ToggleButton = CreateButtonControl("HudTargetOpen", "interface\\hud\\hud_ShipTarget.3db",
+    ToggleButton = CreateButtonControl("HudTargetOpen", "interface\\hud\\HUD_contactlist.3db",
                                        nullptr, "ui_window_open", nullptr, &HomePosition.X,
-                                       nullptr, ToggleHalf, 0, 1, 0, 0, 0x3fe, 0, 0);
+                                       nullptr, ToggleHalf, 0, 1, 0, 0, HudIds::TargetList, 0, 0);
     ToggleButton->SetProperty(0x36, 1, 0);
 
     float const ShipNamePos[3] = {-0.488f, -0.2f, 0.0f};
@@ -739,7 +741,8 @@ unsigned HudTarget::TargetingObjectId() const
 {
     CObject* object = CObjectOfObjRw(WatchedObjRw(ViewObject));
     if (!object) return 0;
-    if (IsClass(object, 0x303) && static_cast<CSolar*>(object)->is_waypoint()) return 0;
+    // Waypoints use their native 3dnavpoint.3db diamond through the same part-cache
+    // renderer as other targets. Eligibility does not imply hostile auto-opening.
     return WatchedObjRw(ViewObject)->get_id();
 }
 
@@ -759,6 +762,17 @@ bool HudTarget::TargetingIsCruiser() const
     unsigned type = 0;
     return object && IsClass(object, 0x503) && target->get_type(type) == 0 &&
         (type & 0x80000u) != 0; // shiparch type = CRUISER, including destroyers in this mod.
+}
+
+unsigned short HudTarget::TargetingSelectedPart() const
+{
+    if (!TargetingOwnsContent(this) || !VulnerableAutoselectEnabled() || !TargetingIsCruiser())
+        return SUBOBJ_ID_NONE;
+    auto* player = HudShipOfObjRw(static_cast<IObjRW*>(GetPlayerObjRW()));
+    IObjRW* const viewed = WatchedObjRw(ViewObject);
+    IObjRW* const selected = player ? player->get_target() : nullptr;
+    if (!viewed || !selected || viewed->get_id() != selected->get_id()) return SUBOBJ_ID_NONE;
+    return player->get_sub_target();
 }
 
 void HudTarget::Slot14()
@@ -988,6 +1002,7 @@ void HudTarget::DrawTargetView(float screenShift, TargetingProjection projection
             // FUN_004e7070, then the part cache (FUN_00406510) through the view camera in the
             // object's transform (slot 4).
             ColourViewParts();
+            HighlightSelectedViewPart(TargetingSelectedPart());
             IObjRW* const Viewed = WatchedObjRw(ViewObject);
             PartCacheDraw(&PartCache, AsCamera(&ViewCamera),
                           reinterpret_cast<FTransform const*>(&Viewed->get_transform()));

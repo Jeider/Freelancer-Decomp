@@ -18,11 +18,11 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Radar vectors build failed' }
     & (Join-Path $out 'vectors.exe')
     if ($LASTEXITCODE -ne 0) { throw 'Radar vectors checks failed' }
+    & "$vc/bin/Hostx64/x86/cl.exe" /nologo /std:c++17 /O2 /W4 /WX /MT /EHsc (Join-Path $PSScriptRoot 'test_symbols.cpp') /Fesymbols.exe
+    if ($LASTEXITCODE -ne 0) { throw 'Radar symbols build failed' }
+    & (Join-Path $out 'symbols.exe')
+    if ($LASTEXITCODE -ne 0) { throw 'Radar symbols checks failed' }
     if ($HudIni) {
-        & "$vc/bin/Hostx64/x86/cl.exe" /nologo /std:c++17 /O2 /W4 /WX /MT /EHsc (Join-Path $PSScriptRoot 'test_symbols.cpp') /Fesymbols.exe
-        if ($LASTEXITCODE -ne 0) { throw 'Radar symbols build failed' }
-        & (Join-Path $out 'symbols.exe')
-        if ($LASTEXITCODE -ne 0) { throw 'Radar symbols checks failed' }
         if (-not $GameBin) { throw 'Use -GameBin with -HudIni for native Common.dll' }
         $env:INCLUDE += ";$repo/src/include"
         $env:LIB += ";$repo/bin"

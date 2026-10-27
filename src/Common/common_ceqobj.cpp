@@ -6,6 +6,9 @@
 
 // CEqObj (retail CEqObj.cpp) and CEqObj::DockAnimInfo.
 #include "common_cobject.h"
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+#include "equipment_slots.h"
+#endif
 #ifdef FREELANCER_ADOXA
 #include "port_plugins.h" // port-only adoxa plugins
 #include "common_adoxa_api.h"
@@ -159,10 +162,37 @@ bool CEqObj::add_equipped_item(EquipDesc const& Desc)
         return false;
     }
 
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    bool const ClassedInternal = EquipmentSlots::Enabled() &&
+        EquipmentClasses::IsManaged(unsigned(Arch->get_hp_type()));
+    if (EquipmentSlots::Enabled())
+    {
+        EquipDescList Candidate;
+        CEquipTraverser Walk(-1);
+        for (CEquip* Existing = EquipManager.Traverse(Walk); Existing; Existing = EquipManager.Traverse(Walk))
+        {
+            EquipDesc Current;
+            if (Existing->GetEquipDesc(Current)) Candidate.Items.push_back(Current);
+        }
+        Candidate.Items.push_back(Desc);
+        Archetype::Ship const* Hull = Archetype->get_class_type() == Archetype::AClassShip
+            ? static_cast<Archetype::Ship const*>(Archetype) : nullptr;
+        if (!EquipmentSlots::Validate(Hull, Candidate))
+        {
+            FDUMP(0x100001, "Rejected incompatible internal equipment %s on %s",
+                  Arch->Nickname.get_string(), Archetype->Nickname.get_string());
+            return false;
+        }
+    }
+#endif
     // 062a971f..062a9743: virtual alloc_equip (vtable +0x104) with the raw mission byte.
     CEquip* const Equip = alloc_equip(Desc.Id, Arch, Desc.bMission);
     if (Equip == nullptr)
         return false;
+
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (ClassedInternal) EquipmentSlots::Bind(Equip, Desc.Hardpoint);
+#endif
 
     // 062a9749..062a9757: FLD Health; FMUL HitPts; FSTP dword -> SetHitPoints (+0x40).
     Equip->SetHitPoints(Desc.Health * Arch->HitPts);
@@ -173,6 +203,12 @@ bool CEqObj::add_equipped_item(EquipDesc const& Desc)
         {
             Ext->Connect(Desc.Hardpoint);                              // vtable +0x5c
         }
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        else if (ClassedInternal)
+        {
+            // Named internal slot, deliberately no model connection.
+        }
+#endif
 #ifdef FREELANCER_ADOXA
         // Port-only, adoxa's engclass.dll (docs/adoxa.md; 062a9775 JE retargeted 0x0d -> 0x4e):
         // engines and powerplants now sit on hardpoints, so the warning is gone.

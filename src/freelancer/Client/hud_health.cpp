@@ -1,5 +1,6 @@
 #include "hud_interface_ids.h"
 #include "hud_health.h"
+#include "player_turret_hud.h"
 #include "hud_status_core.h"
 #include "hud_weapon_groups.h"
 #include "wing_anim.h"
@@ -110,6 +111,7 @@ bool HUD_Health::Owns(HUD_Status const* source) const { return source && Source(
 
 void HUD_Health::ReleaseHost()
 {
+    PlayerTurretHud::Release(owner);
     ButtonMover::bActive = ButtonScaler::bActive = false;
     ButtonMover::Entries.clear();
     ButtonScaler::Entries.clear();
@@ -250,6 +252,7 @@ void HUD_Health::UpdateHostButtons()
     bool const moving = source->ButtonMover::IsActive() || source->ButtonScaler::IsActive();
     bool const visible = CanShow() && !moving;
     bool const expanded = source->bExpanded != 0;
+    PlayerTurretHud::Update(source, source->RepairButton->AttachPosition, visible && expanded);
     hostButton->SetProperty(1, visible ? 0 : 1, 0);
     hostButton->SetProperty(0xc, windowState.open ? 1 : 0, 0);
     lockButton->SetProperty(1, visible ? 0 : 1, 0);

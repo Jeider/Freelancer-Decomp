@@ -408,8 +408,8 @@ public:
     // FUN_00456790 (thiscall, RET 8) -- the first created (not reference) entity of Type named
     // EntityName among the current scripts of the findable sequences, or null.
     FThornComponent* FindCreatedEntity(int Type, char const* EntityName);
-    // LAB_00456840 (vtable slot 0) -- event 0xf: every letterboxed sequence is marked to skip
-    // (when playing and +0x15), and FUN_0045b3c0 runs when there was one; true then.
+    // LAB_00456840 (vtable slot 0). Port: event 0xf requests skip confirmation;
+    // only a fresh Enter marks the active cinematic sequence to skip.
     bool OnEvent(unsigned MsgId) override;
     // FUN_004568a0 -- false while a letterboxed sequence without +0x15 exists.
     bool CanSkipAll() const;

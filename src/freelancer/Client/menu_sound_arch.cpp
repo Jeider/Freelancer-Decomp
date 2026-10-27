@@ -1,3 +1,4 @@
+#include "runtime_hitch_log.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -3510,6 +3511,7 @@ void TickClientSoundMixer(void* Camera, float DeltaSeconds)
 
 int CreateSoundArchWav(Archetype::ISound* Arch, void* ParentFs)
 {
+    RuntimeHitchScope Hitch("sound_load", Arch->GetFileName());
     // FUN_0042b5e0 (cdecl). One function for both archetype kinds: the SoundImpl (FUN_0042b840)
     // and the VoiceMsg (FUN_00431220) differ only in what their slots 1/10/13 return.
     // 0042b601..0042b616: EBX = -1; no ISoundManager or no Data -> -1.

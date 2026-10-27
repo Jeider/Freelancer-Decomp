@@ -1,3 +1,4 @@
+#include "hud_widescreen.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -1679,45 +1680,7 @@ void NeuroNetNavMap::Update()
         }
     }
 
-    // 004959c4..00495ba5: ScreenRect -- the frame's two corners (with G_NavMapGlobal_67203c's
-    // offset, at z -1.25) through the Win3D camera, floored; then this map's own camera takes
-    // the Win3D camera's near / far / half fov and ScreenRect as its viewport.
-    FSpaceCamera* const SceneCamera = Win3DGetCamera(); // DAT_0067dbf8
-    float Corner[3];
-    Corner[0] = static_cast<float>(static_cast<double>(G_NavMapGlobal_67203c[0]) +
-                                   static_cast<double>(MapCorner0[0]));
-    Corner[1] = static_cast<float>(static_cast<double>(G_NavMapGlobal_67203c[1]) +
-                                   static_cast<double>(MapCorner2[1]));
-    Corner[2] = -1.25f;
-    AsCamera(SceneCamera)->Project(&ScreenRectMin[0], &ScreenRectMin[1], &ScreenRectMin[2],
-                                   Corner);
-    ScreenRectMin[0] = static_cast<float>(floor(static_cast<double>(ScreenRectMin[0])));
-    ScreenRectMin[1] = static_cast<float>(floor(static_cast<double>(ScreenRectMin[1])));
-    Corner[0] = static_cast<float>(static_cast<double>(G_NavMapGlobal_67203c[0]) +
-                                   static_cast<double>(MapCorner2[0]));
-    Corner[1] = static_cast<float>(static_cast<double>(G_NavMapGlobal_67203c[1]) +
-                                   static_cast<double>(MapCorner0[1]));
-    float Far[3];
-    AsCamera(SceneCamera)->Project(&Far[0], &Far[1], &Far[2], Corner);
-    Far[0] = static_cast<float>(floor(static_cast<double>(Far[0])));
-    Far[1] = static_cast<float>(floor(static_cast<double>(Far[1])));
-    ScreenRectSize[0] = static_cast<float>(static_cast<double>(Far[0]) -
-                                           static_cast<double>(ScreenRectMin[0]));
-    ScreenRectSize[1] = static_cast<float>(static_cast<double>(Far[1]) -
-                                           static_cast<double>(ScreenRectMin[1]));
-    ScreenRectSize[2] = static_cast<float>(static_cast<double>(Far[2]) -
-                                           static_cast<double>(ScreenRectMin[2]));
-    int Viewport[4];
-    Viewport[0] = static_cast<int>(ScreenRectMin[0]); // ftol
-    Viewport[1] = static_cast<int>(ScreenRectMin[1]);
-    Viewport[2] = static_cast<int>(static_cast<double>(ScreenRectSize[0]) +
-                                   static_cast<double>(ScreenRectMin[0]));
-    Viewport[3] = static_cast<int>(static_cast<double>(ScreenRectSize[1]) +
-                                   static_cast<double>(ScreenRectMin[1]));
-    Camera.ZNear = SceneCamera->ZNear; // FUN_0040fb60: the two stores
-    Camera.ZFar = SceneCamera->ZFar;
-    SpaceCameraSetHalfFovX(&Camera, SceneCamera->HalfFovXDeg); // FUN_0040f8c0
-    SpaceCameraSetViewportEx(&Camera, Viewport, 1);           // FUN_0040fb80
+    UpdateMapViewport();
 
     // 00495baa..00495c4a: the system view follows the player (marker position / heading) and
     // the waypoints; the universe view pulses its stars.
@@ -1924,3 +1887,50 @@ void NeuroNetNavMap::Update()
         PlaceItems();
 }
 
+
+void NeuroNetNavMap::UpdateMapViewport()
+{
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
+    FWidescreenHudShiftScope Scope(0.0f, false);
+#endif
+    // 004959c4..00495ba5: ScreenRect -- the frame's two corners (with G_NavMapGlobal_67203c's
+    // offset, at z -1.25) through the Win3D camera, floored; then this map's own camera takes
+    // the Win3D camera's near / far / half fov and ScreenRect as its viewport.
+    FSpaceCamera* const SceneCamera = Win3DGetCamera(); // DAT_0067dbf8
+    float Corner[3];
+    Corner[0] = static_cast<float>(static_cast<double>(G_NavMapGlobal_67203c[0]) +
+                                   static_cast<double>(MapCorner0[0]));
+    Corner[1] = static_cast<float>(static_cast<double>(G_NavMapGlobal_67203c[1]) +
+                                   static_cast<double>(MapCorner2[1]));
+    Corner[2] = -1.25f;
+    AsCamera(SceneCamera)->Project(&ScreenRectMin[0], &ScreenRectMin[1], &ScreenRectMin[2],
+                                   Corner);
+    ScreenRectMin[0] = static_cast<float>(floor(static_cast<double>(ScreenRectMin[0])));
+    ScreenRectMin[1] = static_cast<float>(floor(static_cast<double>(ScreenRectMin[1])));
+    Corner[0] = static_cast<float>(static_cast<double>(G_NavMapGlobal_67203c[0]) +
+                                   static_cast<double>(MapCorner2[0]));
+    Corner[1] = static_cast<float>(static_cast<double>(G_NavMapGlobal_67203c[1]) +
+                                   static_cast<double>(MapCorner0[1]));
+    float Far[3];
+    AsCamera(SceneCamera)->Project(&Far[0], &Far[1], &Far[2], Corner);
+    Far[0] = static_cast<float>(floor(static_cast<double>(Far[0])));
+    Far[1] = static_cast<float>(floor(static_cast<double>(Far[1])));
+    ScreenRectSize[0] = static_cast<float>(static_cast<double>(Far[0]) -
+                                           static_cast<double>(ScreenRectMin[0]));
+    ScreenRectSize[1] = static_cast<float>(static_cast<double>(Far[1]) -
+                                           static_cast<double>(ScreenRectMin[1]));
+    ScreenRectSize[2] = static_cast<float>(static_cast<double>(Far[2]) -
+                                           static_cast<double>(ScreenRectMin[2]));
+    int Viewport[4];
+    Viewport[0] = static_cast<int>(ScreenRectMin[0]); // ftol
+    Viewport[1] = static_cast<int>(ScreenRectMin[1]);
+    Viewport[2] = static_cast<int>(static_cast<double>(ScreenRectSize[0]) +
+                                   static_cast<double>(ScreenRectMin[0]));
+    Viewport[3] = static_cast<int>(static_cast<double>(ScreenRectSize[1]) +
+                                   static_cast<double>(ScreenRectMin[1]));
+    Camera.ZNear = SceneCamera->ZNear; // FUN_0040fb60: the two stores
+    Camera.ZFar = SceneCamera->ZFar;
+    SpaceCameraSetHalfFovX(&Camera, SceneCamera->HalfFovXDeg); // FUN_0040f8c0
+    SpaceCameraSetViewportEx(&Camera, Viewport, 1);           // FUN_0040fb80
+
+}

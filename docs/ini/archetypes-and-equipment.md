@@ -14,6 +14,21 @@ The archetype loader (`Archetype::LoadEquipment`, `LoadSolar`, `LoadShips`, `Loa
 
 Any other section name in these files is skipped without a message ([common_archetypeloader.cpp:453](../../src/Common/common_archetypeloader.cpp#L453)). The files are read as BINI or text by `INI_Reader` ([parsers.md](parsers.md)); section and key names are case-insensitive.
 
+## Optional port feature: internal equipment classes
+
+With `FreelancerEquipmentSlots=1` at build time and `[Equipment] internal_classes=1`
+in port.ini, `[Armor]`, `[Scanner]` and `[Tractor]` accept respectively
+`hp_type = hp_armor_special_N`, `hp_scanner_special_N` and `hp_tractor_special_N`
+for N = 1..10. The section and family must match. Without this key the device retains
+legacy internal behavior. Classes change installation compatibility, not device performance.
+
+Ships declare `equipment_slot = Name, armor|scanner|tractor, MaximumClass` for logical
+slots without CMP hardpoints; ordinary `hp_type = TYPE, Name` permits an exact class instead.
+Loadouts retain the binding as `equip = DeviceNickname, Name`. Only one installed device per
+family is currently supported, including legacy built-ins. Both switches default off.
+See [equipment slots](../re/equipment_mount_classes.md) for complete examples, compatibility,
+runtime behavior, testing and migration limitations.
+
 ## Value notation used on these pages
 
 | Type | Getter | Notes |

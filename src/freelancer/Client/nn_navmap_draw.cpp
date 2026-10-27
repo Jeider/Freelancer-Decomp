@@ -622,6 +622,7 @@ namespace
 
 void NeuroNetNavMap::Draw()
 {
+    UpdateMapViewport(); // The opening callback can show the map after this frame's Update.
     // LAB_004926d0 0x004926dc..0x0049293d: the frame's controls as two null-terminated lists on
     // the stack, taken at entry (the first ends at the zero stored at +0xbc).
     WinControl* const Panels[14] = {RightWindow,

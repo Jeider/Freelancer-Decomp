@@ -9,6 +9,7 @@
 //          FUN_0050d300 / FUN_004215b0 / 00422690 / FUN_00554e90.
 
 #include "star_sphere.h"
+#include "solar_nebula_transition.h"
 
 #include "DALib.h"
 #include "cli_asteroid.h"
@@ -355,11 +356,28 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
 
     float const* OwnerGetWorldPos(IObjInspect* Owner);
 #ifdef FREELANCER_RP9
+    struct FSolarNebulaState
+    {
+        SolarNebulaTransition Fade;
+        double CachedTime = -1.0;
+        float CameraPosition[3] = {};
+        float CachedValue = 0.0f;
+    };
+    std::unordered_map<FStarSphere const*, FSolarNebulaState> GSolarNebulaStates;
+    SolarNebulaTransition GSolarOpticalImmersion;
+
     float SolarNebulaImmersion()
     {
         if(GetSpaceFieldEnclosure()==0) return 0.0f;
         auto* Field=static_cast<FNebulaEffect*>(GetSpaceFieldController());
         return Field ? std::fmax(0.0f,std::fmin(1.0f,Field->GetFloat294())) : 0.0f;
+    }
+    float SolarVisualImmersion()
+    {
+        static const float Seconds = std::fmax(0.0f, PortConfigFloat("Render", "sun_nebula_fade_seconds", 3.0f));
+        float const Weight = GSolarOpticalImmersion.Update(SolarNebulaImmersion(), GetClientElapsedTime(),
+                                                          Seconds * 0.25f, Seconds);
+        return SolarNebulaSmoothUnit(Weight);
     }
     bool SolarNebulaBlocked(FStarSphere const* Sphere, ICamera* Camera)
     {
@@ -372,21 +390,15 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
     // position (Draw, DrawFlare, DrawBillboard and the attached effect all ask).
     float SolarNebulaThrough(FStarSphere const* Sphere, ICamera* Camera)
     {
-        struct FThroughCache
-        {
-            FStarSphere const* Sphere;
-            double Time;
-            float Cam[3];
-            float Value;
-        };
-        static FThroughCache Cache[4] = {};
-        static int NextSlot = 0;
+        // Track the optical weight even while the sun is fully hidden; otherwise
+        // its first visible draw after exiting would initialise directly to clear.
+        SolarVisualImmersion();
+        FSolarNebulaState& State = GSolarNebulaStates[Sphere];
         float const* const CamPos = Camera->GetPosition();
         const double Now = GetClientElapsedTime();
-        for (FThroughCache const& Slot : Cache)
-            if (Slot.Sphere == Sphere && Slot.Time == Now && Slot.Cam[0] == CamPos[0] &&
-                Slot.Cam[1] == CamPos[1] && Slot.Cam[2] == CamPos[2])
-                return Slot.Value;
+        if (State.CachedTime == Now && State.CameraPosition[0] == CamPos[0] &&
+            State.CameraPosition[1] == CamPos[1] && State.CameraPosition[2] == CamPos[2])
+            return State.CachedValue;
         float const* const SunPos = reinterpret_cast<float const*>(&Sphere->Owner->get_position());
         const float kMaxLength = 40000.0f;
         float Length = NebulaVolume::SegmentNebulaLength(CamPos, SunPos, kMaxLength);
@@ -405,57 +417,20 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
         float Value = std::exp(-Sigma * Length);
         // Leaving a nebula the line to the sun clears within a frame or two and the sun popped in.
         // Let the eye adjust: Through rises at most 1/sun_nebula_fade_seconds per second, and falls
-        // four times faster (entering the dust dims it promptly). Per sun; a gap in the frames
-        // (system change, the sun not drawn for a while) snaps to the measured value.
-        {
-            struct FThroughEase
-            {
-                FStarSphere const* Sphere;
-                double Time;
-                float Value;
-            };
-            static FThroughEase Ease[8] = {};
-            static int NextEase = 0;
-            static const float RiseSeconds = std::fmax(0.0f, PortConfigFloat("Render", "sun_nebula_fade_seconds", 3.0f));
-            FThroughEase* State = nullptr;
-            for (FThroughEase& E : Ease)
-                if (E.Sphere == Sphere)
-                    State = &E;
-            if (State == nullptr)
-            {
-                State = &Ease[NextEase];
-                NextEase = (NextEase + 1) & 7;
-                State->Sphere = Sphere;
-                State->Time = -1.0;
-            }
-            const double Dt = Now - State->Time;
-            if (State->Time < 0.0 || Dt < 0.0 || Dt > 0.5 || !(RiseSeconds > 0.0f))
-                State->Value = Value;
-            else
-            {
-                const float Rise = (float)Dt / RiseSeconds;
-                const float Delta = Value - State->Value;
-                State->Value += Delta > 0.0f ? std::fmin(Delta, Rise) : std::fmax(Delta, -4.0f * Rise);
-            }
-            State->Time = Now;
-            Value = State->Value;
-        }
-        FThroughCache& Slot = Cache[NextSlot];
-        NextSlot = (NextSlot + 1) & 3;
-        Slot.Sphere = Sphere;
-        Slot.Time = Now;
-        Slot.Cam[0] = CamPos[0];
-        Slot.Cam[1] = CamPos[1];
-        Slot.Cam[2] = CamPos[2];
-        Slot.Value = Value;
+        // four times faster. A gap resumes the fade; destruction clears per-sun history.
+        static const float RiseSeconds = std::fmax(0.0f, PortConfigFloat("Render", "sun_nebula_fade_seconds", 3.0f));
+        Value = State.Fade.Update(Value, Now, RiseSeconds, RiseSeconds * 0.25f);
+        State.CachedTime = Now;
+        std::copy(CamPos, CamPos + 3, State.CameraPosition);
+        State.CachedValue = Value;
         return Value;
     }
     // The authored sun (sprite, spines, corona, flare) fades in as the nebula thins: absent at
-    // Through <= 0.15, whole at >= 0.6, smooth between -- no pop when the last cloud is left.
+    // Through <= 0.05, whole only at 1.0. Use nearly the entire adaptation interval
+    // rather than reaching full brightness halfway through leaving the fog.
     float SolarNebulaFade(float Through)
     {
-        const float T = std::fmax(0.0f, std::fmin(1.0f, (Through - 0.15f) / 0.45f));
-        return T * T * (3.0f - 2.0f * T);
+        return SolarNebulaSmoothUnit((Through - 0.05f) / 0.95f);
     }
     float SolarSunFade(FStarSphere const* Sphere, ICamera* Camera)
     {
@@ -480,7 +455,7 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
     }
     float SolarStructuredStrength()
     {
-        const float Clear=1.0f-SolarNebulaImmersion();
+        const float Clear=1.0f-SolarVisualImmersion();
         return SolarOpticsStrength()*Clear*Clear;
     }
     // port.ini [Render] sun_alive (0..2, 1 default; 0 = the retail still sun): how much the
@@ -1088,7 +1063,9 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
     void SunBodyDrawCorona(FSunEffectBody* Body, FStarSphere* Sphere, float IntensityMul)
     {
 #ifdef FREELANCER_RP9
-        IntensityMul*=SolarStructuredStrength();
+        // Reduce the original animated/refracting body by 20%; the separate outer
+        // shader corona, rays, solar disc and background nebula halo keep their gains.
+        IntensityMul*=0.8f*SolarStructuredStrength();
         if(IntensityMul<=.001f) return;
         // Alive: the corona breathes slowly (a few percent).
         IntensityMul*=1.0f+0.06f*SolarAliveAmount()*SolarWobble(GetClientElapsedTime(),0.35f,SolarPhase(Sphere));
@@ -1704,7 +1681,7 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
         if(ApplyOptics)
         {
             // The post-volume burn-through draws the authored sprite as it is.
-            const float Weight=GbSolarPostBurnthrough ? 0.0f : SolarNebulaImmersion();
+            const float Weight=GbSolarPostBurnthrough ? 0.0f : SolarVisualImmersion();
             const float Strength=SolarOpticsStrength();
             // Screen/additive glows use source ONE: alpha alone cannot dim them.
             // Scale radiance and crossfade the authored sprite into a round halo.
@@ -2004,17 +1981,9 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
         Win3DDisable(kWin3DDepthTest); // FUN_00421ed0(0xb71)
         Win3DSetDepthWrite(0);         // FUN_00422190(0)
 #ifdef FREELANCER_RP9
-        if (GbSolarPostBurnthrough)
-        {
-            // The halo through the dust shows over the nebula (no depth) but behind every mesh:
-            // a depth bias of at least 1 puts the sprite at the far end of the depth range
-            // (clamped), so LESSEQUAL passes only where nothing was drawn. RP9 turns ZBIAS into
-            // DEPTHBIAS = -Value * 2^-ZBits: -2^24 gives 1 with 24-bit Z (more with 16-bit).
-            // StarSphereDrawNebulaHalo restores.
-            Win3DEnable(kWin3DDepthTest);
-            DALib::Pipeline->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
-            DALib::Pipeline->SetRenderState(D3DRS_ZBIAS, -(1 << 24));
-        }
+        // The halo caller pins viewport depth to the background. Test against
+        // opaque geometry without making a foreground object dim the whole glow.
+        if (GbSolarPostBurnthrough) Win3DEnable(kWin3DDepthTest);
 #endif
 
         // 0x00511901..0x00511930: the camera's near / far (slots +0x20 / +0x24), the far plane
@@ -3314,6 +3283,7 @@ FStarSphere::~FStarSphere()
 {
 #ifdef FREELANCER_RP9
     G_SolarAleFade.erase(this);
+    GSolarNebulaStates.erase(this);
 #endif
     // FUN_00510f10 (thiscall), 0x00510f10..0x00510f8d: no test of `this`; every owned pointer
     // is tested, freed and zeroed in retail's order (+0x10, +0x0c, +0x14, +0x18 via FUN_0050f340,
@@ -3591,7 +3561,21 @@ void StarSphereDrawNebulaHalo(void* Cam)
         FDUMP(0x100002, "SUNDIAG burn %.3f size %.3f controller %p\n", Burn, Size, Controller);
     if (!(Burn > 0.0f) || !(Size > 0.0f))
         return;
-    float const* const CamPos = Camera->GetPosition();
+    // After the volume, before transparent fields, effects and the cockpit.
+    // Flush geometry while its normal depth range is still active, then draw
+    // only into clear-depth pixels. This lights the background fog without
+    // washing out opaque silhouettes or depending on the sun's world distance.
+    DALib::MaterialBatcher->FlushAll(1u);
+    int SavedFog = 0, SavedDepth = 0, SavedWrite = 0, SavedFunc = 0;
+    float SavedMin = 0.0f, SavedMax = 1.0f;
+    DALib::Pipeline->GetRenderState(D3DRS_FOGENABLE, &SavedFog);
+    DALib::Pipeline->GetRenderState(D3DRS_ZENABLE, &SavedDepth);
+    DALib::Pipeline->GetRenderState(D3DRS_ZWRITEENABLE, &SavedWrite);
+    DALib::Pipeline->GetRenderState(D3DRS_ZFUNC, &SavedFunc);
+    DALib::Pipeline->GetDepthRange(&SavedMin, &SavedMax);
+    DALib::Pipeline->SetDepthRange(1.0f, 1.0f);
+    DALib::Pipeline->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
+    Win3DDisable(kWin3DFog);
     for (FStarSphereListNode* Node = List->Sentinel->Next; Node != List->Sentinel; Node = Node->Next)
     {
         FStarSphere* const Sphere = Node->Sphere;
@@ -3614,11 +3598,6 @@ void StarSphereDrawNebulaHalo(void* Cam)
         if (Projected == 0)
             continue;
         const float Through = SolarNebulaThrough(Sphere, Camera);
-        // FStarSphere::Draw returns before its occlusion rays once the nebula hides the sun
-        // (SolarSunFade 0), freezing the corona factor read below -- at 0 when the sun has not
-        // been seen yet, and the halo never showed. Cast them here instead.
-        if (!(SolarNebulaFade(Through) > 0.0f))
-            SunBodyUpdateOcclusion(Sphere->SunBody, Cam, Sphere, Sphere->Dt);
         // The in-scene sun takes over as the nebula thins (SolarNebulaFade): this one gives way.
         // From inside a nebula retail's burn-through had the full intensity however deep the
         // dust (tens of km of it gave Through 0 and a halo of Burn * Floor, invisible over the
@@ -3628,21 +3607,23 @@ void StarSphereDrawNebulaHalo(void* Cam)
         static const float Gain = std::fmax(0.0f, PortConfigFloat("Render", "sun_burnthrough_gain", 2.0f));
         const float Thickness = SolarNebulaImmersion() > 0.0f ? 1.0f : std::fmax(Floor, Through);
         float Strength = std::fmin(1.0f, Burn * Gain) * Thickness * (1.0f - SolarNebulaFade(Through));
-        Strength *= std::fmax(0.0f, std::fmin(1.0f, SunBodyComputeCoronaFactor(Sphere->SunBody)));
-        Strength *= std::fmax(0.0f, std::fmin(1.0f, 1.0f - Sphere->ZoneOcclusion));
-        Strength *= TexturePanelsRayTransmittance(CamPos, Pos, Sphere->Radius);
+        // No whole-sprite occlusion fade: foreground geometry masks only its
+        // own pixels. Keep the fog-dependent strength and smooth edge crossfade.
         if (bDiag)
-            FDUMP(0x100002, "SUNDIAG through %.3f fade %.3f corona %.3f zone %.3f ring %.3f strength %.3f\n",
-                  Through, SolarNebulaFade(Through), SunBodyComputeCoronaFactor(Sphere->SunBody),
-                  Sphere->ZoneOcclusion, TexturePanelsRayTransmittance(CamPos, Pos, Sphere->Radius), Strength);
+            FDUMP(0x100002, "SUNDIAG through %.3f fade %.3f unoccluded strength %.3f\n",
+                  Through, SolarNebulaFade(Through), Strength);
         if (!(Strength > 0.001f))
             continue;
         GbSolarPostBurnthrough = true;
         Sphere->DrawBillboard(Cam, Strength, Size);
         GbSolarPostBurnthrough = false;
-        DALib::Pipeline->SetRenderState(D3DRS_ZBIAS, 0);
-        Win3DDisable(kWin3DDepthTest);
     }
+    DALib::Pipeline->SetDepthRange(SavedMin, SavedMax);
+    DALib::Pipeline->SetRenderState(D3DRS_ZFUNC, SavedFunc);
+    Win3DSetDepthWrite(SavedWrite);
+    if (SavedDepth) Win3DEnable(kWin3DDepthTest);
+    else Win3DDisable(kWin3DDepthTest);
+    if (SavedFog) Win3DEnable(kWin3DFog);
 }
 
 void NebulaShipAuraDraw(ICamera* Camera)
@@ -3700,6 +3681,9 @@ FStarSphere* StarSphereCreateListed(IObjInspect* Owner)
 
 void StarSphereDestroyAll()
 {
+#ifdef FREELANCER_RP9
+    GSolarOpticalImmersion = {};
+#endif
     // 0050c6e3..0050c708: slot 0 with 1 (the deleting destructor) on every non-null element.
     FStarSphereList* const List = &G_StarSphereListOwner.List;
     FStarSphereListNode* const Sentinel = List->Sentinel;

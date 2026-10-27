@@ -1,3 +1,4 @@
+#include "runtime_hitch_log.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -1634,6 +1635,7 @@ bool FSoundStreamer::LoadWav(FStreamingSound* Stream, const char* Path, IDACompo
 void* DACOM_API FSoundStreamer::CreateStream(const char* Path, IDAComponent* FileSystem,
                                              unsigned long Flags)
 {
+    RuntimeHitchScope Hitch("sound_stream", Path);
     // FUN_06ef3060 stdcall (this, Path, FileSystem, Flags) RET 0x10.
     if (WorkerThread == nullptr) // +0x60
         return nullptr;

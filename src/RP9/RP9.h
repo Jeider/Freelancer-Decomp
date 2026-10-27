@@ -23,7 +23,10 @@
 #include "render/IRenderPipeline.h"
 #include "render/IRenderPipelineEx.h"
 #include "render/IRPSurfaceShader.h"
+#include "render/IRPCodeBeam.h"
+#include "render/IRPShipNormals.h"
 #include "render/IRPSurfaceContext.h"
+#include "render/IRPRoomMaterials.h"
 #include "render/IRPLocalShadows.h"
 #include "render/IRPWeaponGlints.h"
 #include "render/IRPFrameQuality.h"
@@ -379,9 +382,9 @@ class FDirectX9 final : public IRenderPipeline,
                         // Port-only Direct3D 9 extensions (render/IRenderPipelineEx.h, RP9Ex.cpp).
                         public IRenderPipelineEx,
                         public IRPDrawEx,
-                        public IRPSurfaceShader, public IRPSurfaceContext,
+                        public IRPSurfaceShader, public IRPSurfaceContext, public IRPRoomMaterials, public IRPRoomShadows,
                         public IRPLocalShadows, public IRPFrameQuality, public IRPWeaponGlints,
-                        public IRPPlanetAtmosphere, public IRPPlanetSurface, public IRPSceneCapture
+                        public IRPPlanetAtmosphere, public IRPPlanetSurface, public IRPSceneCapture, public IRPCodeBeam, public IRPShipNormals
 {
 public:
     FDirectX9();
@@ -606,6 +609,13 @@ public:
     // then), End puts back the fixed-function state.
     bool ExSoftBegin();
     void ExSoftEnd();
+    GENRESULT DACOM_API SetCodeBeamEnabled(unsigned long Enabled) override;
+    void ExCodeBeamPrepare();
+    bool ExCodeBeamBegin();
+    void ExCodeBeamEnd();
+    GENRESULT DACOM_API SetShipNormalScope(unsigned long Enabled, const char* Model = nullptr) override;
+    void ExShipNormalsPrepare();
+    void ExShipNormalsRelease();
     // Planet atmosphere shell around one draw (SetPlanetAtmosphere): Begin binds
     // planet_atmosphere.hlsl when the draw qualifies, End restores the fixed-function state.
     GENRESULT DACOM_API SetPlanetAtmosphere(const FRPPlanetAtmosphere* Desc) override;
@@ -632,6 +642,16 @@ public:
     GENRESULT DACOM_API SetCockpitSurface(unsigned long) override;
     GENRESULT DACOM_API SetGlassSurface(unsigned long) override;
     bool ExSurfaceBegin();
+    GENRESULT DACOM_API SetRoomMaterialFrame(unsigned long Enabled) override;
+    GENRESULT DACOM_API SetRoomMaterial(const char* Name, const char* Texture) override;
+    bool ExRoomMaterialBegin();
+    void ExRoomMaterialRelease();
+    GENRESULT DACOM_API ApplyRoomContactShadows() override;
+    GENRESULT DACOM_API BeginRoomShadow(const float* CameraView12, const float* Center3, float Radius,
+                                       unsigned long Character = 0) override;
+    GENRESULT DACOM_API EndRoomShadow() override;
+    bool ExRoomShadowDrawBegin();
+    void ExRoomShadowRelease();
     void ExSurfaceEnd();
     // Before a fixed-function draw: unbinds shaders a surface draw left bound.
     void ExSurfaceRelease();
@@ -639,6 +659,7 @@ public:
     void ExGpuFrameBoundary();
     void ExGpuRelease();
     GENRESULT ExApplyFrameAntialiasing();
+    GENRESULT ExApplySmaa();
     GENRESULT ExApplyFramePass(IDirect3DPixelShader9* Ps, const float* Extra4);
     GENRESULT ExApplyWindowedGamma();
     void ExDrawWarmupOverlay();

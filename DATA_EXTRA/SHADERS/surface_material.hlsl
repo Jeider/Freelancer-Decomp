@@ -33,6 +33,9 @@ struct SurfacePixel
     float3 Normal : TEXCOORD1;
     float2 Uv : TEXCOORD2;
     float4 Colour : COLOR0;
+#ifdef SURFACE_NOMAD
+    float4 DetailUv : TEXCOORD3;
+#endif
 };
 SurfacePixel VSMain(SurfaceVertex In)
 {
@@ -50,6 +53,9 @@ SurfacePixel VSMain(SurfaceVertex In)
     Out.ViewPosition = P.xyz;
     Out.Uv = VertexModes.y > 1.5 ? In.Uv2 : (VertexModes.y > 0.5 ? In.Uv1 : In.Uv0);
     Out.Colour = VertexModes.x > 0.5 ? In.Colour : float4(1.0, 1.0, 1.0, 1.0);
+#ifdef SURFACE_NOMAD
+    Out.DetailUv=float4(VertexModes.w>1.5?In.Uv1:In.Uv0,VertexModes.w>2.5?In.Uv2:In.Uv0);
+#endif
     return Out;
 }
 
@@ -257,15 +263,21 @@ float SolarVisibility(float3 Position, float3 Normal)
     if(max(abs(Far.x),abs(Far.y))<0.995 && Far.z>0 && Far.z<1)
     {
         float Extent=max(abs(Near.x),abs(Near.y));
-        bool NearValid=Extent<0.98 && Near.z>0 && Near.z<1;
+        // Static receivers use the existing detailed maps only close to the
+        // camera (120..150m at the default near radius). This preserves the
+        // player's silhouette on a nearby station without upgrading distant
+        // station pixels or NPC hulls to the expensive player filter budget.
+        float LocalFade=ShadowControl.x>2.5 ? smoothstep(ShadowRange.z*0.4,ShadowRange.z*0.5,Distance) : 0;
+        float NearFade=max(smoothstep(0.80,0.98,Extent),LocalFade);
+        bool NearValid=ShadowControl.x>1.5 && NearFade<1 && Near.z>0 && Near.z<1;
         float Inner=1,Outer=1;
         [branch] if(NearValid)
             Inner=ShadowCompare(ShadowNearMap,ShadowNearLiveMap,ShadowPlanetControl.y>0.5,Near,ShadowRange.z,ShadowBias.x,
                                 ShadowDepthSpan.x,ShadowControl.y,NearDerivatives,Samples,Simple);
-        [branch] if(!NearValid || Extent>0.80)
+        [branch] if(!NearValid || NearFade>0)
             Outer=ShadowCompare(ShadowFarMap,ShadowStaticMap,ShadowExtra.w>0.5,Far,ShadowRange.w,
                                 ShadowBias.y,ShadowDepthSpan.y,ShadowExtra.x,FarDerivatives,Samples,Simple);
-        if(NearValid) Outer=lerp(Inner,Outer,smoothstep(0.80,0.98,Extent));
+        if(NearValid) Outer=lerp(Inner,Outer,NearFade);
         Visibility=lerp(Outer,1.0,smoothstep(ShadowControl.z,ShadowControl.w,Distance));
     }
     [loop] for(int I=0;I<8;++I)
@@ -310,12 +322,183 @@ float GgxDistribution(float NoH, float A2)
     return A2 / max(3.14159265 * Denom * Denom, 1.0e-5);
 }
 
+#ifdef SURFACE_NOMAD
+sampler2D NomadDetail : register(s1);
+float4 DetailModes : register(c97); // colour operation, UV set, transform, present
+row_major float4x4 DetailMatrix : register(c98);
+
+// Uses the identical vertex transform as the colour pass, with no texture work.
+float4 PSNomadDepth(SurfacePixel In) : COLOR0 { return 0; }
+
+float NomadHeight(float2 uv,float2 gx,float2 gy)
+{
+    // The authored surface supplies the principal cavities; the periodic atlas
+    // adds raised connective folds without replacing the texture's structure.
+    float stone=dot(tex2Dgrad(DiffuseMap,uv,gx,gy).rgb,float3(.299,.587,.114));
+    return saturate(stone*.8+tex2Dgrad(IceLayers,uv,gx,gy).b*.35);
+}
+
+float4 PSNomad(SurfacePixel In)
+{
+    const bool Skin=IceStyle.x>2.5;
+    float3 N=SafeNormal(In.Normal),V=SafeNormal(-In.ViewPosition);
+    float3 dx=ddx(In.ViewPosition),dy=ddy(In.ViewPosition);
+    float2 ux=ddx(In.Uv),uy=ddy(In.Uv);
+    float determinant=ux.x*uy.y-ux.y*uy.x;
+    float handed=determinant<0?-1:1;
+    float3 tangent=(dx*uy.y-dy*ux.y)*handed;
+    tangent-=N*dot(N,tangent);
+    float valid=(abs(determinant)>1.e-10 && dot(tangent,tangent)>1.e-12)?1:0;
+    if(valid<.5) tangent=cross(abs(N.y)<.9?float3(0,1,0):float3(1,0,0),N);
+    tangent=SafeNormal(tangent);
+    float3 bitangent=SafeNormal(cross(N,tangent))*handed;
+    float2 uv=In.Uv,originalUv=uv;
+    float2 gradX=ux,gradY=uy;
+    float2 detailUv=DetailModes.y>1.5?In.DetailUv.zw:(DetailModes.y>.5?In.DetailUv.xy:originalUv);
+    if(DetailModes.z>.5) detailUv=mul(float4(detailUv,0,1),DetailMatrix).xy;
+    float2 detailDx=ddx(detailUv),detailDy=ddy(detailUv);
+    float4 detailTexel=1;
+    if(DetailModes.w>.5) detailTexel=tex2Dgrad(NomadDetail,detailUv,detailDx,detailDy);
+    // Only the authored ET/additive layer on the interior drives living tissue.
+    // Bt detail, exterior stone, Dyson panels and alpha silhouettes stay stable.
+    const bool Living=Skin && DetailModes.w>.5 && DetailModes.x>6.5 && DetailModes.x<7.5;
+    // Tunnel skin02 ET is deliberately dim (90th-percentile luminance ~0.037).
+    // Calibrate the envelope to that authored range, not a white emissive mask.
+    float tissue=Living?smoothstep(.006,.065,dot(detailTexel.rgb,float3(.299,.587,.114))):0;
+    float phase=frac(IceStyle.w/16)*6.283185307+originalUv.y*12.566370614+originalUv.x*6.283185307;
+    float contraction=sin(phase),crest=pow(saturate(.5+.5*sin(phase*2)),3);
+    float2 motion=float2(sin(phase),cos(phase))*.0045*tissue*valid;
+    uv+=motion;
+    float breathing=1+.20*tissue*contraction;
+#ifndef SURFACE_NOMAD_LIGHT
+    // Bounded parallax occlusion in the original UV chart, with explicit gradients.
+    // Silhouette/collision geometry is untouched. No discard or shader-depth output.
+    float relief=lerp(.035,.075,Skin)*IceStyle.y*valid*breathing;
+    float2 shift=float2(dot(V,tangent),dot(V,bitangent))/max(abs(dot(V,N)),.3)*relief;
+    float2 stepUv=shift/12;
+    float layer=0,height=1-NomadHeight(uv,gradX,gradY);
+    [loop] for(int k=0;k<12;++k) {
+        if(layer>=height) break;
+        uv-=stepUv;layer+=1.0/12;
+        height=1-NomadHeight(uv,gradX,gradY);
+    }
+    float2 previous=uv+stepUv;
+    float before=1-NomadHeight(previous,gradX,gradY)-(layer-1.0/12);
+    float after=height-layer;
+    uv=lerp(uv,previous,saturate(-after/max(before-after,.0001)));
+#endif
+    float4 reliefMap=tex2Dgrad(IceLayers,uv,gradX,gradY);
+    const float2 texel=float2(.002,0);
+    float2 authoredSlope=float2(
+        dot(tex2Dgrad(DiffuseMap,uv-texel,ux,uy).rgb-tex2Dgrad(DiffuseMap,uv+texel,ux,uy).rgb,float3(.299,.587,.114)),
+        dot(tex2Dgrad(DiffuseMap,uv-texel.yx,ux,uy).rgb-tex2Dgrad(DiffuseMap,uv+texel.yx,ux,uy).rgb,float3(.299,.587,.114)));
+    float2 slope=((reliefMap.rg*2-1)*lerp(.28,.7,Skin)+authoredSlope*3.5)*IceStyle.y*valid*breathing;
+    float3 mapped=SafeNormal(float3(slope,sqrt(max(.08,1-dot(slope,slope)))));
+    N=SafeNormal(tangent*mapped.x+bitangent*mapped.y+N*mapped.z);
+    float4 texelColour=tex2Dgrad(DiffuseMap,uv,ux,uy);
+    if(Living) texelColour.a=tex2Dgrad(DiffuseMap,originalUv,ux,uy).a;
+    float4 base=MaterialDiffuse*(Surface.y>.5?In.Colour:1);
+    float4 albedo=texelColour*base;
+    if(BaseOps.x<2.5) albedo.rgb=texelColour.rgb;
+    else if(BaseOps.x<3.5) albedo.rgb=base.rgb;
+    else if(BaseOps.x>4.5) albedo.rgb*=2;
+    if(BaseOps.y<2.5) albedo.a=texelColour.a;
+    else if(BaseOps.y<3.5) albedo.a=base.a;
+    else if(BaseOps.y>4.5) albedo.a*=2;
+    float3 authoredEmission=0;
+    // ET keeps its authored colour and never goes dark. Move RGB gently with the
+    // tissue while retaining the original alpha: no breathing holes or mask crawl.
+    if(DetailModes.w>.5) {
+        float3 detail=detailTexel.rgb;
+        albedo.a*=detailTexel.a;
+        if(DetailModes.x<6.5) albedo.rgb*=detail*(DetailModes.x<4.5?1:(DetailModes.x<5.5?2:4));
+        else if(DetailModes.x<7.5) {
+            if(Living) detail=tex2Dgrad(NomadDetail,detailUv+motion,detailDx,detailDy).rgb;
+            authoredEmission=detail*(Living?(0.90+.16*(.5+.5*contraction)+.14*crest):1);
+        }
+        else albedo.rgb=saturate(albedo.rgb+detail-.5);
+    }
+    float cavities=lerp(.65,1,smoothstep(.12,.6,reliefMap.b));
+    float rough=Skin?lerp(.15,.32,reliefMap.b):lerp(.38,.78,reliefMap.b);
+    float variance=max(dot(ddx(N),ddx(N)),dot(ddy(N),ddy(N)));
+    float a2=max(pow(rough,4)+variance*.2,.0005);
+    float NoV=max(saturate(dot(N,V)),.04);
+    float3 colour=albedo.rgb*MaterialAmbient.rgb*cavities,shine=0;
+#ifdef SURFACE_NO_SHADOW
+    const float visibility=1;
+#else
+    float visibility=SolarVisibility(In.ViewPosition,SafeNormal(In.Normal));
+#endif
+    [loop] for(int i=0;i<8;++i) {
+        if(i>=Surface.w) break;
+        SurfaceLight light=Lights[i];bool sun=light.PositionType.w>2.5;
+        float3 delta=light.PositionType.xyz-In.ViewPosition;
+        float distance=length(delta);
+        float3 L=sun?SafeNormal(-light.DirectionRange.xyz):delta/max(distance,.0001);
+        float attenuation=sun?1:rcp(max(dot(light.AttenuationInner.xyz,float3(1,distance,distance*distance)),.0001));
+        if(!sun){attenuation*=distance<light.DirectionRange.w?1:0;
+            if(light.PositionType.w>1.5) attenuation*=pow(saturate((dot(-L,SafeNormal(light.DirectionRange.xyz))-light.SpecularOuter.w)/max(light.AttenuationInner.w-light.SpecularOuter.w,.0001)),max(light.DiffuseFalloff.w,.000001));}
+        if(sun && dot(SafeNormal(light.DirectionRange.xyz),ShadowSunRay.xyz)>.98) attenuation*=visibility;
+        float nl=saturate(dot(N,L)),wrap=Skin?saturate((dot(N,L)+.16)/1.16):nl;
+        colour+=albedo.rgb*light.DiffuseFalloff.rgb*wrap*attenuation*cavities;
+        float3 H=SafeNormal(L+V);
+        float nh=saturate(dot(N,H)),vh=saturate(dot(V,H));
+        float spec=GgxDistribution(nh,a2)*nl/(4*max(nl,.12)*NoV+.15);
+        float3 fresnel=Fresnel(vh,Skin?.055:.035);
+        float coat=Skin?pow(nh,96)*1.1:pow(nh,24)*.12;
+        shine+=light.SpecularOuter.rgb*(spec*fresnel+coat)*attenuation;
+    }
+    float3 room=max(.98-saturate(colour),.025);
+    colour+=room*(1-exp(-shine/room));
+    // Sparse coloured vascular accent only indoors; rock/bone exterior stays solid.
+    float pulse=.75+.25*sin(IceStyle.w*.39269908+originalUv.x*9+originalUv.y*6);
+    if(Skin) colour+=float3(.10,.32,.22)*reliefMap.a*IceStyle.z*pulse;
+    colour+=authoredEmission+MaterialEmission.rgb;
+    if(Fog.w>.5){float z=FogColour.w>.5?length(In.ViewPosition):abs(In.ViewPosition.z);
+        float keep=Fog.w>2.5?saturate((Fog.y-z)/max(Fog.y-Fog.x,.0001)):(Fog.w>1.5?exp(-pow(z*Fog.z,2)):exp(-z*Fog.z));
+        colour=lerp(FogColour.rgb,colour,keep);}
+    return float4(colour,albedo.a);
+}
+#endif
+
+#ifdef SURFACE_SHIP_NORMALS
+sampler2D ShipNormalMap : register(s13); // DXT5nm: X in alpha, Y in green
+float4 ShipNormalStyle : register(c97); // strength, fade start/end, max tangent slope
+float3 ShipReliefNormal(SurfacePixel In, float3 N)
+{
+    float3 Dx=ddx(In.ViewPosition),Dy=ddy(In.ViewPosition);
+    float2 Ux=ddx(In.Uv),Uy=ddy(In.Uv);
+    float Fade=1.0-smoothstep(ShipNormalStyle.y,ShipNormalStyle.z,length(In.ViewPosition));
+    // A large station can straddle the range boundary. Distant pixels skip the
+    // normal texture and tangent construction. Gradients stay outside the branch.
+    [branch] if(Fade<=0.0 || ShipNormalStyle.x<=0.0) return N;
+    float Det=Ux.x*Uy.y-Ux.y*Uy.x;
+    float3 T=Dx*Uy.y-Dy*Ux.y;
+    T*=Det<0 ? -1.0 : 1.0;
+    T-=N*dot(T,N);
+    if(abs(Det)<1.e-12 || dot(T,T)<1.e-12) return N;
+    T=normalize(T);
+    float3 B=normalize(cross(N,T))*(Det<0 ? -1.0 : 1.0);
+    float2 XY=tex2Dgrad(ShipNormalMap,In.Uv,Ux,Uy).ag*2.0-1.0;
+    float Z=sqrt(max(1.0-dot(XY,XY),0.0625));
+    float2 Slope=XY/Z*ShipNormalStyle.x*Fade;
+    Slope*=min(1.0,ShipNormalStyle.w/max(length(Slope),0.0001));
+    return normalize(N+T*Slope.x+B*Slope.y);
+}
+#endif
+
 float4 PSMain(SurfacePixel In) : COLOR0
 {
-#ifdef SURFACE_LOW_DETAIL
-    const bool Cockpit=false,Glass=false,Ice=false;
+#ifdef SURFACE_NOMAD
+    return PSNomad(In);
+#else
+#if defined(SURFACE_GREENHOUSE)
+    const bool Cockpit=false,Glass=true,Ice=false,Greenhouse=true;
+#elif defined(SURFACE_LOW_DETAIL) || defined(SURFACE_SHIP_NORMALS)
+    const bool Cockpit=false,Glass=false,Ice=false,Greenhouse=false;
 #else
     bool Cockpit=MaterialStyle.x>0.5,Glass=MaterialStyle.y>0.5;
+    const bool Greenhouse=false;
     bool Ice=IceStyle.x>0.5;
 #endif
     float3 RawNormal=In.Normal;
@@ -328,6 +511,9 @@ float4 PSMain(SurfacePixel In) : COLOR0
     const float SunVisibility=1.0;
 #else
     float SunVisibility=SolarVisibility(In.ViewPosition,N);
+#endif
+#ifdef SURFACE_SHIP_NORMALS
+    N=ShipReliefNormal(In,N);
 #endif
     float NoV = max(dot(N, V), 1.0e-4);
     float4 T = Surface.x > 0.5 ? tex2D(DiffuseMap, In.Uv) : 1.0;
@@ -391,7 +577,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float FinishMask=lerp(0.35,1.0,PanelGloss);
     float Roughness = Reflective ? clamp(MaterialSpecular.w*lerp(1.12,0.88,PanelGloss),0.24,1.0) : MaterialSpecular.w;
     if(Cockpit) Roughness=clamp(Roughness,0.32,0.65);
-    if(Glass) Roughness=0.13;
+    if(Glass) Roughness=Greenhouse ? lerp(0.20,0.52,smoothstep(0.60,0.94,T.a)) : 0.24;
     if(Ice) Roughness=lerp(0.18,0.78,Frost);
     float NormalVariance=max(dot(ddx(N),ddx(N)),dot(ddy(N),ddy(N)));
     float A2 = max(pow(Roughness, 4.0)+NormalVariance*0.25, 1.0e-4);
@@ -430,7 +616,8 @@ float4 PSMain(SurfacePixel In) : COLOR0
             {
                 float Cone = saturate((dot(-L, SafeNormal(Light.DirectionRange.xyz)) - Light.SpecularOuter.w) /
                     max(Light.AttenuationInner.w - Light.SpecularOuter.w, 1.0e-4));
-                Attenuation *= pow(Cone, max(Light.DiffuseFalloff.w, 1.0e-3));
+                // Keep RP9's near-zero falloff for legacy hard-edged spotlights.
+                Attenuation *= pow(Cone, max(Light.DiffuseFalloff.w, 1.0e-6));
             }
         }
         float NoL = saturate(dot(N, L));
@@ -488,7 +675,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
         {
             // A smooth top coat supplies the bright moving accent, while an
             // elongated satin lobe makes front-facing flat panels read as metal.
-            float CoatRoughness=Glass ? 0.10 : lerp(0.27,0.18,PanelGloss);
+            float CoatRoughness=Glass ? 0.18 : lerp(0.27,0.18,PanelGloss);
             float CoatA2=max(pow(CoatRoughness,4.0)+NormalVariance*0.5,1.e-4);
             float CoatK=(CoatRoughness+1)*(CoatRoughness+1)*0.125;
             float CoatG=(NoV/(NoV*(1-CoatK)+CoatK))*(NoL/(NoL*(1-CoatK)+CoatK));
@@ -562,11 +749,31 @@ float4 PSMain(SurfacePixel In) : COLOR0
         GlassFresnel=0.04+0.96*pow(1.0-saturate(NoV),5.0);
         // Authored envmaps are retained; materials without one get a restrained
         // smooth reflection band. No scene copy/refraction or extra render pass.
-        float Band=pow(saturate(1.0-abs(R.y*0.75+0.15)),6.0);
+        float Band=pow(saturate(1.0-abs(R.y*0.75+0.15)),4.0);
         float3 GlassEnv=Surface.z>0 ? Environment.rgb :
             lerp(float3(0.05,0.07,0.10),float3(0.32,0.38,0.45),Band);
-        Colour=Albedo.rgb*0.10+GlassEnv*(0.08+0.75*GlassFresnel)*MaterialStyle.z;
-        Highlights*=MaterialStyle.z*1.8;
+        float3 FrameColour=Colour;
+        // Preserve the authored blue/green tint instead of almost discarding it.
+        // Broad reflections and a darker grazing tint suggest thick laminated
+        // glass; actual scene refraction/blur is deliberately not sampled here.
+        float3 GlassTint=saturate(Albedo.rgb);
+        Colour=GlassTint*lerp(0.72,0.46,GlassFresnel)+
+            GlassEnv*lerp(float3(1,1,1),GlassTint,0.20)*
+            (0.18+0.60*GlassFresnel)*MaterialStyle.z;
+        Highlights*=MaterialStyle.z*1.35;
+        [branch] if(Greenhouse)
+        {
+            // The original alpha distinguishes solid metal ribs from glazing.
+            // Retain those ribs and the visible plants; only the panes get a
+            // pale neutral tint, texture-anchored haze and broad coated reflection.
+            float Frame=smoothstep(0.60,0.94,T.a);
+            float Haze=saturate(dot(T.rgb,float3(0.299,0.587,0.114)));
+            float3 Tint=lerp(float3(0.065,0.067,0.068),float3(0.115,0.118,0.120),Haze);
+            float3 NeutralEnv=lerp(dot(GlassEnv,float3(0.299,0.587,0.114)).xxx,GlassEnv,0.20);
+            float3 Pane=1.34*(Tint+NeutralEnv*
+                (0.12+0.65*GlassFresnel)*MaterialStyle.z);
+            Colour=lerp(Pane,FrameColour,Frame);
+        }
     }
     Highlights*=FinishStyle.x;
     float3 HighlightRoom=max(0.94-saturate(Colour),0.015);
@@ -596,7 +803,17 @@ float4 PSMain(SurfacePixel In) : COLOR0
     [branch] if(Glass)
     {
         float Shine=max(Highlights.r,max(Highlights.g,Highlights.b));
-        Alpha=clamp(Albedo.a*0.22+GlassFresnel*0.55+saturate(Shine)*0.12,0.04,0.78);
+        // Authored Oc=.8 gives ~33% opacity face-on. Retain the tinted finish
+        // with a modest increase in density toward the edges.
+        Alpha=clamp(0.15+saturate(Albedo.a)*0.22+GlassFresnel*0.14+
+                    saturate(Shine)*0.04,0.15,0.49);
+        [branch] if(Greenhouse)
+        {
+            float Frame=smoothstep(0.60,0.94,T.a);
+            float Haze=saturate(dot(T.rgb,float3(0.299,0.587,0.114)));
+            float PaneAlpha=saturate(1.34*(0.24+GlassFresnel*0.26+Haze*0.05+saturate(Shine)*0.03));
+            Alpha=lerp(PaneAlpha,Albedo.a,Frame);
+        }
     }
 #endif
     float4 Result = float4(Colour, Alpha);
@@ -608,4 +825,5 @@ float4 PSMain(SurfacePixel In) : COLOR0
         Result.rgb = lerp(FogColour.rgb, Result.rgb, Keep);
     }
     return Result;
+#endif
 }

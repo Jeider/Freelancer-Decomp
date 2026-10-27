@@ -11,11 +11,14 @@
 // (hp_<fighter|elite|freighter>_<power|engine>_special_<1..10>); the inventory, dealer and ship
 // view treat such internal equipment (filter mode 3) as mountable, like weapons (mode 0).
 
-#ifdef FREELANCER_ADOXA
+#if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
 
 #include "port_plugins.h"
 
 #include "common_archetype.h"
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+#include "equipment_slots.h"
+#endif
 
 // engclass.c HP_TYPE and the end of its six ten-class families.
 enum
@@ -26,7 +29,19 @@ enum
 
 inline bool EngclassOn()
 {
+#ifdef FREELANCER_ADOXA
     return PORT_PLUGIN_ON("engclass");
+#else
+    return false;
+#endif
+}
+
+inline bool MountableInternalsOn()
+{
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled()) return true;
+#endif
+    return EngclassOn();
 }
 
 // The test every engclass.c hook inlines: GetEquipment(id) (import 0x5c603c), get_hp_type
@@ -36,14 +51,18 @@ inline bool EngclassIsMountable(unsigned ArchId)
     Archetype::Equipment* const Arch = Archetype::GetEquipment(ArchId);
     if (Arch == nullptr)
         return false;
-    return static_cast<int>(Arch->get_hp_type()) >= ENGCLASS_HP_TYPE;
+    unsigned const Type = unsigned(Arch->get_hp_type());
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (EquipmentSlots::Enabled() && EquipmentClasses::IsType(Type)) return true;
+#endif
+    return EngclassOn() && Type >= ENGCLASS_HP_TYPE && Type < ENGCLASS_HP_TYPE_END;
 }
 
 // InvIcon_Hook / Inv_Hook / InvSell_Hook / Dealer_Hook / DealerSelected_Hook / Mount_Hook: a
 // filter mode of 3 (internal) for a mountable item reads as 0 (weapons, mounted on a hardpoint).
 inline int EngclassFilterMode(int Mode, unsigned ArchId)
 {
-    if (Mode != 3 || !EngclassOn())
+    if (Mode != 3 || !MountableInternalsOn())
         return Mode;
     return EngclassIsMountable(ArchId) ? 0 : 3;
 }

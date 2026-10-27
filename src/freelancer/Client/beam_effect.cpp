@@ -414,21 +414,16 @@ unsigned char FBeamEffect::BuildGeometry(FSpaceCamera* Cam)
 
     FBeamEffectArch* const Arch = This->Arch;
 
-    if ((This->Flags70 & 2u) != 0u)
+    const int FirstVertex=G_EffectVertexBatch.VertCount;
+    if ((This->Flags70 & 2u) != 0u || T == 0.0f)
     {
         BeamEffectBuildSingleSegment(This, UseXform, 0.0f, Intensity);
-        return 1;
     }
-    if (T == 0.0f)
-    {
-        BeamEffectBuildSingleSegment(This, UseXform, 0.0f, Intensity);
-        return 1;
-    }
-
-    if (Arch->SegmentMode == 0)
+    else if (Arch->SegmentMode == 0)
         BeamEffectBuildSingleSegment(This, UseXform, T, Intensity);
     else if (Arch->SegmentMode == 1)
         BeamEffectBuildMultiSegment(This, UseXform, T, Intensity);
+    EffectVertexBatchSetBeamFrame(FirstVertex, *UseXform, static_cast<unsigned>(reinterpret_cast<uintptr_t>(This)));
     return 1;
 }
 

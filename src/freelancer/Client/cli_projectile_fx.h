@@ -6,6 +6,11 @@
 
 #pragma once
 
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+class Vector;
+bool CliShipFireAutomatic(void* AdjustorThis, unsigned short HardpointId, Vector const& Aim);
+#endif
+
 #include "beam_effect.h"
 #include "client_equip_fx.h" // FClientEquip
 #include "vis_effect_arch.h"

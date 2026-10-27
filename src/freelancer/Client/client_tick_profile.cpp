@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "client_tick_profile.h"
+#include "runtime_hitch_log.inl"
 
 #include "font_atlas.h"
 #include "font_imp.h"
@@ -135,7 +136,7 @@ FClientTickProfileFrame::~FClientTickProfileFrame()
 }
 
 FClientTickScope::FClientTickScope(EClientTickSection InSection)
-    : Section(InSection), Start(0), bRunning(G_bProfileActive)
+    : Hitch("phase",ClientTickSectionLabel(InSection),2.0), Section(InSection), Start(0), bRunning(G_bProfileActive)
 {
     if (bRunning)
         Start = ReadProfileTicks();
@@ -148,6 +149,7 @@ FClientTickScope::~FClientTickScope()
 
 void FClientTickScope::Stop()
 {
+    Hitch.Stop();
     if (!bRunning)
         return;
     G_SectionTicks[static_cast<int>(Section)] += ReadProfileTicks() - Start;
@@ -289,6 +291,7 @@ void DrawClientTickProfile()
 
 void ShutdownClientTickProfile()
 {
+    RuntimeHitches::Stop();
 #if FREELANCER_BETA_LABEL || FREELANCER_ENABLE_TICK_PROFILE
     delete G_TickOverlay;
     G_TickOverlay = nullptr;

@@ -8,6 +8,9 @@
 // common_archetype.cpp (retail Archetype.cpp, one TU) in CMN-SPLIT phase B.
 
 #include "common_archetype.h"
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+#include "equipment_slots.h"
+#endif
 #ifdef FREELANCER_ADOXA
 #include "common_adoxa.h" // port-only LaneSpeed
 #include "common_adoxa_engclass.h" // port-only engclass hp types
@@ -1180,6 +1183,9 @@ namespace Archetype
         if (read_comm_ini_data(Reader))
             return true;
 
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        if (EquipmentSlots::ReadShip(*this, Reader)) return true;
+#endif
         // Common.dll .text:062f2549 .. .text:062f27cc -- the "hp_type" directive.
         //   hp_type = <class name>, <hardpoint>, <hardpoint>, ...
         // .text:062f256a walks the 63-entry {name, value} table at .data:063eca40 (0x1f8 bytes,

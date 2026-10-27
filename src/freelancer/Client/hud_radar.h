@@ -25,6 +25,7 @@ private:
     float elevation = 0.94f;
     float sweepSpeed = 45.0f; // Scanner light, independent of ship-driven rim.
     float sweepAngle = 0.0f;
+    float missileBlinkPhase = 0.0f;
     RadarMotion::State ringMotion;
     WinControl* zoomButtons[2] = {};
     WinControl* toggleButton = nullptr;
@@ -43,5 +44,8 @@ private:
     void ReportOnce(unsigned bit, char const* reason);
 };
 
-// Centre above the disk, in native HUD coordinates; false without a Radar item.
+// Active Radar item plus the player's on/off setting (not temporary HUD hiding).
+bool RadarIsEnabled();
+
+// Centre above the disk, in native HUD coordinates; false when radar is off/absent.
 bool RadarMessageAnchor(float& x, float& y);

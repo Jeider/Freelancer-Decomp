@@ -201,6 +201,8 @@ namespace
 // disconnect check, the Win3D roots, the local server and the state machine.
 void TickClientFrame(double DeltaSeconds)
 {
+    BeginRuntimeHitchFrame();
+    RuntimeHitchScope HitchFrame("frame", "client tick", 10.0);
     // Port-only QPC diagnostics requested by Giperion; CLIENT-BETA-LABEL.
     FClientTickProfileFrame ProfileFrame;
     PortCrashDump::Heartbeat(); // port-only: the hang watchdog sees the main thread alive
@@ -316,9 +318,23 @@ void TickMaterialAnimationPlayback(float DeltaSeconds)
     DALib::MatAnimLibrary->TickAnimationInstances(-1, DeltaSeconds);         // slot 0x18 (-1, dt)
 }
 
+namespace
+{
+    LONGLONG G_HitchRenderStart = 0;
+    void EndHitchRender()
+    {
+        if (!G_HitchRenderStart) return;
+        const auto End = RuntimeHitchNow();
+        if (auto Sink = RuntimeHitchGetSink())
+            Sink("render", "scene submission", G_HitchRenderStart, End);
+        G_HitchRenderStart = 0;
+    }
+}
+
 void EndClientRenderScene()
 {
     EndSceneHalf();
+    EndHitchRender();
     EndClientProfileRender();
 }
 
@@ -331,10 +347,14 @@ void PresentClientRenderFrame()
 bool BeginClientRenderFrame()
 {
     // FUN_00424f30; the result is DAT_006679f8 (G_bRenderFrameBegun).
+    G_HitchRenderStart=RuntimeHitchNow();
     BeginClientProfileRender();
     const bool bBegun = TryBeginFrame();
     if (!bBegun)
+    {
+        EndHitchRender();
         EndClientProfileRender();
+    }
     return bBegun;
 }
 
@@ -342,6 +362,7 @@ void EndClientRenderFrame()
 {
     // FUN_00425080 + FUN_00425140 back to back.
     EndSceneHalf();
+    EndHitchRender();
     EndClientProfileRender();
     PresentHalf();
 }

@@ -95,7 +95,7 @@ Retail: одна общая скорость круиза; нет клавиши
 
 Retail: ini клиента — литерал `Freelancer.ini` (`FUN_005621a0`), ресурсная DLL — `resources.dll` (`WinMain`); `INI_Reader::open` открывает переданный путь.
 
-Порт с define: `port.ini [Language]` (или `-lang:xx`) выбирает `freelancer_ini`, `resources`, `data_overlay` (ini из `..\DATA\` читаются из папки-слоя, если они там есть), `skip_any_cutscene` (правка русского exe по `0x0045685f`) и языковые файлы плагинов. Собрано, не запускалось.
+Порт с define: `port.ini [Language]` (или `-lang:xx`) выбирает `freelancer_ini`, `resources`, `data_overlay` (ini из `..\DATA\` читаются из папки-слоя, если они там есть) и языковые файлы плагинов. Собрано, не запускалось.
 
 ## Клиент: консоль и камера на объект из беты (DBG-OPTIONS, 2026-10-20)
 

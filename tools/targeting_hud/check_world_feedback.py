@@ -70,10 +70,17 @@ int main(){
     CSolar solar;solar.ObjectClass=0x303;
     IObjRW selection;selection.object=&solar;selection.id=42;target.ViewObject=&selection;
     assert(target.TargetingObjectId()==42);
-    solar.TypeBits=0x200;assert(target.TargetingObjectId()==0);
+    solar.TypeBits=0x200;assert(target.TargetingObjectId()==42); // Native waypoint diamond is renderable.
+    selection.attitude=-1;assert(!target.TargetingIsHostileShip()); // Waypoints never trigger hostile auto-open.
+    TargetingWindowState waypointWindow;
+    waypointWindow.Observe(target.TargetingObjectId(),target.TargetingIsHostileShip());
+    assert(waypointWindow.targetId==42&&!waypointWindow.open);
+    waypointWindow.ToggleOpen();assert(waypointWindow.open); // Manual opening renders the native model.
+    waypointWindow.SetLocked(true);waypointWindow.Observe(0,false);assert(waypointWindow.open);
+    waypointWindow.Observe(target.TargetingObjectId(),false);assert(waypointWindow.open&&waypointWindow.targetId==42);
     solar.ObjectClass=0x503;assert(target.TargetingObjectId()==42); // Ship, not a waypoint solar.
     selection.object=nullptr;assert(target.TargetingObjectId()==0);
-    puts("PASS: actual target eligibility filters waypoint solars, accepts ships/other solars, handles missing objects");
+    puts("PASS: target eligibility accepts native waypoint models, ships and other solars; handles missing objects");
     assert(!target.TargetingIsHostileShip());
     selection.object=&solar;
     for(unsigned objectClass:{0x303u,0x503u}) for(float attitude:{-1.f,-.6f,-.5999f,0.f,.6f,1.f}) {
@@ -93,15 +100,17 @@ int main(){
     window.Observe(11, true);assert(window.open);
     window.ToggleLock();assert(window.locked&&window.open); // Lock does not force a close.
     window.Observe(12, true);assert(window.open);
-    window.Observe(0, false);assert(!window.open); // Missing target / waypoint.
-    window.Observe(13, true);assert(!window.open);
+    window.Observe(0, false);assert(window.open); // Lock preserves empty panel / waypoint.
+    window.Observe(13, true);assert(window.open);
+    window.ToggleOpen();assert(!window.open);
     window.ToggleOpen();assert(window.open); // Manual override while locked.
-    window.Observe(0, false);assert(!window.open);
+    window.Observe(0, false);assert(window.open);
+    window.ToggleOpen();assert(!window.open); // Empty locked panel can be closed manually.
     window.Observe(14, true);assert(!window.open);
     window.ToggleLock();assert(window.open&&!window.locked);
     window.Observe(0, false);window.Observe(15, true);window.Observe(0, false);assert(!window.open);
     window.Observe(16, true);assert(window.open); // Rapid changes retain latest desired state.
-    window.SetLocked(true);window.Observe(0, false);window.Observe(17, true);assert(!window.open);
+    window.SetLocked(true);window.Observe(0, false);window.Observe(17, true);assert(window.open);
     window.SetLocked(false);assert(window.open); // Loaded unlocked state is immediately applied.
     window.ToggleOpen();window.SetLocked(false);assert(!window.open); // Reading a save bit cannot reopen every frame.
     puts("PASS: auto-hide/open, manual override, lock/unlock and rapid target changes");
@@ -121,9 +130,12 @@ int main(){
     window.Observe(28,true);assert(window.open&&!window.restorePending);
     window.Restore(false,false);window.Observe(29,false);window.Observe(30,true);assert(!window.open);
     window.Observe(31,true);assert(window.open);
-    window.Restore(true,true);window.Observe(32,false);assert(!window.open);
-    window.ToggleOpen();assert(window.open&&!window.restorePending); // Manual overrides pending restore.
-    window.Observe(0,false);window.Observe(33,true);assert(!window.open); // Lock continues to apply.
+    window.Restore(true,true);window.Observe(0,false);assert(window.open&&!window.restorePending);
+    window.Observe(32,false);assert(window.open);
+    window.ToggleOpen();assert(!window.open&&!window.restorePending);
+    window.Observe(0,false);window.Observe(33,true);assert(!window.open); // Locked manual close persists.
+    window.Observe(0,false);window.ToggleOpen();assert(window.open); // Reopen empty locked panel.
+    window.SetLocked(false);assert(!window.open); // Unlock empty panel restores normal hiding.
     puts("PASS: hostile-only auto-open/unlock/restore, manual non-hostile opening, retained open state and selection changes");
     GroupArch arch;CArchGroup group={&arch,1};
     unsigned const orange=HudCollisionGroupWireColor(&group,false);

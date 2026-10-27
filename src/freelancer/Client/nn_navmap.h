@@ -308,6 +308,7 @@ public:
     // slot 11 LAB_00494920 -- see nn_navmap_update.cpp. Win3D's face: ButtonMover::Update
     // shares the name, so callers name the Win3D face explicitly.
     void Update() override;
+    void UpdateMapViewport(); // port: initialise projection before the first visible frame
     // FUN_00496600 -- every item's map transform (position, heading, size by view), the edge
     // clamp of Kind 2 items (the off-screen arrow mesh), and the visit-driven bShown.
     void PlaceItems();

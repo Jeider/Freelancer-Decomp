@@ -74,7 +74,69 @@ namespace
         bool selected;
         RadarSymbols::Kind kind;
         float physicalRadius;
+        bool incoming = false;
     };
+
+    bool BlipBefore(Blip const& a,Blip const& b)
+    {
+        if(a.incoming!=b.incoming) return a.incoming;
+        if(a.selected!=b.selected) return a.selected;
+        return a.point.distanceSquared<b.point.distanceSquared;
+    }
+
+    bool MissileBlip(IObjRW* contact,IObjDB* db,CEScanner const* scanner,IObjRW* player,
+                     IObjRW* selected,float range,RadarProjection::Layout const& layout,float phase,Blip& blip)
+    {
+        auto const* object=contact ? contact->cobject() : nullptr;
+        if(!object || object->ObjectClass!=CObject::ClassGuided || contact->is_dying() ||
+           !contact->is_targetable()) return false;
+        auto const* missile=static_cast<CGuided const*>(object);
+        if(!missile->is_alive()) return false;
+        float const detection=(1.f-contact->get_scanner_interference())*scanner->ScannerArch()->RadarRange;
+        if(!std::isfinite(detection)||detection<=0) return false;
+        auto const& transform=player->get_transform();
+        auto const& position=contact->get_position();
+        RadarProjection::Contact point;
+        // Detection and zoom both restrict visibility; project using the displayed scale.
+        if(!RadarProjection::Project({position.x,position.y,position.z},
+            {transform.Translation.x,transform.Translation.y,transform.Translation.z},
+            transform.Rotation.E,range,layout,point) ||
+            point.distanceSquared>double(detection)*detection) return false;
+        IObjRW* target=nullptr;
+        bool const incoming=contact->get_target(target)==0 && target && target->get_id()==player->get_id();
+        unsigned const ownerId=missile->get_owner();
+        int const attitude=ownerId==player->get_id() ? 1 : GetAttitudeClass(player,db->FindById(&ownerId));
+        blip={point,RadarSymbols::MissileColor(attitude,incoming,phase),contact==selected,
+              RadarSymbols::Kind::Missile,0,incoming};
+        return true;
+    }
+
+    int CollectMissiles(IObjDB* db,CEScanner const* scanner,IObjRW* player,IObjRW* selected,
+                        float range,RadarProjection::Layout const& layout,float phase,Blip* blips,int capacity)
+    {
+        if(!db || !scanner || range<=0 || capacity<=0) return 0;
+        // A dedicated walk avoids the shared 256-contact cache hiding incoming missiles.
+        // Keep only the best `capacity` contacts, with bounded storage even in large battles.
+        struct {void* cursor;void* head;unsigned mask;} iter={nullptr,nullptr,RadarSymbols::MissileMask};
+        int used=0;
+        for(auto* contact=db->GetNext(&iter);contact;contact=db->GetNext(&iter))
+        {
+            Blip blip;
+            if(!MissileBlip(contact,db,scanner,player,selected,range,layout,phase,blip)) continue;
+            if(used<capacity)
+            {
+                blips[used++]=blip;
+                std::push_heap(blips,blips+used,BlipBefore);
+            }
+            else if(BlipBefore(blip,blips[0]))
+            {
+                std::pop_heap(blips,blips+used,BlipBefore);
+                blips[used-1]=blip;
+                std::push_heap(blips,blips+used,BlipBefore);
+            }
+        }
+        return used;
+    }
 
     void Line(float ax, float ay, float bx, float by, unsigned color, float width = 1.0f)
     {
@@ -102,12 +164,17 @@ bool RadarMessageAnchor(float& x, float& y)
     return ActiveRadar && ActiveRadar->MessageAnchor(x,y);
 }
 
+bool RadarIsEnabled()
+{
+    return ActiveRadar && GetSavedRadarEnabled();
+}
+
 bool HUD_Radar::MessageAnchor(float& x, float& y) const
 {
     auto* camera=Win3DGetCamera();
     auto const* view=camera ? camera->GetViewport() : nullptr;
     RadarProjection::Layout layout={};
-    if (!enabled || !view || camera->XScale<=0 || camera->YScale==0 ||
+    if (!enabled || !GetSavedRadarEnabled() || !view || camera->XScale<=0 || camera->YScale==0 ||
         !RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]},
                                      centerX,centerY,radius,ellipse,elevation,layout)) return false;
     x=(layout.x-camera->ScreenCenterX)/camera->XScale;
@@ -197,6 +264,7 @@ bool HUD_Radar::Init()
 void HUD_Radar::Update()
 {
     float const dt=static_cast<float>(GetClientFrameTimeCapped());
+    if(std::isfinite(dt) && dt>0) missileBlinkPhase=std::fmod(missileBlinkPhase+dt,.5f);
     sweepAngle = std::fmod(sweepAngle + sweepSpeed * 0.01745329252f *
                          dt, 6.28318530718f);
     auto* player=static_cast<IObjRW*>(GetPlayerObjRW());
@@ -357,7 +425,7 @@ void HUD_Radar::Draw()
     if (scanner && range > 0) scanner->scan_for_types(mask);
     ScanList const* const scans = scanner && range > 0 ? &scanner->Scans : nullptr;
     int const count = scans ? (std::max)(0, (std::min)(256, scans->Count)) : 0;
-    Blip blips[256+0x800]; // Native contacts plus the bounded solar spatial query.
+    Blip blips[256+0x800+256]; // Native contacts, bounded solar query and missiles.
     int used = 0;
     IObjRW* selected = nullptr;
     player->get_target(selected);
@@ -414,10 +482,9 @@ void HUD_Radar::Draw()
                 }
         }
     }
-    std::sort(blips, blips + used, [](Blip const& a, Blip const& b) {
-        if (a.selected != b.selected) return a.selected;
-        return a.point.distanceSquared < b.point.distanceSquared;
-    });
+    used+=CollectMissiles(ship->ObjectDb,scanner,player,selected,range,layout,missileBlinkPhase,
+                          blips+used,maxContacts);
+    std::sort(blips, blips + used, BlipBefore);
     used = (std::min)(used, maxContacts);
     float const blipSize = (std::max)(2.0f, layout.radius * 0.022f);
     // The shared line batch uses Win3D camera's zero-origin ortho, whereas its
@@ -432,7 +499,7 @@ void HUD_Radar::Draw()
     if (!ortho || DALib::Pipeline->GetViewportRect(&left,&top,&width,&height)!=0 || width<=0 || height<=0 || width>32768 || height>32768 ||
         !RadarProjection::MakeBatchSpace({left,top,left+width-1,top+height-1}, {ortho[0],ortho[1],ortho[2],ortho[3]}, DrawSpace))
     { ReportOnce(256, "skip: device viewport/batch mapping invalid"); return; }
-    // Back-to-front within each layer; selected/nearest blips draw last.
+    // Back-to-front within each layer; incoming/selected/nearest blips draw last.
     for (int i = used - 1; i >= 0; --i)
         if (blips[i].point.below) DrawBlip(blips[i], frameOpacity * 0.72f, blipSize,range,layout);
 

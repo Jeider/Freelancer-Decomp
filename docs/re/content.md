@@ -111,19 +111,23 @@ the controllers.
   `[StoryInfo] Mission = Mission_01a, MissionNum = 1, delta_worth = -1`; `Server.dll`
   (`PlayerDB::create_restart_file`) copies it into the new save. `InitialWorld.ini` has nothing to do
   with the story.
-- Automatic launch of the next chapter (`Story` heartbeat): when `delta_worth ≤ wealth` and with no
+- Automatic launch of the next chapter occurs on `PlayerWorthChanged` or `PlayerMissionChanged`
+  when the mission slot becomes free: when `delta_worth ≤ wealth` and with no
   live mission, the numbers 5, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39 launch respectively
   `Mission_02` … `Mission_13`. The remaining transitions are made by the `Story` message handler from the
   mission completion code (`01a`→`01b` immediately; `M06→M07` and `M09→M13` partly immediately, the rest wait for
   money); `MissionNum = 42` means the campaign is over.
 
 Details of the mission state machine: [content_mission_script.md](content_mission_script.md).
+The five-second heartbeat requested by `Story` is not handled by its message dispatcher.
+Independent launches, mbases contacts and cutscenes: [content_open_world_missions.md](content_open_world_missions.md).
 
 ## Random missions and populators
 
 - `DestroyMission` is created by the base controller when an offer is accepted (the controller name is taken from the
-  offer object) or from the `[RandomMission]` section of a save; the type name is taken from `mbases.ini`
-  (`mission_type = DestroyMission`).
+  offer object) or from the `[RandomMission]` section of a save. In `mbases.ini`, `[BaseFaction]`
+  `mission_type` ignores the supplied type name and hardcodes `DestroyMission`; `[GF_NPC]` `misn`
+  retains its name, but the loader still always generates random-mission data.
   It does not inherit the story trigger machine: the only common ancestor is the base mission controller
   (slot 0: destroy the controller by flag), after which come `StateMachineGroup`, the generator
   (a `DecisionNode`/`DataNode` tree, "vignettes"), runtime automata and encounter parameters

@@ -18,8 +18,8 @@ GAME = Path('D:/games/FL_MOD')
 STAGE = REPO / 'src/obj/hud_saved_tooltips/install'
 ROWS = [
     ('TargetWindow', 'Показать/скрыть окно цели', 'Show/hide target window'),
-    ('TargetLock', 'Запретить автоматическое открытие окна цели', 'Disable automatic target window opening'),
-    ('TargetUnlock', 'Разрешить автоматическое открытие окна цели', 'Enable automatic target window opening'),
+    ('TargetLock', 'Зафиксировать состояние окна цели', 'Lock target window open/closed state'),
+    ('TargetUnlock', 'Разрешить автоматическое открытие и скрытие окна цели', 'Enable automatic target window opening and hiding'),
     ('AutoselectEnable', 'Включить выбор деталей под курсором', 'Enable subsystem selection under the cursor'),
     ('AutoselectDisable', 'Отключить выбор деталей под курсором', 'Disable subsystem selection under the cursor'),
     ('TargetVanilla', 'Цель: стандартный вид', 'Target: standard view'),

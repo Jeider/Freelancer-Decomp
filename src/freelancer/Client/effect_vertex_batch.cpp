@@ -5,18 +5,22 @@
 // Author: Giperion.
 
 #include "effect_vertex_batch.h"
+#include "code_beam_flow.h"
 
 #include "DALib.h"
 #include "beam_effect.h"
 #include "common_csys.h"
 #include "common_misc.h"   // ICamera (EffectVertexBatchFlush, vt+0x40)
 #include "render/shading.h"
+#include "render/IRPCodeBeam.h"
+#include "dacom_iids.h"
 #include "texture_shapes.h"
 #include "x86math.h"
 
 #include <cstdint>
 #include <cstring>
 #include <new>
+#include <vector>
 
 // Retail DAT_00674c7c … DAT_00674cb4.
 FEffectVertexBatch G_EffectVertexBatch = {};
@@ -25,6 +29,7 @@ I3DMathEngine* G_EffectMathEngine = nullptr; // DAT_00674f50 (Effect.cpp math ca
 
 namespace
 {
+    std::vector<FCodeBeamVertex> G_CodeBeamVertices;
     struct FEffectVertexBatchAutoInit
     {
         FEffectVertexBatchAutoInit()
@@ -320,6 +325,16 @@ void EffectVertexBatchSetColor(FEffectVertexBatch* Batch, float R, float G, floa
 // FUN_004f9de0 (cdecl: camera), listing-traced 0x004f9de0..0x004fa09e. Its sole caller is the
 // beam branch of FUN_004f7480 (0x004f76cd). It works on the Effect.cpp batch DAT_00674c7c
 // directly; DALib::Pipeline is re-read for every call and never tested.
+void EffectVertexBatchSetBeamFrame(int FirstVertex, const FTransform& Transform, unsigned Seed)
+{
+    const int End=G_EffectVertexBatch.VertCount;
+    if(FirstVertex==0) G_CodeBeamVertices.clear();
+    if(End<=FirstVertex) return;
+    G_CodeBeamVertices.resize(End);
+    CodeBeamFlow::Fill(G_EffectVertexBatch.Vertices+FirstVertex, G_CodeBeamVertices.data()+FirstVertex,
+        End-FirstVertex, reinterpret_cast<const float*>(&Transform), Seed);
+}
+
 void EffectVertexBatchFlush(ICamera* Cam)
 {
     FEffectVertexBatch* const Batch = &G_EffectVertexBatch;
@@ -373,9 +388,20 @@ void EffectVertexBatchFlush(ICamera* Cam)
     // test -- then the reference released and cleared.
     if (Batch->Pipeline != nullptr)
     {
+        IRPCodeBeam* BeamShader = nullptr;
+        Batch->Pipeline->QueryInterface(Iids::RPCodeBeam, reinterpret_cast<void**>(&BeamShader));
+        const bool Animated=BeamShader && G_CodeBeamVertices.size()==static_cast<size_t>(Batch->VertCount);
+        if (Animated) BeamShader->SetCodeBeamEnabled(1);
         Batch->Pipeline->DrawIndexedPrimitiveUp(
-            4u, Batch->Fvf, Batch->Vertices, static_cast<unsigned>(Batch->VertCount),
+            4u, Animated ? RPCodeBeamFvf : Batch->Fvf,
+            Animated ? static_cast<const void*>(G_CodeBeamVertices.data()) : Batch->Vertices,
+            static_cast<unsigned>(Batch->VertCount),
             Batch->Indices, static_cast<unsigned>(Batch->IndexCount), 0u);
+        if (BeamShader != nullptr)
+        {
+            BeamShader->SetCodeBeamEnabled(0);
+            BeamShader->Release();
+        }
         if (Batch->Pipeline != nullptr)
         {
             Batch->Pipeline->Release();

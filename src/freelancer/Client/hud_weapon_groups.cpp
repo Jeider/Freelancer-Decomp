@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "hud_weapon_groups.h"
+#include "player_auto_turrets.h"
 #include "game_options.h"
 
 #include "hud_command_dispatch.h" // FSpaceCommand, SpaceSendCommand (FUN_0054bcb0)
@@ -147,7 +148,13 @@ void FWeaponGroups::StoreActive(int Id)
         {
             char const* const Hardpoint =
                 static_cast<CExternalEquip*>(Equip)->GetParentHPName().Value;
-            if (Equip->IsActive())
+            if (
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+                PlayerAutoTurrets::ManualActive(Equip)
+#else
+                Equip->IsActive()
+#endif
+                )
             {
                 Group->Hardpoints.insert(Group->Hardpoints.end(), 1,
                                          std::string(Hardpoint, std::strlen(Hardpoint)));
@@ -224,7 +231,7 @@ void FWeaponGroups::Activate(int Id)
         while (Equip != nullptr)
         {
             static_cast<CExternalEquip*>(Equip)->GetParentHPName();
-            if (Equip->IsActive())
+            if (!PlayerAutoTurrets::GroupActivation(Equip, false) && Equip->IsActive())
             {
                 SendToggleCommand(Equip->Id);
             }
@@ -251,7 +258,7 @@ void FWeaponGroups::Activate(int Id)
                 break;
             }
         }
-        if (bWasActive != bInGroup)
+        if (!PlayerAutoTurrets::GroupActivation(Equip, bInGroup) && bWasActive != bInGroup)
         {
             SendToggleCommand(Equip->Id);
 

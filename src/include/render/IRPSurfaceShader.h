@@ -11,6 +11,10 @@ enum ERPSurfaceShader : unsigned long
     RPSurfaceLegacy = 1,
     RPSurfaceReflective = 2,
     RPSurfaceIce = 3, // opaque crystal ice; no alpha/refraction scene pass
+    RPSurfaceGreenhouse = 4, // alpha-masked greenhouse glazing and its painted frame
+    RPSurfaceNomadLair = 5, // stone/bone exterior: normal/height relief, mineral finish
+    RPSurfaceDyson = 6, // cheaper relief for dense opaque cube walls; no shadow sampling
+    RPSurfaceNomadInterior = 7, // wet organic folds; preserve authored illumination layer
 };
 
 struct IRPSurfaceShader : IDAComponent

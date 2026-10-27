@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "menu_universe_base.h"
+#ifdef FREELANCER_RP9
+#include "render_ex.h"
+#endif
 
 #include "client_base_market.h"
 #include "mirror_property_bucket.h" // FLocationBaseRuntime::MissionOffers (+0x00)
@@ -1268,7 +1271,14 @@ void DrawClientLocation()
     FRoomRuntime* const Runtime = G_LocationCurrentRoomEntry->Runtime;
     if (Runtime == nullptr)
         return;
+#ifdef FREELANCER_RP9
+    RenderEx::RoomMaterialFrame(true);
+#endif
     RoomControlDraw(Runtime);
+#ifdef FREELANCER_RP9
+    RenderEx::RoomMaterialFrame(false);
+    RenderEx::AntialiasScene();
+#endif
 }
 
 unsigned GetClientLocationCurrentBase()

@@ -31,6 +31,7 @@
 #include "render/IRenderPipeline.h"
 #include "render/IRenderPipelineEx.h"
 #include "render/IRPFrameQuality.h"
+#include "render/IRPRoomMaterials.h"
 #include "port_config.h"
 
 #include <cmath>
@@ -471,14 +472,59 @@ void RenderEx::AfterSpaceScene()
         GetCaps(&Caps);
     }
     PollHotReload();
+    AntialiasScene();
+    if (GSettings.bSceneDepthView)
+        DrawSceneDepthView();
+}
+
+void RenderEx::RoomMaterialFrame(bool Enabled)
+{
+    if (!IsAvailable()) return;
+    IRPRoomMaterials* Room = nullptr;
+    if (DALib::Pipeline->QueryInterface(Iids::RPRoomMaterials, reinterpret_cast<void**>(&Room)) >= 0 && Room)
+    {
+        Room->SetRoomMaterialFrame(Enabled ? 1 : 0);
+        Room->Release();
+    }
+}
+
+void RenderEx::RoomContactShadows()
+{
+    if (!IsAvailable()) return;
+    IRPRoomMaterials* Room = nullptr;
+    if (DALib::Pipeline->QueryInterface(Iids::RPRoomMaterials, reinterpret_cast<void**>(&Room)) >= 0 && Room)
+    {
+        Room->ApplyRoomContactShadows();
+        Room->Release();
+    }
+}
+
+void RenderEx::AntialiasScene()
+{
+    if (!IsAvailable()) return;
     IRPFrameQuality* Quality=nullptr;
     if(DALib::Pipeline->QueryInterface(Iids::RPFrameQuality,reinterpret_cast<void**>(&Quality))>=0 && Quality)
     {
         Quality->ApplySceneAntialiasing();
         Quality->Release();
     }
-    if (GSettings.bSceneDepthView)
-        DrawSceneDepthView();
+}
+
+bool RenderEx::BeginRoomShadow(const float* CameraView12, const float* Center, float Radius, bool Character)
+{
+    if(!IsAvailable())return false;
+    IRPRoomShadows* Room=nullptr;bool Ok=false;
+    if(DALib::Pipeline->QueryInterface(Iids::RPRoomShadows,reinterpret_cast<void**>(&Room))>=0 && Room)
+    {Ok=Room->BeginRoomShadow(CameraView12,Center,Radius,Character ? 1 : 0)>=0;Room->Release();}
+    return Ok;
+}
+
+bool RenderEx::EndRoomShadow()
+{
+    IRPRoomShadows* Room=nullptr;bool Ok=false;
+    if(DALib::Pipeline->QueryInterface(Iids::RPRoomShadows,reinterpret_cast<void**>(&Room))>=0 && Room)
+    {Ok=Room->EndRoomShadow()>=0;Room->Release();}
+    return Ok;
 }
 
 void RenderEx::NoteSolarSceneDepth(float Near,float Far)

@@ -25,7 +25,6 @@ language = ru            ; -lang:en on the command line wins
 [Language.ru]
 freelancer_ini = freelancer.ini
 resources = resources.dll
-skip_any_cutscene = 1
 
 [Language.en]
 freelancer_ini = freelan_en_port.ini
@@ -38,7 +37,7 @@ data_overlay = ..\BUILDS\EN_NORMAL\DATA
 | `freelancer_ini` | the `"Freelancer.ini"` literal (`FUN_005621a0`) | `startup_config.cpp`; everything the client ini lists follows it: resource DLLs, sounds and voices, effects |
 | `resources` | `LoadLibraryA("resources.dll")` in `WinMain` | `main.cpp` |
 | `data_overlay` | the launcher's copy over `DATA` | `INI_Reader::open` (`common_ini.cpp`): an ini under `..\DATA\` that exists in one of the listed folders (comma separated, relative to the exe) is read from there |
-| `skip_any_cutscene` | the Russian exe's `EB 0C` at `0x0045685f` | `gf_script_object.cpp` `FGfScriptManager::OnEvent`: the skip key skips every letterboxed scene |
+| `skip_any_cutscene` | obsolete executable patch | Ignored: active story scenes now use Esc to show confirmation and Enter to skip, independently of language |
 
 Plugin texts follow the language too: `engclass_resources` (the engclass string DLL) and
 `territory_ini` ([adoxa.md](adoxa.md)). Without `[Language] language` every key falls back to

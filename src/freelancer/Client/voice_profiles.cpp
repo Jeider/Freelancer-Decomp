@@ -1,3 +1,4 @@
+#include "runtime_hitch_log.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -60,6 +61,7 @@ char const* FVoiceMsg::GetFileName()
 
 unsigned char FVoiceMsg::Acquire()
 {
+    RuntimeHitchScope Hitch("voice_acquire", GetFileName());
     // FUN_00431220.
     if (SmArchId == -1)
     {
@@ -125,6 +127,7 @@ char const* FVoiceProfile::GetSoundFile(unsigned int MsgId)
 
 void* FVoiceProfile::OpenScriptFileSystem()
 {
+    RuntimeHitchScope Hitch("voice_archive", UtfPath.c_str());
     // LAB_00431590 — same AGGDESC as DALib::OpenData, backend "UTF" (DAT_005c944c). The only
     // test is the string's length (+0x34, the VC6 _Len of the std::string at +0x2c);
     // DALib::Data is called untested (0x004315c3).

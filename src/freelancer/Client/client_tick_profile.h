@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "runtime_hitch_log.h"
 #include "common_tick_profile.h"
 
 // On-screen "Beta 2" version label (CLIENT-BETA-LABEL). Off by default; set through the
@@ -42,6 +43,12 @@ enum class EClientTickSection
     Count
 };
 
+inline const char* ClientTickSectionLabel(EClientTickSection s){
+ static const char* names[]={"Tick","Ui","Server","Game","Objects","Physics","PhysicsStep","PhysicsSimulate","PhysicsPsiPrepare","PhysicsSimUnits","PhysicsCommitHulls","PhysicsContacts","PhysicsSync","MoveBeams","BeamHits","HitDispatch","WorldFx","Sound","Render","Present"};
+ return names[static_cast<int>(s)];
+}
+void BeginRuntimeHitchFrame();
+
 #if FREELANCER_ENABLE_TICK_PROFILE
 class FClientTickProfileFrame
 {
@@ -66,6 +73,7 @@ public:
     FClientTickScope& operator=(FClientTickScope const&) = delete;
 
 private:
+    RuntimeHitchScope Hitch;
     EClientTickSection Section;
     int64_t Start;
     bool bRunning;
@@ -85,8 +93,9 @@ public:
 class FClientTickScope
 {
 public:
-    explicit FClientTickScope(EClientTickSection) {}
-    void Stop() {}
+    RuntimeHitchScope Hitch;
+    explicit FClientTickScope(EClientTickSection s):Hitch("phase",ClientTickSectionLabel(s),2.0) {}
+    void Stop() {Hitch.Stop();}
     FClientTickScope(FClientTickScope const&) = delete;
     FClientTickScope& operator=(FClientTickScope const&) = delete;
 };

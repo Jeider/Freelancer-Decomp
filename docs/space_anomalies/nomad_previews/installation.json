@@ -1,0 +1,49 @@
+{
+  "game": "D:\\games\\FL_MOD",
+  "files": [
+    {
+      "relative": "bin/freelancer.exe",
+      "original": "3777a2f579b647b1c7a2c361ac24ce7318c4ebdf3942240d8a65bfa2d646085e",
+      "prepared": "3b381962cf40da36c56345dbd27d52b7ee3f3bb5f2a8ca7cf6d7781875f61d4c"
+    },
+    {
+      "relative": "bin/freelancer.pdb",
+      "original": "52e29bd6d0afc8035216c6bfce6784d61275dd59b678a91eefdd5e4ddf196a47",
+      "prepared": "f893b1997dd66e002fe0cb9234021a135ebd3cb134ef0f68b6a7ee6146425e77"
+    },
+    {
+      "relative": "bin/RP9.dll",
+      "original": "caa7ca6011d3b0de919090d6e6342f45655c11e83969f95d12da5ef064141d68",
+      "prepared": "e70a4a3a888c2e972fa84af0565c58e19f621d3f0410cbf71350e4a100d1a91c"
+    },
+    {
+      "relative": "bin/RP9.pdb",
+      "original": "1ba478b8459405c29a1cc84d1e039c4ddeb946388e721d3017f3f0334fafe599",
+      "prepared": "ed438f51f7942479e4d954afd2730cbac6409266957e2beb99bd6a5be7165302"
+    },
+    {
+      "relative": "bin/Shading.dll",
+      "original": "e2c4e4c5de98467989b5a418ebc67afa05ff0da6ef6844f19db93ff232711ef3",
+      "prepared": "0cd91aff77c2b960101c1253fda23575ca28d2fd509234becd39d96bd9f48bff"
+    },
+    {
+      "relative": "bin/Shading.pdb",
+      "original": "941f7dd5c06a6caedb2705544d29f4b95108f6012c2c0d3cb9fabe5ce212e109",
+      "prepared": "3051c9a8d167fb34038c027d21d4609a7cf5745447514ae18ff9ecf7ef528ad3"
+    },
+    {
+      "relative": "DATA_EXTRA/SHADERS/surface_material.hlsl",
+      "original": "53022f759c1331e181df9c924d05051ef07df4748e62d68cf659823d53eea6b0",
+      "prepared": "380702686b476677bd7bbd1339075d4c2731624d26c5f7f5b1b63f90b1b1833a"
+    },
+    {
+      "relative": "DATA_EXTRA/TEXTURES/nomad_layers.dds",
+      "original": null,
+      "prepared": "fffcaeb23af07124028849625589d1993f4d643bae955e4c00f02b167aa0b4ec"
+    }
+  ],
+  "scope": "Nomad interior/exterior and Dyson relief; conservative asteroid bounds; Sphere depth prepass without shadow casting",
+  "backup": "D:/games/FL_MOD/BACKUP/codex_nomad_surfaces_20261027_000906_769977",
+  "verified_at": "2026-10-27T00:09:06+03:00",
+  "in_game_flight_tested": false
+}

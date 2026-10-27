@@ -1,3 +1,4 @@
+#include "runtime_hitch_log.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -487,6 +488,7 @@ void NeuroNetNavMap::SetPosition(float const* NewPosition)
 
 bool NeuroNetNavMap::Create(Win3D* NewParent, void* Data)
 {
+    RuntimeHitchScope Hitch("ui", "NavMap.Create",2.0);
     // LAB_0048eba0.
     bBriefing = IsMissionBriefingNavMapUp(); // FUN_0043d570
     SetMesh("Interface\\NeuroNet\\NavMap\\NewNavMap\\navmap_background.cmp", 0);
@@ -1000,6 +1002,7 @@ bool NeuroNetNavMap::Create(Win3D* NewParent, void* Data)
 
 bool NeuroNetNavMap::Slot23(unsigned Msg, unsigned A, unsigned B)
 {
+    RuntimeHitchScope Hitch("ui", "NavMap.Show",2.0);
     // LAB_004945e0.
     (void)A;
     (void)B;
