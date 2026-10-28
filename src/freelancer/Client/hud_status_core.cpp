@@ -1146,6 +1146,8 @@ void HUD_Status::RefreshWeaponRows()
 void HUD_Status::Draw()
 {
     HealthUpdateHostButtons(this);
+    if (ButtonMover::IsActive() || ButtonScaler::IsActive())
+        PlayerTurretHud::UpdateRows(this);
     // FUN_004db2c0 (this = the WinControl face).
     if (IsSpaceInitInProgress()) // FUN_0054bd40
     {
@@ -1175,6 +1177,7 @@ void HUD_Status::Draw()
     // 0x004db323..0x004db32e: FUN_004de0a0 on the HUDItem face, then a tail jump into
     // HUD_Target_Base's Draw FUN_004e7890.
     RefreshWeaponRows();
+    PlayerTurretHud::UpdateRows(this);
     HudTargetBase::Draw();
 }
 

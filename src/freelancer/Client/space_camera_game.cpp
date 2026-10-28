@@ -19,6 +19,7 @@
 // and the HUDCamera Event::Handler face (FUN_0051d7f0), then HUDCamera 0x6c (FUN_0051d070).
 
 #include "space_camera_game.h"
+#include "cockpit_free_look.h"
 #include "player_auto_turrets.h"
 
 #include "character_select_equip.h" // Get/SetPlayerVisitFlagsRetail, GetPlayerStarSystemIdRetail
@@ -1033,7 +1034,15 @@ void HudCameraUpdate(FHudCamera* Cam, float DeltaSeconds)
     const double DiffX = static_cast<double>(Steer.x) - LastSent.x;
     const double DiffY = static_cast<double>(Steer.y) - LastSent.y;
     const double DiffZ = static_cast<double>(Steer.z) - LastSent.z;
-    if (!(DiffX * DiffX <= kSendThresholdSq) || !(DiffY * DiffY <= kSendThresholdSq) ||
+    // Changing cockpit look clears the last mouse direction. Resubmit any
+    // already-held keyboard turn even when its ramp had settled before the click.
+    static bool WasCockpitLook = false;
+    bool const CockpitLook = CockpitFreeLook::Enabled();
+    IBehaviorManager* const KeyboardBehavior = Ship ? Ship->get_behavior_interface() : nullptr;
+    bool const KeyboardHandoff = CockpitLook != WasCockpitLook && KeyboardBehavior &&
+        KeyboardBehavior->Opaque168[0] != 0 && (Steer.x != 0.f || Steer.y != 0.f || Steer.z != 0.f);
+    WasCockpitLook = CockpitLook;
+    if (KeyboardHandoff || !(DiffX * DiffX <= kSendThresholdSq) || !(DiffY * DiffY <= kSendThresholdSq) ||
         !(DiffZ * DiffZ <= kSendThresholdSq))
     {
         SetPlayerBehaviorDirectionGated(-Steer.y, -Steer.x, -Steer.z);

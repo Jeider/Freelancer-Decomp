@@ -61,3 +61,19 @@ SwapBuffers. With a warm cache the warm-up ends in milliseconds. `tools/warm_sur
 compiles the same variants in parallel (about 71 s cold for the two full variants on this
 machine, 31 ms warm); the real-RP9 route check, run from another directory, then finds every
 surface entry (1 s instead of over a minute).
+
+## Warm-up of every shader (2026-10-28)
+
+The warm-up (`StartSurfaceShaderWarmup`) now covers all the shaders, not only `surface_material.hlsl`:
+
+- the surface variants, including the asteroid / debris relief (`SURFACE_ROCK`, 4 variants);
+- the other RP9 shaders as their sites compile them (whole file, no prefix): code beam, planet atmosphere /
+  surface / ring, room material / shadow / contact, local shadow, FXAA, and SMAA's three entries;
+- the client's `CreateExProgram` programs (engine heat, far rocks, field dust, hyperspace, jumpgate, jumphole,
+  nebula, solar rays / corona, ship warp, space haze, trade lane): the `#line` header plus the file, with
+  `#include` read from the shader folder.
+
+Jobs run on a pool of `cores - 1` workers (not a thread per job), surface variants first; identical jobs are
+dropped. A key that does not match a site's text only costs one wasted compile: the site compiles (and caches)
+for itself as before. Check `shader cache HIT` lines in the RP9 log on the second launch: a `MISS` after the
+warm-up means a mismatched key.

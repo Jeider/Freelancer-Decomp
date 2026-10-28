@@ -17,6 +17,7 @@
 
 #include "space_camera_first.h"
 #include "cockpit_head_motion.h"
+#include "cockpit_free_look.h"
 
 #include "DALib.h"
 #include "common_cobject.h"   // CompoundInstanceAnalyze
@@ -137,6 +138,7 @@ namespace
 
     void ResetHeadLook(FFirstPersonCamera* Cam)
     {
+        CockpitFreeLook::Reset();
         G_CockpitHeadMotion.Reset();
         SetIdentity(Cam->OrientationC);
     }
@@ -144,6 +146,11 @@ namespace
     void UpdateHeadLook(FFirstPersonCamera* Cam, IObjRW* Object,
                         IBehaviorManager* Manager, float Dt)
     {
+        if (CockpitFreeLook::UpdateHead(G_CockpitHeadMotion, Dt))
+        {
+            G_CockpitHeadMotion.WriteOrientation(Cam->OrientationC);
+            return;
+        }
         bool InTradelane = false;
         Object->is_using_tradelane(&InTradelane);
         // Keep the mouse-flight gate, but let the existing slow return centre the

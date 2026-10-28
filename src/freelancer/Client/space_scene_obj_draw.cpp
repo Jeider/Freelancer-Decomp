@@ -57,6 +57,7 @@
 #endif
 #include "player_behavior.h"
 #include "render/IRPShipNormals.h"
+#include "render/IRPRockNormals.h"
 #include "player_spawn.h"
 #include "perf_options.h"
 #if defined(FREELANCER_RP9)
@@ -2488,6 +2489,8 @@ namespace
         IRPLocalShadows* SurfaceScope=G_LocalShadows;
         IRPShipNormals* ShipNormals=nullptr;
         if(DALib::Pipeline) DALib::Pipeline->QueryInterface(Iids::RPShipNormals,reinterpret_cast<void**>(&ShipNormals));
+        IRPRockNormals* RockNormals=nullptr;
+        if(DALib::Pipeline) DALib::Pipeline->QueryInterface(Iids::RPRockNormals,reinterpret_cast<void**>(&RockNormals));
         bool OwnSurfaceScope=false;
         if(!SurfaceScope && DALib::Pipeline)
         {
@@ -2504,7 +2507,7 @@ namespace
             }
 #ifdef FREELANCER_RP9
             FClientGameobj* Go=nullptr;
-            if(SurfaceScope || G_WeaponGlints || ShipNormals)
+            if(SurfaceScope || G_WeaponGlints || ShipNormals || RockNormals)
             {
                 FZItemGameObject* Item=dynamic_cast<FZItemGameObject*>(Nodes[I]);
                 Go=Item ? static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Item->Object)) : nullptr;
@@ -2531,6 +2534,63 @@ namespace
                     }
                 }
                 ShipNormals->SetShipNormalScope(Scope,Arch ? Arch->DaArchetype.Value : nullptr);
+            }
+            if(RockNormals)
+            {
+                // Asteroids (dynamic, medium, solar asteroids) and debris; nomad / lair / dyson / ice
+                // models keep their own shaders. One class per object; a field's rocks are opened in
+                // cli_asteroid.cpp.
+                unsigned RockClass=RPRockOff;float RockRadius=0;
+                auto* Arch=Go && Go->Object ? Go->Object->get_archetype() : nullptr;
+                if(Go && Arch)
+                {
+                    const int Kind=Go->ManagerKind;
+                    const bool AsteroidArch=Arch->get_class_type()==Archetype::AClassAsteroid ||
+                        Arch->get_class_type()==Archetype::AClassDynamicAsteroid;
+                    const char* Model=Arch->DaArchetype.Value;
+                    // A solar that is an asteroid by its model (mining asteroids, Arch chunks and the Arch prison
+                    // asteroid) but has no dock: stations that merely sit on a rock keep their materials.
+                    bool SolarRock=false;
+                    if(Kind==2 && !AsteroidArch && RockNormalSolarModel(Model))
+                    {
+                        auto* EqArch=dynamic_cast<Archetype::EqObj*>(Arch);
+                        SolarRock=!(EqArch && !EqArch->DockingSpheres.empty());
+                    }
+                    if(Kind==8 || Kind==9 || Kind==10 || (Kind==2 && AsteroidArch) || SolarRock)
+                    {
+                        if(!RockNormalExcludedModel(Model))
+                        {
+                            std::string Lower(Model ? Model : "");
+                            for(char& C:Lower) if(C>='A' && C<='Z') C=char(C-'A'+'a');
+                            RockClass=(Kind==10 || Lower.find("debris")!=std::string::npos) ? RPRockDebris : RPRockAsteroid;
+                            Vector Center;RockRadius=Go->Slot178(Center);
+                        }
+                    }
+                }
+                RockNormals->SetRockNormalScope(RockClass,RockRadius);
+                // rock_debug = 1: every big object (any kind) once, with the class it was given.
+                static const bool RockDebug=PortConfigInt("Render","rock_debug",0)!=0;
+                if(RockDebug && Go && Go->Object)
+                {
+                    static std::set<std::string> Logged;
+                    Vector Centre;const float Radius=Go->Slot178(Centre);
+                    auto* A=Go->Object->get_archetype();
+                    if(A && Radius>300 && Logged.size()<400)
+                    {
+                        char Line[400];
+                        _snprintf(Line,sizeof(Line),"OBJ kind=%d radius~%.0f class=%u archClass=%d model=%s",Go->ManagerKind,
+                            double(std::floor(Radius/100.0f)*100.0f),RockClass,(int)A->get_class_type(),A->DaArchetype.Value ? A->DaArchetype.Value : "?");
+                        if(Logged.insert(Line).second)
+                        {
+                            char Path[MAX_PATH]={};
+                            if(GetEnvironmentVariableA("LOCALAPPDATA",Path,MAX_PATH))
+                            {
+                                strcat(Path,"\\Freelancer-Decomp\\Diagnostics\\rock_debug.txt");
+                                if(FILE* File=fopen(Path,"a")){fprintf(File,"%s\n",Line);fclose(File);}
+                            }
+                        }
+                    }
+                }
             }
             if(SurfaceScope)
             {
@@ -2604,12 +2664,14 @@ namespace
             }
             if(G_WeaponGlints) G_WeaponGlints->SetWeaponGlintReceiver(0);
             if(ShipNormals) ShipNormals->SetShipNormalScope(0);
+            if(RockNormals) RockNormals->SetRockNormalScope(RPRockOff,0);
 #endif
         }
 #ifdef FREELANCER_RP9
         if(SurfaceScope) SurfaceScope->SetLocalShadowReceiver(0);
         if(OwnSurfaceScope) SurfaceScope->Release();
         if(ShipNormals) ShipNormals->Release();
+        if(RockNormals) RockNormals->Release();
 #endif
         if (bToggleDepthRs)
         {

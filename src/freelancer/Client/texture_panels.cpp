@@ -42,9 +42,11 @@
 #ifdef FREELANCER_RP9
 #include "render/IRPPlanetSurface.h"
 #include "solar_spheres.h"
+#include "field_dust.h" // FieldDustRingUpdate (the ring fog experiment)
 #endif
 #include "render/IRenderPipelineEx.h"
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
@@ -1456,6 +1458,15 @@ void FTexturePanels::DrawPanels(void* Camera)
     FTexturePanelsListNode* const Sentinel = ListSentinel;
 #ifdef FREELANCER_PARTICLE_FX
     G_CloudsLightZone = Zone;
+#endif
+#ifdef FREELANCER_RP9
+    // Port-only (port.ini [Render] ring_dust): a ring with puffs is drawn as a lit dust volume
+    // instead (field_dust.cpp); the puff quads of this ring are skipped for the frame.
+    if (Sentinel->Next != Sentinel && Zone != nullptr)
+    {
+        float const Tint[3] = {ColorR, ColorG, ColorB};
+        FieldDustRingUpdate(Zone, RingLayerThickness, RingLayerDensity, Tint); // the fog experiment: off
+    }
 #endif
     for (FTexturePanelsListNode* N = Sentinel->Next; N != Sentinel; N = N->Next)
         TexturePanelDrawClouds(N->Clouds, Camera, nullptr);

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "font_imp.h"
+#include "native_subtitles.h"
 
 #include "common_ini.h"
 #include "common_misc.h" // GetFileSysPath
@@ -687,6 +688,7 @@ IFont* FindMenuFontImp(char const* Nickname)
 
 void FontShutdown()
 {
+    NativeSubtitles::Shutdown();
     // FUN_004174a0
     // 004174a0..004174e6: free the DIB block, put the old bitmap back, delete bitmap and DC.
     FontAtlasReleaseScratch();

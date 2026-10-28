@@ -360,6 +360,9 @@ struct FCliAsteroidFarInfo
     float DynMeshTint[4][3];
 };
 bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out);
+// Port-only: mesh + diffuse texture name of a dynamic asteroid archetype by nickname (built once, kept).
+bool CliAsteroidGetStandardDynMesh(char const* Nickname, FCliDynamicAsteroidMesh const** OutMesh,
+                                   char* OutTexture, size_t TextureSize);
 #endif
 
 // FUN_00522070 (thiscall on the field, RET 8) -- the per-frame update: the nebula lookup once,

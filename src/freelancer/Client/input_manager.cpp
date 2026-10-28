@@ -13,6 +13,7 @@
 // rounds at the same stores; the two agree except in the last bits of a double.
 
 #include "input_manager.h"
+#include "cockpit_free_look.h"
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
 #endif
@@ -748,7 +749,7 @@ namespace
     // FUN_0041f150 0x0041f30a..0x0041f6e4: animate and draw the cursor in use.
     void DrawCursor()
     {
-        if (G_MouseCursorDrawFlag == 0)
+        if (G_MouseCursorDrawFlag == 0 || CockpitFreeLook::HidesCursor())
             return;
 
         if (G_CurrentCursor != nullptr)
@@ -982,6 +983,7 @@ void ClientInputOnFocusGained()
 
 void ClientInputOnFocusLost()
 {
+    CockpitFreeLook::Suspend();
     VulnerableTargetingReset();
 #ifdef FREELANCER_WALK_MODE
     BaseWalkFocusLost();
@@ -1000,6 +1002,7 @@ void MouseSetEnabled(bool bEnable, int Width, int Height, bool bFullscreen)
 
     if (!bEnable)
     {
+        CockpitFreeLook::Suspend();
         // 0x00420360..0x004204d4: the device ensure, FUN_004201a0(0) inlined, DAT_0061685c = 0.
         EnsureDevice();
         SetActive(false);
@@ -1030,6 +1033,9 @@ void MouseDispatchEvents()
         FMouseEvent Event = G_Mouse.Events.front();
         G_Mouse.Events.pop_front();
 
+        if (CockpitFreeLook::ConsumeMouseEvent(Event))
+            continue;
+
 #ifdef FREELANCER_WALK_MODE
         if (BaseWalkConsumeMouseEvent(Event))
             continue;
@@ -1058,9 +1064,13 @@ void MouseFrameUpdate()
 {
     // FUN_0041f150 -- nothing at all until the cursors are loaded (DAT_00616855).
     if (!G_bCursorsReady)
+    {
+        CockpitFreeLook::Suspend();
         return;
+    }
 
     EnsureDevice();
+    bool bSampled = false;
     if (G_Mouse.Device != nullptr && (G_Mouse.Flags & kMouseActive) != 0 && SetExclusive() &&
         Acquire())
     {
@@ -1096,11 +1106,13 @@ void MouseFrameUpdate()
         int const Dx = G_CursorX - StartX;
         int const Dy = G_CursorY - StartY;
         int Wheel = G_CursorZ - StartZ;
+        bSampled = true;
+        bool const bCockpitMouse = CockpitFreeLook::MouseFrame(bRead, Dx, Dy);
 #ifdef FREELANCER_WALK_MODE
         bool const bWalkMouse = BaseWalkMouseFrame(bRead, Dx, Dy, StartX, StartY);
-        if (bWalkMouse || (Dx == 0 && Dy == 0))
+        if (bCockpitMouse || bWalkMouse || (Dx == 0 && Dy == 0))
 #else
-        if (Dx == 0 && Dy == 0)
+        if (bCockpitMouse || (Dx == 0 && Dy == 0))
 #endif
         {
             G_Mouse.bMoved = false;
@@ -1121,6 +1133,7 @@ void MouseFrameUpdate()
             QueueButtonEvent(kMouseWheelButton, G_MouseWheel < 0, false);
     }
 
+    if (!bSampled) CockpitFreeLook::MouseFrame(false, 0, 0);
     DrawCursor();
 }
 
@@ -1135,6 +1148,7 @@ void MouseInitCursors()
 
 void MouseShutdown()
 {
+    CockpitFreeLook::Reset();
     // FUN_0041e610. The device ensure runs first, so a session that never created the device
     // creates it here only to release it.
     EnsureDevice();

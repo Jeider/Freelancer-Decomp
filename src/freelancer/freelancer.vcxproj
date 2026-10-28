@@ -74,6 +74,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Client\globals.h" />
+    <ClInclude Include="Client\native_subtitles.h" />
+    <ClInclude Include="Client\subtitle_data.h" />
+    <ClCompile Include="Client\native_subtitles.cpp" />
+    <ClCompile Include="Client\subtitle_data.cpp" />
     <ClInclude Include="Client\fl_ime_input_box.h" />
     <ClInclude Include="Client\chat_text_input.h" />
     <ClInclude Include="Client\chat_control.h" />
@@ -309,6 +313,8 @@
     <ClInclude Include="Client\radar_contacts.h" />
     <ClInclude Include="Client\radar_motion.h" />
     <ClInclude Include="Client\cockpit_head_motion.h" />
+    <ClInclude Include="Client\cockpit_free_look.h" />
+    <ClInclude Include="Client\cockpit_free_look_state.h" />
     <ClInclude Include="Client\jump_effect.h" />
     <ClInclude Include="Client\best_path.h" />
     <ClInclude Include="Client\client_cliobj.h" />
@@ -448,6 +454,7 @@
     <ClCompile Include="Client\space_camera_rear.cpp" />
     <ClCompile Include="Client\space_camera_turret.cpp" />
     <ClCompile Include="Client\space_camera_first.cpp" />
+    <ClCompile Include="Client\cockpit_free_look.cpp" />
     <ClCompile Include="Client\space_camera_script.cpp" />
     <ClCompile Include="Client\space_letterbox.cpp" />
     <ClCompile Include="Client\fade_to_black.cpp" />

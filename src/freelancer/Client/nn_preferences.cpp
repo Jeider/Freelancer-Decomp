@@ -1653,6 +1653,7 @@ void NnPreferences::LoadKeyList(char const* Path)
     if (PlayerAutoTurrets::Enabled())
         for (unsigned id = 0xcc; id < 0xd0; ++id)
         {
+            if (id == 0xcd || id == 0xce) continue;
             bool found = false;
             for (auto const& row : KeyGroups[0]) if (row.CommandId == id) found = true;
             if (!found) AddKeyRow(static_cast<int>(id), 0);

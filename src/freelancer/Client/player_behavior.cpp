@@ -7,6 +7,7 @@
 // FUN_0054baf0 and the player behaviour command family at 0x004c7950 .. 0x004c7b8b.
 
 #include "player_behavior.h"
+#include "cockpit_free_look.h"
 
 #include "player_spawn.h"
 
@@ -315,6 +316,7 @@ bool GetPlayerEngineIsActive()
 
 bool IsMouseFlightUnlocked()
 {
+    if (CockpitFreeLook::BlocksMouseFlight()) return true;
     // 0x004c7270: `if (FUN_0045a470()) return true; return DAT_0067354c == 0;`
     if (NnMainButtonHasActivePanel())
         return true;
@@ -323,10 +325,21 @@ bool IsMouseFlightUnlocked()
 
 bool IsMouseFlightLocked()
 {
+    if (CockpitFreeLook::BlocksMouseFlight()) return false;
     // 0x004c7c80: `if (FUN_0045a470()) return false; return DAT_0067354c != 0;`
     if (NnMainButtonHasActivePanel())
         return false;
     return G_MouseFlightLocked;
+}
+
+bool IsMouseFlightLockRequested()
+{
+    return G_MouseFlightLocked;
+}
+
+void SetMouseFlightLockRequested(bool locked)
+{
+    G_MouseFlightLocked = locked;
 }
 
 void ToggleMouseFlightLock()
@@ -338,6 +351,7 @@ void ToggleMouseFlightLock()
 
 void OnMouseFlightRawMessage(unsigned Msg)
 {
+    if (CockpitFreeLook::BlocksMouseFlight()) return;
     // 0x004c80f0: `if (param_1 == 0x201) DAT_00673555 = 1;` -- WM_LBUTTONDOWN only.
     if (Msg == 0x201u)
         G_MouseFlightButtonTrigger = true;
@@ -345,6 +359,7 @@ void OnMouseFlightRawMessage(unsigned Msg)
 
 void UpdateMouseFlightDirection()
 {
+    if (CockpitFreeLook::BlocksMouseFlight()) return;
     // 0x004c7cc5..0x004c7d0a: the ship's behavior interface, when the player is in a ship in the
     // required object-class state (GetPlayerShipEqObj already reproduces retail's -0xc-sentinel
     // and 0x503 class-mask checks byte for byte).
@@ -488,6 +503,23 @@ void ResetMouseFlightState()
     G_MouseFlightButtonTrigger = false;
     G_MouseFlightOriginX = 0.0f;
     G_MouseFlightOriginY = 0.0f;
+}
+
+void ClearMouseFlightSteering()
+{
+    if (G_MouseFlightEngaged)
+    {
+        IBehaviorManager* const manager = PlayerBehaviorManager();
+        if (manager && manager->Opaque168[0] != 0)
+        {
+            Vector zero = {};
+            manager->update_current_behavior_direction(zero);
+        }
+    }
+    G_MouseFlightHoldTimer = 0.0f;
+    G_MouseFlightEngaged = false;
+    G_MouseFlightButtonTrigger = false;
+    G_MouseFlightOriginX = G_MouseFlightOriginY = 0.0f;
 }
 
 bool IsMouseFlightHoldThresholdReached()

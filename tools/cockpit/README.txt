@@ -1,5 +1,67 @@
 Cockpit head look-ahead prototype
 
+Cockpit free-look integration
+-------------------------------
+The person icon to the left of HUD_Maneuvers (in cockpit view) toggles cockpit
+look. It follows the maneuver frame width, visibility and auto-hide hover area.
+While enabled, a fresh left-button press outside HUD widgets captures
+relative mouse movement for the head. Holding without movement retains the
+target angle. Release restores the cursor and smoothly centres the head; the
+icon remains enabled until clicked again. Its enabling click is never a drag.
+The tooltip is available in Russian and English. State is session-only.
+
+The entry Space mouse-flight toggle also selects hands-free cockpit look. If
+already locked when look is enabled, capture starts after releasing the icon
+click and moving outside HUD widgets. Mouse movement then turns the head without
+LMB; releasing LMB does not centre it. Space unlocks, restores the cursor and
+smoothly centres the head. Space can lock it again while look remains enabled.
+Unlock before clicking the person icon to disable look. With the lock off, the
+original hold/release behavior still applies. Menus and focus loss suspend capture.
+
+The existing head_turn limits and rate-limited smoothing are shared with the
+automatic look-ahead. Relative deltas use mouse speed/inversion and compensate
+for render width; they are not multiplied by dt. Look-ahead does not add another
+rotation while free look is active. Disabling it immediately hands the current
+angles back to automatic look-ahead, without snapping or waiting for centring.
+
+Flight continues: no throttle, engine, cruise or autopilot command is sent.
+Mouse-flight production and its arming messages are suppressed while enabled.
+Space changes the look lock temporarily; leaving look restores the flight lock
+saved on entry, including after unlocking to click the icon. Automatic head look
+regains ownership immediately on exit and smooths from the current angles.
+Old hold/direction state is cleared at
+handoff and a centred cursor when returning to locked mouse flight. Already-held
+keyboard turning is resubmitted once on entry. Keyboard controls remain live:
+only the cursor's rendering is hidden, not the shared gameplay input flag.
+
+LMB press/release and drag moves are consumed before mouse key bindings, weak
+point selection and unclaimed-click dispatch. Clicks on HUD widgets retain their
+normal behavior. Other buttons and wheel are not remapped. Menu/focus/device
+loss releases capture and requires release before a new drag. Cockpit load,
+attach, deactivate, missing ship, tradelane, transitions and HUD destruction
+reset the mode. HUD visibility is recomputed so Backspace does not permanently
+hide the new button.
+
+Implementation: Client/cockpit_free_look.{h,cpp}, cockpit_free_look_state.h;
+hooks in input_manager, player_behavior, space_camera_first, space_camera_game
+and hud_maneuvers. No game data or extra icon asset is required.
+
+Verification: numerical head-motion checks, production input-handoff checks
+and camera gating checks passed. Freelancer Release Win32 was rebuilt with v145.
+These fixtures mock the engine/device boundaries; in-game input checks remain
+necessary after installation.
+
+Manual flight checklist after installation: toggle/drag/release; click every
+HUD button; repeated quick LMB clicks; mouse lock on/off; holding steering keys
+during entry; autopilot/cruise continuity; menu/chat, Alt-Tab and lost input;
+camera changes, death/respawn, docking/jump/tradelane; Backspace and status
+expand/collapse; cockpit meshes with custom/zero head_turn limits. Also check
+entry with Space already locked, repeated Space on/off, LMB release while locked,
+return from menus/Alt-Tab while locked, maneuver auto-hide and different resolutions.
+
+Existing look-ahead checks and behavior
+--------------------------------------
+
 Run tools/cockpit/build_check.ps1 from PowerShell for numerical checks.
 The script uses the same local MSVC/Windows SDK as tools/radar/build_check.ps1.
 Run python tools/cockpit/check_scene_pass.py for production cockpit render-order
@@ -50,3 +112,8 @@ inverted mouse; gun aiming and target selection at large head angles; cockpit
 on/off; third-person/turret/rear switching; docking, tradelane, jump and new ship;
 several cockpit meshes for side gaps/clipping. Tune head_turn after restoring the
 desired cockpit INIs. The third-person level-steering mode is not changed.
+
+Regression check: python tools/cockpit/check_free_look_handoff.py runs the
+production toggle/reset/mouse handlers with mocked engine boundaries. It checks
+restoring the entry flight lock after Space unlock, immediate head handoff,
+normal mouse events after exit and consuming a swallowed LMB release only once.

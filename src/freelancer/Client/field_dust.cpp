@@ -84,9 +84,14 @@ namespace
         double NoiseOffset[3] = {0.0, 0.0, 0.0};
         int ExclusionCount = 0;
         Universe::IZone const* Exclusions[kMaxExclusions] = {};
+        // A planetary ring's dust (FieldDustRingUpdate): a slab round the ring plane with a hole.
+        bool bRing = false;
+        bool bSeen = false;       // registered since the last draw
+        float InnerRatio = 0.0f;  // the hole's radius over the outer one
     };
 
     std::map<FCliAsteroid const*, std::unique_ptr<FDustField>> G_Fields;
+    std::map<Universe::IZone const*, std::unique_ptr<FDustField>> G_Rings;
     FRPExProgram* G_MarchProgram = nullptr;
     FRPExProgram* G_CompositeProgram = nullptr;
     bool G_bProgramsTried = false;
@@ -283,6 +288,95 @@ namespace
             return false;
         FRPExCaps Caps;
         return RenderEx::GetCaps(&Caps) && Caps.bSceneDepth;
+    }
+
+    // A ring's dust needs the extension and a depth buffer, not the asteroid options.
+    bool RingGatesPass()
+    {
+        static int const S_Enabled = PortConfigInt("Render", "ring_dust", 0);
+        if (S_Enabled == 0 || !RenderEx::IsAvailable() || GetGameOption(kGameOptEffectsGroup) == 0)
+            return false;
+        FRPExCaps Caps;
+        return RenderEx::GetCaps(&Caps) && Caps.bSceneDepth;
+    }
+
+    // Everything a ring's dust takes from its zone (size: x outer, y inner, z thickness) and ring layer.
+    void BuildRing(Universe::IZone const* Zone, float LayerThickness, float Density, float const* Tint,
+                   FDustField& D)
+    {
+        D.bBuilt = true;
+        D.bRing = true;
+        D.Zone = Zone;
+        Vector const& ZonePos = Zone->GetPos();
+        D.Anchor[0] = ZonePos.x;
+        D.Anchor[1] = ZonePos.y;
+        D.Anchor[2] = ZonePos.z;
+        Vector const Size = Zone->GetSize();
+        float const Outer = (std::max)(10.0f, Size.x);
+        float const Inner = (std::max)(0.0f, (std::min)(Size.y, Outer * 0.98f));
+        float const Thickness = LayerThickness > 0.0f ? LayerThickness : (std::max)(10.0f, Size.z * 0.5f);
+        D.InnerRatio = Inner / Outer;
+        // A flat ellipsoid would pinch the slab towards the rim: this one is three layers thick and the
+        // slab is cut inside it (ThicknessUnit); its axes are the zone's (local y = the ring's normal).
+        float const Bound = 3.0f * Thickness;
+        D.Radii[0] = Outer;
+        D.Radii[1] = Bound;
+        D.Radii[2] = Outer;
+        D.MaxRadius = Outer;
+        Matrix const& Orientation = Zone->GetOrientation();
+        for (int Axis = 0; Axis < 3; ++Axis)
+        {
+            float const Inv = 1.0f / D.Radii[Axis];
+            D.Rows[Axis][0] = Orientation.E[0][Axis] * Inv;
+            D.Rows[Axis][1] = Orientation.E[1][Axis] * Inv;
+            D.Rows[Axis][2] = Orientation.E[2][Axis] * Inv;
+        }
+        D.ThicknessUnit = Thickness / Bound;
+
+        // The extinction per metre at full density: about the opacity through the slab (ring_dust_opacity)
+        // scaled by the layer's density.
+        static float const S_Opacity = (std::max)(0.0f, PortConfigFloat("Render", "ring_dust_opacity", 1.0f));
+        D.Sigma = S_Opacity * (std::max)(0.05f, Density) * 0.9f / Thickness;
+
+        FDustParams& P = D.P;
+        P.MaxOpacity = 0.6f;
+        P.Ambient = 0.10f;
+        P.Brightness = (std::max)(0.0f, PortConfigFloat("Render", "ring_dust_brightness", 1.1f));
+        P.Forward = 0.65f;       // ice: the glow against the sun
+        P.ForwardWeight = 0.6f;
+        P.Back = 0.25f;
+        P.NoiseScale = (std::max)(100.0f, PortConfigFloat("Render", "ring_dust_noise_scale", 700.0f));
+        P.Coverage = 0.45f;
+        P.Softness = 0.25f;
+        P.Clump = (std::max)(0.0f, (std::min)(1.0f, PortConfigFloat("Render", "ring_dust_clump", 0.85f)));
+        P.Steps = 8;
+        P.LodDistance = 1.0e9f;  // always sampled: the closed form has no hole
+        D.ClearRadius = (std::max)(1.0f, PortConfigFloat("Render", "ring_dust_clear", 25.0f));
+        D.FarDist = Outer * 8.0f;
+        D.FarFade = Outer * 4.0f;
+
+        // The colour: the ring's own, a little cooler like ice. The sun's light at the ring's centre.
+        float const IceTint[3] = {0.90f, 0.93f, 1.0f};
+        for (int I = 0; I < 3; ++I)
+            D.Colour[I] = static_cast<float>(Clamp01((Tint != nullptr ? Tint[I] : 1.0f) * IceTint[I]));
+        float Sun[4];
+        float const Centre[3] = {ZonePos.x, ZonePos.y, ZonePos.z};
+        float Rgb[3];
+        if (FindSystemSunSphere(Sun) && FindSunLightColour(Sun, Centre, Rgb))
+            for (int I = 0; I < 3; ++I)
+                D.SunColour[I] = (std::max)(0.0f, Rgb[I]);
+
+        // Where in the shared noise this ring samples: its position decides.
+        uint32_t PosBits[3];
+        memcpy(PosBits, Centre, sizeof(PosBits));
+        uint64_t Seed = 0x7a1b9c0de5ull;
+        for (int I = 0; I < 3; ++I)
+            Seed = Hash(Seed ^ PosBits[I]);
+        for (int I = 0; I < 3; ++I)
+        {
+            Seed = Hash(Seed);
+            D.NoiseOffset[I] = static_cast<double>(Seed >> 11) * (32.0 / 9007199254740992.0);
+        }
     }
 
     FDustField* EntryFor(FCliAsteroid const* Field)
@@ -496,6 +590,20 @@ void FieldDustForget(FCliAsteroid const* Field)
     G_Fields.erase(Field);
 }
 
+bool FieldDustRingUpdate(Universe::IZone const* Zone, float Thickness, float Density, float const* Tint)
+{
+    if (Zone == nullptr || !RingGatesPass())
+        return false;
+    std::unique_ptr<FDustField>& Slot = G_Rings[Zone];
+    if (!Slot)
+        Slot.reset(new FDustField());
+    FDustField& D = *Slot;
+    if (!D.bBuilt)
+        BuildRing(Zone, Thickness, Density, Tint, D);
+    D.bSeen = true;
+    return !D.bBlocked;
+}
+
 void FieldDustShutdown()
 {
     IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
@@ -515,15 +623,22 @@ void FieldDustShutdown()
     G_bTargetTried = false;
     G_TargetScale = 0.0f;
     G_Fields.clear();
+    G_Rings.clear();
 }
 
 void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
 {
-    if (Cam == nullptr || DALib::Pipeline == nullptr || !GatesPass(Enclosure))
+    if (Cam == nullptr || DALib::Pipeline == nullptr)
+        return;
+    // Asteroid fields and planetary rings have their own gates: a ring's dust does not depend on the
+    // asteroid options, nor on the camera being outside a field's enclosure.
+    bool const bFields = GatesPass(Enclosure);
+    bool const bRings = !G_Rings.empty() && RingGatesPass();
+    if (!bFields && !bRings)
         return;
     // Fields only take part when one has [FieldDust] or the auto switch can give one the defaults.
     static int const S_Auto = PortConfigInt("Render", "field_dust_auto", 0);
-    if (G_Fields.empty() && S_Auto == 0)
+    if ((!bFields || (G_Fields.empty() && S_Auto == 0)) && !bRings)
         return;
     static float const S_Resolution =
         (std::max)(0.25f, (std::min)(1.0f, PortConfigFloat("Render", "field_dust_resolution", 0.5f)));
@@ -540,7 +655,31 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
     static std::vector<FCandidate> S_Fields;
     S_Fields.clear();
     FVisit Visit = {{CamPos[0], CamPos[1], CamPos[2]}, &S_Fields};
-    CliAsteroidForEach(&Collect, &Visit);
+    if (bFields)
+        CliAsteroidForEach(&Collect, &Visit);
+    if (bRings)
+    {
+        // The rings drawn since the last frame (FieldDustRingUpdate); each is registered again the
+        // next time it is drawn.
+        for (auto& Item : G_Rings)
+        {
+            FDustField* const D = Item.second.get();
+            if (!D->bSeen)
+                continue;
+            D->bSeen = false;
+            if (D->bBlocked || !D->bBuilt)
+                continue;
+            FCandidate Candidate;
+            Candidate.Dust = D;
+            for (int I = 0; I < 3; ++I)
+                Candidate.Rel[I] = D->Anchor[I] - CamPos[I];
+            Candidate.Distance = std::sqrt(Candidate.Rel[0] * Candidate.Rel[0] + Candidate.Rel[1] * Candidate.Rel[1] +
+                                           Candidate.Rel[2] * Candidate.Rel[2]);
+            Candidate.Strength = Clamp01((D->FarDist - Candidate.Distance) / D->FarFade);
+            if (Candidate.Strength > 0.0)
+                S_Fields.push_back(Candidate);
+        }
+    }
     if (S_Fields.empty())
         return;
     std::sort(S_Fields.begin(), S_Fields.end(),
@@ -620,8 +759,8 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
         R[12 + 3] = D.ThicknessUnit;
         // The camera is farther than lod_distance from the zone surface: only the closed form.
         // The analytic distant LOD has no exclusion mask. Keep samples for fields with holes.
-        int const Steps = D.ExclusionCount > 0 ? (std::max)(P.Steps, 6)
-            : (Candidate.Distance - D.MaxRadius > P.LodDistance ? 0 : P.Steps);
+        int const Steps = D.bRing ? P.Steps : (D.ExclusionCount > 0 ? (std::max)(P.Steps, 6)
+            : (Candidate.Distance - D.MaxRadius > P.LodDistance ? 0 : P.Steps));
         Set4(&R[16], D.Sigma, P.EdgeSoftness, P.Clump, static_cast<float>(Steps));
         // The noise origin: the camera in the zone's noise tiles plus the field's offset, wrapped in
         // double (the texture repeats, so only the fraction matters) to keep the floats small.
@@ -646,6 +785,10 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
             else
                 Set4(Out, 0.0f, 0.0f, 0.0f, 0.0f);
         }
+        // A ring: the last exclusion slot carries its profile (w = 2 marks it): the hole's radius over
+        // the outer one, the softness of the hole's and of the outer edge.
+        if (D.bRing)
+            Set4(&R[(12 + 3 * 4) * 4], D.InnerRatio, 0.05f, 0.12f, 2.0f);
         for (int E = 0; E < D.ExclusionCount; ++E)
         {
             Universe::IZone const* Hole = D.Exclusions[E];
@@ -741,5 +884,6 @@ void FieldDustParseSection(FCliAsteroid*, INI_Reader&) {}
 void FieldDustForget(FCliAsteroid const*) {}
 void FieldDustDraw(ICamera*, float, float, int) {}
 void FieldDustShutdown() {}
+bool FieldDustRingUpdate(Universe::IZone const*, float, float, float const*) { return false; }
 
 #endif

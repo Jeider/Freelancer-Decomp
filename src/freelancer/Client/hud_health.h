@@ -33,7 +33,7 @@ public:
 private:
     HUD_Status* Source() const;
     bool BindHost();
-    bool CanShow() const;
+    bool CanShow(bool hostControls = false) const;
     void ReleaseHost();
     void TogglePanel();
     void SyncPanel();
@@ -49,7 +49,6 @@ private:
     HUD_Status* owner = nullptr;
     WinControl* hostButton = nullptr;
     WinControl* lockButton = nullptr;
-    WinControl* groups[3] = {};
     WinControl* slideIcon = nullptr;
     WinControl* toolbar[5] = {};
     bool viewLeft = false;

@@ -9,7 +9,9 @@
 #include "nebula_volume.h"
 #include "port_config.h"
 #include "solar_spheres.h" // SolarSunlitAt
+#include <algorithm>
 #include <cmath>
+#include <string>
 #include <unordered_map>
 #endif
 #ifdef FREELANCER_ADOXA
@@ -38,6 +40,7 @@
 #include "player_behavior.h"        // GetPlayerObjRW (FUN_0054baf0)
 #include "player_spawn.h"           // GetPlayerCharacterId / GetPlayerConnectionId
 #include "render/IMaterial.h"
+#include "render/IRPRockNormals.h"
 #include "render/IRenderPipeline.h"
 #include "render/mesh_iface.h"      // IMesh
 #include "render/rendcomp.h"        // IRenderableMesh, IRenderer2
@@ -1159,6 +1162,53 @@ void CliDynamicAsteroidDraw(FCliDynamicAsteroid* This, FSpaceCamera* Cam,
     // 0x00526265..0x00526274: the material's slot 8 with 0.
     if (This->Material != nullptr)
         This->Material->Bind(nullptr);
+
+#ifdef FREELANCER_RP9
+    // Port-only (IRPRockNormals): the [DynamicAsteroids] rocks of a field are drawn right here, as one
+    // shared mesh and material through DrawIndexedPrimitiveVb, never through the scene's object list
+    // or FMaterial::Submit, so neither the object scope nor the texture profile reaches them. Open
+    // the scope for the whole group; ice, nomad, lair and dyson models keep their own shaders.
+    struct RockGroupScope
+    {
+        IRPRockNormals* Rock = nullptr;
+        ~RockGroupScope() { if (Rock) { Rock->SetRockNormalScope(RPRockOff, 0); Rock->Release(); } }
+    } rockScope;
+    {
+        // Class and size of a group never change: work them out once.
+        static std::unordered_map<const FCliDynamicAsteroid*, std::pair<unsigned, float>> Known;
+        auto Found = Known.find(This);
+        if (Found == Known.end())
+        {
+            unsigned RockClass = RPRockOff;
+            float Radius = 0;
+            const char* Model = This->Arch ? This->Arch->DaArchetype.Value : nullptr;
+            if (!RockNormalExcludedModel(Model))
+            {
+                std::string Lower(Model ? Model : "");
+                for (char& C : Lower) if (C >= 'A' && C <= 'Z') C = char(C - 'A' + 'a');
+                RockClass = Lower.find("debris") != std::string::npos ? RPRockDebris : RPRockAsteroid;
+                // The group's own size: the farthest vertex of its mesh from the origin.
+                if (This->Mesh && This->Mesh->Verts)
+                {
+                    double Far2 = 0;
+                    for (int V = 0; V < This->Mesh->VertCount; ++V)
+                    {
+                        const float* P = reinterpret_cast<const float*>(This->Mesh->Verts + V * 0x2C);
+                        Far2 = (std::max)(Far2, double(P[0]) * P[0] + double(P[1]) * P[1] + double(P[2]) * P[2]);
+                    }
+                    Radius = float(std::sqrt(Far2));
+                }
+            }
+            Found = Known.emplace(This, std::make_pair(RockClass, Radius)).first;
+        }
+        if (Found->second.first != RPRockOff && DALib::Pipeline &&
+            DALib::Pipeline->QueryInterface(Iids::RPRockNormals, reinterpret_cast<void**>(&rockScope.Rock)) >= 0 &&
+            rockScope.Rock)
+            rockScope.Rock->SetRockNormalScope(Found->second.first, Found->second.second);
+        else
+            rockScope.Rock = nullptr;
+    }
+#endif
 
     // 0x00526277..0x005262d1: the opaque table, D3DRS_ALPHAREF (0x18) saved, then 5.
     IRenderPipeline* const Pipe = DALib::Pipeline;

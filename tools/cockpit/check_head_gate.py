@@ -39,6 +39,9 @@ struct Math {void MulMatrix(FMatrix&,FMatrix const&,FMatrix const&){}
 Math* FirstPersonMathEngine(){return &math;}
 CockpitHeadMotion::State G_CockpitHeadMotion;
 float G_CockpitHeadTurnX=30,G_CockpitHeadTurnY=25;
+// This fixture tests the unchanged automatic-look path; the hold-to-look state
+// has its own numerical cases in test_head_motion.cpp.
+namespace CockpitFreeLook { bool UpdateHead(CockpitHeadMotion::State&,float){return false;} }
 // Retain the old helper in the fixture so a regression to hard reset compiles and fails.
 void ResetHeadLook(FFirstPersonCamera* cam){G_CockpitHeadMotion.Reset();G_CockpitHeadMotion.WriteOrientation(cam->OrientationC);}
 '''

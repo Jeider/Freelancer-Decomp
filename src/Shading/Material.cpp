@@ -12,6 +12,7 @@
 #include "render/IRPPlanetSurface.h"
 #include "render/IRPSurfaceShader.h"
 #include "render/NomadSurfacePolicy.h"
+#include "render/RockTextures.h"
 #include "render/RoomMaterialScope.h"
 
 #include <cmath>
@@ -2463,7 +2464,7 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
     {
         IRPSurfaceShader* Surface=nullptr;
         bool Applied=false;
-        SurfaceProfileScope(IRenderPipeline* Pipeline,const char* Name,bool Blended)
+        SurfaceProfileScope(IRenderPipeline* Pipeline,const char* Name,bool Blended,const char* Texture)
         {
             unsigned Profile=RPSurfaceAuto;
             if(Name && !Blended && !_stricmp(Name,"ast_icecrystal2")) Profile=RPSurfaceIce;
@@ -2471,6 +2472,15 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
             // not classify arbitrary transparent girders or ship glass by colour.
             if(Name && Blended && !_stricmp(Name,"space_girder01_op")) Profile=RPSurfaceGreenhouse;
             if(!Blended && NomadSurfaceProfile(Name)) Profile=NomadSurfaceProfile(Name);
+            // An asteroid / debris diffuse texture, on whatever object uses it (an asteroid, a mining
+            // asteroid, the rock of a station): relief normals. Ice, nomad and lair keep their profiles.
+            if(Profile==RPSurfaceAuto && !Blended && Texture && RockTextureName(Texture))
+            {
+                char Lower[96];unsigned Length=0;
+                for(;Texture[Length] && Length+1<sizeof(Lower);++Length) Lower[Length]=(char)tolower((unsigned char)Texture[Length]);
+                Lower[Length]=0;
+                Profile=strstr(Lower,"debris") ? RPSurfaceRockDebris : RPSurfaceRock;
+            }
             if(Pipeline && Profile!=RPSurfaceAuto)
             {
                 Pipeline->QueryInterface(Iids::RPSurfaceShader,reinterpret_cast<void**>(&Surface));
@@ -2485,7 +2495,7 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
                 Surface->Release();
             }
         }
-    } SurfaceProfile(Pipeline,InstanceName,bAlphablend!=0);
+    } SurfaceProfile(Pipeline,InstanceName,bAlphablend!=0,TexCount>0 && TexBlocks ? TexBlocks[0].Name : nullptr);
     if (SubmitKind == SubmitNull)
         return GR_OK;
     if (SubmitKind == SubmitStub)

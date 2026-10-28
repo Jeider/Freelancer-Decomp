@@ -89,6 +89,11 @@ bool IsMouseFlightUnlocked();
 // FUN_004c7c80 -- the toggle's raw state.
 bool IsMouseFlightLocked();
 
+// The saved Space-toggle preference, including while cockpit look owns the mouse.
+bool IsMouseFlightLockRequested();
+// Restore a saved input mode without playing the Space-toggle sound.
+void SetMouseFlightLockRequested(bool Locked);
+
 // FUN_004c7c40 -- flip the toggle and stop UI sound slot 0x1c (FindUiSoundSlot table, already
 // ported in menu_ui_init.cpp).
 void ToggleMouseFlightLock();
@@ -133,6 +138,10 @@ bool IsMouseFlightHoldThresholdReached();
 // DAT_00673558 / DAT_0067355c (latched origin) = 0. Retail writes the globals inline; the port's
 // copies live in this translation unit, so the loader calls this.
 void ResetMouseFlightState();
+
+// Drop stale mouse direction/hold state at a cockpit-look handoff, retaining the
+// user's mouse-flight lock. Does not change throttle, cruise or autopilot.
+void ClearMouseFlightSteering();
 
 // FUN_004c83a0 / FUN_004c83b0 -- two raw setters for .data:00673568/0067356c. Both globals are
 // write-only across the whole PE (no read anywhere in freelancer.exe.c); purpose/owner not

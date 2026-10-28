@@ -101,6 +101,27 @@ float RockHash(float Seed, float K)
     return frac(sin(Seed * K + K * 0.618) * 43758.5453);
 }
 
+float4 Relief : register(c8);        // x relief strength (far_rocks_relief; 0 = off)
+
+// Procedural rock relief, arithmetic only (no texture, no extra binding): lumps at three scales and a
+// network of dark cracks as an analytic height field. Returns the height's gradient at P (rock-plane
+// units) and a crack mask (1 on a crack).
+float2 RockRelief(float2 P, float Seed, out float Crack)
+{
+    float2 A = P * 2.6 + Seed * 31.0;
+    float2 B = P * 6.1 + float2(Seed * 17.0, 4.3);
+    float2 C = P * 13.7 + float2(2.1, Seed * 23.0);
+    float2 G = float2(cos(A.x) * sin(A.y), sin(A.x) * cos(A.y)) * 2.6;
+    G += float2(cos(B.x) * sin(B.y), sin(B.x) * cos(B.y)) * (6.1 * 0.45);
+    G += float2(cos(C.x) * sin(C.y), sin(C.x) * cos(C.y)) * (13.7 * 0.18);
+    // Cracks: a warped sine's zero crossings, dark and a little recessed.
+    float U = dot(P, float2(4.7, 3.1)) + 1.7 * sin(P.y * 3.3 + Seed * 9.0) + Seed * 20.0;
+    float S = sin(U);
+    Crack = saturate(1.0 - abs(S) * 7.0);
+    G += float2(4.7, 3.1) * (-sign(S) * cos(U)) * (0.25 * Crack);
+    return G;
+}
+
 struct MeshVertex
 {
     float3 Position : POSITION0;
@@ -172,9 +193,31 @@ float4 PSMesh(MeshInterp In) : COLOR0
     float3 N = normalize(In.Normal);
     // Show either side of thin panels, but light only the side facing the viewer.
     N *= dot(N, V) < 0.0 ? -1.0 : 1.0;
+    // Relief (see RockRelief): a tangent frame from the view position and UV derivatives; faded out
+    // where a pixel spans more than a few metres of rock, since the detail would only shimmer there.
+    float3 Pv = -In.ToEye;
+    float3 Dx = ddx(Pv), Dy = ddy(Pv);
+    float2 Ux = ddx(In.Uv), Uy = ddy(In.Uv);
+    float ReliefW = Relief.x * (1.0 - smoothstep(2.0, 8.0, length(Dx)));
+    float ReliefCrack = 0.0;
+    [branch] if (ReliefW > 0.001)
+    {
+        float Det = Ux.x * Uy.y - Ux.y * Uy.x;
+        float Sign = Det < 0.0 ? -1.0 : 1.0;
+        float3 Tu = (Dx * Uy.y - Dy * Ux.y) * Sign;
+        float3 T = Tu - N * dot(Tu, N);
+        if (abs(Det) > 1.0e-30 && dot(T, T) > 1.0e-4 * dot(Tu, Tu))
+        {
+            T = normalize(T);
+            float3 B = normalize(cross(N, T)) * Sign;
+            float2 G = RockRelief(In.Uv * 9.0, In.FadeJitterSolid.y, ReliefCrack);
+            N = normalize(N + (T * G.x + B * G.y) * (0.05 * ReliefW));
+        }
+    }
     float3 L = normalize(SunView.xyz);
     float Light = AsteroidDiffuse(N, L, V) * AsteroidPhase(L, V);
-    float3 Albedo = TexTint[0].rgb * lerp(float3(1.0, 1.0, 1.0), Sample.rgb, TexTint[0].w);
+    float3 Albedo = TexTint[0].rgb * lerp(float3(1.0, 1.0, 1.0), Sample.rgb, TexTint[0].w) *
+                    (1.0 - 0.35 * ReliefCrack * ReliefW);
     float3 Colour = Albedo * lerp(0.85, 1.1, In.FadeJitterSolid.y) *
                     (AmbientLight.rgb + SunLight.rgb * Light);
     float Alpha = lerp(1.0, Sample.a, TexTint[0].w) * In.FadeJitterSolid.x;
@@ -208,6 +251,15 @@ float4 PSMain(RockInterp In) : COLOR0
     float3 N = float3(Disc, sqrt(saturate(1.0 - dot(Disc, Disc))));
     N.xy += SunLight.w * 0.3 * sin(Turned * 7.0 + 6.28 * H4) * cos(Turned.yx * 5.0 + 6.28 * H5);
     N = normalize(N);
+    // Relief: a rock of a few pixels cannot show it, so it grows in with the rock's size (full from
+    // about 14 pixels of radius). It bends the normal before the texture is read through it.
+    float ReliefW = Relief.x * saturate((PxRadius - 4.0) * 0.1);
+    float ReliefCrack = 0.0;
+    [branch] if (ReliefW > 0.001)
+    {
+        float2 G = RockRelief(Turned, Seed, ReliefCrack);
+        N = normalize(float3(N.xy + G * (0.05 * ReliefW), N.z));
+    }
 
     // The texture through the bumped sphere normal: turned by the rock's angle, a random offset
     // (the texture wraps), up to four textures sampled in uniform flow, one picked by the rock.
@@ -239,7 +291,7 @@ float4 PSMain(RockInterp In) : COLOR0
         else if (TexTint[3].w > 0.5)
             Albedo = tex2Dgrad(RockTex3, Uv, UvDx, UvDy).rgb * TexTint[3].rgb;
     }
-    Albedo *= lerp(0.85, 1.1, In.Info.z) * (0.9 + 0.2 * H3);
+    Albedo *= lerp(0.85, 1.1, In.Info.z) * (0.9 + 0.2 * H3) * (1.0 - 0.35 * ReliefCrack * ReliefW);
 
     float3 L = normalize(SunView.xyz);
     float Lit;

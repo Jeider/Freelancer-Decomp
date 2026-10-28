@@ -30,7 +30,7 @@ public:
 private:
     static constexpr int ProjectionCount = 4;
     bool BindContent();
-    bool CanShow() const;
+    bool CanShow(bool hostControls = false) const;
     HudTarget* Source() const;
     void UpdateButtons();
     void ReleaseContent();

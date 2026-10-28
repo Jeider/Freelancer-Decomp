@@ -26,6 +26,7 @@
 #include "nebula_volume.h" // NebulaVolume::AsteroidSpawnReach (port-only Direct3D 9 nebula)
 #include "asteroid_frustum.h"
 #include "render/IRPSurfaceShader.h"
+#include "render/IRPRockNormals.h"
 #include <unordered_map>
 #endif
 #include "render/RenderPipeline.h"
@@ -51,7 +52,9 @@
 
 #ifdef FREELANCER_RP9
 namespace {
-    struct NearFieldBounds { float Radius=0; bool Dyson=false; };
+    // RockClass: IRPRockNormals class of the field's rocks (0 = keep its own look); RockRadius: the
+    // mean bounding radius of one rock in the merged cube mesh, in metres.
+    struct NearFieldBounds { float Radius=0; bool Dyson=false; unsigned RockClass=0; float RockRadius=0; };
     std::unordered_map<FCliAsteroid*,NearFieldBounds>& NearBounds() {
         static auto* map=new std::unordered_map<FCliAsteroid*,NearFieldBounds>(); return *map;
     }
@@ -2208,6 +2211,86 @@ bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out)
     Out->ExclusionCount = FCliAsteroidExclusionInline::GetZones(Field->ExclusionMgr, Out->Exclusion, 16);
     return true;
 }
+
+// Port-only: the mesh and the diffuse texture of a dynamic asteroid archetype by nickname, made the way
+// a field's [DynamicAsteroids] record makes its own (CliDynamicAsteroidParseIni), for the far rocks of a
+// debris field to wear the standard debris (din_debris_large_*) instead of the field's own models. The
+// blocks are built once and kept; the caller must not free them.
+bool CliAsteroidGetStandardDynMesh(char const* Nickname, FCliDynamicAsteroidMesh const** OutMesh,
+                                   char* OutTexture, size_t TextureSize)
+{
+    struct FEntry
+    {
+        FCliDynamicAsteroidMesh* Mesh = nullptr;
+        char Texture[64] = {};
+    };
+    static std::unordered_map<std::string, FEntry> Cache;
+    if (Nickname == nullptr || OutMesh == nullptr || OutTexture == nullptr || DALib::Engine == nullptr ||
+        DALib::Renderer == nullptr)
+        return false;
+    std::string Key(Nickname);
+    for (char& C : Key) C = static_cast<char>(tolower(static_cast<unsigned char>(C)));
+    auto Found = Cache.find(Key);
+    if (Found == Cache.end())
+    {
+        FEntry Entry;
+        ID_String Id;
+        Id.Id = CreateID(Nickname);
+        Archetype::DynamicAsteroid* const Arch =
+            Archetype::GetDynamicAsteroid(Archetype::GetDynamicAsteroidID(Id));
+        if (Arch != nullptr)
+        {
+            Arch->load();
+            if (Arch->Companion != nullptr)
+                Arch->Companion->Load(0);
+            int const EngineIndex = static_cast<int>(Arch->EngineIndex);
+            IMesh* Mesh = nullptr;
+            IRenderableMesh* RMesh = nullptr;
+            if (DALib::Engine->QueryEngineComponent(EngineIndex, const_cast<char*>(Iids::Mesh),
+                                                    reinterpret_cast<void**>(&Mesh)) >= 0 && Mesh != nullptr)
+            {
+                IMaterial* Material = nullptr;
+                unsigned PrimitiveType = 0;
+                Mesh->OpenFaceGroup(0, 1);
+                Mesh->GetFaceGroupMaterial(&Material);
+                Mesh->GetFaceGroupPrimitiveType(&PrimitiveType);
+                Mesh->CloseFaceGroup();
+                DALib::Renderer->SetArchetypeLod(reinterpret_cast<void*>(static_cast<intptr_t>(EngineIndex)), 0);
+                DALib::Engine->QueryEngineComponent(EngineIndex, const_cast<char*>(Iids::RenderableMesh),
+                                                    reinterpret_cast<void**>(&RMesh));
+                if (RMesh != nullptr && PrimitiveType == D3DPT_TRIANGLELIST &&
+                    MaterialDiffuseTexture(Material, Entry.Texture, sizeof(Entry.Texture)))
+                {
+                    FCliDynamicAsteroidMesh* const Block =
+                        static_cast<FCliDynamicAsteroidMesh*>(::operator new(sizeof(FCliDynamicAsteroidMesh)));
+                    Block->Verts = nullptr;
+                    Block->Indices = nullptr;
+                    Block->IndexCount = 0;
+                    Block->VertCount = 0;
+                    RMesh->GetVertexCount(&Block->VertCount);
+                    Block->Verts = static_cast<unsigned char*>(::operator new(static_cast<unsigned>(Block->VertCount) * 0x2c));
+                    RMesh->CopyVertexData(Block->Verts, 0x252u, 0, Block->VertCount);
+                    RMesh->GetIndexCount(&Block->IndexCount);
+                    Block->Indices = static_cast<unsigned short*>(::operator new(static_cast<unsigned>(Block->IndexCount) * 2));
+                    RMesh->CopyIndices(&Block->Indices, Block->IndexCount);
+                    Entry.Mesh = Block;
+                }
+                if (Material != nullptr)
+                    Material->Release();
+            }
+            if (RMesh != nullptr)
+                RMesh->Release();
+            if (Mesh != nullptr)
+                Mesh->Release();
+        }
+        Found = Cache.emplace(Key, Entry).first;
+    }
+    if (Found->second.Mesh == nullptr)
+        return false;
+    *OutMesh = Found->second.Mesh;
+    strncpy_s(OutTexture, TextureSize, Found->second.Texture, _TRUNCATE);
+    return true;
+}
 #endif
 
 void CliAsteroidDrawFarPiece(FCliAsteroid* Field, FSpaceCamera* Cam, int PieceIndex)
@@ -2669,6 +2752,30 @@ namespace
         std::string path=FieldIniRel ? FieldIniRel : "";
         for(char& c:path) { if(c=='/') c='\\'; else c=static_cast<char>(tolower(static_cast<unsigned char>(c))); }
         bounds.Dyson=path=="solar\\asteroids_mod\\dyson\\sphere_field.ini";
+        // Port-only (IRPRockNormals): every ordinary rock and debris field gets relief normals. Nomad,
+        // lair, dyson and ice fields keep their own shaders. A field is judged by its ini name.
+        if(!bounds.Dyson && !RockNormalExcludedModel(path.c_str()) && path.find("_ice")==std::string::npos &&
+           path.find("ice_")==std::string::npos)
+        {
+            bounds.RockClass=path.find("debris")!=std::string::npos ? RPRockDebris : RPRockAsteroid;
+            double sumRadius=0;unsigned rocks=0;
+            for(auto const& chunk:Chunks) {
+                if(chunk.VertCount<=3) continue;
+                double cx=0,cy=0,cz=0;
+                for(int v=0;v<chunk.VertCount;++v) {
+                    const float* p=reinterpret_cast<const float*>(chunk.Verts+v*kCubeVertStride);
+                    cx+=p[0];cy+=p[1];cz+=p[2];
+                }
+                cx/=chunk.VertCount;cy/=chunk.VertCount;cz/=chunk.VertCount;
+                double r2=0;
+                for(int v=0;v<chunk.VertCount;++v) {
+                    const float* p=reinterpret_cast<const float*>(chunk.Verts+v*kCubeVertStride);
+                    r2=(std::max)(r2,(p[0]-cx)*(p[0]-cx)+(p[1]-cy)*(p[1]-cy)+(p[2]-cz)*(p[2]-cz));
+                }
+                sumRadius+=std::sqrt(r2);++rocks;
+            }
+            bounds.RockRadius=rocks ? static_cast<float>(sumRadius/rocks) : bounds.Radius*0.1f;
+        }
         NearBounds()[Field]=bounds;
 #endif
         Field->MeshIndexCount = static_cast<unsigned>(TotalIdx);
@@ -2887,6 +2994,15 @@ namespace
         const float meshRadius=boundsIt!=NearBounds().end() && boundsIt->second.Radius>0 ?
             boundsIt->second.Radius : Field->CubeSize*0.866026f;
         const bool dyson=boundsIt!=NearBounds().end() && boundsIt->second.Dyson;
+        // Port-only: relief normals for the whole field's rocks while its cubes are drawn.
+        struct RockFieldScope {
+            IRPRockNormals* Rock=nullptr;
+            ~RockFieldScope() { if(Rock) { Rock->SetRockNormalScope(RPRockOff,0); Rock->Release(); } }
+        } rockScope;
+        if(boundsIt!=NearBounds().end() && boundsIt->second.RockClass!=0 && DALib::Pipeline &&
+           DALib::Pipeline->QueryInterface(Iids::RPRockNormals,reinterpret_cast<void**>(&rockScope.Rock))>=0 && rockScope.Rock)
+            rockScope.Rock->SetRockNormalScope(boundsIt->second.RockClass,boundsIt->second.RockRadius);
+        else rockScope.Rock=nullptr;
 #endif
 
         // 0x00522a89..0x00522aa7: camera slot 16 (+0x40), the view transform, twelve dwords.

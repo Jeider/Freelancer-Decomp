@@ -11,6 +11,7 @@
 #include "alchemy_ramp.h"
 #include "common_misc.h"
 #include "render/shading.h"
+#include "dacom_iids.h"
 #ifdef FREELANCER_PARTICLE_FX
 #include "dacom_iids.h"
 #include "render/IRenderPipelineEx.h"
@@ -4186,10 +4187,36 @@ namespace AlchemyImpl
     //   FUN_06205720(node); FUN_06241070 == 0 -> 0; ++DAT_062578e8; FUN_06206850(node);
     //   FUN_06241180; return 0.
     // The tail from FUN_06241070 on is the same sequence as LAB_062069e0.
+    bool FLBeamAppearance::DrawVolume()
+    {
+        // Texture-less wireframe/debug beams and non-additive materials keep
+        // their original renderer. No new fields in the retail-sized node.
+        if ((Descriptor_->Flags & 0x400u) || !G_RenderPipeline) return false;
+        IRPVolumeBeam* volume = nullptr;
+        if (G_RenderPipeline->QueryInterface(Iids::RPVolumeBeam, reinterpret_cast<void**>(&volume)) != GR_OK || !volume)
+            return false;
+        const char* name = nullptr;
+        GetInstanceName(&name);
+        if (volume->VolumeBeamAvailable(name, Descriptor_->BlendInfo[0], Descriptor_->BlendInfo[1]) != GR_OK)
+        { volume->Release(); return false; }
+        std::vector<FRPVolumeBeamPoint> points;
+        points.reserve(ResolveLiveInstanceCount() + 1);
+        FillRibbon(&points);
+        if (points.size() < 2) { volume->Release(); return true; }
+        ApplyDrawState();
+        const GENRESULT result = volume->DrawVolumeBeam(points.data(), static_cast<unsigned long>(points.size()),
+            (Texture_.Frame[1] + Texture_.Frame[3]) * .5f, Descriptor_->BlendInfo[0]);
+        volume->Release();
+        if (result == GR_OK) ++G_DrawCounters[1];
+        return result == GR_OK;
+    }
+
     GENRESULT DACOM_API FLBeamAppearance::DrawOrEnqueue()
     {
         if (GetFirstInstanceParticle() == nullptr)
             return GR_OK;
+
+        if (DrawVolume()) return GR_OK;
 
         if (G_Defaults.bUseMaterialBatcher != 0)
         {
@@ -4467,7 +4494,7 @@ namespace AlchemyImpl
     }
 
     #pragma float_control(except, on, push)
-    void FLBeamAppearance::FillRibbon()
+    void FLBeamAppearance::FillRibbon(std::vector<FRPVolumeBeamPoint>* VolumePoints)
     {
         static const char kBeamFieldName[12] = "FLBeamField";
         FPooledParticle* Head = InstanceListHead_;
@@ -4537,6 +4564,7 @@ namespace AlchemyImpl
         State.Idx[2] = 0;
         State.Idx[3] = 0;
         State.Counter = 0;
+        State.VolumePoints = VolumePoints;
         State.Node = this;
         FillIdentity3x3(State.Xform);
         State.Xform[9] = 0.0f;
@@ -4561,6 +4589,14 @@ namespace AlchemyImpl
                 float V = 0.0f;
                 EvalRingParams(State, Head, &HalfWidth, Rgba, &V);
                 const unsigned long Diffuse = AlApplyRenderOpacity(PackRingColor(Rgba),Descriptor_->BlendInfo[0]);
+                if (VolumePoints)
+                {
+                    FRPVolumeBeamPoint point = {{Tip[0], Tip[1], Tip[2]}, HalfWidth, Diffuse, V};
+                    VolumePoints->push_back(point);
+                    ++State.Counter;
+                }
+                else
+                {
                 unsigned short NewIdx[4];
                 float BasisColumn[3];
                 float Side[3];
@@ -4589,6 +4625,7 @@ namespace AlchemyImpl
                 State.Idx[2] = NewIdx[2];
                 State.Idx[3] = NewIdx[3];
                 ++State.Counter;
+                }
             }
             else
             {
@@ -4712,6 +4749,14 @@ namespace AlchemyImpl
             ? &Node->Texture_.Frame[2] : &Node->Texture_.Frame[4];
         std::memcpy(&V, VWord, sizeof(float));
         const unsigned long Diffuse = AlApplyRenderOpacity(PackRingColor(Rgba),Descriptor_->BlendInfo[0]);
+
+        if (State.VolumePoints)
+        {
+            FRPVolumeBeamPoint point = {{Pos[0], Pos[1], Pos[2]}, HalfWidth, Diffuse, V};
+            State.VolumePoints->push_back(point);
+            ++State.Counter;
+            return;
+        }
 
         unsigned short NewIdx[4];
         float BasisColumn[3];

@@ -56,6 +56,16 @@ namespace CockpitHeadMotion
         void Step(float pitchControl, float yawControl, float horizontalDegrees,
                   float verticalDegrees, float dt)
         {
+            StepAngles(SteeringAxis(pitchControl) * LimitDegrees(verticalDegrees) * DegreesToRadians,
+                       SteeringAxis(yawControl) * LimitDegrees(horizontalDegrees) * DegreesToRadians,
+                       horizontalDegrees, verticalDegrees, dt);
+        }
+
+        // Direct local eye targets, used by hold-to-look. Unlike steering input,
+        // accumulated mouse angles must not pass through the steering dead zone.
+        void StepAngles(float targetPitch, float targetYaw, float horizontalDegrees,
+                        float verticalDegrees, float dt)
+        {
             const float pitchLimit = LimitDegrees(verticalDegrees) * DegreesToRadians;
             const float yawLimit = LimitDegrees(horizontalDegrees) * DegreesToRadians;
             // A disabled axis takes effect immediately, including while paused.
@@ -63,8 +73,10 @@ namespace CockpitHeadMotion
             yaw = (std::max)(-yawLimit, (std::min)(yawLimit, yaw));
             if (!std::isfinite(dt) || dt <= 0.f) return;
             dt = (std::min)(dt, .25f);
-            const float targetPitch = SteeringAxis(pitchControl) * pitchLimit;
-            const float targetYaw = SteeringAxis(yawControl) * yawLimit;
+            if (!std::isfinite(targetPitch)) targetPitch = 0.f;
+            if (!std::isfinite(targetYaw)) targetYaw = 0.f;
+            targetPitch = (std::max)(-pitchLimit, (std::min)(pitchLimit, targetPitch));
+            targetYaw = (std::max)(-yawLimit, (std::min)(yawLimit, targetYaw));
             // Exponential response has the same time constant at different FPS.
             Follow(pitch, targetPitch, dt);
             Follow(yaw, targetYaw, dt);

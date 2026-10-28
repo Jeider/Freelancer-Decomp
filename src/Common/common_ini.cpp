@@ -519,10 +519,11 @@ INI_Reader::~INI_Reader()
 #ifdef FREELANCER_LANGUAGE
 namespace
 {
-    // Port-only (docs/language.md): port.ini [Language.<code>] data_overlay = one or more
-    // folders (comma separated, relative to the exe) laid out like DATA. An ini under ..\DATA\
-    // that exists in an overlay is read from there instead -- the per-language mission and
-    // system inis the mod otherwise copies over DATA before each start.
+    // Port-only (docs/language.md): port.ini [Voice.<code>] data_overlay (else [Language.<code>])
+    // = one or more folders (comma separated, relative to the exe) laid out like DATA; {difficulty}
+    // expands to the upper-case [Language] difficulty. An ini under ..\DATA\ that exists in an
+    // overlay is read from there instead -- the per-voice-language mission and system inis the
+    // mod otherwise copies over DATA before each start.
     char const* LanguageOverlayPath(char const* Path, char* Buffer, unsigned BufferSize)
     {
         static char S_Overlays[1024];
@@ -530,7 +531,26 @@ namespace
         if (!S_bRead)
         {
             S_bRead = 1;
-            PortLanguageString("data_overlay", "", S_Overlays, sizeof(S_Overlays));
+            char Template[1024];
+            if (PortVoiceString("data_overlay", "", Template, sizeof(Template)) == 0)
+                PortLanguageString("data_overlay", "", Template, sizeof(Template));
+            char Difficulty[16];
+            unsigned Length = 0;
+            strncpy(Difficulty, PortDifficulty(), sizeof(Difficulty) - 1);
+            Difficulty[sizeof(Difficulty) - 1] = '\0';
+            _strupr(Difficulty);
+            for (char const* Cursor = Template; *Cursor != '\0' && Length + 1 < sizeof(S_Overlays);)
+            {
+                if (_strnicmp(Cursor, "{difficulty}", 12) == 0)
+                {
+                    for (char const* Digit = Difficulty; *Digit != '\0' && Length + 1 < sizeof(S_Overlays); ++Digit)
+                        S_Overlays[Length++] = *Digit;
+                    Cursor += 12;
+                }
+                else
+                    S_Overlays[Length++] = *Cursor++;
+            }
+            S_Overlays[Length] = '\0';
         }
         if (S_Overlays[0] == '\0' || Path == nullptr)
             return Path;
@@ -560,6 +580,62 @@ namespace
         }
         return Path;
     }
+
+    // Port-only (docs/language.md): the voice-over language is chosen apart from the interface
+    // language. An ini under ...\audio\ named <stem>_<code>.ini, <code> one of [Voice] codes
+    // (default "ru,en"), is read as <stem>_<voice>.ini when that file exists -- so any client ini
+    // lists the audio files once and [Language] voice picks the set.
+    char const* VoiceAudioPath(char const* Path, char* Buffer, unsigned BufferSize)
+    {
+        static char S_Voice[32];
+        static char S_Codes[64];
+        static int S_bRead = 0;
+        if (!S_bRead)
+        {
+            S_bRead = 1;
+            strncpy(S_Voice, PortVoice(), sizeof(S_Voice) - 1);
+            PortConfigString("Voice", "codes", "ru,en", S_Codes, sizeof(S_Codes));
+        }
+        if (S_Voice[0] == '\0' || Path == nullptr)
+            return Path;
+        size_t const Length = strlen(Path);
+        if (Length < 6 || _stricmp(Path + Length - 4, ".ini") != 0 || Length >= BufferSize)
+            return Path;
+        // Under an "audio" folder (either slash, any case).
+        bool bAudio = false;
+        for (char const* Cursor = Path; *Cursor != '\0' && !bAudio; ++Cursor)
+            bAudio = (Cursor == Path || Cursor[-1] == '\\' || Cursor[-1] == '/') &&
+                     _strnicmp(Cursor, "audio", 5) == 0 && (Cursor[5] == '\\' || Cursor[5] == '/');
+        if (!bAudio)
+            return Path;
+        char const* Cursor = S_Codes;
+        while (*Cursor != '\0')
+        {
+            char const* End = strchr(Cursor, ',');
+            if (End == nullptr)
+                End = Cursor + strlen(Cursor);
+            while (Cursor < End && *Cursor == ' ')
+                ++Cursor;
+            size_t CodeLength = static_cast<size_t>(End - Cursor);
+            while (CodeLength != 0 && Cursor[CodeLength - 1] == ' ')
+                --CodeLength;
+            if (CodeLength != 0 && CodeLength + 5 < Length &&
+                Path[Length - 4 - CodeLength - 1] == '_' &&
+                _strnicmp(Path + Length - 4 - CodeLength, Cursor, CodeLength) == 0)
+            {
+                size_t const Stem = Length - 4 - CodeLength;
+                if (_snprintf(Buffer, BufferSize, "%.*s%s.ini", static_cast<int>(Stem), Path, S_Voice) > 0)
+                {
+                    Buffer[BufferSize - 1] = '\0';
+                    if (GetFileAttributesA(Buffer) != INVALID_FILE_ATTRIBUTES)
+                        return Buffer;
+                }
+                return Path;
+            }
+            Cursor = *End != '\0' ? End + 1 : End;
+        }
+        return Path;
+    }
 }
 #endif
 
@@ -567,6 +643,8 @@ bool INI_Reader::open(char const* Path, bool bFatal)
 {
 #ifdef FREELANCER_LANGUAGE
     char OverlayBuffer[MAX_PATH];
+    char VoiceBuffer[MAX_PATH];
+    Path = VoiceAudioPath(Path, VoiceBuffer, sizeof(VoiceBuffer));
     Path = LanguageOverlayPath(Path, OverlayBuffer, sizeof(OverlayBuffer));
 #endif
     // .text:0630f9b0. A local FileMap opens the file (FileMap::open inlined: close, name =

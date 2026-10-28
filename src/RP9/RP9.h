@@ -24,7 +24,9 @@
 #include "render/IRenderPipelineEx.h"
 #include "render/IRPSurfaceShader.h"
 #include "render/IRPCodeBeam.h"
+#include "render/IRPVolumeBeam.h"
 #include "render/IRPShipNormals.h"
+#include "render/IRPRockNormals.h"
 #include "render/IRPSurfaceContext.h"
 #include "render/IRPRoomMaterials.h"
 #include "render/IRPLocalShadows.h"
@@ -384,7 +386,7 @@ class FDirectX9 final : public IRenderPipeline,
                         public IRPDrawEx,
                         public IRPSurfaceShader, public IRPSurfaceContext, public IRPRoomMaterials, public IRPRoomShadows,
                         public IRPLocalShadows, public IRPFrameQuality, public IRPWeaponGlints,
-                        public IRPPlanetAtmosphere, public IRPPlanetSurface, public IRPSceneCapture, public IRPCodeBeam, public IRPShipNormals
+                        public IRPPlanetAtmosphere, public IRPPlanetSurface, public IRPSceneCapture, public IRPCodeBeam, public IRPShipNormals, public IRPRockNormals, public IRPVolumeBeam
 {
 public:
     FDirectX9();
@@ -613,9 +615,16 @@ public:
     void ExCodeBeamPrepare();
     bool ExCodeBeamBegin();
     void ExCodeBeamEnd();
+    void ExVolumeBeamPrepare();
+    GENRESULT DACOM_API VolumeBeamAvailable(const char* NodeName, unsigned long SrcBlend, unsigned long DstBlend) override;
+    GENRESULT DACOM_API DrawVolumeBeam(const FRPVolumeBeamPoint* Points, unsigned long Count,
+        float TextureU, unsigned long SrcBlend) override;
     GENRESULT DACOM_API SetShipNormalScope(unsigned long Enabled, const char* Model = nullptr) override;
     void ExShipNormalsPrepare();
     void ExShipNormalsRelease();
+    GENRESULT DACOM_API SetRockNormalScope(unsigned long Class, float Radius) override;
+    void ExRockNormalsPrepare();
+    void ExRockNormalsRelease();
     // Planet atmosphere shell around one draw (SetPlanetAtmosphere): Begin binds
     // planet_atmosphere.hlsl when the draw qualifies, End restores the fixed-function state.
     GENRESULT DACOM_API SetPlanetAtmosphere(const FRPPlanetAtmosphere* Desc) override;
@@ -642,6 +651,7 @@ public:
     GENRESULT DACOM_API SetCockpitSurface(unsigned long) override;
     GENRESULT DACOM_API SetGlassSurface(unsigned long) override;
     bool ExSurfaceBegin();
+    bool ExSurfaceBeginImpl();
     GENRESULT DACOM_API SetRoomMaterialFrame(unsigned long Enabled) override;
     GENRESULT DACOM_API SetRoomMaterial(const char* Name, const char* Texture) override;
     bool ExRoomMaterialBegin();

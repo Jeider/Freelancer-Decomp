@@ -23,3 +23,12 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure);
 // Releases the programs and the march target (RenderEx::Shutdown, before the pipeline goes). The
 // shared noise belongs to SpaceHazeShutdown.
 void FieldDustShutdown();
+
+namespace Universe { struct IZone; }
+// Port-only ring dust: a planetary ring's [Clouds] puffs (flat camera-facing pictures) replaced by a lit
+// dust volume in the ring's slab: the same march as the field dust, with a ring's profile (a hole in
+// the middle, soft edges, a slab of the ring layer's thickness). The ring calls this every frame it is
+// drawn: Zone is the ring's zone, Thickness the ring layer's (0 = the zone's), Density the ring layer's
+// density, Tint the ring's colour (rgb 0..1). Returns true when the dust is drawn instead of the puffs
+// (port.ini [Render] ring_dust and the extension are available).
+bool FieldDustRingUpdate(Universe::IZone const* Zone, float Thickness, float Density, float const* Tint);

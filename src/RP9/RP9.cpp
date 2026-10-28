@@ -1342,8 +1342,12 @@ GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
         Face = (IRPSurfaceShader*)(this);
     else if (IidEqual(Iid, Iids::RPCodeBeam))
         Face = (IRPCodeBeam*)(this);
+    else if (IidEqual(Iid, Iids::RPVolumeBeam))
+        Face = (IRPVolumeBeam*)(this);
     else if (IidEqual(Iid, Iids::RPShipNormals))
         Face = (IRPShipNormals*)(this);
+    else if (IidEqual(Iid, Iids::RPRockNormals))
+        Face = (IRPRockNormals*)(this);
     else if (IidEqual(Iid, Iids::RPLocalShadows))
         Face = (IRPLocalShadows*)(this);
     else if (IidEqual(Iid, Iids::RPWeaponGlints))

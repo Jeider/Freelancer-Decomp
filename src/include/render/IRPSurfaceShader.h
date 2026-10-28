@@ -15,6 +15,8 @@ enum ERPSurfaceShader : unsigned long
     RPSurfaceNomadLair = 5, // stone/bone exterior: normal/height relief, mineral finish
     RPSurfaceDyson = 6, // cheaper relief for dense opaque cube walls; no shadow sampling
     RPSurfaceNomadInterior = 7, // wet organic folds; preserve authored illumination layer
+    RPSurfaceRock = 8, // asteroid rock texture: relief normals (any object that uses it, stations too)
+    RPSurfaceRockDebris = 9, // the same for scrap and debris textures
 };
 
 struct IRPSurfaceShader : IDAComponent

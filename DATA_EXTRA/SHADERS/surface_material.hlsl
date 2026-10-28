@@ -33,7 +33,7 @@ struct SurfacePixel
     float3 Normal : TEXCOORD1;
     float2 Uv : TEXCOORD2;
     float4 Colour : COLOR0;
-#ifdef SURFACE_NOMAD
+#if defined(SURFACE_NOMAD) || defined(SURFACE_ROCK)
     float4 DetailUv : TEXCOORD3;
 #endif
 };
@@ -101,6 +101,7 @@ float4 WeaponGlintControl : register(c77); // count, strength, inverse radius sq
 struct WeaponGlint {float4 Position;float4 Colour;};
 WeaponGlint WeaponGlints[8] : register(c78);
 float4 MaterialStyle : register(c94); // cockpit, glass, glass strength, cockpit finish
+float4 CockpitRelief : register(c106); // x: cockpit panel relief strength (0 = off; only set in the cockpit pass)
 // x far-map texel size; y shadow reach of casters stored with a negative depth (NPC ships);
 // z simple receiver (one bilinear comparison instead of PCSS); w the far static map is valid.
 float4 ShadowExtra : register(c95);
@@ -487,6 +488,220 @@ float3 ShipReliefNormal(SurfacePixel In, float3 N)
 }
 #endif
 
+#ifdef SURFACE_ROCK
+// Asteroids and debris. Relief that needs no authored normal map: the texture's own light/dark
+// structure is read as height (dark = recess), and a shared tiling rock map adds lumps, chips
+// and grit at two scales. The strength is deliberately high; slopes are capped, not softened.
+sampler2D RockDetail : register(s13); // RG slope, B height, A cavity (linear)
+float4 RockStyle : register(c102);  // detail strength, fade start, fade end, tiling
+float4 RockStyle2 : register(c103); // macro strength, scrap (1) / rock (0), radius in metres, finish gain
+float4 RockStyle3 : register(c104); // deepest parallax shift in metres (0 = none)
+float4 RockLod : register(c105); // quality limits in metres: full, no macro relief, large lumps only, simplest (RockStyle.y: out)
+// The material's own stage 1 (an asteroid's detail map: MODULATE2X over the base): the same
+// registers the nomad shader reads, c97 mode and c98..101 the texture transform, s1 the texture.
+sampler2D NomadDetail : register(s1);
+float4 DetailModes : register(c97); // colour operation, UV set, transform, present
+row_major float4x4 DetailMatrix : register(c98);
+// Applies stage 1 to the albedo. Ux/Uy: UV derivatives of the unshifted chart; Uv: the parallax-shifted one.
+float4 RockApplyDetail(SurfacePixel In,float4 Albedo,float2 Uv,float2 Ux,float2 Uy,float4 DDx,float4 DDy)
+{
+    [branch] if(DetailModes.w<=0.5) return Albedo;
+    float2 DUv=Uv,Gx=Ux,Gy=Uy;
+    if(DetailModes.y>1.5) {DUv=In.DetailUv.zw;Gx=DDx.zw;Gy=DDy.zw;}
+    else if(DetailModes.y>0.5) {DUv=In.DetailUv.xy;Gx=DDx.xy;Gy=DDy.xy;}
+    if(DetailModes.z>0.5)
+    {
+        DUv=mul(float4(DUv,0,1),DetailMatrix).xy;
+        Gx=mul(float4(Gx,0,0),DetailMatrix).xy;
+        Gy=mul(float4(Gy,0,0),DetailMatrix).xy;
+    }
+    float4 Detail=tex2Dgrad(NomadDetail,DUv,Gx,Gy);
+    float Op=DetailModes.x;
+    if(Op<6.5) Albedo.rgb*=Detail.rgb*(Op<4.5 ? 1.0 : (Op<5.5 ? 2.0 : 4.0));
+    else if(Op<7.5) Albedo.rgb+=Detail.rgb;
+    else Albedo.rgb=saturate(Albedo.rgb+Detail.rgb-0.5);
+    Albedo.a*=Detail.a;
+    return Albedo;
+}
+static const float3 RockLuma=float3(0.299,0.587,0.114);
+// Height of the rock at a UV: 1 = the crest, 0 = the floor of a recess. Dark texture and the detail
+// map's low parts are deep; a negative macro strength (rock_pits) turns it inside out.
+float RockHeightAt(float2 Uv,float2 Gx,float2 Gy)
+{
+    float L=dot(tex2Dgrad(DiffuseMap,Uv,Gx,Gy).rgb,RockLuma);
+    float D1=tex2Dgrad(RockDetail,Uv*RockStyle.w,Gx*RockStyle.w,Gy*RockStyle.w).b;
+    float D2=tex2Dgrad(RockDetail,Uv*(RockStyle.w*3.7)+float2(0.31,0.17),Gx*(RockStyle.w*3.7),Gy*(RockStyle.w*3.7)).b;
+    float H=saturate(L*0.5+D1*0.35+D2*0.15);
+    return RockStyle2.x<0.0 ? 1.0-H : H;
+}
+
+// Parallax occlusion: the surface is read where the eye ray meets the height field, so recesses
+// have depth and crests overlap the ground behind them, in the object's own UV chart. Bounded
+// steps, explicit gradients, no discard and no depth output; the silhouette is untouched.
+float2 RockParallax(SurfacePixel In,float3 N,float3 V)
+{
+    float Dist=length(In.ViewPosition);
+    float3 Dx=ddx(In.ViewPosition),Dy=ddy(In.ViewPosition);
+    float2 Ux=ddx(In.Uv),Uy=ddy(In.Uv);
+    float Det=Ux.x*Uy.y-Ux.y*Uy.x;
+    float Sign=Det<0 ? -1.0 : 1.0;
+    float3 Tu=(Dx*Uy.y-Dy*Ux.y)*Sign;
+    float3 Tv=(Dy*Ux.x-Dx*Uy.x)*Sign;
+    float InvDet=1.0/max(abs(Det),1.e-30);
+    float MetresPerUv=max(min(length(Tu),length(Tv))*InvDet,1.e-4);
+    float3 T=Tu-N*dot(Tu,N);
+    float Near=1.0-smoothstep(RockStyle.y*0.35,RockStyle.y*1.1,Dist);
+    [branch] if(Near<=0.02 || abs(Det)<1.e-30 || dot(T,T)<1.e-4*dot(Tu,Tu) || RockStyle.x==0.0 || RockStyle3.x<=0.0) return In.Uv;
+    T=normalize(T);
+    float3 B=normalize(cross(N,T))*Sign;
+    // Depth in metres, from the object's size, as far as the UV chart can show it.
+    // Without an object radius (a rock texture on a station) the UV chart's own size stands in.
+    // Real relief is a few metres whatever the rock's size: a boulder's pits, not a moon's mountains.
+    float Size=RockStyle2.z>0.5 ? RockStyle2.z : MetresPerUv*0.5;
+    float DepthMetres=min(abs(RockStyle2.x)*Size*0.05,RockStyle3.x)*lerp(1.0,1.3,RockStyle2.y);
+    // The shift is a vector in the surface plane, in metres, turned into UV through the chart's own
+    // axes (Pu, Pv: metres per UV unit along each), so a stretched chart cannot blow it up.
+    float3 Pu=Tu*InvDet,Pv=Tv*InvDet;
+    float Guu=dot(Pu,Pu),Gvv=dot(Pv,Pv),Guv=dot(Pu,Pv);
+    float GramDet=max(Guu*Gvv-Guv*Guv,1.e-20);
+    // Grazing angles stretch the shift into streaks: the divisor stays well away from zero.
+    float3 Eye=(V-N*dot(V,N))/max(dot(V,N),0.45);
+    float2 Rhs=float2(dot(Pu,Eye),dot(Pv,Eye));
+    float2 Shift=float2(Gvv*Rhs.x-Guv*Rhs.y,Guu*Rhs.y-Guv*Rhs.x)/GramDet*(DepthMetres*Near);
+    // Never more than a few percent of the chart, whatever the mesh.
+    Shift*=min(1.0,0.03/max(max(abs(Shift.x),abs(Shift.y)),1.e-6));
+    const int Steps=16;
+    float2 StepUv=Shift/Steps;
+    float Layer=0.0,Depth=1.0-RockHeightAt(In.Uv,Ux,Uy);
+    float2 Uv=In.Uv;
+    [loop] for(int K=0;K<Steps;++K)
+    {
+        if(Layer>=Depth) break;
+        Uv-=StepUv;Layer+=1.0/Steps;
+        Depth=1.0-RockHeightAt(Uv,Ux,Uy);
+    }
+    float2 Prev=Uv+StepUv;
+    float Before=1.0-RockHeightAt(Prev,Ux,Uy)-(Layer-1.0/Steps);
+    float After=Depth-Layer;
+    return lerp(Uv,Prev,saturate(-After/max(Before-After,0.0001)));
+}
+
+// Ux, Uy: the UV derivatives of the unshifted coordinates (the parallax moves In.Uv per pixel).
+float3 RockReliefNormal(SurfacePixel In,float3 N,float4 Texel,float2 Ux,float2 Uy,out float Cavity)
+{
+    Cavity=1;
+    float Distance=length(In.ViewPosition);
+    float Fade=1.0-smoothstep(RockStyle.y,RockStyle.z,Distance);
+    float3 Dx=ddx(In.ViewPosition),Dy=ddy(In.ViewPosition);
+    // Gradients are taken outside the branch; samples inside it use explicit ones.
+    // A negative strength (and macro strength) turns the relief inside out: pits instead of ridges.
+    [branch] if(Fade<=0.0 || RockStyle.x==0.0) return N;
+    float Det=Ux.x*Uy.y-Ux.y*Uy.x;
+    float Sign=Det<0 ? -1.0 : 1.0;
+    float3 Tu=(Dx*Uy.y-Dy*Ux.y)*Sign;      // world metres per unit of U (before the divide below)
+    float3 Tv=(Dy*Ux.x-Dx*Uy.x)*Sign;
+    // Up close the derivative frame is tiny (centimetres per pixel, UV in millionths), so these limits are
+    // relative: an absolute 1e-12 threw the whole relief away near the surface.
+    float InvDet=1.0/max(abs(Det),1.e-30);
+    float LenU=max(length(Tu)*InvDet,1.e-4),LenV=max(length(Tv)*InvDet,1.e-4);
+    float3 T=Tu-N*dot(Tu,N);
+    if(abs(Det)<1.e-30 || dot(T,T)<1.e-4*dot(Tu,Tu)) return N;
+    T=normalize(T);
+    float3 B=normalize(cross(N,T))*Sign;
+    // Quality by distance (RockLod, metres, scaled up for big rocks). The look up close is the one the
+    // second tier used to have (one scale of detail plus the texture's own relief; the two-scale first tier
+    // is gone); past rock_lod_macro the texture's relief stops, past rock_lod_coarse only large lumps
+    // remain, then the simplest normals out to the far limit, then nothing. Every tier crossfades into the
+    // next, so no line shows where they meet. (RockLod.x is kept for the config key; it changes nothing.)
+    float wCoarse=smoothstep(RockLod.z*0.8,RockLod.z*1.2,Distance)*(1.0-smoothstep(RockLod.w*0.8,RockLod.w*1.2,Distance));
+    float wFar=smoothstep(RockLod.w*0.8,RockLod.w*1.2,Distance);
+    float wMid=saturate(1.0-wCoarse-wFar);
+    float wMacro=1.0-smoothstep(RockLod.y*0.8,RockLod.y*1.2,Distance);
+    float2 Slope=0;
+    float CavityMap=0;
+    [branch] if(wMid>0.002)
+    {
+        [branch] if(RockStyle2.y>0.5)
+        {
+            // Scrap: the original first tier, a fine grain at two scales: an ordinary, slightly coarse
+            // surface, not the big crumbly lumps (the second scale turns so tiles do not line up).
+            float2 Uv1=In.Uv*RockStyle.w,Uv2=In.Uv*(RockStyle.w*3.7)+float2(0.31,0.17);
+            float4 D1=tex2Dgrad(RockDetail,Uv1,Ux*RockStyle.w,Uy*RockStyle.w);
+            float4 D2=tex2Dgrad(RockDetail,Uv2,Ux*RockStyle.w*3.7,Uy*RockStyle.w*3.7);
+            Slope+=wMid*((D1.rg*2.0-1.0)*RockStyle.x+(D2.rg*2.0-1.0)*(0.35*RockStyle.x));
+            CavityMap+=wMid*D1.a;
+        }
+        else
+        {
+            float Scale=RockStyle.w*0.35;
+            float4 D=tex2Dgrad(RockDetail,In.Uv*Scale+float2(0.57,0.11),Ux*Scale,Uy*Scale);
+            Slope+=wMid*(D.rg*2.0-1.0)*(0.9*RockStyle.x);
+            CavityMap+=wMid*D.a;
+        }
+    }
+    [branch] if(wCoarse>0.002)
+    {
+        float Scale=RockStyle.w*0.08;
+        float4 D=tex2Dgrad(RockDetail,In.Uv*Scale+float2(0.23,0.71),Ux*Scale,Uy*Scale);
+        Slope+=wCoarse*(D.rg*2.0-1.0)*(0.8*RockStyle.x);
+        CavityMap+=wCoarse*D.a;
+    }
+    // The last tier, out to the far limit: the simplest normals, one sample of the very large lumps.
+    [branch] if(wFar>0.002)
+    {
+        float Scale=RockStyle.w*0.025;
+        float4 D=tex2Dgrad(RockDetail,In.Uv*Scale+float2(0.83,0.37),Ux*Scale,Uy*Scale);
+        Slope+=wFar*(D.rg*2.0-1.0)*(0.7*RockStyle.x);
+        CavityMap+=wFar*D.a;
+    }
+    float L0=dot(Texel.rgb,RockLuma);
+    // Macro relief from the authored texture: the slope of its luminance over the surface, in the
+    // texture's own contrast per texel (one step E of the UV chart), the same on a boulder and on a
+    // mountain-sized rock. Per axis, with no correction for how the chart is stretched: a squeezed axis
+    // (a steep face) must not be amplified into noise. Only near: it needs two more reads.
+    float2 Macro=0;
+    [branch] if(wMacro>0.002)
+    {
+        float E=1.0/384.0;
+        float Lu=dot(tex2Dgrad(DiffuseMap,In.Uv+float2(E,0),Ux,Uy).rgb,RockLuma)-L0;
+        float Lv=dot(tex2Dgrad(DiffuseMap,In.Uv+float2(0,E),Ux,Uy).rgb,RockLuma)-L0;
+        Macro=float2(Lu,Lv)*(3.0*RockStyle2.x)*wMacro;
+        Macro*=min(1.0,1.4/max(length(Macro),1.e-4));
+    }
+    float Aniso=min(LenU,LenV)/max(max(LenU,LenV),1.e-4);
+    // A light safety net only: a chart squeezed below about a tenth of its other axis fades the relief.
+    float Guard=smoothstep(0.03,0.15,Aniso);
+    Slope+=Macro;
+    Slope*=Fade*Guard;
+    // Up to ~67 degrees: steep and readable, not a wall of noise.
+    Slope*=min(1.0,2.4/max(length(Slope),1.e-4));
+    // Crevices take less light: the map's cavity channel and the texture's own dark spots.
+    Cavity=lerp(1.0,lerp(0.50,1.0,CavityMap)*lerp(0.72,1.0,saturate(L0*1.8)),Fade*Guard*(1.0-0.6*wCoarse-0.9*wFar));
+    return normalize(N-(T*Slope.x+B*Slope.y));
+}
+#endif
+
+// Cockpit panel relief: the texture's own dark seams read as grooves (no map and no tangent channel; the
+// derivative frame of the UV chart). Dx, Dy and Ux, Uy are taken by the caller outside any branch.
+float3 CockpitReliefNormal(SurfacePixel In,float3 N,float4 Texel,float3 Dx,float3 Dy,float2 Ux,float2 Uy)
+{
+    float Det=Ux.x*Uy.y-Ux.y*Uy.x;
+    float Sign=Det<0 ? -1.0 : 1.0;
+    float3 Tu=(Dx*Uy.y-Dy*Ux.y)*Sign;
+    float3 T=Tu-N*dot(Tu,N);
+    if(abs(Det)<1.e-30 || dot(T,T)<1.e-4*dot(Tu,Tu)) return N;
+    T=normalize(T);
+    float3 B=normalize(cross(N,T))*Sign;
+    const float3 Luma=float3(0.299,0.587,0.114);
+    float L0=dot(Texel.rgb,Luma);
+    float E=1.0/512.0;
+    float Lu=dot(tex2Dgrad(DiffuseMap,In.Uv+float2(E,0),Ux,Uy).rgb,Luma)-L0;
+    float Lv=dot(tex2Dgrad(DiffuseMap,In.Uv+float2(0,E),Ux,Uy).rgb,Luma)-L0;
+    float2 Slope=float2(Lu,Lv)*(8.0*CockpitRelief.x);
+    Slope*=min(1.0,1.2/max(length(Slope),1.e-4));
+    return normalize(N-(T*Slope.x+B*Slope.y));
+}
+
 float4 PSMain(SurfacePixel In) : COLOR0
 {
 #ifdef SURFACE_NOMAD
@@ -494,7 +709,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
 #else
 #if defined(SURFACE_GREENHOUSE)
     const bool Cockpit=false,Glass=true,Ice=false,Greenhouse=true;
-#elif defined(SURFACE_LOW_DETAIL) || defined(SURFACE_SHIP_NORMALS)
+#elif defined(SURFACE_LOW_DETAIL) || defined(SURFACE_SHIP_NORMALS) || defined(SURFACE_ROCK)
     const bool Cockpit=false,Glass=false,Ice=false,Greenhouse=false;
 #else
     bool Cockpit=MaterialStyle.x>0.5,Glass=MaterialStyle.y>0.5;
@@ -515,8 +730,18 @@ float4 PSMain(SurfacePixel In) : COLOR0
 #ifdef SURFACE_SHIP_NORMALS
     N=ShipReliefNormal(In,N);
 #endif
+#ifdef SURFACE_ROCK
+    // Everything below, texture and relief alike, is read at the parallax-shifted UV.
+    float2 RockUx=ddx(In.Uv),RockUy=ddy(In.Uv);
+    float4 RockDDx=ddx(In.DetailUv),RockDDy=ddy(In.DetailUv);
+    In.Uv=RockParallax(In,N,V);
+#endif
     float NoV = max(dot(N, V), 1.0e-4);
+#ifdef SURFACE_ROCK
+    float4 T = Surface.x > 0.5 ? tex2Dgrad(DiffuseMap, In.Uv, RockUx, RockUy) : 1.0;
+#else
     float4 T = Surface.x > 0.5 ? tex2D(DiffuseMap, In.Uv) : 1.0;
+#endif
     float4 Vertex = Surface.y > 0.5 ? In.Colour : 1.0;
     float4 Base = MaterialDiffuse * Vertex;
     // Standard Dt stages: select texture / select diffuse / modulate / modulate2x.
@@ -527,6 +752,28 @@ float4 PSMain(SurfacePixel In) : COLOR0
     if (BaseOps.y < 2.5) Albedo.a = T.a;
     else if (BaseOps.y < 3.5) Albedo.a = Base.a;
     else if (BaseOps.y > 4.5) Albedo.a *= 2.0;
+#ifdef SURFACE_ROCK
+    {
+        // Shadow visibility above used the geometric normal; only shading follows the relief.
+        float RockCavity;
+        // The authored detail layer first (it is part of the colour), then the relief and cavities.
+        Albedo=RockApplyDetail(In,Albedo,In.Uv,RockUx,RockUy,RockDDx,RockDDy);
+        N=RockReliefNormal(In,N,T,RockUx,RockUy,RockCavity);
+        NoV=max(dot(N,V),1.0e-4);
+        Albedo.rgb*=RockCavity;
+    }
+#endif
+    {
+        // The cockpit's panels get relief too, a little stronger than the fighter hull (cockpit_relief).
+        // Gradients are taken here, outside the branch; glass and lit instruments are left alone.
+        float3 CpDx=ddx(In.ViewPosition),CpDy=ddy(In.ViewPosition);
+        float2 CpUx=ddx(In.Uv),CpUy=ddy(In.Uv);
+        [branch] if(Cockpit && CockpitRelief.x>0.0 && dot(MaterialEmission.rgb,float3(1,1,1))<0.05)
+        {
+            N=CockpitReliefNormal(In,N,T,CpDx,CpDy,CpUx,CpUy);
+            NoV=max(dot(N,V),1.0e-4);
+        }
+    }
 
 #ifndef SURFACE_LOW_DETAIL
     float Frost=0.0,IceCracks=0.0;
@@ -670,7 +917,11 @@ float4 PSMain(SurfacePixel In) : COLOR0
         float3 Finish = GgxDistribution(NoH, pow(FinishRoughness, 4.0)) * FinishG *
             Fresnel(dot(V, H), float3(0.10, 0.10, 0.10)) / max(4.0 * NoV * NoL, 1.0e-4);
         DiffuseLighting += Attenuation * NoL * Albedo.rgb * (1.0 - F) * Light.DiffuseFalloff.rgb;
+#ifdef SURFACE_ROCK
+        Highlights += Attenuation * NoL * (Spec * 1.25 + Finish * (0.75 * RockStyle2.w)) * Light.SpecularOuter.rgb;
+#else
         Highlights += Attenuation * NoL * (Spec * 1.25 + Finish * 0.75) * Light.SpecularOuter.rgb;
+#endif
         if(Reflective)
         {
             // A smooth top coat supplies the bright moving accent, while an

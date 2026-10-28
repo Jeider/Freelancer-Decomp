@@ -85,6 +85,9 @@
   <ItemGroup Condition="'$(Rp9Enabled)'=='true'">
     <ClInclude Include="RP9.h" />
     <ClInclude Include="RP9Ex.h" />
+    <ClInclude Include="RP9VolumeBeam.inl" />
+    <ClInclude Include="RP9BeamMesh.h" />
+    <ClInclude Include="..\include\render\IRPVolumeBeam.h" />
     <ClInclude Include="RP9MeshInstances.h" />
     <ClInclude Include="RP9PlanetQuality.h" />
     <ClInclude Include="RP9DeviceCallCache.h" />

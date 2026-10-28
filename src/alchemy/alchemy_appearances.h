@@ -7,6 +7,8 @@
 #pragma once
 
 #include "alchemy_genericfx.h"
+#include "render/IRPVolumeBeam.h"
+#include <vector>
 
 // alchemy.dll — DACOM particle FX scaffolding.
 //
@@ -687,12 +689,14 @@ namespace AlchemyImpl
             FLBeamAppearance* Node; // +0x0c
             float Xform[12];        // +0x10
             float PrevPos[3];       // +0x40
+            std::vector<FRPVolumeBeamPoint>* VolumePoints; // port-only stack state
         };
 
         // FUN_06206850: blend, texture, fill mode (scoped) and the node's view transform.
         void ApplyDrawState();
         // FUN_06205720: the ribbon over the particle list (newest first).
-        void FillRibbon();
+        void FillRibbon(std::vector<FRPVolumeBeamPoint>* VolumePoints = nullptr);
+        bool DrawVolume();
         // FUN_06205f00: half width, {R, G, B, A} and the ring's V for particle P.
         void EvalRingParams(const FBeamRingState& State, const FPooledParticle* P, float* OutHalfWidth,
                             float* OutRgba, float* OutV);

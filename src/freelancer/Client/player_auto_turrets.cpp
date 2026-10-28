@@ -30,16 +30,21 @@ namespace
         CEGun* identity; // Compared only; always resolve through the live equipment manager.
         bool selected = true;
         bool manual = false;
+        bool needsArm = true;
         unsigned targetId = 0;
         float searchAfter = 0, held = 0;
+        PlayerTurretRules::BurstCycle cycle;
+        unsigned random = 1;
+        float errorX = 0, errorY = 0;
     };
-    BaseWatcher owner, designated;
+    BaseWatcher owner;
     std::vector<MemberState> members;
     Mode mode = Mode::Manual;
-    Mode preferred = Mode::Hostiles;
     Status status = Status::Off;
     unsigned revision = ~0u, system = 0, hullId = 0, reserve = 35, cursor = 0;
     bool energyHold = false;
+    bool focused = true;
+    bool automaticActivation = false;
     char preferencePath[MAX_PATH] = {}, preferenceSection[160] = {};
 
     void LoadPreferences(CShip* ship)
@@ -55,8 +60,7 @@ namespace
             char unit[8]; sprintf_s(unit, "%04x", unsigned(name[i])); strcat_s(preferenceSection, unit);
         }
         char hull[16]; sprintf_s(hull, ".%08x", ship->Archetype->get_id()); strcat_s(preferenceSection, hull);
-        reserve = (std::min)(90u, GetPrivateProfileIntA(preferenceSection, "reserve_percent", reserve, preferencePath));
-        preferred = GetPrivateProfileIntA(preferenceSection, "mode", 2, preferencePath) == 1 ? Mode::Target : Mode::Hostiles;
+        mode = GetPrivateProfileIntA(preferenceSection, "enabled", 1, preferencePath) ? Mode::Hostiles : Mode::Manual;
     }
     bool SavedSelection(CEGun* gun)
     {
@@ -132,6 +136,17 @@ namespace
             gun->SetTargetPoint(point);
         }
     }
+    void Arm(MemberState& member)
+    {
+        auto* gun = ResolveGun(member);
+        if (!gun || gun->IsActive()) return;
+        // Activating automation must also work for a gun disabled by a manual group.
+        // Keep its previous manual state for when ownership returns to the player.
+        automaticActivation = true;
+        CliShipActivateEquip(static_cast<IObjAffect*>(Resolve(owner)), &member.id, 1,
+                             static_cast<int>(GetPlayerConnectionId()));
+        automaticActivation = false;
+    }
     bool Hostile(IObjRW* target)
     {
         if (!target || target == Player() || !target->is_targetable() || target->is_dying()) return false;
@@ -191,7 +206,65 @@ namespace
         }
         return true;
     }
+
+    float ConfigFloat(char const* key, float fallback, float low, float high)
+    {
+        float const value = PortConfigFloat("AutoTurrets", key, fallback);
+        return std::isfinite(value) ? (std::max)(low, (std::min)(high, value)) : fallback;
+    }
+    float RandomUnit(MemberState& m)
+    {
+        m.random = m.random * 1664525u + 1013904223u;
+        return float(m.random >> 8) / 16777216.f;
+    }
+    void NewAimError(MemberState& m)
+    {
+        float const radius = std::sqrt(RandomUnit(m));
+        float const angle = RandomUnit(m) * 6.28318530718f;
+        m.errorX = radius * std::cos(angle);
+        m.errorY = radius * std::sin(angle);
+    }
+    void ResetAttack(MemberState& m)
+    {
+        m.targetId = 0;
+        m.searchAfter = m.held = 0;
+        m.cycle.Reset(BehaviorFor(ResolveGun(m)));
+    }
+    void ResetAttacks() { for (auto& m : members) ResetAttack(m); }
+    Vector ImpreciseAim(MemberState const& m, CEGun* gun, Vector aim, PlayerTurretRules::Behavior const& b)
+    {
+        Vector const from = gun->GetBarrelPosWS(0);
+        float const distance = std::sqrt(Distance2(from, aim));
+        Vector forward = {(aim.x-from.x)/distance, (aim.y-from.y)/distance, (aim.z-from.z)/distance};
+        Vector right = std::fabs(forward.y) < 0.99f ? Vector{forward.z, 0, -forward.x} : Vector{0, -forward.z, forward.y};
+        float const length = std::sqrt(right.x*right.x + right.y*right.y + right.z*right.z);
+        right.x /= length; right.y /= length; right.z /= length;
+        Vector up = {forward.y*right.z-forward.z*right.y, forward.z*right.x-forward.x*right.z, forward.x*right.y-forward.y*right.x};
+        float const spread = distance * std::tan(PlayerTurretRules::SpreadRadians(b));
+        aim.x += spread * (m.errorX*right.x + m.errorY*up.x);
+        aim.y += spread * (m.errorX*right.y + m.errorY*up.y);
+        aim.z += spread * (m.errorX*right.z + m.errorY*up.z);
+        return aim;
+    }
 }
+
+PlayerTurretRules::Behavior BehaviorFor(CEGun const* /*gun*/)
+{
+    static PlayerTurretRules::Behavior const defaults = [] {
+        PlayerTurretRules::Behavior b;
+        b.aimSeconds = ConfigFloat("aim_time", b.aimSeconds, 0, 60);
+        b.burstSeconds = ConfigFloat("burst_time", b.burstSeconds, 0.05f, 60);
+        b.restSeconds = ConfigFloat("rest_time", b.restSeconds, 0, 60);
+        b.accuracyPercent = ConfigFloat("accuracy_percent", b.accuracyPercent, 0, 100);
+        b.spreadDegrees = ConfigFloat("spread_degrees", b.spreadDegrees, 0, 30);
+        b.searchSeconds = ConfigFloat("search_interval", b.searchSeconds, 0.05f, 10);
+        b.targetHoldSeconds = ConfigFloat("target_hold_time", b.targetHoldSeconds, 0, 60);
+        b.reservePercent = (std::min)(90u, unsigned((std::max)(0, PortConfigInt("AutoTurrets", "reserve_percent", 35))));
+        return b;
+    }();
+    return defaults;
+}
+void SetFocused(bool value) { focused = value; if (!value) ResetAttacks(); }
 
 bool Enabled()
 {
@@ -204,9 +277,8 @@ void Reset()
     if (Resolve(owner) == Player() && SinglePlayer())
         for (auto& member : members) if (mode != Mode::Manual && member.selected) Release(member);
     mode = Mode::Manual; status = Status::Off; energyHold = false;
-    designated.set(nullptr); owner.set(nullptr); members.clear(); cursor = 0;
+    owner.set(nullptr); members.clear(); cursor = 0;
     preferencePath[0] = preferenceSection[0] = 0;
-    preferred = Mode::Hostiles;
 }
 
 void Reconcile()
@@ -220,7 +292,7 @@ void Reconcile()
     {
         Reset(); revision = currentRevision; system = currentSystem; hullId = currentHull;
         if (player) owner.set(static_cast<Watchable*>(player));
-        reserve = (std::min)(90u, unsigned((std::max)(0, PortConfigInt("AutoTurrets", "reserve_percent", 35))));
+        reserve = BehaviorFor(nullptr).reservePercent;
         LoadPreferences(Ship());
     }
     auto* ship = Ship();
@@ -233,9 +305,25 @@ void Reconcile()
         if (!Eligible(gun)) continue;
         auto* old = Find(equip);
         if (old) live.push_back(*old);
-        else live.push_back({gun->GetID(), gun, mode == Mode::Manual && SavedSelection(gun), gun->IsActive()});
+        else
+        {
+            MemberState added;
+            added.id = gun->GetID(); added.identity = gun;
+            added.selected = SavedSelection(gun); added.manual = gun->IsActive();
+            added.random = unsigned(added.id) * 2654435761u + hullId;
+            added.cycle.Reset(BehaviorFor(gun));
+            live.push_back(added);
+        }
     }
     members.swap(live);
+    // Only newly discovered equipment is armed here; explicit individual OFF remains OFF.
+    for (auto& member : members)
+        if (member.needsArm)
+        {
+            if (member.selected && mode != Mode::Manual) Arm(member);
+            member.needsArm = false;
+            NewAimError(member);
+        }
 }
 
 bool Owns(CEquip const* equip)
@@ -253,7 +341,7 @@ bool GroupActivation(CEquip const* equip, bool active)
 bool ManualActive(CEquip const* equip) { return Owns(equip) ? Find(equip)->manual : equip->IsActive(); }
 void ActivationChanged(CEquip const* equip, bool active)
 {
-    if (Owns(equip)) Find(equip)->manual = active;
+    if (!automaticActivation && Owns(equip)) Find(equip)->manual = active;
 }
 
 void SetMode(Mode next)
@@ -262,50 +350,35 @@ void SetMode(Mode next)
     if (next == Mode::Manual)
     {
         for (auto& member : members) if (mode != Mode::Manual && member.selected) Release(member);
-        mode = next; status = Status::Off; designated.set(nullptr); energyHold = false; return;
+        mode = next; status = Status::Off; energyHold = false; ResetAttacks();
+        SavePreference("enabled", 0); return;
     }
     if (!SinglePlayer()) { status = Status::Multiplayer; return; }
     if (!Ship() || !Enabled()) return;
     if (IsSpaceInitInProgress()) { status = Status::Suspended; return; }
-    if (next == Mode::Target)
-    {
-        auto* target = Ship()->get_target();
-        if (!Hostile(target)) { SetMode(Mode::Manual); status = Status::NoTarget; return; }
-        designated.set(static_cast<Watchable*>(target));
-    }
-    else designated.set(nullptr);
     if (mode == Mode::Manual)
         for (auto& member : members) if (auto* gun = ResolveGun(member)) member.manual = gun->IsActive();
-    for (auto& member : members) { member.targetId = 0; member.searchAfter = member.held = 0; }
+    ResetAttacks();
     mode = next; status = Status::Ready;
+    for (auto& member : members) if (member.selected) Arm(member);
+    SavePreference("enabled", 1);
 }
 Mode GetMode() { return mode; }
-Mode GetPreferredMode() { return preferred; }
-void SetPreferredMode(Mode next)
-{
-    SetMode(Mode::Manual);
-    preferred = next == Mode::Target ? Mode::Target : Mode::Hostiles;
-    SavePreference("mode", preferred == Mode::Target ? 1 : 2);
-}
 Status GetStatus() { return status; }
-void CycleReserve()
-{
-    reserve = reserve < 20 ? 20 : reserve < 35 ? 35 : reserve < 50 ? 50 : 0; energyHold = false;
-    SavePreference("reserve_percent", reserve);
-}
 unsigned ReservePercent() { return reserve; }
 unsigned MemberCount() { return unsigned(members.size()); }
 CEGun* Member(unsigned index) { return index < members.size() ? ResolveGun(members[index]) : nullptr; }
 bool Selected(unsigned index) { return index < members.size() && members[index].selected; }
 void ToggleMember(unsigned index)
 {
-    // Changing the automatic group revokes the current order; adding a gun cannot arm it.
-    SetMode(Mode::Manual);
+    Reconcile();
     if (index >= members.size()) return;
     auto& member = members[index];
     if (mode != Mode::Manual && member.selected) Release(member);
     if (auto* gun = ResolveGun(member)) member.manual = gun->IsActive();
     member.selected = !member.selected;
+    if (member.selected && mode != Mode::Manual) Arm(member);
+    ResetAttack(member);
     if (auto* gun = ResolveGun(member)) SavePreference(gun->GetParentHPName().Value, member.selected ? 1 : 0);
 }
 
@@ -313,26 +386,25 @@ void Tick(float dt, bool docking)
 {
     Reconcile();
     if (mode == Mode::Manual) return;
-    if (mode == Mode::Target && !Resolve(designated)) { SetMode(Mode::Manual); return; }
     auto* ship = Ship();
     if (!ship || !std::isfinite(dt) || dt <= 0) return;
-    if (docking || IsLetterboxVisible() || G_bNnScreenUp || ship->is_cruise_active() ||
+    if (!focused || docking || IsLetterboxVisible() || G_bNnScreenUp || ship->is_cruise_active() ||
         ship->is_using_tradelane() || ship->is_control_excluded(4u) || ship->CloakPercent > 0)
-    { status = Status::Suspended; return; }
+    { status = Status::Suspended; ResetAttacks(); return; }
     auto* scanner = CEScanner::cast(ship->EquipManager.FindFirst(EquipTypeScanner));
-    if (!scanner || !scanner->IsFunctioning()) { status = Status::NoScanner; return; }
+    if (!scanner || !scanner->IsFunctioning()) { status = Status::NoScanner; ResetAttacks(); return; }
     // Native FIGHTER..ARMORED_TRANSPORT type bits; do not add loot/projectiles
     // to the scanner's shared, bounded contact cache.
     scanner->scan_for_types(0x7f0000u);
     std::vector<IObjRW*> contacts;
     for (int i = 0; i < scanner->Scans.Count && i < 256; ++i)
         if (auto* candidate = Resolve(scanner->Scans.Entries[i]))
-            if (Hostile(candidate) && (mode != Mode::Target || candidate == Resolve(designated)))
+            if (Hostile(candidate))
                 contacts.push_back(candidate);
-    if (contacts.empty()) { status = Status::NoTarget; return; }
+    if (contacts.empty()) { status = Status::NoTarget; ResetAttacks(); return; }
     if (members.empty()) { status = Status::NoTurrets; return; }
     if (energyHold && !PlayerTurretRules::Resume(ship->Power, ship->MaxPower, reserve))
-    { status = Status::Energy; return; }
+    { status = Status::Energy; ResetAttacks(); return; }
     energyHold = false; status = Status::NoTurrets;
     unsigned const start = cursor++ % unsigned(members.size());
     bool fired = false;
@@ -340,7 +412,9 @@ void Tick(float dt, bool docking)
     {
         auto& member = members[(start+n) % members.size()];
         auto* gun = ResolveGun(member);
-        if (!member.selected || !gun || !gun->IsFunctioning()) continue;
+        if (!member.selected || !gun || !gun->IsFunctioning()) { ResetAttack(member); continue; }
+        auto const behavior = BehaviorFor(gun);
+        if (member.cycle.Advance(dt, behavior)) NewAimError(member);
         IObjRW* target = nullptr; Vector aim; float best = 3.402823466e+38F;
         member.searchAfter -= dt; member.held += dt;
         for (auto* candidate : contacts)
@@ -349,9 +423,9 @@ void Tick(float dt, bool docking)
         if (!target && member.searchAfter > 0) { status = Status::NoTarget; continue; }
         // Keep a valid target for at least 0.75 s; afterwards switch only for a
         // substantially closer candidate. No hidden contacts or frame-rate-dependent churn.
-        if (!target || (member.searchAfter <= 0 && member.held >= 0.75f))
+        if (!target || (member.searchAfter <= 0 && member.held >= behavior.targetHoldSeconds))
         {
-            member.searchAfter = 0.2f;
+            member.searchAfter = behavior.searchSeconds;
             float const threshold = target ? best * 0.64f : best;
             float nextBest = threshold;
             for (auto* candidate : contacts)
@@ -362,16 +436,23 @@ void Tick(float dt, bool docking)
                 if (distance < nextBest) { nextBest = distance; target = candidate; aim = point; }
             }
         }
-        if (!target) { status = Status::NoTarget; continue; }
-        if (member.targetId != target->get_id()) { member.targetId = target->get_id(); member.held = 0; }
+        if (!target) { status = Status::NoTarget; member.targetId = 0; member.cycle.Reset(behavior); continue; }
+        if (member.targetId != target->get_id())
+        {
+            member.targetId = target->get_id(); member.held = 0;
+            member.cycle.Reset(behavior); NewAimError(member);
+        }
+        aim = ImpreciseAim(member, gun, aim, behavior);
+        if (!Finite(aim) || !gun->CanPointAt(aim, 0.01f)) { status = Status::Aiming; continue; }
         gun->SetTarget(static_cast<CSimple*>(const_cast<CObject*>(target->cobject())), 0);
         gun->SetTargetPoint(aim);
         status = Status::Aiming;
-        if (!gun->CanSeeTargetPoint(aim, 0.02f) || gun->RefireElapsed < gun->GunArch()->RefireDelay) continue;
+        if (!member.cycle.Ready() || !gun->CanSeeTargetPoint(aim, 0.02f) || gun->RefireElapsed < gun->GunArch()->RefireDelay) continue;
         if (!PlayerTurretRules::CanSpend(ship->Power, ship->MaxPower, gun->GetPowerDrawPerFire(), reserve))
         { energyHold = true; status = Status::Energy; continue; }
         if (!ClearLine(gun, target, aim)) { status = Status::Blocked; continue; }
-        fired |= CliShipFireAutomatic(static_cast<IObjAffect*>(Player()), member.id, aim);
+        if (CliShipFireAutomatic(static_cast<IObjAffect*>(Player()), member.id, aim))
+        { fired = true; member.cycle.Fired(behavior); }
     }
     if (fired) status = Status::Firing;
 }

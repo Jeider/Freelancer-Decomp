@@ -54,7 +54,8 @@ namespace
     // [FarRocks] as parsed; a negative value means "derive it at build time".
     struct FFarParams
     {
-        bool bDebris = false;
+        bool bDebris = false;       // type = debris or mesh: real meshes, not impostors
+        bool bDebrisField = false;  // type = debris only: a field of debris, not a mesh asteroid field
         int Count = 8000;
         float SizeMin = 15.0f;
         float SizeMax = 250.0f;
@@ -528,6 +529,34 @@ namespace
             return false;
         Universe::IZone const* const Zone = Info.Zone;
         FFarParams const& P = F.P;
+        // Debris fields (type = debris only): the far rocks wear the standard debris (port.ini far_rocks_debris_models, dynamic
+        // asteroid nicknames, e.g. din_debris_large_A..C) instead of the field's own, larger models, at
+        // model_scale (times far_rocks_debris_scale) times the authored size. Empty: the field's own.
+        float ModelScale = P.ModelScale;
+        if (P.bDebrisField)  // only type = debris: a mesh asteroid field keeps its own models
+        {
+            char List[256] = {};
+            PortConfigString("Render", "far_rocks_debris_models", "", List, sizeof(List));
+            if (char* Comment = strchr(List, ';'))  // GetPrivateProfileString keeps an inline comment
+                *Comment = '\0';
+            FCliDynamicAsteroidMesh const* Standard[4] = {};
+            char StandardTexture[4][64] = {};
+            int StandardCount = 0;
+            for (char* Token = strtok(List, ", "); Token != nullptr && StandardCount < 4; Token = strtok(nullptr, ", "))
+                if (CliAsteroidGetStandardDynMesh(Token, &Standard[StandardCount], StandardTexture[StandardCount], 64))
+                    ++StandardCount;
+            if (StandardCount > 0)
+            {
+                Info.DynMeshCount = StandardCount;
+                for (int I = 0; I < StandardCount; ++I)
+                {
+                    Info.DynMesh[I] = Standard[I];
+                    strncpy_s(Info.DynMeshTexture[I], sizeof(Info.DynMeshTexture[I]), StandardTexture[I], _TRUNCATE);
+                    Info.DynMeshTint[I][0] = Info.DynMeshTint[I][1] = Info.DynMeshTint[I][2] = 1.0f;
+                }
+                ModelScale *= (std::max)(0.05f, PortConfigFloat("Render", "far_rocks_debris_scale", 1.0f));
+            }
+        }
 
         // The zone's frame.
         float Radii[3];
@@ -664,12 +693,12 @@ namespace
                 TextureNames += Info.DynMeshTexture[I];
             }
             if (F.TexCount == 0) return false;
-            if (P.ModelScale > 0.0f)
+            if (ModelScale > 0.0f)
             {
-                SizeMin = SizeMax = F.Meshes[0].SourceRadius * P.ModelScale;
+                SizeMin = SizeMax = F.Meshes[0].SourceRadius * ModelScale;
                 for (int I = 1; I < F.TexCount; ++I)
                 {
-                    double const Radius = F.Meshes[I].SourceRadius * P.ModelScale;
+                    double const Radius = F.Meshes[I].SourceRadius * ModelScale;
                     SizeMin = (std::min)(SizeMin, Radius); SizeMax = (std::max)(SizeMax, Radius);
                 }
                 // A single model still needs a nonzero interval for the placement sampler.
@@ -803,8 +832,8 @@ namespace
                             // Select before testing exclusions so they use the real enlarged bounds.
                             int const Pick = static_cast<int>(Unit(Hash(R ^ 0xdeb415ull)) * (std::max)(1, F.TexCount));
                             int const Model = (std::max)(0, (std::min)(F.TexCount - 1, Pick));
-                            if (P.bDebris && P.ModelScale > 0.0f)
-                                Radius = F.Meshes[Model].SourceRadius * P.ModelScale;
+                            if (P.bDebris && ModelScale > 0.0f)
+                                Radius = F.Meshes[Model].SourceRadius * ModelScale;
                             double Off[3];
                             for (int I = 0; I < 3; ++I)
                                 Off[I] = Pos[0] * Axis[0][I] + Pos[1] * Axis[1][I] + Pos[2] * Axis[2][I];
@@ -832,7 +861,7 @@ namespace
                                 : (std::max)(0, (std::min)(F.TexCount - 1, OriginalPick)));
                             Rock.Jitter = static_cast<uint8_t>(Unit(R = Hash(R)) * 255.0 + 0.5);
                             Rock.Class = static_cast<uint8_t>(J);
-                            if (P.bDebris && P.ModelScale > 0.0f)
+                            if (P.bDebris && ModelScale > 0.0f)
                             {
                                 Rock.Class = 0;
                                 while (Rock.Class + 1 < Classes && Radius > Edges[Rock.Class + 1]) ++Rock.Class;
@@ -1030,8 +1059,10 @@ void FarRocksParseSection(FCliAsteroid* Field, INI_Reader& Reader)
     while (Reader.read_value())
     {
         if (Reader.is_value("type"))
-            P.bDebris = _stricmp(Reader.get_value_string(), "debris") == 0 ||
-                        _stricmp(Reader.get_value_string(), "mesh") == 0;
+        {
+            P.bDebrisField = _stricmp(Reader.get_value_string(), "debris") == 0;
+            P.bDebris = P.bDebrisField || _stricmp(Reader.get_value_string(), "mesh") == 0;
+        }
         else if (Reader.is_value("count"))
             P.Count = (std::max)(500, (std::min)(kMaxFarRocks, static_cast<int>(Reader.get_value_float(0))));
         else if (Reader.is_value("size"))
@@ -1343,6 +1374,9 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
             Set4(&Ps[24], F.SunColour[0] * SunGain, F.SunColour[1] * SunGain, F.SunColour[2] * SunGain, P.Bump);
             Set4(&Ps[28], Sun > 0.5f ? ViewSun[0] : 0.0f, Sun > 0.5f ? ViewSun[1] : 0.0f,
                  Sun > 0.5f ? ViewSun[2] : 1.0f, P.TextureScale);
+            // The relief of the rocks' surface (far_rocks_relief, 0 = off): the pixel shader's c8.
+            static float const S_Relief = (std::max)(0.0f, (std::min)(3.0f, PortConfigFloat("Render", "far_rocks_relief", 1.0f)));
+            Set4(&Ps[32], S_Relief, 0.0f, 0.0f, 0.0f);
             Ex->SetExPixelConstants(0, Ps, 9);
             // Two passes over the same rocks (the vertex shader keeps one kind per pass): the solid
             // ones with depth written, then the soft dots without it.

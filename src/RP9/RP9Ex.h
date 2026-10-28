@@ -128,6 +128,19 @@ struct FRp9ExState
     float ShipNormalStrength=0.25f;
     float ShipNormalRange=0;
     IDirect3DPixelShader9* ShipNormalPs[4]={};
+    // Asteroid / debris relief (IRPRockNormals): object scope, shared procedural detail map.
+    unsigned RockClass=0;
+    float RockRadius=0;
+    bool bRockNormalsPrepared=false, bRockEnabled=false;
+    IDirect3DTexture9* RockDetail=nullptr;
+    IDirect3DPixelShader9* RockPs[4]={};
+    float RockDetailStrength=2.4f, RockMacroStrength=3.0f;
+    // Relief quality tiers, metres: full, no texture relief, large lumps only, simplest, out (rock_lod_*).
+    float RockLod[5]={300.0f,700.0f,1000.0f,2000.0f,5000.0f};
+    float RockDebrisGloss=0.55f, RockAsteroidGloss=0.04f;
+    float RockDebrisRelief=0.8f, RockDebrisMacro=0.8f; // scrap: far gentler than rock (rock_debris_relief / _macro)
+    float RockParallax=0.0f; // deepest parallax shift in metres (0 = none)
+    bool bRockShadows=true; // asteroids and debris receive local (ship / hull) shadows
     IDirect3DVertexShader9* RoomVs = nullptr;
     IDirect3DVertexShader9* RoomSkinVs = nullptr;
     IDirect3DPixelShader9* RoomPs = nullptr;
@@ -202,6 +215,14 @@ struct FRp9ExState
     float CodeBeamStrength = 1.0f, CodeBeamRipple = 0.045f;
     IDirect3DVertexShader9* CodeBeamVs = nullptr;
     IDirect3DPixelShader9* CodeBeamPs = nullptr;
+    bool VolumeBeamEnabled = false;
+    std::string VolumeBeamNodes;
+    float VolumeBeamCore = .18f, VolumeBeamStrength = 1.f;
+    std::string VolumeBeamTrailNodes = "trail";
+    float VolumeBeamTrailFade = 10.f;
+    bool VolumeBeamPendingTrail = false;
+    IDirect3DVertexShader9* VolumeBeamVs = nullptr;
+    IDirect3DPixelShader9* VolumeBeamPs = nullptr;
 
     // Planet atmosphere (SetPlanetAtmosphere): requested by Shading around the shell draw,
     // port.ini [Render] settings (read once) and the shaders of planet_atmosphere.hlsl.
@@ -269,6 +290,7 @@ struct FRp9ExState
     bool bSurfaceCockpit = false, bSurfaceGlass = false;
     bool bCockpitShader = true, bGlassShader = true;
     float SurfaceGlassStrength = 1.5f, SurfaceCockpitStrength = 0.65f;
+    float CockpitRelief = 0.35f; // cockpit panel relief (cockpit_relief; 0 = off)
     bool bSurfaceMaterialValid = false;
     bool bSurfaceLogged = false;
     unsigned long SurfaceShader = RPSurfaceAuto;
@@ -308,8 +330,8 @@ struct FRp9ExState
     std::uint32_t SurfaceShaderWrites = 0, SurfacePsWrites = 0, SurfaceSamplerWrites = 0;
     IDirect3DVertexShader9* SurfaceBoundVs = nullptr;
     IDirect3DPixelShader9* SurfaceBoundPs = nullptr;
-    float SurfacePsMirror[102 * 4] = {};
-    bool SurfacePsMirrorValid[102] = {};
+    float SurfacePsMirror[107 * 4] = {};
+    bool SurfacePsMirrorValid[107] = {};
     IDirect3DBaseTexture9* SurfaceSamplerTexture[6] = {};
     unsigned long SurfaceSamplerStates[6][8] = {};
     bool SurfaceSamplerValid[6] = {};

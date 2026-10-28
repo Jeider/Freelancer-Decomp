@@ -2,7 +2,6 @@
 #include "hud_health.h"
 #include "player_turret_hud.h"
 #include "hud_status_core.h"
-#include "hud_weapon_groups.h"
 #include "wing_anim.h"
 #include "common_ini.h"
 #include "common_cobject.h"
@@ -138,7 +137,6 @@ void HUD_Health::ReleaseHost()
     owner = nullptr;
     hostButton = nullptr;
     lockButton = nullptr;
-    for (auto& group : groups) group = nullptr;
 }
 
 void HUD_Health::NormalizeIcon(WinControl* control, int index, float radius)
@@ -222,25 +220,14 @@ bool HUD_Health::BindHost()
         nullptr, "ui_item_select", nullptr, zero, nullptr, half, 0, 1, 0, 0, HudIds::HealthLock, 0, 0);
     if (!lockButton) { ReleaseHost(); return false; }
     NormalizeIcon(lockButton, 10, 0.022f);
-    char const* meshes[] = {"interface\\hud\\HUD_weaponsgroup1.3db",
-        "interface\\hud\\HUD_weaponsgroup2.3db", "interface\\hud\\HUD_weaponsgroup3.3db"};
-    char const* names[] = {"HealthWeaponGroup1", "HealthWeaponGroup2", "HealthWeaponGroup3"};
-    float const groupHalf[] = {0.012f, 0.012f, 0};
-    for (int i = 0; i < 3; ++i)
-    {
-        // HudWeaponGroups.dll 0041A18C: native select commands 0x91, 0x92, 0x93.
-        groups[i] = owner->CreateButtonControl(names[i], meshes[i], nullptr, "ui_item_select",
-            nullptr, zero, nullptr, groupHalf, 0, 1, 0, 0, HudIds::WeaponGroup1 + i, 0, 0x91 + i);
-        if (!groups[i]) { ReleaseHost(); return false; }
-        NormalizeIcon(groups[i], i + 1, 0.017f);
-    }
+    // Weapon-group controls are intentionally hidden; native keyboard groups remain.
     UpdateHostButtons();
     return true;
 }
 
-bool HUD_Health::CanShow() const
+bool HUD_Health::CanShow(bool hostControls) const
 {
-    return enabled && !AreAuxiliaryHudWindowsMinimized() && GetGameOption(kGameOptInterfaceGroup) && GetGameOption(kGameOptHud) &&
+    return enabled && (hostControls || !AreAuxiliaryHudWindowsMinimized()) && GetGameOption(kGameOptInterfaceGroup) && GetGameOption(kGameOptHud) &&
         !IsSpaceInitInProgress() && !G_bNnScreenUp && !IsLetterboxVisible() &&
         GetPlayerObjRW() && GetClientMouseCursorDrawFlag();
 }
@@ -250,25 +237,23 @@ void HUD_Health::UpdateHostButtons()
     auto* source = Source();
     if (!source || !hostButton || !lockButton) return;
     bool const moving = source->ButtonMover::IsActive() || source->ButtonScaler::IsActive();
-    bool const visible = CanShow() && !moving;
+    bool const visible = CanShow(true) && !moving;
     bool const expanded = source->bExpanded != 0;
-    PlayerTurretHud::Update(source, source->RepairButton->AttachPosition, visible && expanded);
     hostButton->SetProperty(1, visible ? 0 : 1, 0);
     hostButton->SetProperty(0xc, windowState.open ? 1 : 0, 0);
     lockButton->SetProperty(1, visible ? 0 : 1, 0);
     lockButton->SetProperty(3, GetSavedHealthWindowLocked() ? HudIds::HealthUnlock : HudIds::HealthLock, 0);
     lockButton->SetProperty(0xc, GetSavedHealthWindowLocked() ? 1 : 0, 0);
-    for (int i = 0; i < 3; ++i)
-        if (groups[i])
-        {
-            groups[i]->SetProperty(1, visible && expanded ? 0 : 1, 0);
-            groups[i]->SetProperty(0xc, G_WeaponGroups.GetCurrent() == i ? 1 : 0, 0);
-        }
-    if (moving) return;
+    if (moving)
+    {
+        PlayerTurretHud::Update(source, source->RepairButton->AttachPosition, false, 0, 0);
+        return;
+    }
     float const y = expanded ? -0.171f : -0.371f;
-    float const healthX = expanded ? 0.292f : 0.338f;
-    float const repairX = expanded ? 0.358f : 0.405f;
-    float const batteryX = expanded ? 0.411f : 0.462f;
+    float const healthX = expanded ? 0.292f : 0.304f;
+    float const repairX = expanded ? 0.396f : 0.408f;
+    float const batteryX = expanded ? 0.449f : 0.461f;
+    PlayerTurretHud::Update(source, source->RepairButton->AttachPosition, visible, healthX + 0.068f, y);
     // Copy attachment, then SetOffset once: Position already includes attachment.
     std::memcpy(hostButton->AttachPosition, source->RepairButton->AttachPosition, sizeof(hostButton->AttachPosition));
     hostButton->SetOffset(healthX, y, 0);
@@ -278,23 +263,26 @@ void HUD_Health::UpdateHostButtons()
     source->RepairCountText->SetOffset(repairX + 0.010f, y + 0.011f, 0);
     source->UseBatteryButton->SetOffset(batteryX, y, 0);
     source->BatteryCountText->SetOffset(batteryX + 0.010f, y + 0.011f, 0);
-    for (int i = 0; i < 3; ++i)
-        if (groups[i])
-        {
-            std::memcpy(groups[i]->AttachPosition, hostButton->AttachPosition, sizeof(hostButton->AttachPosition));
-            // Beneath the close cross, just left of the native weapon numbers.
-            groups[i]->SetOffset(0.255f, -0.247f - i * 0.024f, 0);
-        }
 }
 
 bool HUD_Health::HostProperty(int msg, uintptr_t a, uintptr_t)
 {
     auto* button = reinterpret_cast<WinControl*>(a);
     if (!Source() || !button || (button != hostButton && button != lockButton)) return false;
-    if (msg == 0x26 && CanShow())
+    if (msg == 0x26 && CanShow(true))
     {
         RestoreSavedState();
-        if (button == hostButton) TogglePanel();
+        if (button == hostButton)
+        {
+            if (AreAuxiliaryHudWindowsMinimized())
+            {
+                ToggleAuxiliaryHudWindowsMinimized();
+                windowState.open = true;
+                SetSavedHealthWindowOpen(true);
+                SyncPanel();
+            }
+            else TogglePanel();
+        }
         else
         {
             windowState.SetLocked(!GetSavedHealthWindowLocked());

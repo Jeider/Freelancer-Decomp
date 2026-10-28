@@ -6,6 +6,7 @@
 
 #include "win3d.h"
 #include "cutscene_skip.h"
+#include "native_subtitles.h"
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
 #endif
@@ -1213,6 +1214,7 @@ void Win3DDrawAll()
         UiOverlayPrepPipeline();   // FUN_00417f10
         ImeFocusDrawPass();        // FUN_00563af0
         CutsceneSkipDraw();
+        NativeSubtitles::Draw();
     }
     MouseFrameUpdate();        // FUN_0041f150
     DALib::MaterialBatcher->SetBinOrder(1, 1);

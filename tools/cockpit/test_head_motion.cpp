@@ -1,4 +1,5 @@
 #include "../../src/freelancer/Client/cockpit_head_motion.h"
+#include "../../src/freelancer/Client/cockpit_free_look_state.h"
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
@@ -21,8 +22,67 @@ static void Run(State& state, int fps, float pitch, float yaw, float seconds)
         state.Step(pitch, yaw, 40.f, 25.f, 1.f / fps);
 }
 
+static void CheckFreeLook()
+{
+    constexpr float rad = CockpitHeadMotion::DegreesToRadians;
+    float referenceReturn = 0.f;
+    for (int fps : {30, 60, 144, 240})
+    {
+        CockpitFreeLook::State look;
+        State head;
+        look.Enable(true);
+        Require(!look.Begin(), "activating click must not start look");
+        look.waitingForRelease = false;
+        Require(look.Begin(), "fresh press must start look");
+        look.Move(100.f, -50.f, 800.f, false, 30.f, 25.f);
+        Near(look.targetYaw, -15.f * rad, "relative horizontal look");
+        Near(look.targetPitch, 7.5f * rad, "relative vertical look");
+        for (int i = 0; i < fps * 12; ++i) look.Step(head, 30.f, 25.f, 1.f / fps);
+        Near(head.yaw, -15.f * rad, "stationary held mouse must keep looking sideways");
+        const float heldYaw = head.yaw;
+        look.Release();
+        look.Step(head, 30.f, 25.f, 0.f);
+        Near(head.yaw, heldYaw, "release must not snap or move during pause");
+        for (int i = 0; i < fps; ++i) look.Step(head, 30.f, 25.f, 1.f / fps);
+        Require(head.yaw > heldYaw && head.yaw < 0.f, "release must return smoothly");
+        if (fps == 30) referenceReturn = head.yaw;
+        else Near(head.yaw, referenceReturn, "free-look return must be FPS-independent");
+        const float returningYaw = head.yaw;
+        Require(look.Begin(), "fresh press during return");
+        Near(look.targetYaw, returningYaw, "resume from the current head angle");
+        look.Move(10000.f, -10000.f, 800.f, false, 30.f, 25.f);
+        Near(look.targetYaw, -30.f * rad, "free-look yaw limit");
+        Near(look.targetPitch, 25.f * rad, "free-look pitch limit");
+        look.Enable(false);
+        const float disabledYaw = head.yaw;
+        Require(!look.Step(head, 30.f, 25.f, 1.f / fps), "toggle off immediately releases automatic look");
+        Near(head.yaw, disabledYaw, "handoff preserves current head orientation");
+        for (int i = 0; i < fps * 20; ++i) head.Step(0, 0, 30.f, 25.f, 1.f / fps);
+        Require(head.pitch == 0.f && head.yaw == 0.f, "toggle off must finish centring");
+        Require(!look.Step(head, 30.f, 25.f, 1.f / fps), "automatic look regains ownership after centring");
+    }
+    CockpitFreeLook::State normal, wide, inverse;
+    for (auto* look : {&normal, &wide, &inverse})
+    {
+        look->Enable(true);
+        look->waitingForRelease = false;
+        Require(look->Begin(), "begin resolution/inversion test");
+    }
+    normal.Move(100.f, 50.f, 800.f, false, 30.f, 25.f);
+    wide.Move(200.f, 100.f, 1600.f, false, 30.f, 25.f);
+    inverse.Move(100.f, 50.f, 800.f, true, 30.f, 25.f);
+    Near(wide.targetYaw, normal.targetYaw, "resolution-independent sensitivity");
+    Near(inverse.targetPitch, -normal.targetPitch, "invert mouse applies to head pitch");
+    Near(inverse.targetYaw, normal.targetYaw, "invert mouse must not invert yaw");
+    State disabled;
+    disabled.pitch = disabled.yaw = .2f;
+    normal.Step(disabled, 0.f, 0.f, 0.f);
+    Require(disabled.pitch == 0.f && disabled.yaw == 0.f, "disabled head axes apply even while paused");
+}
+
 int main()
 {
+    CheckFreeLook();
     const auto right = CockpitHeadMotion::FromManualInput(1.f, 0.f);
     const auto up = CockpitHeadMotion::FromManualInput(0.f, -1.f);
     Near(right.pitch, 0.f, "horizontal input affects pitch");
@@ -163,5 +223,5 @@ int main()
     for (int i = 0; i < 9; ++i)
         Near(matrix[i], i % 4 == 0 ? 1.f : 0.f, "reset does not restore forward view");
 
-    std::puts("Cockpit head motion: FPS, reversal, return, limits, axes, rotation and reset checks passed.");
+    std::puts("Cockpit head motion: automatic/free look, hold/release, FPS, limits, inversion and reset checks passed.");
 }

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "hud_maneuvers.h"
+#include "cockpit_free_look.h"
 
 #include "common_cobject.h"
 #include "common_id.h"
@@ -251,6 +252,7 @@ HUD_Maneuvers::HUD_Maneuvers(INI_Reader& Reader)
 
 HUD_Maneuvers::~HUD_Maneuvers()
 {
+    CockpitFreeLook::ReleaseHud(this);
     // FUN_004d7a70: DAT_00674a58 = 0, then the +0x390 watcher (set_pointer(0) when watching),
     // the vector freed, Event::Handler FUN_00576010, ~WinControl FUN_0059fa50 and HUDItem's
     // watcher -- the member and base destructors, in that order.
@@ -565,6 +567,7 @@ void HUD_Maneuvers::UpdateInactive()
         SetHiddenWithChildren(false);          // FUN_005a0c30(0)
     }
     // 0x004d8597..0x004d85b4: LAB_004682f0 inlined.
+    CockpitFreeLook::UpdateHud(this);
     Win3D::UpdateInactive();
 }
 
@@ -589,6 +592,7 @@ void HUD_Maneuvers::Update()
         GetGameOption(kGameOptHud) != 0 && GetPlayerObjRW() != nullptr && !IsLetterboxVisible())
     {
         UpdateButtons();
+        CockpitFreeLook::UpdateHud(this);
         Win3D::Update();                        // tail jump FUN_005a17b0
         return;
     }
@@ -602,6 +606,8 @@ void HUD_Maneuvers::Draw()
     if (IsSpaceInitInProgress())
         return;
 
+    CockpitFreeLook::UpdateHud(this);
+
     // 0x004d86a5..0x004d86c0: without the auto-hide option (Applied <= 0.999, or NaN) the bar
     // is drawn as it is.
     if (!(static_cast<double>(FindPerfOption("autohide_maneuver_bar")->Applied) > 0.999))
@@ -613,6 +619,11 @@ void HUD_Maneuvers::Draw()
     // 0x004d86c6..0x004d88d7: otherwise only while the mouse ray is over the frame or the tab.
     float Transform[12];
     float Ray[3];
+    if (CockpitFreeLook::HitTestHud(this, Win3DGetMouseRay(Ray)))
+    {
+        WinControl::Draw();
+        return;
+    }
     ControlBoxTransform(Frame, Transform);
     if (Win3DRayHitsAabbHalfExtents(FrameHalfExtents, Transform, Win3DGetMouseRay(Ray)))
     {
@@ -626,6 +637,8 @@ void HUD_Maneuvers::Draw()
 
 bool HUD_Maneuvers::HitTest(float const* Ray)
 {
+    if (CockpitFreeLook::HitTestHud(this, Ray))
+        return true;
     // LAB_004d9820 (this = the WinControl face).
     if (WinControl::HitTest(Ray))               // FUN_005a0340
         return true;

@@ -1,4 +1,5 @@
 #pragma once
+#include "player_turret_rules.h"
 
 class CEquip;
 class CEGun;
@@ -7,7 +8,7 @@ class Vector;
 
 namespace PlayerAutoTurrets
 {
-    enum class Mode { Manual, Target, Hostiles };
+    enum class Mode { Manual, Hostiles };
     enum class Status { Off, Ready, NoTurrets, NoTarget, NoScanner, Suspended, Energy, Aiming, Blocked, Firing, Multiplayer };
 #ifdef FREELANCER_PLAYER_AUTO_TURRETS
     bool Enabled();
@@ -20,15 +21,15 @@ namespace PlayerAutoTurrets
     void ActivationChanged(CEquip const* equip, bool active);
     void SetMode(Mode mode);
     Mode GetMode();
-    Mode GetPreferredMode();
-    void SetPreferredMode(Mode mode);
     Status GetStatus();
-    void CycleReserve();
     unsigned ReservePercent();
     unsigned MemberCount();
     CEGun* Member(unsigned index);
     bool Selected(unsigned index);
     void ToggleMember(unsigned index);
+    // Resolve effective behavior here when equipment/perk modifiers are added.
+    PlayerTurretRules::Behavior BehaviorFor(CEGun const* gun);
+    void SetFocused(bool focused);
 #else
     inline bool Enabled() { return false; }
     inline void Reconcile() {}

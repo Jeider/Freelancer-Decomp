@@ -54,7 +54,37 @@ namespace
         }
     }
     char G_Language[32] = {};
+    char G_Voice[32] = {};
+    char G_Difficulty[16] = {};
     bool G_bInitialised = false;
+
+    void LowerCase(char* Text)
+    {
+        for (; *Text != '\0'; ++Text)
+            if (*Text >= 'A' && *Text <= 'Z')
+                *Text = static_cast<char>(*Text - 'A' + 'a');
+    }
+
+    // "-name:value", "-name=value" or "-name value" in the command line into Out (kept when absent).
+    void ReadSwitch(char const* CommandLine, char const* Name, char* Out, unsigned OutSize)
+    {
+        char const* Switch = std::strstr(CommandLine, Name);
+        if (Switch == nullptr)
+            return;
+        Switch += std::strlen(Name);
+        if (*Switch == ':' || *Switch == '=' || *Switch == ' ')
+            ++Switch;
+        while (*Switch == ' ')
+            ++Switch;
+        unsigned Length = 0;
+        while (Switch[Length] != '\0' && Switch[Length] != ' ' && Switch[Length] != '"' && Length + 1 < OutSize)
+        {
+            Out[Length] = Switch[Length];
+            ++Length;
+        }
+        if (Length != 0)
+            Out[Length] = '\0';
+    }
 
     void Initialise()
     {
@@ -71,28 +101,20 @@ namespace
         std::strncat(G_IniPath, "port.ini", MAX_PATH - std::strlen(G_IniPath) - 1);
 
         GetPrivateProfileStringA("Language", "language", "", G_Language, sizeof(G_Language), G_IniPath);
+        GetPrivateProfileStringA("Language", "voice", "", G_Voice, sizeof(G_Voice), G_IniPath);
+        GetPrivateProfileStringA("Language", "difficulty", "normal", G_Difficulty, sizeof(G_Difficulty), G_IniPath);
 
-        // -lang:xx (or -lang xx) on the command line overrides the file.
+        // -lang:xx / -voice:xx / -difficulty:xx on the command line override the file.
         char const* const CommandLine = GetCommandLineA();
-        if (char const* Switch = std::strstr(CommandLine, "-lang"))
-        {
-            Switch += 5;
-            if (*Switch == ':' || *Switch == '=' || *Switch == ' ')
-                ++Switch;
-            while (*Switch == ' ')
-                ++Switch;
-            unsigned Out = 0;
-            while (Switch[Out] != '\0' && Switch[Out] != ' ' && Switch[Out] != '"' && Out + 1 < sizeof(G_Language))
-            {
-                G_Language[Out] = Switch[Out];
-                ++Out;
-            }
-            if (Out != 0)
-                G_Language[Out] = '\0';
-        }
-        for (char* Char = G_Language; *Char != '\0'; ++Char)
-            if (*Char >= 'A' && *Char <= 'Z')
-                *Char = static_cast<char>(*Char - 'A' + 'a');
+        ReadSwitch(CommandLine, "-lang", G_Language, sizeof(G_Language));
+        ReadSwitch(CommandLine, "-voice", G_Voice, sizeof(G_Voice));
+        ReadSwitch(CommandLine, "-difficulty", G_Difficulty, sizeof(G_Difficulty));
+        LowerCase(G_Language);
+        LowerCase(G_Voice);
+        LowerCase(G_Difficulty);
+        // The voice-over language follows the interface language unless it is set separately.
+        if (G_Voice[0] == '\0')
+            std::strcpy(G_Voice, G_Language);
     }
 }
 
@@ -191,6 +213,34 @@ unsigned __cdecl PortLanguageString(char const* Key, char const* Default, char* 
     }
     char Section[48] = "Language.";
     std::strncat(Section, G_Language, sizeof(Section) - std::strlen(Section) - 1);
+    return PortConfigString(Section, Key, Default != nullptr ? Default : "", Out, OutSize);
+}
+
+char const* __cdecl PortVoice()
+{
+    Initialise();
+    return G_Voice;
+}
+
+char const* __cdecl PortDifficulty()
+{
+    Initialise();
+    return G_Difficulty;
+}
+
+unsigned __cdecl PortVoiceString(char const* Key, char const* Default, char* Out, unsigned OutSize)
+{
+    Initialise();
+    if (G_Voice[0] == '\0')
+    {
+        if (Out == nullptr || OutSize == 0)
+            return 0;
+        std::strncpy(Out, Default != nullptr ? Default : "", OutSize - 1);
+        Out[OutSize - 1] = '\0';
+        return static_cast<unsigned>(std::strlen(Out));
+    }
+    char Section[48] = "Voice.";
+    std::strncat(Section, G_Voice, sizeof(Section) - std::strlen(Section) - 1);
     return PortConfigString(Section, Key, Default != nullptr ? Default : "", Out, OutSize);
 }
 

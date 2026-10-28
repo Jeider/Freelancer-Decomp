@@ -392,9 +392,9 @@ bool HUD_Targeting::BindContent()
     return true;
 }
 
-bool HUD_Targeting::CanShow() const
+bool HUD_Targeting::CanShow(bool hostControls) const
 {
-    return enabled && !AreAuxiliaryHudWindowsMinimized() && GetGameOption(kGameOptInterfaceGroup) && GetGameOption(kGameOptHud) &&
+    return enabled && (hostControls || !AreAuxiliaryHudWindowsMinimized()) && GetGameOption(kGameOptInterfaceGroup) && GetGameOption(kGameOptHud) &&
         !IsSpaceInitInProgress() && !G_bNnScreenUp && !IsLetterboxVisible() &&
         GetPlayerObjRW() && GetClientMouseCursorDrawFlag();
 }
@@ -405,7 +405,7 @@ void HUD_Targeting::UpdateHostButtons()
     if (!source || !windowButton || !lockButton) return;
     WinControl* anchor = source->ContactListButton;
     bool const moving = source->ButtonMover::IsActive() || source->ButtonScaler::IsActive();
-    bool const visible = CanShow() && !moving;
+    bool const visible = CanShow(true) && !moving;
     WinControl* buttons[] = {windowButton, lockButton};
     for (int i = 0; i < 2; ++i)
     {
@@ -431,10 +431,18 @@ bool HUD_Targeting::HostProperty(int msg, uintptr_t a, uintptr_t /*b*/)
 {
     WinControl* button = reinterpret_cast<WinControl*>(a);
     if (!button || (button != windowButton && button != lockButton) || !Source()) return false;
-    if (msg == 0x26 && CanShow())
+    if (msg == 0x26 && CanShow(true))
     {
         ReconcileVisibility();
-        if (button == windowButton) windowState.ToggleOpen();
+        if (button == windowButton)
+        {
+            if (AreAuxiliaryHudWindowsMinimized())
+            {
+                ToggleAuxiliaryHudWindowsMinimized();
+                windowState.open = true;
+            }
+            else windowState.ToggleOpen();
+        }
         else
         {
             windowState.ToggleLock();

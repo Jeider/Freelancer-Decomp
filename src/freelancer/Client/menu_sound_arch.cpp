@@ -6,6 +6,7 @@
 // Author: Giperion.
 
 #include "menu_sound_arch.h"
+#include "native_subtitles.h"
 
 #include "perf_options.h"
 
@@ -1059,6 +1060,7 @@ namespace
 
     void __thiscall FSoundSource::SetStartOffset(int Offset)
     {
+        NativeSubtitles::Start(this, Arch);
         if ((Flags & 0x10u) != 0)
         {
             unsigned const Now = DALib::Sound->GetTickCountSlot();
@@ -1748,6 +1750,7 @@ namespace
     // held is released (vt+8).
     void SourceStopLinked(FSoundSource* Source)
     {
+        NativeSubtitles::Stop(Source);
         if ((Source->Flags & 4u) != 0)
         {
             Source->Arch->Release();
@@ -1829,6 +1832,7 @@ namespace
         // the mixer's job (FUN_00428040 hands the ranked sources to SoundManager).
         Source->AddRef();
         Source->ListNode = PlayingListPushBack(Source);
+        NativeSubtitles::Start(Source, Linked);
         return 1;
     }
 
@@ -3506,6 +3510,18 @@ void TickClientSoundMixer(void* Camera, float DeltaSeconds)
         Node = Node->Next;
         if (Source->IsPaused() == 0 && Source->IsFinished() != 0)
             Source->Stop();
+        else
+        {
+            bool const paused = Source->IsPaused() != 0;
+            bool const started = (Source->Flags & 4u) == 0 || (Source->Flags & 8u) != 0;
+            double time = -1;
+            if ((Source->Flags & 0x10u) && DALib::Sound)
+            {
+                unsigned const now = paused ? unsigned(Source->Field08) : DALib::Sound->GetTickCountSlot();
+                time = double(now - unsigned(Source->StartTick)) * .001;
+            }
+            NativeSubtitles::Sync(Source, time, started, paused, DeltaSeconds);
+        }
     }
 }
 

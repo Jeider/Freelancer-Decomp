@@ -123,10 +123,35 @@ float4 PSMarch(FFullscreenVertex In) : COLOR0
                 float3 Pm = O + L * Tm;
                 float Integral = max(2.0 * H * (1.0 - dot(Pm, Pm)) - 2.0 * A * H * H * H / 3.0, 0.0);
 
+                // A planetary ring (the CPU marks it with w = 2 in the last exclusion slot): a slab with
+                // a hole, soft edges and clumps, not the ellipsoid's profile. The density is sampled
+                // evenly along the chord, the optical depth is its mean times the chord.
+                float4 RingMark = Field[I * 28 + 24];
+                bool Ring = RingMark.w > 1.5;
+                float Mean;
+                [branch] if (Ring)
+                {
+                    Integral = T1 - T0;
+                    float Sum = 0.0;
+                    [loop] for (int Rk = 0; Rk < 8; ++Rk)
+                    {
+                        if (Rk >= Shape.w)
+                            break;
+                        float Tk = T0 + (Rk + 0.5) / Shape.w * (T1 - T0);
+                        float3 Pk = O + L * Tk;
+                        float R = length(Pk.xz);
+                        float Radial = smoothstep(RingMark.x, RingMark.x + RingMark.y, R) *
+                                       (1.0 - smoothstep(1.0 - RingMark.z, 1.0, R));
+                        float N = tex3Dlod(Noise, float4(NoiseO.xyz + Dir * (Tk * NoiseO.w), 0.0)).r;
+                        float F = (1.0 - Shape.z) + Shape.z * 2.0 * smoothstep(Cover.x - Cover.y, Cover.x + Cover.y, N);
+                        float Slab = 1.0 - smoothstep(0.5 * Row2.w, Row2.w, abs(Pk.y));
+                        Sum += Radial * Slab * F * smoothstep(ClearStart, Cover.z, Tk);
+                    }
+                    Mean = Sum / max(Shape.w, 1.0);
+                }
                 // The weighted mean of the modulation over the chord (ratio estimator): clump noise,
                 // the slab, the clear zone round the camera, the edge exponent.
-                float Mean;
-                [branch] if (Shape.w > 0.5)
+                else [branch] if (Shape.w > 0.5)
                 {
                     float SumP = 0.0;
                     float SumPM = 0.0;

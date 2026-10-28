@@ -265,8 +265,8 @@ namespace
             if (NicknameId == 0xcf) { PlayerAutoTurrets::SetMode(PlayerAutoTurrets::Mode::Manual); return true; }
             if (HudGetInputFocus() || G_bNnScreenUp || IsLetterboxVisible() || !GetPlayerObjRW()) return false;
             using namespace PlayerAutoTurrets;
-            SetMode(NicknameId == 0xcc ? (GetMode() == Mode::Manual ? GetPreferredMode() : Mode::Manual) :
-                    NicknameId == 0xcd ? Mode::Target : Mode::Hostiles);
+            // Legacy target/free bindings both enable the single all-hostiles mode.
+            SetMode(NicknameId == 0xcc ? (GetMode() == Mode::Manual ? Mode::Hostiles : Mode::Manual) : Mode::Hostiles);
             return true;
         }
 #endif
@@ -586,6 +586,7 @@ namespace
             auto* cockpit = FindKeyMapGroup("IDR_COCKPIT");
             for (unsigned id = 0xcc; id < 0xd0; ++id)
             {
+                if (id == 0xcd || id == 0xce) continue;
                 auto* command = FindKeyCmdByNicknameId(id);
                 if (!command)
                 {
@@ -661,7 +662,9 @@ bool KeyMapRouteInputMessage(unsigned Message, unsigned Wparam, unsigned Lparam)
 {
 #ifdef FREELANCER_PLAYER_AUTO_TURRETS
     if (Message == WM_KILLFOCUS || (Message == WM_ACTIVATEAPP && !Wparam))
-        PlayerAutoTurrets::SetMode(PlayerAutoTurrets::Mode::Manual);
+        PlayerAutoTurrets::SetFocused(false);
+    else if (Message == WM_SETFOCUS || (Message == WM_ACTIVATEAPP && Wparam))
+        PlayerAutoTurrets::SetFocused(true);
 #endif
 #ifdef FREELANCER_DBG_OPTIONS
     if (DbgConsoleHandleMessage(Message, Wparam, Lparam))

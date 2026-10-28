@@ -12,7 +12,8 @@
 //
 //   [Plugins]          one key per built-in plugin, 1 = on (missing = off)
 //   [Language]         language = ru          (the -lang:xx command line switch wins)
-//   [Language.ru]      per-language keys: freelancer_ini, resources, data_overlay, plugin texts
+//   [Language.ru]      per-language keys: freelancer_ini, resources, plugin texts
+//   [Voice.en]         per-voice-language keys: data_overlay ({difficulty} expands), see docs/language.md
 //
 // Values are read once and cached; the file is optional.
 
@@ -33,6 +34,16 @@ COMMON_API char const* __cdecl PortLanguage();
 // [Language.<code>] Key of the active language; Default when missing (or no language is set).
 COMMON_API unsigned __cdecl PortLanguageString(char const* Key, char const* Default, char* Out,
                                               unsigned OutSize);
+
+// [Language] voice (-voice:xx): the voice-over language; the interface language when not set.
+COMMON_API char const* __cdecl PortVoice();
+
+// [Language] difficulty (-difficulty:xx), lower case; "normal" when not set.
+COMMON_API char const* __cdecl PortDifficulty();
+
+// [Voice.<code>] Key of the active voice-over language; Default when missing (or none is set).
+COMMON_API unsigned __cdecl PortVoiceString(char const* Key, char const* Default, char* Out,
+                                           unsigned OutSize);
 
 // The directory freelancer.exe runs from, with a trailing backslash.
 COMMON_API char const* __cdecl PortExeDirectory();
