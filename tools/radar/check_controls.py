@@ -89,6 +89,9 @@ unsigned savedRange=0;
 unsigned GetSavedRadarRange(unsigned fallback){return savedRange?savedRange-1:fallback;}
 void SetSavedRadarRange(unsigned v){savedRange=v+1;}
 bool radarOn=false;
+bool radarTop=false;
+bool GetSavedRadarTopView(){return radarTop;}
+void SetSavedRadarTopView(bool top){radarTop=top;}
 unsigned autoMode=0;
 unsigned GetSavedRadarAutoMode(){return autoMode;}
 bool GetSavedRadarEnabled(){return radarOn;}
@@ -101,6 +104,7 @@ struct HUD_Radar:WinControl {
     void UpdateAutoVisibility(float);
     WinControl* toggleButton=nullptr;WinControl* background=nullptr;
     WinControl* zoomButtons[2]={};int rangeIndex=2;unsigned defaultRangeIndex=2;bool enabled=true;
+    WinControl* projectionButtons[2]={};
     float centerX=.5f,centerY=.845f,radius=.30f,ellipse=.32f,elevation=.94f;
     bool CanShow()const;
     bool IsOpen()const;
@@ -116,7 +120,8 @@ int main(){
     assert(!IsParentedSolar(nullptr)&&!IsParentedSolar(&solar));
     solar.parent.value=123;assert(IsParentedSolar(&solar));
     solar.ObjectClass=0x503;assert(!IsParentedSolar(&solar)); // Ship is not a child solar.
-    HUD_Radar radar;NnButtonControl plus,minus,toggle;WinControl bg;
+    HUD_Radar radar;NnButtonControl plus,minus,toggle,view1,view2;WinControl bg;
+    radar.projectionButtons[0]=&view1;radar.projectionButtons[1]=&view2;
     float anchorX=0,anchorY=0;
     radarOn=true;assert(!RadarIsEnabled()&&!RadarMessageAnchor(anchorX,anchorY));
     ActiveRadar=&radar;radarOn=false;
@@ -135,10 +140,17 @@ int main(){
     assert(RadarIsEnabled()&&RadarMessageAnchor(anchorX,anchorY));
     assert(std::isfinite(anchorX)&&std::isfinite(anchorY));
     radar.UpdateButtons();assert(!plus.hidden&&!minus.hidden&&(plus.flags&2)&&!(minus.flags&2));
+    assert(!view1.hidden&&!view2.hidden&&view1.offset[0]<view2.offset[0]&&view2.offset[0]<plus.offset[0]);
+    assert(!GetSavedRadarTopView());
+    radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&view2),0);assert(GetSavedRadarTopView());
+    auto topY=bg.offset[1];
+    radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&view1),0);assert(!GetSavedRadarTopView());
+    assert(topY>bg.offset[1]); // Small safe-edge adjustment for the bottom-anchored circle.
     assert(openingY<bg.offset[1]); // Native HUD Y grows upwards: opening rises from below.
     auxiliaryMinimized=true;radar.UpdateButtons();assert(!bg.hidden&&!toggle.hidden&&!plus.hidden);
     auxiliaryMinimized=false;radar.UpdateButtons();assert(!bg.hidden);
     overlay=true;radar.UpdateButtons();assert(bg.hidden&&toggle.hidden);
+    radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&view2),0);assert(!GetSavedRadarTopView()&&view2.hidden);
     overlay=false;radar.UpdateButtons();
     auto const originalRadius=radar.radius;
     radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&plus),0);assert(radar.rangeIndex==1);
@@ -161,18 +173,20 @@ int main(){
     radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&plus),0);assert(radar.rangeIndex==2);
     radar.enabled=true;GetCamera=nullptr;radar.UpdateButtons();assert(plus.hidden);
     GetCamera=&fixtureCamera;
-    for(int width:{1024,1920,3440}) {
+    for(bool top:{false,true}) for(int width:{1024,1920,3440}) {
+        SetSavedRadarTopView(top);
         fixtureCamera.view[0]=50;fixtureCamera.view[1]=30;fixtureCamera.view[2]=width+49;fixtureCamera.view[3]=1109;
         fixtureCamera.ScreenCenterX=50+width*.5f;fixtureCamera.ScreenCenterY=570;
         radar.UpdateButtons();assert(!plus.hidden&&!minus.hidden);
         RadarProjection::Layout l;
-        assert(RadarProjection::MakeLayout({50,30,width+49,1109},.5f,.845f,.30f,.32f,.94f,l));
+        assert(RadarProjection::MakeLayout({50,30,width+49,1109},.5f,.845f,.30f,.32f,.94f,l,top));
         float const px=fixtureCamera.ScreenCenterX+plus.offset[0]*fixtureCamera.XScale;
         float const mx=fixtureCamera.ScreenCenterX+minus.offset[0]*fixtureCamera.XScale;
         float const y=fixtureCamera.ScreenCenterY+plus.offset[1]*fixtureCamera.YScale;
         float const tx=fixtureCamera.ScreenCenterX+toggle.offset[0]*fixtureCamera.XScale;
         assert(tx<l.x && px>l.x && mx>px);
-        assert(std::fabs(y-(l.y+l.radius*l.ellipse))<.001f); // At the front rim.
+        assert(std::fabs(y-(l.y+l.radius*(top?.55f:l.ellipse)))<.001f);
+        if(top) assert(px>l.x+l.radius && y<1109-80); // Beside circle, clear of status bars.
     }
     radar.SetProperty(0x26,reinterpret_cast<uintptr_t>(&toggle),0);
     assert(!radarOn&&plus.hidden&&minus.hidden&&!bg.hidden&&!toggle.hidden);

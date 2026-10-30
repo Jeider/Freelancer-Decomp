@@ -739,6 +739,9 @@ namespace Archetype
         bool bRadarMining;        // +0x95 formerly padding: opt-in mining navigation marker
         bool bRadarHidden;        // +0x96 formerly padding: omit this solar from the radar
         bool bRadarValuable;      // +0x97 formerly padding: valuable-detection signature
+        // Port metadata stored outside the retail object layout.
+        bool GetRadarWireframe() const;
+        void SetRadarWireframe(bool Enabled);
         float SolarRadius;        // +0x98 default 500
         int Toughness;            // +0x9C
         CacheString OpenAnim;     // +0xA0

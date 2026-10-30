@@ -58,6 +58,27 @@ int main()
         }
     }
     assert(!MakeLayout({10,10,9,9},.5f,.5f,.1f,.4f,.6f,l));
+    for(auto const& v:views)
+    {
+        assert(MakeLayout(v,.5f,.845f,.3f,.32f,.94f,l,true));
+        assert(l.topDown&&l.ellipse==1&&l.elevation==0);
+        assert(near(l.radius,float(v.bottom-v.top+1)*.15f));
+        assert(l.y>v.top+float(v.bottom-v.top)*.8f); // Compact circle stays low.
+        assert(l.x-l.radius>=v.left&&l.x+l.radius<=v.right&&l.y-l.radius>=v.top&&l.y+l.radius<=v.bottom);
+    }
+    float const pitch30[3][3]={{1,0,0},{0,.8660254f,-.5f},{0,.5f,.8660254f}};
+    float const roll30[3][3]={{.8660254f,-.5f,0},{.5f,.8660254f,0},{0,0,1}};
+    Contact reference,tilted;
+    assert(Project({100,200,-300},{0,100,0},identity,1000,l,reference));
+    assert(Project({100,200,-300},{0,100,0},pitch30,1000,l,tilted));
+    assert(near(reference.x,tilted.x)&&near(reference.tipY,tilted.tipY));
+    assert(Project({100,200,-300},{0,100,0},roll30,1000,l,tilted));
+    assert(near(reference.x,tilted.x)&&near(reference.tipY,tilted.tipY));
+    assert(Project({100,200,-300},{0,100,0},yaw90,1000,l,tilted));
+    assert(!near(reference.x,tilted.x)&&!near(reference.tipY,tilted.tipY));
+    float const vertical[3][3]={{1,0,0},{0,0,-1},{0,1,0}};
+    assert(Project({100,200,-300},{0,100,0},vertical,1000,l,tilted));
+    assert(std::isfinite(tilted.x)&&std::isfinite(tilted.tipY));
     assert(MakeLayout({0,0,1919,1079},nan,nan,nan,nan,nan,l));
     assert(std::isfinite(l.x) && std::isfinite(l.y));
     BatchSpace batch;

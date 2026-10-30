@@ -49,13 +49,14 @@ int main(){
         SetSavedRadarAutoMode(mode);SetSavedTargetingProjection(projection);SetSavedWeaponGroup(group);
         SetSavedHealthWindowLocked(open!=0);SetSavedHealthWindowOpen(open!=0);SetSavedHealthViewLeft(open!=0);
         SetSavedTargetingWindowLocked(open!=0);SetSavedTargetingWindowOpen(open!=0);SetSavedTargetingAutoselect(open!=0);
-        SetSavedRadarEnabled(open!=0);SetSavedRadarRange(mode);SetSavedAutoTurretsEnabled(open!=0);
+        SetSavedRadarEnabled(open!=0);SetSavedRadarRange(mode);SetSavedAutoTurretsEnabled(open!=0);SetSavedRadarTopView(open!=0);
         SetSavedAutoTurretReserve(group*15);SetShowWeaponGroups(open!=0);
         unsigned const writes=profileWrites;
         SetSavedHealthWindowOpen(open!=0);SetSavedRadarEnabled(open!=0);SetShowWeaponGroups(open!=0);
         assert(profileWrites==writes && server.sends==0); // No per-frame disk/network traffic.
         RestartProfile();AssignGameSessionFlags(~0u);
         assert(GetSavedRadarAutoMode()==mode && GetSavedRadarRange(2)==mode && GetSavedRadarEnabled()==(open!=0));
+        assert(GetSavedRadarTopView()==(open!=0));
         assert(GetSavedTargetingProjection()==projection && GetSavedWeaponGroup()==group);
         assert(GetSavedHealthWindowLocked()==(open!=0) && GetSavedHealthWindowOpen()==(open!=0));
         assert(GetSavedTargetingWindowLocked()==(open!=0) && GetSavedTargetingWindowOpen()==(open!=0));

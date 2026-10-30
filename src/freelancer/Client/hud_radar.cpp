@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "input_manager.h"
 #include "nn_button_control.h"
+#include "hud_interface_ids.h"
 
 #include "common_cequip.h"
 #include "common_cobject.h"
@@ -33,12 +34,14 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include "radar_wireframe.h"
 
 namespace
 {
     HUDFACTORY<HUD_Radar> RadarFactory("Radar");
     HUD_Radar* ActiveRadar = nullptr;
     RadarProjection::BatchSpace DrawSpace = {};
+    RadarWireframe::Layer WireframeLayer;
 
     bool IsParentedSolar(CObject const* object)
     {
@@ -173,7 +176,7 @@ namespace
             if (!contact || IsParentedSolar(contact->cobject()))
                 return;
             auto const* solar=SolarArch(contact->cobject());
-            if(solar && (solar->bRadarHidden || (!mining && solar->bRadarMining))) return;
+            if(solar && (solar->GetRadarWireframe() || solar->bRadarHidden || (!mining && solar->bRadarMining))) return;
             bool const valuable = ValuableInRange(contact,scanner,transform.Translation,range);
             unsigned type = 0;
             if (contact->get_type(type) != 0 ||
@@ -249,6 +252,7 @@ namespace
 
 HUD_Radar::~HUD_Radar()
 {
+    WireframeLayer.Clear();
     if (ActiveRadar==this) ActiveRadar=nullptr;
 }
 
@@ -269,7 +273,7 @@ bool HUD_Radar::MessageAnchor(float& x, float& y) const
     RadarProjection::Layout layout={};
     if (!enabled || !IsOpen() || !view || camera->XScale<=0 || camera->YScale==0 ||
         !RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]},
-                                     centerX,centerY,radius,ellipse,elevation,layout)) return false;
+                                     centerX,centerY,radius,ellipse,elevation,layout,GetSavedRadarTopView())) return false;
     x=(layout.x-camera->ScreenCenterX)/camera->XScale;
     y=(layout.y-layout.radius*layout.ellipse-camera->ScreenCenterY)/camera->YScale+.045f;
     return true;
@@ -325,18 +329,23 @@ bool HUD_Radar::Init()
     background->Flags &= ~kWin3DPickable;
     char const* const paths[] = {"Interface\\HUD\\HUD_radar_zoomin.3db",
                                 "Interface\\HUD\\HUD_radar_zoomout.3db",
-                                "Interface\\HUD\\HUD_radar.3db"};
-    for (int i=0;i<3;++i)
+                                "Interface\\HUD\\HUD_radar.3db",
+                                "Interface\\HUD\\HUD_target_view1.3db",
+                                "Interface\\HUD\\HUD_target_view2.3db"};
+    char const* const names[] = {"RadarZoomIn", "RadarZoomOut", "RadarToggle", "RadarProjection1", "RadarProjection2"};
+    int const tips[] = {0x4d5, 0x4d6, 1444, HudIds::TargetVanilla, HudIds::TargetTop};
+    for (int i=0;i<5;++i)
     {
-        auto* control = CreateButtonControl(i==0 ? "RadarZoomIn" : i==1 ? "RadarZoomOut" : "RadarToggle",
+        auto* control = CreateButtonControl(names[i],
             paths[i], nullptr, "ui_select_item", nullptr, zero, nullptr, half,
-            0, 0, 0, 0, i==0 ? 0x4d5 : i==1 ? 0x4d6 : 1444, 0, 0);
+            0, 0, 0, 0, tips[i], 0, 0);
         if (!control) return false;
-        if (i<2) zoomButtons[i]=control; else toggleButton=control;
+        if (i<2) zoomButtons[i]=control; else if(i==2) toggleButton=control; else projectionButtons[i-3]=control;
         auto* button = static_cast<NnButtonControl*>(control);
         // Use the real NavMap +/- meshes, with independent transforms and native input.
         button->SetMesh(paths[i], nullptr);
         button->MontageTile = nullptr;
+        if (i>=3) button->SetProperty(0x36,0,0);
         if (ClientMeshHolderHasInstance(&button->MeshHolder))
         {
             float extent=0, origin[3]={};
@@ -381,7 +390,7 @@ void HUD_Radar::UpdateAutoVisibility(float dt)
         auto const* view = camera ? camera->GetViewport() : nullptr;
         RadarProjection::Layout layout;
         if (object && (object->ObjectClass & CObject::ClassShip) == CObject::ClassShip && view &&
-            RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]},centerX,centerY,radius,ellipse,elevation,layout))
+            RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]},centerX,centerY,radius,ellipse,elevation,layout,GetSavedRadarTopView()))
         {
             auto const* ship = static_cast<CShip const*>(object);
             auto* scanner = CEScanner::cast(const_cast<CEquip*>(ship->EquipManager.FindFirst(EquipTypeScanner)));
@@ -398,6 +407,7 @@ void HUD_Radar::UpdateAutoVisibility(float dt)
 
 void HUD_Radar::Update()
 {
+    if (IsSpaceInitInProgress() || WireframeLayer.system != StarSysGetActiveSystemId()) WireframeLayer.Clear();
     float const dt=static_cast<float>(GetClientFrameTimeCapped());
     UpdateAutoVisibility(dt);
     deployment.Step(IsOpen(), dt);
@@ -449,7 +459,7 @@ void HUD_Radar::UpdateButtons()
     auto const* view = camera ? camera->GetViewport() : nullptr;
     bool const visible = CanShow() && view && camera->XScale>0 && camera->YScale!=0 &&
         RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]},
-                                    centerX,centerY,radius,ellipse,elevation,layout);
+                                    centerX,centerY,radius,ellipse,elevation,layout,GetSavedRadarTopView());
     bool const on=IsOpen();
     if (visible) deployment.Apply(layout, view[3]);
     if(toggleButton)
@@ -481,8 +491,21 @@ void HUD_Radar::UpdateButtons()
         button->SetFlags331(static_cast<unsigned char>((button->GetFlags331() & ~2u) | (usable ? 2u : 0u)));
         if (!visible) continue;
         float const spacing=camera->XScale*.045f;
-        float const x=layout.x+layout.radius*.63f+(i==1 ? spacing : 0);
-        float const y=layout.y+layout.radius*layout.ellipse;
+        float const x=layout.x+layout.radius*(layout.topDown ? 1.26f : .63f)+(i==1 ? spacing : 0);
+        float const y=layout.y+layout.radius*(layout.topDown ? .55f : layout.ellipse);
+        button->SetOffset((x-camera->ScreenCenterX)/camera->XScale,
+                          (y-camera->ScreenCenterY)/camera->YScale,0);
+    }
+    for (int i=0;i<2;++i)
+    {
+        auto* button=projectionButtons[i];
+        if (!button) continue;
+        button->SetProperty(1,visible && deployment.Running(on) ? 0 : 1,0);
+        button->SetProperty(0xc,GetSavedRadarTopView()==(i==1) ? 1 : 0,0);
+        if (!visible) continue;
+        // Keep compact-view controls beside the circle, above HUD_Core's bars.
+        float const x=layout.x-layout.radius*(layout.topDown ? 1.26f : .63f)+(i==0 ? -camera->XScale*.045f : 0);
+        float const y=layout.y+layout.radius*(layout.topDown ? .55f : layout.ellipse);
         button->SetOffset((x-camera->ScreenCenterX)/camera->XScale,
                           (y-camera->ScreenCenterY)/camera->YScale,0);
     }
@@ -500,6 +523,16 @@ intptr_t HUD_Radar::SetProperty(int msg, uintptr_t a, uintptr_t b)
             SetSavedRadarEnabled(!open);
             UpdateButtons();
             return 1;
+        }
+        if (deployment.Running(IsOpen()))
+        {
+            for (int i=0;i<2;++i)
+                if (a && a==reinterpret_cast<uintptr_t>(projectionButtons[i]))
+                {
+                    SetSavedRadarTopView(i==1);
+                    UpdateButtons();
+                    return 1;
+                }
         }
         if (deployment.Running(IsOpen()))
         for(int i=0;i<2;++i)
@@ -558,7 +591,7 @@ void HUD_Radar::Draw()
     if (!view)
     { ReportOnce(64, "skip: camera viewport unavailable"); return; }
     RadarProjection::Layout layout;
-    if (!RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]}, centerX, centerY, radius, ellipse, elevation, layout))
+    if (!RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]}, centerX, centerY, radius, ellipse, elevation, layout,GetSavedRadarTopView()))
     { ReportOnce(128, "skip: invalid viewport/layout"); return; }
     deployment.Apply(layout, view[3]);
 
@@ -581,10 +614,21 @@ void HUD_Radar::Draw()
         !RadarProjection::MakeBatchSpace({left,top,left+width-1,top+height-1}, {ortho[0],ortho[1],ortho[2],ortho[3]}, DrawSpace))
     { ReportOnce(256, "skip: device viewport/batch mapping invalid"); return; }
     // Back-to-front within each layer; incoming/selected/nearest blips draw last.
+    if (running)
+    {
+        // Interference affects ordinary contacts, never the explicit architecture layer.
+        // Keep the displayed scale when usable; fall back to raw scanner scale when jammed.
+        float const wireRange = range > 0 ? range : scanner
+            ? RadarProjection::EffectiveRange(scanner->ScannerArch()->RadarRange, ranges[rangeIndex])
+            : RadarProjection::EffectiveRange(10000.f, ranges[rangeIndex]);
+        WireframeLayer.Draw(ship->ObjectDb, player->get_transform(), StarSysGetActiveSystemId(),
+                            wireRange, layout, opacity * deployment.Opacity(), Line);
+    }
+    else WireframeLayer.Clear();
     for (int i = used - 1; i >= 0; --i)
         if (blips[i].point.below) DrawBlip(blips[i], frameOpacity * 0.72f, blipSize,range,layout);
 
-    RadarFrame::Emit(layout, rangeIndex, frameOpacity, Line, sweepAngle, ringMotion.angle, running);
+    RadarFrame::Emit(layout, rangeIndex, frameOpacity, Line, sweepAngle, layout.topDown ? 0.f : ringMotion.angle, running);
     for (int i = used - 1; i >= 0; --i)
         if (!blips[i].point.below) DrawBlip(blips[i], frameOpacity, blipSize,range,layout);
     if (!reportedDraw)
@@ -594,6 +638,8 @@ void HUD_Radar::Draw()
               used, scanner ? 1 : 0, range, left, top, width, height, layout.x, layout.y, layout.radius, G_ImmedBatchB.VertCount);
     }
     for (auto* button : zoomButtons)
+        if (button && (button->Flags & kWin3DVisible)) button->Draw();
+    for (auto* button : projectionButtons)
         if (button && (button->Flags & kWin3DVisible)) button->Draw();
     // Do not retain engine object pointers between frames or system loads.
 }

@@ -35,6 +35,7 @@ private:
     float autoPoll = 0;
     void UpdateAutoVisibility(float dt);
     WinControl* zoomButtons[2] = {};
+    WinControl* projectionButtons[2] = {};
     WinControl* toggleButton = nullptr;
     WinControl* background = nullptr;
     unsigned lastSystem = 0;

@@ -81,6 +81,7 @@ See [equipment slots](../re/equipment_mount_classes.md) for examples and compati
 | `inherit` | nickname | - | Loader-level, as for ships but among the solars; a missing donor is silently ignored. Copies `Root` fields, docking spheres, collision groups, `destructible`, `solar_radius`, `toughness`, `open_anim`, `jump_out_hp`, `loadout`. | [loader L365](../../src/Common/common_archetypeloader.cpp#L365) |
 | `toughness` | int | 0 | Toughness rank (also used as the reputation rank of solar objects). | [L900](../../src/Common/common_archetype_ships.cpp#L900) |
 | `destructible` | bool | false | Solar can be destroyed. | [L906](../../src/Common/common_archetype_ships.cpp#L906) |
+| `radar_wireframe` | bool | false | Draw existing model `VMeshWire` geometry at its actual world position/orientation/scale on the radar. Inherited and reloadable. Overrides normal radar contact count, targeting, parent, hidden and detection filters; only screen clipping applies. Parts without wires are skipped. | [implementation](../../src/freelancer/Client/radar_wireframe.h) |
 | `open_anim` | cstr (whole value) | empty | Animation script that opens the solar. | [L912](../../src/Common/common_archetype_ships.cpp#L912) |
 | `loadout` | id (whole value) | 0 | Default `[Loadout]` nickname for instances of this solar (see [goods-loadouts-constants.md](goods-loadouts-constants.md)). | [L918](../../src/Common/common_archetype_ships.cpp#L918) |
 | `jump_out_hp` | cstr (whole value) | empty | Hardpoint ships jump out of. | [L924](../../src/Common/common_archetype_ships.cpp#L924) |

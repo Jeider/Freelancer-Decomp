@@ -42,6 +42,7 @@ namespace Archetype
 {
     namespace
     {
+        std::map<Solar const*, bool> RadarWireframeSettings;
         // FUN_062fbb90 (item 1955) + listing PTR_s_berth_063eca00 -- 8-entry name/value table
         // consulted by EqObj::read's "docking_sphere" case (value index 0). No match -> Type=0
         // (unlike LookupHpType's miss-defaults-to-4; docking_sphere has no such fallback in
@@ -911,12 +912,18 @@ namespace Archetype
 
     Solar::~Solar()
     {
+        RadarWireframeSettings.erase(this);
         SolarAnimation::ForgetDefinition(this);
         // Retail 0626d230 is `JMP EqObj::~EqObj`: Solar's own members are all scalars.
     }
 
     bool Solar::read(INI_Reader& Reader)
     {
+        if (Reader.is_value("radar_wireframe"))
+        {
+            SetRadarWireframe(Reader.get_value_bool(0));
+            return true;
+        }
         if (SolarAnimation::Read(this, Reader)) return true;
 #ifdef FREELANCER_EQUIPMENT_SLOTS
         if (EquipmentSlots::ReadSolar(*this, Reader)) return true;
@@ -1003,11 +1010,24 @@ namespace Archetype
 #endif
         Root::redefine(Other);
         Solar const* Donor = (Solar const*)&Other;
+        SetRadarWireframe(Donor->GetRadarWireframe());
         bRadarMining = Donor->bRadarMining;
         bRadarHidden = Donor->bRadarHidden;
         bRadarValuable = Donor->bRadarValuable;
         if (Donor->Toughness != Toughness)
             Toughness = Donor->Toughness;
+    }
+
+    bool Solar::GetRadarWireframe() const
+    {
+        auto const found = RadarWireframeSettings.find(this);
+        return found != RadarWireframeSettings.end() && found->second;
+    }
+
+    void Solar::SetRadarWireframe(bool Enabled)
+    {
+        if (Enabled) RadarWireframeSettings[this] = true;
+        else RadarWireframeSettings.erase(this);
     }
 
     AClassType Solar::get_class_type() const

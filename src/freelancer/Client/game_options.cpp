@@ -177,12 +177,13 @@ namespace
     constexpr unsigned RadarRangeShift = 18;
     constexpr unsigned RadarRangeMask = 3u << RadarRangeShift; // 0 unset; 1..3 range index + 1.
     constexpr unsigned RadarAutoMask = 3u << 20;
+    constexpr unsigned RadarTopView = 1u << 30;
     constexpr unsigned AutoTurretsOff = 1u << 22;
     constexpr unsigned AutoTurretsSaved = 1u << 23;
     constexpr unsigned AutoTurretReserveMask = 31u << 24; // 0 unset, 1..19 = 0..90%.
     unsigned GSessionLoadRevision = 0;
     bool GAuxiliaryHudMinimized = false;
-    constexpr unsigned HudPreferencesMask = 0x3ffffff0u;
+    constexpr unsigned HudPreferencesMask = 0x7ffffff0u;
     constexpr unsigned WeaponGroupsHidden = 1u << 29;
     unsigned GHudPreferences = 0;
     bool GHudLoaded = false, GHudStored = false, GHudSaveOk = true;
@@ -323,6 +324,11 @@ void SetSavedWeaponGroup(unsigned group)
 }
 unsigned GetGameSessionLoadRevision() { return GSessionLoadRevision; }
 bool GetSavedRadarEnabled() { return (HudPreferencesFlags() & RadarEnabled) != 0; }
+bool GetSavedRadarTopView() { return (HudPreferencesFlags() & RadarTopView) != 0; }
+void SetSavedRadarTopView(bool top)
+{
+    SetGameSessionFlagValue(RadarTopView, top ? RadarTopView : 0);
+}
 void SetSavedRadarEnabled(bool enabled)
 {
     SetGameSessionFlagValue(RadarEnabled, enabled ? RadarEnabled : 0);

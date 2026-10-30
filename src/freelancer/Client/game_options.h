@@ -199,6 +199,8 @@ unsigned GetSavedWeaponGroup();
 void SetSavedWeaponGroup(unsigned group);
 unsigned GetGameSessionLoadRevision();
 bool GetSavedRadarEnabled();
+bool GetSavedRadarTopView();
+void SetSavedRadarTopView(bool top);
 void SetSavedRadarEnabled(bool enabled);
 // Bits 18..19: 0 means use the HUD INI default, 1..3 store range index + 1.
 unsigned GetSavedRadarRange(unsigned defaultRange);

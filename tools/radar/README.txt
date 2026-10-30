@@ -95,6 +95,17 @@ the cruise label at (-0.243, -0.263). Without an active Radar item the native la
 also remains in use. Caption restoration does not wait for a flight-mode change.
 Backspace's temporary HUD hide does not affect Radar or its controls. NeuroNet, letterbox, transitions and hidden HUD suppress it.
 Only its buttons intercept mouse input.
+
+Two projection buttons at the front left use Targeting's HUD_target_view1/2 meshes.
+Projection 1 keeps the existing oblique view. Projection 2 faces the screen as a
+circle at half the original diameter, anchored at the bottom centre. Its controls
+sit beside the circle above the status bars. Contacts and Solar wireframes use
+the ship's heading in the ecliptic plane,
+ignoring pitch and roll. Player position remains the origin; normal scanner range
+checks still include relative height. Vertical flight uses the projected right
+axis as a finite heading fallback. Zoom, frame, background, clipping and caption
+anchor share the projection layout. The chosen mode persists in the global HUD
+profile (bit 30); existing profiles default to projection 1.
 Entering a trade lane or arriving in a new system returns the rim to its forward
 direction using the nearest of its four identical arrows, capped at 8 degrees/second.
 The return covers at most 45 degrees; previous turn direction is not remembered.
@@ -106,6 +117,41 @@ snaps angle and angular speed to zero when aligned, keeping the rim stopped.
 Rendering uses the native late Win3D line batch, with its capacity flushing and
 viewport-to-ortho conversion. There are no extra pipeline hooks or raw state writes.
 Diagnostics use HUD_RADAR. enabled=false (or no section) creates no active radar.
+
+Solar wireframe layer (v1)
+-------------------------
+[Solar] radar_wireframe = true opts an archetype into a separate architecture layer.
+It defaults false, inherits, supports explicit false overrides and reloads. Its
+metadata lives outside the retail Solar layout. Put it after nickname in solararch.ini.
+The same archetype is opted in wherever used, including systems other than Lair.
+
+Only existing native VMeshWire vertex/index data is drawn; no triangle-edge fallback.
+All flagged solars are visited, including NON_TARGETABLE and parented objects,
+independent of max_contacts, scanner cache/detection/interference, show_solars and
+radar_hidden. Dying objects are skipped. Regular symbols are suppressed for flagged
+solars; targetability and other HUD contact lists are unchanged.
+
+Geometry is clipped segment by segment to the saucer's ellipse, including partially
+visible models. Nothing extends into the rectangular corners outside the dish.
+Wire line opacity is 25% of the configured radar opacity (20% at opacity=0.8).
+In projection 2 the same clipping boundary becomes a circle.
+Displayed zoom remains the
+scale reference; raw scanner range (or 10 km without a scanner) is the fallback
+when normal detection is suppressed entirely. No short-range filter exists in v1.
+The layer follows the radar's existing visibility/toggle state.
+
+Wire interfaces share decoded CPU geometry across instances. Live part transforms
+are read every frame, including compound door motion. No scene instance pointer
+survives a draw. Unused wire references, system changes and radar destruction clear
+the cache. The existing HUD line batch draws geometry under contact markers.
+
+stage_wireframe.py stages nine Solar flags for the models with VWireData in
+UNIVERSE/SPECIAL/LAIR/lair.ini (43 objects); ten archetypes without wires stay intact.
+It preserves all original INI bytes outside insertions and records input hashes.
+check_wireframe.py verifies all 40 real wire parts, the production layer with 300
+solars, live child transforms, cache cleanup, clipping and the real Common loader.
+prepare_wireframe_install.py stages Common, client and solararch.ini, with backup,
+input verification and rollback. Visual appearance still needs an in-game check.
 
 Verification
 ------------
