@@ -68,7 +68,7 @@ int main(int argc, char** argv)
         assert(!EquipmentClasses::IsType(EquipmentClasses::Parse(Bad)));
 
     BeamFixture::Set(0);
-    assert(Archetype::LoadEquipment(argv[1], false, nullptr) == 9);
+    assert(Archetype::LoadEquipment(argv[1], false, nullptr) == 13);
     auto* Armor = static_cast<Archetype::Armor*>(Archetype::GetEquipment(CreateID("slot_test_armor3")));
     auto* Scanner = static_cast<Archetype::Scanner*>(Archetype::GetEquipment(CreateID("slot_test_scanner2")));
     auto* Tractor = static_cast<Archetype::Tractor*>(Archetype::GetEquipment(CreateID("slot_test_tractor3")));
@@ -77,6 +77,58 @@ int main(int argc, char** argv)
     assert(unsigned(Scanner->get_hp_type()) == (On ? EquipmentClasses::Type(1, 2) : unsigned(HpTypeInternal)));
     assert(unsigned(Tractor->get_hp_type()) == (On ? EquipmentClasses::Type(2, 3) : unsigned(HpTypeInternal)));
     assert(Scanner->RadarRange == 7000 && Tractor->MaxLength == 2200);
+
+    auto* Thruster = Archetype::GetEquipment(CreateID("slot_test_thruster6"));
+    auto* Hardware = static_cast<Archetype::CloakingDevice*>(Archetype::GetEquipment(CreateID("slot_test_hardware")));
+    assert(unsigned(Thruster->get_hp_type()) == (On ? EquipmentClasses::Type(4, 6) : unsigned(HpTypeThruster)));
+    assert(unsigned(Hardware->get_hp_type()) == (On ? EquipmentClasses::Type(3, 1) : unsigned(HpTypeNone)));
+    assert(Archetype::GetEquipment(CreateID("slot_test_thruster_legacy"))->get_hp_type() == HpTypeThruster);
+    if (On)
+    {
+        Archetype::Ship Limited(nullptr);
+        Parse(Limited, "[Ship]\nnickname=slot_test_limited\nequipment_slot=HpThruster01,thruster,6\n"
+            "equipment_slot=HpThruster02,thruster,6\nequipment_slot=HpHardware01,hardware,1\n");
+        EquipDescList Devices;
+        Devices.Items.push_back(Item("slot_test_thruster6", "HpThruster01"));
+        Devices.Items.push_back(Item("slot_test_thruster6", "HpThruster02", 41));
+        Devices.Items.push_back(Item("slot_test_hardware", "HpHardware01", 42));
+        assert(EquipmentSlots::Validate(&Limited, Devices)); // Two physical thrusters remain legal.
+        // Existing physical shield/weapon alternatives may share the thruster mount.
+        Archetype::Ship Shared(nullptr);
+        Parse(Shared, "[Ship]\nnickname=slot_test_shared\nhp_type=hp_gun_special_1,HpMulti\n"
+            "hp_type=hp_thruster_special_6,HpMulti\n");
+        assert(Shared.LegalHps.size() == 2);
+        EquipDescList SingleThruster;
+        SingleThruster.Items.push_back(Item("slot_test_thruster6", "HpMulti"));
+        assert(EquipmentSlots::Validate(&Shared, SingleThruster));
+        auto Bad = Devices;
+        Bad.Items.front().ArchId = CreateID("slot_test_thruster7");
+        assert(!EquipmentSlots::Validate(&Limited, Bad)); // Class 7 cannot fit class 6.
+        EquipmentSlots::RestoreLoadout(&Limited, Bad);
+        assert(Bad.Items.front().bEquipped && Bad.Items.front().Count == 1);
+        assert(!EquipmentSlots::Validate(&Limited, Bad)); // Load preserves authored over-class equipment.
+        Bad = Devices; Bad.Items.front().ArchId = CreateID("slot_test_thruster_legacy");
+        assert(!EquipmentSlots::Validate(&Limited, Bad)); // Legacy type cannot bypass the limit.
+        Bad = Devices; Bad.Items.back().Hardpoint = StringAlloc("HpWeapon01", false);
+        EquipmentSlots::RestoreLoadout(&Limited, Bad);
+        assert(Bad.Items.back().bEquipped && !strcmp(Bad.Items.back().Hardpoint, "HpWeapon01"));
+        assert(!EquipmentSlots::Validate(&Limited, Bad));
+        CShip Owner; Owner.Archetype = &Limited; Owner.OwnerPlayer = 1;
+        EquipDescList Empty;
+        assert(!EquipmentSlots::CanMount(&Limited, Empty, Item("slot_test_thruster7", "HpThruster01"), "HpThruster01"));
+
+        assert(Owner.add_item(Devices.Items.back()));
+        auto* Live = CECloakingDevice::cast(Owner.EquipManager.FindFirst(EquipTypeCloak));
+        assert(Live && !Live->IsDestroyed());
+        EquipDesc Serialized;
+        assert(Live->GetEquipDesc(Serialized) && !strcmp(Serialized.Hardpoint, "HpHardware01"));
+        bool const Previous = Live->IsActive();
+        Live->Activate(!Previous); assert(Live->IsActive() != Previous);
+        CECloakingDevice Copy(*Live);
+        assert(Copy.GetEquipDesc(Serialized) && !strcmp(Serialized.Hardpoint, "HpHardware01"));
+        Live->Destroy(); assert(Live->IsDestroyed());
+        puts("PASS: classed physical thrusters, logical cloaking hardware, authored save preservation and mount validation");
+    }
 
     Archetype::Ship Hull(nullptr);
     Parse(Hull, "[Ship]\nnickname=slot_test_ship\nequipment_slot=HpSlot_Armor01,armor,4\n"
@@ -137,14 +189,14 @@ int main(int argc, char** argv)
         Bad.Items.front().Count = 2;
         assert(!EquipmentSlots::Validate(&Hull, Bad));
 
-        // Exercise the real runtime installation gate and cargo accounting without graphics.
+        // Runtime trusts authored mounts; player mount requests retain slot checks.
         Hull.HoldSize = 100;
         Armor->Volume = 5;
         {
             CShip Ship;
             Ship.Archetype = &Hull;
             assert(Ship.add_item(Loadout.Items.front()));
-            assert(!Ship.add_item(Loadout.Items.front()));
+            assert(!EquipmentSlots::CanMount(&Hull, Loadout, Loadout.Items.front(), "HpSlot_Armor01"));
             assert(Ship.get_cargo_hold_remaining() == 100);
             auto Cargo = Loadout.Items.front();
             Cargo.set_id(60);
@@ -154,14 +206,14 @@ int main(int argc, char** argv)
             assert(Ship.add_item(Cargo));
             assert(Ship.get_cargo_hold_remaining() == 90);
             assert(Ship.add_item(Item("slot_test_scanner2", "HpSlot_Scanner01", 41)));
-            assert(!Ship.add_item(Legacy)); // legacy built-in cannot bypass the family limit
+            assert(Ship.add_item(Legacy)); // Authoritative loadouts may contain legacy built-ins.
             Ship.clear_equip_and_cargo();
             assert(Ship.get_cargo_hold_remaining() == 100);
             assert(Ship.next_enemy() == nullptr);
             assert(Ship.previous_enemy() == nullptr);
             assert(Ship.next_target(false) == nullptr);
             assert(Ship.add_item(Legacy));
-            assert(!Ship.add_item(Item("slot_test_scanner2", "HpSlot_Scanner01", 41)));
+            assert(Ship.add_item(Item("slot_test_scanner2", "HpSlot_Scanner01", 41))); // Authored runtime state is trusted.
         }
 
         // The actual CInternalEquip serialization and its copy constructor retain a logical slot.

@@ -14,6 +14,7 @@
 #include "../include/port_plugins.h" // port-only adoxa plugins
 #include "../include/server_playerdb.h" // Players (dock_key)
 #include "common_ini.h"
+#include "common_archetype.h"
 #include <map>
 #endif
 
@@ -849,10 +850,15 @@ namespace
         if (Found == DockKeys().end())
             return false;
         unsigned const PlayerId = Player->PlayerId;
+        Archetype::Equipment const* const KeyArch = Archetype::GetEquipment(Found->second.Key);
+        bool const CargoKey = KeyArch && KeyArch->get_class_type() == Archetype::AClassDoorKey;
         std::list<EquipDesc> const& Items = Players[PlayerId].equipment.Items;
         for (std::list<EquipDesc>::const_iterator It = Items.begin(); It != Items.end(); ++It)
         {
-            if (It->ArchId == Found->second.Key && (!Found->second.bMounted || It->bEquipped != 0))
+            // DoorKey is a passive cargo marker, including when an existing lock
+            // declaration retains the legacy mounted=true default.
+            if (It->ArchId == Found->second.Key && It->Count > 0 &&
+                (CargoKey || !Found->second.bMounted || It->bEquipped != 0))
                 return true;
         }
         return false;

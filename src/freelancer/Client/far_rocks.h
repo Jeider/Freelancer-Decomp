@@ -27,5 +27,7 @@ bool FarRocksReplacesBillboards(FCliAsteroid const* Field);
 // Draws solid and soft rocks of every visible field, with the scene depth bound. Far is the far plane the
 // scene was drawn with, Enclosure the field enclosure state (0 none, 1 partial, 2 inside).
 void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure);
+// Build/upload known fields while the system's loading screen is active.
+void FarRocksPrepareSystem();
 // Releases the program and every field's rocks (RenderEx::Shutdown, before the pipeline goes).
 void FarRocksShutdown();

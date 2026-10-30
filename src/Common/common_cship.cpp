@@ -6,6 +6,7 @@
 
 // CShip (retail CShip.cpp), FAnimScriptRef and the CShip-only helpers.
 #include "common_cobject.h"
+#include "common_gravity.h"
 #ifdef FREELANCER_EQUIPMENT_SLOTS
 #include "equipment_slots.h"
 #endif
@@ -508,7 +509,7 @@ double CShip::get_cargo_hold_remaining() const
     // used; FCOMP; TEST AH,0x41 / JP taken (used > hold, or unordered) -> 0.0, otherwise
     // hold - used, returned unrounded in ST0 (062b30d4 FSUB; RET).
     float Used = 0.0f;
-    CEquipTraverser Walk(0x1ff0000);
+    CEquipTraverser Walk(0x1ff0000 | EquipTypeGravityDevice);
     for (CEquip* Equip = const_cast<CEquipManager&>(EquipManager).Traverse(Walk); Equip != nullptr;
          Equip = const_cast<CEquipManager&>(EquipManager).Traverse(Walk))
     {
@@ -641,7 +642,7 @@ int CShip::get_space_for_cargo_type(Archetype::Equipment const* CargoArch) const
         // 0x10000 (cargo) -> used = float(FILD qword {count +0x28, 0} * Arch->Volume + used),
         // else used = float(used + Arch->Volume).
         float Used = 0.0f;
-        CEquipTraverser Walk(0x1ff0000);
+        CEquipTraverser Walk(0x1ff0000 | EquipTypeGravityDevice);
         for (CEquip* Equip = const_cast<CEquipManager&>(EquipManager).Traverse(Walk); Equip != nullptr;
              Equip = const_cast<CEquipManager&>(EquipManager).Traverse(Walk))
         {
@@ -1194,14 +1195,13 @@ void CShip::collect_force_components(float ThrottleVal, ThrustEquipType ThrustTy
             OutForceY = (float)((double)(Engine->GetLinearDrag()) + OutForceY);
     }
 
-    // 062b46b8: drag = float(LinearDrag (+0x104) + drag), also kept in the throttle slot;
-    // with a zone (+0xa4): drag = float(zone slot +0x58 * ScannerInterference (+0xa8) *
-    // that copy + drag).
+    // Port fix: match get_linear_drag() and update()'s actual damping. The
+    // retail additive formula doubled calculated drag in damage/interference
+    // zones with the neutral modifier 1, and disagreed with flight physics.
+    // +0xa8 (named ScannerInterference) is immersion, not the INI interference.
     OutForceY = (float)((double)(ShipArch->LinearDrag) + OutForceY);
-    float const BaseDrag = OutForceY;
     if (ZoneAtA4 != nullptr)
-        OutForceY = (float)((double)(ZoneAtA4->GetDragModifier()) * ScannerInterference * BaseDrag +
-                                       OutForceY);   // ZONE 0633ad70
+        OutForceY = (float)((double)(ZoneAtA4->GetDragModifier()) * OutForceY);
 }
 
 void CShip::collect_angular_force_components(unsigned Axis, float ThrottleVal,
@@ -1359,9 +1359,9 @@ float CShip::get_initial_speed_to_coast_distance(float A, float B, float C) cons
 
 void CShip::do_simulation_controller(IVP_Event_Sim* EventSim, IVP_U_Vector<IVP_Core>* CoreList)
 {
-    // .text:0628f050: `RET 0x8` -- the whole body. Both arguments are ignored.
-    (void)EventSim;
-    (void)CoreList;
+    // Retail was a no-op. Port gravity shares the ship controller's physical
+    // lifetime, independent of engine activation and render frame duration.
+    CmnGravity::Apply(*this, EventSim, CoreList);
 }
 
 namespace

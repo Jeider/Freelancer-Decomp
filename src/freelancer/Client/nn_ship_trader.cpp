@@ -5,6 +5,8 @@
 // Author: Giperion.
 
 #include "nn_ship_trader.h"
+#include "ui_scroll.h"
+#include <algorithm>
 
 #include "character_select_equip.h" // GetPlayerShipArchetypeIdRetail, GetPlayerCreditsRetail,
                                     // GetPlayerEquipDescListRetail, GetPlayerRankLevelRetail
@@ -91,22 +93,14 @@ namespace
 
 NnShipTrader::NnShipTrader()
 {
-    // FUN_004b9720 004b9759..004b9777: FUN_0059f860 and the vptrs. Nothing else is written
-    // before Create.
+    // Retail FUN_004b9720 sets only the bases; the port's catalogue/viewport use
+    // member initializers. Engine controls are constructed in Create.
 }
 
 NnShipTrader::~NnShipTrader()
 {
     // FUN_004b9800: FUN_00576010 on the +0x32c face, then FUN_0059fa50 -- the Event::Handler and
     // WinControl destructors, which C++ runs in that order.
-}
-
-int NnShipTrader::RowDword(size_t ArrayOffset, int Index) const
-{
-    int Value = 0;
-    unsigned char const* const Bytes = reinterpret_cast<unsigned char const*>(this);
-    memcpy(&Value, Bytes + ArrayOffset + static_cast<ptrdiff_t>(Index) * 4, sizeof(Value));
-    return Value;
 }
 
 void NnShipTrader::Close()
@@ -156,9 +150,15 @@ bool NnShipTrader::Create(Win3D* NewParent, void* Data)
                                            0, 0, 0, 0x2148, 0, 0);
     }
 
-    // 004b75ea..004b75f2: at most three rows.
-    if (RowCount > 3)
-        RowCount = 3;
+    // Keep the full market; controls below are a reusable three-row viewport.
+    Entries.resize(RowCount);
+    for (int Row = 0; Row < VisibleRows; ++Row)
+        ShipMeshes[Row] = nullptr;
+    float const ScrollPosition[3] = {0.606f, 0.164f, -1.288f};
+    ListScroll = CreateUIScroll("ShipTraderScroll", ScrollPosition, .014f, .204f,
+                                0, RowCount, VisibleRows, 0);
+    if (!ListScroll) return false;
+    ListScroll->SetProperty(1, RowCount <= VisibleRows, 0);
 
     // 004b75f8..004b7ad5: one row per market ship.
     char Name[64];
@@ -169,18 +169,19 @@ bool NnShipTrader::Create(Win3D* NewParent, void* Data)
         int NameIds = 0;   // [ESP+0x24]
         int Price = 0;     // [ESP+0x20]
         unsigned const GoodId = (*Node)->Info.GoodId; // the entry's +0x00
-        RowGoodIds[Row] = GoodId;
+        Entries[Row].GoodId = GoodId;
+        Entries[Row].MarketIndex = Row;
         GoodInfo const* const Package = GoodList::find_by_id(GoodId);
-        RowPackages[Row] = Package;
-        RowShipClasses[Row] = 0;
+        Entries[Row].Package = Package;
+        Entries[Row].ShipClass = 0;
         if (Package != nullptr)
         {
             // 004b7657..004b7685: the hull good (not null-tested) and its ship (not null-tested).
             GoodInfo const* const Hull = GoodList::find_by_id(Package->HullGoodId); // +0x90
             Archetype::Ship const* const Ship = Archetype::GetShip(Hull->ShipArchId); // +0x54
-            RowShipClasses[Row] = Ship->ShipClass; // +0xf8
-            if (RowShipClasses[Row] < 0 || RowShipClasses[Row] >= 4)
-                RowShipClasses[Row] = 0;
+            Entries[Row].ShipClass = Ship->ShipClass; // +0xf8
+            if (Entries[Row].ShipClass < 0 || Entries[Row].ShipClass >= 4)
+                Entries[Row].ShipClass = 0;
 
             // 004b768e..004b76b5: the ship's name and the hull's market price.
             NameIds = Ship->IdsName; // +0x14
@@ -207,6 +208,10 @@ bool NnShipTrader::Create(Win3D* NewParent, void* Data)
                 ShipGood = Goods->find_by_ship_arch(Hull->ShipArchId);
             if (ShipGood != nullptr)
             {
+                Entries[Row].MeshPath = ShipGood->ItemIcon.Value;
+            }
+            if (ShipGood != nullptr && Row < VisibleRows)
+            {
                 sprintf(Name, "ShipTraderShipMesh%d", Row);
                 float const Position[3] = {
                     0.277f,
@@ -217,63 +222,75 @@ bool NnShipTrader::Create(Win3D* NewParent, void* Data)
                 ShipMeshes[Row] = CreateStaticControl(Name, ShipGood->ItemIcon.Value, Position, nullptr,
                                                       Half, 0, 0, 0, 1, 1, 1, 1, 0x50, 0, 0, Zero);
                 ShipMeshes[Row]->Flags = static_cast<unsigned char>(ShipMeshes[Row]->Flags & 0xf7);
-                RowMeshPaths[Row] = ShipGood->ItemIcon.Value; // +0x78
             }
         }
 
-        // 004b7819..004b78c2: the icon frame. The row offset is stored as a float first.
-        float const RowStep = static_cast<float>(static_cast<double>(Row) * 0.068f);
-        float const FrameY = static_cast<float>(-0.2f - static_cast<double>(RowStep)); // DAT_005d58c8
+        if (Row < VisibleRows && !ShipMeshes[Row])
         {
-            sprintf(Name, "ShipTraderShipNameIconFrame%d", Row);
-            float const Position[3] = {0.916f, FrameY, 0.0f};
-            float const Half[3] = {0.035f, 0.0335f, 0.0f};
-            NameIconFrames[Row] = CreateWireButtonControl(Name, "ui_select_item", Position, Half, 0,
-                                                          0, 0, 0, 0);
+            sprintf(Name, "ShipTraderShipMesh%d", Row);
+            float const Pos[3] = {.277f, .13f - Row * .068f, -1.288f};
+            float const Half[3] = {.036f, .041f, 0}, Zero[3] = {};
+            ShipMeshes[Row] = CreateStaticControl(Name, "", Pos, nullptr, Half,
+                0, 0, 0, 1, 1, 1, 1, 0x50, 0, 0, Zero);
+            ShipMeshes[Row]->Flags &= ~kWin3DPickable;
         }
-
-        // 004b78b4..004b793b: the name frame.
+        Entries[Row].NameId = NameIds;
+        if (Row < VisibleRows)
         {
-            sprintf(Name, "ShipTraderShipNameFrame%d", Row);
-            float const Position[3] = {1.098f, FrameY, 0.0f};
-            float const Half[3] = {0.138f, 0.034f, 0.0f};
-            NameFrames[Row] = CreateWireButtonControl(Name, "ui_select_item", Position, Half, 0, 0,
-                                                      0, 0, 0);
-        }
+            // 004b7819..004b78c2: the icon frame. The row offset is stored as a float first.
+            float const RowStep = static_cast<float>(static_cast<double>(Row) * 0.068f);
+            float const FrameY = static_cast<float>(-0.2f - static_cast<double>(RowStep)); // DAT_005d58c8
+            {
+                sprintf(Name, "ShipTraderShipNameIconFrame%d", Row);
+                float const Position[3] = {0.916f, FrameY, 0.0f};
+                float const Half[3] = {0.035f, 0.0335f, 0.0f};
+                NameIconFrames[Row] = CreateWireButtonControl(Name, "ui_select_item", Position, Half, 0,
+                                                              0, 0, 0, 0);
+            }
 
-        // 004b793a..004b79b8: the name.
-        {
-            sprintf(Name, "ShipTraderShipName%d", Row);
-            float const Position[3] = {
-                0.97f, static_cast<float>(-0.167f - static_cast<double>(RowStep)), 0.0f}; // DAT_005d5890
-            ShipNames[Row] = CreateTextControl(Name, "ItemName", Position, nullptr, 0.264f, 0.03f,
-                                               1.6f, static_cast<unsigned>(NameIds), 0, 0, 1);
-            RowNameIds[Row] = NameIds;
-        }
+            // 004b78b4..004b793b: the name frame.
+            {
+                sprintf(Name, "ShipTraderShipNameFrame%d", Row);
+                float const Position[3] = {1.098f, FrameY, 0.0f};
+                float const Half[3] = {0.138f, 0.034f, 0.0f};
+                NameFrames[Row] = CreateWireButtonControl(Name, "ui_select_item", Position, Half, 0, 0,
+                                                          0, 0, 0);
+            }
 
-        // 004b79a7..004b7a2b: the class. Its y is kept for the price.
-        float const ClassY = static_cast<float>(-0.195f - static_cast<double>(RowStep)); // DAT_005d5874
-        {
-            sprintf(Name, "ShipTraderShipClass%d", Row);
-            float const Position[3] = {0.97f, ClassY, 0.0f};
-            RowClassTexts[Row] = CreateTextControl(
-                Name, "ItemName", Position, nullptr, 0.15f, 0.03f, 1.6f,
-                static_cast<unsigned>(G_ShipTraderClassIds[RowShipClasses[Row]]), 0, 0, 1);
-        }
+            // 004b793a..004b79b8: the name.
+            {
+                sprintf(Name, "ShipTraderShipName%d", Row);
+                float const Position[3] = {
+                    0.97f, static_cast<float>(-0.167f - static_cast<double>(RowStep)), 0.0f}; // DAT_005d5890
+                ShipNames[Row] = CreateTextControl(Name, "ItemName", Position, nullptr, 0.264f, 0.03f,
+                                                   1.6f, static_cast<unsigned>(NameIds), 0, 0, 1);
+            }
 
-        // 004b7a1d..004b7ab4: the price -- created with the name's ids (retail pushes [ESP+0x24]),
-        // then given the formatted price.
-        {
-            sprintf(Name, "ShipTraderShipPrice%d", Row);
-            float const Position[3] = {1.078f, ClassY, 0.0f};
-            ShipPrices[Row] = CreateTextControl(Name, "ItemName", Position, nullptr, 0.153f, 0.03f,
-                                                1.6f, static_cast<unsigned>(NameIds), 2, 0, 1);
-            FormatGroupedNumber(PriceText, Price, -1); // FUN_004779a0
-            ShipPrices[Row]->SetProperty(0x1d, PointerArg(PriceText), 0);
+            // 004b79a7..004b7a2b: the class. Its y is kept for the price.
+            float const ClassY = static_cast<float>(-0.195f - static_cast<double>(RowStep)); // DAT_005d5874
+            {
+                sprintf(Name, "ShipTraderShipClass%d", Row);
+                float const Position[3] = {0.97f, ClassY, 0.0f};
+                RowClassTexts[Row] = CreateTextControl(
+                    Name, "ItemName", Position, nullptr, 0.15f, 0.03f, 1.6f,
+                    static_cast<unsigned>(G_ShipTraderClassIds[Entries[Row].ShipClass]), 0, 0, 1);
+            }
+
+            // 004b7a1d..004b7ab4: the price -- created with the name's ids (retail pushes [ESP+0x24]),
+            // then given the formatted price.
+            {
+                sprintf(Name, "ShipTraderShipPrice%d", Row);
+                float const Position[3] = {1.078f, ClassY, 0.0f};
+                ShipPrices[Row] = CreateTextControl(Name, "ItemName", Position, nullptr, 0.153f, 0.03f,
+                                                    1.6f, static_cast<unsigned>(NameIds), 2, 0, 1);
+                FormatGroupedNumber(PriceText, Price, -1); // FUN_004779a0
+                ShipPrices[Row]->SetProperty(0x1d, PointerArg(PriceText), 0);
+            }
+
         }
 
         // 004b7ab4..004b7ad5
-        RowPrices[Row] = Price;
+        Entries[Row].Price = Price;
         ++Node;
     }
 
@@ -508,18 +525,9 @@ bool NnShipTrader::Create(Win3D* NewParent, void* Data)
     return Win3D::Create(NewParent, Data);      // FUN_004b5060
 }
 
-#ifdef FREELANCER_FLSHARP
-namespace
-{
-    // Port-only (FLSharp print_rep_requirements, NN_ShipTrader::StoreShipRepRequirement): each
-    // row's required reputation as a percentage, kept in step with the rows. FLSharp grows the
-    // 0x448-byte object for it; there is one ship dealer, so a side table does here.
-    int G_FlsRowRepPercent[3] = {0, 0, 0};
-}
-#endif
-
 void NnShipTrader::RefreshRows()
 {
+    unsigned const SelectedGood = Selected >= 0 ? Entries[Selected].GoodId : 0;
     // FUN_004b93f0. 004b93fc..004b941b: the rank level and the market.
     int const Level = GetPlayerRankLevelRetail(); // FUN_004c55d0
     RankLevel = Level;
@@ -528,14 +536,13 @@ void NnShipTrader::RefreshRows()
     // 004b941f..004b94b6: every row's status.
     for (int Row = 0; Row < RowCount; ++Row)
     {
-        unsigned const GoodId = RowGoodIds[Row];
-        RowIndices[Row] = Row;
-        RowStatus[Row] = 0;
+        unsigned const GoodId = Entries[Row].GoodId;
+        Entries[Row].Status = 0;
         float const MinLevel = ClientMarketGetMinLevel(Market, GoodId); // FUN_00438160
         float const MinRep = ClientMarketGetMinRep(Market, GoodId);     // FUN_004381c0
-        RowRequiredLevels[Row] = static_cast<int>(MinLevel);
+        Entries[Row].RequiredLevel = static_cast<int>(MinLevel);
 #ifdef FREELANCER_FLSHARP
-        G_FlsRowRepPercent[Row] = static_cast<int>(MinRep * 100.0f); // 0x004b9462
+        Entries[Row].RepPercent = static_cast<int>(MinRep * 100.0f); // 0x004b9462
 #endif
 
         // 004b9465..004b9495: a known level (0..0x3e6) below the requirement (FILD / FCOMP,
@@ -544,74 +551,48 @@ void NnShipTrader::RefreshRows()
         if (Level >= 0 && Level < 0x3e7 && static_cast<double>(Level) < static_cast<double>(MinLevel))
         {
             if (SinglePlayer())
-                RowStatus[Row] = 1;
+                Entries[Row].Status = 1;
             continue;
         }
 
         // 004b9497..004b94a4: FCOMP BaseFeeling; TEST AH,0x41 / JNZ keeps a requirement that is
         // not above the feeling; above it the row is locked by reputation.
         if (MinRep > BaseFeeling)
-            RowStatus[Row] = 2;
+            Entries[Row].Status = 2;
     }
 
-    // 004b94c0..004b9561: bubble sort by status (a swap sets DL = 0 and runs another pass).
-    bool bSorted = false;
-    while (!bSorted)
-    {
-        bSorted = true;
-        for (int Row = 0; Row < RowCount - 1; ++Row)
-        {
-            if (RowStatus[Row] <= RowStatus[Row + 1])
-                continue;
-            int const StatusTemp = RowStatus[Row];
-            RowStatus[Row] = RowStatus[Row + 1];
-            RowStatus[Row + 1] = StatusTemp;
-            int const LevelTemp = RowRequiredLevels[Row];
-            RowRequiredLevels[Row] = RowRequiredLevels[Row + 1];
-            RowRequiredLevels[Row + 1] = LevelTemp;
-            int const ClassTemp = RowShipClasses[Row];
-            RowShipClasses[Row] = RowShipClasses[Row + 1];
-            RowShipClasses[Row + 1] = ClassTemp;
-            int const PriceTemp = RowPrices[Row];
-            RowPrices[Row] = RowPrices[Row + 1];
-            RowPrices[Row + 1] = PriceTemp;
-            GoodInfo const* const PackageTemp = RowPackages[Row];
-            RowPackages[Row] = RowPackages[Row + 1];
-            RowPackages[Row + 1] = PackageTemp;
-            unsigned const GoodTemp = RowGoodIds[Row];
-            RowGoodIds[Row] = RowGoodIds[Row + 1];
-            RowGoodIds[Row + 1] = GoodTemp;
-            char const* const MeshTemp = RowMeshPaths[Row];
-            RowMeshPaths[Row] = RowMeshPaths[Row + 1];
-            RowMeshPaths[Row + 1] = MeshTemp;
-            int const NameTemp = RowNameIds[Row];
-            RowNameIds[Row] = RowNameIds[Row + 1];
-            RowNameIds[Row + 1] = NameTemp;
-            int const IndexTemp = RowIndices[Row];
-            RowIndices[Row] = RowIndices[Row + 1];
-            RowIndices[Row + 1] = IndexTemp;
-#ifdef FREELANCER_FLSHARP
-            // FLSharp SwapShips_Hook (0x004b9545).
-            int const RepTemp = G_FlsRowRepPercent[Row];
-            G_FlsRowRepPercent[Row] = G_FlsRowRepPercent[Row + 1];
-            G_FlsRowRepPercent[Row + 1] = RepTemp;
-#endif
-            bSorted = false;
-        }
-    }
+    std::stable_sort(Entries.begin(), Entries.end(), [](Entry const& A, Entry const& B) {
+        return A.Status != B.Status ? A.Status < B.Status : A.MarketIndex < B.MarketIndex;
+    });
+    if (SelectedGood)
+        for (int Row = 0; Row < RowCount; ++Row)
+            if (Entries[Row].GoodId == SelectedGood) { Selected = Row; break; }
+    BindVisibleRows();
+    if (Selected >= 0) SelectRow(Selected);
+}
 
+int NnShipTrader::VisibleCount() const
+{
+    return (std::min)(VisibleRows, RowCount - FirstVisible);
+}
+
+void NnShipTrader::BindVisibleRows()
+{
     // 004b9567..004b9699: the row controls. A locked row is drawn dimmed (property 0x33's B).
     wchar_t PriceText[0x100]; // [ESP+0x1c]
-    for (int Row = 0; Row < RowCount; ++Row)
+    for (int Row = 0; Row < VisibleCount(); ++Row)
     {
-        ShipMeshes[Row]->SetProperty(4, PointerArg(RowMeshPaths[Row]), 0);
-        ShipNames[Row]->SetProperty(0x1e, static_cast<uintptr_t>(RowNameIds[Row]), 0);
+        if (ShipMeshes[Row])
+            ShipMeshes[Row]->SetProperty(4, PointerArg(Entries[FirstVisible + Row].MeshPath), 0);
+        NameFrames[Row]->SetProperty(0xc, Selected == FirstVisible + Row, 0);
+        NameIconFrames[Row]->SetProperty(0xc, Selected == FirstVisible + Row, 0);
+        ShipNames[Row]->SetProperty(0x1e, static_cast<uintptr_t>(Entries[FirstVisible + Row].NameId), 0);
         RowClassTexts[Row]->SetProperty(
-            0x1e, static_cast<uintptr_t>(G_ShipTraderClassIds[RowShipClasses[Row]]), 0);
-        FormatGroupedNumber(PriceText, RowPrices[Row], -1); // FUN_004779a0
+            0x1e, static_cast<uintptr_t>(G_ShipTraderClassIds[Entries[FirstVisible + Row].ShipClass]), 0);
+        FormatGroupedNumber(PriceText, Entries[FirstVisible + Row].Price, -1); // FUN_004779a0
         ShipPrices[Row]->SetProperty(0x1d, PointerArg(PriceText), 0);
 
-        uintptr_t const bLocked = RowStatus[Row] != 0 ? 1 : 0;
+        uintptr_t const bLocked = Entries[FirstVisible + Row].Status != 0 ? 1 : 0;
         unsigned char const FrameColor[4] = {0x80, 0x80, 0x80, 0xff};
         NameFrames[Row]->SetProperty(0x33, PointerArg(FrameColor), bLocked);
         NameIconFrames[Row]->SetProperty(0x33, PointerArg(FrameColor), bLocked);
@@ -643,17 +624,17 @@ void NnShipTrader::Draw()
             if (Control == NameFrames[Hovered] || Control == NameIconFrames[Hovered])
                 Child->DrawLayer = 1;
         }
-        if (Selected >= 0)
+        if (Selected >= FirstVisible && Selected < FirstVisible + VisibleCount())
         {
             WinControl* const Control = Child->AsWinControl();
-            if (Control == NameFrames[Selected] || Control == NameIconFrames[Selected])
+            if (Control == NameFrames[Selected - FirstVisible] || Control == NameIconFrames[Selected - FirstVisible])
                 Child->DrawLayer = 2;
         }
     }
 
     // 004b92de..004b9309: the two frame columns, then WinControl's Draw.
-    WireControlsJoinColumn(NameFrames, RowCount);     // FUN_005a4b50
-    WireControlsJoinColumn(NameIconFrames, RowCount);
+    WireControlsJoinColumn(NameFrames, VisibleCount());     // FUN_005a4b50
+    WireControlsJoinColumn(NameIconFrames, VisibleCount());
     WinControl::Draw(); // FUN_005a0760
 
     // 004b930e..004b9362: under the mouse, a held button (DAT_00616850 & 3) drags the ship round,
@@ -688,12 +669,13 @@ bool NnShipTrader::KeyEvent(unsigned Key, unsigned char* Modifiers)
 
 intptr_t NnShipTrader::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 {
-    // LAB_004b85f0 (RET 0xc): jump table 0x004b8958 over Msg - 0x26 (bytes at 0x004b8970). B is
-    // not read; nothing goes to WinControl's SetProperty.
-    (void)B;
+    // Retail click/hover handling plus the catalogue scrollbar's position notification.
     WinControl* const Sender = reinterpret_cast<WinControl*>(A);
     switch (Msg)
     {
+    case 0x3e:
+        if (Sender == ListScroll) { ScrollTo(static_cast<int>(B)); return 1; }
+        return 0;
     case 0x26:
     {
         // caseD_26: a click.
@@ -706,18 +688,20 @@ intptr_t NnShipTrader::SetProperty(int Msg, uintptr_t A, uintptr_t B)
         }
         if (Sender == BuyButton)
         {
+            if (Selected < 0 || Selected >= RowCount || Entries[Selected].Status != 0 ||
+                Entries[Selected].Price > PlayerWorth) return 0;
             // 0x004b88a6..0x004b88e7: the selected row's market order, the window closed, the
             // NavBar opens the dealer with it.
-            int const Index = RowIndices[Selected];
+            int const Index = Entries[Selected].MarketIndex;
             Close();
             NavBarOpenDealer(Index); // FUN_004421a0
             return 1;
         }
-        for (int Row = 0; Row < RowCount; ++Row)
+        for (int Row = 0; Row < VisibleCount(); ++Row)
         {
             if (NameFrames[Row] == Sender || NameIconFrames[Row] == Sender)
             {
-                SelectRow(Row);
+                SelectRow(FirstVisible + Row);
                 return 1;
             }
         }
@@ -732,18 +716,18 @@ intptr_t NnShipTrader::SetProperty(int Msg, uintptr_t A, uintptr_t B)
     {
         // caseD_27: a double click buys a row the player can afford and is not locked out of.
         int Row = 0;
-        for (; Row < RowCount; ++Row)
+        for (; Row < VisibleCount(); ++Row)
         {
             if (NameFrames[Row] == Sender || NameIconFrames[Row] == Sender)
                 break;
         }
-        if (Row >= RowCount)
+        if (Row >= VisibleCount())
             return 0;
-        if (RowPrices[Row] > PlayerWorth)
+        if (Entries[FirstVisible + Row].Price > PlayerWorth)
             return 0;
-        if (RowStatus[Row] != 0)
+        if (Entries[FirstVisible + Row].Status != 0)
             return 0;
-        int const Index = RowIndices[Row];
+        int const Index = Entries[FirstVisible + Row].MarketIndex;
         NavBarCloseService(false);
         NavBarShowDealerTab();
         Close();
@@ -766,7 +750,7 @@ intptr_t NnShipTrader::SetProperty(int Msg, uintptr_t A, uintptr_t B)
             CurrentShipButton->SetProperty(Property, 0, 0);
             return 0;
         }
-        for (int Row = 0; Row < RowCount; ++Row)
+        for (int Row = 0; Row < VisibleCount(); ++Row)
         {
             WinControl* const Frame = NameFrames[Row];
             if (Sender != Frame && Sender != NameIconFrames[Row])
@@ -804,12 +788,14 @@ bool NnShipTrader::OnEvent(unsigned MsgId)
 void NnShipTrader::SelectRow(int Row)
 {
     // FUN_004b8a00 (RET 4).
+    if (Row != -2 && (Row < 0 || Row >= RowCount)) return;
+    if (Row == -2 && !CurrentShipButton) return;
     Selected = Row;
 
     // 004b8a27..004b8a7e: the rows' frames checked (property 0xc) only for Row.
-    for (int Index = 0; Index < RowCount; ++Index)
+    for (int Index = 0; Index < VisibleCount(); ++Index)
     {
-        uintptr_t const bChecked = Index == Row ? 1 : 0;
+        uintptr_t const bChecked = FirstVisible + Index == Row ? 1 : 0;
         NameFrames[Index]->SetProperty(0xc, bChecked, 0);
         NameIconFrames[Index]->SetProperty(0xc, bChecked, 0);
     }
@@ -842,7 +828,7 @@ void NnShipTrader::SelectRow(int Row)
     int ValuesIds = 0; // [ESP+0x14]
     if (Selected != -2)
     {
-        GoodInfo const* const Package = RowPackages[Row];
+        GoodInfo const* const Package = Entries[Row].Package;
         if (Package != nullptr)
         {
             GoodInfo const* const Hull = GoodList::find_by_id(Package->HullGoodId); // +0x90
@@ -855,7 +841,7 @@ void NnShipTrader::SelectRow(int Row)
             ShipView->LoadEquipment(&Addons);
             ViewName->SetProperty(0x1e, static_cast<uintptr_t>(Ship->IdsName), 0);
             ViewClass->SetProperty(
-                0x1e, static_cast<uintptr_t>(G_ShipTraderClassIds[RowShipClasses[Row]]), 0);
+                0x1e, static_cast<uintptr_t>(G_ShipTraderClassIds[Entries[Row].ShipClass]), 0);
             FactsIds = Ship->IdsInfo1;  // +0xec
             StatsIds = Ship->IdsInfo2;  // +0xf0
             ValuesIds = Ship->IdsInfo3; // +0xf4
@@ -913,16 +899,21 @@ void NnShipTrader::SelectRow(int Row)
         ShipView->SetDragYpr(Ypr);   // FUN_00585070
     }
 
-    // 004b8f23..004b90d5: why the row cannot be bought, or the buy controls. Retail indexes the
-    // row arrays with Selected even when it is -2 (the dwords 8 bytes before each array); the
-    // -2 case hides everything again below.
-    int const Status = RowDword(offsetof(NnShipTrader, RowStatus), Selected);
+    // The player's own ship is a separate selection, never a negative array index.
+    if (Selected == -2)
+    {
+        BuyButton->SetProperty(1, 1, 0);
+        BuyText->SetProperty(1, 1, 0);
+        ErrorHelp->SetProperty(1, 1, 0);
+        return;
+    }
+    int const Status = Entries[Selected].Status;
     if (Status == 1)
     {
         // 004b8f39..004b8f7e: ids 0x61b with the required rank level.
         GetIdsStringWWithRawFallback(0x61b, G_NnTextScratchA, G_NnTextScratchCapacity); // FUN_004347e0
         swprintf(G_NnTextScratchB, 0x1000, G_NnTextScratchA,
-                 RowDword(offsetof(NnShipTrader, RowRequiredLevels), Selected));
+                 Entries[Selected].RequiredLevel);
         ErrorHelp->SetProperty(0x1d, PointerArg(G_NnTextScratchB), 0);
         ErrorHelp->SetProperty(1, 0, 0);
         BuyButton->SetProperty(1, 1, 0);
@@ -934,10 +925,10 @@ void NnShipTrader::SelectRow(int Row)
 #ifdef FREELANCER_FLSHARP
         // Port-only (FLSharp print_rep_requirements, PrintShipRepRequirement_Hook at
         // 0x004b9010): the ids formatted with the row's required reputation percentage.
-        if (FlsharpFeatureEnabled("print_rep_requirements") && Selected >= 0 && Selected < 3)
+        if (FlsharpFeatureEnabled("print_rep_requirements") && Selected >= 0 && Selected < RowCount)
         {
             GetIdsStringWWithRawFallback(0x61c, G_NnTextScratchA, G_NnTextScratchCapacity);
-            swprintf(G_NnTextScratchB, 0x1000, G_NnTextScratchA, G_FlsRowRepPercent[Selected]);
+            swprintf(G_NnTextScratchB, 0x1000, G_NnTextScratchA, Entries[Selected].RepPercent);
             ErrorHelp->SetProperty(0x1d, PointerArg(G_NnTextScratchB), 0);
         }
         else
@@ -947,7 +938,7 @@ void NnShipTrader::SelectRow(int Row)
         BuyButton->SetProperty(1, 1, 0);
         BuyText->SetProperty(1, 1, 0);
     }
-    else if (RowDword(offsetof(NnShipTrader, RowPrices), Selected) > PlayerWorth)
+    else if (Entries[Selected].Price > PlayerWorth)
     {
         // 004b904f..004b90ab: too expensive (ids 0x49a).
         ErrorHelp->SetProperty(0x1e, 0x49a, 0);
@@ -963,11 +954,45 @@ void NnShipTrader::SelectRow(int Row)
         BuyText->SetProperty(1, 0, 0);
     }
 
-    // 004b90db..004b9119: the current ship cannot be bought.
-    if (Selected == -2)
+}
+
+void NnShipTrader::ScrollTo(int First)
+{
+    First = (std::max)(0, (std::min)((std::max)(0, RowCount - VisibleRows), First));
+    if (First == FirstVisible) return;
+    FirstVisible = First;
+    Hovered = -1;
+    ListScroll->SetValue(static_cast<float>(First));
+    // Clear paired hover state before rebinding the controls to other ships.
+    for (int Row = 0; Row < VisibleCount(); ++Row)
     {
-        BuyButton->SetProperty(1, 1, 0);
-        BuyText->SetProperty(1, 1, 0);
-        ErrorHelp->SetProperty(1, 1, 0);
+        NameFrames[Row]->SetProperty(0x2d, 0, 0);
+        NameIconFrames[Row]->SetProperty(0x2d, 0, 0);
     }
+    BindVisibleRows();
+}
+
+bool NnShipTrader::ScrollWheel(Win3D* Source, int Wheel)
+{
+    if (!Wheel || RowCount <= VisibleRows) return false;
+    bool OverList = Source == ListScroll;
+    float Ray[3];
+    Win3DGetMouseRay(Ray);
+    for (int Row = 0; Row < VisibleCount(); ++Row)
+        OverList = OverList || Source == NameFrames[Row] || Source == NameIconFrames[Row] ||
+            Source == ShipMeshes[Row] || Source == ShipNames[Row] || Source == ShipPrices[Row] ||
+            Source == RowClassTexts[Row] || (Source == this &&
+                (NameFrames[Row]->HitTest(Ray) || NameIconFrames[Row]->HitTest(Ray)));
+    if (!OverList) return false;
+    // Input queues one event per notch; its payload still contains the full frame delta.
+    ScrollTo(FirstVisible + (Wheel < 0 ? 1 : -1));
+    return true;
+}
+
+bool NnShipTraderWheel(Win3D* Source, int Wheel)
+{
+    for (Win3D* Parent = Source; Parent; Parent = Parent->GetParent())
+        if (auto* Trader = dynamic_cast<NnShipTrader*>(Parent))
+            return Trader->ScrollWheel(Source, Wheel);
+    return false;
 }

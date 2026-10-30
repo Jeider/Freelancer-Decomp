@@ -16,6 +16,7 @@
 #include "engine_light.h"
 #include "hud_command_dispatch.h"
 #include "hud_widescreen.h"    // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "hud_tilt.h"
 #include "event_handler.h"
 #include "input_manager.h"
 #include "nn_rollover.h"
@@ -35,6 +36,7 @@
 #include "render/IRenderPipeline.h"
 #include "render/shading.h"
 #include "x86math.h"
+#include "nn_ship_trader.h"
 #ifdef FREELANCER_FLPLUSPLUS
 #include "flplusplus.h"           // port-only mouse wheel scrolling (WheelScroll)
 #endif
@@ -236,11 +238,13 @@ namespace
     void DrawWidescreen(Win3D* Object)
     {
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), true);
+        HudTilt::DrawScope const Tilt(Object);
         Object->Draw();
     }
 
     void UpdateWidescreen(Win3D* Object)
     {
+        HudTilt::InputScope const Tilt(Object);
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), false);
         if ((Object->Flags & kWin3DActive) != 0)
             Object->Update();
@@ -252,8 +256,9 @@ namespace
     // cursor's ray through the shifted camera instead.
     bool HitTestWidescreen(Win3D* Object, float const* Ray)
     {
+        HudTilt::InputScope const Tilt(Object);
         float const Shift = WidescreenHudShiftPixelsFor(Object);
-        if (Shift == WidescreenHudCurrentShift())
+        if (Shift == WidescreenHudCurrentShift() && !HudTilt::InputActive())
             return Object->HitTest(Ray);
         FWidescreenHudShiftScope const Scope(Shift, false);
         float Shifted[3];
@@ -269,6 +274,7 @@ namespace
 
     void MouseCallWidescreen(Win3D* Object, EMouseCall Call)
     {
+        HudTilt::InputScope const Tilt(Object);
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), false);
         float Ray[3];
         Win3DGetMouseRay(Ray);
@@ -282,12 +288,14 @@ namespace
 
     bool MouseEventWidescreen(Win3D* Object, FWin3DMouseEvent const* Event)
     {
+        HudTilt::InputScope const Tilt(Object);
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), false);
         return Object->MouseEvent(Event);
     }
 
     bool WheelWidescreen(Win3D* Object, int Wheel)
     {
+        HudTilt::InputScope const Tilt(Object);
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), false);
         return Object->Slot18(Wheel);
     }
@@ -510,22 +518,15 @@ void Win3D::Slot17()
     // FUN_00401e90: RET.
 }
 
-#ifdef FREELANCER_FLPLUSPLUS
 bool Win3D::Slot18(int Value)
 {
-    // Port-only (flplusplus / adoxa WheelScroll, which put Window_Wheel into slot 18 of ten
-    // vftables): those classes scroll their own or an ancestor's bar.
+    if (NnShipTraderWheel(this, Value)) return true;
+#ifdef FREELANCER_FLPLUSPLUS
     if (FlplusplusHasWheelScroll(this))
         return FlplusplusWindowWheel(this, Value);
-    return false; // FUN_0053f330
-}
-#else
-bool Win3D::Slot18(int /*Value*/)
-{
-    // FUN_0053f330: XOR AL,AL / RET 4.
+#endif
     return false;
 }
-#endif
 
 bool Win3D::MouseEvent(FWin3DMouseEvent const* Event)
 {
@@ -724,7 +725,7 @@ float* Win3DGetMouseRay(float* Out)
     // FUN_0059da70.
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
     // Port-only: inside a shifted HUD window the ray comes through the shifted camera.
-    if (WidescreenHudCurrentShift() != 0.0f)
+    if (WidescreenHudCurrentShift() != 0.0f || HudTilt::InputActive())
     {
         WidescreenHudCursorRay(Out);
         return Out;

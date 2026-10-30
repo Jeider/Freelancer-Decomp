@@ -26,6 +26,15 @@ int main()
     Layout l;assert(MakeLayout({0,0,1023,767},.5f,.845f,.3f,.32f,.94f,l));
     // No internal wire edges: nonhorizontal sphere lines must join silhouette vertices.
     Contact const sphere={l.x,l.y,l.y,0,false};
+    for(int attitude:{-1,0,1}) assert(ContactColor(Kind::Valuable,attitude)==0x55f293u);
+    bool filledCenter=false;
+    Emit(sphere,Kind::Valuable,0,1000,l,ContactColor(Kind::Valuable,-1),false,.8f,4,
+        [&](float x,float y,float bx,float by,unsigned rgb,float) {
+            assert((rgb&0xffffffu)==0x55f293u);
+            if(std::fabs(y-l.y)<.001f && std::fabs(by-l.y)<.001f &&
+               x<=l.x-4 && bx>=l.x+4) filledCenter=true;
+        });
+    assert(filledCenter);
     unsigned circleEdges=0;
     Emit(sphere,Kind::Missile,0,1000,l,0xff4438u,false,.8f,4,
         [&](float x,float y,float bx,float by,unsigned rgb,float) {
@@ -74,7 +83,10 @@ int main()
     for(auto const& marker:{Contact{l.x,l.y,l.y-40,0,false},
                            Contact{l.x+l.radius,l.y,l.y,0,false},
                            Contact{l.x,l.y,l.contactBottom,0,true}})
+    {
         Emit(marker,Kind::Missile,0,1000,l,0xffe35bu,true,.8f,5,draw);
+        Emit(marker,Kind::Valuable,0,1000,l,ContactColor(Kind::Valuable,0),true,.8f,5,draw);
+    }
     float extents[2]={};
     p={l.x,l.y,l.y-70,0,false};
     for(int mode=0;mode<2;++mode)

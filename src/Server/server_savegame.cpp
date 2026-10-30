@@ -1,3 +1,4 @@
+#include "equipment_slots.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -29,6 +30,11 @@
 #include "../include/common_server.h"          // Players (PlayerDB::operator[])
 #include "../include/common_server_playerdb.h"
 #include "../include/server_savegame.h"
+#include "server_action_stats.h"
+#include "common_cequip.h"
+#include <cmath>
+#include <sstream>
+#include <locale>
 #include "../include/server_savefile.h"        // FLS1, account paths, last saved path
 #include "../include/common_net.h"             // IsMPServer
 #include "../include/common_universe.h"
@@ -411,6 +417,8 @@ bool __cdecl PlayerData_LoadSaveRecord(PlayerData& Slot, char const* Path,
         Record.DescripStrId = 0;
         Record.Money = 0x7b0;              // .text:06d47361
         Record.Interface = 3;              // .text:06d4736b
+        Record.ActionCounters = {};
+        Record.CloakCooldowns.clear();
         ComCostume.Descriptions = GetCostumeDescriptions();
         BaseCostume.Descriptions = GetCostumeDescriptions();
         Record.WeaponGroups.clear();       // .text:06d473a3 erase(0, npos)
@@ -616,6 +624,19 @@ bool __cdecl PlayerData_LoadSaveRecord(PlayerData& Slot, char const* Path,
                 unsigned char const Flags = static_cast<unsigned char>(Reader.get_value_int(1));
                 Record.Visits.insert(std::make_pair(SystemId, static_cast<unsigned char>(0)))
                     .first->second = Flags;
+            } else if (Reader.is_value("cloak_cooldown")) {
+                unsigned arch = static_cast<unsigned>(Reader.get_value_int(0));
+                float remaining = Reader.get_value_float(1);
+                if (arch && std::isfinite(remaining) && remaining > 0)
+                    Record.CloakCooldowns[arch] = remaining;
+            } else if (Reader.is_value("action_counter")) {
+                std::istringstream number(Reader.get_value_string(1));
+                number.imbue(std::locale::classic());
+                double value = 0;
+                if (number >> value) {
+                    number >> std::ws;
+                    if (number.eof()) Record.ActionCounters.Load(Reader.get_value_string(0), value);
+                }
             } else if (Reader.is_value("interface")) {
                 Record.Interface = static_cast<unsigned int>(Reader.get_value_int(0));
             } else if (Reader.is_value("log")) {
@@ -904,6 +925,9 @@ void __cdecl PlayerData_ApplySavedCharacter(PlayerData& Slot,
     Slot.visit_map = Record.Visits;                                     // +0x3a0
     Slot.mission_log = Record.MissionLog;                               // +0x390
     Slot.interface_state = Record.Interface;                            // +0x39c
+    ServerActionStats::Load(SessionId, Record.ActionCounters);
+    CECloakingDevice::LoadCooldowns(SessionId, Record.CloakCooldowns);
+    if (Record.BaseId == 0) ServerActionStats::EnteredSpace(SessionId, false);
 }
 
 // ===========================================================================

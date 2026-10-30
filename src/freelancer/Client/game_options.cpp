@@ -14,6 +14,11 @@
 #include "common_server.h" // IServer::SetInterfaceState (slot 77)
 
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <windows.h>
+#include "common_misc.h"
+#include "dacom.h"
 
 // The values themselves live in the options object: DisplaySettings::options (globals.h), .data
 // 0x00679be8 = 0x00679bc0 + 0x28. FUN_005621a0 (LoadStartupConfig) scatters the table below into
@@ -150,11 +155,11 @@ char const* GetGameOptionName(int Index)
 namespace
 {
     // .data:00612274. See the header's "Session/game-mode flags word" section. Its initialised
-    // value in the PE is 3 (masks 1 and 2 set). The port also stores targeting projection here.
+    // value in the PE is 3 (masks 1 and 2 set). Only native flags remain in saves.
     unsigned GSessionFlags = 3;
 
     // Port-only: bits 0..3 retain their native HUD meanings. Bits 4..5 store
-    // Targeting's Vanilla/Fit/Top/Side choice in the existing save "interface" word.
+    // Targeting's Vanilla/Fit/Top/Side choice in the global profile (legacy bit encoding).
     constexpr unsigned TargetingProjectionShift = 4;
     constexpr unsigned TargetingProjectionMask = 3u << TargetingProjectionShift;
     // Inverted autoselect bit gives legacy/new saves the enabled default.
@@ -171,12 +176,55 @@ namespace
     constexpr unsigned RadarEnabled = 1u << 17; // New/legacy saves default to off.
     constexpr unsigned RadarRangeShift = 18;
     constexpr unsigned RadarRangeMask = 3u << RadarRangeShift; // 0 unset; 1..3 range index + 1.
+    constexpr unsigned RadarAutoMask = 3u << 20;
+    constexpr unsigned AutoTurretsOff = 1u << 22;
+    constexpr unsigned AutoTurretsSaved = 1u << 23;
+    constexpr unsigned AutoTurretReserveMask = 31u << 24; // 0 unset, 1..19 = 0..90%.
     unsigned GSessionLoadRevision = 0;
     bool GAuxiliaryHudMinimized = false;
+    constexpr unsigned HudPreferencesMask = 0x3ffffff0u;
+    constexpr unsigned WeaponGroupsHidden = 1u << 29;
+    unsigned GHudPreferences = 0;
+    bool GHudLoaded = false, GHudStored = false, GHudSaveOk = true;
+    char GHudPath[MAX_PATH] = {};
+
+    unsigned HudPreferencesFlags()
+    {
+        if (!GHudLoaded && GetUserDataPath(GHudPath))
+        {
+            GHudLoaded = true;
+            strcat_s(GHudPath, "\\hud_preferences.ini");
+            char text[32] = {};
+            GetPrivateProfileStringA("HUD", "flags", "", text, sizeof(text), GHudPath);
+            char* end = nullptr;
+            unsigned long const flags = std::strtoul(text, &end, 10);
+            GHudStored = text[0] && end && !*end;
+            if (GHudStored) GHudPreferences = flags & HudPreferencesMask;
+        }
+        return GHudPreferences;
+    }
+
+    void SaveHudPreferences(unsigned flags)
+    {
+        HudPreferencesFlags();
+        char text[32]; sprintf_s(text, "%u", flags & HudPreferencesMask);
+        GHudSaveOk = GHudLoaded && WritePrivateProfileStringA("HUD", "flags", text, GHudPath);
+        if (GHudSaveOk) { GHudPreferences = flags & HudPreferencesMask; GHudStored = true; }
+        else FDUMP(0x100001, "HUD: could not save global preferences (%lu)\n", GetLastError());
+    }
 }
 
 static void SetGameSessionFlagValue(unsigned Mask, unsigned Value)
 {
+    if (Mask & HudPreferencesMask)
+    {
+        unsigned const old = HudPreferencesFlags();
+        unsigned const next = (old & ~Mask) | (Value & Mask);
+        if (!GHudStored || next != old) SaveHudPreferences(next);
+        else GHudSaveOk = true;
+        return;
+    }
+    Mask &= 0xfu;
     GSessionFlags = (GSessionFlags & ~Mask) | (Value & Mask);
 
     // 0x004c815a..0x004c817e: the new word in the first dword of a 0x80-byte local, sent with
@@ -196,7 +244,7 @@ void SetGameSessionFlags(unsigned Mask, bool bSet)
 
 unsigned GetSavedTargetingProjection()
 {
-    return (GSessionFlags & TargetingProjectionMask) >> TargetingProjectionShift;
+    return (HudPreferencesFlags() & TargetingProjectionMask) >> TargetingProjectionShift;
 }
 
 void SetSavedTargetingProjection(unsigned Projection)
@@ -208,7 +256,7 @@ void SetSavedTargetingProjection(unsigned Projection)
 
 bool GetSavedTargetingAutoselect()
 {
-    return (GSessionFlags & TargetingAutoselectOff) == 0;
+    return (HudPreferencesFlags() & TargetingAutoselectOff) == 0;
 }
 
 void SetSavedTargetingAutoselect(bool enabled)
@@ -218,7 +266,7 @@ void SetSavedTargetingAutoselect(bool enabled)
 
 bool GetSavedTargetingWindowLocked()
 {
-    return (GSessionFlags & TargetingWindowLocked) != 0;
+    return (HudPreferencesFlags() & TargetingWindowLocked) != 0;
 }
 
 void SetSavedTargetingWindowLocked(bool locked)
@@ -228,7 +276,7 @@ void SetSavedTargetingWindowLocked(bool locked)
 
 bool GetSavedHealthWindowLocked()
 {
-    return (GSessionFlags & HealthWindowLocked) != 0;
+    return (HudPreferencesFlags() & HealthWindowLocked) != 0;
 }
 
 void SetSavedHealthWindowLocked(bool locked)
@@ -238,15 +286,15 @@ void SetSavedHealthWindowLocked(bool locked)
 
 bool GetSavedHealthWindowOpen()
 {
-    return (GSessionFlags & HealthVisibilitySaved) && (GSessionFlags & HealthWindowClosed) == 0;
+    return (HudPreferencesFlags() & HealthVisibilitySaved) && (HudPreferencesFlags() & HealthWindowClosed) == 0;
 }
 void SetSavedHealthWindowOpen(bool open)
 {
-    if (!(GSessionFlags & HealthVisibilitySaved) || GetSavedHealthWindowOpen() != open)
+    if (!(HudPreferencesFlags() & HealthVisibilitySaved) || GetSavedHealthWindowOpen() != open)
         SetGameSessionFlagValue(HealthWindowClosed | HealthVisibilitySaved,
                                HealthVisibilitySaved | (open ? 0 : HealthWindowClosed));
 }
-bool GetSavedHealthViewLeft() { return (GSessionFlags & HealthViewLeft) != 0; }
+bool GetSavedHealthViewLeft() { return (HudPreferencesFlags() & HealthViewLeft) != 0; }
 void SetSavedHealthViewLeft(bool left)
 {
     if (GetSavedHealthViewLeft() != left)
@@ -254,50 +302,89 @@ void SetSavedHealthViewLeft(bool left)
 }
 bool GetSavedTargetingWindowOpen()
 {
-    return (GSessionFlags & TargetingVisibilitySaved) ? (GSessionFlags & TargetingWindowClosed) == 0
+    return (HudPreferencesFlags() & TargetingVisibilitySaved) ? (HudPreferencesFlags() & TargetingWindowClosed) == 0
                                                      : !GetSavedTargetingWindowLocked();
 }
 void SetSavedTargetingWindowOpen(bool open)
 {
-    if (!(GSessionFlags & TargetingVisibilitySaved) || GetSavedTargetingWindowOpen() != open)
+    if (!(HudPreferencesFlags() & TargetingVisibilitySaved) || GetSavedTargetingWindowOpen() != open)
         SetGameSessionFlagValue(TargetingWindowClosed | TargetingVisibilitySaved,
                                TargetingVisibilitySaved | (open ? 0 : TargetingWindowClosed));
 }
 unsigned GetSavedWeaponGroup()
 {
-    unsigned const group = (GSessionFlags & WeaponGroupMask) >> WeaponGroupShift;
+    unsigned const group = (HudPreferencesFlags() & WeaponGroupMask) >> WeaponGroupShift;
     return group < 6 ? group : 0;
 }
 void SetSavedWeaponGroup(unsigned group)
 {
-    if (group < 6 && ((GSessionFlags & WeaponGroupMask) >> WeaponGroupShift) != group)
+    if (group < 6 && ((HudPreferencesFlags() & WeaponGroupMask) >> WeaponGroupShift) != group)
         SetGameSessionFlagValue(WeaponGroupMask, group << WeaponGroupShift);
 }
 unsigned GetGameSessionLoadRevision() { return GSessionLoadRevision; }
-bool GetSavedRadarEnabled() { return (GSessionFlags & RadarEnabled) != 0; }
+bool GetSavedRadarEnabled() { return (HudPreferencesFlags() & RadarEnabled) != 0; }
 void SetSavedRadarEnabled(bool enabled)
 {
     SetGameSessionFlagValue(RadarEnabled, enabled ? RadarEnabled : 0);
 }
 unsigned GetSavedRadarRange(unsigned defaultRange)
 {
-    unsigned const saved = (GSessionFlags & RadarRangeMask) >> RadarRangeShift;
+    unsigned const saved = (HudPreferencesFlags() & RadarRangeMask) >> RadarRangeShift;
     return saved ? saved - 1 : defaultRange < 3 ? defaultRange : 2;
 }
 void SetSavedRadarRange(unsigned range)
 {
-    if (range < 3 && ((GSessionFlags & RadarRangeMask) >> RadarRangeShift) != range + 1)
+    if (range < 3 && ((HudPreferencesFlags() & RadarRangeMask) >> RadarRangeShift) != range + 1)
         SetGameSessionFlagValue(RadarRangeMask, (range + 1) << RadarRangeShift);
 }
 bool AreAuxiliaryHudWindowsMinimized() { return GAuxiliaryHudMinimized; }
+unsigned GetSavedRadarAutoMode()
+{
+    unsigned const mode = (HudPreferencesFlags() & RadarAutoMask) >> 20;
+    return mode <= 2 ? mode : 0;
+}
+void SetSavedRadarAutoMode(unsigned mode)
+{
+    if (mode > 2) return;
+    // Choosing automation hands visibility to contacts; manual mode preserves the toggle.
+    unsigned const mask = RadarAutoMask | (mode ? RadarEnabled : 0);
+    SetGameSessionFlagValue(mask, mode << 20);
+}
+bool GetSavedAutoTurretsEnabled(bool fallback)
+{
+    return (HudPreferencesFlags() & AutoTurretsSaved) ? !(HudPreferencesFlags() & AutoTurretsOff) : fallback;
+}
+void SetSavedAutoTurretsEnabled(bool enabled)
+{
+    SetGameSessionFlagValue(AutoTurretsSaved | AutoTurretsOff,
+        AutoTurretsSaved | (enabled ? 0 : AutoTurretsOff));
+}
+unsigned GetSavedAutoTurretReserve(unsigned fallback)
+{
+    unsigned const value = (HudPreferencesFlags() & AutoTurretReserveMask) >> 24;
+    return value >= 1 && value <= 19 ? (value - 1) * 5 : fallback;
+}
+void SetSavedAutoTurretReserve(unsigned percent)
+{
+    if (percent <= 90) SetGameSessionFlagValue(AutoTurretReserveMask, (percent / 5 + 1) << 24);
+}
 void ToggleAuxiliaryHudWindowsMinimized() { GAuxiliaryHudMinimized = !GAuxiliaryHudMinimized; }
 
 void AssignGameSessionFlags(unsigned Value)
 {
-    // 0x004c8190: unconditional overwrite, no broadcast in retail either.
-    GSessionFlags = Value;
+    // Import legacy HUD choices once. Loading another character never replaces the profile.
+    HudPreferencesFlags();
+    if (!GHudStored) SaveHudPreferences(Value & HudPreferencesMask);
+    GSessionFlags = Value & 0xfu;
     ++GSessionLoadRevision;
     GAuxiliaryHudMinimized = false;
+}
+
+bool HudPreferencesSaved() { return GHudSaveOk; }
+bool GetShowWeaponGroups() { return !(HudPreferencesFlags() & WeaponGroupsHidden); }
+void SetShowWeaponGroups(bool show)
+{
+    SetGameSessionFlagValue(WeaponGroupsHidden, show ? 0 : WeaponGroupsHidden);
 }
 
 bool TestGameSessionFlags(unsigned Mask)

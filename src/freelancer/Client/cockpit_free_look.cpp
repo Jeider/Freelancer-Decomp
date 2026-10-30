@@ -143,7 +143,7 @@ namespace
         if (!Button->Create(host, nullptr)) { ReleaseHud(host); return false; }
         float const zero[3] = {}, half[3] = {.017f, .017f, 0};
         Button->SetName("CockpitFreeLookToggle");
-        Button->Init("Interface\\NeuroNet\\Icons\\nn_playerstatus.3db", nullptr,
+        Button->Init("Interface\\HUD\\HUD_contactotherplayers.3db", nullptr,
             "ui_item_select", nullptr, zero, nullptr, half, 0, 1, 0, 0, -100011, 0, 0);
         Button->OriginalTile = Button->MontageTile;
         if (Button->MontageTile)

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "common_exports.h"
+#include "cloak_settings.h"
 
 // Common.dll ArchDB + Archetype::Root / EqObj.
 // ArchDB: FUN_062fbeb0 insert, FUN_06301640 find. Root: ctor 0x8fff0, vftable 063a11f0.
@@ -252,6 +253,7 @@ namespace Archetype
     struct AttachedFXEquip;
     struct InternalFXEquip;
     struct RepairDroid;
+    struct GravityDevice;
     struct CloakingDevice;
     struct Commodity;
     struct RepairKit;
@@ -303,7 +305,9 @@ namespace Archetype
         AClassMunition = 0x1f,
         AClassMine = 0x20,
         AClassCounterMeasure = 0x21,
-        AClassArmor = 0x22
+        AClassArmor = 0x22,
+        AClassGravityDevice = 0x23,
+        AClassDoorKey = 0x24
     };
 
     // Callback for Enum* functions. Return true to continue enumeration.
@@ -734,6 +738,7 @@ namespace Archetype
         bool bDestructible;       // +0x94
         bool bRadarMining;        // +0x95 formerly padding: opt-in mining navigation marker
         bool bRadarHidden;        // +0x96 formerly padding: omit this solar from the radar
+        bool bRadarValuable;      // +0x97 formerly padding: valuable-detection signature
         float SolarRadius;        // +0x98 default 500
         int Toughness;            // +0x9C
         CacheString OpenAnim;     // +0xA0
@@ -745,6 +750,7 @@ namespace Archetype
     static_assert(offsetof(Solar, bDestructible) == 0x94, "Solar+0x94 destructible");
     static_assert(offsetof(Solar, bRadarMining) == 0x95, "Solar+0x95 radar_mining");
     static_assert(offsetof(Solar, bRadarHidden) == 0x96, "Solar+0x96 radar_hidden");
+    static_assert(offsetof(Solar, bRadarValuable) == 0x97, "Solar+0x97 radar_valuable");
     static_assert(offsetof(Solar, SolarRadius) == 0x98, "Solar+0x98 solar_radius");
     static_assert(offsetof(Solar, Loadout) == 0xA8, "Solar+0xA8 loadout");
 
@@ -850,6 +856,7 @@ namespace Archetype
         int UnitsPerContainer;        // +0x64 default 1
         ID_String TractoredExplosion; // +0x68 tractored_explosion
         bool bLootable;               // +0x6C lootable, default true
+        bool bRadarValuable;          // +0x6D formerly padding: also marks its carrier valuable
     };
 
     static_assert(sizeof(Equipment) == 0x70, "Equipment sizeof 0x70");
@@ -858,6 +865,7 @@ namespace Archetype
     static_assert(offsetof(Equipment, UnitsPerContainer) == 0x64, "Equipment+0x64 units_per_container");
     static_assert(offsetof(Equipment, TractoredExplosion) == 0x68, "Equipment+0x68 tractored_explosion");
     static_assert(offsetof(Equipment, bLootable) == 0x6C, "Equipment+0x6C lootable");
+    static_assert(offsetof(Equipment, bRadarValuable) == 0x6D, "Equipment+0x6D radar_valuable");
 
     // sizeof 0x70 same as Equipment. listing ctor 0x94460 / LoadEquipment 0x97c50:
     // Equipment::Equipment then LootCrate vtable; get_class_type 8. No read/load override.
@@ -1190,9 +1198,14 @@ namespace Archetype
     public:
         // User-declared so that no implicit move assignment is generated and exported (VC6
         // had none); retail's is the memberwise one, exactly what this defaults to.
-        Scanner& operator=(Scanner const&) = default;
+        Scanner& operator=(Scanner const&);
 
         explicit Scanner(ICliObj* Companion = nullptr);
+        Scanner(Scanner const&);
+        virtual ~Scanner();
+        // Port-only settings live outside the fixed retail object layout.
+        float GetDiscoveryRange() const; // -1 means legacy discovery rules
+        float GetValuableDetectionRange() const; // 0 disables valuable detection
         virtual bool read(INI_Reader& Reader);
         virtual void redefine(Root const& Other);
         virtual AClassType get_class_type() const;
@@ -1293,6 +1306,17 @@ namespace Archetype
     static_assert(sizeof(InternalFXEquip) == 0x74, "InternalFXEquip sizeof 0x74");
     static_assert(offsetof(InternalFXEquip, UseAnimation) == 0x70, "InternalFXEquip+0x70 use_animation");
 
+    // Port-only hardware, independent of repair equipment. Parameters live in the
+    // gravity definition registry; the retail archetype layouts stay unchanged.
+    struct COMMON_API GravityDevice : public Equipment
+    {
+        explicit GravityDevice(ICliObj* Companion = nullptr);
+        GravityDevice(GravityDevice const& Other);
+        GravityDevice& operator=(GravityDevice const& Other);
+        virtual AClassType get_class_type() const;
+        virtual HpAttachmentType get_hp_type() const;
+    };
+
     struct COMMON_API RepairDroid : public Equipment
     {
     public:
@@ -1312,10 +1336,24 @@ namespace Archetype
     static_assert(sizeof(RepairDroid) == 0x74, "RepairDroid sizeof 0x74");
     static_assert(offsetof(RepairDroid, RepairRate) == 0x70, "RepairDroid+0x70 repair_rate");
 
+    // Passive cargo identity for door access checks by archetype nickname.
+    // No mounted runtime equipment, activation, repair reserve or consumption.
+    struct COMMON_API DoorKey : public Equipment
+    {
+        explicit DoorKey(ICliObj* Companion = nullptr);
+        DoorKey& operator=(DoorKey const&) = default;
+        AClassType get_class_type() const override;
+        HpAttachmentType get_hp_type() const override;
+    };
+    static_assert(sizeof(DoorKey) == sizeof(Equipment), "DoorKey has no active device state");
+
     struct COMMON_API CloakingDevice : public AttachedEquipment
     {
     public:
         explicit CloakingDevice(ICliObj* Companion = nullptr);
+        CloakingDevice(CloakingDevice const& Other);
+        virtual ~CloakingDevice();
+        CloakSettings GetSettings() const;
         virtual bool read(INI_Reader& Reader);
         virtual void redefine(Root const& Other);
         virtual AClassType get_class_type() const;

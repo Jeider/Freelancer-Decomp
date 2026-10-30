@@ -4,6 +4,10 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "flight_telemetry.h"
+#include "player_action_counters.h"
+#include "player_flight_actions.h"
+#include "player_route.h"
 #include "space_state.h"
 #include "player_auto_turrets.h"
 #ifdef FREELANCER_MOD_PLUGINS
@@ -997,11 +1001,10 @@ bool InitSpaceState(SpaceApp* State, int Param)
     RefreshLoadingProgress();
     NnArrivalTextShowSystemNow();
 
-    // 0x0054adf1..0x0054ae06: +0xba9 = 1; FUN_004c8110(8) -- session flag 8 -> +0xba4 = 0 (first
-    // person); otherwise the preference stays (the ctor's 1, or the last choice).
+    // Restore BOTH values of the save's native cockpit flag. Retail only restored
+    // first person, leaking the last session's cockpit view into third-person saves.
     State->bSpaceReady = 1;
-    if (TestGameSessionFlags(8))
-        State->PlayerPreference = 0;
+    State->PlayerPreference = TestGameSessionFlags(8) ? 0 : 1;
 
     // 0x0054ae0c..0x0054ae1c: no camera installed yet -> FUN_00549e70(this, "player", 0).
     if (State->ActiveCamera == nullptr)
@@ -1032,6 +1035,8 @@ bool InitSpaceState(SpaceApp* State, int Param)
 
 int UpdateSpaceState(SpaceApp* State, float DeltaSeconds)
 {
+    FlightTelemetry::BeginFrame(DeltaSeconds, ShouldSkipLocalServerTick());
+    PlayerActionCounters::BeginFrame(DeltaSeconds, ShouldSkipLocalServerTick());
     PlayerAutoTurrets::Reconcile();
     // LAB_0054b000 -- slot 14 (+0x38) of the space state vftable .rdata 0x005e0554, thiscall,
     // RET 4. The whole in-space frame: simulation, camera, sound, then the render bracket
@@ -1057,7 +1062,10 @@ int UpdateSpaceState(SpaceApp* State, float DeltaSeconds)
         // UPDATE_DEFAULT for the local player's objects, so the player CShip is ticked there,
         // not here (W3-A 2026-09-26: the "Update slice" CShip::update(Dt, 0) scaffold removed).
         FClientTickScope ObjectsProfile(EClientTickSection::Objects);
+        PlayerFlightActions::BeforeUpdate();
+        PlayerRoute::Tick(DeltaSeconds, State->bDockingPending != 0);
         ClientObjDb_UpdateAll(DeltaSeconds);
+        PlayerFlightActions::Tick(DeltaSeconds, State->bDockingPending != 0);
         ObjectsProfile.Stop();
 
         // 0x0054b041.
@@ -1162,6 +1170,8 @@ int UpdateSpaceState(SpaceApp* State, float DeltaSeconds)
 
     // 0x0054b15e: FUN_00541510() -- FUN_005424e0 on each Gameobj bucket (DAT_00678aa8 ..
     // DAT_00678a48): every Gameobj whose slot 0x158 reports it done is unregistered and deleted.
+    FlightTelemetry::EndFrame(State->bDockingPending != 0);
+    PlayerActionCounters::EndFrame(State->bDockingPending != 0);
     ClientObjDb_Reap();
     // 0x0054b163..0x0054b16d: unless FUN_0042d740, FUN_00541580(Dt) -- multiplayer only
     // (returns at once under SinglePlayer), walks DAT_00678a34.
@@ -1227,6 +1237,9 @@ int UpdateSpaceState(SpaceApp* State, float DeltaSeconds)
 
 void DestroySpaceState(SpaceApp* State)
 {
+    FlightTelemetry::Stop("leave_space");
+    PlayerActionCounters::LeaveSpace();
+    PlayerRoute::Landed();
     // FUN_0054aec0 -- slot 13 (+0x34) of the space state vftable .rdata 0x005e0554, thiscall on
     // the in-flight controller DAT_00678b98. No null test on `this`: the client state driver
     // only calls slot 13 on a live state.

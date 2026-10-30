@@ -8,6 +8,7 @@
 // common_archetype.cpp (retail Archetype.cpp, one TU) in CMN-SPLIT phase B.
 
 #include "common_archetype.h"
+#include "solar_animation.h"
 #ifdef FREELANCER_EQUIPMENT_SLOTS
 #include "equipment_slots.h"
 #endif
@@ -899,6 +900,7 @@ namespace Archetype
         , bDestructible(false)
         , bRadarMining(false)
         , bRadarHidden(false)
+        , bRadarValuable(false)
         , SolarRadius(500.0f)
         , Toughness(0)
     {
@@ -909,11 +911,16 @@ namespace Archetype
 
     Solar::~Solar()
     {
+        SolarAnimation::ForgetDefinition(this);
         // Retail 0626d230 is `JMP EqObj::~EqObj`: Solar's own members are all scalars.
     }
 
     bool Solar::read(INI_Reader& Reader)
     {
+        if (SolarAnimation::Read(this, Reader)) return true;
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        if (EquipmentSlots::ReadSolar(*this, Reader)) return true;
+#endif
         // Retail 062f3470..062f357d. No "inherit" case: LoadSolar handles that key before calling
         // read() (062f3705). The three string keys use the no-argument get_value_string
         // (06310b70, the whole value), not the indexed one.
@@ -944,6 +951,11 @@ namespace Archetype
             bRadarHidden = Reader.get_value_bool(0);
             return true;
         }
+        if (Reader.is_value("radar_valuable"))
+        {
+            bRadarValuable = Reader.get_value_bool(0);
+            return true;
+        }
 
         if (Reader.is_value("destructible"))
         {
@@ -956,6 +968,11 @@ namespace Archetype
             OpenAnim.Value = StringAlloc(Reader.get_value_string(), false);
             return true;
         }
+
+        // The client companion consumes these above through EqObj::read.
+        // Dedicated servers accept the visual-only settings without ABI changes.
+        if (Reader.is_value("left_ring_anim") || Reader.is_value("right_ring_anim"))
+            return true;
 
         if (Reader.is_value("loadout"))
         {
@@ -980,10 +997,15 @@ namespace Archetype
 
     void Solar::redefine(Root const& Other)
     {
+        SolarAnimation::Copy(this, &Other);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        EquipmentSlots::CopyDefinition(*this, Other);
+#endif
         Root::redefine(Other);
         Solar const* Donor = (Solar const*)&Other;
         bRadarMining = Donor->bRadarMining;
         bRadarHidden = Donor->bRadarHidden;
+        bRadarValuable = Donor->bRadarValuable;
         if (Donor->Toughness != Toughness)
             Toughness = Donor->Toughness;
     }

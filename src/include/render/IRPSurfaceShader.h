@@ -17,7 +17,27 @@ enum ERPSurfaceShader : unsigned long
     RPSurfaceNomadInterior = 7, // wet organic folds; preserve authored illumination layer
     RPSurfaceRock = 8, // asteroid rock texture: relief normals (any object that uses it, stations too)
     RPSurfaceRockDebris = 9, // the same for scrap and debris textures
+    // Same lair shader, different authored bone masks (not separate finish styles).
+    RPSurfaceLairBone1 = 10,
+    RPSurfaceLairBone2 = 11,
+    RPSurfaceLairBone3 = 12,
+    RPSurfaceLairBone4 = 13,
+    RPSurfaceLairSkinBone = 14,
+    RPSurfaceLairEnergy = 15, // native material plus an additive glow pass
+    RPSurfaceLairMembrane = 16, // native alpha/UVs plus animated surface sheen
+    RPSurfaceBeast = 17, // single-layer static bump on BEAST's Dyson atlas; no parallax
 };
+
+inline bool IsNomadEnergy(unsigned long Profile)
+{
+    return Profile == RPSurfaceLairEnergy || Profile == RPSurfaceLairMembrane;
+}
+
+inline bool IsNomadSurface(unsigned long Profile)
+{
+    return Profile == RPSurfaceBeast || (Profile >= RPSurfaceNomadLair && Profile <= RPSurfaceNomadInterior) ||
+           (Profile >= RPSurfaceLairBone1 && Profile <= RPSurfaceLairSkinBone);
+}
 
 struct IRPSurfaceShader : IDAComponent
 {

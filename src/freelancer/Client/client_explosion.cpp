@@ -13,6 +13,7 @@
 #include "client_objdb.h"          // ClientObjDb_GetKindHead (FUN_00540fc0)
 #include "common_misc.h"           // random_on_unit_sphere / random_inside_sphere
 #include "common_physys.h"
+#include "common_server_asteroid.h"
 #include "common_universe.h"       // Archetype::GetSimpleID / GetSimple
 #include "dacom.h"                 // FDUMP
 #include "engine/engbase.h"
@@ -244,7 +245,13 @@ bool Action_Explode::update(float Dt)
     // Gameobj is finished (slot 87), and process = shatter (0) breaks it up (FUN_00536800).
     if (LifetimeEndedThisTick())
     {
-        if (Arch->Process != 2u)
+        // Client-only asteroids hide themselves before a process=none explosion.
+        // A server asteroid is a solar and has no such manager. Finish the dead
+        // host here, after its world effects and local debris have been emitted.
+        unsigned Type = 0;
+        Gameobj->get_type(Type);
+        bool const DeadServerAsteroid = (Gameobj->Flags & 4u) != 0 && IsServerAsteroidType(Type);
+        if (Arch->Process != 2u || DeadServerAsteroid)
             Gameobj->Slot15c(true);
         if (Arch->Process == 0u)
             Shatter();

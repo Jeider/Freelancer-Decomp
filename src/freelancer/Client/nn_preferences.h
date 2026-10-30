@@ -32,12 +32,14 @@
 // the layout is asserted only up to +0x504. Retail offsets past it are in the comments.
 
 #include "wincontrol_base.h"
+#include "graphics_settings.h"
 
 #include <stddef.h>
 #include <vector>
 
 class NnButtonControl;
 class NnTextControl;
+class NnDropdownPopup;
 class RichTextWin;
 class UiScroll;
 class WireButtonControl;
@@ -57,6 +59,25 @@ struct FPrefOption
     unsigned char Pad17;
 };
 static_assert(sizeof(FPrefOption) == 0x18, "retail optlist row is 0x18 bytes");
+
+struct FPrefMiscRow
+{
+    int Setting = -1; // -1: original PerfOption; 0..4: per-save HUD; 5..7: navigation; 8: HUD tilt.
+    int Tab = 0; // General or Navigation.
+    FPrefOption Option = {};
+    float Value = 0, Original = 0;
+};
+
+struct FPrefMiscCell
+{
+    NnTextControl* Label = nullptr;
+    NnTextControl* Value = nullptr;
+    NnButtonControl* Toggle = nullptr;
+    WireButtonControl* Choice = nullptr;
+    UiScroll* Cycle = nullptr;
+    WireStaticControl* ValueRule = nullptr;
+    WireStaticControl* ArrowRule = nullptr;
+};
 
 // One key map row (0x2c bytes) -- two FKeyBindingLookup-shaped triples and the command data.
 struct FKeyRowKey
@@ -218,7 +239,58 @@ public:
     int CycleIndex[kPrefVideoModeCount];            // +0x954
     unsigned char bBigVram;         // +0x97c
 
+    // Port-only page 7; append so the native control offsets stay unchanged.
+    NnButtonControl* MiscButton = nullptr;
+    NnTextControl* MiscText = nullptr;
+    std::vector<FPrefOption> MiscOptions;
+    std::vector<FPrefMiscRow> MiscRows;
+    std::vector<WinControl*> MiscWidgets;
+    static constexpr int MiscVisibleRows = 11;
+    FPrefMiscCell MiscCells[MiscVisibleRows];
+    UiScroll* MiscScroll = nullptr;
+    int MiscTop = 0;
+    int MiscTab = 0;
+    bool MiscSaveFailed = false;
+    WireButtonControl* MiscTabButtons[2] = {};
+    NnTextControl* MiscTabTexts[2] = {};
+    NnTextControl* MiscSaveHint = nullptr;
+    std::vector<int> MiscRowIndices;
+    NnDropdownPopup* MiscDropdown = nullptr;
+    int MiscDropdownRow = -1;
+    WireButtonControl* VideoModeChoice = nullptr;
+    NnDropdownPopup* VideoModeDropdown = nullptr;
+    float VideoModeAnchorTop = 0;
+
+    FPrefMiscCell GraphicsCells[GraphicsSettings::Count];
+    int GraphicsValues[GraphicsSettings::Count] = {};
+    int GraphicsOriginal[GraphicsSettings::Count] = {};
+    std::vector<WinControl*> GraphicsWidgets;
+    NnTextControl* GraphicsHint = nullptr;
+    NnDropdownPopup* GraphicsDropdown = nullptr;
+    int GraphicsDropdownRow = -1;
+
 private:
+    bool CreateGraphicsRows();
+    void SetGraphicsHidden(bool hidden);
+    void RefreshGraphicsRows();
+    void SnapshotGraphics();
+    void CommitGraphics();
+    void RevertGraphics();
+    bool GraphicsDirty() const;
+    bool GraphicsProperty(int msg, Win3D* source, uintptr_t value);
+    void DrawGraphicsDropdown();
+    bool VideoModeProperty(int msg, Win3D* source, uintptr_t value);
+    bool CreateMiscPage(float columnX, float columnY, float step);
+    void EnterMiscPage();
+    void LeaveMiscPage();
+    void SetMiscHidden(bool hidden);
+    void RefreshMiscRows();
+    void CloseMiscDropdown();
+    void DrawMiscDropdown();
+    void SnapshotMisc();
+    bool CommitMisc();
+    void RevertMisc();
+    bool MiscProperty(int msg, Win3D* source, uintptr_t value);
     // FUN_004abdf0 (RET 4) -- hide / show the current page's row widgets.
     void SetRowsHidden(bool bHide);
     // FUN_004abfb0 -- show the set-key / confirm dialog.

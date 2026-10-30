@@ -101,7 +101,7 @@ float4 WeaponGlintControl : register(c77); // count, strength, inverse radius sq
 struct WeaponGlint {float4 Position;float4 Colour;};
 WeaponGlint WeaponGlints[8] : register(c78);
 float4 MaterialStyle : register(c94); // cockpit, glass, glass strength, cockpit finish
-float4 CockpitRelief : register(c106); // x: cockpit panel relief strength (0 = off; only set in the cockpit pass)
+float4 CockpitRelief : register(c106); // x: cockpit relief; y/z/w: user disables highlights/reflections/relief (zero preserves legacy callers)
 // x far-map texel size; y shadow reach of casters stored with a negative depth (NPC ships);
 // z simple receiver (one bilinear comparison instead of PCSS); w the far static map is valid.
 float4 ShadowExtra : register(c95);
@@ -331,6 +331,28 @@ row_major float4x4 DetailMatrix : register(c98);
 // Uses the identical vertex transform as the colour pass, with no texture work.
 float4 PSNomadDepth(SurfacePixel In) : COLOR0 { return 0; }
 
+#ifdef SURFACE_NOMAD_LIGHT
+float4 DysonTexel : register(c102); // inverse authored base texture dimensions
+float DysonHeight(float2 uv,float2 gx,float2 gy)
+{
+    // Filter out texel noise before deriving the brick/groove normal.
+    float pixels=max(length(gx/max(DysonTexel.xy,1.e-8)),length(gy/max(DysonTexel.xy,1.e-8)));
+    float2 footprint=DysonTexel.xy*max(2,pixels);
+    float h=dot(tex2Dgrad(DiffuseMap,uv,float2(footprint.x,0),float2(0,footprint.y)).rgb,float3(.299,.587,.114));
+    return smoothstep(.08,.65,h);
+}
+#endif
+
+#ifdef SURFACE_BEAST
+// Filtered luminance for a single bump layer. UVs never move and there is no ray march.
+float BeastHeight(float2 uv,float2 gx,float2 gy,float2 lo,float2 hi)
+{
+    float footprint=max(max(length(gx),length(gy))*2,4.0/4096);
+    float l=dot(tex2Dgrad(DiffuseMap,clamp(uv,lo,hi),float2(footprint,0),float2(0,footprint)).rgb,float3(.299,.587,.114));
+    return smoothstep(.075,.42,l);
+}
+#endif
+
 float NomadHeight(float2 uv,float2 gx,float2 gy)
 {
     // The authored surface supplies the principal cavities; the periodic atlas
@@ -341,17 +363,24 @@ float NomadHeight(float2 uv,float2 gx,float2 gy)
 
 float4 PSNomad(SurfacePixel In)
 {
+#if defined(SURFACE_BEAST) || defined(SURFACE_NOMAD_LIGHT)
+    const bool Skin=false;
+#else
     const bool Skin=IceStyle.x>2.5;
+#endif
     float3 N=SafeNormal(In.Normal),V=SafeNormal(-In.ViewPosition);
     float3 dx=ddx(In.ViewPosition),dy=ddy(In.ViewPosition);
     float2 ux=ddx(In.Uv),uy=ddy(In.Uv);
     float determinant=ux.x*uy.y-ux.y*uy.x;
     float handed=determinant<0?-1:1;
     float3 tangent=(dx*uy.y-dy*ux.y)*handed;
+    // As on asteroids, close-up derivatives can be tiny without a degenerate
+    // chart. Absolute cutoffs made relief abruptly disappear across the surface.
+    float3 rawTangent=tangent;
     tangent-=N*dot(N,tangent);
-    float valid=(abs(determinant)>1.e-10 && dot(tangent,tangent)>1.e-12)?1:0;
+    float valid=(abs(determinant)>1.e-30 && dot(tangent,tangent)>1.e-4*dot(rawTangent,rawTangent))?1:0;
     if(valid<.5) tangent=cross(abs(N.y)<.9?float3(0,1,0):float3(1,0,0),N);
-    tangent=SafeNormal(tangent);
+    tangent=normalize(tangent);
     float3 bitangent=SafeNormal(cross(N,tangent))*handed;
     float2 uv=In.Uv,originalUv=uv;
     float2 gradX=ux,gradY=uy;
@@ -359,7 +388,9 @@ float4 PSNomad(SurfacePixel In)
     if(DetailModes.z>.5) detailUv=mul(float4(detailUv,0,1),DetailMatrix).xy;
     float2 detailDx=ddx(detailUv),detailDy=ddy(detailUv);
     float4 detailTexel=1;
+#ifndef SURFACE_BEAST
     if(DetailModes.w>.5) detailTexel=tex2Dgrad(NomadDetail,detailUv,detailDx,detailDy);
+#endif
     // Only the authored ET/additive layer on the interior drives living tissue.
     // Bt detail, exterior stone, Dyson panels and alpha silhouettes stay stable.
     const bool Living=Skin && DetailModes.w>.5 && DetailModes.x>6.5 && DetailModes.x<7.5;
@@ -371,7 +402,7 @@ float4 PSNomad(SurfacePixel In)
     float2 motion=float2(sin(phase),cos(phase))*.0045*tissue*valid;
     uv+=motion;
     float breathing=1+.20*tissue*contraction;
-#ifndef SURFACE_NOMAD_LIGHT
+#if !defined(SURFACE_NOMAD_LIGHT) && !defined(SURFACE_BEAST)
     // Bounded parallax occlusion in the original UV chart, with explicit gradients.
     // Silhouette/collision geometry is untouched. No discard or shader-depth output.
     float relief=lerp(.035,.075,Skin)*IceStyle.y*valid*breathing;
@@ -388,12 +419,42 @@ float4 PSNomad(SurfacePixel In)
     float after=height-layer;
     uv=lerp(uv,previous,saturate(-after/max(before-after,.0001)));
 #endif
+#ifdef SURFACE_BEAST
+    // Four-neighbour bump, as on Dyson bricks, with BEAST atlas-border protection.
+    // One colour pass, no depth march or displaced UVs.
+    float2 cell=float2(.5,.25),origin=floor(originalUv/cell)*cell;
+    float2 lo=origin+1.0/4096,hi=origin+cell-1.0/4096;
+    float2 edge=min(originalUv-origin,origin+cell-originalUv);
+    float fade=(1-smoothstep(.0007,.003,max(length(ux),length(uy))))*
+        smoothstep(.0005,.004,min(edge.x,edge.y))*valid;
+    float strength=IceStyle.y*fade;
+    const float step=4.0/4096;
+    float w =BeastHeight(uv+float2(-step,0),ux,uy,lo,hi);
+    float n =BeastHeight(uv+float2(0,-step),ux,uy,lo,hi);
+    float s =BeastHeight(uv+float2(0,step),ux,uy,lo,hi);
+    float e =BeastHeight(uv+float2(step,0),ux,uy,lo,hi);
+    float2 slope=float2(w-e,n-s)*.50*strength;
+    slope=clamp(slope,-.4,.4);
+    float4 reliefMap=float4(.5,.5,1,0);
+#elif defined(SURFACE_NOMAD_LIGHT)
+    // Single-layer asteroid-style bump from the authored Dyson bricks.
+    // Four neighbours plus diffuse; preserve sampler addressing and original UVs.
+    float footprint=max(length(ux/max(DysonTexel.xy,1.e-8)),length(uy/max(DysonTexel.xy,1.e-8)));
+    float fade=(1-smoothstep(1.5,6,footprint))*valid;
+    float2 stepUv=DysonTexel.xy*2;
+    float2 slope=float2(
+        DysonHeight(uv-float2(stepUv.x,0),ux,uy)-DysonHeight(uv+float2(stepUv.x,0),ux,uy),
+        DysonHeight(uv-float2(0,stepUv.y),ux,uy)-DysonHeight(uv+float2(0,stepUv.y),ux,uy))*.65*IceStyle.y*fade;
+    slope=clamp(slope,-.55,.55);
+    float4 reliefMap=float4(.5,.5,1,0);
+#else
     float4 reliefMap=tex2Dgrad(IceLayers,uv,gradX,gradY);
     const float2 texel=float2(.002,0);
     float2 authoredSlope=float2(
         dot(tex2Dgrad(DiffuseMap,uv-texel,ux,uy).rgb-tex2Dgrad(DiffuseMap,uv+texel,ux,uy).rgb,float3(.299,.587,.114)),
         dot(tex2Dgrad(DiffuseMap,uv-texel.yx,ux,uy).rgb-tex2Dgrad(DiffuseMap,uv+texel.yx,ux,uy).rgb,float3(.299,.587,.114)));
     float2 slope=((reliefMap.rg*2-1)*lerp(.28,.7,Skin)+authoredSlope*3.5)*IceStyle.y*valid*breathing;
+#endif
     float3 mapped=SafeNormal(float3(slope,sqrt(max(.08,1-dot(slope,slope)))));
     N=SafeNormal(tangent*mapped.x+bitangent*mapped.y+N*mapped.z);
     float4 texelColour=tex2Dgrad(DiffuseMap,uv,ux,uy);
@@ -409,6 +470,7 @@ float4 PSNomad(SurfacePixel In)
     float3 authoredEmission=0;
     // ET keeps its authored colour and never goes dark. Move RGB gently with the
     // tissue while retaining the original alpha: no breathing holes or mask crawl.
+#ifndef SURFACE_BEAST
     if(DetailModes.w>.5) {
         float3 detail=detailTexel.rgb;
         albedo.a*=detailTexel.a;
@@ -419,13 +481,18 @@ float4 PSNomad(SurfacePixel In)
         }
         else albedo.rgb=saturate(albedo.rgb+detail-.5);
     }
+#endif
     float cavities=lerp(.65,1,smoothstep(.12,.6,reliefMap.b));
     float rough=Skin?lerp(.15,.32,reliefMap.b):lerp(.38,.78,reliefMap.b);
+#if defined(SURFACE_BEAST) || defined(SURFACE_NOMAD_LIGHT)
+    cavities=1;
+    rough=.65;
+#endif
     float variance=max(dot(ddx(N),ddx(N)),dot(ddy(N),ddy(N)));
     float a2=max(pow(rough,4)+variance*.2,.0005);
     float NoV=max(saturate(dot(N,V)),.04);
     float3 colour=albedo.rgb*MaterialAmbient.rgb*cavities,shine=0;
-#ifdef SURFACE_NO_SHADOW
+#if defined(SURFACE_NO_SHADOW) || defined(SURFACE_BEAST) || defined(SURFACE_NOMAD_LIGHT)
     const float visibility=1;
 #else
     float visibility=SolarVisibility(In.ViewPosition,SafeNormal(In.Normal));
@@ -444,13 +511,22 @@ float4 PSNomad(SurfacePixel In)
         colour+=albedo.rgb*light.DiffuseFalloff.rgb*wrap*attenuation*cavities;
         float3 H=SafeNormal(L+V);
         float nh=saturate(dot(N,H)),vh=saturate(dot(V,H));
+#if defined(SURFACE_BEAST) || defined(SURFACE_NOMAD_LIGHT)
+        // A soft, inexpensive mineral highlight; no layered organic/GGX coat.
+        shine+=light.SpecularOuter.rgb*pow(nh,24)*.055*nl*attenuation;
+#else
         float spec=GgxDistribution(nh,a2)*nl/(4*max(nl,.12)*NoV+.15);
         float3 fresnel=Fresnel(vh,Skin?.055:.035);
         float coat=Skin?pow(nh,96)*1.1:pow(nh,24)*.12;
         shine+=light.SpecularOuter.rgb*(spec*fresnel+coat)*attenuation;
+#endif
     }
+#if defined(SURFACE_BEAST) || defined(SURFACE_NOMAD_LIGHT)
+    colour+=min(shine,.10)*(1.0-saturate(CockpitRelief.y));
+#else
     float3 room=max(.98-saturate(colour),.025);
-    colour+=room*(1-exp(-shine/room));
+    colour+=room*(1-exp(-shine/room))*(1.0-saturate(CockpitRelief.y));
+#endif
     // Sparse coloured vascular accent only indoors; rock/bone exterior stays solid.
     float pulse=.75+.25*sin(IceStyle.w*.39269908+originalUv.x*9+originalUv.y*6);
     if(Skin) colour+=float3(.10,.32,.22)*reliefMap.a*IceStyle.z*pulse;
@@ -613,10 +689,10 @@ float3 RockReliefNormal(SurfacePixel In,float3 N,float4 Texel,float2 Ux,float2 U
     // is gone); past rock_lod_macro the texture's relief stops, past rock_lod_coarse only large lumps
     // remain, then the simplest normals out to the far limit, then nothing. Every tier crossfades into the
     // next, so no line shows where they meet. (RockLod.x is kept for the config key; it changes nothing.)
-    float wCoarse=smoothstep(RockLod.z*0.8,RockLod.z*1.2,Distance)*(1.0-smoothstep(RockLod.w*0.8,RockLod.w*1.2,Distance));
-    float wFar=smoothstep(RockLod.w*0.8,RockLod.w*1.2,Distance);
+    float wCoarse=smoothstep(RockLod.z*0.6,RockLod.z*1.4,Distance)*(1.0-smoothstep(RockLod.w*0.6,RockLod.w*1.4,Distance));
+    float wFar=smoothstep(RockLod.w*0.6,RockLod.w*1.4,Distance);
     float wMid=saturate(1.0-wCoarse-wFar);
-    float wMacro=1.0-smoothstep(RockLod.y*0.8,RockLod.y*1.2,Distance);
+    float wMacro=1.0-smoothstep(RockLod.y*0.6,RockLod.y*1.4,Distance);
     float2 Slope=0;
     float CavityMap=0;
     [branch] if(wMid>0.002)
@@ -813,11 +889,11 @@ float4 PSMain(SurfacePixel In) : COLOR0
         // Fine surface cleavage, separate from the three submerged crack layers.
         float Hx=tex2Dgrad(IceLayers,Uv+float2(1.0/512.0,0),Gx,Gy).r-Skin.r;
         float Hy=tex2Dgrad(IceLayers,Uv+float2(0,1.0/512.0),Gx,Gy).r-Skin.r;
-        N=SafeNormal(N-(It*Hx+Ib*Hy)*lerp(1.3,0.28,Frost));
+        N=SafeNormal(N-(It*Hx+Ib*Hy)*lerp(1.3,0.28,Frost)*(1.0-saturate(CockpitRelief.w)));
         NoV=max(dot(N,V),1.e-4);
     }
     float3 FinishStyle=SurfaceFinish.w>0.5 ? SurfaceFinish.xyz : float3(1.35,0.9,0.8);
-    if(Ice) FinishStyle=float3(0.90,0.32,0.0); // no metal brushing on crystal ice
+    if(Ice) FinishStyle=float3(1.18,0.85,0.0); // polished dielectric, no metal brushing
     bool Reflective=(BaseOps.w>=0 && Surface.z>0) || Cockpit || Glass || Ice;
     if(Cockpit) FinishStyle*=MaterialStyle.w;
     float PanelGloss=saturate(dot(T.rgb,float3(0.299,0.587,0.114)));
@@ -825,7 +901,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float Roughness = Reflective ? clamp(MaterialSpecular.w*lerp(1.12,0.88,PanelGloss),0.24,1.0) : MaterialSpecular.w;
     if(Cockpit) Roughness=clamp(Roughness,0.32,0.65);
     if(Glass) Roughness=Greenhouse ? lerp(0.20,0.52,smoothstep(0.60,0.94,T.a)) : 0.24;
-    if(Ice) Roughness=lerp(0.18,0.78,Frost);
+    if(Ice) Roughness=lerp(0.105,0.62,Frost);
     float NormalVariance=max(dot(ddx(N),ddx(N)),dot(ddy(N),ddy(N)));
     float A2 = max(pow(Roughness, 4.0)+NormalVariance*0.25, 1.0e-4);
     // Derive the brushing direction from authored UVs. No synthetic bump normals
@@ -927,6 +1003,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
             // A smooth top coat supplies the bright moving accent, while an
             // elongated satin lobe makes front-facing flat panels read as metal.
             float CoatRoughness=Glass ? 0.18 : lerp(0.27,0.18,PanelGloss);
+            if(Ice) CoatRoughness=lerp(.09,.38,Frost);
             float CoatA2=max(pow(CoatRoughness,4.0)+NormalVariance*0.5,1.e-4);
             float CoatK=(CoatRoughness+1)*(CoatRoughness+1)*0.125;
             float CoatG=(NoV/(NoV*(1-CoatK)+CoatK))*(NoL/(NoL*(1-CoatK)+CoatK));
@@ -948,6 +1025,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
         }
 #endif
     }
+    Highlights *= 1.0-saturate(CockpitRelief.y);
     float3 R = reflect(-V, N);
     float4 EnvCoord = mul(float4(R, 1.0), PixelEnvironmentMatrix);
 #ifdef SURFACE_ENV_CUBE
@@ -988,8 +1066,17 @@ float4 PSMain(SurfacePixel In) : COLOR0
     [branch] if(Ice)
     {
         float IceFresnel=0.025+0.975*pow(1.0-saturate(NoV),5.0);
-        Colour=DiffuseLighting+Environment.rgb*Surface.z*(0.025+IceFresnel*0.40)*
-            (1.0-Frost*0.75)*ReflectionLighting;
+        // Authored envmaps retain their colours. The native DcDt ice has none:
+        // use a directional sky palette, not a uniform white gloss floor.
+        float Band=smoothstep(-.65,.65,R.y);
+        float3 Sky=lerp(float3(.055,.10,.23),float3(.34,.70,.78),Band);
+        float Violet=pow(saturate(1-abs(R.x*.8+R.y*.35-.15)),6);
+        float Pearl=pow(saturate(1-abs(R.y*.9-R.x*.3+.25)),18);
+        Sky=lerp(Sky,float3(.48,.29,.67),Violet*.55);
+        Sky+=float3(.74,.66,.48)*Pearl*.45;
+        float3 IceEnv=Surface.z>0 ? Environment.rgb*Surface.z : Sky;
+        Colour=DiffuseLighting+IceEnv*(1.0-saturate(CockpitRelief.z))*(.16+IceFresnel*.72)*
+            (1.0-Frost*.82)*ReflectionLighting;
     }
     // A soft shoulder only on added gloss preserves the authored diffuse texture.
     // Bright source texels and emissive windows are not globally tone-mapped.
@@ -1010,7 +1097,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
         float3 GlassTint=saturate(Albedo.rgb);
         Colour=GlassTint*lerp(0.72,0.46,GlassFresnel)+
             GlassEnv*lerp(float3(1,1,1),GlassTint,0.20)*
-            (0.18+0.60*GlassFresnel)*MaterialStyle.z;
+            (0.18+0.60*GlassFresnel)*MaterialStyle.z*(1.0-saturate(CockpitRelief.z));
         Highlights*=MaterialStyle.z*1.35;
         [branch] if(Greenhouse)
         {
@@ -1022,7 +1109,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
             float3 Tint=lerp(float3(0.065,0.067,0.068),float3(0.115,0.118,0.120),Haze);
             float3 NeutralEnv=lerp(dot(GlassEnv,float3(0.299,0.587,0.114)).xxx,GlassEnv,0.20);
             float3 Pane=1.34*(Tint+NeutralEnv*
-                (0.12+0.65*GlassFresnel)*MaterialStyle.z);
+                (0.12+0.65*GlassFresnel)*MaterialStyle.z*(1.0-saturate(CockpitRelief.z)));
             Colour=lerp(Pane,FrameColour,Frame);
         }
     }

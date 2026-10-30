@@ -7,6 +7,9 @@
 // FUN_0054baf0 and the player behaviour command family at 0x004c7950 .. 0x004c7b8b.
 
 #include "player_behavior.h"
+#include "flight_telemetry.h"
+#include "player_flight_actions.h"
+#include "player_route.h"
 #include "cockpit_free_look.h"
 
 #include "player_spawn.h"
@@ -152,23 +155,36 @@ void ResetPlayerBehaviorDirection()
     // 0x004c7965: a tail JMP, so the manager's own return -- void -- is this function's.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
+    {
         Manager->reset_current_behavior_direction();
+        FlightTelemetry::Command("reset_direction", 0);
+    }
 }
 
 void SetPlayerStrafeBurst(int Dir)
 {
+    if (Dir != 0) PlayerRoute::Cancel(true);
+    if (Dir != 0) PlayerFlightActions::Cancel();
     // 0x004c7a4a.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
+    {
         Manager->update_current_behavior_slide_strafe_burst(static_cast<StrafeDir>(Dir));
+        FlightTelemetry::Command("strafe", static_cast<float>(Dir));
+    }
 }
 
 void SetPlayerAfterburner(bool bOn)
 {
+    if (bOn) PlayerRoute::Cancel(true);
+    if (bOn) PlayerFlightActions::Cancel();
     // 0x004c798a.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
+    {
         Manager->update_current_behavior_afterburner(bOn);
+        FlightTelemetry::Command("afterburner", bOn ? 1.f : 0.f);
+    }
 }
 
 void SetPlayerAutoLevel(bool bOn)
@@ -176,7 +192,10 @@ void SetPlayerAutoLevel(bool bOn)
     // 0x004c79ba.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
+    {
         Manager->update_current_behavior_auto_level(bOn);
+        FlightTelemetry::Command("auto_level", bOn ? 1.f : 0.f);
+    }
 }
 
 void SetPlayerAutoAvoidance(bool bOn)
@@ -184,35 +203,55 @@ void SetPlayerAutoAvoidance(bool bOn)
     // 0x004c79ea.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
+    {
         Manager->update_current_behavior_auto_avoidance(bOn);
+        FlightTelemetry::Command("auto_avoidance", bOn ? 1.f : 0.f);
+    }
 }
 
 void SetPlayerBrakeReverse(bool bOn)
 {
+    if (bOn) PlayerRoute::Cancel(true);
+    if (bOn) PlayerFlightActions::Cancel();
     // 0x004c7a7a.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
+    {
         Manager->update_current_behavior_brake_reverse(bOn);
+        FlightTelemetry::Command("brake_reverse", bOn ? 1.f : 0.f);
+    }
 }
 
 void SetPlayerCruise(bool bOn)
 {
+    PlayerRoute::SetCruiseRequested(bOn);
+    PlayerFlightActions::Cancel();
     // 0x004c7aaa.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
+    {
         Manager->update_current_behavior_cruise(bOn);
+        FlightTelemetry::Command("cruise", bOn ? 1.f : 0.f);
+    }
 }
 
 void SetPlayerEngageEngine(bool bOn)
 {
+    PlayerRoute::Cancel(true);
+    PlayerFlightActions::Cancel();
     // 0x004c7ada.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
+    {
         Manager->update_current_behavior_engage_engine(bOn);
+        FlightTelemetry::Command("engage_engine", bOn ? 1.f : 0.f);
+    }
 }
 
 void SetPlayerThrottle(float Throttle)
 {
+    PlayerRoute::Cancel(true);
+    PlayerFlightActions::Cancel();
     // 0x004c7afe: the argument is stored FIRST, unclamped, and only then overwritten if it is out
     // of range. Nothing observes the intermediate value, but the order is retail's.
     G_PlayerThrottle = Throttle;
@@ -229,7 +268,10 @@ void SetPlayerThrottle(float Throttle)
     // 0x004c7b58.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
+    {
         Manager->update_current_behavior_throttle(G_PlayerThrottle);
+        FlightTelemetry::Command("throttle", G_PlayerThrottle);
+    }
 
     // 0x004c7b5e..0x004c7b6f: FCOMP 0.0f (DAT_005c7474), `TEST AH,0x44 / JP`. Equal leaves AH&0x44
     // = 0x40 (odd parity, PF=0): no jump, fall through to the cruise drop. Greater / less (0) and
@@ -239,7 +281,10 @@ void SetPlayerThrottle(float Throttle)
         // 0x004c7b71: retail re-fetches the manager rather than reusing the one above.
         IBehaviorManager* const Again = PlayerBehaviorManager();
         if (Again != nullptr)
+        {
             Again->update_current_behavior_cruise(false);   // 0x004c7b80, PUSH 0
+            FlightTelemetry::Command("cruise", 0);
+        }
     }
 }
 
@@ -277,6 +322,10 @@ void SetPlayerBehaviorDirectionGatedNoCapture(float X, float Y, float Z)
 void SetPlayerBehaviorDirectionGated(float X, float Y, float Z)
 #endif
 {
+    if (PlayerRoute::Active()) {
+        if (X == 0 && Y == 0 && Z == 0) return;
+        PlayerRoute::Cancel(true);
+    }
     // 0x004c78d0..0x004c790c: X and Y both compare equal to zero (TEST AH,0x44: NaN is not
     // zero), OR -- read only when they do not -- the HUD_Status bytes DAT_00674aa0+0x5b9 (turret
     // view) and +0x5ba (rear view) are both clear. HUD_Status is read without a null test.
@@ -291,6 +340,7 @@ void SetPlayerBehaviorDirectionGated(float X, float Y, float Z)
             Dir.y = Y;
             Dir.z = Z;
             Manager->update_current_behavior_direction(Dir);
+            FlightTelemetry::Command("direction", X, Y, Z);
         }
     }
 }
@@ -359,6 +409,9 @@ void OnMouseFlightRawMessage(unsigned Msg)
 
 void UpdateMouseFlightDirection()
 {
+    FlightTelemetry::OriginScope telemetryOrigin(FlightTelemetry::Origin::MouseSteering);
+    if (PlayerRoute::BlockMouse()) return;
+    if (PlayerFlightActions::BlockMouse()) return;
     if (CockpitFreeLook::BlocksMouseFlight()) return;
     // 0x004c7cc5..0x004c7d0a: the ship's behavior interface, when the player is in a ship in the
     // required object-class state (GetPlayerShipEqObj already reproduces retail's -0xc-sentinel
@@ -409,6 +462,7 @@ void UpdateMouseFlightDirection()
                 Zero.y = 0.0f;
                 Zero.z = 0.0f;
                 Manager->update_current_behavior_direction(Zero);
+                FlightTelemetry::Command("direction", 0, 0, 0);
             }
         }
         return;
@@ -467,9 +521,13 @@ void UpdateMouseFlightDirection()
         // {x, y, 0}. That is FUN_004c78d0's body, inlined here byte for byte.
 #ifdef FREELANCER_JFLP
         // Port-only (jflp.dll): the roll of the roll keys instead of 0.
-        SetPlayerBehaviorDirectionGatedNoCapture(NormX, NormY, G_JflpMouseFlightRoll);
+        FlightTelemetry::Steering("mouse", NormX, NormY, G_JflpMouseFlightRoll);
+        if (!PlayerRoute::MouseSteering(NormX, NormY, G_JflpMouseFlightRoll))
+            SetPlayerBehaviorDirectionGatedNoCapture(NormX, NormY, G_JflpMouseFlightRoll);
 #else
-        SetPlayerBehaviorDirectionGated(NormX, NormY, 0.0f);
+        FlightTelemetry::Steering("mouse", NormX, NormY, 0.0f);
+        if (!PlayerRoute::MouseSteering(NormX, NormY, 0.0f))
+            SetPlayerBehaviorDirectionGated(NormX, NormY, 0.0f);
 #endif
 
         // 0x004c7f20: DAT_00673554 = 1.
@@ -507,13 +565,14 @@ void ResetMouseFlightState()
 
 void ClearMouseFlightSteering()
 {
-    if (G_MouseFlightEngaged)
+    if (!PlayerRoute::ReleaseMouseSteering() && G_MouseFlightEngaged)
     {
         IBehaviorManager* const manager = PlayerBehaviorManager();
         if (manager && manager->Opaque168[0] != 0)
         {
             Vector zero = {};
             manager->update_current_behavior_direction(zero);
+            FlightTelemetry::Command("direction", 0, 0, 0);
         }
     }
     G_MouseFlightHoldTimer = 0.0f;

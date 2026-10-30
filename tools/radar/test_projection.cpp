@@ -7,6 +7,12 @@ using namespace RadarProjection;
 static bool near(float a,float b) {return std::fabs(a-b)<0.002f;}
 int main()
 {
+    // Ordinary server asteroids remain hidden; an actual valuable detection is
+    // the only exception, and never bypasses player/death/visibility gates.
+    assert(Accept(2,1,SERVER_ASTEROID_TYPE,~0u,true,false,true));
+    assert(!Accept(2,1,SERVER_ASTEROID_TYPE,~0u,true,false,false));
+    assert(!Accept(2,1,SERVER_ASTEROID_TYPE,~0u,true,true,true));
+    assert(!Accept(1,1,SERVER_ASTEROID_TYPE,~0u,true,false,true));
     float const identity[3][3]={{1,0,0},{0,1,0},{0,0,1}};
     Layout l;
     assert(MakeLayout({0,0,1919,1079},.5f,.5f,.1f,.42f,.65f,l));
@@ -36,6 +42,9 @@ int main()
     assert(!Accept(2,1,0x10000,0x7f0000,false,false));
     assert(!Accept(2,1,0x10000,0x7f0000,true,true));
     assert(!Accept(2,1,0x20000000,0x7f0000,true,false));
+    assert(Accept(2,1,0x10,0xfdff,true,false)); // Ordinary satellite/solar remains visible.
+    assert(!Accept(2,1,SERVER_ASTEROID_TYPE,0xfdff,true,false));
+    assert(!Accept(2,1,SERVER_ASTEROID_TYPE,~0u,true,false)); // Mining/combined scan too.
     Viewport const views[]={{0,0,639,479},{0,0,1919,1079},{0,0,3439,1439},{100,60,1099,859}};
     for(auto const& v:views)
     {

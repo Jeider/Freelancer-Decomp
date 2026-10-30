@@ -109,6 +109,8 @@ struct FRPExCaps
     char AdapterDescription[128];
     // Version 3: appended IRPDrawEx::DrawExMeshInstances is available on this device.
     unsigned long bMeshInstances;
+    // Appended capability: RPExPassHudSurface preserves ordinary UI draw state and alpha.
+    unsigned long bHudSurface;
 };
 
 // The size of the first published FRPExCaps (up to Reserved[3]); GetExCaps rejects less.
@@ -133,6 +135,7 @@ enum ERPExPassFlags : unsigned long
     RPExPassKeepDepth = 0x1,
     // Clear the colour target to ClearColor after binding it.
     RPExPassClearColor = 0x2,
+    RPExPassHudSurface = 0x4,
 };
 
 struct FRPExPassDesc

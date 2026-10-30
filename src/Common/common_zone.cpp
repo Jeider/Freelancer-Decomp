@@ -1939,8 +1939,11 @@ bool ZONE::HasPhysicalEffect() const
 {
     if (PhysicalEffect < 0)
     {
+        // Port fix: the INI reader accepts drag >= 1, so the retail '< 1'
+        // predicate made drag-only zones inert unless damage/interference was
+        // also enabled. A multiplier above the neutral 1 is an effect itself.
         // healing.dll (0633ad42): a negative damage counts as an effect.
-        if (DragModifier < 1.0f || Interference > 0.0f || Damage > 0.0f || (HEALING_ON() && Damage < 0.0f))
+        if (DragModifier > 1.0f || Interference > 0.0f || Damage > 0.0f || (HEALING_ON() && Damage < 0.0f))
             PhysicalEffect = 1;
         else
         {

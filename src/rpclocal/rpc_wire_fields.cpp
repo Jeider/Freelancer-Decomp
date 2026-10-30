@@ -628,6 +628,7 @@ unsigned int RpcEncodeServerActivateObject(FPacketBase& Packet, unsigned char** 
         return Stream.GetError();                                      // 06da8ec6
     }
     Stream.PutDword(Wire->Field_0x08);                                 // 06da8f06
+    if (Wire->bActivate == 2) Stream.PutBytes(&Wire->Animation, sizeof(Wire->Animation));
     if (Stream.Failed()) {
         return Stream.GetError();                                      // 06da8ef9
     }
@@ -659,6 +660,8 @@ unsigned int RpcDecodeServerActivateObject(FPacketBase& Packet, const unsigned c
         return Stream.GetError();                                      // 06da902b
     }
     Wire->Field_0x08 = ScratchDword;                                   // 06da902d
+    if (Wire->bActivate == 2 && !Stream.GetBytes(&Wire->Animation, sizeof(Wire->Animation)))
+        return Stream.GetError();
     if (Stream.Failed()) {
         return Stream.GetError();
     }

@@ -551,6 +551,8 @@ bool HudTarget::Create(Win3D* NewParent, void* Data)
     ToggleButton = CreateButtonControl("HudTargetOpen", "interface\\hud\\HUD_contactlist.3db",
                                        nullptr, "ui_window_open", nullptr, &HomePosition.X,
                                        nullptr, ToggleHalf, 0, 1, 0, 0, HudIds::TargetList, 0, 0);
+    // The montage provides the idle icon; hover rotation also needs the actual mesh.
+    ToggleButton->SetMesh("interface\\hud\\HUD_contactlist.3db", nullptr);
     ToggleButton->SetProperty(0x36, 1, 0);
 
     float const ShipNamePos[3] = {-0.488f, -0.2f, 0.0f};
@@ -755,24 +757,13 @@ bool HudTarget::TargetingIsHostileShip() const
         GetAttitudeClass(static_cast<IObjRW*>(GetPlayerObjRW()), target) == -1;
 }
 
-bool HudTarget::TargetingIsCruiser() const
+bool HudTarget::TargetingShowsAutoselect() const
 {
     IObjRW* const target = WatchedObjRw(ViewObject);
     CObject* const object = CObjectOfObjRw(target);
     unsigned type = 0;
     return object && IsClass(object, 0x503) && target->get_type(type) == 0 &&
-        (type & 0x80000u) != 0; // shiparch type = CRUISER, including destroyers in this mod.
-}
-
-unsigned short HudTarget::TargetingSelectedPart() const
-{
-    if (!TargetingOwnsContent(this) || !VulnerableAutoselectEnabled() || !TargetingIsCruiser())
-        return SUBOBJ_ID_NONE;
-    auto* player = HudShipOfObjRw(static_cast<IObjRW*>(GetPlayerObjRW()));
-    IObjRW* const viewed = WatchedObjRw(ViewObject);
-    IObjRW* const selected = player ? player->get_target() : nullptr;
-    if (!viewed || !selected || viewed->get_id() != selected->get_id()) return SUBOBJ_ID_NONE;
-    return player->get_sub_target();
+        (type & (0x80000u | 0x40000u)) != 0; // CRUISER (including mod destroyers) or GUNBOAT.
 }
 
 void HudTarget::Slot14()
@@ -1002,7 +993,6 @@ void HudTarget::DrawTargetView(float screenShift, TargetingProjection projection
             // FUN_004e7070, then the part cache (FUN_00406510) through the view camera in the
             // object's transform (slot 4).
             ColourViewParts();
-            HighlightSelectedViewPart(TargetingSelectedPart());
             IObjRW* const Viewed = WatchedObjRw(ViewObject);
             PartCacheDraw(&PartCache, AsCamera(&ViewCamera),
                           reinterpret_cast<FTransform const*>(&Viewed->get_transform()));

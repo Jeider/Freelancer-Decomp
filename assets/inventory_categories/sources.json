@@ -1,0 +1,34 @@
+[
+  {
+    "mesh": "inventory_boosters_icon.lod0.vms",
+    "mesh_crc": "f62e4e6b",
+    "material": "UI_inventory_boosters_icon_mat",
+    "material_crc": "16ac2a0c",
+    "texture": "inventory_boosters_icon.tga",
+    "texture_crc": "e5dba799",
+    "vertices": 4,
+    "triangles": 2,
+    "sha256": "edb7b909bf3f8b95a30321a5362af54b2fbbd16142c145f0cd095230617bac32",
+    "source": "D:\\games\\Freelancer Beta\\data\\Equipment\\models\\commodities\\nn_icons\\machines.3db",
+    "source_sha256": "49f6c9e075306984e23210d66d94d98c16078908628a92d0be9d546693f1ff1e",
+    "texture_sha256": "b7cf73db5bbc4fa3f16cb8036231b97a86c2f16cb7c72c159cbd688c90fb772d",
+    "embedded_mesh_bytes": 120,
+    "file": "boosters.3db"
+  },
+  {
+    "mesh": "inventory_keys_icon.lod0.vms",
+    "mesh_crc": "0f96b134",
+    "material": "UI_inventory_keys_icon_mat",
+    "material_crc": "0656cac3",
+    "texture": "inventory_keys_icon.tga",
+    "texture_crc": "11d3c6ad",
+    "vertices": 4,
+    "triangles": 2,
+    "sha256": "9fcf071fcc1a451a6ce46f5c4fdebcdc91808020816c9dae1e24a396c595fbc3",
+    "source": "D:\\games\\FL_MOD\\DATA\\INTERFACE\\NEURONET\\INVENTORY\\cargobay.3db",
+    "source_sha256": "99606d79d53baf6e5bd5e755ee6f438fbdc075baf12c0dc59544074dc412a700",
+    "texture_sha256": "94b3ff4e2f14b8488388fe7824382f112da0705c9f8cb4c5185e88fd20eab91c",
+    "embedded_mesh_bytes": 120,
+    "file": "keys.3db"
+  }
+]

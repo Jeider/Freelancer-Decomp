@@ -108,7 +108,8 @@ enum EEquipType
     EquipTypeRepairDroid = 0x200000,
     EquipTypeInternalFX = 0x400000,
     EquipTypeTradeLane = 0x800000,   // CETradeLaneEquip (ctor 06294ed7, cast 0629fca8)
-    EquipTypeArmor = 0x1000000
+    EquipTypeArmor = 0x1000000,
+    EquipTypeGravityDevice = 0x2000000
 };
 
 // ============================================================================
@@ -2283,6 +2284,22 @@ static_assert(sizeof(CETradeLaneEquip) == 0x20, "CETradeLaneEquip sizeof 0x20");
 // tailcall) ctor and dtor bodies at this call site -- the dtor still visibly stamps
 // CInternalEquip's own vtable pointer immediately before the inlined CEquip::~CEquip call,
 // matching CInternalEquip::~CInternalEquip's body byte-for-byte.
+class COMMON_API CEGravityDevice : public CInternalEquip
+{
+public:
+    CEGravityDevice(CEqObj* OwnerObj, unsigned short EquipId,
+                    Archetype::GravityDevice const* Arch, bool bMissionFlag);
+    CEGravityDevice(CEGravityDevice const& Other);
+    virtual ~CEGravityDevice();
+    virtual float GetHitPoints() const;
+    virtual void SetHitPoints(float Hit);
+    virtual bool Activate(bool On);
+    static CEGravityDevice* __cdecl cast(CEquip* Equip);
+    static CEGravityDevice const* __cdecl cast(CEquip const* Equip);
+private:
+    float HitPts;
+};
+
 class COMMON_API CERepairDroid : public CInternalEquip
 {
 public:
@@ -2293,6 +2310,7 @@ public:
     // base-then-derived copy-ctor shape, not a leftover artifact.
     CERepairDroid(CERepairDroid const& Other);
     virtual ~CERepairDroid();
+    virtual bool Activate(bool On);
     virtual float GetHitPoints() const;
     // Listing 0x3fc50. Stores Hit, then when it drops to/below 0.0f re-dispatches virtually
     // through vtable+0x30 (CEquip::Activate's slot) with Activate(false) -- confirmed against
@@ -2332,6 +2350,16 @@ public:
     static CECloakingDevice const* __cdecl cast(CEquip const* Equip);
     // Listing 0x3fb90 (ICF-shared): return [this+0xc].
     Archetype::CloakingDevice const* CloakArch() const;
+    bool CanToggle() const;
+    void ApplyRemoteState(bool Active);
+    float GetCooldownRemaining() const;
+    float GetDurationRemaining() const;
+    void RegisterServerState();
+    static std::map<unsigned, float> SavedCooldowns(unsigned Player);
+    static void LoadCooldowns(unsigned Player, std::map<unsigned, float> const& Values);
+private:
+    void ChangeState(bool Active);
+public:
 
     // Common.dll.c 56458-56644 (0x34520-0x347e0): a 2-state cross-fade engine. FadeTarget is
     // the state (0/1) Activate()'s most recent call is driving toward; BaselineState is the

@@ -27,6 +27,7 @@
 #include "render/IRPVolumeBeam.h"
 #include "render/IRPShipNormals.h"
 #include "render/IRPRockNormals.h"
+#include "render/IRPRenderWarmup.h"
 #include "render/IRPSurfaceContext.h"
 #include "render/IRPRoomMaterials.h"
 #include "render/IRPLocalShadows.h"
@@ -386,7 +387,7 @@ class FDirectX9 final : public IRenderPipeline,
                         public IRPDrawEx,
                         public IRPSurfaceShader, public IRPSurfaceContext, public IRPRoomMaterials, public IRPRoomShadows,
                         public IRPLocalShadows, public IRPFrameQuality, public IRPWeaponGlints,
-                        public IRPPlanetAtmosphere, public IRPPlanetSurface, public IRPSceneCapture, public IRPCodeBeam, public IRPShipNormals, public IRPRockNormals, public IRPVolumeBeam
+                        public IRPPlanetAtmosphere, public IRPPlanetSurface, public IRPSceneCapture, public IRPCodeBeam, public IRPShipNormals, public IRPRockNormals, public IRPVolumeBeam, public IRPRenderWarmup
 {
 public:
     FDirectX9();
@@ -545,6 +546,7 @@ public:
     GENRESULT DACOM_API Initialize() override;
 
     // IRenderPipelineEx (RP9Ex.cpp).
+    GENRESULT DACOM_API WarmSceneCaches() override;
     GENRESULT DACOM_API GetExCaps(FRPExCaps* Out) override;
     GENRESULT DACOM_API CreateExProgram(IFileSystem* FileSystem, const char* Path,
                                         const char* VsEntry, const char* PsEntry,
@@ -652,6 +654,9 @@ public:
     GENRESULT DACOM_API SetGlassSurface(unsigned long) override;
     bool ExSurfaceBegin();
     bool ExSurfaceBeginImpl();
+    void ExNomadEnergyPrepare();
+    bool ExNomadEnergyBegin();
+    void ExNomadEnergyEnd();
     GENRESULT DACOM_API SetRoomMaterialFrame(unsigned long Enabled) override;
     GENRESULT DACOM_API SetRoomMaterial(const char* Name, const char* Texture) override;
     bool ExRoomMaterialBegin();

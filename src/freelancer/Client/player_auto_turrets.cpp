@@ -60,7 +60,8 @@ namespace
             char unit[8]; sprintf_s(unit, "%04x", unsigned(name[i])); strcat_s(preferenceSection, unit);
         }
         char hull[16]; sprintf_s(hull, ".%08x", ship->Archetype->get_id()); strcat_s(preferenceSection, hull);
-        mode = GetPrivateProfileIntA(preferenceSection, "enabled", 1, preferencePath) ? Mode::Hostiles : Mode::Manual;
+        bool const legacy = GetPrivateProfileIntA(preferenceSection, "enabled", 1, preferencePath) != 0;
+        mode = GetSavedAutoTurretsEnabled(legacy) ? Mode::Hostiles : Mode::Manual;
     }
     bool SavedSelection(CEGun* gun)
     {
@@ -262,7 +263,9 @@ PlayerTurretRules::Behavior BehaviorFor(CEGun const* /*gun*/)
         b.reservePercent = (std::min)(90u, unsigned((std::max)(0, PortConfigInt("AutoTurrets", "reserve_percent", 35))));
         return b;
     }();
-    return defaults;
+    auto behavior = defaults;
+    behavior.reservePercent = GetSavedAutoTurretReserve(defaults.reservePercent);
+    return behavior;
 }
 void SetFocused(bool value) { focused = value; if (!value) ResetAttacks(); }
 
@@ -275,7 +278,7 @@ bool Enabled()
 void Reset()
 {
     if (Resolve(owner) == Player() && SinglePlayer())
-        for (auto& member : members) if (mode != Mode::Manual && member.selected) Release(member);
+        for (auto& member : members) if (member.selected) Release(member);
     mode = Mode::Manual; status = Status::Off; energyHold = false;
     owner.set(nullptr); members.clear(); cursor = 0;
     preferencePath[0] = preferenceSection[0] = 0;
@@ -320,7 +323,7 @@ void Reconcile()
     for (auto& member : members)
         if (member.needsArm)
         {
-            if (member.selected && mode != Mode::Manual) Arm(member);
+            if (member.selected) Arm(member);
             member.needsArm = false;
             NewAimError(member);
         }
@@ -328,7 +331,9 @@ void Reconcile()
 
 bool Owns(CEquip const* equip)
 {
-    if (mode == Mode::Manual || Resolve(owner) != Player()) return false;
+    // Master OFF suspends firing but keeps configured turrets owned by automation.
+    // It must not clear their activation state or return them to manual/group fire.
+    if (Resolve(owner) != Player()) return false;
     auto* member = Find(equip);
     return member && member->selected;
 }
@@ -347,25 +352,23 @@ void ActivationChanged(CEquip const* equip, bool active)
 void SetMode(Mode next)
 {
     Reconcile();
-    if (next == Mode::Manual)
-    {
-        for (auto& member : members) if (mode != Mode::Manual && member.selected) Release(member);
-        mode = next; status = Status::Off; energyHold = false; ResetAttacks();
-        SavePreference("enabled", 0); return;
-    }
-    if (!SinglePlayer()) { status = Status::Multiplayer; return; }
-    if (!Ship() || !Enabled()) return;
-    if (IsSpaceInitInProgress()) { status = Status::Suspended; return; }
-    if (mode == Mode::Manual)
-        for (auto& member : members) if (auto* gun = ResolveGun(member)) member.manual = gun->IsActive();
+    if (!SinglePlayer() || !Enabled()) return;
+    // Global fire gate only: never arm/release guns or rewrite per-hardpoint choices.
+    mode = next;
+    status = next == Mode::Manual ? Status::Off : Status::Ready;
+    energyHold = false;
     ResetAttacks();
-    mode = next; status = Status::Ready;
-    for (auto& member : members) if (member.selected) Arm(member);
-    SavePreference("enabled", 1);
+    SetSavedAutoTurretsEnabled(next != Mode::Manual);
 }
-Mode GetMode() { return mode; }
+Mode GetMode() { return GetSavedAutoTurretsEnabled(mode != Mode::Manual) ? Mode::Hostiles : Mode::Manual; }
 Status GetStatus() { return status; }
-unsigned ReservePercent() { return reserve; }
+unsigned ReservePercent() { return BehaviorFor(nullptr).reservePercent; }
+void SetReservePercent(unsigned percent)
+{
+    SetSavedAutoTurretReserve((std::min)(90u, percent));
+    reserve = ReservePercent();
+    energyHold = false;
+}
 unsigned MemberCount() { return unsigned(members.size()); }
 CEGun* Member(unsigned index) { return index < members.size() ? ResolveGun(members[index]) : nullptr; }
 bool Selected(unsigned index) { return index < members.size() && members[index].selected; }
@@ -374,10 +377,10 @@ void ToggleMember(unsigned index)
     Reconcile();
     if (index >= members.size()) return;
     auto& member = members[index];
-    if (mode != Mode::Manual && member.selected) Release(member);
+    if (member.selected) Release(member);
     if (auto* gun = ResolveGun(member)) member.manual = gun->IsActive();
     member.selected = !member.selected;
-    if (member.selected && mode != Mode::Manual) Arm(member);
+    if (member.selected) Arm(member);
     ResetAttack(member);
     if (auto* gun = ResolveGun(member)) SavePreference(gun->GetParentHPName().Value, member.selected ? 1 : 0);
 }
@@ -385,7 +388,9 @@ void ToggleMember(unsigned index)
 void Tick(float dt, bool docking)
 {
     Reconcile();
-    if (mode == Mode::Manual) return;
+    mode = GetMode();
+    reserve = ReservePercent();
+    if (mode == Mode::Manual) { status = Status::Off; ResetAttacks(); return; }
     auto* ship = Ship();
     if (!ship || !std::isfinite(dt) || dt <= 0) return;
     if (!focused || docking || IsLetterboxVisible() || G_bNnScreenUp || ship->is_cruise_active() ||

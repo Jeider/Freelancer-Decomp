@@ -7,6 +7,8 @@
 #include "room_control.h"
 #ifdef FREELANCER_RP9
 #include "render_ex.h"
+#include "graphics_settings.h"
+#include "black_hole_visual.h"
 #endif
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
@@ -2595,6 +2597,7 @@ void RoomControlDrawShadow(FRoomRuntime* Room, unsigned long A, unsigned long B,
 {
 #ifdef FREELANCER_RP9
     if(G_RoomSilhouettePass || G_RoomSilhouetteInstances.count(A))return;
+    if (GraphicsSettings::Get(GraphicsSettings::Shadows)==0) return;
 #endif
     // FUN_0044b370. 0x0044b389..0x0044b3be: the SHADOWS option (0x2b), "shadow_glare" and the
     // room's shadow light (RoomData +0xe4).
@@ -2778,6 +2781,13 @@ void RoomControlDraw(FRoomRuntime* Runtime)
     // camera).
     if (GetGameOption(kGameOptEffectsGroup) != 0 && GetGameOption(kGameOptFlashlights) > 0)
         DrawFlashlightFlares(Runtime->Flashlights, Runtime->FlashlightCount, Runtime->Camera);
+
+#ifdef FREELANCER_RP9
+    // Port-only: lensed black hole of thorn scenes (main-menu intro). After all opaque and
+    // translucent room geometry, before Alchemy particles (bh_chunks etc.) draw over it.
+    if (RenderEx::IsAvailable())
+        BlackHoleVisualDrawRoom(Runtime->Camera);
+#endif
 
     // 0x0044b77f..0x0044b7cb: the same states again, full-white ambient (FUN_00556f20),
     // every light unlinked (thunk FUN_004101e0).

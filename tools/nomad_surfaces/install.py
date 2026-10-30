@@ -18,6 +18,12 @@ PAYLOAD = ('bin/freelancer.exe', 'bin/freelancer.pdb', 'bin/RP9.dll', 'bin/RP9.p
 SCOPE = 'Nomad interior/exterior and Dyson relief; conservative asteroid bounds; Sphere depth prepass without shadow casting'
 
 
+def warm_game(game):
+    sys.path.insert(0, str(REPO / 'tools/asteroid_normals'))
+    from warm import warm
+    warm(game)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--game-root', type=Path, default=Path('D:/games/FL_MOD'))
@@ -73,9 +79,11 @@ def main():
     if args.restore:
         restore_from(source)
         print(f'Restored and verified {len(data["files"])} files from {source}')
+        warm_game(game)
         return
     if not data['files']:
         print('Already installed; no changes.')
+        warm_game(game)
         return
     backup = safe(game, 'BACKUP/codex_nomad_surfaces_' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f'))
     for item in data['files']:
@@ -95,6 +103,7 @@ def main():
         restore_from(backup)
         raise
     print(f'Installed and verified {len(data["files"])} files. Backup: {backup}')
+    warm_game(game)
 
 
 if __name__ == '__main__':

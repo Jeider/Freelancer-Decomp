@@ -6,7 +6,7 @@ The archetype loader (`Archetype::LoadEquipment`, `LoadSolar`, `LoadShips`, `Loa
 
 | `[Data]` key | Loader | Sections understood |
 |---|---|---|
-| `equipment` (repeated) | `LoadEquipment` | `Motor`, `Explosion`, the 25 equipment kinds below, `LOD` |
+| `equipment` (repeated) | `LoadEquipment` | `Motor`, `Explosion`, the 26 equipment kinds below, `LOD` |
 | `solar` | `LoadSolar` | `Solar`, `CollisionGroup`, `Explosion`, `LOD` |
 | `ships` (repeated) | `LoadShips` | `Ship`, `CollisionGroup`, `LOD`, `Simple`, `Explosion` |
 | `asteroids` | `LoadAsteroids` | `Asteroid`, `AsteroidMine`, `DynamicAsteroid` |
@@ -28,6 +28,15 @@ Loadouts retain the binding as `equip = DeviceNickname, Name`. Only one installe
 family is currently supported, including legacy built-ins. Both switches default off.
 See [equipment slots](../re/equipment_mount_classes.md) for complete examples, compatibility,
 runtime behavior, testing and migration limitations.
+
+## Gravity equipment
+
+Equipment can define `gravity = true` with `gravity_mode = attract|repel|suppress`,
+field radius/strength keys, and `gravity_compensation = 0..1` for its owner.
+Mounted devices work on ships and mission solars through ordinary loadouts; cargo
+is inert. Standalone prototypes use dedicated `[GravityDevice]` records with
+`hp_type = hp_hardware_special_1` through `_10`. See [gravity devices](../black_hole.md#gravity-equipment-and-mission-sources)
+for the installed definitions, stacking rules, save behavior and examples.
 
 ## Value notation used on these pages
 
@@ -114,6 +123,7 @@ Added by the base class of all 25 equipment kinds ([common_archetype_equipment.c
 | `volume` | float | 0.0 | Cargo volume. | [L331](../../src/Common/common_archetype_equipment.cpp#L331) |
 | `tractored_explosion` | id | 0 | Explosion played when tractored. | [L338](../../src/Common/common_archetype_equipment.cpp#L338) |
 | `lootable` | bool | true | Can drop as loot. | [L344](../../src/Common/common_archetype_equipment.cpp#L344) |
+| `radar_valuable` | bool | false | Gives its carrier a valuable signature while this equipment or nonempty cargo stack is present and not destroyed. Also marks loose loot containing this item. | [sensor_detection.h](../../src/include/sensor_detection.h) |
 
 (`hit_pts` is tested again in `Equipment::read` but can never be reached because `Root::read` consumes it first.)
 
@@ -152,6 +162,7 @@ The section name selects the class. The table below is the loader's dispatch tab
 | `AttachedFX` | AttachedFXEquip | Root + Equipment | No own keys (the client companion reads its visual keys). |
 | `InternalFX` | InternalFXEquip | + `use_animation` | |
 | `TradeLane` | TradeLaneEquip | Root + Equipment | No own keys. |
+| `GravityDevice` | GravityDevice | gravity field/compensation keys; `hp_type = hp_hardware_special_1` through `_10` | Port-only; named logical hardware slots on ships and solars. |
 | `RepairDroid` | RepairDroid | + `repair_rate` | |
 | `RepairKit` | RepairKit | + `loot_appearance` | |
 | `ShieldBattery` | ShieldBattery | + `loot_appearance` | |
@@ -235,6 +246,48 @@ linear_drag = 0.4
 | `power_usage` | float | 0.0 | Stored as the power threshold. | [L1034](../../src/Common/common_archetype_equipment.cpp#L1034) |
 | `range` | float | 1000.0 | Radar range. | [L1040](../../src/Common/common_archetype_equipment.cpp#L1040) |
 | `cargo_scan_range` | float | 0.0 | Cargo scan range. | [L1046](../../src/Common/common_archetype_equipment.cpp#L1046) |
+| `discovery_range` | float, metres | absent: legacy rules | Distance to chart previously unknown system objects (centre distance) and zones (distance to zone boundary). Zero disables new discoveries. Existing discoveries and mission visit restrictions remain. | [space_camera_game.cpp](../../src/freelancer/Client/space_camera_game.cpp) |
+| `valuable_detection_range` | float, metres | 0.0 | Recognises valuable contacts as filled green diamonds. Visibility also obeys current radar range/zoom and scanner interference; zero disables the capability. | [hud_radar.cpp](../../src/freelancer/Client/hud_radar.cpp) |
+
+The two new ranges inherit, copy and reload with the scanner archetype. Negative
+or nonfinite explicit values disable the corresponding capability. Interference
+reduces both ranges; a nonfunctioning scanner cannot use configured discovery or
+valuable detection. Static system objects can be charted beyond the client object
+replication radius. Dynamically spawned asteroids are not saved as map discoveries.
+
+`radar_valuable = true` is accepted in `[Solar]` and every equipment archetype,
+including `[Commodity]`. These are equivalent sources of a valuable signature:
+the solar itself **or** any intact installed item/nonempty cargo stack in its
+current loadout. The flag belongs in the item's definition; loadout `equip` and
+`cargo` lines keep their normal syntax. Removing or destroying the last flagged
+item removes the signature unless the solar itself is flagged. It does not assign
+or guarantee a loot reward. `radar_hidden` and parented-solar suppression still
+take precedence. Ordinary server asteroids remain hidden; detected valuable ones
+are the exception. Moving asteroids receive temporary radar contacts, not permanent
+map entries.
+Server-spawned asteroids also load the `[Solar]` archetype's `loadout`, using the
+normal create packet to give the server and client the same contents.
+
+```ini
+[Scanner]
+nickname = scanner_advanced
+range = 10000
+discovery_range = 18000
+valuable_detection_range = 5000
+
+[Commodity]
+nickname = valuable_ore
+radar_valuable = true
+
+[Loadout]
+nickname = valuable_rock_loadout
+cargo = valuable_ore, 1
+```
+
+Loot All uses the installed, intact, enabled tractor's `max_length`, including the
+native zero/unlimited convention. Both button visibility and the requested loot
+list share the tractor's source position, range, contents and cargo-capacity
+validation; they no longer impose a separate 1000 m limit.
 
 ### `[Light]`  ([L1086](../../src/Common/common_archetype_equipment.cpp#L1086))
 
@@ -262,21 +315,68 @@ linear_drag = 0.4
 |---|---|---|---|---|
 | `repair_rate` | float | 0.0 | Repair rate. | [L1235](../../src/Common/common_archetype_equipment.cpp#L1235) |
 
+
+The port restores a separate automatic repair button in the Health window for
+mounted droids with positive `repair_rate`. Quest keys with zero repair rate do
+not expose the button. The original activation/deactivation/exhaustion voice IDs
+are retained. Nanobots (`RepairKit`) and their manual repair button are unchanged.
+
+`DATA/EQUIPMENT/repair_devices.ini` supplies the optional `repair_droid_auto`
+prototype: class-1 hardware, 5 HP/s, 10,000 HP of its own repair reserve. For authored loadouts use `equip = repair_droid_auto, HpRoot` (or another
+hardpoint name). Class limits apply when installing through the equipment UI; an
+existing mounted loadout does not require a declared hardware slot.
+It starts off after spawn/load, and can be switched on/off in Health. The button
+is highlighted while active and disabled when depleted. The prototype is not
+automatically added to loadouts or markets.
+
+Server repair ticks every little over two seconds, selecting the most damaged
+surviving hull/equipment/group. It consumes only actual restored HP from its own
+reserve, never nanobots, and cannot resurrect destroyed parts. A manual nanobot
+repair is observed on the next tick without wasting reserve. Stored equipment
+health preserves the remaining reserve in saves. A positive-rate hardware droid
+can coexist with cloaking/gravity devices in different slots and zero-rate quest
+keys; a second repair droid is rejected. Native and server checks are in
+`tools/physics/check_gravity_devices_native.ps1` and `check_repair_droid.py`.
+
 ### `[RepairKit]` and `[ShieldBattery]`  ([L1404](../../src/Common/common_archetype_equipment.cpp#L1404), [L1428](../../src/Common/common_archetype_equipment.cpp#L1428))
 
 | Key | Type | Default | Meaning | Source |
 |---|---|---|---|---|
 | `loot_appearance` | equipment nickname | none (the item itself) | Equipment whose model is shown as loot (resolved at read time). | [helper L145](../../src/Common/common_archetype.cpp#L145), calls [L1409](../../src/Common/common_archetype_equipment.cpp#L1409), [L1433](../../src/Common/common_archetype_equipment.cpp#L1433) |
 
+### `[DoorKey]` (port extension)
+
+Passive Equipment archetype for access keys. It uses the common Equipment fields,
+has no attachment type or active device behavior, and belongs in cargo (`cargo =
+<nickname>, 1`). A matching `[Good]` with `category = equipment` exposes it under
+**Keys** in the player inventory and equipment dealer, including zero-price keys.
+No hardware slot is needed. The `dock_key` plugin accepts a carried DoorKey even
+when its `DATA/dock_key.ini` rule has `mounted = true`; it does not consume keys.
+Existing key archetypes keep their old mount rules and are not converted.
+
+`RepairKit` and `ShieldBattery` now appear under **Boosters**, retaining their
+existing actions and purchase limits. See the [configuration, icon replacement
+and checks](../../tools/inventory_categories/README.md).
+
 ### `[CloakingDevice]`  ([L1272](../../src/Common/common_archetype_equipment.cpp#L1272))
 
 | Key | Type | Default | Meaning | Source |
 |---|---|---|---|---|
 | `power_usage` | float | 0.0 | Power draw. | [L1277](../../src/Common/common_archetype_equipment.cpp#L1277) |
-| `cloakin_time` | float | 0.0 | Seconds to cloak. | [L1283](../../src/Common/common_archetype_equipment.cpp#L1283) |
-| `cloakout_time` | float | 0.0 | Seconds to decloak. | [L1289](../../src/Common/common_archetype_equipment.cpp#L1289) |
-| `cloakin_fx` | id | 0 | Effect played when cloaking. | [L1295](../../src/Common/common_archetype_equipment.cpp#L1295) |
-| `cloakout_fx` | id | 0 | Effect played when decloaking. | [L1301](../../src/Common/common_archetype_equipment.cpp#L1301) |
+| `cloakin_time` | float | 0.0 | Seconds to become visible (legacy engine naming). | [runtime](../../src/Common/common_cecloak.cpp) |
+| `cloakout_time` | float | 0.0 | Seconds to become invisible (legacy engine naming). | [runtime](../../src/Common/common_cecloak.cpp) |
+| `cloakin_fx` | id | 0 | Effect played when becoming visible. | [client effects](../../src/freelancer/Client/client_equip_fx.cpp) |
+| `cloakout_fx` | id | 0 | Effect played when becoming invisible. | [client effects](../../src/freelancer/Client/client_equip_fx.cpp) |
+| `default_state` | bool | false, when opted in | Start fully cloaked if true; otherwise visible. | [cloak settings](../../tools/cloak/README.md) |
+| `cloak_duration` | float | -1 | Seconds fully invisible; -1 is unlimited, 0 reveals immediately after cloaking. | [cloak settings](../../tools/cloak/README.md) |
+| `cooldown_time` | float | 0 | Recharge seconds starting after fully revealing. | [cloak settings](../../tools/cloak/README.md) |
+| `toggle_cooldown` | float | 0.3 | Minimum interval between accepted manual changes, in addition to both animation locks. | [cloak settings](../../tools/cloak/README.md) |
+
+Any new key opts into the timed player cloak behavior. With none, legacy/story
+devices keep their existing behavior. Expiry and manual deactivation both require
+the full recharge. Health displays remaining seconds and blocks the button while
+unavailable. Character saves retain cooldown; loading during cloaking restores a
+visible ship with recharge due. See the [configuration and multiplayer notes](../../tools/cloak/README.md).
 
 ## `[Motor]` (in equipment files)
 

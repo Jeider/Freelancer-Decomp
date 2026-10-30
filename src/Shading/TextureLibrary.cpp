@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "TextureLibrary.h"
+#include "render/DdsMipCursor.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
 #include <cmath>
@@ -1071,25 +1072,6 @@ namespace
         }
     };
 
-    struct FTextureDdsCursor
-    {
-        const unsigned char* Pixels;
-        unsigned long Bytes;
-        unsigned long MinimumBlock;
-        unsigned long Width;
-        unsigned long Height;
-
-        void Advance()
-        {
-            // FUN_06ec0310: no dimension floor and no block-grid recalculation.
-            Pixels += Bytes;
-            Bytes >>= 2;
-            if (Bytes < MinimumBlock)
-                Bytes = MinimumBlock;
-            Width >>= 1;
-            Height >>= 1;
-        }
-    };
 
     void TextureDdsWarning(int Line, const char* Format, const char* Name, int Mip = 0)
     {
@@ -1233,8 +1215,9 @@ GENRESULT FTextureLibrary::LoadDdsTexture(IFileSystem* FileSystem, const char* N
         return GR_GENERIC;
     }
     FTextureDdsCursor Cursor = {Map.View + 0x80,
-        bPitch ? Header[0x14 / 4] * Header[0x0c / 4] : Header[0x14 / 4],
-        MinimumBlock, Header[0x10 / 4], Header[0x0c / 4]};
+        bPitch ? Header[0x14 / 4] * Header[0x0c / 4] :
+            FTextureDdsCursor::CompressedBytes(Info.Width,Info.Height,MinimumBlock),
+        MinimumBlock, Header[0x10 / 4], Header[0x0c / 4], !bPitch};
     for (unsigned long Index = 0; Index < Skip; ++Index)
         Cursor.Advance();
     unsigned int UploadFormat = SourceFormat;

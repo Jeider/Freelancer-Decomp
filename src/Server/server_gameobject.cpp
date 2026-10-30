@@ -11,6 +11,7 @@
 // ===========================================================================
 
 #include "../include/server_gameobject.h"
+#include "server_asteroid_fields.h"
 #ifdef FREELANCER_MOD_PLUGINS
 #include "../include/port_plugins.h" // port-only mod server patches
 #include "../include/common_mod_plugins_api.h"
@@ -34,6 +35,8 @@
 #include "../include/x86math.h"          // I3DMathEngine::MatrixToQuaternion
 #include "../include/common_physys.h"   // PhySys::RCBegin/RCEnd, Collision::CalcCollisionDamage
 #include "../include/common_universe.h" // Universe::IZone (CSimple::ZoneAtA4)
+#include "../include/common_server_asteroid.h"
+#include "../include/common_spatial.h"
 #include <cmath>
 #include <windows.h>
 #include <cstdio>
@@ -2157,6 +2160,16 @@ int EqObj::slot_4c(unsigned short const* EquipId, bool bActivate, int SourceClie
     if (is_destroyed())
         return -5;
 
+    auto* cloak = CECloakingDevice::cast(ceqobj()->EquipManager.FindByID(*EquipId));
+    if (cloak && cloak->CloakArch()->GetSettings().enabled)
+    {
+        // SP has already changed the shared CEquip. In MP the server validates
+        // the request itself and echoes its actual state, including to sender.
+        if (!SinglePlayer() || SourceClient <= 0) cloak->Activate(bActivate);
+        OwnerSystem->notify_activate_equip(get_id(), *EquipId, cloak->IsActive(), 0);
+        return cloak->IsActive() == bActivate ? 0 : -5;
+    }
+
     // .text:06ce70d8 .. 06ce70e3
     int Result = 0;
     if (SourceClient == -1)
@@ -2722,6 +2735,10 @@ void EqObj::create_server_equip(unsigned short EquipId)
     // vtable inlined here; the subclass constructors below carry those stores).
     switch (Equip->Type)
     {
+    case EquipTypeCloak:
+        if (static_cast<CECloakingDevice*>(Equip)->CloakArch()->GetSettings().enabled)
+            ServerEquips.push_back(new SrvCloak(Equip, this));
+        break;
     case 0x80:       // .text:06ce8a08 .. 06ce8a3e  new(0x18), +0x0c = 0, vt .rdata:06d655ac
         ServerEquips.push_back(new SrvGun(Equip, this));
         break;
@@ -4287,6 +4304,28 @@ bool ServerEquip::update(float Dt)
 
 // operator new(0x0c) + FUN_06ced2d0 + vtable .rdata:06d65564
 // (.text:06ce8b12 .. 06ce8b3c).
+SrvCloak::SrvCloak(CEquip* InEquip, EqObj* InOwner) : ServerEquip(InEquip, InOwner)
+{
+    static_cast<CECloakingDevice*>(Equip)->RegisterServerState();
+    LastActive = Equip->IsActive();
+}
+
+bool SrvCloak::update(float Dt)
+{
+    if (!Equip) return false;
+    bool active = Equip->IsActive();
+    SyncTime -= Dt;
+    if (Owner->OwnerSystem && (active != LastActive || SyncTime <= 0))
+    {
+        // Reannounce to newly observing clients, and propagate automatic expiry.
+        // Identical notifications never restart the client's animation/timers.
+        Owner->OwnerSystem->notify_activate_equip(Owner->get_id(), Equip->Id, active, 0);
+        LastActive = active;
+        SyncTime = 1.0f;
+    }
+    return true;
+}
+
 SrvThruster::SrvThruster(CEquip* InEquip, EqObj* InOwner)
     : ServerEquip(InEquip, InOwner)
 {
@@ -4333,89 +4372,59 @@ SrvRepairDroid::SrvRepairDroid(CEquip* InEquip, EqObj* InOwner)
 // .text:06ced3f0 (RET 4).
 bool SrvRepairDroid::update(float Dt)
 {
-    // .text:06ced40d .. 06ced429 -- no equip: false.
-    CEquip* const Droid = Equip;
-    if (Droid == nullptr)
-        return false;
-
-    // .text:06ced42c .. 06ced435 -- an inactive droid (vt +0x04) does nothing.
-    if (!Droid->IsActive())
-        return true;
-
-    // .text:06ced43b .. 06ced451 -- pick a target when there is none.
-    if (TargetId == SUBOBJ_ID_NONE)
-        TargetId = pick_target();
-    if (TargetId == SUBOBJ_ID_NONE)
-        return true;
-
-    // .text:06ced467 .. 06ced47c -- FLD/FADD/FST into +0x0c; only past 2.0f
-    // (DAT_06d6573c; TEST AH,0x41 / JNZ skips <= and unordered). The timer keeps
-    // counting otherwise.
-    RepairTimer = Dt + RepairTimer;
-    if (!(RepairTimer > 2.0f))
-        return true;
-
-    // .text:06ced482 .. 06ced4ae -- the target's relative health through the
-    // equip owner's CEqObj slot +0xf0 (get_sub_obj_relative_health); a failed
-    // lookup, or a target already at 1.0f or above (TEST AH,5 / JP, DAT_06d65520;
-    // unordered too), drops the target.
-    float Relative = 0.0f;
-    if (!Droid->Owner->get_sub_obj_relative_health(TargetId, Relative) || !(Relative < 1.0f))
+    auto* Droid = CERepairDroid::cast(Equip);
+    if (!Droid) return false;
+    // Toggle pauses repair immediately. Nanobots use their separate stock path.
+    if (!Droid->IsFunctioning() || !(Droid->GetHitPoints() > 0) || !(Droid->Owner->get_hit_pts() > 0))
     {
-        TargetId = SUBOBJ_ID_NONE;                                  // .text:06ced66c
-        RepairTimer = 0.0f;                                         // .text:06ced678
+        RepairTimer = 0;
+        TargetId = SUBOBJ_ID_NONE;
         return true;
     }
+    float const Rate = Droid->RepairDroidArch()->RepairRate;
+    if (!(Rate > 0) || !std::isfinite(Rate) || !(Dt > 0) || !std::isfinite(Dt)) return true;
+    if (TargetId == SUBOBJ_ID_NONE) TargetId = pick_target();
+    if (TargetId == SUBOBJ_ID_NONE) { RepairTimer = 0; return true; }
+    RepairTimer += Dt;
+    if (!(RepairTimer > 2.0f)) return true;
 
-    // .text:06ced4b4 .. 06ced514 -- a cause-0x11 list from this droid's owner:
-    // inflictor = its get_id() (vt +0x20), owner = its CSimple+0xb4.
-    DamageList Repair;
-    Repair.Cause = static_cast<DamageCause>(0x11);
-    Repair.InflictorId = Owner->get_id();
-    Repair.InflictorOwner = Owner->csimple()->OwnerPlayer;
-
-    // .text:06ced518 .. 06ced531 -- the target's hit points (slot +0xe4,
-    // get_sub_obj_hit_pts); failing that the target is dropped.
-    float Current = 0.0f;
-    if (Droid->Owner->get_sub_obj_hit_pts(TargetId, Current))
+    float Relative = 0, Current = 0, Maximum = 0;
+    bool HasHitPoints = false;
+    if (TargetId == SUBOBJ_ID_ROOT)
     {
-        // .text:06ced537 .. 06ced591 -- the droid pays for the repair out of its
-        // own hit points: Amount = (float)(repair_rate (RepairDroid+0x70) *
-        // timer), the droid's entry = hit points - Amount floored at 0
-        // (TEST AH,0x41 / JNZ; GetHitPoints re-read for the store).
-        float const Amount = static_cast<CERepairDroid*>(Droid)->RepairDroidArch()->RepairRate * RepairTimer;
-        float DroidHitPts = 0.0f;
-        if (Droid->GetHitPoints() - Amount > 0.0f)
-            DroidHitPts = Droid->GetHitPoints() - Amount;
-        Repair.add_damage_entry(Droid->Id, DroidHitPts, DamageEntry::SubObjFate::None);
-
-        // .text:06ced593 .. 06ced5d4 -- the target's max: current / relative
-        // when the relative health is above 0 (TEST AH,0x41 / JNZ), else slot
-        // +0xec (get_sub_obj_max_hit_pts); 0 until then.
-        float MaxHitPts = 0.0f;
-        if (Relative > 0.0f)
-            MaxHitPts = Current / Relative;
-        else
-            Droid->Owner->get_sub_obj_max_hit_pts(TargetId, MaxHitPts);
-
-        // .text:06ced5d4 .. 06ced608 -- the target gains Amount, capped at its
-        // max (TEST AH,5 / JP takes the max on >= and unordered).
-        double const Repaired = static_cast<double>(Amount) + Current;
-        float NewHitPts = MaxHitPts;
-        if (Repaired < MaxHitPts)
-            NewHitPts = static_cast<float>(Repaired);
-        Repair.add_damage_entry(TargetId, NewHitPts, DamageEntry::SubObjFate::None);
-
-        // .text:06ced60a .. 06ced614 -- the owner's apply_damage_list (vt +0x188).
-        Owner->apply_damage_list(Repair);
+        // As in use_repair_kit: Common's sub-object HP getters only handle
+        // equipment and arch groups, even though relative health accepts root.
+        Current = Droid->Owner->get_hit_pts();
+        Maximum = Droid->Owner->get_max_hit_pts();
+        HasHitPoints = true;
     }
     else
     {
-        TargetId = SUBOBJ_ID_NONE;                                  // .text:06ced61c
+        HasHitPoints = Droid->Owner->get_sub_obj_hit_pts(TargetId, Current) &&
+                       Droid->Owner->get_sub_obj_max_hit_pts(TargetId, Maximum);
     }
-
-    // .text:06ced629 .. 06ced678 -- the list torn down, the timer reset.
-    RepairTimer = 0.0f;
+    if (HasHitPoints && Droid->Owner->get_sub_obj_relative_health(TargetId, Relative) &&
+        Relative > 0 && Relative < 1)
+    {
+        // Charge only actual repaired damage, capped by the droid's own remaining
+        // reserve. A nearly full target or a depleted droid must not create free HP.
+        float Amount = Rate * RepairTimer;
+        if (Amount > Droid->GetHitPoints()) Amount = Droid->GetHitPoints();
+        if (Amount > Maximum - Current) Amount = Maximum - Current;
+        if (Amount > 0 && std::isfinite(Amount))
+        {
+            DamageList Repair;
+            Repair.Cause = static_cast<DamageCause>(0x11);
+            Repair.InflictorId = Owner->get_id();
+            Repair.InflictorOwner = Owner->csimple()->OwnerPlayer;
+            Repair.add_damage_entry(Droid->Id, Droid->GetHitPoints() - Amount, DamageEntry::SubObjFate::None);
+            Repair.add_damage_entry(TargetId, Current + Amount, DamageEntry::SubObjFate::None);
+            Owner->apply_damage_list(Repair);
+        }
+    }
+    // Re-evaluate damage, including hull damage and any manual nanobot repairs.
+    TargetId = SUBOBJ_ID_NONE;
+    RepairTimer = 0;
     return true;
 }
 
@@ -4430,6 +4439,12 @@ unsigned short SrvRepairDroid::pick_target() const
     // relative health (vt +0x44) strictly below the best so far (TEST AH,5 /
     // JP) wins.
     CEqObj* const Ce = Equip->Owner;
+    float HullRelative = 1;
+    if (Ce->get_sub_obj_relative_health(SUBOBJ_ID_ROOT, HullRelative) && HullRelative > 0 && HullRelative < Lowest)
+    {
+        Lowest = HullRelative;
+        Best = SUBOBJ_ID_ROOT;
+    }
     CEquipTraverser Walk;
     CEquipManager const& Equipment = Ce->EquipManager;
     for (CEquip const* Item = Equipment.Traverse(Walk); Item != nullptr; Item = Equipment.Traverse(Walk))
@@ -4441,7 +4456,7 @@ unsigned short SrvRepairDroid::pick_target() const
         // .text:06ced705 FCOM float [Lowest] on the unrounded ST0; only the
         // winner is rounded (06ced714 FSTP float).
         double const Relative = Item->GetRelativeHealth();
-        if (Relative < Lowest)
+        if (Relative > 0 && Relative < Lowest)
         {
             Lowest = (float)Relative;
             Best = Item->Id;
@@ -4456,7 +4471,7 @@ unsigned short SrvRepairDroid::pick_target() const
     {
         // .text:06ced758 FCOM / 06ced766 FSTP float, as above.
         double const Relative = Group->GetRelativeHealth();
-        if (Relative < Lowest)
+        if (Relative > 0 && Relative < Lowest)
         {
             Lowest = (float)Relative;
             Best = Group->Arch->Id;
@@ -6146,6 +6161,10 @@ Solar::Solar()
 
 Solar::~Solar()
 {
+    // Unloading a system deletes solars directly, without Solar::destroy.
+    if (Object != nullptr && OwnerSystem != nullptr &&
+        IsServerAsteroidType(csolar()->TypeBits))
+        OwnerSystem->remove_from_list_d4(this);
     // .text:06d02bfb: CALL [.rdata:06d675c8] -- Solar's +0x15c entry, which is
     // EqObj's destroy_notify (.text:06ce7c80) -- with the Solar vtables just
     // re-stamped; the virtual call made from this destructor resolves to the
@@ -6179,6 +6198,18 @@ bool Solar::update(float Dt)
     if (!EqObj::update(Dt))
         return false;
     csolar()->update(Dt, CObject::UPDATE_DEFAULT);
+    if (IsServerAsteroidType(csolar()->TypeBits) && OwnerSystem->Spatial != nullptr)
+    {
+        // Ordinary solars never translate. This subtype must move its spatial
+        // entry too, so scanner queries and NPC pathfinding see the live body.
+        IObjRW* iface = this;
+        OwnerSystem->Spatial->Remove(iface);
+        FSpatialEntry entry;
+        entry.Object = iface;
+        entry.Position = get_position();
+        entry.Radius = csolar()->Radius;
+        OwnerSystem->Spatial->Add(&entry);
+    }
     return true;
 }
 
@@ -6189,6 +6220,11 @@ bool Solar::destroy(int Kind, unsigned int ObjId)
 {
     if (!EqObj::destroy(Kind, ObjId))
         return false;
+    if (IsServerAsteroidType(csolar()->TypeBits))
+    {
+        if (Kind == 1) OnServerAsteroidKilled(*OwnerSystem, get_id(), get_position());
+        OwnerSystem->remove_from_list_d4(this);
+    }
     OwnerSystem->remove_solar(this);
     return true;
 }

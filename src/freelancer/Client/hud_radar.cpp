@@ -15,6 +15,7 @@
 #include "common_csys.h"
 #include "common_iface.h"
 #include "common_ini.h"
+#include "sensor_detection.h"
 #include "common_spatial.h"
 #include "DALib.h"
 #include "engine/engbase.h"
@@ -51,11 +52,23 @@ namespace
             ? static_cast<CSolar const*>(object)->solararch() : nullptr;
     }
 
+    bool ValuableInRange(IObjRW* contact,CEScanner const* scanner,Vector const& origin,float range)
+    {
+        if (!contact || !scanner || !scanner->IsFunctioning()) return false;
+        float const interference = (std::max)(scanner->Owner->get_scanner_interference(), contact->get_scanner_interference());
+        float const reach = (std::min)(range, SensorDetection::EffectiveRange(
+            scanner->ScannerArch()->GetValuableDetectionRange(), interference));
+        return SensorDetection::InRange(origin,contact->get_position(),reach) &&
+            SensorDetection::IsValuable(contact->cobject());
+    }
+
     bool MiningInRange(IObjRW* contact,CEScanner const* scanner,Vector const& origin,float range)
     {
         auto const* arch=contact ? SolarArch(contact->cobject()) : nullptr;
-        if(!arch || !arch->bRadarMining || arch->bRadarHidden ||
+        if(!arch || arch->bRadarHidden ||
            IsParentedSolar(contact->cobject()) || contact->is_dying()) return false;
+        if (ValuableInRange(contact,scanner,origin,range)) return true;
+        if (!arch->bRadarMining) return false;
         // Unlike the shared CEScanner filter this deliberately accepts explicitly
         // tagged NON_TARGETABLE solars. Detection distance/interference still apply.
         float const interference=contact->get_scanner_interference();
@@ -75,6 +88,8 @@ namespace
         RadarSymbols::Kind kind;
         float physicalRadius;
         bool incoming = false;
+        bool hostile = false;
+        unsigned id = 0;
     };
 
     bool BlipBefore(Blip const& a,Blip const& b)
@@ -107,7 +122,7 @@ namespace
         unsigned const ownerId=missile->get_owner();
         int const attitude=ownerId==player->get_id() ? 1 : GetAttitudeClass(player,db->FindById(&ownerId));
         blip={point,RadarSymbols::MissileColor(attitude,incoming,phase),contact==selected,
-              RadarSymbols::Kind::Missile,0,incoming};
+              RadarSymbols::Kind::Missile,0,incoming,incoming || attitude == -1};
         return true;
     }
 
@@ -135,6 +150,84 @@ namespace
                 std::push_heap(blips,blips+used,BlipBefore);
             }
         }
+        return used;
+    }
+
+    int CollectContacts(IObjRW* player, CShip const* ship, CEScanner* scanner, float range,
+                        RadarProjection::Layout const& layout, bool showSolars, int maxContacts,
+                        float missileBlinkPhase, Blip* blips)
+    {
+        unsigned const mask = RadarSymbols::ShipMask | RadarSymbols::LootMask | (showSolars ? RadarSymbols::SolarMask : 0);
+        // Add only the requested types to the native cache. Never clear it: other
+        // HUD consumers share it. Its own filter applies scanner interference.
+        if (scanner && range > 0) scanner->scan_for_types(mask);
+        ScanList const* const scans = scanner && range > 0 ? &scanner->Scans : nullptr;
+        int const count = scans ? (std::max)(0, (std::min)(256, scans->Count)) : 0;
+        int used = 0;
+        IObjRW* selected = nullptr;
+        player->get_target(selected);
+        Transform const& transform = player->get_transform();
+        unsigned const playerId = player->get_id();
+        auto append=[&](IObjRW* contact,bool mining)
+        {
+            if (!contact || IsParentedSolar(contact->cobject()))
+                return;
+            auto const* solar=SolarArch(contact->cobject());
+            if(solar && (solar->bRadarHidden || (!mining && solar->bRadarMining))) return;
+            bool const valuable = ValuableInRange(contact,scanner,transform.Translation,range);
+            unsigned type = 0;
+            if (contact->get_type(type) != 0 ||
+                !RadarProjection::Accept(contact->get_id(), playerId, type, mining ? ~0u : mask,
+                                         mining || contact->is_targetable(), contact->is_dying(),valuable))
+                return;
+            // Ordinary targetable solars already come through the native scan.
+            // Avoid a second marker when the dedicated mining/value pass sees them.
+            if (mining)
+                for (int i=0;i<used;++i)
+                    if (blips[i].id == contact->get_id()) return;
+            auto const kind=valuable ? RadarSymbols::Kind::Valuable :
+                mining ? RadarSymbols::Kind::Triangle : RadarSymbols::Classify(type);
+            float physicalRadius=0;
+            Vector position = contact->get_position();
+            if(kind==RadarSymbols::Kind::Planet)
+            {
+                Vector center;
+                if(contact->get_physical_radius(physicalRadius,center)!=0 ||
+                    !std::isfinite(physicalRadius) || physicalRadius<=0) return;
+                position=center; // Physical centre is world-space, including the model offset.
+            }
+            RadarProjection::Contact point;
+            if (!RadarProjection::Project({position.x,position.y,position.z},
+                                          {transform.Translation.x,transform.Translation.y,transform.Translation.z},
+                                          transform.Rotation.E, range, layout, point,physicalRadius))
+                return;
+            // Match native HUD: the contact's attitude towards the player matters.
+            int const attitude = mining ? 0 : GetAttitudeClass(player, contact);
+            unsigned const color = RadarSymbols::ContactColor(kind,attitude);
+            blips[used++] = {point, color, contact == selected, kind,physicalRadius,false,attitude == -1,contact->get_id()};
+        };
+        for (int i = 0; i < count; ++i)
+            append(ObjRwFromWatchable(const_cast<Watchable*>(scans->Entries[i].target())),false);
+        if(showSolars && range>0 && ship->ObjectDb)
+        {
+            auto* bucket=static_cast<ISpatialPartition*>(ship->ObjectDb->GetBucket(0xfdffu));
+            if(bucket)
+            {
+                Geometry::Sphere sphere;
+                sphere.Center=transform.Translation;
+                sphere.Radius=range;
+                FSpatialQueryResult query;
+                query.Capacity=0x800;query.Count=0;
+                if(bucket->QuerySphere(&sphere,&query))
+                    for(unsigned i=0;i<(std::min)(query.Count,query.Capacity);++i)
+                    {
+                        auto* contact=static_cast<IObjRW*>(query.Items[i]);
+                        if(MiningInRange(contact,scanner,sphere.Center,range)) append(contact,true);
+                    }
+            }
+        }
+        used+=CollectMissiles(ship->ObjectDb,scanner,player,selected,range,layout,missileBlinkPhase,
+                              blips+used,maxContacts);
         return used;
     }
 
@@ -166,7 +259,7 @@ bool RadarMessageAnchor(float& x, float& y)
 
 bool RadarIsEnabled()
 {
-    return ActiveRadar && GetSavedRadarEnabled();
+    return ActiveRadar && ActiveRadar->IsOpen();
 }
 
 bool HUD_Radar::MessageAnchor(float& x, float& y) const
@@ -174,7 +267,7 @@ bool HUD_Radar::MessageAnchor(float& x, float& y) const
     auto* camera=Win3DGetCamera();
     auto const* view=camera ? camera->GetViewport() : nullptr;
     RadarProjection::Layout layout={};
-    if (!enabled || !GetSavedRadarEnabled() || !view || camera->XScale<=0 || camera->YScale==0 ||
+    if (!enabled || !IsOpen() || !view || camera->XScale<=0 || camera->YScale==0 ||
         !RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]},
                                      centerX,centerY,radius,ellipse,elevation,layout)) return false;
     x=(layout.x-camera->ScreenCenterX)/camera->XScale;
@@ -261,16 +354,61 @@ bool HUD_Radar::Init()
     return true;
 }
 
+bool HUD_Radar::IsOpen() const
+{
+    return GetSavedRadarEnabled() || (GetSavedRadarAutoMode() && autoState.Open());
+}
+
+void HUD_Radar::UpdateAutoVisibility(float dt)
+{
+    unsigned const mode = GetSavedRadarAutoMode(), revision = GetGameSessionLoadRevision();
+    if (mode != autoMode || revision != autoRevision)
+    {
+        autoMode = mode; autoRevision = revision;
+        autoState = {}; autoPoll = 0;
+    }
+    if (!mode || !CanShow()) { autoState = {}; autoPoll = 0; return; }
+    if (!std::isfinite(dt) || dt <= 0) return;
+    autoPoll -= dt;
+    if (autoPoll <= 0)
+    {
+        autoPoll = .2f;
+        autoState.match = false;
+        auto* player = static_cast<IObjRW*>(GetPlayerObjRW());
+        auto const* object = player && player != reinterpret_cast<IObjRW*>(static_cast<intptr_t>(-0xc)) ?
+            player->cobject() : nullptr;
+        auto* camera = Win3DGetCamera();
+        auto const* view = camera ? camera->GetViewport() : nullptr;
+        RadarProjection::Layout layout;
+        if (object && (object->ObjectClass & CObject::ClassShip) == CObject::ClassShip && view &&
+            RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]},centerX,centerY,radius,ellipse,elevation,layout))
+        {
+            auto const* ship = static_cast<CShip const*>(object);
+            auto* scanner = CEScanner::cast(const_cast<CEquip*>(ship->EquipManager.FindFirst(EquipTypeScanner)));
+            float const range = scanner && scanner->IsFunctioning() ?
+                RadarProjection::EffectiveRange(scanner->GetRadarRange(),ranges[GetSavedRadarRange(defaultRangeIndex)]) : 0;
+            Blip blips[256+0x800+256];
+            int const count = CollectContacts(player,ship,scanner,range,layout,showSolars,maxContacts,missileBlinkPhase,blips);
+            for (int i=0; i<count; ++i)
+                if (mode == 1 || blips[i].hostile) { autoState.match = true; break; }
+        }
+    }
+    autoState.Step(dt);
+}
+
 void HUD_Radar::Update()
 {
     float const dt=static_cast<float>(GetClientFrameTimeCapped());
+    UpdateAutoVisibility(dt);
+    deployment.Step(IsOpen(), dt);
+    bool const running=deployment.Running(IsOpen());
     if(std::isfinite(dt) && dt>0) missileBlinkPhase=std::fmod(missileBlinkPhase+dt,.5f);
-    sweepAngle = std::fmod(sweepAngle + sweepSpeed * 0.01745329252f *
+    if (running) sweepAngle = std::fmod(sweepAngle + sweepSpeed * 0.01745329252f *
                          dt, 6.28318530718f);
     auto* player=static_cast<IObjRW*>(GetPlayerObjRW());
     auto const* object=player && player!=reinterpret_cast<IObjRW*>(static_cast<intptr_t>(-0xc))
         ? player->cobject() : nullptr;
-    if (object && (object->ObjectClass & CObject::ClassShip)==CObject::ClassShip && !IsSpaceInitInProgress())
+    if (running && object && (object->ObjectClass & CObject::ClassShip)==CObject::ClassShip && !IsSpaceInitInProgress())
     {
         unsigned const system=StarSysGetActiveSystemId();
         bool const inLane=static_cast<CShip const*>(object)->is_using_tradelane();
@@ -312,7 +450,8 @@ void HUD_Radar::UpdateButtons()
     bool const visible = CanShow() && view && camera->XScale>0 && camera->YScale!=0 &&
         RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]},
                                     centerX,centerY,radius,ellipse,elevation,layout);
-    bool const on=GetSavedRadarEnabled();
+    bool const on=IsOpen();
+    if (visible) deployment.Apply(layout, view[3]);
     if(toggleButton)
     {
         toggleButton->SetProperty(1,visible ? 0 : 1,0);
@@ -322,7 +461,7 @@ void HUD_Radar::UpdateButtons()
     }
     if (background)
     {
-        background->SetProperty(1,visible && on ? 0 : 1,0);
+        background->SetProperty(1,visible && deployment.Visible() ? 0 : 1,0);
         if (visible)
         {
             float const scale=layout.radius*.93f/camera->XScale;
@@ -337,7 +476,7 @@ void HUD_Radar::UpdateButtons()
     {
         auto* button = static_cast<NnButtonControl*>(zoomButtons[i]);
         if (!button) continue;
-        button->SetProperty(1,visible && on ? 0 : 1,0);
+        button->SetProperty(1,visible && deployment.Running(on) ? 0 : 1,0);
         bool const usable = RadarProjection::ZoomIndex(rangeIndex,i==0)!=rangeIndex;
         button->SetFlags331(static_cast<unsigned char>((button->GetFlags331() & ~2u) | (usable ? 2u : 0u)));
         if (!visible) continue;
@@ -356,11 +495,13 @@ intptr_t HUD_Radar::SetProperty(int msg, uintptr_t a, uintptr_t b)
         if (a && a==reinterpret_cast<uintptr_t>(toggleButton))
         {
             SetSavedRadarRange(static_cast<unsigned>(rangeIndex));
-            SetSavedRadarEnabled(!GetSavedRadarEnabled());
+            bool const open = IsOpen();
+            if (open) autoState.Close();
+            SetSavedRadarEnabled(!open);
             UpdateButtons();
             return 1;
         }
-        if (GetSavedRadarEnabled())
+        if (deployment.Running(IsOpen()))
         for(int i=0;i<2;++i)
             if (a==reinterpret_cast<uintptr_t>(zoomButtons[i]))
             {
@@ -386,8 +527,9 @@ void HUD_Radar::Draw()
 {
     if (!CanShow()) return;
     if (toggleButton && (toggleButton->Flags & kWin3DVisible)) toggleButton->Draw();
-    // The toggle remains available while off; scanning and disk drawing stop.
-    if (!GetSavedRadarEnabled()) return;
+    // The model slides below the screen; only the toggle remains when closed.
+    if (!deployment.Visible()) return;
+    bool const running=deployment.Running(IsOpen());
     if (background && (background->Flags & kWin3DVisible)) background->Draw();
     FSpaceCamera* const camera = Win3DGetCamera();
     if (!enabled || GetGameOption(kGameOptInterfaceGroup)==0 || GetGameOption(kGameOptHud)==0)
@@ -411,79 +553,18 @@ void HUD_Radar::Draw()
         ? RadarProjection::EffectiveRange(scanner->GetRadarRange(), ranges[rangeIndex]) : 0;
     if (!scanner || range <= 0)
         ReportOnce(32, "scanner absent/suppressed: drawing empty dimmed frame");
-    float const frameOpacity = opacity * (scanner && range > 0 ? 1.0f : 0.55f);
+    float const frameOpacity = opacity * deployment.Opacity() * (scanner && range > 0 ? 1.0f : 0.55f);
     int const* const view = camera->GetViewport();
     if (!view)
     { ReportOnce(64, "skip: camera viewport unavailable"); return; }
     RadarProjection::Layout layout;
     if (!RadarProjection::MakeLayout({view[0],view[1],view[2],view[3]}, centerX, centerY, radius, ellipse, elevation, layout))
     { ReportOnce(128, "skip: invalid viewport/layout"); return; }
+    deployment.Apply(layout, view[3]);
 
-    unsigned const mask = RadarSymbols::ShipMask | RadarSymbols::LootMask | (showSolars ? RadarSymbols::SolarMask : 0);
-    // Add only the requested types to the native cache. Never clear it: other
-    // HUD consumers share it. Its own filter applies scanner interference.
-    if (scanner && range > 0) scanner->scan_for_types(mask);
-    ScanList const* const scans = scanner && range > 0 ? &scanner->Scans : nullptr;
-    int const count = scans ? (std::max)(0, (std::min)(256, scans->Count)) : 0;
-    Blip blips[256+0x800+256]; // Native contacts, bounded solar query and missiles.
-    int used = 0;
-    IObjRW* selected = nullptr;
-    player->get_target(selected);
-    Transform const& transform = player->get_transform();
-    unsigned const playerId = player->get_id();
-    auto append=[&](IObjRW* contact,bool mining)
-    {
-        if (!contact || IsParentedSolar(contact->cobject()))
-            return;
-        auto const* solar=SolarArch(contact->cobject());
-        if(solar && (solar->bRadarHidden || (!mining && solar->bRadarMining))) return;
-        unsigned type = 0;
-        if (contact->get_type(type) != 0 ||
-            !RadarProjection::Accept(contact->get_id(), playerId, type, mining ? ~0u : mask,
-                                     mining || contact->is_targetable(), contact->is_dying()))
-            return;
-        auto const kind=mining ? RadarSymbols::Kind::Triangle : RadarSymbols::Classify(type);
-        float physicalRadius=0;
-        Vector position = contact->get_position();
-        if(kind==RadarSymbols::Kind::Planet)
-        {
-            Vector center;
-            if(contact->get_physical_radius(physicalRadius,center)!=0 ||
-                !std::isfinite(physicalRadius) || physicalRadius<=0) return;
-            position=center; // Physical centre is world-space, including the model offset.
-        }
-        RadarProjection::Contact point;
-        if (!RadarProjection::Project({position.x,position.y,position.z},
-                                      {transform.Translation.x,transform.Translation.y,transform.Translation.z},
-                                      transform.Rotation.E, range, layout, point,physicalRadius))
-            return;
-        // Match native HUD: the contact's attitude towards the player matters.
-        int const attitude = mining ? 0 : GetAttitudeClass(player, contact);
-        unsigned const color = RadarSymbols::ContactColor(kind,attitude);
-        blips[used++] = {point, color, contact == selected, kind,physicalRadius};
-    };
-    for (int i = 0; i < count; ++i)
-        append(ObjRwFromWatchable(const_cast<Watchable*>(scans->Entries[i].target())),false);
-    if(showSolars && range>0 && ship->ObjectDb)
-    {
-        auto* bucket=static_cast<ISpatialPartition*>(ship->ObjectDb->GetBucket(0xfdffu));
-        if(bucket)
-        {
-            Geometry::Sphere sphere;
-            sphere.Center=transform.Translation;
-            sphere.Radius=range;
-            FSpatialQueryResult query;
-            query.Capacity=0x800;query.Count=0;
-            if(bucket->QuerySphere(&sphere,&query))
-                for(unsigned i=0;i<(std::min)(query.Count,query.Capacity);++i)
-                {
-                    auto* contact=static_cast<IObjRW*>(query.Items[i]);
-                    if(MiningInRange(contact,scanner,sphere.Center,range)) append(contact,true);
-                }
-        }
-    }
-    used+=CollectMissiles(ship->ObjectDb,scanner,player,selected,range,layout,missileBlinkPhase,
-                          blips+used,maxContacts);
+    Blip blips[256+0x800+256];
+    int used = running ? CollectContacts(player,ship,scanner,range,layout,showSolars,
+                                         maxContacts,missileBlinkPhase,blips) : 0;
     std::sort(blips, blips + used, BlipBefore);
     used = (std::min)(used, maxContacts);
     float const blipSize = (std::max)(2.0f, layout.radius * 0.022f);
@@ -503,7 +584,7 @@ void HUD_Radar::Draw()
     for (int i = used - 1; i >= 0; --i)
         if (blips[i].point.below) DrawBlip(blips[i], frameOpacity * 0.72f, blipSize,range,layout);
 
-    RadarFrame::Emit(layout, rangeIndex, frameOpacity, Line, sweepAngle, ringMotion.angle);
+    RadarFrame::Emit(layout, rangeIndex, frameOpacity, Line, sweepAngle, ringMotion.angle, running);
     for (int i = used - 1; i >= 0; --i)
         if (!blips[i].point.below) DrawBlip(blips[i], frameOpacity, blipSize,range,layout);
     if (!reportedDraw)

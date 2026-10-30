@@ -79,7 +79,13 @@ Radar root at (-.195,-.37), between Targeting and HUD_Core's 100% indicator, and
 the contact list collapsed. TargetTradeButton is raised to y=-.325. Yellow means on. Save interface bit 17 persists its state; legacy/new saves default off.
 Bits 18..19 store range index + 1, with zero falling back to the hud.ini range_index.
 Both settings are restored on save loads, including while the HUD remains alive.
-Only the toggle remains when off, and no scanner work occurs.
+Switching off removes contacts immediately and smoothly shrinks the disk and its
+background while sliding them down below the viewport over 0.35 seconds. At the
+end the model disappears completely; only the toggle remains. Sweep, player marker,
+zoom controls and radar scanning stop immediately. Opening rises from below the
+screen, expands to full size and only then starts scanning.
+The quintic easing has zero endpoint velocity/acceleration and can reverse from
+the current size. No additional setting or asset is required.
 Plus zooms in (less range); minus zooms out. Limits disable the corresponding button;
 circle size stays fixed. No target-picking controls yet. While radar is enabled,
 special-mode captions and exit hints (mouse flight, turret/rear view, docking and
@@ -133,3 +139,12 @@ It also checks hollow missile circles, clipping and threat colors; it runs even
 without -HudIni. python tools/radar/check_missiles.py extracts the production
 collector and exercises live ownership/retargeting, missing owners, dead objects,
 scanner/zoom limits, a 600-missile scene, priority and bounded storage with stubs.
+
+Options > Miscellaneous selects manual,
+any-contact, or hostile-contact auto-show, saved in interface bits 20..21.
+Detection continues at 5 Hz while closed and uses the same scanner/range filters
+as drawing. Incoming missiles count as hostile. Matching contacts disappearing
+starts a 1.5-second hold before closing. A manual close is respected until those
+contacts leave; manual opening pins the radar. Selecting an automatic mode unpins it.
+check_controls.py exercises the production auto-show update, mode changes, delayed
+close, manual override, save reload, disabled scanners and unavailable players.

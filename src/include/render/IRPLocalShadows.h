@@ -5,6 +5,8 @@
 // are game world coordinates; the pipeline keeps shadow calculations camera-relative.
 struct IRPLocalShadows : IDAComponent
 {
+    // Clears previous-frame receiver/map readiness first. Null inputs reset the
+    // frame and return failure without constructing maps (e.g. nebula shadows off).
     virtual GENRESULT DACOM_API BeginLocalShadowFrame(const float* CameraView12,
         const float* CameraPosition3, const float* SunRayDirection3) = 0;
     virtual GENRESULT DACOM_API BeginLocalShadowMap(unsigned long Cascade) = 0;

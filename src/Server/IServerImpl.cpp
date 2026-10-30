@@ -4,6 +4,8 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "server_action_stats.h"
+#include "equipment_slots.h"
 #include "../include/common_server.h"
 #ifdef FREELANCER_MOD_PLUGINS
 #include "../include/port_config.h" // port-only mod server patches
@@ -14,6 +16,7 @@
 #include "../include/server_iserverimpl.h"   // IServerImpl, Server
 #include "../include/server_cobject.h"
 #include "../include/server_gameobject.h"
+#include "server_asteroid_fields.h"
 #include "../include/common_dataconfig.h" // DataConfig::startup / shutdown
 #include "../include/common_timing.h" // Timing::Delta
 #include "../include/common_tradeoffer.h" // CPlayerTradeOffer
@@ -37,6 +40,7 @@
 #include "../include/common_physys.h"
 #include "../include/common_casteroid.h"   // CmnAsteroid::Update (.text:06d0c136)
 #include "../include/common_animdb.h"     // AnimDB::Update (FUN_06d10320)
+#include "server_solar_animation.h"
 #include "../include/server_createinfo.h" // FShipCreateRequest, Server_Acquire3DMathEngine (PlayerLaunch)
 #include "../include/x86math.h"           // I3DMathEngine (PlayerLaunch)
 #ifdef FREELANCER_FLSHARP
@@ -99,6 +103,28 @@ static IClient* GLoadedClientInterface = nullptr;          // .data:06d8f620
 static IChatClient* GLoadedChatClientInterface = nullptr;  // .data:06d8f624
 // .data:06d8fb14 -- accessed by SendGroupID/SendSystemID in server_classes.cpp
 IClient* g_pClientInterface = nullptr;
+
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+namespace {
+    // A player purchase changing hull must validate the entire transferred loadout.
+    // Other requests validate only the mount changes, preserving authored equipment.
+    std::map<unsigned, unsigned> PendingEquipmentHull;
+    bool CheckEquipmentRequest(PlayerSlot& Slot, EquipDescList const& Candidate)
+    {
+        auto const Pending = PendingEquipmentHull.find(Slot.client_id);
+        auto* Hull = Archetype::GetShip(Slot.ship_archetype);
+        bool const WholeHull = Pending != PendingEquipmentHull.end() && Pending->second == Slot.ship_archetype;
+        bool const Valid = WholeHull ? EquipmentSlots::Validate(Hull, Candidate)
+            : EquipmentSlots::ValidateChange(Hull, Slot.equipment, Candidate);
+        if (Valid) return true;
+        FDUMP(0x100001, "Rejected incompatible equipment mount request for client %u", Slot.client_id);
+        EquipDescVector Current(Slot.equipment);
+        g_pClientInterface->SendServerSetEquipment(Slot.client_id, Current);
+        return false;
+    }
+}
+#endif
+
 // Retail .data:DAT_06d8fb18 (set from FUN_06d433c0 at 0x06d44bf0). It is the
 // IChatClient half of rpclocal's Client object; CPlayerGroup's group/chat
 // senders call its single slot (see server_classes.cpp). Nothing in retail
@@ -265,6 +291,9 @@ bool IServerImpl::Startup(const SStartupInfo& info) {
     }
 
 void IServerImpl::Shutdown() {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    PendingEquipmentHull.clear();
+#endif
         Players.logout_all();
         Server_CleanupPhysics();
         CObject::ReleaseAll();
@@ -497,6 +526,9 @@ void IServerImpl::Connect(const char* server_name, unsigned short* port) {}
     // flags as well; retail only tests the masked ids, and those flags are gone.
     // `type` is accepted and ignored, as in retail.
 void IServerImpl::DisConnect(unsigned int session_id, EFLConnection type) {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    PendingEquipmentHull.erase(session_id);
+#endif
         (void)type;
         if (!Players.is_valid(session_id)) return;
         // All four calls are `MOV ECX,.data:Server` + a direct CALL (06d4501d,
@@ -585,6 +617,9 @@ void IServerImpl::CharacterInfoReq(unsigned int session_id, bool full_info) {
     }
 
 void IServerImpl::CharacterSelect(const CHARACTER_ID& char_id, unsigned int session_id) {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    PendingEquipmentHull.erase(session_id);
+#endif
         // Retail IServerImpl::CharacterSelect, .text:06d453f0 .. .text:06d4566a
         // (RET 8). Frame: S = ESP after the EBX/EBP/EDI pushes; S' = S - 4 once
         // ESI is pushed at .text:06d4551b.
@@ -735,7 +770,14 @@ void IServerImpl::CharacterSkipAutosave(unsigned int session_id) {
     // archetype itself and send 0x35 with an invented {session, arch} payload.
 void IServerImpl::ReqShipArch(unsigned int arch_id, unsigned int session_id) {
         if (!SinglePlayer() && Players[session_id].entered_base_id == 0) return;
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        bool const ChangedHull = Players[session_id].ship_archetype != arch_id;
+#endif
         PlayerData_SetShipArch(Players[session_id], arch_id);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        if (ChangedHull && Players[session_id].ship_archetype == arch_id)
+            PendingEquipmentHull[session_id] = arch_id;
+#endif
     }
     // ReqHullStatus -- retail .text:06d17340 .. .text:06d173d9 (RET 0x8), the one
     // member of the family that validates the session first:
@@ -773,7 +815,13 @@ void IServerImpl::ReqCollisionGroups(const std::list<CollisionGroupDesc>& groups
     // port used to drop the list and send message 0 with &session_id.
 void IServerImpl::ReqEquipment(const EquipDescList& equipment, unsigned int session_id) {
         if (!SinglePlayer() && Players[session_id].entered_base_id == 0) return;
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        if (!CheckEquipmentRequest(Players[session_id], equipment)) return;
+#endif
         PlayerData_LoadEquipment(Players[session_id], equipment);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        PendingEquipmentHull.erase(session_id);
+#endif
     }
 
     // Slot 29 — the real slot 29, not the "Connect2" duplicate that used to sit here.
@@ -813,8 +861,17 @@ void IServerImpl::ReqAddItem(unsigned int arch_id, const char* hardpoint, int co
         if (!SinglePlayer() && Players[session_id].entered_base_id == 0) return;
         CacheString Hp;
         Hp.Value = StringAlloc(hardpoint, false);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        EquipDescList Candidate(Players[session_id].equipment);
+        EquipDesc Added;
+        Added.set_id(SUBOBJ_ID_NONE);Added.set_arch_id(arch_id);Added.set_hardpoint(Hp);
+        Added.set_count(count);Added.set_equipped(b_mounted);
+        Candidate.Items.push_back(Added);
+        if (!CheckEquipmentRequest(Players[session_id], Candidate)) return;
+#endif
         PlayerData_AddEquipment(Players[session_id], arch_id, Hp, count, health, b_mounted,
                                 /*bNoCombine*/false, /*bNotify*/true);
+        ServerActionStats::InventoryChanged(Players[session_id]);
     }
     // ReqRemoveItem -- retail .text:06d174e0 .. .text:06d17528 (RET 0xc).
     //   .text:06d174fd  +0x3F4 gate, as above
@@ -826,6 +883,7 @@ void IServerImpl::ReqAddItem(unsigned int arch_id, const char* hardpoint, int co
 void IServerImpl::ReqRemoveItem(unsigned short equip_id, int count, unsigned int session_id) {
         if (!SinglePlayer() && Players[session_id].entered_base_id == 0) return;
         PlayerData_RemoveEquipment(Players[session_id], equip_id, count, /*bNotify*/false);
+        ServerActionStats::InventoryChanged(Players[session_id]);
     }
     // ReqModifyItem -- retail .text:06d17530 .. .text:06d1759d (RET 0x18).
     //   .text:06d1754d  +0x3F4 gate, as above
@@ -839,6 +897,13 @@ void IServerImpl::ReqModifyItem(unsigned short equip_id, const char* hardpoint, 
         if (!SinglePlayer() && Players[session_id].entered_base_id == 0) return;
         CacheString Hp;
         Hp.Value = StringAlloc(hardpoint, false);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        EquipDescList Candidate(Players[session_id].equipment);
+        auto* Changed = Candidate.find_equipment_item(equip_id);
+        if (!Changed) return;
+        Changed->set_hardpoint(Hp);Changed->set_count(count);Changed->set_equipped(b_mounted);
+        if (!CheckEquipmentRequest(Players[session_id], Candidate)) return;
+#endif
         PlayerData_ModifyEquipment(Players[session_id], equip_id, Hp, count, health, b_mounted);
     }
 
@@ -860,7 +925,9 @@ void IServerImpl::ReqChangeCash(int delta, unsigned int session_id) {
         // FUN_06d4f4e0(delta, false) on the slot -- PlayerData_AdjustCash without
         // the +0x320 total.
         if (!SinglePlayer() && Players[session_id].entered_base_id == 0) return;
+        int const previousCash = Players[session_id].cash;
         PlayerData_AdjustCash(Players[session_id], delta, false);
+        ServerActionStats::CashChanged(Players[session_id], previousCash);
     }
 
     // IServerImpl::BaseEnter -- retail .text:06d17630 .. .text:06d177a8 (RET 0x8),
@@ -911,6 +978,7 @@ void IServerImpl::BaseEnter(unsigned int base_id, unsigned int session_id) {
         Slot.current_base = base_id;      // .text:06d17748 [EDI-0x2c]
         Slot.last_base_id = base_id;      // .text:06d1774b [EDI-0x28]
         Slot.entered_base_id = base_id;   // .text:06d1774e [EDI-0x24]
+        ServerActionStats::Landed(session_id);
 
         GetBaseDB()->load_base(session_id, base_id);   // FUN_06d14230
 
@@ -1150,6 +1218,7 @@ void IServerImpl::TradeResponse(const unsigned char* data, int size, unsigned in
 
     // GFGoodBuy — retail packs struct fields + session_id, sends message 0x1c
 void IServerImpl::GFGoodBuy(const SGFGoodBuyInfo& info, unsigned int session_id) {
+        ServerActionStats::BeginTrade(session_id, info.Field_0x08, info.Field_0x0c, true);
         // .text:06d17bb0..06d17be9 has no branch -- no session test; the port's
         // `!p || !p->active` early-out is gone (w4-server-guards).
         // Retail 0x06d17bb0 copies all four dwords onto the stack, then FUN_06d43650(0x1c, &frame).
@@ -1159,6 +1228,7 @@ void IServerImpl::GFGoodBuy(const SGFGoodBuyInfo& info, unsigned int session_id)
     }
     // GFGoodSell — retail sends message 0x1d
 void IServerImpl::GFGoodSell(const SGFGoodSellInfo& info, unsigned int session_id) {
+        ServerActionStats::BeginTrade(session_id, info.Field_0x04, info.Field_0x08, false);
         // .text:06d17bf0..06d17c22 has no branch -- no session test; the port's
         // `!p || !p->active` early-out is gone (w4-server-guards).
         // Retail 0x06d17bf0 copies three dwords onto the stack, then FUN_06d43650(0x1d, &frame).
@@ -1336,6 +1406,7 @@ void IServerImpl::SystemSwitchOutComplete(unsigned int ship_id, unsigned int ses
         DestSys->arrive_ship(Obj, Arrival, Pos, Orient);
 
         // .text:06cef939 .. 06cef945 -- the slot's system is the destination.
+        if (p->system_id != DestSystemId) ServerActionStats::Add(session_id, PlayerActionStats::Counter::SystemEntries);
         p->system_id = DestSystemId;
 
         // .text:06cef943 .. 06cef9b2 -- controller event 0x3b, 7 dwords: {dest
@@ -1543,6 +1614,7 @@ void IServerImpl::PlayerLaunch(unsigned int ship_id, unsigned int session_id) {
 
         // .text:06cf013f .. 06cf014c -- the slot's ship (+0x3e4) = the request's ObjId.
         p->ship_object_id = Req.ObjId;
+        ServerActionStats::EnteredSpace(session_id, p->exited_base_id != 0);
 
         // .text:06cf0150 .. 06cf017e -- controller event 0x36 {system (FUN_06d06cd0),
         // sid, launch object, launch_pos index}.
@@ -2044,6 +2116,8 @@ void IServerImpl::SetVisitedState(unsigned int session_id, unsigned char* data, 
             // drained into the map by FUN_06d4b450 when the player leaves a system.
             std::map<unsigned int, unsigned char>::iterator Existing =
                 p->visit_map.find(system_id);
+            if ((visit_flags & 1) && (Existing == p->visit_map.end() || !(Existing->second & 1)))
+                ServerActionStats::Visited(session_id, system_id);
             if (Existing != p->visit_map.end()) {
                 Existing->second = (unsigned char)(Existing->second | visit_flags);
             } else {
@@ -3903,6 +3977,8 @@ static unsigned int StarSystem_Update(StarSystem* Sys, float Dt)
 
             // .text:06d0bf02 .. .text:06d0c0f4 -- the ship-proximity pass.
             StarSystem_UpdateNearShips(Sys, CurStep);
+            UpdateServerAsteroidFields(*Sys, CurStep);
+            UpdateSolarAnimations(*Sys, CurStep);
 
             StarSystem_TickObjectList(&Sys->Loot, CurStep, Deferred);     // .text:06d0c108
             StarSystem_TickObjectList(&Sys->Beams, CurStep, Deferred);    // .text:06d0c115

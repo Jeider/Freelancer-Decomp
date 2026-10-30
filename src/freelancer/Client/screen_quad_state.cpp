@@ -519,6 +519,13 @@ namespace
     {
         // 0x004042c7..0x004042d6: slot 66 (+0x108) with the node's texture, unconditionally.
         Pipe->SetTextureStageTexture(0, Node->TextureHandle);
+        // Texture-free markers must select vertex RGBA explicitly. Restore the
+        // batcher's MODULATE preset below so later textured HUD draws keep it.
+        if (Node->TextureHandle == nullptr)
+        {
+            Pipe->SetTextureStageState(0, 1, 3); // COLOROP = SELECTARG2 (DIFFUSE)
+            Pipe->SetTextureStageState(0, 4, 3); // ALPHAOP = SELECTARG2 (DIFFUSE)
+        }
 
         // 0x004042dc..0x00404318: blend 1 -> SRCBLEND / DESTBLEND 2 / 2, blend 2 -> 5 / 6,
         // anything else leaves them alone. 0x0040431b..0x0040432b: ALPHABLENDENABLE = blend != 0.
@@ -617,6 +624,11 @@ namespace
 
         // 0x0040455f..0x00404566: ALPHABLENDENABLE off on every path.
         Pipe->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
+        if (Node->TextureHandle == nullptr)
+        {
+            Pipe->SetTextureStageState(0, 1, 4); // COLOROP = MODULATE
+            Pipe->SetTextureStageState(0, 4, 4); // ALPHAOP = MODULATE
+        }
     }
 
     // FUN_00403ea0 0x004040df..0x0040415a / 0x00404186..0x00404200: every live node with
@@ -1084,6 +1096,80 @@ void ScreenQuadEnqueueIcon(ICamera* Cam, float const* Position, unsigned long Ar
         Vert.U = VertU[Index];
         Vert.V = VertV[Index];
     }
+}
+
+void ScreenQuadEnqueueColorQuad(FScreenQuadColorVertex const* Vertices,
+                                float Depth, float Rhw, int const* ClipRect)
+{
+    // Sutherland-Hodgman clipping keeps partially visible markers and their AA
+    // fringe, including rotated arrows at the viewport boundary.
+    FScreenQuadColorVertex polygon[12], scratch[12];
+    memcpy(polygon, Vertices, sizeof(*Vertices)*4);
+    int count=4;
+    for (int edge=0; edge<4; ++edge)
+    {
+        int output=0;
+        float boundary=static_cast<float>(ClipRect[edge]);
+        auto distance = [edge,boundary](FScreenQuadColorVertex const& v) {
+            float coordinate=(edge&1) ? v.Y : v.X;
+            return edge<2 ? coordinate-boundary : boundary-coordinate;
+        };
+        for (int i=0; i<count; ++i)
+        {
+            FScreenQuadColorVertex const& a=polygon[i];
+            FScreenQuadColorVertex const& b=polygon[(i+1)%count];
+            float da=distance(a), db=distance(b);
+            if (da>=0) scratch[output++]=a;
+            if ((da>=0)!=(db>=0))
+            {
+                float t=da/(da-db);
+                unsigned color=0;
+                for (int shift=0; shift<32; shift+=8)
+                {
+                    float ca=static_cast<float>((a.Color>>shift)&255u);
+                    float cb=static_cast<float>((b.Color>>shift)&255u);
+                    color|=static_cast<unsigned>(ca+(cb-ca)*t+0.5f)<<shift;
+                }
+                scratch[output++]={a.X+(b.X-a.X)*t,a.Y+(b.Y-a.Y)*t,color};
+            }
+        }
+        count=output;
+        if (count<3) return;
+        memcpy(polygon,scratch,sizeof(*polygon)*count);
+    }
+    FScreenQuadBatchContainer* const container=EnsureBatchContainer();
+    auto append = [container,Depth,Rhw](FScreenQuadColorVertex a,FScreenQuadColorVertex b,
+                                       FScreenQuadColorVertex c,FScreenQuadColorVertex d) {
+        FScreenQuadBatchNode* node=container->Current;
+        // RP8/RP9's scratch IB has 0x4000 INDICES, not 65536 vertices.
+        // Each quad needs six indices: at most 2730 quads / 10920 vertices.
+        constexpr int MaxVertices = (0x4000 / 6) * 4;
+        if (node->RotVertCount+node->RecordCount*4+4>MaxVertices)
+        {
+            container->Current=nullptr;
+            node=ContainerBeginBatch(container,G_ScreenQuadDefaultFrame,2,false);
+        }
+        int offset=node->RotVertCount;
+        if (offset+4>node->RotVertCapacity)
+        {
+            int capacity=node->RotVertCapacity*2;
+            if (capacity<offset+4) capacity=offset+256;
+            auto* grown=static_cast<FScreenQuadGpuVert*>(
+                operator new(sizeof(FScreenQuadGpuVert)*capacity));
+            if (offset) memcpy(grown,node->RotatedVerts,sizeof(*grown)*offset);
+            operator delete(node->RotatedVerts);
+            node->RotatedVerts=grown;
+            node->RotVertCapacity=capacity;
+        }
+        FScreenQuadColorVertex const quad[]={a,b,c,d};
+        for (int i=0; i<4; ++i)
+            node->RotatedVerts[offset+i]={quad[i].X,quad[i].Y,Depth,Rhw,
+                                         quad[i].Color,0,0,0};
+        node->RotVertCount+=4;
+    };
+    if (count==4) append(polygon[0],polygon[1],polygon[2],polygon[3]);
+    else for (int i=1; i<count-1; ++i)
+        append(polygon[0],polygon[i],polygon[i+1],polygon[i+1]);
 }
 
 // DAT_0061648c -- the static initializer LAB_00402c00 stores -1 (XREFs: 00402c00 W, 00404045 R,

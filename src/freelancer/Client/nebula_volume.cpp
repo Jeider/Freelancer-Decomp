@@ -34,6 +34,7 @@
 // Compiled only with FREELANCER_RP9 (src/Directory.Build.props).
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h"
+#include "graphics_settings.h"
 #include "port_config.h"
 #include "globals.h" // GetClientElapsedTime (vein pulse)
 
@@ -98,7 +99,7 @@ namespace
     const int kMaxPointLights = 4;     // NEBULA_MAX_POINT_LIGHTS
     const int kMaxFarSpheres = 4;      // FarSphere[]
     const int kMaxStarGlows = 3;       // StarGlow[]
-    const int kRaymarchRegisterCount = 109;
+    const int kRaymarchRegisterCount = 112;
     const int kRegShadowStep = 29;
     const int kRegExclusionCentre = 37;
     const int kRegExclusionRow0 = 45;
@@ -131,6 +132,9 @@ namespace
     const int kRegAtmosphere = 106; // fog start/inverse ramp, backdrop inner radius/inverse fade
     const int kRegVeins = 107; // x vein_emission, y pulse amplitude, z pulse phase (rad)
     const int kRegExclusionSkip = 108; // the camera's clear exclusion sphere: centre, radius^2
+    const int kRegAlienVeins = 109; // alien_vein_colour rgb, w alien_veins (strength)
+    const int kRegAlienShape = 110; // x 1 / alien_vein_scale_m, y sharpness, z stretch, w pulse phase
+    const int kRegAlienMore = 111; // x alien_vein_density (fraction of space with veins)
     const int kCompositeRegisterCount = 24;
     // Shadow steps grow by this ratio (short near the sample, long toward the light).
     const double kShadowStepGrowth = 1.6;
@@ -207,6 +211,14 @@ namespace
         float CloudBillow; // rounded Worley lobes added to the base shape (0 = original)
         float IceCrystal; // separate frozen-fold shader; opt-in per nebula style
         float FacetedClouds; // walker-like layered clouds with piecewise-planar density
+        float FibreClouds; // edge: cloud detail as fine fibres along the flow (nebula_edge_fibre.hlsl)
+        float AlienVeins; // glowing vein filaments through the gas (nebula_alien.hlsl); strength, 0 = off
+        float AlienVeinColour[3];
+        float AlienVeinScale; // metres per vein cell
+        float AlienVeinSharpness;
+        float AlienVeinStretch; // 0 .. 0.98: how far the veins are drawn out along the flow
+        float AlienVeinPulseRate;
+        float AlienVeinDensity; // 0 .. 1: fraction of space that holds veins
         float FogColour[3]; // optional volume/horizon colour, -1 = authored nebula colour
         float LayerStretch;
         float DetailScale;
@@ -384,6 +396,13 @@ namespace
         {"puff_texture_density", &FNebulaVolumeSettings::PuffTextureDensity},
         {"ice_crystal", &FNebulaVolumeSettings::IceCrystal},
         {"faceted_clouds", &FNebulaVolumeSettings::FacetedClouds},
+        {"fibre_clouds", &FNebulaVolumeSettings::FibreClouds},
+        {"alien_veins", &FNebulaVolumeSettings::AlienVeins},
+        {"alien_vein_scale_m", &FNebulaVolumeSettings::AlienVeinScale},
+        {"alien_vein_sharpness", &FNebulaVolumeSettings::AlienVeinSharpness},
+        {"alien_vein_stretch", &FNebulaVolumeSettings::AlienVeinStretch},
+        {"alien_vein_pulse_rate", &FNebulaVolumeSettings::AlienVeinPulseRate},
+        {"alien_vein_density", &FNebulaVolumeSettings::AlienVeinDensity},
         {"puff_texture_colour", &FNebulaVolumeSettings::PuffTextureColour},
         {"puff_texture_scale", &FNebulaVolumeSettings::PuffTextureScale},
         {"drift_scale", &FNebulaVolumeSettings::DriftScale},
@@ -509,6 +528,7 @@ namespace
         {"key_light_dir", &FNebulaVolumeSettings::KeyLightDir},
         {"key_light_colour", &FNebulaVolumeSettings::KeyLightColour},
         {"lightning_colour", &FNebulaVolumeSettings::LightningColour},
+        {"alien_vein_colour", &FNebulaVolumeSettings::AlienVeinColour},
     };
 
     // Tuned so that Badlands (li01_badlands_nebula: [Fog] distance 1000, near 0, dark purple;
@@ -535,6 +555,16 @@ namespace
         S.CloudBillow = 0.0f;
         S.IceCrystal = 0.0f;
         S.FacetedClouds = 0.0f;
+        S.FibreClouds = 0.0f;
+        S.AlienVeins = 0.0f;
+        S.AlienVeinColour[0] = 0.3f;
+        S.AlienVeinColour[1] = 0.9f;
+        S.AlienVeinColour[2] = 1.0f;
+        S.AlienVeinScale = 1500.0f;
+        S.AlienVeinSharpness = 6.0f;
+        S.AlienVeinStretch = 0.85f;
+        S.AlienVeinPulseRate = 0.1f;
+        S.AlienVeinDensity = 1.0f;
         S.FogColour[0] = S.FogColour[1] = S.FogColour[2] = -1.0f;
         S.LayerStretch = 1.6f;
         S.DetailScale = 4.0f;
@@ -687,6 +717,9 @@ namespace
         char File[64];
         char Style[32]; // crow / edge / walker from the source shapes; no retail ABI change
         void const* RingOwner; // null for ordinary nebulae; owned companion otherwise
+        bool Volumetric; // authored permission in system INI [Nebula], not a visual override
+        bool CameraExcluded; // refreshed before selection; also gates volume-dependent lighting
+        bool Shadows; // source nebula INI [NebulaLight] shadows; independent of volumetric
         // Lightning scheduler (UpdateLightning): the time (SecondsNow) of the next strike, < 0 =
         // not armed yet; strikes left in the current burst and where the burst happens.
         double NextStrike;
@@ -715,6 +748,12 @@ namespace
     FRPExProgram* GFacetedProgram = nullptr;
     bool GbFacetedProgramCreated = false;
     bool GbFacetedProgramFailed = false;
+    FRPExProgram* GFibreProgram = nullptr;
+    bool GbFibreProgramCreated = false;
+    bool GbFibreProgramFailed = false;
+    FRPExProgram* GAlienProgram = nullptr;
+    bool GbAlienProgramCreated = false;
+    bool GbAlienProgramFailed = false;
     FRPExProgram* GCompositeProgram = nullptr;
     FRPExTexture* GNoiseVolume = nullptr;
     FRPExTexture* GFacetedNoiseVolume = nullptr;
@@ -932,6 +971,14 @@ namespace
                        Patch.Settings.*(kSettingVectorKeys[Index].Member), sizeof(float) * 3);
     }
 
+    void ApplyUserQuality(FNebulaVolumeSettings& settings)
+    {
+        settings.Enabled=PortGraphicsRenderValue("nebula_enabled",settings.Enabled);
+        settings.ResolutionScale=PortGraphicsRenderValue("nebula_resolution_scale",settings.ResolutionScale);
+        settings.StepCount=PortGraphicsRenderValue("nebula_steps",settings.StepCount);
+        settings.ShadowSteps=PortGraphicsRenderValue("nebula_shadow_steps",settings.ShadowSteps);
+    }
+
     FNebulaVolumeSettings SettingsFor(FNebulaEffect const* Nebula)
     {
         FNebulaVolumeSettings Settings = GSettings;
@@ -940,6 +987,11 @@ namespace
             FRegisteredNebula const& Entry = GNebulae[Registered];
             if (Entry.Nebula != Nebula)
                 continue;
+            if (!Entry.Volumetric || Entry.CameraExcluded)
+            {
+                Settings.Enabled = 0.0f;
+                return Settings;
+            }
             FNebulaOverride const* Override = nullptr;
             for (size_t Index = 0; Index < GOverrides.size(); ++Index)
                 if (_stricmp(GOverrides[Index].File, Entry.File) == 0)
@@ -959,6 +1011,7 @@ namespace
                 ApplyPatch(&Settings, *Override);
             break;
         }
+        ApplyUserQuality(Settings); // after style and per-nebula overrides
         return Settings;
     }
 
@@ -968,6 +1021,22 @@ namespace
         if (S.FogColour[0] >= 0.0f && S.FogColour[1] >= 0.0f && S.FogColour[2] >= 0.0f)
             for (int I = 0; I < 3; ++I)
                 Rgb[I] = Clamp(S.FogColour[I], 0.0f, 1.0f);
+    }
+
+    bool ReadNebulaShadows(char const* File)
+    {
+        bool Enabled=true;
+        char Path[MAX_PATH];
+        GetFileSysPath(Path,File,DALib::Data);
+        INI_Reader Reader;
+        if(!Reader.open(Path,false)) return Enabled;
+        while(Reader.read_header())
+        {
+            if(!Reader.is_header("NebulaLight")) continue;
+            while(Reader.read_value())
+                if(Reader.is_value("shadows")) Enabled=Reader.get_value_bool(0);
+        }
+        return Enabled;
     }
 
     // Detect the asset family once at registration, never by per-frame disk reads.
@@ -1361,6 +1430,32 @@ namespace
                     &GFacetedProgram) != GR_OK;
             }
             if (GbFacetedProgramFailed || GFacetedProgram == nullptr)
+                return false;
+        }
+
+        if (Settings.FibreClouds > 0.5f)
+        {
+            if (!GbFibreProgramCreated)
+            {
+                GbFibreProgramCreated = true;
+                GbFibreProgramFailed = Ex->CreateExProgram(RenderEx::GetExtraData(),
+                    "SHADERS\\nebula_edge_fibre.hlsl", "VSMain", "PSRaymarch",
+                    &GFibreProgram) != GR_OK;
+            }
+            if (GbFibreProgramFailed || GFibreProgram == nullptr)
+                return false;
+        }
+
+        if (Settings.AlienVeins > 0.0f)
+        {
+            if (!GbAlienProgramCreated)
+            {
+                GbAlienProgramCreated = true;
+                GbAlienProgramFailed = Ex->CreateExProgram(RenderEx::GetExtraData(),
+                    "SHADERS\\nebula_alien.hlsl", "VSMain", "PSRaymarch",
+                    &GAlienProgram) != GR_OK;
+            }
+            if (GbAlienProgramFailed || GAlienProgram == nullptr)
                 return false;
         }
 
@@ -2372,6 +2467,13 @@ namespace
                  ? S.BackdropRadius / (S.BackdropInnerFade > 1.0f ? S.BackdropInnerFade : 1.0f)
                  : 0.0f);
         // c107 veins: edge glow strength, pulse amplitude, pulse phase (time wrapped for precision).
+        // Alien veins: glowing filaments through the gas (nebula_alien.hlsl).
+        Set4(RaymarchRegister(kRegAlienVeins), S.AlienVeinColour[0], S.AlienVeinColour[1], S.AlienVeinColour[2],
+             (std::max)(0.0f, S.AlienVeins));
+        Set4(RaymarchRegister(kRegAlienShape), (float)(1.0 / (std::max)(10.0f, S.AlienVeinScale)),
+             Clamp(S.AlienVeinSharpness, 1.0f, 40.0f), Clamp(S.AlienVeinStretch, 0.0f, 0.98f),
+             (float)(fmod(GetClientElapsedTime(), 3600.0) * 6.283185307 * S.AlienVeinPulseRate));
+        Set4(RaymarchRegister(kRegAlienMore), Clamp(S.AlienVeinDensity, 0.0f, 1.0f), 0.0f, 0.0f, 0.0f);
         Set4(RaymarchRegister(kRegVeins), Clamp(S.VeinEmission, 0.0f, 20.0f),
              Clamp(S.VeinPulse, 0.0f, 1.0f),
              (float)(fmod(GetClientElapsedTime(), 3600.0) * 6.283185307 * S.VeinPulseRate), 0.0f);
@@ -2989,10 +3091,16 @@ namespace
             return false;
         const bool bIce = Entry.Settings.IceCrystal > 0.5f;
         const bool bFaceted = Entry.Settings.FacetedClouds > 0.5f;
-        bool bOk = Ex->BindExProgram(bFaceted ? GFacetedProgram : bIce ? GIceRaymarchProgram : GRaymarchProgram) == GR_OK;
+        const bool bFibre = Entry.Settings.FibreClouds > 0.5f && !bFaceted;
+        const bool bAlien = Entry.Settings.AlienVeins > 0.0f && !bFaceted && !bFibre;
+        bool bOk = Ex->BindExProgram(bFaceted ? GFacetedProgram : bFibre ? GFibreProgram :
+                                     bAlien ? GAlienProgram :
+                                     bIce ? GIceRaymarchProgram : GRaymarchProgram) == GR_OK;
         if (!bOk)
         {
             if (bFaceted) GbFacetedProgramFailed = true;
+            else if (bFibre) GbFibreProgramFailed = true;
+            else if (bAlien) GbAlienProgramFailed = true;
             else if (bIce) GbIceProgramFailed = true;
             else GbProgramFailed = true;
         }
@@ -3734,13 +3842,16 @@ namespace
     }
 }
 
-void NebulaVolume::RegisterNebula(FNebulaEffect* Nebula, char const* File)
+void NebulaVolume::RegisterNebula(FNebulaEffect* Nebula, char const* File, bool Volumetric)
 {
     if (Nebula == nullptr)
         return;
     FRegisteredNebula Entry;
     Entry.Nebula = Nebula;
     Entry.RingOwner = nullptr;
+    Entry.Volumetric = Volumetric;
+    Entry.CameraExcluded = false;
+    Entry.Shadows = ReadNebulaShadows(File);
     DetectNebulaStyle(Entry.Style, sizeof(Entry.Style), File);
     BaseName(Entry.File, sizeof(Entry.File), File);
     Entry.NextStrike = -1.0;
@@ -3757,6 +3868,22 @@ void NebulaVolume::RegisterNebula(FNebulaEffect* Nebula, char const* File)
         }
     }
     GNebulae.push_back(Entry);
+}
+
+bool NebulaVolume::ShadowsDisabledAt(float const* Position)
+{
+    if(!Position || !std::isfinite(Position[0]) || !std::isfinite(Position[1]) ||
+       !std::isfinite(Position[2])) return false;
+    Vector Point;
+    Point.x=Position[0];Point.y=Position[1];Point.z=Position[2];
+    for(auto const& Entry:GNebulae)
+    {
+        auto const* Nebula=Entry.Nebula;
+        if(Entry.Shadows || Entry.RingOwner || !Nebula || !Nebula->FlagLoaded || !Nebula->Zone)
+            continue;
+        if(Nebula->Zone->GetImmersion(Point)>0.0) return true;
+    }
+    return false;
 }
 
 void NebulaVolume::UnregisterRingVolume(void const* Owner)
@@ -3837,6 +3964,7 @@ void NebulaVolume::UnregisterNebula(FNebulaEffect* Nebula)
 void NebulaVolume::LoadSettings(char const* IniPath)
 {
     GSettings = DefaultSettings();
+    ApplyUserQuality(GSettings);
     GOverrides.clear();
     GStyles.clear();
     GNebulaView = 0;
@@ -3871,6 +3999,7 @@ void NebulaVolume::LoadSettings(char const* IniPath)
             ApplySettingKey(&GSettings, Reader);
     }
     Reader.close();
+    ApplyUserQuality(GSettings);
 
     if (!Reader.open(IniPath, false))
         return;
@@ -3914,6 +4043,8 @@ void NebulaVolume::OnProgramsReloaded()
     GbProgramFailed = false;
     GbIceProgramFailed = false;
     GbFacetedProgramFailed = false;
+    GbFibreProgramFailed = false;
+    GbAlienProgramFailed = false;
 }
 
 void NebulaVolume::Shutdown()
@@ -3928,6 +4059,10 @@ void NebulaVolume::Shutdown()
             Ex->DestroyExProgram(GIceRaymarchProgram);
         if (GFacetedProgram != nullptr)
             Ex->DestroyExProgram(GFacetedProgram);
+        if (GFibreProgram != nullptr)
+            Ex->DestroyExProgram(GFibreProgram);
+        if (GAlienProgram != nullptr)
+            Ex->DestroyExProgram(GAlienProgram);
         if (GCompositeProgram != nullptr)
             Ex->DestroyExProgram(GCompositeProgram);
         if (GNoiseVolume != nullptr)
@@ -3944,6 +4079,12 @@ void NebulaVolume::Shutdown()
     GFacetedProgram = nullptr;
     GbFacetedProgramCreated = false;
     GbFacetedProgramFailed = false;
+    GFibreProgram = nullptr;
+    GbFibreProgramCreated = false;
+    GbFibreProgramFailed = false;
+    GAlienProgram = nullptr;
+    GbAlienProgramCreated = false;
+    GbAlienProgramFailed = false;
     GCompositeProgram = nullptr;
     GNoiseVolume = nullptr;
     GFacetedNoiseVolume = nullptr;
@@ -3985,6 +4126,23 @@ void NebulaVolume::Shutdown()
 
 namespace
 {
+    bool CameraInsideNebulaExclusion(FNebulaEffect const* Nebula, float const* Position)
+    {
+        if (!Nebula || !Position || !Nebula->ExclusionMgr)
+            return false;
+        Vector Point;
+        Point.x=Position[0]; Point.y=Position[1]; Point.z=Position[2];
+        auto const* Manager=Nebula->ExclusionMgr;
+        // Check the full authored list, not the eight nearest zones packed for the GPU.
+        for(int I=0;I<FNebulaVolumeExclusionAccess::Count(Manager);++I)
+        {
+            auto const* Zone=FNebulaVolumeExclusionAccess::At(Manager,I);
+            if(Zone && Zone->ZonePtr && Zone->ZonePtr->GetImmersion(Point)>0.0)
+                return true;
+        }
+        return false;
+    }
+
     // BeginFrame's first half: the nebulae drawn this frame (GEntries) and their frame values.
     void SelectFrameEntries(ICamera* Camera, FNebulaEffect* Controller, int Enclosure,
                             bool bNebulaOption, float SceneFar)
@@ -4020,6 +4178,8 @@ namespace
             FNebulaEffect* const Nebula = GNebulae[Index].Nebula;
             if (Nebula == nullptr || Nebula->FlagLoaded == 0 || Nebula->Zone == nullptr)
                 continue;
+            GNebulae[Index].CameraExcluded = GNebulae[Index].Volumetric &&
+                CameraInsideNebulaExclusion(Nebula, CamPosF);
             FNebulaVolumeSettings const& Settings = SettingsFor(Nebula);
             if (!(Settings.Enabled > 0.5f))
                 continue;

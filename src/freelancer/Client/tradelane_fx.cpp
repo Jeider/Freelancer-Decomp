@@ -9,6 +9,7 @@
 // solar activate hook FUN_005484c0. Rewritten against the listing 2026-09-26 (claude-code:exe-w3a).
 
 #include "tradelane_fx.h"
+#include "tradelane_ring_anim.h"
 #include "tradelane_visual.h"
 #include "ship_warp_visual.h"
 
@@ -1252,6 +1253,7 @@ bool TradeLaneShipGoHandler(FClientGameobj* Ship, FClientGameobj* RingA,
 
 void TradeLaneDetachTick(float Dt)
 {
+    TradeLaneRingAnimTick();
     // FUN_005135b0 -- listing 005135b0..005137ba.
     FClientGameobj* const Player = TlPlayerGameobj();
     if (Player)
@@ -1315,6 +1317,7 @@ void TradeLaneDetachTick(float Dt)
 
 void TradeLaneShutdown()
 {
+    TradeLaneRingAnimShutdown();
     ShipWarpVisualReset();
     TradeLaneVisualReset();
     // FUN_00515500 -- listing 00515500..00515631. Both walks keep retail's cursor: after a node
@@ -1388,6 +1391,8 @@ void TradeLaneRingSideCommand(FClientGameobj* RingGameobj, unsigned ShipId, bool
         return;
     }
 
+    bool const Duplicate = TlShipRingPtr(Ship) != nullptr &&
+                           TlWatchedGameobj(TlShipRingPtr(Ship)) == RingGameobj;
     if (TlShipRingPtr(Ship) != nullptr)
     {
         FDUMP(0x100002, "%s(%d) : *** WARNING: %s", kTradeLaneCpp, 0x424,
@@ -1422,7 +1427,19 @@ void TradeLaneRingSideCommand(FClientGameobj* RingGameobj, unsigned ShipId, bool
         TradeLaneRingFindOrCreate(RingGameobj, static_cast<unsigned char>(bDirection ? 1u : 0u),
                                   true);
     if (NewRing != nullptr)
+    {
+        // Activation is sent per ship. Only the first request for a free ring
+        // starts the animation; traffic on either side suppresses retriggering.
+        bool Busy = Duplicate || static_cast<FClientSolarGameobj*>(RingGameobj)->Field_0x1f0 == 0;
+        for (unsigned Side = 0; Side < 2; ++Side)
+        {
+            auto* Other = TradeLaneRingFindOrCreate(RingGameobj, static_cast<unsigned char>(Side), false);
+            Busy = Busy || (Other && Other->ShipListCount != 0);
+        }
+        if (!Busy)
+            TradeLaneRingAnimStart(RingGameobj, bDirection ? 1u : 0u);
         TlAssignShipToRing(NewRing, Ship);
+    }
 }
 
 void TradeLaneClientSolarActivate(FClientGameobj* SolarGo, bool bActivate, unsigned ShipId)

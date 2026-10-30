@@ -1,0 +1,16 @@
+{
+  "revisions": [
+    {
+      "key": "nomad_membrane_outer_v2",
+      "path": "D:/work/Freelancer-Decomp/assets/nomad_membranes/outer-v1.png",
+      "prompt": "Targeted technical correction of this game membrane texture. Keep the blue-violet cellular energy artwork, colour palette, fibre shapes and detail. Remove ALL edge fading, rounded corners and outer transparent border: this is an infinitely repeating square texture, so the membrane pattern and its opacity must continue right to every straight edge and all four corners, at the same density as the interior. Absolutely no vignette or isolated patch shape. Genuine semitransparency must be distributed INSIDE every cell across the entire image: thin cell interiors about 25-45 percent opaque, brighter filaments about 65-90 percent opaque. Do not simulate transparency with painted black/white/checkerboard backgrounds. Preserve smooth RGB structure without introducing noise. Seamlessly tile in U and V. Output square RGBA texture only."
+    },
+    {
+      "key": "nomad_membrane_inner_v2",
+      "path": "D:/work/Freelancer-Decomp/assets/nomad_membranes/inner-v1.png",
+      "prompt": "Targeted technical correction of this gold organic membrane game texture. Preserve the existing connected organic ivory-gold fibres, cell shapes and muted olive/amber palette. Make the film between the fibres substantially truly transparent, about 15-35 percent opacity in the large cell interiors, retaining 65-90 percent opacity on the finer glowing fibres. This must be actual RGBA alpha, not an opaque picture of a transparent material, and not black or a checkerboard painted into the image. No edge fading, no border, no rounded corners; the same pattern density and opacity distribution must continue all the way to all four edges. Infinite seamless repeating square UV texture. Keep highlights restrained and detailed, avoid washed-out white. Output only the texture."
+    }
+  ],
+  "outer_final": "Generate a production-ready seamless square diffuse texture for a translucent blue alien energy membrane in the game Freelancer. This is ONLY the RGB diffuse channel: opacity is provided separately by the game material. It must be FULLY OPAQUE, full-bleed, edge to edge: no transparency, no border, no margin, no corner rounding, no vignette, no isolated object. Deep desaturated blue and violet cellular currents, icy cyan fine branching energy filaments, smooth thin silky organic folds with subtle pearl highlights. Large irregular softly connected cells with delicate finer fibres inside, not rocks or brains. The same pattern density and brightness at edges and in the centre, seamless periodic texture in both axes. Flat orthographic texture atlas tile, no perspective, no lighting gradient. Moderate contrast, restrained highlights, no bright white patches, no text, stars or mechanical structures. Fill ALL pixels INCLUDING the four exact square corners with continuous blue membrane pattern.",
+  "tool": "built-in image_gen"
+}

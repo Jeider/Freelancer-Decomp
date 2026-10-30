@@ -7,6 +7,7 @@
 // Retail NN_Inventory -- see nn_inventory.h for the class, its vftable and layout.
 
 #include "nn_inventory.h"
+#include "inventory_categories.h"
 #if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
 #include "common_adoxa_api.h" // AmmoLimit
 #include "adoxa_engclass.h"   // engclass.dll's mountable engines / powerplants
@@ -379,6 +380,7 @@ void FInventoryShipModel::PlayMountSound(unsigned ArchId)
     case Archetype::AClassScanner:         // 0x14
     case Archetype::AClassLight:           // 0x15
     case Archetype::AClassTractor:         // 0x16
+    case Archetype::AClassGravityDevice:
     case Archetype::AClassRepairDroid:     // 0x19
     case Archetype::AClassCloakingDevice:  // 0x1c
         PlayOrRewindUiSoundSlot(0x16);
@@ -823,6 +825,10 @@ int NnItemFilterMode(unsigned ArchId)
     if (Arch == nullptr || Arch->IdsName == 0)
         return 5;
 
+    // Access markers remain visible even when their good has zero market value.
+    if (Arch->get_class_type() == Archetype::AClassDoorKey)
+        return InventoryCategories::Keys;
+
     // 0047e487..0047e4c0: when docked (DAT_0066873c, the LocationController's current base),
     // FUN_0043a510 finds that base's market (null-tested) and FUN_00438060 prices
     // Arch2Good(ArchId) in it; FCOMP 0.0, TEST AH,0x44 + JNP: a price of exactly 0.0 returns 5
@@ -840,10 +846,16 @@ int NnItemFilterMode(unsigned ArchId)
     if (GoodList::find_by_id(Arch2Good(ArchId)) == nullptr)
         return 5;
 
+    if (Arch->get_class_type() == Archetype::AClassRepairKit ||
+        Arch->get_class_type() == Archetype::AClassShieldBattery)
+        return InventoryCategories::Boosters;
+
     // 0047e4d3..0047e4ea: get_hp_type (vt+0x18) - 2 through the byte table 0x0047e540.
     int const HpType = static_cast<int>(Arch->get_hp_type());
 #ifdef FREELANCER_EQUIPMENT_SLOTS
-    if (EquipmentSlots::Enabled() && EquipmentClasses::IsManaged(unsigned(HpType))) return 3;
+    if (EquipmentSlots::Enabled() && EquipmentClasses::IsManaged(unsigned(HpType)))
+        return EquipmentClasses::Tab(unsigned(HpType));
+    if (Arch->get_class_type() == Archetype::AClassCloakingDevice) return 3;
 #endif
 #if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
     // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0047e4de range 0x40 -> 0x7c, table
@@ -1232,6 +1244,10 @@ void NnInventory::UpdateFilterButtons()
         FilterCommodity->SetProperty(0xc, Mode == 4 ? 1 : 0, 0);
     if (FilterAmmo != nullptr)
         FilterAmmo->SetProperty(0xc, Mode == 1 ? 1 : 0, 0);
+    if (WinControl* Button = FindChild("Filter_Boosters"))
+        Button->SetProperty(0xc, Mode == InventoryCategories::Boosters ? 1 : 0, 0);
+    if (WinControl* Button = FindChild("Filter_Keys"))
+        Button->SetProperty(0xc, Mode == InventoryCategories::Keys ? 1 : 0, 0);
 }
 
 void NnInventory::SetMode(int NewMode, bool bPropagate)
@@ -1278,6 +1294,8 @@ void NnInventory::SetMode(int NewMode, bool bPropagate)
     case 3:
     case 4:
     case 5:
+    case InventoryCategories::Boosters:
+    case InventoryCategories::Keys:
         Ship.ShipView->SetProperty(0x4c, 2, 0);
         break;
     default:
@@ -2075,29 +2093,37 @@ void NnInventory::Slot45()
     if (bShowFilters != 0)
     {
         float const FilterY = FilterBase[1] - 0.463f; // DAT_005d13b8
-        float const WeaponsPosition[3] = {FilterBase[0] + 0.226f, FilterY, FilterBase[2]};
+        float const WeaponsPosition[3] = {FilterBase[0] + 0.192f, FilterY, FilterBase[2]};
         CreateButtonControl("Filter_Weapons", "Interface\\NeuroNet\\Inventory\\weaponsicon.3db",
                             nullptr, "ui_filter_select", nullptr, WeaponsPosition, nullptr,
                             FilterHalfExtents, 0, 1, 0, 0, 0x2135, 0, 0);
-        float const AmmoPosition[3] = {FilterBase[0] + 0.26f, FilterY, FilterBase[2]};
+        float const AmmoPosition[3] = {FilterBase[0] + 0.226f, FilterY, FilterBase[2]};
         CreateButtonControl("Filter_Ammo", "Interface\\NeuroNet\\Inventory\\ammo.3db", nullptr,
                             "ui_filter_select", nullptr, AmmoPosition, nullptr, FilterHalfExtents,
                             0, 1, 0, 0, 0x214a, 0, 0);
-        float const EquipmentPosition[3] = {FilterBase[0] + 0.294f, FilterY, FilterBase[2]};
+        float const EquipmentPosition[3] = {FilterBase[0] + 0.26f, FilterY, FilterBase[2]};
         CreateButtonControl("Filter_Equipment",
                             "Interface\\NeuroNet\\Inventory\\equipmenticon.3db", nullptr,
                             "ui_filter_select", nullptr, EquipmentPosition, nullptr,
                             FilterHalfExtents, 0, 1, 0, 0, 0x2142, 0, 0);
-        float const CargoBayPosition[3] = {FilterBase[0] + 0.33f, FilterY, FilterBase[2]};
+        float const CargoBayPosition[3] = {FilterBase[0] + 0.294f, FilterY, FilterBase[2]};
         CreateButtonControl("Filter_CargoBay", "Interface\\NeuroNet\\Inventory\\cargobay.3db",
                             nullptr, "ui_filter_select", nullptr, CargoBayPosition, nullptr,
                             FilterHalfExtents, 0, 1, 0, 0, 0x2141, 0, 0);
+        float const BoostersPosition[3] = {FilterBase[0] + 0.327f, FilterY, FilterBase[2]};
+        CreateButtonControl("Filter_Boosters", "Interface\\NeuroNet\\Inventory\\boosters.3db",
+                            nullptr, "ui_filter_select", nullptr, BoostersPosition, nullptr,
+                            FilterHalfExtents, 0, 1, 0, 0, InventoryCategories::BoostersName, 0, 0);
+        float const KeysPosition[3] = {FilterBase[0] + 0.364f, FilterY, FilterBase[2]};
+        CreateButtonControl("Filter_Keys", "Interface\\NeuroNet\\Inventory\\keys.3db",
+                            nullptr, "ui_filter_select", nullptr, KeysPosition, nullptr,
+                            FilterHalfExtents, 0, 1, 0, 0, InventoryCategories::KeysName, 0, 0);
     }
 
     // 00478cdf..00478d5d: the commodity filter.
     if (bShowCommodity != 0)
     {
-        float const CommodityPosition[3] = {FilterBase[0] + 0.364f, FilterBase[1] - 0.463f,
+        float const CommodityPosition[3] = {FilterBase[0] + 0.398f, FilterBase[1] - 0.463f,
                                             FilterBase[2]};
         CreateButtonControl("Filter_Commodity", "Interface\\NeuroNet\\Inventory\\commodities.3db",
                             nullptr, "ui_filter_select", nullptr, CommodityPosition, nullptr,
@@ -2849,6 +2875,10 @@ intptr_t NnInventory::SetProperty(int Msg, uintptr_t A, uintptr_t B)
             SetMode(4, true);
         else if (Control == FilterAmmo)
             SetMode(1, true);
+        else if (Control != nullptr && Control == FindChild("Filter_Boosters"))
+            SetMode(InventoryCategories::Boosters, true);
+        else if (Control != nullptr && Control == FindChild("Filter_Keys"))
+            SetMode(InventoryCategories::Keys, true);
         else if (Control == JettisonButton)
             JettisonSelected(); // FUN_0047e650
         else if (Control == Ship.InfoText)
@@ -4538,7 +4568,8 @@ void NnInventory::RefreshItemList(EquipDescList const* List, int Arg2, unsigned 
         int const Health = static_cast<int>(static_cast<double>(Item->Health) * 100.0);
         unsigned char bShowToggle = 0; // V_38
         unsigned char bEquipped = 0;   // V_34
-        if (Good != nullptr && Filter != 1 && Filter != 4)
+        if (Good != nullptr && Filter != 1 && Filter != 4 &&
+            Filter != InventoryCategories::Boosters && Filter != InventoryCategories::Keys)
         {
             bEquipped = Item->bEquipped ? 1 : 0;
             bShowToggle = 1;
@@ -4788,7 +4819,7 @@ void NnInventory::RefreshItemList(EquipDescList const* List, int Arg2, unsigned 
             // Port-only, adoxa's engclass.dll (docs/adoxa.md; 0x0047e041 table -> its
             // MountDesc): classes 10..15 show the plugin's local ids 0..5.
 #ifdef FREELANCER_EQUIPMENT_SLOTS
-            if (EquipmentSlots::Enabled() && SelectedHpClass >= 16 && SelectedHpClass < 19)
+            if (EquipmentSlots::Enabled() && SelectedHpClass >= 16 && SelectedHpClass < 16 + EquipmentClasses::Families)
                 ShowInfoCard(0, EquipmentClasses::DescriptionBase + unsigned(SelectedHpClass - 16));
             else
 #endif

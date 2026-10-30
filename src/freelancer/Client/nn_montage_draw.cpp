@@ -7,6 +7,7 @@
 #include "nn_montage_draw.h"
 
 #include "screen_quad_state.h"
+#include "hud_marker_geometry.h"
 
 #include "DALib.h"
 #include "common_ini.h"
@@ -175,6 +176,36 @@ bool NnMontageDrawTileAt(FButtonMontageTile const* Tile, float const* Position,
     // FUN_00559900. 0x00559904..0x0055991a: nothing without a tile or its shape.
     if (Tile == nullptr)
         return false;
+
+    // Only targeting silhouettes use geometry. The remaining montage tiles keep
+    // their existing texture path (including UI controls and talking portraits).
+    for (auto const& Marker : HudMarkerGeometry::Shapes)
+    {
+        if (_stricmp(Tile->Name.c_str(), Marker.name) != 0)
+            continue;
+        ICamera* const Camera = AsCamera(Win3DGetCamera());
+        float X, Y, HalfW, HalfH, InvDepth;
+        if (!ScreenQuadProjectObjectExtent(Camera, Position, Size, &X, &Y,
+                                            &HalfW, &HalfH, &InvDepth))
+            return true;
+        unsigned const Color = (unsigned(Rgba[3])<<24) | (unsigned(Rgba[0])<<16) |
+                               (unsigned(Rgba[1])<<8) | unsigned(Rgba[2]);
+        if ((Color>>24) == 0) return true;
+        ScreenQuadSetMaterialKey(G_ButtonsMaterialKey);
+        ScreenQuadBeginBatchFrame(G_ScreenQuadDefaultFrame, 2, true);
+        float const Depth = 1.0f-Camera->GetZNear()*InvDepth;
+        // The original non-rotated atlas path adds half a pixel to its centre.
+        float const PixelOffset = std::fabs(Angle)>1.0e-5f ? 0.0f : 0.5f;
+        HudMarkerGeometry::Draw(HudMarkerGeometry::ForSize(Marker, Size),
+            X+PixelOffset, Y+PixelOffset, HalfW, HalfH,
+            Mode, Angle, Color, [Camera,Depth,InvDepth](HudMarkerGeometry::Vertex a,
+                HudMarkerGeometry::Vertex b,HudMarkerGeometry::Vertex c,HudMarkerGeometry::Vertex d) {
+                FScreenQuadColorVertex const Quad[] = {
+                    {a.x,a.y,a.color},{b.x,b.y,b.color},{c.x,c.y,c.color},{d.x,d.y,d.color}};
+                ScreenQuadEnqueueColorQuad(Quad,Depth,InvDepth,Camera->GetViewport());
+            });
+        return true;
+    }
     if (Tile->Shape == nullptr)
         return false;
 

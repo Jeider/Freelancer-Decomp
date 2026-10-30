@@ -4,6 +4,12 @@ This page documents the INI files that lay out and drive the client's 3D user-in
 
 ## File location / how it is found
 
+### Global HUD preferences and Health controls (2026-10-30)
+
+Port HUD choices live in `hud_preferences.ini` in `GetUserDataPath()`, shared by all characters. The old interface word is imported once if no global profile exists. Radar deployment/range/automation, Targeting projection/autoselect/auto-open, Health auto-open/view/visibility, active weapon group and auto-turret master/reserve are global. Native interface bits 0–3 and weapon-group membership remain game state. New saves strip the former HUD preference bits. Miscellaneous preferences can be edited from the main menu and retain Apply/Cancel behavior.
+
+**Show weapon groups** is a global toggle, enabled by default. Health shows the three original `HUD_weaponsgroup1..3.3db` icons in one row from its left edge, with the current group highlighted. The right edge holds the cloak button when a cloak is installed; the icon cannot spin, reflects device activation and becomes disabled if destroyed. It invokes `USER_CLOAK` through the normal client/server activation path. No keyboard bindings are assigned. `DATA/INTERFACE/HUD/EXTRA/HUD_DefCloak.3db` now contains a standalone copy of the Health opening button, with unique mesh/material names and a full-icon `HUD_health_cloak_icon.tga` texture. Replace its `Texture library / HUD_health_cloak_icon.tga / MIP0` to supply new art; the Beta texture atlas is no longer used.
+
 All files are read through `INI_Reader` ([parsers.md](parsers.md)); section and key names are case-insensitive; repeated keys are delivered in file order. Conventions are the same as in [client-ui-config.md](client-ui-config.md#file-location--how-it-is-found): *Type* names the getter (*string*, *int*, *number* = `get_value_float`, *bool*); a **flag** key is true when `get_value_float(0) != 0` (so `1` is on, `0` or an empty value is off, and the words `true`/`false` are not understood); a **vector** key `x, y, z` is three numbers in that order; the Default column is the value the control's constructor leaves in place when the key is absent. "Not validated" means the code does not check the value.
 
 Paths are relative to the Data path (`[Freelancer] data path` in `Freelancer.ini`, default `..\Data`) unless stated. The shipped files are binary `BINI`; text files with the same sections work identically.
@@ -49,6 +55,14 @@ Rules:
 Registered `class_name` values (`WINFACTORY` statics): `BlockingDialog`, `ButtonControl`, `CargoBarControl`, `ChatControl`, `ChatTextInputDisplay`, `EditControl`, `MissionLogMoveFromNNWindow`, `MissionLogMoveToNNWindow`, `MissionObjectiveWindow`, `MsgWin`, `NN_ArrivalText`, `NN_CommodityByBase`, `NN_Confirm`, `NN_Dealer`, `NN_Error`, `NN_Exit`, `NN_GroupControl`, `NN_Help`, `NN_Inventory`, `NN_LoadSave`, `NN_MainButton`, `NN_MissionVendor`, `NN_NetworkOperation`, `NN_News`, `NN_OfferDialog`, `NN_Pause`, `NN_PlayerInfo`, `NN_Preferences`, `NN_Prompt`, `NN_Repair`, `NN_Scanner`, `NN_ShipTrader`, `NN_Trade`, `NavBar`, `NeuroNetMissionMessage`, `NeuroNetNavMap`, `NeuroNetStoryStar`, `RichTextButtonControl`, `RichTextEditWin`, `RichTextWin`, `RichTextWireButtonControl`, `Rollover`, `ScrollControl`, `ServerFilterDialog`, `ShipViewControl`, `StaticControl`, `TextControl`, `ToggleButtonControl`, `ToolTip`, `UICycle`, `UIFastTable`, `UIListBox`, `UIRichTextWin`, `UIScroll`, `UIScrollTable`, `UIShipViewControl`, `UIStaticText`, `UITable`, `UITextEdit`, `UITextMsgButton`, `UIWinDeform`, `UIWinObject`, `WinControl`, `WireButtonControl`, `WireStaticControl` (each is a `WINFACTORY<T>` static, see [win_factory.h](../../src/freelancer/Client/win_factory.h); the case-sensitive lookup is `WinFactoryCreate` in [win_factory.cpp](../../src/freelancer/Client/win_factory.cpp#L80)).
 
 Only the classes in section 2 read keys from the definition section. All other classes ignore the payload and build their content in code; naming them in `class_name` creates the object but the remaining keys of that section have no effect.
+
+Port-only ship dealer: `NN_ShipTrader` now keeps the complete category-3 market
+catalogue and displays it through three reusable rows. A vertical scrollbar and
+mouse wheel over the catalogue move one row at a time; the information panes keep
+their own scrolling. Selection survives scrolling and availability sorting, and
+purchase uses the package's original market index. The scrollbar is hidden for
+three or fewer ships. This window still creates its layout in code, with no new
+INI keys; see [nn_ship_trader.cpp](../../src/freelancer/Client/nn_ship_trader.cpp).
 
 ### 1.1 `[BaseFrame]` keys
 
@@ -301,3 +315,126 @@ Within each `[Montage]` section the keys are processed in order:
 | *any other key* | `<anything> [, scale]` | – | The **key name is a tile name**: it is matched (case-insensitively) against the button's `mesh` string (or a maneuver's mesh strings). Tiles are assigned to atlas cells in file order, left to right then top to bottom (a page wraps back to the start after the last row). The first parameter is ignored; the optional second parameter is the icon scale (default `0`). | [nn_montage_draw.cpp:89](../../src/freelancer/Client/nn_montage_draw.cpp#L89) |
 
 Because the tile name must equal a mesh path, `mesh = interface\...\example.3db` in a button section uses the montage tile named `interface\...\example.3db` when one exists.
+
+
+### Port-only Freeflight and Go To action strips
+
+Three cockpit shortcuts start unassigned: contextual evasion invokes the clockwise
+spiral in Freeflight or sine weave during Go To/F2; the other commands invoke the
+engine-kill turn and reverse/alternating strafe, both only in Freeflight.
+Options > Controls lists all three commands, and button tooltips show their
+current bindings. A second press cancels the action; held-key repeats are ignored.
+
+With `FreelancerPlayerFlightActions=1`, `port.ini [FlightActions] enabled`
+(integer, default 1) controls the additional Freeflight and Go To action buttons.
+`reverse_strafe_interval` (float seconds, default 2.0) in the same section
+sets how long to strafe each way during continuous reverse: left first, then
+right, repeating until cancelled. Any finite positive interval is accepted;
+invalid values fall back to 2.0. The config is cached; restart after editing it.
+`goto_weave_interval` (float seconds, default 2.0) sets the half-wave duration
+for Go To's alternating yaw turns: a full sine cycle takes twice this value.
+It accepts finite positive values, otherwise falling back to 2.0.
+`goto_weave_angle` (float degrees, default 25.0) sets the requested yaw amplitude
+to either side of the destination bearing, clamped to 0..60; nonfinite values
+fall back to 25.0. The ship turns through physical steering torque and flies
+forward, with no added strafe/nudge. The old `goto_weave_strength` is unused.
+The wave ramps in over one second and fades near arrival. The third-person camera keeps a stable route
+heading and up direction. Repeating the click or manual flight input cancels it.
+No extra `hud.ini maneuver` entries are needed. The four primary maneuvers
+remain unchanged; actions are children of the Freeflight or Go To tab. See
+[Freeflight actions](../hud_plugins.md#freeflight-actions-port-only-prototype)
+for assets, input behavior and validation limits.
+
+### Port-only route navigation
+
+`port.ini [Navigation]`, with `FreelancerPlayerFlightActions=1`.
+Miscellaneous > Navigation exposes the generator, F2 route following and
+automatic base docking, alongside the two existing tooltip/rollover-help options.
+Navigation preferences apply after confirmation and are saved globally in
+`navigation.ini` under the user data directory. Explicit user values override
+the defaults below; these controls also work in the main menu. Cancel discards
+pending changes; Defaults resets only the selected Miscellaneous tab.
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `autopilot` | `1` | F2 follows player waypoints, enters trade lanes and jumps through gates/holes along the route. `0` restores native F2; disabling it during a route leaves the current native maneuver running, without braking. |
+| `auto_dock` | `1` | Allows automatic docking with bases, including planetary docking rings. `0` continues from the checked approach using native F2/Go To to the base, without stopping at the preceding waypoint or issuing Dock. F3 remains manual. Lane entry and gate/hole jumps remain part of F2, independent of this setting. Does not interrupt a Dock already in progress. |
+| `route_generator` | `beta` | Shown as Avoid obstacles (Обход препятствий): recovered Beta patrol-corridor rules plus a new hazard-checking graph search for local free-space legs. `retail` is Standard and preserves the original map generator. |
+| `clearance` | `300` | Additional metres outside hazardous volumes, clamped to 150..3000; player hull radius is added. |
+| `dock_distance` | `2000` | Preferred approach radius for native Dock handoff, clamped to 750..5000; enlarged for hull/clearance. Tries other directions and, if all are occupied, up to twice this radius. |
+
+The UI settings do not require a restart. Generator changes affect subsequent
+route planning. Inter-system/trade-lane topology
+comes from the server. Atmospheres, solid solars and damage zones are checked
+in the loaded system, including after a jump. Mouse steering temporarily overrides
+F2; releasing it resumes the route. Native collision avoidance can reduce speed; points do not themselves
+force a cruise restart. See [implementation and validation](../hud_plugins.md#f2-route-autopilot-and-beta-corridor-planner).
+
+For non-dockable objects, map refinement and F2 share an arrival-region search
+outside the object's physical bounds or atmosphere plus hull/clearance. Nearby
+station parts remain obstacles; alternate approach directions are tried without
+adding an unchecked segment into the object. The selected object remains the
+route's goal. An impossible safe approach still reports no path.
+
+
+## Desktop HUD perspective prototype
+
+User `PerfOptions.ini`, section `[HUD]`: `hud_tilt_degrees` (integer degrees, default 0, range 0..50; non-finite values become 0). Options > Miscellaneous > General > HUD tilt uses native arrows with a 2-degree step; Apply saves, Cancel discards edits and Defaults selects 0. This setting is available in the main menu and in flight; it does not change the retail PerfCount. Requires RP9 and widescreen support. Rotates flight side panels with their text and ShipView; central markers and the radar remain unchanged. The experimental `port.ini [Render]` key is retired. Console `hud_tilt 0..50` overrides the angle for this process only; it does not change character saves or write the INI. Set 0 for the original flat presentation. See [checks and limitations](../../tools/hud_tilt/README.txt).
+
+### Resolution dropdown
+
+The Interface settings resolution field uses a vertical, ascending dropdown of supported 32-bit modes. The existing one-height-per-width desktop-aspect selection is retained; refresh-rate duplicates are not listed. Eight rows are visible at once, with mouse-wheel and Up/Down, Page Up/Page Down, Home/End navigation and a scroll-position indicator. Enter/click stages the selection; Escape or clicking outside dismisses without changing it. Native Apply, confirmation timeout, Cancel and persistence remain in place. 16-bit modes are excluded from the choices; internal legacy-mode lookup remains for rollback. Checks: `python tools/targeting_hud/check_dropdown.py` and `python tools/targeting_hud/check_video_modes.py`.
+
+### User graphics settings (RP9)
+
+The first Interface page uses its former Miscellaneous area for nine graphics settings.
+Display and mouse section headings are removed and their three controls are compacted; toggles use native checkboxes and quality/mode
+choices use the same dropdown as resolution. All nine settings are staged until the
+native Apply confirmation. Cancel restores the snapshot and Defaults stages defaults.
+The page explicitly says that these settings require a full game restart, in both
+the main menu and flight. Changing resolution or returning to the menu does not
+apply a pending graphics change.
+
+User `PerfOptions.ini` has a separate `[Graphics]` section; the original 36-entry
+PerfCount and `[HUD]` section are retained. Values are choice indices:
+
+| Key | Values | Default |
+| --- | --- | --- |
+| `shadows` | 0 off, 1 low, 2 medium, 3 high | 3 |
+| `relief` | 0 off, 1 on | 1 |
+| `highlights` | 0 off, 1 on | 1 |
+| `reflections` | 0 off, 1 on | 1 |
+| `anisotropy` | 0 off, 1 2x, 2 4x, 3 8x, 4 16x | 4 |
+| `antialiasing` | 0 off, 1 FXAA, 2 SMAA 1x High | 2 |
+| `nebulae` | 0 off, 1 low, 2 medium, 3 high | 3 |
+| `vsync` | 0 off, 1 on | 1 |
+| `fps_limit` | 1 30, 2 60, 3 75, 4 90, 5 120, 6 144, 7 165, 8 180 | 6 |
+
+On first use, existing port.ini VSync, anisotropy and listed FPS values are migrated.
+FPS is capped at 180: old unlimited/240/360 indices (0/9/10) migrate to index 8,
+and the dropdown offers only 30..180. The restart hint has its own row above the buttons.
+Malformed/out-of-range saved values fall back to those defaults. Common owns one
+immutable active snapshot, read from the same redirected save folder as the client;
+RP9 reads that snapshot through `PortGraphicsRenderValue`. Configured values are
+separate and never partially update existing render caches.
+
+Shadow low/medium cap map resolution at 1024/2048 and sample counts at 8/16; high
+retains authored values. Off also disables room contact/object shadows and native
+hangar shadow fallback. Relief controls ship/solar maps, cockpit, rocks, planets,
+ice and alien surfaces. Highlights include weapon glints and room materials;
+reflections gate environment maps and glass/ice reflections. These gates preserve
+other material features and authored emission. Anisotropy is capped by the device.
+AA runs before the HUD; SMAA retains its existing FXAA fallback on shader failure.
+
+Nebula low/medium cap resolution scale at 0.25/0.5, marching steps at 32/64 and
+shadow steps at 2/4. Quality overrides are applied after per-nebula style patches;
+Off cannot be overridden by a style and restores the native fallback. Density,
+colour and visibility distances remain authored values. High retains authored
+quality. User settings never rewrite port.ini or volumetric.ini.
+
+Checks: `python tools/graphics_settings/check.py` (real policy, save writer and UI
+methods with fixture dependencies), `check_native.py` (built Common and RP9 bridge,
+redirected save folder), and `check_gpu.py` (hidden D3D9 device, shader variants and
+pixel comparisons for independent highlights/reflections). `prepare.py` stages
+the client, Common, RP9 and surface shader for a hash-checked installation with
+backup and rollback. Game INIs and character saves are not part of the payload.

@@ -96,6 +96,8 @@ void NnArrivalTextHurry();
 // FUN_0045b430 -- ensure, then Delay = DelayBits (copied as a dword), no letterbox wait, and the
 // caption's property 0x1e with Arg. Caller 0x0044eedd.
 void NnArrivalTextShowRaw(float Delay, uintptr_t Arg);
+// Port notification using the existing short, non-modal HUD caption.
+void NnArrivalTextShowCaption(wchar_t const* Text);
 // FUN_0045b490 -- ensure, then ShowSystemArrival(true). Caller 0x0054adec (the space init).
 void NnArrivalTextShowSystemNow();
 

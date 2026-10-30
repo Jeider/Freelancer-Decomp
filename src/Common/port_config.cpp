@@ -7,6 +7,7 @@
 // Port-only: port.ini (see port_config.h). Not in retail.
 
 #include "port_config.h"
+#include "graphics_settings.h"
 
 #if defined(FREELANCER_ADOXA) || defined(FREELANCER_MOD_PLUGINS) || defined(FREELANCER_LANGUAGE) || defined(FREELANCER_EQUIPMENT_SLOTS) || defined(FREELANCER_PLAYER_AUTO_TURRETS)
 
@@ -126,21 +127,21 @@ bool __cdecl PortPluginEnabled(char const* Name)
 int __cdecl PortConfigInt(char const* Section, char const* Key, int Default)
 {
     char Text[64];
-    if (PortConfigString(Section, Key, "", Text, sizeof(Text)) == 0)
-        return Default;
-    if (_stricmp(Text, "true") == 0 || _stricmp(Text, "yes") == 0 || _stricmp(Text, "on") == 0)
-        return 1;
-    if (_stricmp(Text, "false") == 0 || _stricmp(Text, "no") == 0 || _stricmp(Text, "off") == 0)
-        return 0;
-    return static_cast<int>(std::strtol(Text, nullptr, 0));
+    int value=Default;
+    if (PortConfigString(Section,Key,"",Text,sizeof(Text)))
+    {
+        if (_stricmp(Text,"true")==0 || _stricmp(Text,"yes")==0 || _stricmp(Text,"on")==0) value=1;
+        else if (_stricmp(Text,"false")==0 || _stricmp(Text,"no")==0 || _stricmp(Text,"off")==0) value=0;
+        else value=static_cast<int>(std::strtol(Text,nullptr,0));
+    }
+    return Section && _stricmp(Section,"Render")==0 ? int(PortGraphicsRenderValue(Key,float(value))) : value;
 }
 
 float __cdecl PortConfigFloat(char const* Section, char const* Key, float Default)
 {
     char Text[64];
-    if (PortConfigString(Section, Key, "", Text, sizeof(Text)) == 0)
-        return Default;
-    return static_cast<float>(std::atof(Text));
+    float const value=PortConfigString(Section,Key,"",Text,sizeof(Text)) ? static_cast<float>(std::atof(Text)) : Default;
+    return Section && _stricmp(Section,"Render")==0 ? PortGraphicsRenderValue(Key,value) : value;
 }
 
 unsigned __cdecl PortConfigString(char const* Section, char const* Key, char const* Default, char* Out,

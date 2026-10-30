@@ -12,6 +12,7 @@
 #include "dacom.h"
 #include "gf_object_ship.h"
 #include "vis_effect_arch.h"
+#include "black_hole_visual.h"
 
 #include <cstdint>
 #include <cstring>
@@ -55,6 +56,9 @@ FThornPsys::FThornPsys(Csys const& ScriptFrame, FGfScript* InOwner, FThornEntity
 // StringAlloc'd copy is never freed, as retail.
 void FThornPsys::BindVisEffect(char const* EffectName)
 {
+    // Port-only: the ray-marched black hole replaces the intro disc / core glow ALE effects.
+    if (BlackHoleVisualThornClaim(this, EffectName))
+        return;
     Vis = FindVisEffectByNickname(StringAlloc(EffectName, false));
     if (Vis != nullptr)
     {
@@ -139,6 +143,7 @@ GENRESULT DACOM_API FThornPsys::StopEffect()
 GENRESULT DACOM_API FThornPsys::Tick(int DeltaMs)
 {
     float const Dt = static_cast<float>(static_cast<double>(DeltaMs) * 0.001);
+    BlackHoleVisualThornTick(this, Dt);
     if (Particles.Effect != nullptr)
     {
         float Xform[12];
@@ -174,6 +179,7 @@ GENRESULT DACOM_API FThornPsys::GetSparam(float* OutValue)
 // FUN_0042e160 on +0x74 when set; +0x74 keeps its value.
 void FThornPsys::Stop()
 {
+    BlackHoleVisualThornForget(this);
     static_cast<IPSysControl*>(this)->StopEffect();
     if (Vis != nullptr)
         VisEffectArchRelease(Vis);

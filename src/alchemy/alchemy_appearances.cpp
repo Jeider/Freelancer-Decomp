@@ -11,6 +11,7 @@
 #include "alchemy_ramp.h"
 #include "common_misc.h"
 #include "render/shading.h"
+#include "render/BeamRibbon.h"
 #include "dacom_iids.h"
 #ifdef FREELANCER_PARTICLE_FX
 #include "dacom_iids.h"
@@ -19,6 +20,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <new>
 
@@ -28,6 +30,48 @@
 // slots.
 namespace AlchemyImpl
 {
+    static bool CameraBeamEnabled()
+    {
+        static const bool enabled = [] {
+            char path[MAX_PATH] = {};
+            DWORD length = GetModuleFileNameA(nullptr, path, MAX_PATH);
+            if (!length || length >= MAX_PATH) return true;
+            char* slash = strrchr(path, '\\');
+            if (!slash) return true;
+            strcpy(slash + 1, "port.ini");
+            return GetPrivateProfileIntA("Render", "beam_camera_facing", 1, path) != 0;
+        }();
+        return enabled;
+    }
+    struct FBeamTrailFadeSettings
+    {
+        std::string Nodes = "trail";
+        float Distance = 10.f;
+    };
+    static FBeamTrailFadeSettings const& BeamTrailFadeSettings()
+    {
+        // Reuse the volume path's existing INI controls, even when volume is off.
+        static const FBeamTrailFadeSettings settings = [] {
+            FBeamTrailFadeSettings result;
+            char path[MAX_PATH] = {};
+            DWORD length = GetModuleFileNameA(nullptr, path, MAX_PATH);
+            if (!length || length >= MAX_PATH) return result;
+            char* slash = strrchr(path, '\\');
+            if (!slash) return result;
+            strcpy(slash + 1, "port.ini");
+            char names[1024] = {}, value[64] = {};
+            GetPrivateProfileStringA("Render", "beam_volume_trail_nodes", "trail", names, sizeof(names), path);
+            result.Nodes = names;
+            for (char& c : result.Nodes) if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
+            GetPrivateProfileStringA("Render", "beam_volume_trail_fade", "10", value, sizeof(value), path);
+            char* end = nullptr;
+            double distance = strtod(value, &end);
+            if (end != value && std::isfinite(distance))
+                result.Distance = static_cast<float>(std::fmax(0., std::fmin(1000., distance)));
+            return result;
+        }();
+        return settings;
+    }
     extern float G_AppearanceOpacity;
     extern bool G_AppearanceSoft;
     unsigned long AlApplyRenderOpacity(unsigned long Colour,unsigned long SrcBlend)
@@ -4272,10 +4316,11 @@ namespace AlchemyImpl
     // *Out += 5 when (desc+0x60 & 0x100) == 0x100. No null check on Out.
     GENRESULT DACOM_API FLBeamAppearance::GetQueuedVertCount(unsigned long* Out)
     {
-        unsigned long Count = ResolveLiveInstanceCount() * 5;
+        unsigned long const perRing = CameraBeamEnabled() ? 3 : 5;
+        unsigned long Count = ResolveLiveInstanceCount() * perRing;
         *Out = Count;
         if ((GetAppearanceRampDescriptor()->Flags & 0x100u) == 0x100u)
-            *Out = Count + 5;
+            *Out = Count + perRing;
         return GR_OK;
     }
 
@@ -4283,10 +4328,11 @@ namespace AlchemyImpl
     // *Out += 0x18 when (desc+0x60 & 0x100) == 0x100.
     GENRESULT DACOM_API FLBeamAppearance::GetQueuedIndexCount(unsigned long* Out)
     {
-        unsigned long Count = ResolveLiveInstanceCount() * 0x18;
+        unsigned long const perRing = CameraBeamEnabled() ? 12 : 24;
+        unsigned long Count = ResolveLiveInstanceCount() * perRing;
         *Out = Count;
         if ((GetAppearanceRampDescriptor()->Flags & 0x100u) == 0x100u)
-            *Out = Count + 0x18;
+            *Out = Count + perRing;
         return GR_OK;
     }
 
@@ -4493,9 +4539,74 @@ namespace AlchemyImpl
         #pragma optimize("", on)
     }
 
+    void FLBeamAppearance::FillCameraRibbon()
+    {
+        // Retain ALE's field endpoint, particle ramps and animated atlas UVs.
+        // Only the emitted geometry changes; native material batching stays intact.
+        std::vector<FRPVolumeBeamPoint> points;
+        points.reserve(ResolveLiveInstanceCount() + 1);
+        FillRibbon(&points);
+        if (points.size() < 2) return;
+        ICamera* const camera = reinterpret_cast<ICamera*>(static_cast<std::uintptr_t>(G_DrawCookie));
+        FTransform view, inverse;
+        ComposeTransform(reinterpret_cast<float*>(&view), camera->GetViewTransform(), NodeWorldXform_);
+        float inverseW = 0;
+        ComputeGeneralInverseTransform(view, inverse, inverseW);
+        using namespace BeamRibbon;
+        const char* nodeName = nullptr;
+        GetInstanceName(&nodeName);
+        auto const& trail = BeamTrailFadeSettings();
+        bool sourceAlpha = Descriptor_->BlendInfo[0] == D3DBLEND_SRCALPHA;
+        float fadeDistance = Descriptor_->BlendInfo[1] == D3DBLEND_ONE &&
+            (sourceAlpha || Descriptor_->BlendInfo[0] == D3DBLEND_ONE) && NameMatches(trail.Nodes,nodeName)
+            ? trail.Distance : 0.f;
+        float nearPlane = camera->GetZNear();
+        auto fadeColour = [&](unsigned long colour, const float* position) {
+            if (fadeDistance <= 0.f) return colour;
+            // ALE uses right-handed view space; RP9 flips Z when setting modelview.
+            float depth = -(view.Rotation.D[2][0]*position[0] + view.Rotation.D[2][1]*position[1] +
+                            view.Rotation.D[2][2]*position[2] + view.Translation.Z);
+            return FadeColour(colour,depth,nearPlane,fadeDistance,sourceAlpha);
+        };
+        Vec eye = {inverse.Translation.X,inverse.Translation.Y,inverse.Translation.Z};
+        Vec right = {inverse.Rotation.D[0][0],inverse.Rotation.D[1][0],inverse.Rotation.D[2][0]};
+        Vec up = {inverse.Rotation.D[0][1],inverse.Rotation.D[1][1],inverse.Rotation.D[2][1]};
+        auto pos = [&](size_t i) { auto const& p=points[i]; return Vec{p.Position[0],p.Position[1],p.Position[2]}; };
+        Vec previousSide = {0,0,0};
+        unsigned short previous[2] = {};
+        for(size_t i=0;i<points.size();++i)
+        {
+            auto const& p=points[i];
+            Vec centre=pos(i);
+            Vec side=Side(pos(i ? i-1 : i),centre,pos(i+1<points.size() ? i+1 : i),eye,right,up,previousSide);
+            previousSide=side;
+            side=Mul(side,std::fmax(0.f,p.Radius));
+            float a[3]={centre.x-side.x,centre.y-side.y,centre.z-side.z};
+            float b[3]={centre.x+side.x,centre.y+side.y,centre.z+side.z};
+            unsigned short current[2]={StoreBeamRawVertex(a,fadeColour(p.Colour,a),Texture_.Frame[1],p.V),
+                                       StoreBeamRawVertex(b,fadeColour(p.Colour,b),Texture_.Frame[3],p.V)};
+            if(i)
+            {
+                if(Descriptor_->Flags & 2u)
+                {
+                    Vec last=pos(i-1);
+                    float mid[3]={(centre.x+last.x)*.5f,(centre.y+last.y)*.5f,(centre.z+last.z)*.5f};
+                    unsigned short m=StoreBeamRawVertex(mid,fadeColour(p.Colour,mid),.5f,.5f);
+                    StoreBeamTriangle(previous[0],previous[1],m);
+                    StoreBeamTriangle(previous[1],current[1],m);
+                    StoreBeamTriangle(current[1],current[0],m);
+                    StoreBeamTriangle(current[0],previous[0],m);
+                }
+                else StoreBeamQuad(previous[0],previous[1],current[0],current[1]);
+            }
+            previous[0]=current[0];previous[1]=current[1];
+        }
+    }
+
     #pragma float_control(except, on, push)
     void FLBeamAppearance::FillRibbon(std::vector<FRPVolumeBeamPoint>* VolumePoints)
     {
+        if (!VolumePoints && CameraBeamEnabled()) { FillCameraRibbon(); return; }
         static const char kBeamFieldName[12] = "FLBeamField";
         FPooledParticle* Head = InstanceListHead_;
         ++G_DrawCounters[7];

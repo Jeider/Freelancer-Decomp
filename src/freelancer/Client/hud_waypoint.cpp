@@ -7,6 +7,7 @@
 // HUD_Waypoint -- see hud_waypoint.h for the class, its vftables and the named gaps.
 
 #include "hud_waypoint.h"
+#include "player_route.h"
 
 #include "best_path.h"
 #include "character_select_equip.h" // GetPlayerStarSystemIdRetail (FUN_004c4830)
@@ -292,7 +293,7 @@ void HUD_Waypoint::Render(FSpaceCamera* /*Camera*/, float DeltaSeconds)
             }
 
             // 0x004f404a..0x004f411b: first time within 150 m -- reached.
-            if (bReached == 0 && Dist < kReachedDistance)
+            if (!PlayerRoute::Active() && bReached == 0 && Dist < kReachedDistance)
             {
                 bReached = 1;
                 QueueWaypointVoice(G_VoiceObjectiveReached);
@@ -318,7 +319,7 @@ void HUD_Waypoint::Render(FSpaceCamera* /*Camera*/, float DeltaSeconds)
     {
         // 0x004f412c..0x004f41bc: no live waypoint -- the first player waypoint within 300 m
         // counts as reached, and it and every entry before it are removed.
-        int const Count = GetPlayerWaypointCountRetail();
+        int const Count = PlayerRoute::Active() ? 0 : GetPlayerWaypointCountRetail();
         for (int i = 0; i < Count; ++i)
         {
             FPlayerWaypointRecord* const Record = GetPlayerWaypointRetail(i);

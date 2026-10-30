@@ -338,3 +338,8 @@ Rule for new code: a port of a call to `MSVCRT.DLL::atoi`/`atol`/`_wtoi`/`_wtol`
 **Retail.** `WinMain` starts with `CreateMutexA(NULL, FALSE, "FreelancerClient")` (.text:005b2f87..005b2fac); a null handle or `GetLastError() == ERROR_ALREADY_EXISTS` (0xb7) jumps to the exit (LAB_005b3385) and returns 1, so only one client runs per machine.
 **Port.** The same code, compiled only when `FL_SINGLE_INSTANCE` is defined. Nothing defines it, so by default the client creates no mutex and any number of instances start.
 **Why.** The owner tests multiplayer by running several local clients against one FLServer.
+
+
+## Desktop HUD tilt prototype 2026 10 30
+
+At the user's request, RP9 builds may render flight side panels into a transparent target and project them with a static perspective angle. Retail Win3D draws these panels directly. `Client/hud_tilt.cpp` and `SHADERS/hud_tilt.hlsl` preserve panel contents and inverse-map pointer coordinates; world markers and central controls stay flat. User `PerfOptions.ini [HUD] hud_tilt_degrees` defaults to 0 (disabled), is rounded and clamped to 0..50, and is editable with native arrows on Miscellaneous > General. Apply/Cancel/Defaults follow the settings lifecycle; a separate INI section preserves the original PerfCount. The experimental `port.ini [Render]` key is retired. Requires `FREELANCER_RP9`, `FREELANCER_WIDESCREEN_SUPPORT` and the appended RP9 `bHudSurface` capability. No existing virtual slots change. Removal condition: user requests removal; angle 0 restores the direct path. Validation and limitations: [HUD tilt checks](../../tools/hud_tilt/README.txt).

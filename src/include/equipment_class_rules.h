@@ -6,12 +6,14 @@
 
 namespace EquipmentClasses
 {
-    enum { First = 0x7f, Levels = 10, Families = 3, End = First + Levels * Families,
-           Invalid = End, CaptionBase = 0x7fef0000, DescriptionBase = CaptionBase + 32 };
+    enum { First = 0x7f, Levels = 10, Families = 5, End = First + Levels * Families,
+           Invalid = End, CaptionBase = 0x7fef0000, DescriptionBase = CaptionBase + 64 };
 
     inline bool IsType(unsigned Type) { return Type >= First && Type < End; }
     inline bool IsManaged(unsigned Type) { return IsType(Type) || Type == Invalid; }
     inline int Family(unsigned Type) { return IsType(Type) ? int((Type - First) / Levels) : -1; }
+    inline bool IsInternal(unsigned Type) { return IsType(Type) && Family(Type) != 4; }
+    inline int Tab(unsigned Type) { return Family(Type) == 4 ? 2 : 3; }
     inline int Level(unsigned Type) { return IsType(Type) ? int((Type - First) % Levels) + 1 : 0; }
     inline unsigned Type(int FamilyIndex, int Class)
     {
@@ -20,7 +22,7 @@ namespace EquipmentClasses
     }
     inline int FindFamily(char const* Name)
     {
-        static char const* const Names[] = { "armor", "scanner", "tractor" };
+        static char const* const Names[] = { "armor", "scanner", "tractor", "hardware", "thruster" };
         if (Name)
             for (int I = 0; I < Families; ++I)
                 if (_stricmp(Name, Names[I]) == 0) return I;
@@ -35,7 +37,7 @@ namespace EquipmentClasses
     inline unsigned Parse(char const* Name)
     {
         static char const* const Prefixes[] = {
-            "hp_armor_special_", "hp_scanner_special_", "hp_tractor_special_" };
+            "hp_armor_special_", "hp_scanner_special_", "hp_tractor_special_", "hp_hardware_special_", "hp_thruster_special_" };
         if (!Name) return Invalid;
         for (int I = 0; I < Families; ++I)
         {

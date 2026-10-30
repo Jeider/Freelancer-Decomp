@@ -58,7 +58,9 @@ extent = max(abs(v[k] - center[k]) for v in corners for k in range(3))
 data = b''.join(struct.pack('<8f', *[(v[k]-center[k])/extent for k in range(3)], *v[3:]) for v in corners)
 (out / 'mesh.bin').write_bytes(data)
 print(f'Actual Tau31 input: DcDt/ast_icecrystal2, ast01/Level0 {len(corners)//3} triangles, original DDS', flush=True)
-(out / 'baseline.hlsl').write_bytes(subprocess.check_output(['git', 'show', 'HEAD:DATA_EXTRA/SHADERS/surface_material.hlsl'], cwd=root))
+baseline = os.environ.get('ICE_SURFACE_BASELINE')
+(out / 'baseline.hlsl').write_bytes(Path(baseline).read_bytes() if baseline else
+    subprocess.check_output(['git', 'show', 'HEAD:DATA_EXTRA/SHADERS/surface_material.hlsl'], cwd=root))
 vc = Path('C:/Program Files/Microsoft Visual Studio/18/Community/VC/Auxiliary/Build/vcvars32.bat')
 sdk = Path('C:/DXSDK_Jun10')
 build = out / 'build.cmd'

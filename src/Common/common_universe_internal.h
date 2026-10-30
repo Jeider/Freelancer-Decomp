@@ -13,8 +13,10 @@
 #include "common_universe.h"
 #include "common_misc.h" // Geometry::Sphere
 #include "common_net.h"  // CommReferrable (SYSTEM's second base)
+#include "gravity_field.h"
 
 #include <list>
+#include <map>
 #include <vector>
 
 namespace CmnUniverse
@@ -34,6 +36,9 @@ namespace CmnUniverse
         std::list<Universe::FSystemZone> Zones;               // +0x80 (head +0x84, size +0x88)
         mutable ISpatialPartition* Spatial;                   // +0x8c
         unsigned SpaceMusicId;                                // +0x94
+        // Port-only [Object] gravity, keyed by the object's nickname within this
+        // system. Native system ownership handles copying and universe teardown.
+        std::map<unsigned, GravityField::Settings> GravityObjects;
 
         SYSTEM();
         ~SYSTEM();

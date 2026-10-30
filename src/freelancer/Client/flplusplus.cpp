@@ -271,7 +271,8 @@ bool FlplusplusWindowWheel(Win3D* Window, int Wheel)
         {
             NnPreferences* const Preferences = dynamic_cast<NnPreferences*>(Win);
             if (Preferences != nullptr)
-                Scroll = Preferences->KeyScroll; // +0x4b8
+                Scroll = Preferences->CurPage == 7 ? Preferences->MiscScroll :
+                    Preferences->CurPage == 0 ? Preferences->KeyScroll : nullptr;
         }
         else if (strcmp(Name, "NeuroNetNavMap") == 0)
         {
@@ -295,6 +296,16 @@ bool FlplusplusWindowWheel(Win3D* Window, int Wheel)
         if (bMatched && Scroll != nullptr && Scroll->IsShown())
         {
             bool const bUp = Wheel > 0;
+            auto* Preferences = dynamic_cast<NnPreferences*>(Scroll->GetParent());
+            if (Preferences && Preferences->CurPage == 7 && Scroll == Preferences->MiscScroll)
+            {
+                // A table's last page includes the final item; UICycle's step drops it.
+                int const Next = int(Scroll->GetValue()) + (bUp ? -2 : 2);
+                Scroll->SetProperty(0x38, static_cast<uintptr_t>(Next), 0);
+                Preferences->SetProperty(0x3e, reinterpret_cast<uintptr_t>(Scroll),
+                                         static_cast<uintptr_t>(Scroll->GetValue()));
+                return true;
+            }
             Scroll->WheelStep(bUp);
             Scroll->WheelStep(bUp);
             return true;

@@ -4,7 +4,10 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "flight_telemetry.h"
+#include "player_action_counters.h"
 #include "cli_projectile_fx.h"
+#include "cockpit_effect_brightness.h"
 #include "player_auto_turrets.h"
 
 // Before anything that could instantiate std::vector<unsigned short>: Common.dll exports that
@@ -575,6 +578,7 @@ void CliExplosionAttachLocalXform(void* ExplosionFx, int EngineIndex, FTransform
 void CliBeamActivateEffects(FClientBeamGameobj* This, Vector const* LookDir,
                             unsigned char bUseLookDir)
 {
+    CockpitEffectBrightness::CreationScope brightness(CockpitEffectBrightness::Kind::Weapon);
     // FUN_0053f340 (thiscall on the Beam gameobj, RET 8) -- listing 0053f340..0053f60b.
     // 0x0053f34a..0x0053f36f: the class & 7 object's archetype companion (no null test on the
     // object); a null companion goes straight to Projectile's slot 92.
@@ -1133,6 +1137,7 @@ namespace
 
 void CliLauncherPlayMuzzleFx(FCliLauncherFx* Launcher)
 {
+    CockpitEffectBrightness::CreationScope brightness(CockpitEffectBrightness::Kind::Weapon);
     // FUN_0052cfd0 (thiscall, plain RET) -- listing 0x0052cfd0..0x0052d278. Callers: the fire
     // slots FUN_0052d410 (0x0052d432), FUN_0052d510 (0x0052d51b), FUN_0052dd40 (0x0052dd4f).
     CELauncher* const Launch = Launcher->LaunchEquip();
@@ -1353,6 +1358,7 @@ int CliShipActivateEquip(void* AdjustorThis, unsigned short const* HardpointId,
     if (Active == bOn)
         return 0;
     Equip->Activate(bOn != 0);
+    if (Equip->IsActive() != (bOn != 0)) return 0;
 #ifdef FREELANCER_PLAYER_AUTO_TURRETS
     if (bLocal) PlayerAutoTurrets::ActivationChanged(Equip, bOn != 0);
 #endif
@@ -1422,9 +1428,11 @@ static unsigned CliShipFireWeaponsImpl(void* AdjustorThis, unsigned short const*
                 CELauncher* const Launch = CELauncher::cast(Launcher->Equip);
                 if (Automatic && (!Launch || !Launch->IsFunctioning())) continue;
                 unsigned char bFired = 0;
+                Vector const* telemetryAim = nullptr;
                 if (TargetPos != nullptr &&
                     !static_cast<Archetype::Projectile const*>(Launch->Projectile)->bForceGunOri)
                 {
+                    telemetryAim = TargetPos;
                     bFired = Launcher->TryFire(TargetPos);
                     if (bFired != 0)   // 0x005349ea..0x005349f6
                         Info.Hardpoints.insert(Info.Hardpoints.end(), 1u, HardpointIds[I]);
@@ -1434,6 +1442,8 @@ static unsigned CliShipFireWeaponsImpl(void* AdjustorThis, unsigned short const*
                     bFired = Launcher->FireBarrelAim();
                 }
                 if (bFired != 0 && ActuallyFired) *ActuallyFired = true;
+                if (bFired != 0) FlightTelemetry::Shot(Host->get_id(), HardpointIds[I], Automatic, telemetryAim);
+                if (bFired != 0) PlayerActionCounters::Shot(Host->get_id(), HardpointIds[I], Automatic);
                 if (bFired != 0 && FiredCount < 10u)
                 {
                     Fired[FiredCount] = Launcher;
@@ -1454,9 +1464,11 @@ static unsigned CliShipFireWeaponsImpl(void* AdjustorThis, unsigned short const*
                 if (!Automatic && PlayerAutoTurrets::Owns(Launch)) continue;
                 FCliLauncherFx* const Launcher = static_cast<FCliLauncherFx*>(Node->Wrapper);
                 unsigned char bFired = 0;
+                Vector const* telemetryAim = nullptr;
                 if (TargetPos != nullptr &&
                     !static_cast<Archetype::Projectile const*>(Launch->Projectile)->bForceGunOri)
                 {
+                    telemetryAim = TargetPos;
                     bFired = Launcher->TryFire(TargetPos);
                     if (bFired != 0)   // 0x00534a93..0x00534aab
                         Info.Hardpoints.insert(Info.Hardpoints.end(), 1u, Launch->GetID());
@@ -1465,6 +1477,8 @@ static unsigned CliShipFireWeaponsImpl(void* AdjustorThis, unsigned short const*
                 {
                     bFired = Launcher->FireBarrelAim();
                 }
+                if (bFired != 0) FlightTelemetry::Shot(Host->get_id(), Launch->GetID(), Automatic, telemetryAim);
+                if (bFired != 0) PlayerActionCounters::Shot(Host->get_id(), Launch->GetID(), Automatic);
                 if (bFired != 0 && FiredCount < 10u)
                 {
                     Fired[FiredCount] = Launcher;
@@ -1606,6 +1620,7 @@ unsigned CliShipFireWeapons(void* AdjustorThis, unsigned short const* HardpointI
 bool CliShipFireAutomatic(void* AdjustorThis, unsigned short HardpointId, Vector const& Aim)
 {
     if (!SinglePlayer() || !PlayerAutoTurrets::Enabled()) return false;
+    if (PlayerAutoTurrets::GetMode() == PlayerAutoTurrets::Mode::Manual) return false;
     auto* host = static_cast<FClientEquippedObj*>(static_cast<IObjAffect*>(AdjustorThis));
     auto* ship = static_cast<CEqObj*>(host->Object);
     if (!PlayerAutoTurrets::Owns(ship->EquipManager.FindByID(HardpointId))) return false;

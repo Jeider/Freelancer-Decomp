@@ -34,9 +34,13 @@ namespace NebulaVolume
 {
     // StarSys [Nebula] loader (star_sys.cpp), after FNebulaEffect::Load: remembers the nebula
     // (the set the volume picks from) and its file name for the [NebulaOverride] file= match.
-    void RegisterNebula(FNebulaEffect* Nebula, char const* File);
+    // System INI [Nebula] volumetric=false forbids this instance, independent of styles.
+    void RegisterNebula(FNebulaEffect* Nebula, char const* File, bool Volumetric = true);
     // NebulaDestroy (cli_nebula.cpp): forgets the nebula.
     void UnregisterNebula(FNebulaEffect* Nebula);
+    // Source nebula INI [NebulaLight] shadows=false: suppress scene local shadows
+    // anywhere inside that zone, independently of volume/exclusion rendering.
+    bool ShadowsDisabledAt(float const* Position);
 
     // Optional [Volumetric] file= in a planet-ring INI. This companion is rendered only
     // by RP9: it never enters the retail field-controller list and leaves ring puffs alone.

@@ -86,6 +86,40 @@ See [equipment slots](../re/equipment_mount_classes.md) for examples and compati
 | `jump_out_hp` | cstr (whole value) | empty | Hardpoint ships jump out of. | [L924](../../src/Common/common_archetype_ships.cpp#L924) |
 | `solar_radius` | float | 500.0 | Radius used for placement/atmosphere checks. | [L930](../../src/Common/common_archetype_ships.cpp#L930) |
 
+Optional trade-lane ring activation animations (port):
+
+```ini
+[Solar]
+nickname = Trade_Lane_Ring
+left_ring_anim = Sc_activate left
+right_ring_anim = Sc_activate right
+```
+
+Each value is an animation script name in the solar model. Missing or empty keys
+disable the feature for that side; no archetype or animation names are hardcoded
+in the client. Motion, duration and frame count come entirely from the asset.
+The first server-accepted activation request (including the F3 docking command)
+starts the entrance side once. Existing users on either side and ongoing animation
+playback suppress further starts; requests are never queued. Cancellation or
+departure does not interrupt playback. Removal of the solar or unloading the system
+releases its handles. Activation messages are shared through the existing server
+protocol; this does not add late-join playback/time snapshots.
+
+For a stationary idle pose, remove any looping `use_animation` equipment or `anim`
+on that loadout/object which moves the same joints. The original procedural
+`TLR_Left`/`TLR_Right` spin is automatically skipped on configured sides.
+Other equipment animations remain unchanged. Scripts must bind to the appropriate
+joint; missing scripts or unbound channels are logged and skipped.
+
+`tools/tradelane/prepare.py` prepares two separate scripts for the main installed
+trade lane and removes `legal_tradelane_animation` only from `trade_lane_ring_main`.
+The initial asset uses a six-second, one-turn motion sampled at 30 Hz (181 keys),
+with smooth acceleration/deceleration. These are asset-generation defaults, not
+runtime constants. Left maps to `tlr2_lod1`, right to `tlr1_lod1`, verified against
+the model's lane hardpoints. Existing geometry, joints, LODs and other scripts are
+preserved. `tools/tradelane/check.py` checks asset preservation, motion and runtime
+playback lifecycle; `install.ps1` requires a closed game and verifies hashes/backups.
+
 ## `[Asteroid]`, `[AsteroidMine]`, `[DynamicAsteroid]`  ([common_archetype_misc.cpp:39](../../src/Common/common_archetype_misc.cpp#L39))
 
 `[Asteroid]` and `[AsteroidMine]` are the same record type (object type preset to `ASTEROID`); `[DynamicAsteroid]` accepts only the `Root` keys. All three are loaded by `LoadAsteroids` from `solar\asteroidarch.ini`.
@@ -169,6 +203,142 @@ Before objects are created, Common walks the `[Object]` sections of the system f
 ## Asteroid field files (`CAsteroidField::load`)
 
 A field file is named by the `file` key of an `[Asteroids]` section in the system file, together with a `zone` key naming the zone it fills. The Common loader `CAsteroidField::load` ([common_casteroidfield.cpp:74](../../src/Common/common_casteroidfield.cpp#L74)) is run by the server on the whole file ([server.md](server.md#asteroid-fields-on-the-server)) and by the client; the other sections of the file (`[Band]`, `[AsteroidBillboards]`, `[DynamicAsteroids]`, `[TexturePanels]`, `[properties]`) are client/visual and are documented in [world-data.md](world-data.md). Unrecognised sections are skipped.
+
+### `[ServerDynamicAsteroids]` (port extension)
+
+Opt-in moving rocks owned by the server. Define a `[Solar]` archetype in a loaded
+solar archetype file with `type = SERVER_ASTEROID`, a mesh and matching `.sur`,
+`mass`, `hit_pts`, `destructible = true`, material libraries and `explosion_arch`.
+`SERVER_ASTEROID` objects are always non-targetable: they do not enter scanner
+target lists and cannot be selected by mouse or target cycling. Keep
+`type = SERVER_ASTEROID` so server physics and replication remain active.
+Then reference it from the asteroid field file:
+
+```ini
+[ServerDynamicAsteroids]
+asteroid = srv_ast_tau29_normal_a
+spawn_mode = forward
+count = 60
+placement_radius = 3000
+placement_offset = 2550
+despawn_radius = 4500
+max_velocity = 20
+max_angular_velocity = 0.3
+seed = 801
+```
+
+The system's existing `[Asteroids] file/zone` selects the field. The Sig8 preset
+uses `spawn_mode = forward`: new rocks form only in the outer 15% of
+`placement_radius`, with `placement_offset` plus rock size as an additional
+minimum distance. A moving ship receives new rocks ahead of its velocity;
+the camera is never consulted. Existing rocks keep their world positions and
+motion. Creation is spread across updates (at most four new/restored objects
+per 0.1 s across forward fields). Client instances fade in over 0.75 s using
+material opacity, without changing gameplay cloak, collisions or network state.
+The fade belongs to the object lifetime and is unaffected by camera changes.
+After initial filling, new placement is
+triggered by travelling 5% of the placement radius (minimum 100 m), not by
+standing still while rocks drift away. In Sig8 this gives a 3 km formation
+radius and a 4.5 km suspension radius. The preset migration takes the former
+far `despawn_radius` from the INI as the new placement radius, preserving that
+distance on subsequent runs. The target is 180 across this larger neighbourhood,
+not 180 within 1 km. Multiplayer interest distance covers the suspension radius
+so the native 2.5 km unowned-object cutoff does not delay distant creation.
+
+With
+`spawn_mode = player`, the server maintains a population within `placement_radius`
+of the **ships**, using server positions rather than cameras. Overlapping player
+neighbourhoods count the same rocks; separated players receive their own nearby
+population. Placement stays inside the field, outside its `[Exclusion Zones]`,
+outside physical objects and at least `placement_offset` plus the rock radius
+from every player's ship. The Sig8 ruins' central 3000 m exclusion stays clear at
+spawn. Rocks can subsequently drift into exclusions or outside the field.
+
+In legacy `player` mode, every half-second the server can create/restore up to 24 rocks per system, up to
+1024 active generated rocks (including any fixed-mode population). Rocks beyond
+`despawn_radius` of **all** players are suspended in memory with their position,
+orientation, velocity and remaining hull. Their distant simulation pauses; returning
+restores them with a fresh network ID. Dead rocks remain dead and count toward the
+local population, so shooting a rock does not immediately spawn its replacement.
+Each section retains at most 8192 generated/dead records until system unload.
+At capacity or near obstructions/exclusions, the visible population can be lower
+than the target. Camera changes never create, remove or reposition these objects.
+
+Omitting `spawn_mode` (or using `field`) retains the original finite mode: generate
+`count` objects once around the zone centre when the system loads, without streaming.
+
+| Key | Default | Meaning / limits |
+|---|---|---|
+| `asteroid` | required | Nickname of a **Solar** with `type = SERVER_ASTEROID`. |
+| `spawn_mode` | `field` | `forward` forms distant rocks as ships travel; `player` refills a ship-centred sphere; `field` selects a fixed population at system load. |
+| `count` | 0 | 0–256 per section: target in each player's neighbourhood, or total in fixed mode. |
+| `placement_radius` | 3000 | Placement/counting radius in metres, 10–100000. Fixed mode additionally limits it to the zone radius. |
+| `placement_offset` | 200 | Minimum spawning distance from ships, plus rock radius; clamped to 0–70% of placement radius in `player`, 0–90% in `forward`. Forward mode additionally excludes the inner 85%. |
+| `despawn_radius` | twice placement radius (`player`), 1.5 times (`forward`) | Suspend only beyond this distance from every player; cannot be smaller than the mode's default, maximum 300000 m. |
+| `max_velocity` | 10 | Maximum initial speed magnitude in m/s, 0–500. |
+| `max_angular_velocity` | 0.1 | Maximum initial angular speed magnitude in radians/s, 0–10. |
+| `seed` | 1 | Server random sequence, combined with zone ID. In player mode the result also depends on player movement/order. |
+
+Multiple sections allow different meshes. All participants need matching updated
+Common, Server and client binaries and matching archetype data. Existing object
+creation, motion, hull-damage and destruction messages replicate these rocks;
+explosion debris remains a local visual effect. Late joiners receive the surviving
+objects at their current positions. Destruction lasts while the system is loaded;
+unloading/reloading the system regenerates it. There is no save-file persistence.
+This feature does not implement campaign co-op. Streamed server asteroids use
+the field's existing `[LootableZone]` dynamic loot settings on actual destruction:
+one server-side probability roll, authored container/commodity and quantity range,
+at the rock's position. Named loot zones take precedence over the field fallback.
+Suspension, unload and repeated death notifications never produce extra loot.
+
+Player autopilot and NPC pathfinding use nearby physical rock sizes and velocities
+to choose a detour and reduce approach speed. This supplements the existing
+obstacle reactions; it is not a guarantee against collisions in a blocked corridor.
+
+The old `[DynamicAsteroids]` type remains client-owned. In all five Sig8 test fields,
+the three existing sections have `count = 0` so they retain mesh/material inputs
+for the distant decorative `[FarRocks]` renderer without spawning duplicate local
+rocks. Each field's three new server sections each target 60 rocks within 3000 m
+of ships. `[FarRocks]`, `[AsteroidBillboards]`, dust, bands and exclusions are
+unchanged. The global creation budget and 1024 active-object limit apply across
+all five fields together. `tools/physics/prepare_sig8_asteroids.py`
+prepares this preset and a hash-checked installer; it does not itself modify the game.
+
+`python -B tools/physics/install_world_asteroids.py` extends this to active ordinary-world
+fields (136 fields, 451 population sections, 29 systems and 29 models in the current mod).
+`--apply` installs the staged configuration, PythonLancer patch and Server.dll/PDB with
+SHA256 checks, backup and rollback on failure. Five existing Sig8 presets are unchanged;
+all other fields retain their authored counts and speeds, using the forward formation
+at `max(3000, original placement_radius)` and suspension at 1.5 times that distance.
+Client counts become zero; mesh/material inputs and every other field section remain.
+The original 1024-object system limit and four-creations-per-tick forward budget still apply.
+
+Scope follows active universe references and excludes special/story/dungeon resources,
+including shared fields, `om11`, `tau44`, `m8_tau44`, `sphere*`, and StorySystem classes
+under SYSTEMS_MOD (`co_cad`, `omicron2`). Mine/static Cube fields without dynamic
+populations and distant decorative FarRocks remain unchanged. The generator embeds
+the same transformation with a system/model allowlist and story guard, preserving
+the Sig8 count of 60 per model on regeneration. New models require preparing a new rollout.
+Tau29 is explicitly excluded: its four ordinary fields and ring use their original client
+populations. `tools/physics/restore_tau29_asteroids.py --baseline <rollout-backup>` stages
+their exact pre-rollout files and the generator scope change; `--apply` installs with
+hash checks and a new backup. Other systems' fields and binaries are not part of that payload.
+
+The server clones retain the source mesh, collision SUR, all material libraries,
+explosion, mass and hull. The effectively indestructible `ast_co_cur_x2` hull is capped
+at 2,000,000,000 to fit the signed network creation/restoration field. Solar rendering
+uses the original materials and solar lighting; legacy per-field dynamic `color_shift`
+is retained for the decorative renderer but is not applied to server solars.
+`band_thickness` in streamed server sections preserves a slab along the zone's local Y
+axis and starts rocks with in-plane velocity; subsequent physical collisions can move
+them out of that slab. Tau29's ring retains its original client-side slab setting instead.
+
+Validation: `tools/physics/check_world_asteroids.py` audits the staged real-world
+conversion and generator output; `check_server_asteroid_fields.py` exercises production
+streaming, tilted rings and server mining with controlled engine fixtures.
+
+Implementation: [server_asteroid_fields.cpp](../../src/Server/server_asteroid_fields.cpp),
+[common_asteroid_avoidance.cpp](../../src/Common/common_asteroid_avoidance.cpp).
 
 ### `[Cube]`
 

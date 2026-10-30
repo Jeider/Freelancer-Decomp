@@ -8,11 +8,15 @@
 
 #include "client_gameobj.h"
 #include "client_tick_profile.h" // Port-only owner-requested collision profiling
+#include "runtime_hitch_log.h"
 #include "common_archetype.h"
+#include "common_server_asteroid.h"
 #include "common_cequip.h"    // CEShield (FUN_0052fe60)
 #include "common_csys.h"      // Acquire3DMathEngine (FUN_005b73e0)
 #include "common_misc.h"      // ICamera, Geometry::Sphere
 #include "common_physys.h"    // GenerateCollisions / GetCollisions (FUN_0052fc20)
+#include "flight_telemetry.h"
+#include "player_action_counters.h"
 #include "common_server.h"
 #include "common_universe.h"
 #include "menu_sound_arch.h"  // GetClientSoundListenerObject (FUN_0040f130)
@@ -507,6 +511,22 @@ void ClientObjDb_UpdateAll(float Dt)
     ISpatialPartition* const Spatial = G_ClientObjDb.Spatial;
     if (Spatial != nullptr)
     {
+        // Moving server asteroids must update independently of camera queries.
+        // Refresh their BSP entries before the usual nearby-solar pass.
+        RuntimeHitchScope AsteroidHitch("asteroids", "client moving rocks and spatial entries");
+        for (FClientGameobj* Go = G_ClientObjDb.Lists[2].First; Go != nullptr; Go = Go->ListNext)
+        {
+            CSimple* Simple = NarrowSimple(Go);
+            if (!Simple || !IsServerAsteroidType(Simple->TypeBits)) continue;
+            Go->update(Dt);
+            Spatial->Remove(static_cast<IObjRW*>(Go));
+            FSpatialEntry Entry;
+            Entry.Object = static_cast<IObjRW*>(Go);
+            Entry.Position = Simple->WorldPosition;
+            Entry.Radius = Simple->Radius;
+            Spatial->Add(&Entry);
+        }
+        AsteroidHitch.Stop();
         // A 10000-radius sphere around the listener camera (FUN_0040f130, ICamera slot 3
         // GetPosition, stdcall), queried with Fill (+0x1c) into the usual {0x800, 0, items}.
         ICamera* const Camera = static_cast<ICamera*>(GetClientSoundListenerObject());
@@ -525,6 +545,8 @@ void ClientObjDb_UpdateAll(float Dt)
         for (unsigned Index = 0; Index < Result.Count; ++Index)
         {
             IObjRW* const Item = static_cast<IObjRW*>(Result.Items[Index]);
+            if (IsServerAsteroidType(static_cast<CSimple const*>(Item->cobject())->TypeBits))
+                continue;
             // 0x00541436..0x00541467: a large solar (radius above 200, get_type bit 7 clear)
             // is left to the vector loop below.
             if (Item->cobject()->Radius > kLargeSolarRadiusThreshold)
@@ -542,7 +564,10 @@ void ClientObjDb_UpdateAll(float Dt)
 
         // 0x0054149c..0x005414c5: every large solar; the end is re-read after each call.
         for (size_t Index = 0; Index < G_LargeSolars.size(); ++Index)
-            G_LargeSolars[Index]->update(Dt);
+        {
+            if (!IsServerAsteroidType(NarrowSimple(G_LargeSolars[Index])->TypeBits))
+                G_LargeSolars[Index]->update(Dt);
+        }
     }
 
     UpdateList(&G_ClientObjDb.Lists[10], Dt);
@@ -853,6 +878,11 @@ void ClientObjDb_ProcessCollisions()
         ResolveCollisionSide(Event->ObjectB, Event->PartIdB, &GoB, &SubB);     // 0x0052fd44
         if (GoB == nullptr)
             continue;                                                          // 0x0052fd52
+
+        if (FlightTelemetry::IsRecording())
+            FlightTelemetry::Collision(GoA->get_id(), GoB->get_id(), SubA, SubB,
+                Event->Point, Event->SurfaceNormal, Event->RelativeVelocity);
+        PlayerActionCounters::Collision(GoA->Object, GoB->Object);
 
         // 0x0052fd58..0x0052fdf0: side A's record -- the shared point, both vectors negated
         // (FLD / FCHS / FSTP per component) -- then GoA->Slot194(&Rec, SubA, GoB, SubB).

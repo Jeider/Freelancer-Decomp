@@ -47,6 +47,14 @@
 #ifndef NEBULA_FACETED
 #define NEBULA_FACETED 0
 #endif
+// Edge: the clouds' edge detail becomes fine fibres drawn out along the local flow (the warp).
+#ifndef NEBULA_FIBRE
+#define NEBULA_FIBRE 0
+#endif
+// Alien: glowing vein filaments threading the gas (tubes, not sheets: two ridges crossed).
+#ifndef NEBULA_VEINS
+#define NEBULA_VEINS 0
+#endif
 
 #define NEBULA_MAX_STEPS 128
 // The key-light shadow ray: fixed steps; volumetric.ini shadow_steps (0..6) gives the trailing
@@ -169,6 +177,9 @@ float4 Atmosphere : register(c106);
 // Edge veins: x vein_emission, y pulse amplitude, z time * 2 pi * rate, w unused.
 float4 Veins : register(c107);
 float4 ExclusionSkip : register(c108); // xyz camera-relative centre, w radius^2 (0 = none): the
+float4 AlienVeins : register(c109); // rgb vein colour, w strength (nebula_alien.hlsl)
+float4 AlienMore : register(c111); // x fraction of space that holds veins
+float4 AlienShape : register(c110); // x 1 / vein cell (m), y sharpness, z stretch along the flow, w pulse phase
                                        // camera inside an exclusion zone's clear core
 // The nebula's puff texture: x density weight, y colour weight, z 1 / tile (m), w 1 = bound;
 // PuffTexUv: the shape's atlas rectangle (u0, v0, du, dv).
@@ -276,6 +287,19 @@ float2 NebulaPuffTexture(float3 Pn)
     return (Result + float2(Tx.a, RPExLuminance(Tx.rgb))) * (1.0 / 3.0);
 #endif
 }
+
+#if NEBULA_VEINS
+// One vein sample at a noise-space point: the core of two crossed ridges (a tube), pulsing.
+float NebulaVein(float3 W, float3 Flow)
+{
+    float3 Q = W * AlienShape.x;
+    Q -= Flow * (dot(Q, Flow) * AlienShape.z);
+    float N1 = tex3Dlod(Noise, float4(Q, 0.0)).g;
+    float N2 = tex3Dlod(Noise, float4(Q * 1.13 + float3(0.37, 0.11, 0.73), 0.0)).b;
+    float Tube = (1.0 - abs(N1 * 2.0 - 1.0)) * (1.0 - abs(N2 * 2.0 - 1.0));
+    return pow(saturate((Tube - 0.75) * 4.0), AlienShape.y * 0.5) * (0.7 + 0.3 * sin(AlienShape.w + N1 * 12.566));
+}
+#endif
 
 void NebulaMedium(float3 P, float T, float3 ExRange, float DetailFade, float LodF,
                   out float Haze, out float Cloud, out float ColourNoise, out float3 Warped,
@@ -389,11 +413,27 @@ void NebulaMedium(float3 P, float T, float3 ExRange, float DetailFade, float Lod
     {
         // Only inside a cloud: the detail lookup that erodes its edges (far away blended
         // toward the detail's mean, so the edges do not shimmer once a texel is under a pixel).
+#if NEBULA_FIBRE
+        // Fibres: the detail noise read with its coordinates squeezed along the local flow (the
+        // warp vector, smooth in space), so its features become long strands that bend with
+        // the swirls; their thin ridges are the bright fibres, clear between them. Erosion is
+        // the fibre strength, wispiness how thin they are.
+        if (DetailFade > 0.0)
+        {
+            float3 Flow = normalize(Warp + float3(1.0e-4, 0.0, 0.0));
+            float3 Q = Warped * DetailNoise.w;
+            Q -= Flow * (dot(Q, Flow) * 0.96); // 25 times longer along the flow
+            float N = tex3Dlod(Noise, float4(Q + DetailNoise.xyz, 0.0)).g;
+            float Ridge = pow(saturate(1.0 - abs(N * 2.0 - 1.0)), 2.0 + Shape.w * 10.0);
+            C *= lerp(1.0, 2.8 * Ridge, Shape.z * DetailFade); // clear between the fibres
+        }
+#else
         float2 Detail = float2(0.5, 0.5);
         if (DetailFade > 0.0)
             Detail = lerp(Detail, tex3Dlod(Noise, float4(Warped * DetailNoise.w + DetailNoise.xyz,
                                                           0.0)).gb, DetailFade);
         C = NebulaErode(C, Detail, Shape.z, Shape.w);
+#endif
         // The clouds fade in over the [Clouds] near_fade_distance range, like retail's puffs.
         float NearFade = saturate((T - ShapeMore.y) * PuffColourB.w);
         if (HazeAlbedo.w > 0.5)
@@ -746,7 +786,10 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
             ShadowSum += ShadowT;
             ShadowCount += 1.0;
             // Ambient occlusion: the cloud one probe step up the zone's axis (dark undersides).
-            float Occlusion = exp(-NebulaBaseCloud(Warped + AoStep.xyz) * Ambient.w);
+            // ao_strength 0 skips the probe (one noise fetch per step).
+            float Occlusion = 1.0;
+            [branch] if (Ambient.w > 0.0)
+                Occlusion = exp(-NebulaBaseCloud(Warped + AoStep.xyz) * Ambient.w);
 
             float3 Key = KeyColour.rgb;
             float KeyTerm = Phase0 * ShadowT + Phase1 * exp(-Tau * Ext1) + Phase2 * exp(-Tau * Ext2);
@@ -773,6 +816,26 @@ float4 PSRaymarch(float2 TexCoord : TEXCOORD0) : COLOR0
             else
                 Light += Transmittance * Alpha * Radiance;
             Transmittance *= 1.0 - Alpha;
+#if NEBULA_VEINS
+            // Veins: two noise ridges (each a sheet) crossed into tubes, read with the coordinates
+            // squeezed along the local flow so they run long and bend with it; pure glow (they do
+            // not absorb), pulsing slowly along their length, only inside the nebula.
+            [branch] if (Medium.w < 0.5 && DetailFade > 0.0)
+            {
+                float4 FlowSample = tex3Dlod(Noise, float4(Warped * WarpNoise.w + WarpNoise.xyz, 0.0));
+                float3 Flow = normalize(FlowSample.rgb - 0.5 + float3(1.0e-4, 0.0, 0.0));
+                // Sparseness: the flow sample's own coarse channel keeps veins only in AlienMore.x of
+                // space (fewer veins, not thinner ones).
+                float Keep = smoothstep(1.0 - AlienMore.x - 0.06, 1.0 - AlienMore.x + 0.06, FlowSample.a);
+                // At the middle of the step, not the jittered sample: neighbouring pixels read the thin
+                // tubes at the same depths, so they do not sparkle.
+                float Vein = NebulaVein(Warped + NebulaToNoise(Dir) * (PrevT - 0.5 * Dt - T), Flow);
+                // Only the nearest few cells: far along the ray thousands of veins would sum into a flat glow.
+                Vein *= Keep * saturate(1.0 - T * AlienShape.x * 0.33);
+                Light += Transmittance * AlienVeins.rgb * (AlienVeins.w * Vein * Dt * 0.01 *
+                         saturate(Haze * 4.0 + Cloud) * DetailFade);
+            }
+#endif
         }
     }
 

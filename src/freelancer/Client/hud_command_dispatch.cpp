@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "flight_telemetry.h"
 #include "hud_command_dispatch.h"
 
 #include "event_handler.h"
@@ -265,6 +266,7 @@ int HudDispatchCommand(unsigned MsgId, int Mode)
 
 int HudPostCommand(unsigned MsgId, int bSkipMods)
 {
+    FlightTelemetry::OriginScope telemetryOrigin(FlightTelemetry::Origin::Synthetic);
     // FUN_005763b0 — listing 005763b0..0057640a → JMP FUN_00576410(msgId, 0).
     if (bSkipMods == 0)
     {

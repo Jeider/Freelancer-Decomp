@@ -3,6 +3,7 @@
 #include "hud_element_list.h"
 #include "wincontrol_base.h"
 #include "radar_motion.h"
+#include "radar_deployment.h"
 
 class HUD_Radar final : public HUDItem, public WinControl
 {
@@ -10,6 +11,7 @@ public:
     explicit HUD_Radar(INI_Reader& reader);
     ~HUD_Radar() override;
     bool MessageAnchor(float& x, float& y) const;
+    bool IsOpen() const;
     bool Init() override;
     void Update() override;
     void Draw() override;
@@ -27,6 +29,11 @@ private:
     float sweepAngle = 0.0f;
     float missileBlinkPhase = 0.0f;
     RadarMotion::State ringMotion;
+    RadarDeployment::State deployment;
+    RadarDeployment::AutoState autoState;
+    unsigned autoMode = 0, autoRevision = ~0u;
+    float autoPoll = 0;
+    void UpdateAutoVisibility(float dt);
     WinControl* zoomButtons[2] = {};
     WinControl* toggleButton = nullptr;
     WinControl* background = nullptr;

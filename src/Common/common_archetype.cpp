@@ -6,6 +6,9 @@
 // Author: Giperion.
 
 #include "common_archetype.h"
+#include "common_gravity.h"
+#include "solar_animation.h"
+#include "common_server_asteroid.h"
 #ifdef FREELANCER_EQUIPMENT_SLOTS
 #include "equipment_slots.h"
 #endif
@@ -313,6 +316,7 @@ namespace Archetype
             { "PLANET", 2 },
             { "SUN", 4 },
             { "ASTEROID", 0x20000000 },
+            { "SERVER_ASTEROID", SERVER_ASTEROID_TYPE },
             { "BLACKHOLE", 8 },
             { "SATELLITE", 0x10 },
             { "DOCKING_RING", 0x20 },
@@ -468,6 +472,7 @@ namespace Archetype
 
     Root::~Root()
     {
+        CmnGravity::ForgetDefinition(this);
 #ifdef FREELANCER_EQUIPMENT_SLOTS
         EquipmentSlots::ResetDefinition(*this);
 #endif
@@ -602,6 +607,7 @@ namespace Archetype
     //   - every other scalar/ID_String/CacheString field: raw copy.
     Root const& Root::operator=(Root const& Other)
     {
+        SolarAnimation::Copy(this, &Other);
 #ifdef FREELANCER_EQUIPMENT_SLOTS
         EquipmentSlots::CopyDefinition(*this, Other);
 #endif

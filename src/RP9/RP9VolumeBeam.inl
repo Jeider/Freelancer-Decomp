@@ -31,13 +31,14 @@ void FDirectX9::ExVolumeBeamPrepare()
 {
     auto* ex = Ex_;
     ex->VolumeBeamEnabled = ReadShadowSetting("beam_volume", 1, 0, 1) > .5f;
-    ex->VolumeBeamNodes = ReadLowerRenderString("beam_volume_nodes", "laser");
+    // Volume beams are opt-in for named special effects, never the common path.
+    ex->VolumeBeamNodes = ReadLowerRenderString("beam_volume_nodes", "");
     ex->VolumeBeamCore = ReadShadowSetting("beam_volume_core", .18f, .03f, .7f);
     ex->VolumeBeamStrength = ReadShadowSetting("beam_volume_strength", 1, 0, 4);
     ex->VolumeBeamTrailNodes = ReadLowerRenderString("beam_volume_trail_nodes", "trail");
     ex->VolumeBeamTrailFade = ReadShadowSetting("beam_volume_trail_fade", 10, 0, 1000);
     D3DCAPS9 caps = {};
-    if (!ex->VolumeBeamEnabled || !Device_ || FAILED(Device_->GetDeviceCaps(&caps)) ||
+    if (!ex->VolumeBeamEnabled || ex->VolumeBeamNodes.empty() || !Device_ || FAILED(Device_->GetDeviceCaps(&caps)) ||
         caps.VertexShaderVersion < D3DVS_VERSION(3, 0) || caps.PixelShaderVersion < D3DPS_VERSION(3, 0)) return;
     if (ex->VolumeBeamVs && ex->VolumeBeamPs) return;
     if (!ExCompileShaderPair("beam_volume.hlsl", &ex->VolumeBeamVs, &ex->VolumeBeamPs, "VSMain", "PSMain"))

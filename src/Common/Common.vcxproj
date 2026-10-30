@@ -68,6 +68,8 @@
     <ClInclude Include="..\include\common_errorhandler.h" />
     <ClInclude Include="..\include\common_dataconfig.h" />
     <ClInclude Include="common_geometry_internal.h" />
+    <ClInclude Include="common_gravity.h" />
+    <ClInclude Include="gravity_field.h" />
     <ClInclude Include="common_cobject_internal.h" />
     <ClInclude Include="common_adoxa.h" />
     <ClInclude Include="common_cequip_internal.h" />
@@ -206,6 +208,9 @@
     <ClCompile Include="common_carchgroup.cpp" />
     <ClCompile Include="common_ceqobj.cpp" />
     <ClCompile Include="common_cship.cpp" />
+    <ClCompile Include="common_gravity.cpp" />
+    <ClCompile Include="solar_animation.cpp" />
+    <ClCompile Include="common_asteroid_avoidance.cpp" />
     <ClCompile Include="common_csolar.cpp" />
     <ClCompile Include="common_cmine.cpp" />
     <ClCompile Include="common_cloot.cpp" />
@@ -313,6 +318,7 @@
     <ClCompile Include="common_flsharp.cpp" />
     <ClCompile Include="common_dbg_outlines.cpp" />
     <ClCompile Include="port_config.cpp" />
+    <ClCompile Include="graphics_settings.cpp" />
     <ClCompile Include="common_file.cpp" />
     <ClCompile Include="common_heap.cpp" />
     <ClCompile Include="common_damagelist.cpp" />

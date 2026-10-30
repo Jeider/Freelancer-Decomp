@@ -6,9 +6,10 @@ namespace RadarSymbols
 {
     constexpr unsigned ShipMask=0x7f0000u, LootMask=0x10000000u, MissileMask=0x1000000u;
     constexpr unsigned SolarMask=0x3u|0x10u|0x20u|0x40u|0x80u|0x100u|0x400u|0x800u|0x1000u|0x2000u|0x8000u;
-    enum class Kind {Triangle,Diamond,Planet,Capital,Transport,Dockable,Platform,TradeLane,Missile};
+    enum class Kind {Triangle,Diamond,Planet,Capital,Transport,Dockable,Platform,TradeLane,Missile,Valuable};
     inline unsigned ContactColor(Kind kind,int attitude)
     {
+        if(kind==Kind::Valuable) return 0x55f293u;
         return attitude<0 ? 0xff4438u : attitude>0 && kind!=Kind::Planet ? 0x55f293u : 0xc1d8deu;
     }
     inline Kind Classify(unsigned type)
@@ -65,6 +66,24 @@ namespace RadarSymbols
     void Emit(RadarProjection::Contact const& p,Kind kind,float physicalRadius,float range,
               RadarProjection::Layout const& layout,unsigned rgb,bool selected,float alpha,float size,DrawLine draw)
     {
+        if(kind==Kind::Valuable)
+        {
+            if(!std::isfinite(size)||size<=0) return;
+            auto clipped=[&](float ax,float ay,float bx,float by,unsigned color,float width) {
+                if(Clip(layout,ax,ay,bx,by)) draw(ax,ay,bx,by,color,width);
+            };
+            unsigned const color=RadarFrame::Color(rgb,alpha);
+            // Overlapping horizontal rows fill the existing diamond silhouette.
+            int const rows=int(std::ceil(size*2.f));
+            for(int i=0;i<=rows;++i)
+            {
+                float const y=-size+2.f*size*float(i)/float(rows);
+                float const half=(std::max)(0.f,size-std::fabs(y));
+                clipped(p.x-half,p.tipY+y,p.x+half,p.tipY+y,color,1.2f);
+            }
+            RadarContacts::Emit(p,rgb,selected,false,alpha,size,clipped);
+            return;
+        }
         if(kind==Kind::Missile)
         {
             if(!std::isfinite(size)||size<=0) return;

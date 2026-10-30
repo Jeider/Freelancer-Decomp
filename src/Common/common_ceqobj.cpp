@@ -6,6 +6,7 @@
 
 // CEqObj (retail CEqObj.cpp) and CEqObj::DockAnimInfo.
 #include "common_cobject.h"
+#include "common_server_asteroid.h"
 #ifdef FREELANCER_EQUIPMENT_SLOTS
 #include "equipment_slots.h"
 #endif
@@ -165,25 +166,9 @@ bool CEqObj::add_equipped_item(EquipDesc const& Desc)
 #ifdef FREELANCER_EQUIPMENT_SLOTS
     bool const ClassedInternal = EquipmentSlots::Enabled() &&
         EquipmentClasses::IsManaged(unsigned(Arch->get_hp_type()));
-    if (EquipmentSlots::Enabled())
-    {
-        EquipDescList Candidate;
-        CEquipTraverser Walk(-1);
-        for (CEquip* Existing = EquipManager.Traverse(Walk); Existing; Existing = EquipManager.Traverse(Walk))
-        {
-            EquipDesc Current;
-            if (Existing->GetEquipDesc(Current)) Candidate.Items.push_back(Current);
-        }
-        Candidate.Items.push_back(Desc);
-        Archetype::Ship const* Hull = Archetype->get_class_type() == Archetype::AClassShip
-            ? static_cast<Archetype::Ship const*>(Archetype) : nullptr;
-        if (!EquipmentSlots::Validate(Hull, Candidate))
-        {
-            FDUMP(0x100001, "Rejected incompatible internal equipment %s on %s",
-                  Arch->Nickname.get_string(), Archetype->Nickname.get_string());
-            return false;
-        }
-    }
+    // Loadouts and save descriptors are authoritative. Class/slot limits belong
+    // to player mount requests, not to creation of already-mounted equipment.
+
 #endif
     // 062a971f..062a9743: virtual alloc_equip (vtable +0x104) with the raw mission byte.
     CEquip* const Equip = alloc_equip(Desc.Id, Arch, Desc.bMission);
@@ -191,7 +176,8 @@ bool CEqObj::add_equipped_item(EquipDesc const& Desc)
         return false;
 
 #ifdef FREELANCER_EQUIPMENT_SLOTS
-    if (ClassedInternal) EquipmentSlots::Bind(Equip, Desc.Hardpoint);
+    if (ClassedInternal || (!Desc.is_internal() && CInternalEquip::cast(Equip)))
+        EquipmentSlots::Bind(Equip, Desc.Hardpoint);
 #endif
 
     // 062a9749..062a9757: FLD Health; FMUL HitPts; FSTP dword -> SetHitPoints (+0x40).
@@ -199,7 +185,11 @@ bool CEqObj::add_equipped_item(EquipDesc const& Desc)
     if (!Desc.is_internal())
     {
         CExternalEquip* const Ext = CExternalEquip::cast(Equip);
-        if (Ext != nullptr)
+        if (Ext != nullptr
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+            && !(ClassedInternal && EquipmentClasses::IsInternal(unsigned(Arch->get_hp_type())))
+#endif
+            )
         {
             Ext->Connect(Desc.Hardpoint);                              // vtable +0x5c
         }
@@ -323,6 +313,8 @@ CEquip* CEqObj::alloc_equip(unsigned short EquipId, Archetype::Equipment* Arch,
         return new CEAttachedFX(this, EquipId, (Archetype::AttachedFXEquip const*)Arch, bMissionFlag);
     case Archetype::AClassInternalFX:
         return new CEInternalFX(this, EquipId, (Archetype::InternalFXEquip const*)Arch, bMissionFlag);
+    case Archetype::AClassGravityDevice:
+        return new CEGravityDevice(this, EquipId, static_cast<Archetype::GravityDevice const*>(Arch), bMissionFlag);
     case Archetype::AClassRepairDroid:
         return new CERepairDroid(this, EquipId, (Archetype::RepairDroid const*)Arch, bMissionFlag);
     case Archetype::AClassCloakingDevice:
@@ -589,6 +581,11 @@ CEqObj::DockAnimInfo::DockAnimInfo()
 
 bool CEqObj::is_targetable() const
 {
+    // Server-owned rocks are physical obstacles, never scanner/HUD targets.
+    // Keep their solar subtype for replication, physics and destruction.
+    if (IsServerAsteroidType(TypeBits))
+        return false;
+
     // .text:06287240: TEST [this+0xa0],1 / JZ false; FLD [this+0x140] / FCOMP 1.0f /
     // FNSTSW / TEST AH,1 / JZ false. C0 is clear only for CloakPercent >= 1.0; less AND
     // unordered (NaN) set C0 -> true.

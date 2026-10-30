@@ -4,6 +4,8 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "server_action_stats.h"
+#include "common_cequip.h"
 #include "../include/common_server.h"
 #include "../include/common_pathfind.h" // PathfindManager (pub::AI::SubmitState)
 #include "../include/common_id.h"
@@ -1280,6 +1282,8 @@ bool __cdecl PlayerData_SerializeToFile(PlayerSlot& Player, char const* FileName
     // routing everything would silently reorder nothing but would stop the line
     // numbers here matching the listing.
     FILE* const Out = Writer.File;                                  // [writer+4], e.g. .text:06d4d026
+    auto const SavedActionCounters = ServerActionStats::Snapshot(Player.client_id);
+    auto const SavedCloakCooldowns = CECloakingDevice::SavedCooldowns(Player.client_id);
 
     // .text:06d4d030 -- fprintf(f, "\n[%s]\n", "Player") (.rdata:06d6b590).
     fprintf(Out, "\n[%s]\n", "Player");
@@ -1893,7 +1897,10 @@ bool __cdecl PlayerData_SerializeToFile(PlayerSlot& Player, char const* FileName
 
     // .text:06d4de9b .. .text:06d4deb1 -- `interface`, "%s = %u\n" from +0x39C.
     // This key was missing from the port entirely.
-    fprintf(Out, "%s = %u\n", "interface", Player.interface_state);
+    fprintf(Out, "%s = %u\n", "interface", Player.interface_state & 0xfu);
+    ServerActionStats::Save(Out, SavedActionCounters);
+    for (auto const& cooldown : SavedCloakCooldowns)
+        if (cooldown.second > 0) fprintf(Out, "cloak_cooldown = %u, %.9g\n", cooldown.first, cooldown.second);
 
     // .text:06d4deb7 -- bare newline.
     fprintf(Out, "\n");
@@ -2062,7 +2069,9 @@ bool __cdecl PlayerData_SerializeToFile(PlayerSlot& Player, char const* FileName
             Record.Voice.Length = static_cast<unsigned>(VoiceLen);         // .text:06d4e6ee
         }
         Server_CopyCostumeCounted(Record.BaseCostume, Player.costume);     // .text:06d4e6f6
-        Record.Interface = Player.interface_state;                         // .text:06d4e74a
+        Record.Interface = Player.interface_state & 0xfu;                         // .text:06d4e74a
+        Record.ActionCounters = SavedActionCounters;
+        Record.CloakCooldowns = SavedCloakCooldowns;
 
         Record.Relations.clear();                                          // .text:06d4e77c
         for (unsigned int I = 0; I < static_cast<unsigned int>(RelationCount); ++I)
@@ -4726,6 +4735,7 @@ SERVER_API int __cdecl SetNumKills(const unsigned int& player_id, int kills) {
     if (!IsValidPlayer(player_id)) return -2;
     PlayerSlot* p = PlayerDB_GetPlayer(player_id);
     if (!p) return -2;
+    ServerActionStats::Add(player_id, PlayerActionStats::Counter::Kills, double(kills) - p->num_kills);
     p->num_kills = kills;
     if (::g_pClientInterface) {
         ::g_pClientInterface->SendServerSetNumKills(p->client_id, kills);
@@ -4751,6 +4761,7 @@ SERVER_API int __cdecl SetNumMissionSuccesses(const unsigned int& player_id, int
     if (!IsValidPlayer(player_id)) return -2;
     PlayerSlot* p = PlayerDB_GetPlayer(player_id);
     if (!p) return -2;
+    ServerActionStats::Add(player_id, PlayerActionStats::Counter::MissionsSucceeded, double(count) - p->num_mission_successes);
     p->num_mission_successes = count;
     if (::g_pClientInterface) {
         ::g_pClientInterface->SendServerSetMissionSuccesses(p->client_id, count);
@@ -4775,6 +4786,7 @@ SERVER_API int __cdecl SetNumMissionFailures(const unsigned int& player_id, int 
     if (!IsValidPlayer(player_id)) return -2;
     PlayerSlot* p = PlayerDB_GetPlayer(player_id);
     if (!p) return -2;
+    ServerActionStats::Add(player_id, PlayerActionStats::Counter::MissionsFailed, double(count) - p->num_mission_failures);
     p->num_mission_failures = count;
     if (::g_pClientInterface) {
         ::g_pClientInterface->SendServerSetMissionFailures(p->client_id, count);

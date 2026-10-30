@@ -1,6 +1,7 @@
 """Warm and verify the installed game's real RP9 surface/shadow cache."""
 from pathlib import Path
 import os
+import re
 import subprocess
 
 REPO = Path(__file__).resolve().parents[2]
@@ -20,6 +21,7 @@ def warm(game):
     subprocess.run(['cmd', '/c', str(build)], cwd=REPO, check=True)
     # No isolated test-cache override: use the same default directory as the game.
     env = dict(os.environ)
+    env.pop('FREELANCER_SHADER_CACHE_DIR', None)
     env['PATH'] = str(game / 'bin') + os.pathsep + env.get('PATH', '')
     command = [str(REPO / 'bin/warm_surface_cache.exe')]
     print('Warming installed shaders in the game cache...', flush=True)
@@ -27,16 +29,17 @@ def warm(game):
     result = subprocess.run(command, cwd=game, env=env, check=True, capture_output=True, text=True)
     print(result.stdout, end='', flush=True)
     lines = [line for line in result.stdout.splitlines() if ' bytes,' in line]
-    expected = 13 if (game / 'DATA_EXTRA/SHADERS/room_material.hlsl').is_file() else 10
-    if (game / 'DATA_EXTRA/SHADERS/room_contact.hlsl').is_file(): expected += 1
-    if (game / 'DATA_EXTRA/SHADERS/room_shadow.hlsl').is_file(): expected += 4
-    if 'SURFACE_GREENHOUSE' in (game / 'DATA_EXTRA/SHADERS/surface_material.hlsl').read_text(): expected += 4
-    if 'SURFACE_SHIP_NORMALS' in (game / 'DATA_EXTRA/SHADERS/surface_material.hlsl').read_text(): expected += 4
-    if 'SURFACE_NOMAD' in (game / 'DATA_EXTRA/SHADERS/surface_material.hlsl').read_text(): expected += 6
-    if (game / 'DATA_EXTRA/SHADERS/code_beam.hlsl').is_file(): expected += 2
+    # The warmer also covers client effects. Its actual job list is authoritative;
+    # a second handwritten count went stale when new shader families were added.
+    summary = re.search(r'^jobs (\d+)$', result.stdout, re.M)
+    if not summary:
+        raise RuntimeError('Cache verification failed: missing shader job count.')
+    expected = int(summary[1])
+    if not expected:
+        raise RuntimeError('Cache verification failed: no shader jobs.')
     if len(lines) != expected or any(' HIT,' not in line for line in lines):
         raise RuntimeError(f'Cache verification failed: expected {expected}/{expected} cache hits on the second pass.')
-    print(f'Verified: all {expected} surface/shadow/room variants loaded from the game cache.', flush=True)
+    print(f'Verified: all {expected} shader jobs loaded from the game cache.', flush=True)
 
 
 if __name__ == '__main__':

@@ -172,13 +172,14 @@ void AssignGameSessionFlags(unsigned Value);
 // FUN_004c8110 itself stays a separate decomp-tracker item (blocked, not this pair's to reclassify).
 bool TestGameSessionFlags(unsigned Mask);
 
-// Port-only: saved in bits 4..5 of the native "interface" word; old saves use Vanilla (0).
+// Global user profile (hud_preferences.ini), shared by all characters. Legacy saves
+// are imported once; these preferences are no longer sent to the server.
 // Values: 0 Vanilla, 1 Fit, 2 Top, 3 Side. Invalid writes are ignored.
 unsigned GetSavedTargetingProjection();
 void SetSavedTargetingProjection(unsigned Projection);
 
-// Bits 6 (autoselect disabled) and 7 (auto-open locked) in the same save word.
-// Legacy/default saves therefore enable autoselect and leave auto-opening unlocked.
+// Bits 6 (autoselect disabled) and 7 (auto-open locked) in the global profile encoding.
+// Default preferences therefore enable autoselect and leave auto-opening unlocked.
 bool GetSavedTargetingAutoselect();
 void SetSavedTargetingAutoselect(bool enabled);
 bool GetSavedTargetingWindowLocked();
@@ -202,6 +203,18 @@ void SetSavedRadarEnabled(bool enabled);
 // Bits 18..19: 0 means use the HUD INI default, 1..3 store range index + 1.
 unsigned GetSavedRadarRange(unsigned defaultRange);
 void SetSavedRadarRange(unsigned range);
+// HUD settings: 0 manual, 1 any radar contact, 2 hostile radar contact.
+unsigned GetSavedRadarAutoMode();
+void SetSavedRadarAutoMode(unsigned mode);
+bool GetSavedAutoTurretsEnabled(bool fallback);
+void SetSavedAutoTurretsEnabled(bool enabled);
+unsigned GetSavedAutoTurretReserve(unsigned fallback);
+void SetSavedAutoTurretReserve(unsigned percent);
 // Temporary USER_MINIMIZE_HUD overlay; does not change saved window choices.
 bool AreAuxiliaryHudWindowsMinimized();
 void ToggleAuxiliaryHudWindowsMinimized();
+
+// Miscellaneous preferences and Health controls.
+bool HudPreferencesSaved();
+bool GetShowWeaponGroups();
+void SetShowWeaponGroups(bool show);

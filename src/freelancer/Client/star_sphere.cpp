@@ -3528,9 +3528,10 @@ void StarSphereDrawNebulaHalo(void* Cam)
     // sun_burnthrough_scaler -- the sun always glowed through. Do the same over the composite,
     // weaker the more nebula lies on the way to the sun but never gone (sun_halo_floor).
     ICamera* const Camera = static_cast<ICamera*>(Cam);
-    // TEMP SUNDIAG: once a second, why the halo is (not) drawn.
+    // Opt-in: avoid synchronous diagnostic writes during ordinary flight.
+    static bool const S_DiagEnabled = PortConfigInt("Diagnostics", "sun_halo_dump", 0) != 0;
     static double S_DiagNext = 0.0;
-    const bool bDiag = GetClientElapsedTime() >= S_DiagNext;
+    const bool bDiag = S_DiagEnabled && GetClientElapsedTime() >= S_DiagNext;
     if (bDiag)
     {
         S_DiagNext = GetClientElapsedTime() + 1.0;
@@ -3566,9 +3567,15 @@ void StarSphereDrawNebulaHalo(void* Cam)
     // only into clear-depth pixels. This lights the background fog without
     // washing out opaque silhouettes or depending on the sun's world distance.
     DALib::MaterialBatcher->FlushAll(1u);
-    int SavedFog = 0, SavedDepth = 0, SavedWrite = 0, SavedFunc = 0;
+    int SavedDepth = 0, SavedWrite = 0, SavedFunc = 0;
+    // Win3DDisable(GL_FOG) clears all seven values; Win3DEnable(GL_FOG)
+    // is unsupported and only emits a warning. Preserve the complete state.
+    D3DRENDERSTATETYPE const FogStates[] = {D3DRS_FOGENABLE, D3DRS_FOGTABLEMODE, D3DRS_FOGVERTEXMODE,
+        D3DRS_FOGCOLOR, D3DRS_FOGSTART, D3DRS_FOGEND, D3DRS_FOGDENSITY};
+    int SavedFog[7] = {};
+    for (unsigned I = 0; I < 7; ++I)
+        DALib::Pipeline->GetRenderState(FogStates[I], &SavedFog[I]);
     float SavedMin = 0.0f, SavedMax = 1.0f;
-    DALib::Pipeline->GetRenderState(D3DRS_FOGENABLE, &SavedFog);
     DALib::Pipeline->GetRenderState(D3DRS_ZENABLE, &SavedDepth);
     DALib::Pipeline->GetRenderState(D3DRS_ZWRITEENABLE, &SavedWrite);
     DALib::Pipeline->GetRenderState(D3DRS_ZFUNC, &SavedFunc);
@@ -3623,7 +3630,8 @@ void StarSphereDrawNebulaHalo(void* Cam)
     Win3DSetDepthWrite(SavedWrite);
     if (SavedDepth) Win3DEnable(kWin3DDepthTest);
     else Win3DDisable(kWin3DDepthTest);
-    if (SavedFog) Win3DEnable(kWin3DFog);
+    for (unsigned I = 0; I < 7; ++I)
+        DALib::Pipeline->SetRenderState(FogStates[I], SavedFog[I]);
 }
 
 void NebulaShipAuraDraw(ICamera* Camera)

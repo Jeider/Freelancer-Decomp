@@ -23,6 +23,7 @@ namespace PlayerAutoTurrets
     Mode GetMode();
     Status GetStatus();
     unsigned ReservePercent();
+    void SetReservePercent(unsigned percent);
     unsigned MemberCount();
     CEGun* Member(unsigned index);
     bool Selected(unsigned index);

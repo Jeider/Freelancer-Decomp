@@ -12,6 +12,7 @@
 // rounds only where it stores to a float. The port evaluates the same expressions in double and
 // rounds at the same stores; the two agree except in the last bits of a double.
 
+#include "hud_tilt.h"
 #include "input_manager.h"
 #include "cockpit_free_look.h"
 #ifdef FREELANCER_WALK_MODE
@@ -1263,10 +1264,12 @@ float GetClientMouseSpeed()
 
 void GetClientSoftwareCursor(int* OutX, int* OutY, int* OutZ)
 {
+    int X = G_CursorX, Y = G_CursorY;
+    HudTilt::MapCursor(X, Y);
     if (OutX != nullptr)
-        *OutX = G_CursorX;
+        *OutX = X;
     if (OutY != nullptr)
-        *OutY = G_CursorY;
+        *OutY = Y;
     if (OutZ != nullptr)
         *OutZ = G_CursorZ;
 }

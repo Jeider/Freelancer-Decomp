@@ -18,6 +18,7 @@
 // 0x6c (FUN_0051b650), HUDCamera 0x64 (FUN_0051cad0), 0x68 (FUN_0051cb70), 0x78 (FUN_0051daa0)
 // and the HUDCamera Event::Handler face (FUN_0051d7f0), then HUDCamera 0x6c (FUN_0051d070).
 
+#include "flight_telemetry.h"
 #include "space_camera_game.h"
 #include "cockpit_free_look.h"
 #include "player_auto_turrets.h"
@@ -30,6 +31,7 @@
 #include "common_reputation.h"  // Reputation::Vibe::GetAffiliation
 #include "common_universe.h"    // Universe::get_system, ISpatialPartition, SpatialFill
 #include "cockpit_load.h"       // SetCockpitResourceStringLoading (FUN_004c7290)
+#include "sensor_detection.h"
 #include "common_cequip.h"      // CEGun, CEquipTraverser
 #include "common_cobject.h"     // CEqObj
 #include "common_iface.h"       // IObjRW
@@ -44,6 +46,8 @@
 #include "menu_keymap_config.h" // (Un)RegisterAcceleratorGroup, KeyMapIsCommandHeld (FUN_005784a0)
 #include "nn_modal.h"          // G_bNnScreenUp (DAT_0067dcc8)
 #include "player_behavior.h"    // ToggleMouseFlightLock, SetPlayerBehaviorDirectionGated
+#include "player_flight_actions.h"
+#include "player_route.h"
 #include "player_spawn.h"       // GetPlayerConnectionId (DAT_00673344)
 #include "space_letterbox.h"
 #include "space_scene_obj_draw.h" // SpaceCameraRenderSlot78 (FUN_0051b250)
@@ -605,6 +609,37 @@ namespace
         // 0x0051cc64..0x0051cc81: its position (slot 0), kept for all three passes.
         const Vector PlayerPos = Player->get_position();
 
+        CObject const* const playerObject = Player->cobject();
+        if (!playerObject || (playerObject->ObjectClass & CObject::ClassShip) != CObject::ClassShip) return;
+        auto const* playerShip = static_cast<CShip const*>(playerObject);
+        auto const* scanner = CEScanner::cast(playerShip->EquipManager.FindFirst(EquipTypeScanner));
+        float const configuredRange = scanner ? scanner->ScannerArch()->GetDiscoveryRange() : -1.f;
+        bool const customDiscovery = configuredRange >= 0;
+        float const discoveryRange = scanner && scanner->IsFunctioning()
+            ? SensorDetection::EffectiveRange(configuredRange,playerShip->get_scanner_interference()) : 0.f;
+
+        // The universe catalogue also covers static objects beyond the server's
+        // replication radius. Do not require a live client object to chart them.
+        if (customDiscovery && discoveryRange > 0)
+        {
+            auto const* system = Universe::get_system(GetPlayerStarSystemIdRetail());
+            Universe::FSystemObject object = {};
+            for (unsigned i=0; system && i<unsigned(system->GetObjectCount()); ++i)
+            {
+                if (!system->GetSystemObject(i,&object) || (object.Visit & 0x81u)) continue;
+                unsigned const id = CreateID(object.Nickname.Data);
+                unsigned char visited = 0;
+                GetPlayerVisitFlagsRetail(id,&visited,0,0);
+                if (visited & 0x81u) continue;
+                // Live objects may have moved or acquired mission visit restrictions.
+                auto const* live = ClientObjDb_FindObject(id,0);
+                auto const* raw = live ? live->cobject() : nullptr;
+                if (raw && (raw->ObjectClass & CObject::ClassSolar) == CObject::ClassSolar) continue;
+                if (SensorDetection::InRange(PlayerPos,object.Pos,discoveryRange))
+                    SetPlayerVisitFlagsRetail(id,static_cast<unsigned char>(object.Visit | visited | 1u),true);
+            }
+        }
+
         // 0x0051cc74..0x0051ccc9: pass 1 -- the object DB's spatial bucket (slot 0xc, mask 0xfdff;
         // the result is used unchecked) filled with everything within 20000 of the player.
         {
@@ -612,13 +647,13 @@ namespace
                 static_cast<ISpatialPartition*>(GetClientObjDb()->GetBucket(0xfdff));
             Geometry::Sphere Query;
             Query.Center = PlayerPos;
-            Query.Radius = kSolarQueryRadius;
+            Query.Radius = customDiscovery ? discoveryRange : kSolarQueryRadius;
             FSpatialQueryResult Result;   // retail: 0x2008 bytes of its 0x4040 stack frame
             Result.Capacity = 0x800;
             Result.Count = 0;
-            if (SpatialFill(Bucket, &Query, &Result) != 0)
+            if (Bucket && (!customDiscovery || discoveryRange > 0) && SpatialFill(Bucket, &Query, &Result) != 0)
             {
-                for (unsigned Index = 0; Index < Result.Count; ++Index)
+                for (unsigned Index = 0; Index < (std::min)(Result.Count, Result.Capacity); ++Index)
                 {
                     // 0x0051cce4..0x0051cd0a: the entry's CObject (slot 0x150) when it is a
                     // solar (mask 0x303), else null -- and GetVisitValue is called either way.
@@ -628,6 +663,7 @@ namespace
                     if (Obj != nullptr &&
                         (static_cast<unsigned>(Obj->ObjectClass) & 0x303u) == 0x303u)
                         Solar = static_cast<CSolar const*>(Obj);
+                    if (!Solar || IsServerAsteroidType(Solar->TypeBits)) continue;
                     const unsigned char Visit = Solar->GetVisitValue();
 
                     // 0x0051cd14: already visited (bit 0) or never to be (bit 7) -- skip.
@@ -654,9 +690,21 @@ namespace
 
                     // 0x0051cd9e..0x0051cdb8: strictly inside -> the object id (CSimple +0xb0)
                     // marked with the visit byte | 1, the server told.
-                    if (Gap < Range)
-                        SetPlayerVisitFlagsRetail(Solar->Id,
-                                                  static_cast<unsigned char>(Visit | 0x01u), true);
+                    bool discovered = Gap < Range;
+                    if (customDiscovery)
+                    {
+                        Range = scanner && scanner->IsFunctioning() ? SensorDetection::EffectiveRange(configuredRange,
+                            (std::max)(playerShip->get_scanner_interference(), Solar->get_scanner_interference())) : 0.f;
+                        discovered = SensorDetection::InRange(PlayerPos,Solar->WorldPosition,float(Range));
+                    }
+                    if (discovered)
+                    {
+                        unsigned char saved = 0;
+                        GetPlayerVisitFlagsRetail(Solar->Id,&saved,0,0);
+                        if (!(saved & 0x81u))
+                            SetPlayerVisitFlagsRetail(Solar->Id,
+                                static_cast<unsigned char>(saved | Visit | 0x01u), true);
+                    }
                 }
             }
         }
@@ -671,13 +719,13 @@ namespace
             {
                 Geometry::Sphere Query;
                 Query.Center = PlayerPos;
-                Query.Radius = kZoneQueryRadius;
+                Query.Radius = customDiscovery ? discoveryRange : kZoneQueryRadius;
                 FSpatialQueryResult Result;
                 Result.Capacity = 0x800;
                 Result.Count = 0;
-                if (SpatialFill(Zones, &Query, &Result) != 0)
+                if ((!customDiscovery || discoveryRange > 0) && SpatialFill(Zones, &Query, &Result) != 0)
                 {
-                    for (unsigned Index = 0; Index < Result.Count; ++Index)
+                    for (unsigned Index = 0; Index < (std::min)(Result.Count, Result.Capacity); ++Index)
                     {
                         // 0x0051ce54..0x0051ce8e: the zone's visit byte (slot 0x80); unless
                         // bit 0 or 7 is set, a player inside the zone grown by 7500 (slot 0x34)
@@ -687,10 +735,13 @@ namespace
                         const unsigned char Visit = Zone->GetVisit();
                         if ((Visit & 0x81u) != 0)
                             continue;
-                        if (!Zone->InZone(PlayerPos, kZoneQueryRadius))
+                        if (!Zone->InZone(PlayerPos, customDiscovery ? discoveryRange : kZoneQueryRadius))
                             continue;
-                        SetPlayerVisitFlagsRetail(Zone->GetId(),
-                                                  static_cast<unsigned char>(Visit | 0x29u), true);
+                        unsigned char saved = 0;
+                        GetPlayerVisitFlagsRetail(Zone->GetId(),&saved,1,0);
+                        if (!(saved & 0x81u))
+                            SetPlayerVisitFlagsRetail(Zone->GetId(),
+                                static_cast<unsigned char>(saved | Visit | 0x29u), true);
                     }
                 }
             }
@@ -1042,9 +1093,13 @@ void HudCameraUpdate(FHudCamera* Cam, float DeltaSeconds)
     bool const KeyboardHandoff = CockpitLook != WasCockpitLook && KeyboardBehavior &&
         KeyboardBehavior->Opaque168[0] != 0 && (Steer.x != 0.f || Steer.y != 0.f || Steer.z != 0.f);
     WasCockpitLook = CockpitLook;
-    if (KeyboardHandoff || !(DiffX * DiffX <= kSendThresholdSq) || !(DiffY * DiffY <= kSendThresholdSq) ||
+    bool const FlightActionHandoff = PlayerFlightActions::Keyboard(Steer.x, Steer.y, Steer.z);
+    bool const RouteHandoff = PlayerRoute::Keyboard(Steer.x, Steer.y, Steer.z);
+    if (RouteHandoff || FlightActionHandoff || KeyboardHandoff || !(DiffX * DiffX <= kSendThresholdSq) || !(DiffY * DiffY <= kSendThresholdSq) ||
         !(DiffZ * DiffZ <= kSendThresholdSq))
     {
+        FlightTelemetry::OriginScope telemetryOrigin(FlightTelemetry::Origin::KeyboardSteering);
+        FlightTelemetry::Steering("keyboard", -Steer.y, -Steer.x, -Steer.z);
         SetPlayerBehaviorDirectionGated(-Steer.y, -Steer.x, -Steer.z);
         LastSent = Steer;
     }

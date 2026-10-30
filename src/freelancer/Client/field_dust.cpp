@@ -2,6 +2,7 @@
 // See field_dust.h and docs/re/asteroid_far_look.md ("Field dust").
 
 #include "field_dust.h"
+#include "runtime_hitch_log.h"
 #include "field_dust_batch.h"
 
 #ifdef FREELANCER_RP9
@@ -626,8 +627,24 @@ void FieldDustShutdown()
     G_Rings.clear();
 }
 
+void FieldDustPrepareSystem()
+{
+    if (!GatesPass(0) || (G_Fields.empty() && PortConfigInt("Render", "field_dust_auto", 0) == 0)) return;
+    RuntimeHitchScope Hitch("preload", "field dust shaders noise and target");
+    auto* Ex = RenderEx::GetPipelineEx();
+    if (!G_bProgramsTried)
+    {
+        G_bProgramsTried = true;
+        Ex->CreateExProgram(RenderEx::GetExtraData(), kShader, "VSMain", "PSMarch", &G_MarchProgram);
+        Ex->CreateExProgram(RenderEx::GetExtraData(), kShader, "VSMain", "PSComposite", &G_CompositeProgram);
+    }
+    SpaceHazeEnsureNoise();
+    EnsureTarget(Ex, (std::max)(0.25f, (std::min)(1.0f, PortConfigFloat("Render", "field_dust_resolution", 0.5f))));
+}
+
 void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
 {
+    RuntimeHitchScope Hitch("render_phase", "field dust");
     if (Cam == nullptr || DALib::Pipeline == nullptr)
         return;
     // Asteroid fields and planetary rings have their own gates: a ring's dust does not depend on the
@@ -883,6 +900,7 @@ void FieldDustDraw(ICamera* Cam, float Near, float Far, int Enclosure)
 void FieldDustParseSection(FCliAsteroid*, INI_Reader&) {}
 void FieldDustForget(FCliAsteroid const*) {}
 void FieldDustDraw(ICamera*, float, float, int) {}
+void FieldDustPrepareSystem() {}
 void FieldDustShutdown() {}
 bool FieldDustRingUpdate(Universe::IZone const*, float, float, float const*) { return false; }
 

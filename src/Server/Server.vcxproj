@@ -71,8 +71,13 @@
     <ClCompile Include="server_chat.cpp" />
     <ClCompile Include="server_gameobject.cpp" />
     <ClCompile Include="server_observer.cpp" />
+    <ClCompile Include="server_asteroid_fields.cpp" />
+    <ClCompile Include="server_solar_animation.cpp" />
     <ClCompile Include="server_createinfo.cpp" />
     <ClCompile Include="server_savegame.cpp" />
+    <ClCompile Include="server_action_stats.cpp" />
+    <ClInclude Include="server_action_stats.h" />
+    <ClInclude Include="..\include\player_action_stats.h" />
     <ClCompile Include="server_savefile.cpp" />
     <ClCompile Include="server_port_console.cpp" />
     <ClCompile Include="server_fuse.cpp" />

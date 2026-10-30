@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "player_spawn.h"
+#include "player_route.h"
 #ifdef FREELANCER_ADOXA
 #include "port_plugins.h" // port-only adoxa patches (DisableLevelCameraToggle)
 #endif
@@ -108,6 +109,7 @@ FPlayerWaypointRecord* GetPlayerWaypointRetail(int Index)
 
 void ResetPlayerWaypointsRetail()
 {
+    PlayerRoute::RouteChanged();
     // FUN_004c46c0: only a positive count is cleared, and then retail tail-jumps
     // (0x004c46d3) to FUN_004f4cd0 = HudWaypointOnPlayerWaypointsCleared (hud_waypoint.h).
     if (G_PlayerWaypointCount > 0)
@@ -119,6 +121,7 @@ void ResetPlayerWaypointsRetail()
 
 void RemovePlayerWaypointRetail(int Index)
 {
+    PlayerRoute::RouteChanged();
     // FUN_004c46e0 (cdecl): Index in [0, count) drops the count by one and, unless it was the
     // last record, moves every later record down one slot.
     if (Index < 0 || Index >= G_PlayerWaypointCount)
@@ -148,6 +151,7 @@ unsigned GetPlayerWaypointTailTagRetail()
 
 void RequestBestPathRetail(Vector const& From, Vector const& To, unsigned Tag, unsigned Field30)
 {
+    PlayerRoute::PathRequested();
     // FUN_004c4eb0 (cdecl): DAT_00673390 = Tag, then the 0x34-byte request on the stack --
     // +0x00 DAT_0061226c, +0x04 2, +0x08 byte 0, +0x0c From, +0x18 0, +0x1c DAT_00673354,
     // +0x20 To, +0x2c 0, +0x30 the fourth argument -- through IServer slot 72 (+0x120,
@@ -206,6 +210,7 @@ void SetMissionOfferSequenceRetail(FGfScriptSequence* Sequence)
 
 bool AddPlayerWaypointRetail(Vector const& Pos, unsigned SystemId, unsigned ObjectId)
 {
+    PlayerRoute::RouteChanged();
     // FUN_004c4780 (cdecl): refused at 0x63 records or once the largest AutoId reaches 0x63;
     // otherwise the record goes to the end with AutoId = largest + 1.
     if (G_PlayerWaypointCount >= kMaxPlayerWaypoints)

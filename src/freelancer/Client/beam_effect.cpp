@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "beam_effect.h"
+#include "cockpit_effect_brightness.h"
 
 #include "effect_base.h"
 #include "effect_type_info.h"
@@ -423,6 +424,17 @@ unsigned char FBeamEffect::BuildGeometry(FSpaceCamera* Cam)
         BeamEffectBuildSingleSegment(This, UseXform, T, Intensity);
     else if (Arch->SegmentMode == 1)
         BeamEffectBuildMultiSegment(This, UseXform, T, Intensity);
+    // Dim final additive RGB, before the animated beam copies these vertices.
+    // Preserve authored widths, lifetime and alpha; no cumulative change to the archetype.
+    float const Brightness = CockpitEffectBrightness::Scale(This, AsCamera(Cam));
+    if (Brightness < 1.0f)
+        for (int i = FirstVertex; i < G_EffectVertexBatch.VertCount; ++i)
+        {
+            auto& vertex = G_EffectVertexBatch.Vertices[i];
+            vertex.R = static_cast<unsigned char>(vertex.R * Brightness + 0.5f);
+            vertex.G = static_cast<unsigned char>(vertex.G * Brightness + 0.5f);
+            vertex.B = static_cast<unsigned char>(vertex.B * Brightness + 0.5f);
+        }
     EffectVertexBatchSetBeamFrame(FirstVertex, *UseXform, static_cast<unsigned>(reinterpret_cast<uintptr_t>(This)));
     return 1;
 }

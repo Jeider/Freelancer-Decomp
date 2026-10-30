@@ -1,78 +1,87 @@
-"""Exercise the production UI selection and live-part highlight without game assets."""
-from pathlib import Path
-import subprocess
-ROOT=Path(__file__).resolve().parents[2]
-OUT=ROOT/'src/obj/targeting_selected_part';OUT.mkdir(parents=True,exist_ok=True)
-def extract(file,signature):
-    text=(ROOT/'src/freelancer/Client'/file).read_text()
-    start=text.index(signature);end=text.index('{',start)+1;depth=1
-    while depth:
-        depth+=(text[end]=='{')-(text[end]=='}');end+=1
-    return text[start:end]
-stub=r'''
-#include <cassert>
-#include <cstdio>
-constexpr unsigned short SUBOBJ_ID_NONE=0;
-namespace SubObjectID {bool IsArchGroupID(unsigned short id){return id>=100;} bool IsEquipID(unsigned short id){return id>0&&id<100;}}
-struct CObject {unsigned ObjectClass=0x503;};
-struct Arch {bool bVulnerable=true;};
-struct CArchGroup {Arch* Arch;int State=1;float HitPts=1;long root=42;long GetRootIndex(){return root;}};
-struct CEqObj;
-struct CEGun {CEqObj* owner=nullptr;bool destroyed=false,connected=true;float health=1;long root=77;
- static CEGun* cast(CEGun*p){return p;} CEqObj* GetOwner(){return owner;} bool IsDestroyed(){return destroyed;}
- float GetHitPoints(){return health;} bool IsConnected(){return connected;} long GetRootIndex(){return root;}};
-template<class T> struct Manager {T* item=nullptr;unsigned short id=0;T* FindByID(unsigned short key){return key==id?item:nullptr;}};
-struct CEqObj:CObject {Manager<CArchGroup> ArchGroups;Manager<CEGun> EquipManager;};
-struct IObjRW {unsigned id=0;unsigned get_id(){return id;}};
-struct Ship {IObjRW* target=nullptr;unsigned short sub=0;IObjRW* get_target(){return target;}unsigned short get_sub_target(){return sub;}};
-Ship testPlayer;IObjRW playerRW;bool hasPlayer=true,autoOn=true,owns=true;
-IObjRW* GetPlayerObjRW(){return hasPlayer?&playerRW:nullptr;}
-Ship* HudShipOfObjRw(IObjRW*p){return p?&testPlayer:nullptr;}
-IObjRW* WatchedObjRw(IObjRW*p){return p;}
-bool VulnerableAutoselectEnabled(){return autoOn;}
-struct HudTarget {IObjRW* ViewObject=nullptr;bool cruiser=true;bool TargetingIsCruiser()const{return cruiser;}unsigned short TargetingSelectedPart()const;};
-bool TargetingOwnsContent(HudTarget const*){return owns;}
-struct HudTargetBase {CObject* viewedObject=nullptr;int PartCache=0;CObject* GetViewCObject(){return viewedObject;}void HighlightSelectedViewPart(unsigned short);};
-long InstanceFromIndex(long root){return root;}
-int calls=0;long drawn=0;bool recurse=false;unsigned colour=0;
-void PartCacheActivatePart(int*,long root,bool r,unsigned c){++calls;drawn=root;recurse=r;colour=c;}
+﻿"""Exercise live world selection and cruiser/gunboat toolbar eligibility."""
+import check_world_input as world
+
+stub = world.stub + r'''
+struct FSpaceCamera:ICamera {};
+ICamera* AsCamera(FSpaceCamera* p){return p;}
+void DrawPartWire(FSpaceCamera*,Hover const& part,WireState& cache){cache.drawn=part;}
+struct HudTarget {IObjRW* ViewObject=nullptr;bool TargetingShowsAutoselect() const;};
+IObjRW* WatchedObjRw(IObjRW* p){return p;}
+CObject* CObjectOfObjRw(IObjRW* p){return p?p->ship:nullptr;}
+bool IsClass(CObject* p,unsigned mask){return (p->ObjectClass&mask)==mask;}
 '''
-checks=r'''
+checks = r'''
 int main(){
- IObjRW a{1},b{2};HudTarget hud;hud.ViewObject=&a;testPlayer.target=&a;testPlayer.sub=101;
- assert(hud.TargetingSelectedPart()==101);
- for(int frame=0;frame<100;++frame)assert(hud.TargetingSelectedPart()==101); // No cursor or flash timer dependency.
- autoOn=false;assert(hud.TargetingSelectedPart()==0);autoOn=true;
- testPlayer.target=&b;assert(hud.TargetingSelectedPart()==0);testPlayer.target=&a;
- testPlayer.sub=102;assert(hud.TargetingSelectedPart()==102);testPlayer.sub=0;assert(hud.TargetingSelectedPart()==0);testPlayer.sub=101;
- hud.cruiser=false;assert(hud.TargetingSelectedPart()==0);hud.cruiser=true;
- owns=false;assert(hud.TargetingSelectedPart()==0);owns=true;
- hasPlayer=false;assert(hud.TargetingSelectedPart()==0);hasPlayer=true;
- testPlayer.target=nullptr;assert(hud.TargetingSelectedPart()==0);testPlayer.target=&a;
- hud.ViewObject=nullptr;assert(hud.TargetingSelectedPart()==0);
- Arch arch;CArchGroup group{&arch};CEqObj object;object.ArchGroups={&group,101};
- HudTargetBase view;view.viewedObject=&object;view.HighlightSelectedViewPart(101);
- assert(calls==1&&drawn==42&&!recurse&&colour==0xffffe060u);
- calls=0;view.HighlightSelectedViewPart(0);view.HighlightSelectedViewPart(102);assert(!calls);
- group.State=0;view.HighlightSelectedViewPart(101);assert(!calls);group.State=1;
- group.HitPts=0;view.HighlightSelectedViewPart(101);assert(!calls);group.HitPts=1;
- group.root=-1;view.HighlightSelectedViewPart(101);assert(!calls);group.root=42;
- arch.bVulnerable=false;view.HighlightSelectedViewPart(101);assert(!calls);arch.bVulnerable=true;
- CEGun gun;gun.owner=&object;object.EquipManager={&gun,5};view.HighlightSelectedViewPart(5);
- assert(calls==1&&drawn==77&&recurse&&colour==0xffffe060u);calls=0;
- gun.destroyed=true;view.HighlightSelectedViewPart(5);assert(!calls);gun.destroyed=false;
- gun.connected=false;view.HighlightSelectedViewPart(5);assert(!calls);gun.connected=true;
- gun.health=0;view.HighlightSelectedViewPart(5);assert(!calls);gun.health=1;
- gun.owner=nullptr;view.HighlightSelectedViewPart(5);assert(!calls);
- view.viewedObject=nullptr;view.HighlightSelectedViewPart(101);assert(!calls);
- puts("PASS: persistent UI selection, toggle/target changes, no player, live group/turret checks and steady highlight");
+    Arch arch;CArchGroup group;group.Arch=&arch;CShip a,b;
+    a.ArchGroups.group=b.ArchGroups.group=&group;
+    IObjRW ar{&a},br{&b};test_playerShip.target=&ar;test_playerShip.selectedSub=0x8002;
+    CEScanner scanner;test_playerShip.EquipManager.scanner=&scanner;
+    FSpaceCamera scene;
+    // Selection survives an empty cursor ray, UI hover and mouse-flight picking lock.
+    for(int frame=0;frame<100;++frame){
+        ui=(frame%2)==0;blocked=(frame%3)==0;
+        VulnerableTargetingDraw(&scene);
+        assert(selectedState.drawn.object==&a&&selectedState.drawn.subId==0x8002);
+    }
+    ui=blocked=false;
+    nextHit.Object=&b;nextHit.Instance=42;nextHit.Point.z=100;
+    VulnerableTargetingDraw(&scene);
+    assert(selectedState.drawn.object==&a&&state.drawn.object==&b);
+    nextHit.Object=&a;VulnerableTargetingDraw(&scene);
+    assert(selectedState.drawn.object==&a&&!state.drawn.object); // Same part drawn once.
+    nextHit.Object=nullptr;
+    for(unsigned type:{0x80000u,0x40000u}) {
+        a.TypeBits=type;contact.attitude=-1;
+        VulnerableTargetingDraw(&scene);assert(selectedState.drawn.object==&a);
+        for(float attitude:{0.f,1.f}) {
+            contact.attitude=attitude;VulnerableTargetingDraw(&scene);assert(!selectedState.drawn.object);
+            assert(test_playerShip.target==&ar&&test_playerShip.selectedSub==0x8002);
+        }
+        contact.attitude=-1;VulnerableTargetingDraw(&scene);assert(selectedState.drawn.object==&a);
+    }
+    test_playerShip.target=&br;VulnerableTargetingDraw(&scene);
+    assert(selectedState.drawn.object==&b);
+    test_playerShip.selectedSub=0;VulnerableTargetingDraw(&scene);assert(!selectedState.drawn.object);
+    test_playerShip.selectedSub=0x8002;
+    for(int kind=0;kind<9;++kind){
+        group.State=1;group.HitPts=100;group.root=42;arch.bVulnerable=true;
+        b.CloakPercent=0;b.center.z=100;b.centerValid=true;test_playerShip.target=&br;activePlayer=&test_player;
+        switch(kind){case 0:group.State=0;break;case 1:group.HitPts=0;break;
+        case 2:group.root=-1;break;case 3:arch.bVulnerable=false;break;
+        case 4:b.CloakPercent=1;break;case 5:b.center.z=3000;break;
+        case 6:b.centerValid=false;break;case 7:test_playerShip.target=nullptr;break;
+        case 8:activePlayer=nullptr;break;}
+        VulnerableTargetingDraw(&scene);assert(!selectedState.drawn.object);
+    }
+    activePlayer=&test_player;test_playerShip.target=&br;
+    GunArchData gunArch;CEGun turret;turret.arch=&gunArch;turret.owner=&b;
+    b.CEqObj::EquipManager.gun=&turret;test_playerShip.selectedSub=18;
+    VulnerableTargetingDraw(&scene);assert(selectedState.drawn.turret==&turret);
+    turret.destroyed=true;VulnerableTargetingDraw(&scene);assert(!selectedState.drawn.object);
+    turret.destroyed=false;turret.connected=false;
+    VulnerableTargetingDraw(&scene);assert(!selectedState.drawn.object);turret.connected=true;
+    for(bool* gate:{&G_bNnScreenUp,&paused,&transition,&letterbox,&loading,&focus}){
+        *gate=true;VulnerableTargetingDraw(&scene);assert(!selectedState.drawn.object);*gate=false;
+    }
+    foreground=false;VulnerableTargetingDraw(&scene);assert(!selectedState.drawn.object);foreground=true;
+    hud=false;VulnerableTargetingDraw(&scene);assert(!selectedState.drawn.object);hud=true;
+    SetVulnerableAutoselect(false);VulnerableTargetingDraw(&scene);assert(!selectedState.drawn.object);
+    assert(test_playerShip.selectedSub==18);
+    SetVulnerableAutoselect(true);VulnerableTargetingDraw(&scene);assert(selectedState.drawn.turret==&turret);
+    VulnerableTargetingReset();assert(!selectedState.drawn.object&&!state.drawn.object);
+    HudTarget panel;assert(!panel.TargetingShowsAutoselect());panel.ViewObject=&ar;
+    for(unsigned type:{0x80000u,0x40000u}){ar.type=type;assert(panel.TargetingShowsAutoselect());}
+    for(unsigned type:{0u,0x10000u,0x100000u,0x200000u}){ar.type=type;assert(!panel.TargetingShowsAutoselect());}
+    ar.type=0x40000u;ar.typeResult=-1;assert(!panel.TargetingShowsAutoselect());ar.typeResult=0;
+    a.ObjectClass=0x303;assert(!panel.TargetingShowsAutoselect());
+    puts("PASS: persistent world selection, separate hover, mouse flight/UI, live target changes, dead/detached parts, scanner, toggle and reset");
+    puts("PASS: cruiser and gunboat toolbar eligibility, invalid/non-ship targets");
 }
 '''
-code=stub+extract('hud_target_panel.cpp','unsigned short HudTarget::TargetingSelectedPart() const')
-code+=extract('hud_target.cpp','void HudTargetBase::HighlightSelectedViewPart(')+checks
-(OUT/'check.cpp').write_text(code)
-build=OUT/'check.cmd'
-build.write_text('@echo off\ncall "C:/Program Files/Microsoft Visual Studio/18/Community/VC/Auxiliary/Build/vcvars32.bat" > nul\n'
- 'if errorlevel 1 exit /b 1\ncl /nologo /EHsc /std:c++17 /W4 /WX check.cpp /Fecheck.exe\n')
-subprocess.run(['cmd','/c',str(build)],cwd=OUT,check=True)
-subprocess.run([str(OUT/'check.exe')],cwd=OUT,check=True)
+production = world.attitude_function + '\n'.join(world.function(s) for s in (
+    'bool Available(', 'bool VulnerableAutoselectEnabled()', 'void SetVulnerableAutoselect(',
+    'bool IsTurret(', 'bool CanAutoselect(', 'Hover ResolvePart(', 'bool InScannerRange(', 'Hover Pick(',
+    'Hover SelectedPart()', 'void VulnerableTargetingDraw(', 'void VulnerableTargetingReset('))
+world.source = (world.repo / 'src/freelancer/Client/hud_target_panel.cpp').read_text()
+production += world.function('bool HudTarget::TargetingShowsAutoselect() const')
+world.compile_check(stub + production + checks, world.repo / 'src/obj/targeting_selected_part')

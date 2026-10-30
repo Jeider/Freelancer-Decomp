@@ -76,10 +76,10 @@ int main()
     {
         Add("nomad VS","#define SURFACE_NOMAD 1\n"+Surface,"VSMain","vs_3_0");
         Add("nomad depth PS","#define SURFACE_NOMAD 1\n#define SURFACE_NOMAD_LIGHT 1\n#define SURFACE_NO_SHADOW 1\n"+Surface,"PSNomadDepth","ps_3_0");
-        for(unsigned L=0;L<2;++L)for(unsigned S=0;S<2;++S)
+        for(unsigned L=0;L<3;++L)for(unsigned S=0;S<2;++S)
         {
-            std::string Name=std::string("nomad PS")+(L?" light":" full")+(S?" no shadow":" shadow");
-            Add(Name.c_str(),std::string("#define SURFACE_NOMAD 1\n")+(L?"#define SURFACE_NOMAD_LIGHT 1\n":"")+
+            std::string Name=std::string("nomad PS")+(L==2?" beast":L?" light":" full")+(S?" no shadow":" shadow");
+            Add(Name.c_str(),std::string("#define SURFACE_NOMAD 1\n")+(L==2?"#define SURFACE_BEAST 1\n":L?"#define SURFACE_NOMAD_LIGHT 1\n":"")+
                 (S?"#define SURFACE_NO_SHADOW 1\n":"")+Surface,"PSMain","ps_3_0");
         }
     }
@@ -119,6 +119,7 @@ int main()
     // The rest of RP9's warm-up: whole-file shaders and the client's CreateExProgram programs.
     struct FPair {const char* File;const char* Vs;const char* Ps;};
     static const FPair Whole[]={
+        {"nomad_energy.hlsl","VSMain","PSMain"},
         {"planet_atmosphere.hlsl","VSMain","PSMain"},{"planet_surface.hlsl","VSMain","PSMain"},
         {"planet_ring.hlsl","VSMain","PSMain"},{"scene_fxaa.hlsl",nullptr,"PSMain"}};
     for(const FPair& P:Whole)
@@ -178,6 +179,7 @@ int main()
         printf("%-30s %s, %zu bytes, %llu ms\n",J.Name.c_str(),J.Hit ? "HIT" : J.Stored ? "stored" : "not stored",
                J.Size,(unsigned long long)J.Ms);
     }
+    printf("jobs %zu\n",Jobs.size());
     printf("total %llu ms\n",(unsigned long long)(GetTickCount64()-Start));
     return Ok ? 0 : 2;
 }

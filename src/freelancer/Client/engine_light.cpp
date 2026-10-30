@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "engine_light.h"
+#include "cockpit_effect_brightness.h"
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h"
 #endif
@@ -167,6 +168,7 @@ namespace
     // always go through EngineLightDestroy).
     void DestructLightBody(FEngineLight* Light)
     {
+        CockpitEffectBrightness::Forget(Light);
 #ifdef FREELANCER_RP9
         G_NebulaSunUploads.erase(Light);
 #endif
@@ -213,6 +215,7 @@ void EngineLightInit(FEngineLight* Light, int LightType)
 
 FEngineLight::FEngineLight(int LightType)
 {
+    CockpitEffectBrightness::Register(this);
     // FUN_00410ca0 (thiscall, RET 4), listing-traced 0x00410ca0..0x00410db4. No null test, and
     // only the fields below are written: +0x04 / +0x08 (the list links) are left as they are.
     // 0x00410cae..0x00410cdd: the 3x3 at +0x74 made identity.
@@ -1106,6 +1109,7 @@ bool EngineLightApplyNearby(FEngineLight* Light, ICamera* Camera, float const* P
         }
 
         // 0x004106ad..0x004106b4: DAT_00610588 as it is (no query here) -- non-zero goes soft.
+        float UploadScale = -1.0f;
 #ifdef FREELANCER_RP9
         // Upload a per-object sun attenuation, then restore the shared CPU descriptor.
         // Always upload factor 1 too, so the next object outside the nebula is not left dim.
@@ -1121,15 +1125,24 @@ bool EngineLightApplyNearby(FEngineLight* Light, ICamera* Camera, float const* P
             else if (Previous != G_NebulaSunUploads.end())
                 G_NebulaSunUploads.erase(Previous);
         }
-        if (SunScale >= 0.0f)
+        UploadScale = SunScale;
+#endif
+        // Submit a scaled copy on every draw, including factor 1 outside the cockpit.
+        // Animation keys, source colours, radius and attenuation remain authored values.
+        if (CockpitEffectBrightness::KindOf(Light) != CockpitEffectBrightness::Kind::None)
+            UploadScale = (UploadScale >= 0.0f ? UploadScale : 1.0f) *
+                CockpitEffectBrightness::Scale(Light, Camera);
+        if (UploadScale >= 0.0f)
         {
-            float SavedDiffuse[3], SavedSpecular[3];
+            float SavedDiffuse[3], SavedSpecular[3], SavedAmbient[3];
             for (int Channel = 0; Channel < 3; ++Channel)
             {
                 SavedDiffuse[Channel] = Light->D3d.Diffuse[Channel];
                 SavedSpecular[Channel] = Light->D3d.Specular[Channel];
-                Light->D3d.Diffuse[Channel] *= SunScale;
-                Light->D3d.Specular[Channel] *= SunScale;
+                SavedAmbient[Channel] = Light->D3d.Ambient[Channel];
+                Light->D3d.Diffuse[Channel] *= UploadScale;
+                Light->D3d.Specular[Channel] *= UploadScale;
+                Light->D3d.Ambient[Channel] *= UploadScale;
             }
             if (G_PipelineLightState != 0)
                 SoftCameraRewriteLight(Light, Camera, Dir);
@@ -1139,10 +1152,10 @@ bool EngineLightApplyNearby(FEngineLight* Light, ICamera* Camera, float const* P
             {
                 Light->D3d.Diffuse[Channel] = SavedDiffuse[Channel];
                 Light->D3d.Specular[Channel] = SavedSpecular[Channel];
+                Light->D3d.Ambient[Channel] = SavedAmbient[Channel];
             }
         }
         else
-#endif
         if (G_PipelineLightState != 0)
             SoftCameraRewriteLight(Light, Camera, Dir);
     }

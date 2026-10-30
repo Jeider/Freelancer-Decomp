@@ -4,6 +4,8 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "hud_tilt.h"
+#include "player_flight_actions.h"
 #include "nn_button_control.h"
 #include "hud_widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
 
@@ -534,6 +536,7 @@ void NnButtonControl::Draw()
     // Port-only: owners that walk their children themselves (HudTargetBase, NN_MainButton)
     // reach this without the Win3D draw walk, so the control sets its own HUD shift.
     FWidescreenHudShiftScope const WidescreenScope(WidescreenHudShiftPixelsFor(this), true);
+    HudTilt::DrawScope const Tilt(this);
 #endif
     // FUN_0055af90.
     GlowArgb = 0;
@@ -834,6 +837,8 @@ void NnButtonControl::ShowToolTip()
     if (Camera && Camera->XScale > 0.0f)
         Info.WorldPos[0] += ShiftPx * -Info.WorldPos[2] / Camera->XScale;
 #endif
+    HudTilt::ProjectTooltip(Info.WorldPos);
+    PlayerFlightActions::Tooltip(this, &Info);
     NnToolTipFeedHover(&Info);
 }
 

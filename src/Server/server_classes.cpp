@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "server_action_stats.h"
 #include "../include/common_server.h"
 #ifdef FREELANCER_EQUIPMENT_SLOTS
 #include "../include/equipment_slots.h"
@@ -32,6 +33,8 @@
 #include "../include/common_reputation.h"
 #include "../include/server_sysdb.h"
 #include "../include/server_gameobject.h" // GameObject's +0x154..+0x160 slots (StarSystem::remove_player/unload)
+#include "../include/common_server_asteroid.h"
+#include "server_asteroid_fields.h"
 #include "../include/common_cobjdb.h"  // IObjDB::GetZoneDb (SrvAsteroid_UpdateSystem, FUN_06d03480)
 #include "../include/DALib.h"          // DALib::Data (SrvAsteroid's GetFileSysPath calls)
 #include "../include/readfile.h"       // IFileSystem::GetFileSysPath (+0x84), create_restart_file
@@ -41,6 +44,7 @@
 #include "../include/server_basedb.h"
 #include "../include/rpc_iclient.h"
 #include "../include/rpc_iclient_args.h" // FServerSetReputationInfo / FPayloadServerActivateObject (add_player MP walk)
+#include "server_solar_animation.h"
 #include "../include/md5hash.h"      // MD5HASH_API: Server exports its implicit members like retail
 #ifdef FREELANCER_FLSHARP
 #include "../include/common_flsharp.h" // port-only FLSharp feature switches
@@ -1341,16 +1345,6 @@ static unsigned short PlayerData_NextEquipId(PlayerSlot& Slot) {
     return Slot.equip_id_maker.CreateEquipID();
 }
 
-#ifdef FREELANCER_EQUIPMENT_SLOTS
-static bool PlayerData_CheckEquipmentSlots(PlayerSlot& Slot, EquipDescList const& Candidate)
-{
-    if (EquipmentSlots::Validate(Archetype::GetShip(Slot.ship_archetype), Candidate)) return true;
-    FDUMP(0x100001, "Rejected incompatible internal equipment for client %u", Slot.client_id);
-    EquipDescVector Current(Slot.equipment);
-    ::g_pClientInterface->SendServerSetEquipment(Slot.client_id, Current);
-    return false;
-}
-#endif
 
 unsigned short __cdecl PlayerData_AddEquipment(PlayerSlot& Slot, unsigned int ArchId,
                                                CacheString const& Hardpoint, int Count,
@@ -1360,19 +1354,7 @@ unsigned short __cdecl PlayerData_AddEquipment(PlayerSlot& Slot, unsigned int Ar
     if (!PlayerData_EquipGateOpen(Slot))
         return SUBOBJ_ID_NONE;
 
-#ifdef FREELANCER_EQUIPMENT_SLOTS
-    if (EquipmentSlots::Enabled())
-    {
-        EquipDescList Candidate(Slot.equipment);
-        EquipDesc Added;
-        Added.set_arch_id(ArchId);
-        Added.set_hardpoint(Hardpoint);
-        Added.set_count(Count);
-        Added.set_equipped(bEquipped);
-        Candidate.Items.push_back(Added);
-        if (!PlayerData_CheckEquipmentSlots(Slot, Candidate)) return SUBOBJ_ID_NONE;
-    }
-#endif
+
     unsigned short EquipId = 0;
     bool bCombine = false;
 
@@ -1487,17 +1469,7 @@ void __cdecl PlayerData_ModifyEquipment(PlayerSlot& Slot, unsigned short Id,
         return;
     }
 
-#ifdef FREELANCER_EQUIPMENT_SLOTS
-    if (EquipmentSlots::Enabled())
-    {
-        EquipDescList Candidate(Slot.equipment);
-        EquipDesc* Changed = Candidate.find_equipment_item(Id);
-        Changed->set_hardpoint(Hardpoint);
-        Changed->set_count(Count);
-        Changed->set_equipped(bEquipped);
-        if (!PlayerData_CheckEquipmentSlots(Slot, Candidate)) return;
-    }
-#endif
+
     // .text:06d4f1ad .. .text:06d4f1d4 -- four setters; no set_arch_id here.
     Item->set_hardpoint(Hardpoint);
     Item->set_count(Count);
@@ -1926,9 +1898,7 @@ void __cdecl PlayerData_LoadEquipment(PlayerSlot& Slot, EquipDescList const& New
     if (!PlayerData_EquipGateOpen(Slot))
         return;
 
-#ifdef FREELANCER_EQUIPMENT_SLOTS
-    if (!PlayerData_CheckEquipmentSlots(Slot, NewList)) return;
-#endif
+
 
     // .text:06d4eee5 .. .text:06d4ef0b -- the slot's list is erased and then
     // assigned from the incoming one.
@@ -2488,6 +2458,8 @@ unsigned char PlayerDB::login(const SLoginInfo& Info, unsigned int SessionId) {
 //      of wave 7. PlayerData gained the counter; see the field note there.
 // ---------------------------------------------------------------------------
 static void PlayerData_Teardown(PlayerData& Slot) {
+    ServerActionStats::Clear(Slot.client_id);
+    CECloakingDevice::LoadCooldowns(Slot.client_id, {});
     PlayerDB& Db = Players;
 
     // (a) the outbound request, .text:06d49236 .. .text:06d4929b. No bounds
@@ -6493,6 +6465,13 @@ void StarSystem::tractor_loot(::Loot* LootObj, EqObj* Ship, unsigned int Space, 
     // .text:06d0ee20 .. 06d0ee43 -- add_cargo (FUN_06d0e8d0) on the ship with
     // the CLoot's bTemporary (+0xfd) as the mission flag.
     unsigned short const SubObjId = add_cargo(Ship, ContentsArchId, Take, Health, Cl->bTemporary);
+    if (SubObjId != SUBOBJ_ID_NONE && Take > 0 && Ship->csimple()) {
+        unsigned const player = Ship->csimple()->OwnerPlayer;
+        if (Players.is_valid_ship_owner(player, Ship->get_id())) {
+            ServerActionStats::Add(player, PlayerActionStats::Counter::LootObjects);
+            ServerActionStats::Add(player, PlayerActionStats::Counter::LootUnits, Take);
+        }
+    }
 
     // .text:06d0ee48 .. 06d0ee80 -- controller event 0x18 through FUN_06d43650,
     // the record at S+0x30. The word at +0x0a is never written.
@@ -6624,7 +6603,10 @@ void StarSystem::use_item(GameObject* Obj, unsigned short EquipId, int Count)
     // ((id - 1) below DAT_06d90264, client_id +0x348 set) and whose ship
     // (+0x3e4) is this object: FUN_06d4f100(slot, EquipId, Count, 0).
     if (OwnerPlayer != 0u && Players.is_valid_ship_owner(OwnerPlayer, ObjId))
+    {
+        ServerActionStats::UsedItem(Players[OwnerPlayer], EquipId, Count);
         PlayerData_RemoveEquipment(Players[OwnerPlayer], EquipId, Count, false);
+    }
 
     // .text:06d0f05c .. 06d0f073 -- USE_ITEM {get_id() again, EquipId, (ushort)Count}.
     FPayloadServerUseItem Rec;
@@ -6973,6 +6955,8 @@ void StarSystem::load()
 
     // .text:06d070eb  MOV byte ptr [EBX + 0xfc],0x1
     bLoaded = 1;
+
+    LoadServerAsteroidFields(*this);
 
     // .text:06d070e8 .. .text:06d07101 -- retail re-reads the system id off
     // SystemInfo (it is the same value) into a stack slot and broadcasts
@@ -7504,6 +7488,18 @@ void StarSystem::add_player(unsigned int SessionId)
     // retail recovers the live element as sentinel->prev->View and keeps it in
     // local_1d0 ([ESP+0x1c]) for every pass below.
     Observer* const View = &Sentinel->Prev->View;
+    // These objects originate on the server even in single player. In MP the
+    // observer owns creation, updates, interest transitions and destruction.
+    for (FSystemListNode* Node = Solars.Head; Node != nullptr; Node = Node->Next)
+    {
+        GameObject* Obj = Node->Data;
+        if (!Obj->is_destroyed() && IsServerAsteroidType(Obj->get_type_bits()))
+        {
+            CSolarCreateInfo Info;
+            CSolarCreateInfo_Fill(&Info, static_cast<CSolar*>(Obj->cobj()));
+            SystemPlayerView_CreateSolarForPlayer(View, &Info, Obj);
+        }
+    }
 
     // .text:06d07eb3  CALL COMMON.DLL::SinglePlayer / TEST AL,AL /
     // .text:06d07ebb JNZ LAB_06d082fa -- the multiplayer-only head is SKIPPED in
@@ -7536,6 +7532,8 @@ void StarSystem::add_player(unsigned int SessionId)
                  SolarNode = SolarNode->Next) {
                 // Retail dereferences node->Data unguarded (.text:06d07f2e).
                 GameObject* const Obj = SolarNode->Data;
+                if (IsServerAsteroidType(Obj->get_type_bits()))
+                    continue; // Already registered with this observer above.
 
                 // .text:06d07f2e .. .text:06d07f54 -- CALL [EAX + 0x150]
                 // (IObjInspect::cobject), then `AND 0x303 / CMP 0x303`. Anything
@@ -7665,6 +7663,8 @@ void StarSystem::add_player(unsigned int SessionId)
             }
         }
     }
+
+    SendSolarAnimations(*this, SessionId);
 
     // .text:06d082fa .. .text:06d08302 -- the SHIP block at +0x34/+0x38. The
     // branch is `TEST AL,AL / JZ LAB_06d08550`, so the JZ (the tracked-list-only
@@ -8117,6 +8117,13 @@ bool SystemPlayerView_ShouldBeVisible(Observer* View, GameObject* Obj)
     float const Dy = ObjPos.y - View->Position.y;
     float const Dz = ObjPos.z - View->Position.z;
     float const DistSq = Dx * Dx + Dy * Dy + Dz * Dz;
+
+    // Distant asteroid formation must reach MP clients before the native 2.5 km
+    // unowned-object threshold, otherwise approaching rocks still pop in nearby.
+    if (IsServerAsteroidType(Obj->get_type_bits()) && Obj->OwnerSystem != nullptr) {
+        float const Radius = ServerAsteroidViewRadius(*Obj->OwnerSystem);
+        if (DistSq <= Radius*Radius) return true;
+    }
 
     // .text:06cf72d3 .. .text:06cf72ee -- the owner is re-read through the
     // same inlined accessor; an object nobody owns gets the tightest radius.
@@ -8700,6 +8707,13 @@ void SystemPlayerView_SendMineExplosion(Observer* View, FMineExplosion* Rec)
 // solar never gets a tracked record. No IClient null test.
 void SystemPlayerView_CreateSolarForPlayer(Observer* View, CSolarCreateInfo* Info, GameObject* Obj)
 {
+    if (IsServerAsteroidType(Obj->get_type_bits()))
+    {
+        if (SinglePlayer())
+            g_pClientInterface->SendServerCreateSolar(View->PlayerId, *Info);
+        SystemPlayerView_AddTrackedObject(View, Obj);
+        return;
+    }
     if (View->bShipGone != 0)
         return;
     if (!SystemPlayerView_ShouldBeVisible(View, Obj) && Info->Field_0xac == 0)
@@ -10241,6 +10255,8 @@ void StarSystem::notify_set_target(unsigned int const& ObjId, unsigned short con
 // The record is XJettisonCargo.
 void StarSystem::notify_jettison(GameObject* Obj, unsigned short EquipId, int Count)
 {
+    if (Obj->csimple() && Players.is_valid_ship_owner(Obj->csimple()->OwnerPlayer, Obj->get_id()))
+        ServerActionStats::Add(Obj->csimple()->OwnerPlayer, PlayerActionStats::Counter::JettisonUnits, Count);
     unsigned int const Owner = Obj->csimple()->OwnerPlayer;
     unsigned int const ObjId = Obj->get_id();
     if (Players.is_valid_ship_owner(Owner, ObjId))
@@ -11225,6 +11241,8 @@ static void StarSystem_DeleteBlock(ObjectList& List)
 
 void StarSystem::unload()
 {
+    UnloadServerAsteroidFields(*this);
+    ForgetSolarAnimations(*this);
     // .text:06d072c7 .. 06d072d7 -- FUN_06d0f390: std::list::erase(begin(),
     // end()) on the player list at +0x08. Per node (.text:06d0f3a2 ..
     // 06d0f3cd): unlink, the view's own destructor through its vtable slot 0

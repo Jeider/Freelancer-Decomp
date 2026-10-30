@@ -1,4 +1,6 @@
 #pragma once
+// Prepare shaders/noise/targets for registered fields before flight.
+void FieldDustPrepareSystem();
 
 class INI_Reader;
 struct FCliAsteroid;

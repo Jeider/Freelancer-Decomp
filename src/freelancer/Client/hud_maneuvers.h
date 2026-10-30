@@ -137,7 +137,7 @@ public:
     int FrameButtonCount;                // +0x3b4 SetFrameButtonCount's last count
     WinControl* Frame;                   // +0x3b8 "ManeuverFrame"
     WinControl* Tab;                     // +0x3bc "ManeuverTab"
-    int bTabMeshReset;                   // +0x3c0 1 once the tab carries CITY_maneuvertab1
+    int bTabMeshReset;                   // +0x3c0 current CITY_maneuvertab variant (1, 2 or 3)
     WinControl* CruiseButton;            // +0x3c4 "ManeuverCruiseButton"
     int Field3c8;                        // +0x3c8 ctor 0x13; not read here
     unsigned char Byte3cc;               // +0x3cc ctor 0; not read here

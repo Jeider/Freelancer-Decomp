@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -107,6 +107,8 @@
     <ClInclude Include="Client\nn_button_control.h" />
     <ClInclude Include="Client\nn_static_control.h" />
     <ClInclude Include="Client\nn_montage_draw.h" />
+    <ClInclude Include="Client\hud_marker_geometry.h" />
+    <ClInclude Include="Client\hud_marker_beta_data.h" />
     <ClInclude Include="Client\nn_text_control.h" />
     <ClInclude Include="Client\wire_controls.h" />
     <ClInclude Include="Client\nn_prompt.h" />
@@ -166,6 +168,8 @@
     <ClInclude Include="Client\ids_strings.h" />
     <ClInclude Include="Client\dealer_equip_stats.h" />
     <ClInclude Include="Client\player_behavior.h" />
+    <ClInclude Include="Client\flight_telemetry.h" />
+    <ClInclude Include="Client\flight_telemetry_recording.h" />
     <ClInclude Include="Client\player_spawn.h" />
     <ClInclude Include="Client\space_env_fx.h" />
     <ClInclude Include="Client\star_sphere.h" />
@@ -191,6 +195,7 @@
     <ClInclude Include="Client\ship_warp_mesh.h" />
     <ClInclude Include="Client\ship_warp_state.h" />
     <ClInclude Include="Client\tradelane_visual.h" />
+    <ClInclude Include="Client\black_hole_visual.h" />
     <ClInclude Include="Client\jumphole_visual.h" />
     <ClInclude Include="Client\jumpgate_visual.h" />
     <ClInclude Include="Client\jumpgate_visual_state.h" />
@@ -298,9 +303,17 @@
     <ClInclude Include="Client\hud_maneuvers.h" />
     <ClInclude Include="Client\hud_waypoint.h" />
     <ClInclude Include="Client\hud_widescreen.h" />
+    <ClInclude Include="Client\hud_tilt.h" />
+    <ClInclude Include="Client\hud_tilt_math.h" />
     <ClInclude Include="Client\hud_radar.h" />
     <ClInclude Include="Client\hud_targeting.h" />
     <ClInclude Include="Client\hud_health.h" />
+    <ClInclude Include="Client\player_flight_actions.h" />
+    <ClInclude Include="Client\player_route.h" />
+    <ClInclude Include="Client\navigation_settings.h" />
+    <ClInclude Include="Client\route_geometry.h" />
+    <ClInclude Include="Client\route_planner.h" />
+    <ClInclude Include="Client\flight_action_math.h" />
     <ClInclude Include="Client\player_auto_turrets.h" />
     <ClInclude Include="Client\player_turret_rules.h" />
     <ClInclude Include="Client\player_turret_hud.h" />
@@ -312,8 +325,10 @@
     <ClInclude Include="Client\radar_ring_geometry.h" />
     <ClInclude Include="Client\radar_contacts.h" />
     <ClInclude Include="Client\radar_motion.h" />
+    <ClInclude Include="Client\radar_deployment.h" />
     <ClInclude Include="Client\cockpit_head_motion.h" />
     <ClInclude Include="Client\cockpit_free_look.h" />
+    <ClInclude Include="Client\cockpit_effect_brightness.h" />
     <ClInclude Include="Client\cockpit_free_look_state.h" />
     <ClInclude Include="Client\jump_effect.h" />
     <ClInclude Include="Client\best_path.h" />
@@ -416,6 +431,11 @@
     <ClCompile Include="Client\login_mgr.cpp" />
     <ClCompile Include="Client\cockpit_load.cpp" />
     <ClCompile Include="Client\player_behavior.cpp" />
+    <ClCompile Include="Client\flight_telemetry.cpp" />
+    <ClCompile Include="Client\player_action_counters.cpp" />
+    <ClInclude Include="Client\player_action_counters.h" />
+    <ClInclude Include="..\include\player_action_stats.h" />
+    <ClCompile Include="Client\flight_telemetry_recording.cpp" />
     <ClCompile Include="Client\player_spawn.cpp" />
     <ClCompile Include="Client\client_objdb.cpp" />
     <ClCompile Include="Client\client_gameobj.cpp" />
@@ -426,12 +446,16 @@
     <ClCompile Include="Client\client_equip_fx.cpp" />
     <ClCompile Include="Client\client_fuse.cpp" />
     <ClCompile Include="Client\tradelane_fx.cpp" />
+    <ClCompile Include="Client\tradelane_ring_anim.cpp" />
+    <ClCompile Include="Client\solar_animation_client.cpp" />
     <ClCompile Include="Client\ship_warp_visual.cpp" />
     <ClCompile Include="Client\engine_heat_visual.cpp" />
     <ClCompile Include="Client\tradelane_visual.cpp" />
+    <ClCompile Include="Client\black_hole_visual.cpp" />
     <ClCompile Include="Client\jumphole_visual.cpp" />
     <ClCompile Include="Client\jumpgate_visual.cpp" />
     <ClCompile Include="Client\effect_base.cpp" />
+    <ClCompile Include="Client\cockpit_effect_brightness.cpp" />
     <ClCompile Include="Client\effect_vertex_batch.cpp" />
     <ClCompile Include="Client\beam_effect.cpp" />
     <ClCompile Include="Client\cli_projectile_fx.cpp" />
@@ -533,9 +557,18 @@
     <ClCompile Include="Client\hud_maneuvers.cpp" />
     <ClCompile Include="Client\hud_waypoint.cpp" />
     <ClCompile Include="Client\hud_widescreen.cpp" />
+    <ClCompile Include="Client\hud_tilt.cpp" />
     <ClCompile Include="Client\hud_radar.cpp" />
+    <ClCompile Include="Client\nn_preferences_misc.cpp" />
+    <ClCompile Include="Client\nn_preferences_graphics.cpp" />
+    <ClCompile Include="Client\nn_dropdown.cpp" />
+    <ClInclude Include="Client\nn_dropdown.h" />
+    <ClCompile Include="Client\navigation_settings.cpp" />
     <ClCompile Include="Client\hud_targeting.cpp" />
     <ClCompile Include="Client\hud_health.cpp" />
+    <ClCompile Include="Client\player_flight_actions.cpp" />
+    <ClCompile Include="Client\player_route.cpp" />
+    <ClCompile Include="Client\route_planner.cpp" />
     <ClCompile Include="Client\player_auto_turrets.cpp" />
     <ClCompile Include="Client\player_turret_hud.cpp" />
     <ClCompile Include="Client\hud_vulnerable.cpp" />

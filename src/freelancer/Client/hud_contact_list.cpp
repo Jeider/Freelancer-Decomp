@@ -41,6 +41,7 @@
 #include "common_archetype.h"
 #include "common_cequip.h"
 #include "common_cobject.h"
+#include "common_server_asteroid.h"
 #include "common_csys.h"             // Acquire3DMathEngine (FUN_005b73e0)
 #include "common_iface.h"
 #include "common_misc.h"             // Geometry::Sphere, SUBOBJ_ID_NONE
@@ -893,6 +894,12 @@ void HUD_ContactList::SelectEntry(int Index)
         return;
     }
     // 0x004d0117..0x004d0163: target the object, unless it is the player.
+    // Reject stale object rows as well as objects excluded during rebuilding.
+    IObjRW* const Contact = Entry.Object();
+    if (Contact != nullptr && !Contact->is_targetable())
+    {
+        return;
+    }
     IObjRW* const Player = static_cast<IObjRW*>(GetPlayerObjRW());
     if (Player != nullptr && Player->get_id() == Entry.Id)
     {
@@ -1001,7 +1008,8 @@ bool HUD_ContactList::OnEvent(unsigned MsgId)
 int HUD_ContactList::ClassifyContact(CSimple const* Object)
 {
     // FUN_004d3fd0.
-    if (Object == nullptr)
+    // Watch-list and current-target fallbacks must not reinsert server rocks.
+    if (Object == nullptr || IsServerAsteroidType(Object->TypeBits))
     {
         return -1;
     }
@@ -1376,7 +1384,8 @@ void HUD_ContactList::RebuildContacts()
                 if (Object != nullptr && IsClass(Object, 0x103u))
                 {
                     EqObj = static_cast<CEqObj const*>(Object);
-                    if (EqObj->CloakPercent >= 1.0f)
+                    // This list enumerates the DB directly, bypassing CEScanner.
+                    if (IsServerAsteroidType(EqObj->TypeBits) || EqObj->CloakPercent >= 1.0f)
                     {
                         continue;
                     }
@@ -1524,7 +1533,8 @@ void HUD_ContactList::RebuildContacts()
                         EqObj = static_cast<CEqObj const*>(Object);
                     }
                     CSimple const* const Simple = AsSimple(Gameobj->cobject());
-                    if (Simple == nullptr)
+                    // The spatial pass also bypasses the scanner's targetability filter.
+                    if (Simple == nullptr || IsServerAsteroidType(Simple->TypeBits))
                     {
                         continue;
                     }

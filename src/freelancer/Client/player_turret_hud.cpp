@@ -19,7 +19,7 @@ namespace
 {
     using namespace PlayerAutoTurrets;
     constexpr unsigned Base = 0x7fee0000;
-    constexpr int Controls = 11; // master, then ten visible weapon slots
+    constexpr int Controls = 11; // Slot zero is reserved; ten visible weapon slots follow.
     HUD_Status* owner = nullptr;
     WinControl* buttons[Controls] = {};
     FButtonMontageTile tiles[Controls] = {};
@@ -36,11 +36,12 @@ namespace
         GetFileSysPath(path, mesh, DALib::Data);
         if (GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES)
             mesh = "interface\\hud\\HUD_targetedobject.3db";
-        for (int i = 0; i < Controls; ++i)
+        for (int i = 1; i < Controls; ++i)
         {
             char name[48]; sprintf_s(name, "PlayerTurretButton%d", i);
-            float const radius = i == 0 ? 0.017f : 0.007f;
-            float const zero[3] = {}, half[3] = {radius, radius, 0};
+            float const radius = 0.014f;
+            // Double the icon while keeping adjacent weapon-row hit areas separate.
+            float const zero[3] = {}, half[3] = {radius, 0.0085f, 0};
             buttons[i] = owner->CreateButtonControl(name, mesh, nullptr, "ui_item_select",
                 nullptr, zero, nullptr, half, 0, 1, 0, 0, Base+i, 0, 0);
             if (!buttons[i]) { Release(host); return false; }
@@ -105,10 +106,8 @@ void Update(HUD_Status* host, float const* attachment, bool visible, float x, fl
 {
     if (!Enabled() || !Bind(host)) return;
     Reconcile();
-    buttons[0]->SetProperty(1, !visible, 0);
-    buttons[0]->SetProperty(0xc, GetMode() != Mode::Manual, 0);
-    std::memcpy(buttons[0]->AttachPosition, attachment, sizeof(buttons[0]->AttachPosition));
-    buttons[0]->SetOffset(x, y, 0);
+    // Master control lives in Miscellaneous preferences; only per-weapon choices remain here.
+    (void)attachment; (void)visible; (void)x; (void)y;
 }
 
 void UpdateRows(HUD_Status* host)
@@ -131,31 +130,28 @@ void UpdateRows(HUD_Status* host)
         auto* gun = Member(unsigned(member));
         rowIds[slot] = gun->GetID();
         // Armed indicator, not a muzzle-flash light: stays on while waiting for an enemy.
-        button->SetProperty(0xc, Owns(gun) && gun->IsFunctioning(), 0);
+        button->SetProperty(0xc, Selected(unsigned(member)), 0);
         auto* anchor = host->WeaponNumberText[slot];
         std::memcpy(button->AttachPosition, anchor->AttachPosition, sizeof(button->AttachPosition));
-        button->SetOffset(anchor->Offset[0] - 0.014f, anchor->Offset[1] - 0.008f, anchor->Offset[2]);
+        // Tuck beside the weapon number, clear of Close; compensate for the mesh's asymmetry.
+        button->SetOffset(anchor->Offset[0] - 0.002f, anchor->Offset[1] - 0.011f, anchor->Offset[2]);
     }
 }
 
 bool Property(HUD_Status const* host, int msg, uintptr_t control)
 {
     if (host != owner || msg != 0x26 || HudIsMousePickBlocked()) return false;
-    for (int i = 0; i < Controls; ++i)
+    for (int i = 1; i < Controls; ++i)
         if (reinterpret_cast<uintptr_t>(buttons[i]) == control)
         {
             if (!(buttons[i]->Flags & kWin3DVisible)) return true;
             Reconcile();
-            if (i == 0) SetMode(GetMode() == Mode::Manual ? Mode::Hostiles : Mode::Manual);
-            else
+            // Ignore stale clicks after scrolling or equipment replacement.
+            int const row = host->WeaponTopRow + i - 1;
+            if (row >= 0 && row < int(host->Weapons.size()) && host->Weapons[row].SubId == rowIds[i-1])
             {
-                int const row = host->WeaponTopRow + i - 1;
-                // Ignore stale clicks after scrolling or equipment replacement.
-                if (row >= 0 && row < int(host->Weapons.size()) && host->Weapons[row].SubId == rowIds[i-1])
-                {
-                    int const member = FindMember(rowIds[i-1]);
-                    if (member >= 0) ToggleMember(unsigned(member));
-                }
+                int const member = FindMember(rowIds[i-1]);
+                if (member >= 0) ToggleMember(unsigned(member));
             }
             return true;
         }

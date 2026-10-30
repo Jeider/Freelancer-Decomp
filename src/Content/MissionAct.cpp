@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "MissionAct.h"
+#include "server_solar_animation.h"
 // The Act_* code is part of retail TU21's object (its static ids ACTIVE/INACTIVE/COMPLETE at
 // 06ec4200-06ec4280 continue TU21's .data run 06fcf018..06fcefb4), so it has no static-id set
 // of its own: TU21's one set (06eb7360-06eb7540) is MissionScript.cpp's ContentStaticIds.h copy.
@@ -84,6 +85,19 @@ Act::~Act()
 void Act::SetTriggerId(unsigned int Id)
 {
     TriggerId = Id;
+}
+
+void ActAnimation::Parse(INI_Reader& r)
+{
+    Object = r.get_value_string(0);
+    Animation = r.get_value_string(1);
+}
+bool ActAnimation::Execute()
+{
+    unsigned id = Mission->GetLabelObjectId(&Object);
+    if (!StartSolarAnimation(id, Animation.Data))
+        FDUMP(0x100002, "Act_Animation: object missing, busy or invalid clip: %s, %s", Object.Data, Animation.Data);
+    return true;
 }
 
 // ---------------------------------------------------------------------------------------

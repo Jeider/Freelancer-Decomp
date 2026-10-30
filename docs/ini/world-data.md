@@ -110,7 +110,7 @@ The position of a block that has no `pos`/`real_pos` is whatever the previous `[
 | `edge_fraction` | float | zone constructor value | `[0]`, clamped into 0.0..1.0 (below 0 gives 0, 1 or more gives 1). | same |
 | `property_flags` | int | 0 | `[0]` OR-ed into the zone's property bit field (repeats accumulate). | same |
 | `property_fog_color` | float r,g,b | zone constructor value | `[0..2]` in 0..255; each divided by 255. | same |
-| `drag_modifier` | float | 1.0 | `[0]`. A value below 1.0 logs an error naming the zone and file and is stored as 1.0. A value above 1.0 also sets property bit `0x80000`. | same |
+| `drag_modifier` | float | 1.0 | `[0]`. A value below 1.0 logs an error naming the zone and file and is stored as 1.0. A value above 1.0 sets property bit `0x80000` and activates the physical zone independently of `interference` and `damage` (port fix). | same |
 | `damage` | float | 0 | `[0]`; a value above 0 sets bit `0x40000`. | same |
 | `interference` | float | 0 | `[0]`; any non-zero value sets bit `0x100000`. | same |
 | `music` | id | none | Whole value, hashed; sets bit `0x400000`. | same |
@@ -123,6 +123,15 @@ The position of a block that has no `pos`/`real_pos` is whatever the previous `[
 
 **`[Music]`**: `space` (whole value, hashed) sets the system's default space music id. Other keys are ignored. If `space` repeats, the last one wins.
 
+Zone drag is a multiplier: `drag_modifier = 2` doubles linear resistance even with
+`interference = 0` and `damage = 0`. A damage/interference-only zone with the default
+modifier `1` adds no drag. Flight damping and manoeuvre force calculations use the
+same zone multiplier; the former manoeuvre calculation added an extra
+immersion-dependent term. Scanner interference still uses its own multiplier and
+immersion. The existing smallest-containing-physical-zone priority remains in
+effect for overlapping zones; effects are not summed across zones. Values below
+1 remain unsupported. Regression check: `python tools/physics/check_zone_drag.py`.
+
 **`[Object]`** (as read during the universe load, `ReadSystemFileObject`). Used to build gate connections and to attach a base to its space object. Other keys are ignored here.
 
 | Key | Type | Default | Meaning / allowed values | Source |
@@ -134,6 +143,14 @@ The position of a block that has no `pos`/`real_pos` is whatever the previous `[
 | `pos` | float x,y,z | -0.1, -0.1, -0.1 | `[0..2]`. | same |
 | `visit` | int | 0 | `[0]`, 8-bit. | same |
 | `goto` | id | none | `[0]` target system nickname; each occurrence records a gate edge (first insertion per nickname wins); one connection record is added to the system for every `[Object]` that contains a `goto`. | same |
+
+Gravity is configured per named `[Object]` in the system file: `gravity = true`
+enables it; `gravity_radius = 20000`, `gravity_reference_radius = 5000`,
+`gravity_acceleration = 60`, `gravity_softening = 650`,
+`gravity_max_acceleration = 300`, `gravity_edge_fraction = 0.2` are the defaults.
+Distances are metres and accelerations m/s^2. Settings belong to the system and
+object, with no `port.ini` dependency. See [black hole physics](../black_hole.md)
+for limits, examples and validation.
 
 **`[Object]` as read for the reputation table** (`LoadOneObjectSection`). The loop stops reading a section as soon as `ids_name`, `nickname` and `group` are all set. A section without `nickname` is skipped.
 
@@ -528,3 +545,37 @@ The dev `[Data]` section also contains keys that Common's dispatcher does **not*
 * [parsers.md](parsers.md): `INI_Reader` grammar and number parsing.
 * [freelancer-ini.md](freelancer-ini.md): the file that holds `[Data]` and `[Error]`.
 * [systems-and-bases.md](systems-and-bases.md), [archetypes-and-equipment.md](archetypes-and-equipment.md), [data-driven-files.md](data-driven-files.md), [saves-and-initial-world.md](saves-and-initial-world.md).
+
+
+### Per-nebula volumetric rendering
+
+System INI `[Nebula]` entries support `volumetric = true|false` (also `1|0`).
+The default is `true`: the normal global rendering settings apply. `false`
+forbids volumetric rendering for this specific nebula instance; styles and
+existing `NebulaOverride` sections cannot re-enable it. The setting belongs to
+the system entry itself and does not create or modify a visual override. Reload
+the system or restart the client after changing it. Other nebula entries remain
+independent even when they reference the same source file.
+
+```ini
+[Nebula]
+file = solar\nebula_mod\sphere_nebula.ini
+zone = Zone_sphere_outter_sphere
+volumetric = false
+```
+
+The active `DATA/UNIVERSE/SPECIAL/SPHERE/sphere.ini` uses this setting. Native
+nebula fog/cloud settings still apply; this switch disables the volumetric
+replacement rather than deleting the nebula or its gameplay zone.
+
+Volumetric rendering also stops for a nebula while the camera is inside one of
+its authored `[Exclusion Zones]`. The complete exclusion list and the original
+zone immersion/shape calculation are used, without the GPU's eight-zone limit.
+Leaving the exclusion restores the volume if permitted. An overlapping nebula
+has its own exclusion list and permission. Excluded/disabled nebulae are removed
+before volume entries, lighting, raymarch and composite passes are scheduled.
+
+Validation: `python tools/nebula_control/check.py` exercises production
+registration, instance permissions, existing style/override precedence and
+exclusion entry/exit. `tools/nebula_control/install.py` stages the client and the
+active Sphere configuration with hash checks and backup/restore support.

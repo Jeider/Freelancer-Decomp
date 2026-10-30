@@ -21,6 +21,7 @@
 // UPDATEOBJECT phase below.
 // ---------------------------------------------------------------------------
 
+#include "server_action_stats.h"
 #include "../include/common_server.h"
 #include "../include/common_server_playerdb.h"
 #include "../include/common_misc.h"       // DamageList / DamageEntry, SUBOBJ_ID_NONE
@@ -32,6 +33,7 @@
 #include "../include/common_archetype.h"
 #include "../include/server_createinfo.h"
 #include "../include/server_gameobject.h"
+#include "../include/common_server_asteroid.h"
 #include "../include/server_sysdb.h"
 #include "../include/rpc_iclient.h"
 #include "../include/rpc_iclient_args.h"
@@ -365,7 +367,13 @@ void SystemPlayerView_Update(Observer* View, double Dt)
         bool const bIsMine = (Raw != nullptr) && (Cls & 0x0fu) == 0x0fu;
         bool const bIsGuided = (Raw != nullptr) && (Cls & 0xa7u) == 0xa7u;
 
-        if (bIsLoot) {
+        if (Obj != nullptr && IsServerAsteroidType(Obj->get_type_bits())) {
+            CSolarCreateInfo Info;
+            CSolarCreateInfo_Fill(&Info, static_cast<CSolar*>(Raw));
+            Info.bMarkedBy = Obj->is_marked_by(PlayerId) ? 1u : 0u;
+            Info.VibeOtherGroupId = Players[PlayerId].rep_vibe;
+            g_pClientInterface->SendServerCreateSolar(PlayerId, Info);
+        } else if (bIsLoot) {
             // .text:06cf5742 .. .text:06cf581c -- CREATELOOT, IClient +0x0c0
             // == SendServerCreateLoot. Two objects: a 0x48-byte LootDesc that FUN_06d07b90
             // fills, and the 0x14-byte request block at S+0x6c that points at
@@ -884,6 +892,7 @@ void __cdecl PlayerData_SetCollisionGroupHealth(PlayerSlot& Slot,
 // ===========================================================================
 void StarSystem_DamageObject(StarSystem* Sys, GameObject* Obj, DamageList* Damage)
 {
+    ServerActionStats::Damaged(static_cast<IObjRW*>(Obj), *Damage);
     // (w4-server-guards) No null test on the system, the object or the damage
     // list: thiscall (06d0b821 spills ECX), 06d0b81c `MOV EAX,[EAX + 0x8]`
     // reads the list and 06d0b830 `MOV EDX,[EBX]` reads Obj's vtable.

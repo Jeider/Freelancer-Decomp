@@ -12,6 +12,7 @@
 #include "render/IRPPlanetSurface.h"
 #include "render/IRPSurfaceShader.h"
 #include "render/NomadSurfacePolicy.h"
+#include "render/NomadEnergyPolicy.h"
 #include "render/RockTextures.h"
 #include "render/RoomMaterialScope.h"
 
@@ -1520,7 +1521,10 @@ GENRESULT FMaterial::ApplyVerifyMatAnim()
             MatAnim->Release();
             MatAnim = nullptr;
         }
-        AnimationLibrary->CreateAnimationInstance(-1, Query, &MatAnim);
+        // The two lair membranes are stationary webs. Keep energy MaterialAnim
+        // playback intact; it drives both the native texture and its organic coat.
+        if(NomadEnergyProfile(InstanceName,TexCount>0 && TexBlocks ? TexBlocks[0].Name : nullptr)!=RPSurfaceLairMembrane)
+            AnimationLibrary->CreateAnimationInstance(-1, Query, &MatAnim);
     }
     Setup();
     Bind(nullptr);
@@ -2472,6 +2476,7 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
             // not classify arbitrary transparent girders or ship glass by colour.
             if(Name && Blended && !_stricmp(Name,"space_girder01_op")) Profile=RPSurfaceGreenhouse;
             if(!Blended && NomadSurfaceProfile(Name)) Profile=NomadSurfaceProfile(Name);
+            if(NomadEnergyProfile(Name,Texture)) Profile=NomadEnergyProfile(Name,Texture);
             // An asteroid / debris diffuse texture, on whatever object uses it (an asteroid, a mining
             // asteroid, the rock of a station): relief normals. Ice, nomad and lair keep their profiles.
             if(Profile==RPSurfaceAuto && !Blended && Texture && RockTextureName(Texture))
@@ -2481,6 +2486,7 @@ GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, uns
                 Lower[Length]=0;
                 Profile=strstr(Lower,"debris") ? RPSurfaceRockDebris : RPSurfaceRock;
             }
+            if(IsDysonSurfaceMaterial(Name,Texture)) Profile=RPSurfaceDyson;
             if(Pipeline && Profile!=RPSurfaceAuto)
             {
                 Pipeline->QueryInterface(Iids::RPSurfaceShader,reinterpret_cast<void**>(&Surface));

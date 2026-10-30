@@ -5,7 +5,10 @@
 // Author: Giperion.
 
 #include "client_gameobj.h"
+#include "solar_animation_client.h"
+#include "cockpit_effect_brightness.h"
 #include "jumphole_visual.h"
+#include "black_hole_visual.h"
 #include "jumpgate_visual.h"
 #ifdef FREELANCER_ADOXA
 #include "port_plugins.h" // port-only adoxa plugins
@@ -25,6 +28,10 @@
 #include "common_ini.h"          // INI_Reader (Solar ReadIni, FUN_005485c0)
 #include "common_newchar.h"      // pub::StateGraph::get_state_graph
 #include "common_server.h"       // IServer (DAT_0067ecd0)
+#include "common_server_asteroid.h"
+#include "server_asteroid_fade.h"
+#include "port_config.h"
+#include "runtime_hitch_log.h"
 #include "common_misc.h"         // SinglePlayer, GetFileSysPath (Common exports)
 #include "dacom.h"               // FDUMP
 #include "common_goods.h"        // FindHardpoint_PS / HardpointInfo
@@ -75,6 +82,7 @@
 #include "star_sys.h"            // StarSysSuppressPlayerCollisions, GetAttitudeClass
 #include "texture_panels.h"      // TexturePanelsCreate / Load (Solar "ring", FUN_005485c0)
 #include "tradelane_fx.h"        // TradeLaneShipGoHandler (the LAB_00546e90 tail)
+#include "tradelane_ring_anim.h"
 #include "vis_effect_arch.h"     // FindEffectArch / EffectArchAddRef / EffectArchRelease
 
 #include <cmath>
@@ -529,6 +537,10 @@ void FClientGameobj::Slot19c(int DestroyType)
     if (DestroyType == 1)
     {
         Flags = static_cast<unsigned char>(Flags | 4u);                        // 0x0053a853
+        unsigned Type = 0;
+        get_type(Type);
+        if (IsServerAsteroidType(Type) && Object != nullptr)
+            Object->enable_collisions_r(false);
         Slot1b0(nullptr);                                                      // 0x0053a861
         return;
     }
@@ -559,6 +571,7 @@ void FClientGameobj::Slot1a0(void const* Contact, void const* B, FClientGameobj*
 
 void FClientGameobj::Slot1a4(void const* A, void const* B, FClientGameobj* Munition)
 {
+    CockpitEffectBrightness::CreationScope brightness(CockpitEffectBrightness::Kind::Weapon);
     // FUN_00539d80 (RET 0xc). A points at the hit point and the surface normal (+0x0c); B is
     // not read.
     (void)B;
@@ -1892,7 +1905,11 @@ FClientSolarGameobj::FClientSolarGameobj()
 
 FClientSolarGameobj::~FClientSolarGameobj()
 {
+    ClientSolarAnimationForget(this);
+    TradeLaneRingAnimForget(this);
+    ServerAsteroidFade::Forget(this);
     JumpHoleVisualForget(this);
+    BlackHoleVisualForget(this);
     JumpGateVisualForget(this);
     // FUN_00547680.
     // 0x005476bf..005476de: the JumpGateEffect at +0x204, when set -- its destructor
@@ -1936,10 +1953,14 @@ void FClientSolarGameobj::Slot170()
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), nullptr);
     DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    if (IsServerAsteroidType(static_cast<CSimple*>(Object)->TypeBits))
+        ServerAsteroidFade::Begin(this);
 }
 
 void FClientSolarGameobj::update(float Dt)
 {
+    ClientSolarAnimationTick(this);
+    ServerAsteroidFade::Tick(this, Dt);
     // FUN_00547880 (RET 4). 0x00547884..0x005478c0: in multiplayer only, the CSolar (0x303,
     // narrowed with no test of the result) runs the dumb CObject::update (vt+0x50).
     if (!SinglePlayer())
@@ -1952,6 +1973,7 @@ void FClientSolarGameobj::update(float Dt)
     if (Field_0x204 != nullptr)
         static_cast<FJumpGateEffect*>(Field_0x204)->Update(Dt);
     JumpHoleVisualTick(this, Dt);
+    BlackHoleVisualTick(this, Dt);
     JumpGateVisualTick(this, Dt);
 
     // 0x005478db..0x005478e8: the star, when there is one, through its slot 2 (+8,
@@ -3054,11 +3076,13 @@ void FClientShipGameobj::update(float Dt)
             SDisableCollide = GetGameOption(kGameOptDisableCollide);
             Ship->enable_collisions_r(SDisableCollide == 0);
         }
-        // TEMP collision diagnostics (remove): every 2 s, the IVP state of the player's ship
-        // and of every ship / solar / asteroid within 3 km.
+        // Expensive hull traversal and synchronous spew are opt-in, never part
+        // of normal flight through a server asteroid population.
+        static bool const SCollisionDump = PortConfigInt("Diagnostics", "collision_dump", 0) != 0;
         static DWORD SLastCollDiag = 0;
-        if (GetTickCount() - SLastCollDiag > 2000)
+        if (SCollisionDump && GetTickCount() - SLastCollDiag > 2000)
         {
+            RuntimeHitchScope Hitch("diagnostic", "collision hull dump");
             SLastCollDiag = GetTickCount();
             auto Dump = [](char const* Tag, CObject* Obj, float Dist) {
                 IVP_Real_Object const* const Body = Obj->BodyPtr;
@@ -4702,6 +4726,7 @@ namespace
     void ProjectileStartConstEffect(FClientProjectileGameobj* Self, ID_String const* Effect,
                                     long EngineIndex, Transform const& Xform)
     {
+        CockpitEffectBrightness::CreationScope brightness(CockpitEffectBrightness::Kind::Weapon);
         if (Effect->IsEmpty())
             return;
         CliCreateEffectOneShot(FindEffectArch(&Effect->Id), Self, EngineIndex,

@@ -132,6 +132,37 @@ CECargoPod const* __cdecl CECargoPod::cast(CEquip const* Equip)
     return cast((CEquip*)Equip);
 }
 
+CEGravityDevice::CEGravityDevice(CEqObj* OwnerObj, unsigned short EquipId,
+    Archetype::GravityDevice const* ArchObj, bool bMissionFlag)
+    : CInternalEquip(EquipTypeGravityDevice, OwnerObj, EquipId, ArchObj, bMissionFlag), HitPts(0)
+{
+}
+
+CEGravityDevice::CEGravityDevice(CEGravityDevice const& Other)
+    : CInternalEquip(Other), HitPts(Other.HitPts)
+{
+}
+
+CEGravityDevice::~CEGravityDevice() { CEquip::Destroy(); }
+float CEGravityDevice::GetHitPoints() const { return HitPts; }
+void CEGravityDevice::SetHitPoints(float Hit)
+{
+    HitPts = Hit;
+    if (!(HitPts > 0)) Activate(false);
+}
+bool CEGravityDevice::Activate(bool On)
+{
+    return CEquip::Activate(On && HitPts > 0 && !IsDestroyed());
+}
+CEGravityDevice* __cdecl CEGravityDevice::cast(CEquip* Equip)
+{
+    return Equip && Equip->GetType() == EquipTypeGravityDevice ? static_cast<CEGravityDevice*>(Equip) : nullptr;
+}
+CEGravityDevice const* __cdecl CEGravityDevice::cast(CEquip const* Equip)
+{
+    return cast(const_cast<CEquip*>(Equip));
+}
+
 CERepairDroid::CERepairDroid(CEqObj* OwnerObj, unsigned short EquipId,
                              Archetype::RepairDroid const* ArchObj, bool bMissionFlag)
     : CInternalEquip(EquipTypeRepairDroid, OwnerObj, EquipId, ArchObj, bMissionFlag)
@@ -159,6 +190,11 @@ CERepairDroid::~CERepairDroid()
     // directly with no preceding ->Destroy() call, so without this the notification and
     // bDestroyed flag would silently never fire for repair-droid equip destroyed this way.
     CEquip::Destroy();
+}
+
+bool CERepairDroid::Activate(bool On)
+{
+    return CEquip::Activate(On && HitPts > 0 && !IsDestroyed());
 }
 
 float CERepairDroid::GetHitPoints() const

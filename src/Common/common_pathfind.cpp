@@ -13,6 +13,7 @@
 // the bodies are unchanged.
 
 #include "common_pathfind.h"
+#include "common_asteroid_avoidance.h"
 #include "common_geometry_internal.h" // ClampPointToBoxSurface, MathTransposeTransformVia3DMathEngine
 #include "common_aisteer.h"
 #include "common_behavior.h"      // GetIfacePositionOrZero
@@ -504,6 +505,13 @@ int PathfindManager::SelectAvoidancePoint(Vector* OutPoint, float* OutScale, int
     }
 
     // 062ddc41-062ddcb5: the avoidance point, unless its contact is the excluded Field_064.
+    if (FindServerAsteroidAvoidance(Ship, Avoidance.PhysSystemId, CachedTargetPosition,
+                                    *OutPoint, *OutScale))
+    {
+        *OutKind = 1;
+        Field_25C = 1;
+        return 0;
+    }
     Vector Point;
     unsigned ObjectId;
     if (Avoidance.GetAvoidPoint(&Point, &ObjectId) && ObjectId != static_cast<unsigned>(Field_064))

@@ -30,6 +30,8 @@ GENRESULT DACOM_API FDirectX9::SetRoomMaterialFrame(unsigned long Enabled)
                 if (!std::isfinite(P.Normal) || !std::isfinite(P.Roughness) || !std::isfinite(P.Specular) || !std::isfinite(P.Skin) ||
                     P.Normal < 0 || P.Normal > 1 || P.Roughness < .16f || P.Roughness > 1 ||
                     P.Specular < 0 || P.Specular > 2 || P.Skin < -1 || P.Skin > 1) continue;
+                P.Normal=Rp9UserGraphics("room_normal_strength",P.Normal);
+                P.Specular=Rp9UserGraphics("room_specular_strength",P.Specular);
                 P.Map = Map; E->RoomProfiles[LowerString(Key)] = P;
             }
             fclose(File);

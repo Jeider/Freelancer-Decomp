@@ -6,6 +6,8 @@
 
 // Port-only: the beta's console. See dbg_console.h.
 
+#include "hud_tilt.h"
+#include "player_action_counters.h"
 #include "dbg_console.h"
 
 #ifdef FREELANCER_DBG_OPTIONS
@@ -26,6 +28,7 @@
 #include "player_behavior.h"   // GetPlayerObjRW
 #include "space_state.h"       // SetPendingJumpSystem (system)
 #include "win3d.h"             // Win3DFindByName
+#include "black_hole_visual.h" // BlackHoleVisualSetDebug (bh)
 
 #include "common_cobject.h"
 #include "common_id.h"
@@ -200,6 +203,19 @@ namespace
         Vector const& Pos = Ship->get_position();
         Printf("pos = %.1f, %.1f, %.1f", static_cast<double>(Pos.x), static_cast<double>(Pos.y),
                static_cast<double>(Pos.z));
+    }
+
+    void CmdActionStats(char const* filter)
+    {
+        PlayerActionStats::State state;
+        if (!PlayerActionCounters::Snapshot(state)) { Printf("* Action counters require a loaded single-player save and updated Server.dll."); return; }
+        Printf("Master of Inertia: %.1f / 1000 s%s", state.Get(PlayerActionStats::Counter::InertiaSeconds),
+            state.Get(PlayerActionStats::Counter::InertiaSeconds) >= 1000 ? " [UNLOCKED]" : "");
+        for (size_t i=0;i<PlayerActionStats::Count;++i) {
+            auto key=static_cast<PlayerActionStats::Counter>(i);
+            auto name=PlayerActionStats::Name(key);
+            if (!*filter || strstr(name,filter)) Printf("%s = %.3f",name,state.Get(key));
+        }
     }
 
     void CmdQuit(char const*)
@@ -530,6 +546,50 @@ namespace
         Printf("* No launch button.");
     }
 
+    void CmdGodmode(char const* Args)
+    {
+        // Port-only: godmode [1|0] -- the player's ship takes no damage (the mission scripts'
+        // invulnerability). Nothing toggles. A new ship (after landing or dying) starts mortal.
+        static bool S_bOn = false;
+        FPortConsoleServerFn const Server = ServerConsole();
+        if (Server == nullptr)
+        {
+            Printf("* Single player only.");
+            return;
+        }
+        bool const bOn = *Args != 0 ? std::atoi(Args) != 0 : !S_bOn;
+        int On = bOn ? 1 : 0;
+        switch (Server(kPortConsoleGodmode, &On))
+        {
+        case kPortConsoleOk:
+            S_bOn = bOn;
+            Printf(bOn ? "Godmode on: the ship takes no damage." : "Godmode off.");
+            break;
+        case kPortConsoleNotInSpace: Printf("* Not in space."); break;
+        default: Printf("* Failed."); break;
+        }
+    }
+
+    void CmdBlackHole(char const* Args)
+    {
+        // Port-only: bh <bits> switches parts of the black hole shader off to find an artefact.
+        int const Mode = std::atoi(Args);
+        BlackHoleVisualSetDebug(Mode);
+        Printf("Black hole debug %d: 1 depth off, 2 one layer, 4 no 2nd bands/smoke, 8 no haze/vortices, 16 no lensed bg.", Mode);
+    }
+
+    void CmdHudTilt(char const* args)
+    {
+        if (args && *args)
+        {
+            float value = 0;
+            char tail = 0;
+            if (sscanf(args, "%f %c", &value, &tail) != 1) { Printf("Usage: hud_tilt <0..50 degrees>"); return; }
+            HudTilt::SetAngle(value);
+        }
+        Printf("HUD tilt: %.1f degrees (0 disables).", HudTilt::Angle());
+    }
+
     void CmdGhost(char const*)
     {
         // console.dll cmdGhost toggled the DISABLE_COLLIDE option (DAT_00679cc4); the player's
@@ -541,6 +601,7 @@ namespace
 
     FCommand const kCommands[] = {
         {"help", "h", "list the commands", &CmdHelp},
+        {"hud_tilt", nullptr, "[0..50] desktop HUD panel angle", &CmdHudTilt},
         {"TimeScale", "ts", "[scale] slow down / speed up the single-player game (1 = normal)", &CmdTimeScale},
         {"time", nullptr, "seconds since the start", &CmdTime},
         {"max_fps", "fps", "[fps] the frame-rate cap", &CmdMaxFps},
@@ -549,6 +610,7 @@ namespace
         {"quiet", "q", "toggle command output", &CmdQuiet},
         {"pos", "p", "[x,y,z] the player's position (with x,y,z: move there)", &CmdPos},
         {"quit", nullptr, "quit the game", &CmdQuit},
+        {"actions", "stats", "[filter] saved action counters and achievements", &CmdActionStats},
         {"save", "s", "[name | 1-9] save the game (in space too)", &CmdSave},
         {"load", "l", "[name | 1-9] load a game saved with save", &CmdLoad},
         {"base", nullptr, "<name> land at a base", &CmdBase},
@@ -556,6 +618,8 @@ namespace
         {"jump", "j", "[forward,right,up | object] move in this system (nothing: to the target)", &CmdJump},
         {"launch", nullptr, "launch from the base", &CmdLaunch},
         {"ghost", nullptr, "toggle the ship's collisions", &CmdGhost},
+        {"bh", nullptr, "<bits> black hole shader parts off (1 depth, 2 layers, 4 bands/smoke, 8 haze, 16 lens bg)", &CmdBlackHole},
+        {"godmode", "god", "[1|0] the ship takes no damage (nothing: toggle)", &CmdGodmode},
     };
 
     void CmdHelp(char const*)

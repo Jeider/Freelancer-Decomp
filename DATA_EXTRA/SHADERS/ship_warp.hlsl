@@ -71,7 +71,15 @@ float4 PSMain(Interp In,float2 Pixel:VPOS):COLOR0
     float Gain=Energy*In.C.r*max(0,State.y)*Soft*LaneTrailEnvelope(In);
     float3 Colour=lerp(float3(.035,.43,1),float3(.38,.88,1),saturate(Energy*.3));
     Colour=lerp(Colour,float3(.50,.85,1),Tint.w*.12);
-    if(Accent.w>.5)
+    if(Accent.w>1.5)
+    {
+        // Black-hole gas: white-hot at the ship, orange, deep red at the tail; orange-white bow shock.
+        float U=In.UV.x;
+        float3 Trail=lerp(float3(1,.92,.75),float3(1,.42,.06),smoothstep(0,.22,U));
+        Trail=lerp(Trail,float3(.45,.04,.01),smoothstep(.2,.95,U));
+        Colour=In.C.g>.5?Trail:lerp(float3(1,.4,.06),float3(1,.9,.7),saturate(Energy*.3));
+    }
+    else if(Accent.w>.5)
     {
         // Match the corridor's hue without multiplying warm/green palettes by blue.
         float Peak=max(Colour.r,max(Colour.g,Colour.b));

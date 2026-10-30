@@ -8,6 +8,7 @@
 #include "jump_effect.h"
 #include "gate_tunnel.h"
 #include "tradelane_visual.h"
+#include "black_hole_visual.h"
 #include "tradelane_visual_style.h"
 #include "space_camera.h"
 #include "player_behavior.h"
@@ -48,6 +49,17 @@ struct FState
     bool Sampled=false;
 };
 std::map<unsigned,FState> G_Ships;
+// Player ship inside a black hole's disc gas: hot trails + bow shock. Separate from the lane/jump
+// states above, which always win while they are active.
+struct FHot
+{
+    FState S;
+    bool Valid=false;
+    float Level=0,Immersion=0,Dist=1e9f;
+    float ToCentre[3]={};
+    FShipWarpPoint Velocity={0,0,0};
+};
+FHot G_Hot;
 std::vector<FShipWarpVertex> G_Vertices;
 struct FDraw {unsigned First,Count,RefractionCount;float Params[20];};
 std::vector<FDraw> G_Draws;
@@ -149,6 +161,44 @@ bool Live(unsigned Id,FState const& S)
     return Ship && Ship==S.Ship && Ship->GetObject() && Ship->get_index()==S.Instance &&
         Ship->GetObject()->PhysicsSystemId==S.System;
 }
+void Tick(FState& S,float Dt);
+void TickHot(float Dt)
+{
+    auto& H=G_Hot;
+    auto* Ship=reinterpret_cast<FClientGameobj*>(GetPlayerObjRW());
+    float Target=0;
+    if(Ship&&Ship->ManagerKind==1&&Ship->GetObject()&&PortConfigInt("Render","black_hole_ship_fx",1))
+    {
+        auto const& P=Ship->get_position();
+        float W[3]={P.x,P.y,P.z},Strength=0;
+        float ToCentre[3]={0,0,0},Dist=1e9f;
+        auto It=G_Ships.find(Ship->get_id());
+        bool Lane=It!=G_Ships.end()&&It->second.Clock.Intensity>0;
+        if(!Lane&&BlackHoleVisualShipImmersion(W,&Strength,ToCentre,&Dist)&&Strength>0)
+        {
+            auto V=Ship->get_velocity();
+            float Speed=std::sqrt(V.x*V.x+V.y*V.y+V.z*V.z);
+            if(std::isfinite(Speed))
+            {
+                H.Velocity={V.x,V.y,V.z};H.Immersion=Strength;H.Dist=Dist;
+                for(int I=0;I<3;++I) H.ToCentre[I]=ToCentre[I];
+                float Factor=(std::max)(.3f,(std::min)(1.5f,Speed/300.f));
+                Target=Strength*Factor*(std::max)(0.f,PortConfigFloat("Render","black_hole_ship_fx_strength",1.f));
+            }
+        }
+    }
+    if(!std::isfinite(Dt)||Dt<=0) return;
+    float Step=Dt*2;
+    H.Level+=(std::max)(-Step,(std::min)(Step,Target-H.Level));
+    if(Target<=0&&H.Level<=0) {H.Valid=false;H.Level=0;return;}
+    if(H.Valid&&!Live(Ship?Ship->get_id():0,H.S)) H.Valid=false;
+    if(!H.Valid)
+    {
+        if(Target<=0||!Ship||!Ready()||!Init(H.S,Ship,0,nullptr)) {H.Level=0;return;}
+        H.Valid=true;
+    }
+    Tick(H.S,Dt);
+}
 void Tick(FState& S,float Dt)
 {
     if(!std::isfinite(Dt)||Dt<=0) return;
@@ -220,6 +270,7 @@ void ShipWarpVisualStopLane(FClientGameobj* Ship)
 void ShipWarpVisualTickLanes(float Dt)
 {
 #ifdef FREELANCER_RP9
+    TickHot(Dt);
     for(auto It=G_Ships.begin();It!=G_Ships.end();) {
         auto& S=It->second;
         if(!Live(It->first,S)) {It=G_Ships.erase(It);continue;}
@@ -260,13 +311,13 @@ void ShipWarpVisualForgetJump(FJumpShipEffect const* Effect)
 void ShipWarpVisualReset()
 {
 #ifdef FREELANCER_RP9
-    G_Ships.clear();G_Vertices.clear();G_Draws.clear();
+    G_Ships.clear();G_Hot=FHot();G_Vertices.clear();G_Draws.clear();
 #endif
 }
 void ShipWarpVisualDraw(FSpaceCamera* Camera,FClientShipGameobj* TunnelShip)
 {
 #ifdef FREELANCER_RP9
-    if(!Camera||G_Ships.empty()||!GetGameOption(kGameOptEffectsGroup)||!GetGameOption(kGameOptParticles)||!Ready()) return;
+    if(!Camera||(G_Ships.empty()&&!G_Hot.Valid)||!GetGameOption(kGameOptEffectsGroup)||!GetGameOption(kGameOptParticles)||!Ready()) return;
     auto* Ex=RenderEx::GetPipelineEx();auto* Pipe=DALib::Pipeline;
     FRPExTexture* Depth=nullptr;unsigned long W=0,H=0;
     if(Ex->GetSceneDepth(&Depth)!=GR_OK||!Depth||Ex->GetExTextureSize(Depth,&W,&H)!=GR_OK||!W||!H) return;
@@ -280,23 +331,26 @@ void ShipWarpVisualDraw(FSpaceCamera* Camera,FClientShipGameobj* TunnelShip)
     auto const* Eye=Camera->GetPosition();
     G_Vertices.clear();G_Draws.clear();
     bool HasRefraction=false;
-    for(auto const& Entry:G_Ships)
+    auto Emit=[&](unsigned Id,FState const& S,bool IsHot)
     {
-        auto const& S=Entry.second;
-        if(!Live(Entry.first,S)||S.Clock.Intensity<=0) continue;
-        if(TunnelShip) {if(S.Ship!=TunnelShip||!S.Jump) continue;}
-        else if(S.Jump && !S.Clock.Stopping) continue;
-        if(S.Ship==GetPlayerObjRW()&&Camera==GetFirstPersonSpaceCamera()) continue;
+        if(!Live(Id,S)||(IsHot?G_Hot.Level:S.Clock.Intensity)<=0) return;
+        if(TunnelShip) {if(S.Ship!=TunnelShip||!S.Jump) return;}
+        else if(S.Jump && !S.Clock.Stopping) return;
+        if(S.Ship==GetPlayerObjRW()&&Camera==GetFirstPersonSpaceCamera()) return;
         auto Pos=Point(S.Ship->get_position());float Centre[3]={};
         for(int R=0;R<3;++R) Centre[R]=View[R*3]*Pos.X+View[R*3+1]*Pos.Y+View[R*3+2]*Pos.Z+View[9+R];
         // Conservative sphere encloses all capped trails, including a turn.
-        if(Camera->ClassifySphere(Centre,S.Radius*10)==1) continue;
-        float Gain=S.Clock.Intensity*Visibility(S,Camera,Centre,TunnelShip!=nullptr);
-        if(Gain<.001f) continue;
+        if(Camera->ClassifySphere(Centre,S.Radius*10)==1) return;
+        float Level=IsHot?(std::min)(G_Hot.Level,1.f):S.Clock.Intensity;
+        float Gain=Level*Visibility(S,Camera,Centre,TunnelShip!=nullptr);
+        if(Gain<.001f) return;
         auto const& Rot=S.Ship->get_orientation();
         FShipWarpPoint Right={Rot.E[0][0],Rot.E[1][0],Rot.E[2][0]},Up={Rot.E[0][1],Rot.E[1][1],Rot.E[2][1]},Back={Rot.E[0][2],Rot.E[1][2],Rot.E[2][2]};
         unsigned First=static_cast<unsigned>(G_Vertices.size());FShipWarpPoint Head;
-        if(Anchor(S.Ship,S.Nose,Head))
+        // In black-hole gas the ship wears the ordinary trade-lane trails; only when they show and
+        // how strongly follow the gas. No nose cap there: outside a lane it drew as a flat white
+        // diamond ahead of the ship.
+        if(!IsHot && Anchor(S.Ship,S.Nose,Head))
             BuildShipWarpNose(G_Vertices,Add(Head,Mul(Back,-(std::max)(2.f,(std::min)(15.f,S.Radius*.12f)))),
                 Right,Up,Back,(std::max)(2.f,(std::min)(14.f,S.Radius*.16f)),S.Clock.Time,2.f);
         unsigned RefractionCount=static_cast<unsigned>(G_Vertices.size())-First;
@@ -307,19 +361,30 @@ void ShipWarpVisualDraw(FSpaceCamera* Camera,FClientShipGameobj* TunnelShip)
                 FShipWarpPoint Path[33];
                 // Build the original full path: the shader crops the lane tail so its
                 // knots, taper and refraction keep their original spatial scale.
-                unsigned Count=T.History.Path(Head,Back,S.Jump?S.Radius*14:0,S.Radius*8,Path);
+                float Longest=S.Radius*8;
+                unsigned Count=T.History.Path(Head,Back,S.Jump?S.Radius*14:0,Longest,Path);
                 BuildShipWarpTrail(G_Vertices,Path,Count,{Eye[0],Eye[1],Eye[2]},
-                    (std::max)(.35f,(std::min)(3.f,S.Radius*.045f))*(S.Jump?1.f:.7f),S.Clock.Time,TrailIndex*.173f);
+                    (std::max)(.35f,(std::min)(3.f,S.Radius*.045f))*(S.Jump?1.f:.7f),
+                    S.Clock.Time,TrailIndex*.173f);
             }
             ++TrailIndex;
         }
         unsigned Count=static_cast<unsigned>(G_Vertices.size())-First;
-        if(!Count) continue;
-        FDraw Draw={First,Count,RefractionCount,{S.Clock.Time,Gain,1.f/W,1.f/H,S.Style.Body[0],S.Style.Body[1],S.Style.Body[2],S.Jump?1.f:0,
+        if(!Count) return;
+        // In black-hole gas the lane look takes a red route palette (the same recolouring a lane's
+        // corridor gives it): deep red body, orange-red highlights.
+        float const HotBody[3]={1.f,.12f,.04f},HotAccent[3]={1.f,.45f,.2f};
+        float const* Body=IsHot?HotBody:S.Style.Body;
+        float const* Accent=IsHot?HotAccent:S.Style.Accent;
+        FDraw Draw={First,Count,RefractionCount,{S.Clock.Time,Gain,1.f/W,1.f/H,Body[0],Body[1],Body[2],S.Jump?1.f:0,
             V[32],V[33],V[34],V[35],(Vp[0]+.5f)/W,(Vp[1]+.5f)/H,(Vp[2]+.5f)/W,(Vp[3]+.5f)/H,
-            S.Style.Accent[0],S.Style.Accent[1],S.Style.Accent[2],S.Style.Enabled}};
+            Accent[0],Accent[1],Accent[2],IsHot?1.f:S.Style.Enabled}};
         G_Draws.push_back(Draw);
-    }
+        static bool Logged=false;
+        if(IsHot&&!Logged) {Logged=true;FDUMP(0x100003,"Black hole ship fx: first draw level=%.2f immersion=%.2f.\n",G_Hot.Level,G_Hot.Immersion);}
+    };
+    for(auto const& Entry:G_Ships) Emit(Entry.first,Entry.second,false);
+    if(!TunnelShip&&G_Hot.Valid&&G_Hot.Level>0) Emit(G_Hot.S.Ship->get_id(),G_Hot.S,true);
     if(G_Draws.empty()) return;
     // Snapshot once for every ship, before emission, and reuse geometry for both passes.
     bool Refract=HasRefraction&&WarpReady()&&G_Capture->CaptureSceneColor(G_SceneCopy)==GR_OK;

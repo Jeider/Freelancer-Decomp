@@ -5,10 +5,11 @@
 // Author: Giperion.
 
 #include "particle_effect.h"
-#ifdef FREELANCER_RP9
-#include "star_sphere.h"
+#include "cockpit_effect_brightness.h"
 #include "render/IAlchemyRenderOpacity.h"
 #include "dacom_iids.h"
+#ifdef FREELANCER_RP9
+#include "star_sphere.h"
 #endif
 
 #include "alchemy_float_forward.h"
@@ -640,6 +641,8 @@ unsigned char FParticleEffect::BuildGeometry(FSpaceCamera* Cam)
     This->Flags7C = static_cast<unsigned char>(This->Flags7C & 0xfeu);
     if (GetGameOption(kGameOptParticles) == 0)
         return 0;
+    float RenderOpacity = CockpitEffectBrightness::Scale(This, AsCamera(Cam));
+    bool OnHull = false;
 #ifdef FREELANCER_RP9
     // Keep simulation running while hidden: do not kill/restart the attached solar ALE.
     // SetIntensity is ALE's outer-time input, not render alpha, so never repurpose it here.
@@ -650,17 +653,16 @@ unsigned char FParticleEffect::BuildGeometry(FSpaceCamera* Cam)
         return 1;
     // Effects on a hardpoint (engines, thrusters, lights) sit on the hull behind them: soft
     // particles would fade them into it, so they keep the retail draw.
-    const bool OnHull=EffectWatchedObject(This)!=nullptr && This->EngineIndex!=-1;
-    IAlchemyRenderOpacity* Opacity=nullptr;
-    if((SolarOpacity<0.999f || OnHull) && DALib::Alchemy)
-        DALib::Alchemy->QueryInterface(Iids::AlchemyRenderOpacity,reinterpret_cast<void**>(&Opacity));
-    if(Opacity) {Opacity->SetRenderOpacity(SolarOpacity);Opacity->SetRenderSoftParticles(OnHull ? 0u : 1u);}
+    OnHull=EffectWatchedObject(This)!=nullptr && This->EngineIndex!=-1;
+    RenderOpacity *= SolarOpacity;
 #endif
+    IAlchemyRenderOpacity* Opacity=nullptr;
+    if((RenderOpacity<0.999f || OnHull) && DALib::Alchemy)
+        DALib::Alchemy->QueryInterface(Iids::AlchemyRenderOpacity,reinterpret_cast<void**>(&Opacity));
+    if(Opacity) {Opacity->SetRenderOpacity(RenderOpacity);Opacity->SetRenderSoftParticles(OnHull ? 0u : 1u);}
     if (This->FxEffect != nullptr)
         This->FxEffect->Slot9(Cam);
-#ifdef FREELANCER_RP9
     if(Opacity) {Opacity->SetRenderOpacity(1.0f);Opacity->SetRenderSoftParticles(1u);Opacity->Release();}
-#endif
     return 1;
 }
 

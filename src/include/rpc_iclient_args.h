@@ -11,6 +11,7 @@
 // its stack and rpclocal.dll's senders read them field by field, so each is declared
 // once, here.
 #pragma once
+#include "solar_animation.h"
 
 #include "common_reputation.h"   // Reputation::Relation
 #include "common_text.h"         // FmtStr
@@ -88,8 +89,9 @@ struct FPayloadServerActivateObject {
     unsigned char bActivate;    // +0x04
     unsigned char Pad_0x05[3];
     unsigned int Field_0x08;    // +0x08  index into CObject::get_activate_state's vector
+    SolarAnimationCommand Animation; // only serialized when bActivate == 2
 };
-static_assert(sizeof(FPayloadServerActivateObject) == 0x0c, "ACTIVATEOBJECT payload 0x0c");
+static_assert(sizeof(FPayloadServerActivateObject) == 0x7c, "ACTIVATEOBJECT optional animation payload");
 
 // ---------------------------------------------------------------------------
 // IClient slot 58 (+0x0e8), ch2 op 0x22 FLPACKET_SERVER_SYSTEM_SWITCH_IN. Registry

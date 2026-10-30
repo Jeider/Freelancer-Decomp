@@ -27,6 +27,8 @@
 #include "nn_ui_pulse.h"
 #include "perf_options.h"
 #include "player_behavior.h"
+#include "player_flight_actions.h"
+#include "player_route.h"
 #include "player_spawn.h"
 #include "space_camera.h"
 #include "space_letterbox.h"
@@ -252,6 +254,7 @@ HUD_Maneuvers::HUD_Maneuvers(INI_Reader& Reader)
 
 HUD_Maneuvers::~HUD_Maneuvers()
 {
+    PlayerFlightActions::Release(this);
     CockpitFreeLook::ReleaseHud(this);
     // FUN_004d7a70: DAT_00674a58 = 0, then the +0x390 watcher (set_pointer(0) when watching),
     // the vector freed, Event::Handler FUN_00576010, ~WinControl FUN_0059fa50 and HUDItem's
@@ -301,6 +304,8 @@ bool HUD_Maneuvers::Create(Win3D* NewParent, void* Data)
                                        nullptr, "ui_select_item", nullptr, CruisePos, nullptr,
                                        ButtonHalf, 0, 1, 0, 0, 0xbf9, 0, 0x45);
     CruiseButton->SetProperty(1, 1, 0);
+
+    PlayerFlightActions::CreateButtons(this);
 
     // 0x004d7e08..0x004d7ef2: FUN_005760d0 on the handler at +0x364, in this order.
     unsigned const Commands[0x18] = {
@@ -411,7 +416,9 @@ bool HUD_Maneuvers::OnEvent(unsigned MsgId)
         return true;
 
     case 0x45:
-        SetPlayerCruise(!GetPlayerEngineCruiseActive());
+        // Cruise during a sine weave means resume ordinary cruise flight.
+        // Do not toggle an already-running engine off while cancelling the weave.
+        SetPlayerCruise(PlayerFlightActions::IsGotoWeaving() || !GetPlayerEngineCruiseActive());
         return true;
 
     case 0x0f:
@@ -419,6 +426,7 @@ bool HUD_Maneuvers::OnEvent(unsigned MsgId)
         // 0x004d81d9: USER_CANCEL.
         if (NnMainButtonHasActivePanel())
             return false;
+        PlayerFlightActions::Cancel();
         if (!HudStatusIsRearView() && HudStatusIsTurretView())
         {
             HudPostCommand(0xbf, 0);
@@ -486,6 +494,7 @@ bool HUD_Maneuvers::OnEvent(unsigned MsgId)
 #endif
         // 0x004d8354: the mouse wheel steps the throttle by 0.2 (DAT_005d8298).
         int const Wheel = GetClientMouseWheel();
+        if (Wheel != 0) PlayerFlightActions::Cancel();
         if (Wheel < 0)
         {
             double const Lower = static_cast<double>(GetLastPlayerThrottle()) -
@@ -569,6 +578,9 @@ void HUD_Maneuvers::UpdateInactive()
     // 0x004d8597..0x004d85b4: LAB_004682f0 inlined.
     CockpitFreeLook::UpdateHud(this);
     Win3D::UpdateInactive();
+    CShip* const Ship = PlayerShip(static_cast<IObjRW*>(GetPlayerObjRW()));
+    IBehaviorManager* const Behavior = Ship ? Ship->get_behavior_interface() : nullptr;
+    UpdateTabAndCruise(Behavior ? Behavior->CurrentBehaviorIndex : -1);
 }
 
 void HUD_Maneuvers::Update()
@@ -577,6 +589,7 @@ void HUD_Maneuvers::Update()
     // 0x004d85c4: TEST AH,0x44 / JNP -- skipped only when the rate compares equal to 0.
     if (!(ThrottleRate == 0.0f))
     {
+        PlayerFlightActions::Cancel();
         float const Last = GetLastPlayerThrottle();
         double const Sum =
             GetClientFrameTimeCapped() * static_cast<double>(ThrottleRate) + static_cast<double>(Last);
@@ -649,6 +662,7 @@ bool HUD_Maneuvers::HitTest(float const* Ray)
 
 intptr_t HUD_Maneuvers::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 {
+    if (Msg == 0x26 && PlayerFlightActions::Click(static_cast<unsigned long>(A))) return 0;
     // LAB_004d8da0 (this = the WinControl face). Only 0x26 is handled; nothing is forwarded to
     // WinControl.
     (void)B;
@@ -777,6 +791,8 @@ void HUD_Maneuvers::UpdateButtons()
 
 void HUD_Maneuvers::UpdateTabAndCruise(int BehaviorId)
 {
+    // Hide action buttons even when retail returns before laying out Cruise.
+    if (BehaviorId != 0x13 && BehaviorId != 2) PlayerFlightActions::Layout(this, BehaviorId);
     // FUN_004d8bf0.
     if (BehaviorId != 0x13 && BehaviorId != 2 && BehaviorId != 3 && BehaviorId != 5 &&
         BehaviorId != 7)
@@ -798,15 +814,20 @@ void HUD_Maneuvers::UpdateTabAndCruise(int BehaviorId)
         Anchor = Buttons[2];
     Anchor->SetProperty(7, reinterpret_cast<uintptr_t>(Offset), 0);
 
-    if (bTabMeshReset != 1)
+    int const TabVariant = PlayerFlightActions::HasButtons() ? (BehaviorId == 0x13 ? 3 : BehaviorId == 2 ? 2 : 1) : 1;
+    if (bTabMeshReset != TabVariant)
     {
-        bTabMeshReset = 1;
-        Tab->SetProperty(4, reinterpret_cast<uintptr_t>(kTabMesh), 0);
+        bTabMeshReset = TabVariant;
+        char const* const Mesh = TabVariant == 3 ? "Interface\\Baseside\\CITY_maneuvertab3.cmp" :
+            TabVariant == 2 ? "Interface\\Baseside\\CITY_maneuvertab2.cmp" : kTabMesh;
+        Tab->SetProperty(4, reinterpret_cast<uintptr_t>(Mesh), 0);
         WinControlHalfExtentsFromMesh(TabHalfExtents, &Tab->MeshHolder);
     }
 
     // 0x004d8cd4..0x004d8cff
     Offset[0] = Offset[0] + Offset[0];
+    if (TabVariant == 3) Offset[0] += 0.048f;
+    else if (TabVariant == 2) Offset[0] += 0.016f;
     Offset[1] = 0.294f;                          // 0x3e966cf5
     Offset[2] = -1.0f;
     Tab->SetProperty(6, reinterpret_cast<uintptr_t>(Offset), 0);
@@ -821,10 +842,13 @@ void HUD_Maneuvers::UpdateTabAndCruise(int BehaviorId)
     Offset[2] = 0.0f;
     CruiseButton->SetProperty(6, reinterpret_cast<uintptr_t>(Offset), 0);
     CruiseButton->SetProperty(0xc, GetPlayerEngineCruiseActive() ? 1u : 0u, 0);
+    if (BehaviorId == 0x13 || BehaviorId == 2) PlayerFlightActions::Layout(this, BehaviorId);
 }
 
 bool HUD_Maneuvers::RequestManeuver(int BehaviorId, bool bFlag)
 {
+    PlayerRoute::Cancel();
+    PlayerFlightActions::Cancel();
     // FUN_004d8e20.
     IObjRW* const Player = static_cast<IObjRW*>(GetPlayerObjRW());
     if (Player == nullptr)
@@ -1049,6 +1073,7 @@ void HUD_Maneuvers::ActivateManeuver(FHudManeuver* Maneuver)
     IBehaviorManager* const Behavior = PlayerShip(Player)->get_behavior_interface();
     int const Current = Behavior->CurrentBehaviorIndex;
     int const Id = Maneuver->BehaviorId;
+    if (Id == 2 && PlayerRoute::Start(this)) return;
     if (Current == Id)
     {
         // 0x004d950a: the running maneuver again -- re-sent unless it is none / free flight.

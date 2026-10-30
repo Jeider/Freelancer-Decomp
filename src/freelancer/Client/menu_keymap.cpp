@@ -4,8 +4,10 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "flight_telemetry.h"
 #include "menu_keymap_config.h"
 #include "player_auto_turrets.h"
+#include "player_flight_actions.h"
 #include "player_behavior.h"
 #include "space_letterbox.h"
 #include "nn_modal.h"
@@ -43,8 +45,11 @@ namespace
 {
     // Retail PTR_s_USER_NONE_00614dd8 — 0xcc entries (listing .data:00614dd8..00615104).
     unsigned const kKeyCmdNicknameCount = 0xCCu
-#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+#if defined(FREELANCER_PLAYER_AUTO_TURRETS) || defined(FREELANCER_PLAYER_FLIGHT_ACTIONS)
         + 4
+#endif
+#ifdef FREELANCER_PLAYER_FLIGHT_ACTIONS
+        + PlayerFlightActions::CommandCount
 #endif
         ;
 
@@ -257,6 +262,18 @@ namespace
     // FUN_00576410 — real body in hud_command_dispatch.cpp (KeyMap handler tree).
     bool DispatchKeyCommand(unsigned NicknameId, int EventKind)
     {
+        FlightTelemetry::OriginScope telemetryOrigin(FlightTelemetry::Origin::MappedInput);
+        auto const* telemetryRecord = HudCommandRecord();
+        FlightTelemetry::Input(NicknameId, EventKind, telemetryRecord->Byte18 != 0,
+            telemetryRecord->Byte19 != 0, telemetryRecord->Modifiers);
+#ifdef FREELANCER_PLAYER_FLIGHT_ACTIONS
+        if (PlayerFlightActions::IsCommand(NicknameId) && PlayerFlightActions::Enabled())
+        {
+            if (!telemetryRecord->Byte18 || telemetryRecord->Byte19) return true;
+            if (HudGetInputFocus() || G_bNnScreenUp || IsLetterboxVisible() || !GetPlayerObjRW()) return false;
+            return PlayerFlightActions::Command(NicknameId);
+        }
+#endif
 #ifdef FREELANCER_PLAYER_AUTO_TURRETS
         if (NicknameId >= 0xcc && NicknameId < 0xd0 && PlayerAutoTurrets::Enabled())
         {
@@ -404,7 +421,7 @@ int SaveUserKeyMapIni(char const* FullPath)
     for (std::list<FKeyCmd>::iterator It = GKeyCmds.begin(); It != GKeyCmds.end(); ++It)
     {
         FKeyCmd* const Cmd = &*It;
-        if (Cmd->Bindings.empty())
+        if (Cmd->Bindings.empty() && !PlayerFlightActions::IsCommand(Cmd->NicknameId))
             continue;
         if (Cmd->NicknameId == 0)
             continue;
@@ -595,6 +612,21 @@ namespace
                     command = &GKeyCmds.back();
                 }
                 if (cockpit && std::find(cockpit->Commands.begin(), cockpit->Commands.end(), command) == cockpit->Commands.end())
+                    cockpit->Commands.push_back(command);
+            }
+        }
+#endif
+#ifdef FREELANCER_PLAYER_FLIGHT_ACTIONS
+        if (PlayerFlightActions::Enabled()) {
+            auto* cockpit = FindKeyMapGroup("IDR_COCKPIT");
+            for (unsigned i=0; i<PlayerFlightActions::CommandCount; ++i) {
+                unsigned id = PlayerFlightActions::FirstCommand+i;
+                auto* command = FindKeyCmdByNicknameId(id);
+                if (!command) {
+                    GKeyCmds.push_back({id,PlayerFlightActions::KeyIdsBase+i,PlayerFlightActions::KeyIdsBase+i,kKeyCmdStateKeyDown,{}});
+                    command = &GKeyCmds.back();
+                }
+                if (cockpit && std::find(cockpit->Commands.begin(),cockpit->Commands.end(),command)==cockpit->Commands.end())
                     cockpit->Commands.push_back(command);
             }
         }

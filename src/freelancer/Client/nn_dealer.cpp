@@ -7,6 +7,7 @@
 // Retail NN_Dealer -- see nn_dealer.h for the class, its vftable and layout.
 
 #include "nn_dealer.h"
+#include "inventory_categories.h"
 #if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
 #include "common_adoxa_api.h" // AmmoLimit
 #include "adoxa_engclass.h"   // engclass.dll's mountable engines / powerplants
@@ -1261,6 +1262,10 @@ intptr_t NnDealer::SetProperty(int Msg, uintptr_t A, uintptr_t B)
             NewMode = 4;
         else if (Control == FilterAmmo)
             NewMode = 1;
+        else if (Control != nullptr && Control == FindChild("Filter_Boosters"))
+            NewMode = InventoryCategories::Boosters;
+        else if (Control != nullptr && Control == FindChild("Filter_Keys"))
+            NewMode = InventoryCategories::Keys;
         if (NewMode != -1)
         {
             SetMode(NewMode, true); // FUN_0047f240
@@ -1827,10 +1832,12 @@ int NnDealer::GetMaxBuyCount(unsigned GoodId, int* OutReason)
         return 0;
 
     // 00483807..00483832: n = credits / the package price (XOR EDX + DIV: unsigned; a zero
-    // price faults as in retail); n <= 0 (signed JG) -- reason 2.
+    // price is allowed for DoorKey goods); n <= 0 (signed JG) -- reason 2.
     unsigned const PackagePrice =
         static_cast<unsigned>(GetMarketPackagePrice(Entry->Info.GoodId)); // FUN_0047f040
-    int Count = static_cast<int>(GetPlayerCreditsRetail() / PackagePrice); // FUN_004c4ce0
+    int Count = PackagePrice != 0
+        ? static_cast<int>(GetPlayerCreditsRetail() / PackagePrice)
+        : Entry->Stock;
     if (Count <= 0)
     {
         *OutReason = 2;
@@ -1906,10 +1913,12 @@ int NnDealer::GetMaxBuyCount(unsigned GoodId, int* OutReason)
     // less the count already carried (find_matching_cargo(arch, 0, 1.0f) on the partner's
     // loadout); none left -- reason 9 / 10 and n = 0.
     int const PartnerMode = Inventory->Mode;
-    if (PartnerMode == 0 || PartnerMode == 2 || PartnerMode == 3)
+    if (PartnerMode == 0 || PartnerMode == 2 || PartnerMode == 3 ||
+        PartnerMode == InventoryCategories::Boosters)
     {
         bool const bPackedGood =
-            PartnerMode == 3 && (ArchId == G_NanobotArchId || ArchId == G_ShieldBatteryArchId);
+            (PartnerMode == 3 || PartnerMode == InventoryCategories::Boosters) &&
+            (ArchId == G_NanobotArchId || ArchId == G_ShieldBatteryArchId);
         if (!bPackedGood && Count > 1)
             Count = 1;
 

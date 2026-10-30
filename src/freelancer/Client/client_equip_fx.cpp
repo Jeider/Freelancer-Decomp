@@ -8,7 +8,10 @@
 // Agent: cursor:equip-fx-factory.
 
 #include "client_equip_fx.h"
+#include "tradelane_ring_anim.h"
+#include "cockpit_effect_brightness.h"
 #include "jumphole_visual.h"
+#include "black_hole_visual.h"
 #include "engine_heat_visual.h"
 #ifdef FREELANCER_RP9
 #include "port_config.h"
@@ -29,6 +32,7 @@
 #include "common_animdb.h" // AnimDB::Add (LAB_00516ea0)
 #include "common_archetype.h"
 #include "common_cequip.h"
+#include "equipment_slots.h"
 #include "common_cobject.h"
 #include "common_csys.h"
 #include "client_fuse.h"
@@ -901,7 +905,11 @@ namespace
             Identity.Rotation.D[0][0] = 1.0f;
             Identity.Rotation.D[1][1] = 1.0f;
             Identity.Rotation.D[2][2] = 1.0f;
-            long const Root = static_cast<CAttachedEquip*>(Device)->GetRootIndex();
+            long Root = static_cast<CAttachedEquip*>(Device)->GetRootIndex();
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+            if (EquipmentSlots::Enabled() && EquipmentClasses::IsInternal(unsigned(Device->Arch->get_hp_type())))
+                Root = Host->get_index(); // Logical hardware emits its cloak effect from the ship.
+#endif
             FClientGameobj* const Owner = Host;
             ID_String const* const FxId = reinterpret_cast<ID_String const*>(
                 &static_cast<CECloakingDevice*>(Device)->CloakArch()->CloakOutFx);
@@ -1119,6 +1127,7 @@ namespace
         }
         case ShieldWentOffline:
         {
+            CockpitEffectBrightness::CreationScope brightness(CockpitEffectBrightness::Kind::Shield);
             // 0x0052e47d..0x0052e48a: a host already destroyed (vtable +0x154) -> nothing.
             if (Host->Slot154())
                 break;
@@ -1169,6 +1178,7 @@ namespace
     void FCliShieldEquipFx::OnCollisionHit(void const* HitInfo, FClientGameobj* Other,
                                            void const* /*Unused*/)
     {
+        CockpitEffectBrightness::CreationScope brightness(CockpitEffectBrightness::Kind::Shield);
         // LAB_0052e760 (RET 0xc). 0x0052e77b..0x0052e797: no generator companion -> nothing.
         Archetype::ICliObj* const Comp = CliShieldGenCompanion(Equip);
         if (Comp == nullptr)
@@ -1206,6 +1216,7 @@ namespace
 
     void FCliShieldEquipFx::OnMunitionHit(void const* HitInfo, FClientGameobj* Munition)
     {
+        CockpitEffectBrightness::CreationScope brightness(CockpitEffectBrightness::Kind::Shield);
         // FUN_0052e8c0 (RET 8). 0x0052e8d8..0x0052e8f8: no generator companion -> nothing.
         Archetype::ICliObj* const Comp = CliShieldGenCompanion(Equip);
         if (Comp == nullptr)
@@ -2470,6 +2481,8 @@ namespace
         // renderer cannot initialize, leave the complete original ALE creation path intact.
         if (JumpHoleVisualReplaceAttached(Host, View->Particles.Id))
             return;
+        if (BlackHoleVisualReplaceAttached(Host, View->Particles.Id))
+            return;
 
         // 0x00532357..0x00532375: FUN_0040f080 on the id, then FUN_00503070 on DAT_00674c60
         // with the host, the part, the frame and &this+0x10.
@@ -2709,9 +2722,9 @@ namespace
             }
 
             // 0x00516f3b..0x00516f5d: each bound joint channel is registered for this frame.
-            if (TlrLeft.ChildIndex != -1)
+            if (TlrLeft.ChildIndex != -1 && !TradeLaneRingAnimConfigured(Host, 0))
                 AnimDB::Add(&TlrLeft);
-            if (TlrRight.ChildIndex != -1)
+            if (TlrRight.ChildIndex != -1 && !TradeLaneRingAnimConfigured(Host, 1))
                 AnimDB::Add(&TlrRight);
         }
         // 0x00516f61: MOV AL,1 on both paths.

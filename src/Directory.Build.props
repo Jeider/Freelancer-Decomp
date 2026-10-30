@@ -37,6 +37,7 @@
     <FreelancerAdoxa Condition="'$(FreelancerAdoxa)'==''">0</FreelancerAdoxa>
     <!-- Port-only armor/scanner/tractor slots; independent of adoxa engclass. -->
     <FreelancerEquipmentSlots Condition="'$(FreelancerEquipmentSlots)'==''">0</FreelancerEquipmentSlots>
+    <FreelancerPlayerFlightActions Condition="'$(FreelancerPlayerFlightActions)'==''">0</FreelancerPlayerFlightActions>
     <FreelancerPlayerAutoTurrets Condition="'$(FreelancerPlayerAutoTurrets)'==''">0</FreelancerPlayerAutoTurrets>
     <!-- Port-only behaviour of other mod plugins (AnimKey, MultiCruise, Invisibility, Interceptor,
          PowerDamage; docs/mod_plugins.md), FREELANCER_MOD_PLUGINS; off by default. -->

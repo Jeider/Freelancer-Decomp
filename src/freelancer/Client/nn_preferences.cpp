@@ -13,6 +13,7 @@
 
 #include "nn_preferences.h"
 #include "player_auto_turrets.h"
+#include "player_flight_actions.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
 #include "gameflow.h"              // ResetGameflowRoomLetterbox (FUN_00558d60)
@@ -24,6 +25,7 @@
 #include "menu_sound_arch.h"       // BindClientBackgroundMusic (FUN_00428ba0)
 #include "menu_ui_init.h"          // PlayUiSoundSlot / PlayUiSoundSlotFlag1 / StopUiSoundSlot
 #include "nn_button_control.h"
+#include "nn_dropdown.h"
 #include "nn_modal.h"              // G_bNnScreenUp (DAT_0067dcc8), NnModalResumeGame, NnFloatBits
 #include "cargo_bar_control.h"
 #include "font_string.h"           // FontStringConstruct (FUN_004144b0)
@@ -166,11 +168,19 @@ void NnPreferences::Draw()
     Win3D* Child = ChildHead;
     for (; Child != nullptr; Child = Child->NextSibling)
     {
+        if (Child == MiscDropdown || Child == VideoModeDropdown || Child == GraphicsDropdown)
+            continue; // The open list belongs above every other row and caption.
         if ((Child->Flags & 2) == 0)
             continue;
         if (Child->AsWinControl() == SetKeyFrame)
             Win3DFlushBeforeOverlayDraw();
         Child->Draw();
+    }
+    DrawMiscDropdown();
+    DrawGraphicsDropdown();
+    if (CurPage==1 && !bConfirmMode && !bVideoConfirm && !bFlipping) {
+        if (VideoModeChoice && (VideoModeChoice->Flags&2)) DrawNnDropdownCaret(VideoModeChoice);
+        if (VideoModeDropdown) VideoModeDropdown->Draw();
     }
 }
 
@@ -178,17 +188,18 @@ void NnPreferences::Update()
 {
     // FUN_004ab6e0
     WinControl::Update();
+    if (VideoModeDropdown && (bFlipping || bClosingAnim || bClosed)) VideoModeDropdown->Close();
     double Dt = GetClientFrameTimeCapped();
 
     // The column buttons and their texts in retail's local order: interface, keymap, video,
     // audio, credits (main menu only -- in game the slot stays unwritten and is never read),
     // main menu.
-    Win3D* Buttons[6] = {PageButtons[1], PageButtons[0], PageButtons[2], PageButtons[3], nullptr, PageButtons[5]};
-    Win3D* Texts[6] = {PageTexts[1], PageTexts[0], PageTexts[2], PageTexts[3], nullptr, PageTexts[5]};
+    Win3D* Buttons[7] = {PageButtons[1], PageButtons[0], PageButtons[2], PageButtons[3], MiscButton, nullptr, PageButtons[5]};
+    Win3D* Texts[7] = {PageTexts[1], PageTexts[0], PageTexts[2], PageTexts[3], MiscText, nullptr, PageTexts[5]};
     if (bInGame == 0)
     {
-        Buttons[4] = PageButtons[4];
-        Texts[4] = PageTexts[4];
+        Buttons[5] = PageButtons[4];
+        Texts[5] = PageTexts[4];
     }
 
     if (Dt > 0.2)
@@ -201,7 +212,7 @@ void NnPreferences::Update()
         {
             // 0x004ab7f6: the opening slide.
             Anim += Dt * 1.5;
-            for (int Step = 6, Index = 0; Step > 0; --Step, ++Index)
+            for (int Step = 7, Index = 0; Step > 0; --Step, ++Index)
             {
                 double const Offset = Step * 0.1;
                 double const X = Offset + Anim;
@@ -247,7 +258,7 @@ void NnPreferences::Update()
         if (Dt > 0.03)
             Dt = 0.03;
         Anim -= Dt * 1.5;
-        for (int Step = 6, Index = 0; Step > 0; --Step, ++Index)
+        for (int Step = 7, Index = 0; Step > 0; --Step, ++Index)
         {
             double const Offset = Step * 0.1;
             double const X = Offset + Anim;
@@ -266,7 +277,7 @@ void NnPreferences::Update()
             PlayUiSoundSlot(0x1b);
         if (Anim < -1.0)
         {
-            for (int Index = 0; Index < 6; ++Index)
+            for (int Index = 0; Index < 7; ++Index)
             {
                 HideControl(Buttons[Index]);
                 HideControl(Texts[Index]);
@@ -297,6 +308,7 @@ void NnPreferences::Update()
                 case 2: EnterVideoPage(); break;
                 case 3: EnterAudioPage(); break;
                 case 4: EnterCreditsPage(); break;
+                case 7: EnterMiscPage(); break;
                 default: break;
                 }
                 bFlipHalf = static_cast<unsigned char>(bFlipHalf == 0);
@@ -324,6 +336,7 @@ void NnPreferences::Update()
         case 2: EnterVideoPage(); break;
         case 3: EnterAudioPage(); break;
         case 4: EnterCreditsPage(); break;
+        case 7: EnterMiscPage(); break;
         default: break;
         }
         bFlipping = 0;
@@ -355,6 +368,12 @@ void NnPreferences::Update()
 
 void NnPreferences::SetRowsHidden(bool bHide)
 {
+    if (CurPage==1) SetGraphicsHidden(bHide);
+    if (bHide) {
+        if (VideoModeDropdown) VideoModeDropdown->Close();
+        if (VideoModeChoice) HideControl(VideoModeChoice);
+    }
+    if (CurPage == 7) { SetMiscHidden(bHide); return; }
     // FUN_004abdf0
     if (CurPage == 0)
     {
@@ -471,13 +490,47 @@ void NnPreferences::MarkKeyMapDirtyAndReload()
     FillKeyRows(static_cast<int>(KeyScroll->SetProperty(0x3b, 0, 0)));
 }
 
+bool NnPreferences::VideoModeProperty(int msg, Win3D* source, uintptr_t value)
+{
+    bool const field=VideoModeChoice && source==VideoModeChoice;
+    bool const list=VideoModeDropdown && source==VideoModeDropdown;
+    if ((!field || msg!=0x26) && (!list || msg!=0x3e)) return false;
+    if (CurPage!=1 || bFlipping || bClosingAnim || bConfirmMode || bVideoConfirm ||
+        !VideoModeChoice || !(VideoModeChoice->Flags&2) || ModeCount<=0) return true;
+    if (field) {
+        if (GraphicsDropdown) GraphicsDropdown->Close();
+        GraphicsDropdownRow=-1;
+        std::vector<std::wstring> choices(size_t(ModeCount),L"");
+        int selected=0;
+        for (int mode=0;mode<kPrefVideoModeCount;++mode) {
+            int const index=CycleIndex[mode];
+            if (index<0 || index>=ModeCount) continue;
+            wchar_t text[64];swprintf(text,64,L"%d x %d",Modes[mode].Width,Modes[mode].Height);
+            choices[size_t(index)]=text;
+            if (Modes[mode].Width==SelWidth && Modes[mode].Bpp==(bSel32?32:16)) selected=index;
+        }
+        VideoModeDropdown->Open(.181f,VideoModeAnchorTop,.242f,choices,selected);
+    } else {
+        VideoModeDropdown->Close();
+        if (value>=static_cast<uintptr_t>(ModeCount)) return true;
+        int row=-1;
+        for (int i=0;i<14;++i) if (OptionsA[i].Id==0x536) {row=i;break;}
+        VideoModeCycle->SetProperty(0x38,value,0);
+        SetSliderOption(0x536,static_cast<int>(value),row);
+    }
+    return true;
+}
+
 intptr_t NnPreferences::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 {
     // FUN_004ac0a0
     Win3D* const Source = reinterpret_cast<Win3D*>(A);
+    if (GraphicsProperty(Msg,Source,B)) return 0;
+    if (VideoModeProperty(Msg,Source,B)) return 0;
 
     if (Msg == 0x46 || Msg == 0x25)
     {
+        if (CurPage == 7) return 0;
         // 0x004ac0df: row tooltips.
         if (CurPage == 0)
         {
@@ -489,7 +542,7 @@ intptr_t NnPreferences::SetProperty(int Msg, uintptr_t A, uintptr_t B)
                     ShowRowTip(Index);
             }
         }
-        else if (CurPage == 1 && (Source == VideoModeCycle || Source == VideoModeText))
+        else if (CurPage == 1 && (Source == VideoModeCycle || Source == VideoModeText || Source == VideoModeChoice))
         {
             // LoadOptList pads every section to at least 15 rows, so 14 rows are always there.
             for (int Index = 0; Index < 14; ++Index)
@@ -540,6 +593,11 @@ intptr_t NnPreferences::SetProperty(int Msg, uintptr_t A, uintptr_t B)
                     CurWidth = SelWidth;
                     RefreshRows(0x536);
                 }
+                if (CurPage == 7 && !CommitMisc()) {
+                    ShowConfirmDialog(false);
+                    return 1;
+                }
+                if (CurPage==1) CommitGraphics();
                 TakeSnapshot();
             }
             bDirty = 0;
@@ -631,6 +689,8 @@ intptr_t NnPreferences::SetProperty(int Msg, uintptr_t A, uintptr_t B)
         }
         return 0;
     }
+
+    if (CurPage == 7 && MiscProperty(Msg, Source, B)) return 1;
 
     // 0x004ac9bb
     if (Msg == 0x3e)
@@ -832,6 +892,12 @@ intptr_t NnPreferences::SetProperty(int Msg, uintptr_t A, uintptr_t B)
         break;
     }
 
+    if (Source == MiscButton || Source == MiscText)
+    {
+        if (CurPage != 7) { ReqPage = 7; LeaveCurrentPage(); if (!bDirty) GotoRequestedPage(); }
+        return 1;
+    }
+
     // 0x004ad2a1: the column buttons.
     int const PageOfButton[5] = {0, 1, 2, 3, 4};
     for (int Button = 0; Button < 5; ++Button)
@@ -956,6 +1022,11 @@ bool NnPreferences::MouseEvent(FWin3DMouseEvent const* Event)
 
 bool NnPreferences::KeyEvent(unsigned Key, unsigned char* Modifiers)
 {
+    if (GraphicsDropdown && GraphicsDropdown->IsOpen()) return GraphicsDropdown->KeyEvent(Key,Modifiers);
+    if (VideoModeDropdown != nullptr && VideoModeDropdown->IsOpen())
+        return VideoModeDropdown->KeyEvent(Key, Modifiers);
+    if (MiscDropdown != nullptr && MiscDropdown->IsOpen())
+        return MiscDropdown->KeyEvent(Key, Modifiers);
     // FUN_004adac0
     char Text[0x100];
     sprintf(Text, "OnKey = %d\n", Key); // 0x005d50b4
@@ -1279,6 +1350,8 @@ namespace
 
 void NnPreferences::LeaveInterfacePage()
 {
+    SetGraphicsHidden(true);
+    if (VideoModeDropdown) VideoModeDropdown->Close();
     // FUN_004aebb0
     if (bDirty != 0)
     {
@@ -1294,6 +1367,7 @@ void NnPreferences::LeaveInterfacePage()
     HideControl(VideoBox);
     HideControl(VideoBox2);
     HideControl(VideoModeText);
+    if (VideoModeChoice) HideControl(VideoModeChoice);
     HideControl(Title);
     HideControl(CancelButton);
     HideControl(CancelText);
@@ -1361,6 +1435,7 @@ void NnPreferences::LeaveCurrentPage()
     case 2: LeaveVideoPage(); break;
     case 3: LeaveAudioPage(); break;
     case 4: LeaveCreditsPage(); break;
+    case 7: LeaveMiscPage(); break;
     default: break;
     }
 }
@@ -1380,6 +1455,7 @@ void NnPreferences::GotoRequestedPage()
     case 2: EnterVideoPage(); return;
     case 3: EnterAudioPage(); return;
     case 4: EnterCreditsPage(); return;
+    case 7: EnterMiscPage(); return;
     case 5:
         if (bInGame == 0)
         {
@@ -1392,6 +1468,7 @@ void NnPreferences::GotoRequestedPage()
                 NnButtonControl* const Button = PageButtons[Slide[Index]];
                 Button->ButtonBits2 = static_cast<unsigned char>(Button->ButtonBits2 & 0xfd);
             }
+            MiscButton->ButtonBits2 &= ~2u;
             LeaveCurrentPage();
             SavePerfOptions(kPerfOptionsFile);
             return;
@@ -1481,6 +1558,8 @@ namespace
             if (DALib::Pipeline->GetDisplayModeEnum(Index, &Mode) != 0)
                 continue;
             if (Mode.Format == 1)
+                continue;
+            if (PixelFormatGetDesc(Mode.Format)->Bpp != 32)
                 continue;
             if (Mode.Width < 0x320 || Mode.Height < 0x258)
                 continue;
@@ -1657,6 +1736,14 @@ void NnPreferences::LoadKeyList(char const* Path)
             bool found = false;
             for (auto const& row : KeyGroups[0]) if (row.CommandId == id) found = true;
             if (!found) AddKeyRow(static_cast<int>(id), 0);
+        }
+#endif
+#ifdef FREELANCER_PLAYER_FLIGHT_ACTIONS
+    if (PlayerFlightActions::Enabled())
+        for (unsigned id=PlayerFlightActions::FirstCommand; id<PlayerFlightActions::FirstCommand+PlayerFlightActions::CommandCount; ++id) {
+            bool found=false;
+            for (auto const& row : KeyGroups[0]) if (row.CommandId==id) found=true;
+            if (!found) AddKeyRow(static_cast<int>(id),0);
         }
 #endif
     Reader.close();
@@ -1921,6 +2008,28 @@ bool NnPreferences::LoadOptList(char const* Path)
             ReadOptSection(Reader, OptionsC, bSeedMode != 0);
     }
     Reader.close();
+    // The original Interface "Miscellaneous" block (IDS 1897) has its own page.
+    // Seeding still processes the complete INI before this presentation-only move.
+    if (!bSeedMode)
+    {
+        bool moving = false;
+        for (auto it = OptionsA.begin(); it != OptionsA.end(); )
+        {
+            if (it->bHeader && it->Id == 1897) { moving = true; it = OptionsA.erase(it); continue; }
+            if (moving && it->bHeader && it->Id != -1) moving = false;
+            if (moving)
+            {
+                if (it->Id != -1 && !it->bHeader) MiscOptions.push_back(*it);
+                it = OptionsA.erase(it);
+            }
+            else ++it;
+        }
+        // Keep only the display/mouse controls; rows 3..11 host the
+        // added graphics controls in the space vacated by Miscellaneous.
+        OptionsA.erase(std::remove_if(OptionsA.begin(),OptionsA.end(),
+            [](FPrefOption const& row){return row.Id==-1 || (row.bHeader && (row.Id==1894 || row.Id==1896));}),OptionsA.end());
+        while (OptionsA.size() < 15) OptionsA.push_back(BlankOption());
+    }
     if (bSeedMode != 0)
         ApplyChangedPerfOptions();
     return bOpened;
@@ -1928,6 +2037,8 @@ bool NnPreferences::LoadOptList(char const* Path)
 
 void NnPreferences::TakeSnapshot()
 {
+    if (CurPage == 7) { SnapshotMisc(); return; }
+    if (CurPage==1 && !bSeedMode) SnapshotGraphics();
     // FUN_004b0530: the current value of each of the 14 rows (headers -1, sliders their scroll
     // value, toggles 0/1), then the three preview sounds stop. The row copy is a local that is
     // only overwritten on pages 1..3 -- retail seeds it once (Id -1, bytes 0).
@@ -2275,20 +2386,21 @@ void NnPreferences::SetSliderOption(int Id, int Value, int Row)
         case 0x536:
         {
             // 0x004b17cb: the video mode cycle; a negative value ends the call (no dirty update).
-            if (Value < 0)
+            if (Value < 0 || Value >= ModeCount)
                 return;
-            int Match = 0;
+            int Match = -1;
             for (int Mode = 0; Mode < kPrefVideoModeCount; ++Mode)
             {
                 if (CycleIndex[Mode] == Value)
                     Match = Mode;
             }
+            if (Match < 0) return;
             FPrefVideoMode const Found = Modes[Match];
             SelWidth = Found.Width;
             swprintf(Text, 0x40, L"%d x %d", Found.Width, Found.Height); // 0x005d5190
-            if (bBigVram != 0)
+            bSel32 = static_cast<unsigned char>(Found.Bpp == 0x20);
+            if (!VideoModeChoice && bBigVram != 0)
             {
-                bSel32 = static_cast<unsigned char>(Found.Bpp == 0x20);
                 // Retail formats the buffer into itself (0x004b1851 / 0x004b185e).
                 wchar_t Size[0x40];
                 wcscpy(Size, Text);
@@ -2435,7 +2547,7 @@ void NnPreferences::UpdateDirty(int Id, float Value)
     // snapshot, makes the page dirty.
     if (bSeedMode != 0)
         return;
-    bool bFound = CurWidth != SelWidth || bCur32 != bSel32;
+    bool bFound = CurWidth != SelWidth || bCur32 != bSel32 || (CurPage==1 && GraphicsDirty());
     // The row copy: Id -1 and the three bytes 0 before the loop, overwritten only on pages 1..3.
     FPrefOption Row = BlankOption();
     for (int Index = 0; Index < 14 && !bFound; ++Index)
@@ -2553,12 +2665,9 @@ void NnPreferences::ProbeModes(int)
             FindVideoMode(&Mode, Modes[Index].Width, Modes[Index].Height, Modes[Index].Bpp));
         if (bModeAvail[Index] == 0)
             continue;
-        // 0x004b24e8: 32-bit modes need more than 16 MB of video memory.
-        if (bBigVram == 0 && Modes[Index].Bpp != 0x10)
-        {
-            bModeAvail[Index] = 0;
-            continue;
-        }
+        // Keep legacy modes available internally for reverting an old 16-bit
+        // session, but expose only 32-bit modes to the settings controls.
+        if (Modes[Index].Bpp != 32) continue;
         CycleIndex[Index] = ModeCount;
         ++ModeCount;
     }
@@ -2566,6 +2675,8 @@ void NnPreferences::ProbeModes(int)
 
 void NnPreferences::Revert(bool bApply)
 {
+    if (CurPage == 7) { RevertMisc(); return; }
+    if (CurPage==1 && !bSeedMode) RevertGraphics();
     // FUN_004b06a0 (RET 4): every row that moved away from its snapshot goes back; with bApply
     // the widgets follow and the row index is passed on.
     if (bSeedMode != 0)
@@ -2811,6 +2922,8 @@ void NnPreferences::RefreshRows(int Id)
             SetPosition3(VideoBox, 0.0f, Y2, 0.0f);
             SetPosition3(VideoBox2, 0.0f, Y2, 0.0f);
             SetPosition3(VideoModeText, 0.0f, Y, 0.0f);
+            if (VideoModeChoice) SetPosition3(VideoModeChoice,0.0f,Y,0.0f);
+            VideoModeAnchorTop=Y+.2205f;
             VideoModeCycle->SetProperty(0x37, 0, static_cast<uintptr_t>(ModeCount - 1));
 
             // 0x004b0fd7: the current display mode's entry (the last match wins).
@@ -2838,7 +2951,7 @@ void NnPreferences::RefreshRows(int Id)
                 swprintf(ModeText, 0x40, L"%d x %d", g_display.width, g_display.height);
                 VideoModeCycle->SetProperty(0x38, 0, 0);
             }
-            if (bBigVram != 0)
+            if (!VideoModeChoice && bBigVram != 0)
             {
                 // Retail formats the buffer into itself (0x004b1113 / 0x004b1123).
                 wchar_t Size[0x40];
@@ -2846,9 +2959,13 @@ void NnPreferences::RefreshRows(int Id)
                 swprintf(ModeText, 0x40, bSel32 != 0 ? L"%ls x 32" : L"%ls x 16", Size);
             }
             VideoModeText->SetProperty(0x1d, reinterpret_cast<uintptr_t>(ModeText), 0);
-            ShowControl(VideoModeCycle);
-            ShowControl(VideoBox);
-            ShowControl(VideoBox2);
+            if (VideoModeChoice) {
+                HideControl(VideoModeCycle);HideControl(VideoBox);HideControl(VideoBox2);
+                ShowControl(VideoModeChoice);
+                VideoModeChoice->ButtonState=static_cast<unsigned char>((VideoModeChoice->ButtonState&~4u)|(ModeCount>0?4u:0));
+            } else {
+                ShowControl(VideoModeCycle);ShowControl(VideoBox);ShowControl(VideoBox2);
+            }
             ShowControl(VideoModeText);
             break;
         }
@@ -3104,7 +3221,7 @@ bool NnPreferences::Create(Win3D* NewParent, void* Data)
         {
             // 0x004a9e31..0x004a9e6b: no FUN_0055bfc0 for this one.
             Position[1] = static_cast<float>(static_cast<double>(ColumnY) -
-                                             static_cast<double>(Step) * 4.0);
+                                             static_cast<double>(Step) * 5.0);
             PageButtons[4] = static_cast<NnButtonControl*>(
                 CreateButtonControl("CreditsButton", kButtonMesh, nullptr, "ui_select_item",
                                     nullptr, Position, nullptr, ButtonExtents, 0, 0, 0, 0, 0, 0, 0));
@@ -3154,7 +3271,7 @@ bool NnPreferences::Create(Win3D* NewParent, void* Data)
         unsigned MainMenuIds = 0x58b;
         if (bInGame == 0)
         {
-            Position[1] = static_cast<float>(TextBase - static_cast<double>(Step) * 4.0);
+            Position[1] = static_cast<float>(TextBase - static_cast<double>(Step) * 5.0);
             PageTexts[4] = static_cast<NnTextControl*>(
                 CreateTextControl("CreditsText", "ButtonText", Position, nullptr, TextWidth,
                                   TextHeight, TextScale, 0x532, 1, 0, 1));
@@ -3336,6 +3453,12 @@ bool NnPreferences::Create(Win3D* NewParent, void* Data)
         VideoModeCycle->SetStepMode(true);
         VideoModeCycle->SetPageField(1.0f);
         VideoModeText->SetProperty(0x24, 1, 0);
+        float const choiceAt[3]={.302f,.206f,0},choiceHalf[3]={.121f,.0145f,0};
+        VideoModeChoice=static_cast<WireButtonControl*>(CreateWireButtonControl(
+            "video_mode_choice","ui_select_item",choiceAt,choiceHalf,0,0,0,0,0xf));
+        VideoModeDropdown=CreateNnDropdownPopup(this);
+        if (!VideoModeChoice || !VideoModeDropdown) return false;
+        VideoModeText->Flags &= ~kWin3DPickable;
     }
 
     // 0x004aa9f8..0x004aaa2e: clean, cancel greyed and enabled.
@@ -3514,6 +3637,9 @@ bool NnPreferences::Create(Win3D* NewParent, void* Data)
         HideControl(DefaultsText);
         HideControl(Title);
     }
+
+    if (!CreateMiscPage(ColumnX, ColumnY, Step)) return false;
+    if (!CreateGraphicsRows()) return false;
 
     // 0x004ab276..0x004ab311: FUN_005a0db0("SetKeyFrame", alt-f4window.cmp, {0, 0, -1}, 0,
     // {0, 0, 0}, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, {0, 0, 0}) -> +0x4e4.

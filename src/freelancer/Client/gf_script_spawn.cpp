@@ -28,6 +28,7 @@
 #include "gf_thorn_light.h"
 #include "gf_thorn_marker.h"
 #include "gf_thorn_psys.h"
+#include "black_hole_visual.h"
 #include "gf_thorn_scene.h"
 #include "gf_thorn_sound.h"
 #include "nn_arrival_text.h"
@@ -138,6 +139,9 @@ void FGfScript::Spawn()
             Object = SpawnDeformable(Index, Snap);
             break;
         case kThornEntityCompound:
+            // Port-only: the shader black hole leaves the old core sphere and flute out.
+            if (BlackHoleVisualThornHides(Snap->TemplateName))
+                break;
             Object = SpawnCompound(Index, Snap);
             break;
         case kThornEntityMonitor:

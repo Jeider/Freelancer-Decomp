@@ -10,6 +10,7 @@
 // common_archetype.cpp (retail Archetype.cpp, one TU) in CMN-SPLIT phase B.
 
 #include "common_archetype.h"
+#include "common_gravity.h"
 #ifdef FREELANCER_EQUIPMENT_SLOTS
 #include "equipment_slots.h"
 #endif
@@ -35,6 +36,7 @@
 #include "readfile.h"
 
 #include <cstddef>
+#include <cmath>
 #include <list>
 #include <map>
 #include <math.h>
@@ -122,6 +124,10 @@ namespace Archetype
 {
     namespace
     {
+        struct ScannerRanges { float discovery = -1; float valuable = 0; };
+        std::map<Scanner const*, ScannerRanges> ScannerRangeSettings;
+        std::map<CloakingDevice const*, CloakSettings> CloakConfiguration;
+
         // Shared prefix copy for the "inherit=" operator= family (Equipment::InheritFrom,
         // retail FUN_062f3ea0). Every retail leaf (AttachedFXEquip/AttachedEquipment/Armor/
         // Launcher/Munition/…) starts with Root::operator= (Common.dll.c 21583 / 21895 /
@@ -146,6 +152,7 @@ namespace Archetype
         , bUseCount(true)
         , UnitsPerContainer(1)
         , bLootable(true)
+        , bRadarValuable(false)
     {
         TractoredExplosion.clear();
         HitPts = 1.0f;
@@ -155,6 +162,7 @@ namespace Archetype
     {
         if (Root::read(Reader))
             return true;
+        if (CmnGravity::ReadEquipmentValue(*this, Reader)) return true;
 #ifdef FREELANCER_EQUIPMENT_SLOTS
         if (EquipmentSlots::ReadEquipment(*this, Reader)) return true;
 #endif
@@ -203,6 +211,7 @@ namespace Archetype
                         CliObjInherit(OwnCompanion, Src.Companion);
                     }
                     ID_String SavedNickname = Nickname;
+                    bRadarValuable = Src.bRadarValuable;
 
                     switch (get_class_type())
                     {
@@ -310,12 +319,7 @@ namespace Archetype
 
                     case AClassScanner:
                     {
-                        CopyEquipmentFields(*this, Src);
-                        Scanner& Dst = (Scanner&)*this;
-                        Scanner const& LeafSrc = (Scanner const&)Src;
-                        Dst.PowerThreshold = LeafSrc.PowerThreshold;
-                        Dst.RadarRange = LeafSrc.RadarRange;
-                        Dst.CargoScanRange = LeafSrc.CargoScanRange;
+                        (Scanner&)*this = (Scanner const&)Src;
                         break;
                     }
 
@@ -379,6 +383,8 @@ namespace Archetype
                         (CloakingDevice&)*this = (CloakingDevice const&)Src;
                         break;
 
+                    case AClassDoorKey:
+                    case AClassGravityDevice:
                     case AClassTradeLane:
                         CopyEquipmentFields(*this, Src);
                         break;
@@ -411,6 +417,7 @@ namespace Archetype
 #ifdef FREELANCER_EQUIPMENT_SLOTS
                 EquipmentSlots::CopyDefinition(*this, *Donor);
 #endif
+                CmnGravity::CopyDefinition(*this, *Donor);
                 return true;
             }
 
@@ -459,6 +466,11 @@ namespace Archetype
             bLootable = Reader.get_value_bool(0);
             return true;
         }
+        if (Reader.is_value("radar_valuable"))
+        {
+            bRadarValuable = Reader.get_value_bool(0);
+            return true;
+        }
 
         return false;
     }
@@ -467,6 +479,8 @@ namespace Archetype
     {
         Root::redefine(Other);
         Equipment const* Donor = (Equipment const*)&Other;
+        bRadarValuable = Donor->bRadarValuable;
+        CmnGravity::CopyDefinition(*this, *Donor);
 #ifdef FREELANCER_EQUIPMENT_SLOTS
         EquipmentSlots::CopyDefinition(*this, *Donor);
 #endif
@@ -489,6 +503,10 @@ namespace Archetype
     // Overridden by many leaves; see each subclass for its own constant/logic.
     HpAttachmentType Equipment::get_hp_type() const
     {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        if (get_class_type() == AClassCloakingDevice)
+            return static_cast<HpAttachmentType>(EquipmentSlots::GetType(*this));
+#endif
         return HpTypeNone;
     }
 
@@ -1135,7 +1153,11 @@ namespace Archetype
     // Retail 0xdec0, folded with CargoPod::get_class_type.
     HpAttachmentType Thruster::get_hp_type() const
     {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        return static_cast<HpAttachmentType>(EquipmentSlots::GetType(*this));
+#else
         return HpTypeThruster;
+#endif
     }
 
     bool Thruster::read(INI_Reader& Reader)
@@ -1180,10 +1202,54 @@ namespace Archetype
     }
 
     // Common.dll.c 0x94960.
+    Scanner::Scanner(Scanner const& Other) : Equipment(Other)
+    {
+        PowerThreshold = Other.PowerThreshold;
+        RadarRange = Other.RadarRange;
+        CargoScanRange = Other.CargoScanRange;
+        ScannerRangeSettings[this] = {Other.GetDiscoveryRange(), Other.GetValuableDetectionRange()};
+    }
+
+    Scanner& Scanner::operator=(Scanner const& Other)
+    {
+        if (this == &Other) return *this;
+        Equipment::operator=(Other);
+        PowerThreshold = Other.PowerThreshold;
+        RadarRange = Other.RadarRange;
+        CargoScanRange = Other.CargoScanRange;
+        ScannerRangeSettings[this] = {Other.GetDiscoveryRange(), Other.GetValuableDetectionRange()};
+        return *this;
+    }
+
+    Scanner::~Scanner() { ScannerRangeSettings.erase(this); }
+
+    float Scanner::GetDiscoveryRange() const
+    {
+        auto found = ScannerRangeSettings.find(this);
+        return found == ScannerRangeSettings.end() ? -1.f : found->second.discovery;
+    }
+
+    float Scanner::GetValuableDetectionRange() const
+    {
+        auto found = ScannerRangeSettings.find(this);
+        return found == ScannerRangeSettings.end() ? 0.f : found->second.valuable;
+    }
+
     bool Scanner::read(INI_Reader& Reader)
     {
         if (Equipment::read(Reader))
             return true;
+
+        bool const discovery = Reader.is_value("discovery_range");
+        if (discovery || Reader.is_value("valuable_detection_range"))
+        {
+            float const value = Reader.get_value_float(0);
+            // Invalid explicit values disable detection; absent keys retain defaults.
+            float const range = std::isfinite(value) && value >= 0 ? value : 0.f;
+            auto& settings = ScannerRangeSettings[this];
+            (discovery ? settings.discovery : settings.valuable) = range;
+            return true;
+        }
 
         if (Reader.is_value("power_usage"))
         {
@@ -1209,6 +1275,7 @@ namespace Archetype
     {
         Equipment::redefine(Other);
         Scanner const* Donor = (Scanner const*)&Other;
+        ScannerRangeSettings[this] = {Donor->GetDiscoveryRange(), Donor->GetValuableDetectionRange()};
         if (Donor->PowerThreshold != PowerThreshold)
             PowerThreshold = Donor->PowerThreshold;
         if (Donor->RadarRange != RadarRange)
@@ -1391,6 +1458,41 @@ namespace Archetype
         return AClassInternalFX;
     }
 
+    DoorKey::DoorKey(ICliObj* InCompanion) : Equipment(InCompanion)
+    {
+        ObjectType = 0x10000000; // Standard cargo/loot representation.
+    }
+    AClassType DoorKey::get_class_type() const { return AClassDoorKey; }
+    HpAttachmentType DoorKey::get_hp_type() const { return HpTypeNone; }
+
+    GravityDevice::GravityDevice(ICliObj* InCompanion) : Equipment(InCompanion) {}
+
+    GravityDevice::GravityDevice(GravityDevice const& Other) : Equipment(nullptr)
+    {
+        *this = Other;
+    }
+
+    GravityDevice& GravityDevice::operator=(GravityDevice const& Other)
+    {
+        if (this != &Other)
+        {
+            Equipment::operator=(Other);
+            CmnGravity::CopyDefinition(*this, Other);
+        }
+        return *this;
+    }
+
+    AClassType GravityDevice::get_class_type() const { return AClassGravityDevice; }
+
+    HpAttachmentType GravityDevice::get_hp_type() const
+    {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        return static_cast<HpAttachmentType>(EquipmentSlots::GetType(*this));
+#else
+        return HpTypeInternal;
+#endif
+    }
+
     RepairDroid::RepairDroid(ICliObj* InCompanion)
         : Equipment(InCompanion)
         , RepairRate(0.0f)
@@ -1426,7 +1528,11 @@ namespace Archetype
 
     HpAttachmentType RepairDroid::get_hp_type() const
     {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+        return static_cast<HpAttachmentType>(EquipmentSlots::GetType(*this));
+#else
         return HpTypeInternal;
+#endif
     }
 
     CloakingDevice::CloakingDevice(ICliObj* InCompanion)
@@ -1439,11 +1545,42 @@ namespace Archetype
     {
     }
 
-    // Common.dll.c 0x956b0.
+    CloakingDevice::CloakingDevice(CloakingDevice const& Other) : CloakingDevice()
+    {
+        *this = Other;
+    }
+
+    CloakingDevice::~CloakingDevice() { CloakConfiguration.erase(this); }
+
+    CloakSettings CloakingDevice::GetSettings() const
+    {
+        auto it = CloakConfiguration.find(this);
+        return it == CloakConfiguration.end() ? CloakSettings() : it->second;
+    }
+
+    // Common.dll.c 0x956b0, plus opt-in player cloak settings.
     bool CloakingDevice::read(INI_Reader& Reader)
     {
         if (AttachedEquipment::read(Reader))
             return true;
+
+        if (Reader.is_value("default_state") || Reader.is_value("cloak_duration") ||
+            Reader.is_value("cooldown_time") || Reader.is_value("toggle_cooldown"))
+        {
+            auto& settings = CloakConfiguration[this];
+            settings.enabled = true;
+            if (Reader.is_value("default_state")) settings.defaultState = Reader.get_value_bool(0);
+            else
+            {
+                float value = Reader.get_value_float(0);
+                if (Reader.is_value("cloak_duration"))
+                    settings.duration = std::isfinite(value) && value >= 0 ? value : -1.0f;
+                else if (Reader.is_value("cooldown_time"))
+                    settings.cooldown = std::isfinite(value) && value >= 0 ? value : 0.0f;
+                else settings.toggleCooldown = std::isfinite(value) && value >= 0 ? value : 0.3f;
+            }
+            return true;
+        }
 
         if (Reader.is_value("power_usage"))
         {
@@ -1481,6 +1618,7 @@ namespace Archetype
     {
         AttachedEquipment::redefine(Other);
         CloakingDevice const* Donor = (CloakingDevice const*)&Other;
+        CloakConfiguration[this] = Donor->GetSettings();
         if (Donor->PowerUsage != PowerUsage)
             PowerUsage = Donor->PowerUsage;
     }
@@ -1502,6 +1640,7 @@ namespace Archetype
         CloakOutTime = Other.CloakOutTime;
         CloakInFx = Other.CloakInFx;
         CloakOutFx = Other.CloakOutFx;
+        CloakConfiguration[this] = Other.GetSettings();
         return *this;
     }
 

@@ -696,6 +696,7 @@ namespace AlchemyImpl
         void ApplyDrawState();
         // FUN_06205720: the ribbon over the particle list (newest first).
         void FillRibbon(std::vector<FRPVolumeBeamPoint>* VolumePoints = nullptr);
+        void FillCameraRibbon();
         bool DrawVolume();
         // FUN_06205f00: half width, {R, G, B, A} and the ring's V for particle P.
         void EvalRingParams(const FBeamRingState& State, const FPooledParticle* P, float* OutHalfWidth,

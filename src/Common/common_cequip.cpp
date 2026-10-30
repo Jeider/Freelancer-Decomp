@@ -6,6 +6,7 @@
 
 // CEquip, CInternalEquip, CExternalEquip, CEquipTraverser, CEquipManager -- split out of common_cequip.cpp (CMN-B2).
 #include "common_cequip.h"
+#include "common_gravity.h"
 #ifdef FREELANCER_EQUIPMENT_SLOTS
 #include "equipment_slots.h"
 #endif
@@ -45,7 +46,7 @@ namespace
     const unsigned kInternalListMask = 0xc10003u;
     const unsigned kExternalListMask = 0xff3efffcu;
     const unsigned kExternalEquipMask = 0x1fe3u;
-    const unsigned kInternalEquipMask = 0x1ff0000u;
+    const unsigned kInternalEquipMask = 0x1ff0000u | EquipTypeGravityDevice;
 
     // .data DAT_063fc198: CEquip::IdentifyEquipment's 0x40-byte result buffer.
     char GIdentifyEquipmentBuf[0x40];
@@ -150,6 +151,7 @@ CEquip::CEquip()
 
 CEquip::~CEquip()
 {
+    CmnGravity::UnregisterEquipment(this);
 #ifdef FREELANCER_EQUIPMENT_SLOTS
     EquipmentSlots::Forget(this);
 #endif
@@ -256,6 +258,22 @@ void CEquip::Destroy()
     // Common.dll.c 0x3af40: retail notifies NotifyA/NotifyB with event 0xa and this
     // equip's Id (zero-extended to a pointer-sized context value) after setting bDestroyed.
     bDestroyed = 1;
+    if (Type == EquipTypeCloak && Owner)
+    {
+        // CloakPercent is cached on the ship. Removing the device must remove
+        // its effect too, including loadout replacement by an unmounted cargo
+        // descriptor. A temporary copy must not clear a live device's effect.
+        float Remaining = 0.0f;
+        CEquipTraverser Walk(EquipTypeCloak);
+        for (CEquip* Other = Owner->EquipManager.Traverse(Walk); Other;
+             Other = Owner->EquipManager.Traverse(Walk))
+        {
+            if (Other == this) continue;
+            float const Fraction = static_cast<float>(static_cast<CECloakingDevice*>(Other)->cloak_percent());
+            if (Fraction > Remaining) Remaining = Fraction;
+        }
+        Owner->CloakPercent = Remaining;
+    }
     Notify(INotify::EquipDestroying, (void*)(uintptr_t)Id);
 }
 
@@ -511,6 +529,9 @@ CExternalEquip::CExternalEquip(CExternalEquip const& Other)
     , HardpointName(Other.HardpointName)
     , ConnectionIndex(Other.ConnectionIndex)
 {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    EquipmentSlots::CopyBinding(this, &Other);
+#endif
     // Common.dll.c 54839 (0x32800): plain field-by-field copy re-stamping the vtable at
     // each base level (CEquip::_vftable_ then this class's own) -- ordinary MSVC
     // base-then-derived copy-ctor codegen, reproduced here via CEquip(Other)'s own
@@ -526,12 +547,20 @@ bool CExternalEquip::GetEquipDesc(EquipDesc& Desc) const
     // Common.dll.c 66330-66339 (listing 0x3ed30): fill in the base descriptor, then stamp
     // this equip's hardpoint name over whatever the base left there.
     bool Result = CEquip::GetEquipDesc(Desc);
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    if (Result && EquipmentSlots::RestoreBinding(this, Desc)) return Result;
+#endif
     Desc.set_hardpoint(HardpointName);
     return Result;
 }
 
 bool CExternalEquip::IsDestroyed() const
 {
+#ifdef FREELANCER_EQUIPMENT_SLOTS
+    // Special hardware lives in a logical internal slot, with no detachable model.
+    if (EquipmentSlots::Enabled() && EquipmentClasses::IsInternal(unsigned(Arch->get_hp_type())))
+        return bDestroyed != 0;
+#endif
     // Common.dll.c 66343-66356 (0x3ed60). Gates on IsConnected() [vtable+0x58]. An unconnected
     // equip is treated as destroyed; otherwise returns the plain CEquip::bDestroyed flag.
     if (!IsConnected())
@@ -840,6 +869,7 @@ bool CEquipManager::AddNewEquipment(CEquip* Equip)
     if (Equip->GetType() == EquipTypeCargo &&
         ((CECargo*)Equip)->GetDecayDamagePerSecond() != 0.0f)
         DecayingCargoCount += 1;
+    CmnGravity::RegisterEquipment(Equip);
     return true;
 }
 

@@ -383,6 +383,7 @@ void RpcReceiveServerChannel(unsigned int ClientId, FPacketBase* Packet, IClient
                 GActivateObjectStatic.ObjectId = Typed->ObjectId;
                 GActivateObjectStatic.bActivate = Typed->bActivate;
                 GActivateObjectStatic.Field_0x08 = Typed->Field_0x08;
+                if (Typed->bActivate == 2) GActivateObjectStatic.Animation = Typed->Animation;
                 Client->SendServerActivateObject(1u, GActivateObjectStatic);
                 break;
             }

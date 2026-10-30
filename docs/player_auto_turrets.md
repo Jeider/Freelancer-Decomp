@@ -14,26 +14,15 @@ enabled = 1
 reserve_percent = 35
 ```
 
-Restart the game after changing `port.ini`. The initial reserve is overridden by preferences previously saved for the character and hull. See the [configuration reference](ini/player-auto-turrets.md).
+Restart the game after changing `port.ini`. The reserve in the current save overrides the `port.ini` default. See the [configuration reference](ini/player-auto-turrets.md).
 
-The current HUD's `Health` component places two buttons **below weapon groups**, at offsets `(0.255, -0.323)` and `(0.255, -0.351)` with the same attachment as the group buttons. They follow HUD visibility, expansion and movement.
+Open **Options > Miscellaneous** to change the global auto-turret checkbox and energy reserve (left/right arrows, 0..90 percent in steps of 5). The native table also contains radar auto-show, automatic opening of enemy/ship status panels, and the original Miscellaneous preferences. Apply commits HUD changes to the current save state; Cancel discards them. HUD settings are available after loading a game.
 
-1. The upper button starts the preferred order or immediately stops an existing order.
-2. The lower button uses the inventory `equipmenticon.3db` gear and opens the panel at the upper right edge, beneath the NeuroNet toolbar. Choose selected-target or hostile-free-fire mode, set the energy floor, and include/exclude individual turrets. Six turret rows per page; an additional button pages larger loadouts. The panel shows an ON/OFF header; diagnostic status is hidden. Options and guns are clickable text rows without icons, hardpoint names or +/- markers. Selected modes and included guns are yellow; other rows are cyan. Hover uses the native weapon-list pulse, including the energy reserve row. Extra spacing separates the reserve from modes and guns. Its background is a privately named copy of the beta `player_inventory_center.cmp`, scaled to the panel; both main buttons remain beneath the weapon groups.
-3. Changing the preferred mode or membership **cancels the order**. Press the upper button again to arm the turrets. An inactive weapon remains inactive; enable it through the ordinary weapon controls.
+The global switch overrides automatic firing without clearing individual gun selections or changing their activation. Small buttons beside the weapon rows select which eligible guns belong to automatic control, including while the global switch is off. The large master icon has been removed from HUD_Status. Configuration is retained when switching the master off and back on.
 
-Selected-target mode captures the current **hostile ship instance**. Selecting something else later does not retarget the order. Losing scanner contact suspends fire; destruction of the captured instance cancels the order. Free fire selects detected hostile ships independently for each turret, subject to its arc and projectile interception limits. Valid targets are held for at least 0.75 seconds; subsequent replacement requires a target at least 20% closer. Search retries/reconsideration are limited to 5 Hz per turret, while an acquired target is revalidated each simulation tick.
+Automatic targeting selects detected hostile ships independently for each turret, subject to its arc and projectile interception limits. Losing focus suspends fire and clears current attacks; returning focus permits fresh acquisition when the saved master setting is enabled. Native `USER_AUTO_TURRET` retains its camera function.
 
-Four commands are added to the ordinary key-binding screen; they have **no forced default bindings**:
-
-| Nickname | Action |
-|---|---|
-| `USER_PLAYER_AUTO_TURRET` | Toggle the preferred order |
-| `USER_PLAYER_AUTO_TURRET_TARGET` | Explicit order against the currently selected hostile ship |
-| `USER_PLAYER_AUTO_TURRET_FREE` | Explicit free-fire order |
-| `USER_PLAYER_AUTO_TURRET_STOP` | Revoke the order |
-
-The bound keyboard STOP is checked before the normal pause/menu input-focus filter. Other commands cannot start fire through a modal input focus. Native `USER_AUTO_TURRET` retains its camera function. Loading, changing ships/systems, leaving space and losing application focus cancel the order. Returning focus never rearms it.
+The master setting and energy reserve are stored in the native save `interface` word. Individual hardpoint selections remain in `auto_turrets.ini` by character and hull. Loading another save restores that save's master and reserve. Legacy saves without a master value use the previous INI enabled preference; without a reserve value they use `port.ini`.
 
 ## Beta icon
 
@@ -45,17 +34,17 @@ python tools/player_auto_turrets/stage_beta_icon.py 'D:/games/Freelancer Beta/DA
 
 Output: `src/obj/player_auto_turrets/stage/DATA/INTERFACE/HUD/HUD_player_auto_turret.3db`, with a SHA-256 manifest alongside it. Mesh, material and texture names and their references are remapped to avoid global resource collisions. The script only writes under this workspace's `src/obj`; it does not install anything. The destination in a game data directory is `INTERFACE/HUD/HUD_player_auto_turret.3db`.
 
-The staged icon's material names retain the `UI_` prefix for UI colouring. Without the staged icon, the main control uses `HUD_targetedobject.3db`; the settings button uses the installed inventory gear. Stage the background with the same script using `--prefix player_auto_turret_panel --background --output src/obj/player_auto_turrets/stage/DATA/INTERFACE/HUD/HUD_player_auto_turret_panel.cmp` and the beta inventory CMP as its source. Button selection, captions and tooltips indicate the state. The HUD controls depend on the current `Health` HUD component that owns the relocated weapon-group buttons; keyboard commands also work without that component. The revised layout is built and installed, but still needs visual verification in flight.
+The staged icon's material names retain the `UI_` prefix for UI colouring. Per-weapon controls belong to HUD_Status. The former HUD configurator background and maneuver-bar gear are no longer used; preferences use the game's existing button, checkbox and arrow assets. In-game visual verification remains necessary after UI layout changes.
 
 ## Firing and ownership
 
-`player_auto_turrets.cpp` owns port-only state outside the retail ship/equipment layouts. Equipment is resolved by ID and identity through the live ship manager. The player and assigned target use native watchers. A replaced loadout entry is not armed during an existing order.
+`player_auto_turrets.cpp` owns port-only state outside the retail ship/equipment layouts. Equipment is resolved by ID and identity through the live ship manager. The player and assigned target use native watchers. Newly discovered eligible guns restore their saved hardpoint selection.
 
 `UpdateSpaceState` reconciles ownership before simulation and ticks automatic firing after the camera's manual-fire update. Each shot uses `CliShipFireAutomatic` → the same internal implementation as `CliShipFireWeapons` → launcher `TryFire` → the normal local-server fire message. Resource consumption, projectile creation, damage-per-fire plugins and sounds remain in that path. The adapter reports actual `TryFire` success; neither the legacy constant return value nor a changed refire timer is treated as proof of firing.
 
 Manual cursor aim, manual per-gun target changes and all manual fire variants exclude owned turrets. The native zero-ID-count meaning, “all active launchers”, is preserved: filtering happens inside both native loops, so an empty automatic assignment can never accidentally become an all-weapons fire request. Network replay and NPC fire are not filtered by the player's assignment.
 
-Weapon groups retain a separate desired manual-active state for assigned turrets. Switching a group does not turn automatic guns on/off or redirect their aim. STOP restores that manual state; an individual OFF wins. Individual activation changes update the desired state. Saving a weapon group records the manual state rather than the automatic assignment.
+Weapon groups retain a separate desired manual-active state for assigned turrets. Switching a group does not turn automatic guns on/off or redirect their aim. Removing a gun from automatic control restores that manual state; an individual OFF wins. The global master switch preserves ownership and activation while blocking automatic shots. Individual activation changes update the desired state. Saving a weapon group records the manual state rather than the automatic assignment.
 
 The controller accepts only functioning, connected guns identified by `auto_turret` or explicit native turret hardpoint classes, with valid barrels, unguided ammunition-free projectiles and finite positive muzzle speed/lifetime. `force_gun_ori`, missiles, mines and countermeasures are excluded. It requires a functioning scanner, a targetable live hostile ship in the active physics system, a valid intercept within projectile lifetime, a mechanically reachable point and actual barrel alignment. Joint slew remains the native gun/animation update; no instant rotations or shared archetype edits are used.
 

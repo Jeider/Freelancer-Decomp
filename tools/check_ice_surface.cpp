@@ -77,7 +77,7 @@ int main(){
  for(float style:{0.f,1.f,2.f}){
   pc[376]=style==1?1.f:0.f;pc[377]=style==2?1.f:0.f;pc[378]=1.5f;pc[379]=.65f;pc[31]=5;
   auto before=render(oldPs),after=render(ps);Require(compare(before,after).second<=1,"ordinary/cockpit/glass regression");}
- puts("PASS: existing surfaces/cockpit/glass match HEAD within 1/255");pc[376]=pc[377]=0;pc[31]=-1;pc[18]=0;
+ puts("PASS: existing surfaces/cockpit/glass match baseline within 1/255");pc[376]=pc[377]=0;pc[31]=-1;pc[18]=0;
  pc[384]=1;auto ice=render(ps);for(auto p:ice)Require((p>>24)==255,"ice is fully opaque");
  pc[384]=0;auto plain=render(ps);Require(compare(ice,plain).first>W*H/4,"ice profile changes the actual ice texture");pc[384]=1;
  pc[385]=0;auto noDepth=render(ps);pc[385]=.09f;Require(compare(noDepth,ice).first>W*H/10,"interior parallax is visible");

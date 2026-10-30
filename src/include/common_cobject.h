@@ -2371,6 +2371,7 @@ public:
 
     virtual void cache_physical_props() override;
     virtual float get_mass() const override;  // Common.dll.c 0x3ad00
+    float get_physical_radius_r(Vector& OutCenter) const override;
     // Common.dll.c 0x3ac70 (decompiled .c is corrupted here; ported from raw .txt
     // 110205-110261 instead). Same object-space-to-world rotation as the base
     // CObject::get_angular_velocity, additionally gated on TypeBits & 7.

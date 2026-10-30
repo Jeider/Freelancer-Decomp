@@ -12,6 +12,7 @@
 // the class's own behavioural slots: activate 0x64 (FUN_00518ad0), attach 0x58 (0x00518af0) and
 // update 0x6c (0x00518e40), with the chase solver both of the last two call, FUN_00518f20.
 
+#include "player_flight_actions.h"
 #include "space_camera_third.h"
 #ifdef FREELANCER_ADOXA
 #include "port_plugins.h" // port-only adoxa patches (DisableLevelCameraToggle)
@@ -495,6 +496,7 @@ void ThirdPersonCameraUpdate(FThirdPersonCamera* Cam, float DeltaSeconds)
     {
         if (ThirdPersonCameraSolve(Cam, View, DeltaSeconds, false))
         {
+            PlayerFlightActions::Camera(View, DeltaSeconds);
             // 0x00518ec6..0x00518ed7: twelve dwords to +0x04, then view dirty.
             FSpaceCamera* const Space = SpaceCameraOf((FHudCamera*)Cam);
             memcpy(Space->World, View, 9 * sizeof(float));

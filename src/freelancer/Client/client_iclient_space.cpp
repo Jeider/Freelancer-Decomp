@@ -13,6 +13,9 @@
 // "Narrowed to M" is retail's inline `(Object->ObjectClass & M) == M ? Object : 0`, used with no
 // null test after it wherever retail has none.
 
+#include "flight_telemetry.h"
+#include "solar_animation_client.h"
+#include "player_action_counters.h"
 #include "freelancer_client.h"
 
 #include "character_select_equip.h"   // player equip / collision / health setters (0x004c4xxx)
@@ -24,6 +27,7 @@
 #include "common_archetype.h"
 #include "common_cequip.h"            // CEquip, CECargo
 #include "common_cobject.h"           // CObject / CSimple / CEqObj / CShip / CLoot
+#include "common_server_asteroid.h"
 #include "common_csys.h"              // Acquire3DMathEngine (FUN_005b73e0)
 #include "common_goods.h"             // EquipDescList / EquipDescVector / Loadout
 #include "common_iface.h"             // IBehaviorManager, IDirectiveInfo, FBehaviorManagerEvent
@@ -52,6 +56,7 @@
 #include "nn_story_star.h"            // StoryStarLoadHistory (slot 97), StoryStarSetRankUp (117)
 #include "player_behavior.h"          // GetPlayerObjRW (FUN_0054baf0)
 #include "player_spawn.h"             // IsPlayerShipId, player ids, waypoints
+#include "player_route.h"
 #include "rpc_iclient_args.h"         // the slot argument structs shared with Server / rpclocal
 #include "server_createinfo.h"        // CEqObjCreateInfo (slots 46 / 47)
 #include "server_sysdb.h"             // FMineExplosion (SendServerExplodeAsteroidMine)
@@ -221,6 +226,16 @@ void IClientImpl::SendCommonActivateEquip(unsigned int /*ClientId*/, const XActi
     if (Go == nullptr)
     {
         return;
+    }
+    auto* object = Go->Object;
+    if (object && (static_cast<unsigned>(object->ObjectClass) & 0x103u) == 0x103u)
+    {
+        auto* cloak = CECloakingDevice::cast(static_cast<CEqObj*>(object)->EquipManager.FindByID(Info.EquipId));
+        if (cloak && cloak->CloakArch()->GetSettings().enabled)
+        {
+            if (!SinglePlayer()) cloak->ApplyRemoteState(Info.bActivate);
+            return;
+        }
     }
     Go->slot_4c(&Info.EquipId, Info.bActivate, 0);
 }
@@ -433,11 +448,20 @@ namespace
 
         // 0x0053afcd: CSolar::init (the Common export, not virtual).
         Solar->init(Parms);
+        if (IsServerAsteroidType(Solar->TypeBits))
+        {
+            Vector Zero{0.0f, 0.0f, 0.0f};
+            PhySys::RCBegin(Solar, Info->Position, Zero, Info->Orientation, Zero);
+        }
     }
 }
 
 void IClientImpl::SendServerCreateSolar(unsigned int /*ClientId*/, const CSolarCreateInfo& Info)
 {
+    Archetype::Solar const* const IncomingArch = Archetype::GetSolar(Info.ArchetypeNickname);
+    if (IncomingArch != nullptr && IsServerAsteroidType(IncomingArch->ObjectType) &&
+        ClientObjDb_FindObject(Info.ObjId, 0) != nullptr)
+        return;
     if (!PhySys::AnyActive())
     {
         return;
@@ -475,7 +499,8 @@ void IClientImpl::SendServerCreateSolar(unsigned int /*ClientId*/, const CSolarC
     // 0x0053b0b9..0x0053b0d0: the player's gameobj (FUN_0054baf0) is fetched first; nothing
     // more in single player or without one.
     IObjRW* const Player = static_cast<IObjRW*>(GetPlayerObjRW());
-    if (SinglePlayer() || Player == nullptr)
+    if (SinglePlayer() || Player == nullptr ||
+        IsServerAsteroidType(static_cast<CSolar*>(Obj)->TypeBits))
     {
         return;
     }
@@ -1096,6 +1121,7 @@ void IClientImpl::SendServerDestroyObject(unsigned int /*ClientId*/, const FServ
 // (tradelane_fx.cpp). Retail reads the argument with no null test.
 void IClientImpl::SendServerActivateObject(unsigned int /*ClientId*/, const FPayloadServerActivateObject& Info)
 {
+    if (Info.bActivate == 2) { ClientSolarAnimation(Info); return; }
     TradeLaneSPObjActivate(Info.ObjectId, Info.bActivate != 0, Info.Field_0x08);
 }
 
@@ -1346,6 +1372,8 @@ void IClientImpl::SendServerRequestSpaceScript(unsigned int /*ClientId*/, const 
 // 0x0053be35 constructs one more EquipDesc that nothing reads.
 void IClientImpl::SendServerDamageObject(unsigned int /*ClientId*/, unsigned int ObjectId, const DamageList& Damage)
 {
+    FlightTelemetry::Damage(ObjectId, Damage);
+    PlayerActionCounters::Damage(ObjectId, Damage);
     FClientGameobj* const Go = ClientObjDb_FindObject(ObjectId, 0);
     if (Go == nullptr)
     {
@@ -1690,6 +1718,7 @@ void IClientImpl::SendCommonSetVisitedState(unsigned int /*ClientId*/, unsigned 
 void IClientImpl::SendCommonRequestBestPath(unsigned int /*ClientId*/, const unsigned char* Data,
                                             unsigned int /*Size*/)
 {
+    PlayerRoute::BeginPathResponse();
     unsigned char const* const Info = Data;
     G_bNavMapNoBestPath = Info[8];
     ResetPlayerWaypointsRetail();
@@ -1718,6 +1747,7 @@ void IClientImpl::SendCommonRequestBestPath(unsigned int /*ClientId*/, const uns
         }
         Record += 0x14;
     }
+    if (!PlayerRoute::RefineWaypoints()) G_bNavMapNoBestPath = 1;
 }
 
 // LAB_0053c3d0 (RET 0xc) -- REQUEST_PLAYER_STATS: FUN_004a8e40(Data, Data+0x34, Data+0x34 +

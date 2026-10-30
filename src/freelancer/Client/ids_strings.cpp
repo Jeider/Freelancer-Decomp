@@ -5,8 +5,12 @@
 // Author: Giperion.
 
 #include "ids_strings.h"
+#include "inventory_categories.h"
 #include "equipment_slot_text.h"
+#include "port_config.h"
+#include <string>
 #include "player_turret_hud.h"
+#include "player_flight_actions.h"
 #include "msvcrt_compat.h" // MsvcrtWtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
 #include "common_text.h"
@@ -88,6 +92,41 @@ HMODULE GetIdsResourceModule(unsigned int Ids)
 
 unsigned int GetIdsStringW(unsigned int Ids, wchar_t* Dest, int DestChars)
 {
+    if (Ids == InventoryCategories::BoostersName || Ids == InventoryCategories::KeysName)
+    {
+        bool const ru = _stricmp(PortLanguage(), "ru") == 0;
+        wchar_t const* text = Ids == InventoryCategories::BoostersName
+            ? (ru ? L"\u0423\u0441\u0438\u043b\u0438\u0442\u0435\u043b\u0438" : L"Boosters")
+            : (ru ? L"\u041a\u043b\u044e\u0447\u0438" : L"Keys");
+        if (!Dest) return static_cast<unsigned>(wcslen(text));
+        if (DestChars <= 0) return 0;
+        unsigned const count = (std::min)(static_cast<unsigned>(wcslen(text)), unsigned(DestChars - 1));
+        wmemcpy(Dest, text, count); Dest[count] = L'\0'; return count;
+    }
+    if (Ids >= 0x7f5300 && Ids <= 0x7f5307)
+    {
+        bool const ru = _stricmp(PortLanguage(), "ru") == 0;
+        std::wstring text = Ids == 0x7f5307
+            ? (ru ? L"\u0410\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0440\u0435\u043c\u043e\u043d\u0442: \u0432\u043a\u043b/\u0432\u044b\u043a\u043b" : L"Automatic repair: on/off")
+            : Ids == 0x7f5306
+            ? (ru ? L"\u041d\u0435\u0432\u0438\u0434\u0438\u043c\u043e\u0441\u0442\u044c: \u0432\u043a\u043b/\u0432\u044b\u043a\u043b" : L"Cloaking: on/off")
+            : (ru ? L"\u0413\u0440\u0443\u043f\u043f\u0430 \u043e\u0440\u0443\u0434\u0438\u0439 " : L"Weapon group ") + std::to_wstring(Ids - 0x7f5300 + 1);
+        if (!Dest) return unsigned(text.size());
+        if (DestChars <= 0) return 0;
+        unsigned const count = (std::min)(unsigned(text.size()), unsigned(DestChars - 1));
+        wmemcpy(Dest, text.c_str(), count); Dest[count] = L'\0'; return count;
+    }
+
+#ifdef FREELANCER_PLAYER_FLIGHT_ACTIONS
+    if (auto const* text = PlayerFlightActions::KeyText(Ids)) {
+        if (!Dest) return static_cast<unsigned>(wcslen(text));
+        if (DestChars <= 0) return 0;
+        unsigned count = (std::min)(static_cast<unsigned>(wcslen(text)),static_cast<unsigned>(DestChars-1));
+        wmemcpy(Dest,text,count);
+        Dest[count]=L'\0';
+        return count;
+    }
+#endif
 #ifdef FREELANCER_PLAYER_AUTO_TURRETS
     std::wstring TurretText;
     if (PlayerTurretHud::Text(Ids, TurretText))

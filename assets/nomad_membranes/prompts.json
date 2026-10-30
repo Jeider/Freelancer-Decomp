@@ -1,0 +1,20 @@
+[
+  {
+    "key": "nomad_membrane_outer",
+    "path": "D:/work/Freelancer-Decomp/src/obj/nomad_membrane/beta_nomad_lair.mat/lair_rock_membrane.tga.png",
+    "transparent": true,
+    "prompt": "Edit the supplied game texture for Freelancer Nomad Lair. Output a single square 1024x1024 seamless repeating RGBA texture, flat orthographic UV asset, not a scene or an object. Preserve the reference's deep desaturated blue, violet and icy cyan palette and its organic cellular structure. Improve the coarse muddy membrane into translucent alien energy tissue: broad softly rippling cells, delicate branching cyan-violet filaments, silky membrane folds and restrained pearlescent highlights. Keep genuinely semitransparent thin areas between stronger translucent ridges; preserve alpha transparency, no painted checkerboard. Balanced readable medium-scale structure with refined fine detail, avoid gritty noise, rock lumps, hard mechanical lines, white overexposure, obvious isolated glowing objects. Entire square covered by continuous membrane, no border or vignette, seamless on all four edges, no text. This is an edit target; keep its visual identity while improving definition."
+  },
+  {
+    "key": "nomad_membrane_inner",
+    "path": "D:/work/Freelancer-Decomp/src/obj/nomad_membrane/beta_nomad.mat/lair_rckint_membrane.tgalair_op.tga.png",
+    "transparent": true,
+    "prompt": "Edit the supplied game texture for the translucent interior membrane of Freelancer Nomad Lair. Output one square 1024x1024 seamless tiling RGBA texture, flat UV asset, not a rendered object or a scene. Retain muted amber, ivory, olive-brown tones and irregular interconnected translucent structures of the reference. Refine the muddy rectangular pattern into a stretched organic energy membrane: thin translucent film, flowing connected ivory-gold fibres, delicate branching cellular veins, subtle warm opalescent edges and broad transparent pockets. Restrained luminosity; no white bloom, no opaque rock or metal, no hard rectangular architecture, no checkerboard painted into the image. Preserve real transparency with soft alpha gradients across membrane and veins. Pattern must fill the square edge to edge with no border, vignette, central emblem, text or perspective. Seamless repeat in both axes. Keep the reference palette and organic intent."
+  },
+  {
+    "key": "nomad_energy",
+    "path": "D:/work/Freelancer-Decomp/src/obj/nomad_membrane/beta_nomad.mat/lair_energy2.tga.png",
+    "transparent": false,
+    "prompt": "Edit this red alien energy game texture from Freelancer Nomad Lair into a higher-quality seamless square plasma texture. Flat full-frame UV asset at highest available square resolution; preserve its crimson, dark maroon, red-orange and restrained pale salmon palette. Replace excessive speckled grain with coherent flowing plasma folds and branching cellular energy streams at several scales. Clear larger swirling structures, fine silky filaments and subtle depth inside the energy, dark red channels between luminous flowing regions. Keep an even composition, controlled brightness and original red identity; no bright central sun, no recognizable objects, no explosion, no stars, no lightning bolts, no text, no border or vignette, no checkerboard. Seamless across both axes with continuous structures on opposite edges. Opaque RGB energy texture, preserve full opacity. Not a photograph or 3D scene, no external lighting or perspective."
+  }
+]

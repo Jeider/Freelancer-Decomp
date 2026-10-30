@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "client_cliobj.h"
+#include "tradelane_ring_anim.h"
 
 #include "common_goods.h"
 #include "common_id.h"
@@ -2633,12 +2634,15 @@ namespace Archetype
 
         void FCliSolar::DestroyMostDerived()
         {
+            TradeLaneRingAnimForgetConfig(this);
             this->~FCliSolar();
         }
 
         // retail FUN_00407bd0.
         bool FCliSolar::ReadUnknown(INI_Reader* Reader)
         {
+            if (TradeLaneRingAnimRead(this, *Reader))
+                return true;
             if (FCliObj::ReadUnknown(Reader))
                 return true;
 
@@ -2694,6 +2698,7 @@ namespace Archetype
         // with the donor -- then the solar fields, RefCount restored at 00407e4e.
         void FCliSolar::Inherit(ICliObj* Donor)
         {
+            TradeLaneRingAnimCopy(this, Donor);
             FCliSolar* DonorSolar = AsCliSolar(Donor);
             int SavedRef = RefCount;
 
@@ -3064,6 +3069,7 @@ namespace Archetype
         // close_sound (+0x58) follow the donor; the texture name and infocard do not.
         void FCliSolar::Redefine(ICliObj* Donor)
         {
+            TradeLaneRingAnimCopy(this, Donor);
             FCliObj::Redefine(Donor);
             CliRedefineTwoDwords(this, Donor);
         }
@@ -4463,6 +4469,11 @@ namespace Archetype
             NewCompanion<FCliInternalFx>(Out);
             return;
         }
+
+        case Archetype::AClassGravityDevice:
+        case Archetype::AClassDoorKey:
+            NewCompanion<FCliObj>(Out);
+            return;
 
         case CliObjTypeRepairDroid:
         {

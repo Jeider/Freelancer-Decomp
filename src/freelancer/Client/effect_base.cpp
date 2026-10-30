@@ -9,6 +9,7 @@
 // Agent: cursor:equip-fx-factory.
 
 #include "effect_base.h"
+#include "cockpit_effect_brightness.h"
 
 #include "beam_effect.h"
 #include "effect_type_info.h"      // EffectTypeInfoByIndex (FUN_004fd560)
@@ -100,6 +101,7 @@ void EffectBaseConstruct(FEffectBase* This, unsigned TypeId)
     // FUN_004f79f0 — listing dword writes through +0x68.
     if (This == nullptr)
         return;
+    CockpitEffectBrightness::Register(This);
     std::memset((unsigned char*)This + sizeof(void*), 0, sizeof(FEffectBase) - sizeof(void*));
     This->Priority0C = 1.0f;
     // Identity-ish transform diagonals (listing 0x3f800000 at [3]/[4]/[8]/[0xc]).
@@ -169,6 +171,7 @@ unsigned char EffectBaseStart(FEffectBase* This, FEffectArch* Arch)
 
 void EffectBaseDestruct(FEffectBase* This)
 {
+    CockpitEffectBrightness::Forget(This);
     // 0x004f8dd6..0x004f8de2: only a non-empty watcher is reset (set_pointer(0)); set() makes
     // the same call once it sees the target differs.
     if (This->Watcher.target() != nullptr)

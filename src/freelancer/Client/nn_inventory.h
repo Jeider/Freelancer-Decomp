@@ -160,7 +160,7 @@ public:
     // FUN_0047e590 -- the five filter buttons' slot 42 (0xc, Mode == n, 0).
     void UpdateFilterButtons();
     // FUN_0047f240 (RET 8) -- switch the list filter: 0 weapons, 1 ammo, 2 equipment,
-    // 3 cargo bay, 4 commodity.
+    // 3 cargo bay, 4 commodity; port: 6 Boosters, 7 Keys (5 remains hidden).
     void SetMode(int NewMode, bool bPropagate);
     // FUN_0047d2f0 -- rebuild the item rows from List.
     void RefreshItemList(EquipDescList const* List, int Arg2, unsigned char bArg3);

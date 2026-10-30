@@ -3,6 +3,7 @@
 // and docs/re/asteroid_far_look.md.
 
 #include "far_rocks.h"
+#include "runtime_hitch_log.h"
 
 #ifdef FREELANCER_RP9
 
@@ -523,6 +524,7 @@ namespace
     // Generates the rocks of one field. Returns false when the field cannot have any.
     bool BuildField(FCliAsteroid const* Field, FFarField& F)
     {
+        RuntimeHitchScope Hitch("render_prepare", "FarRocks field geometry");
         DWORD const StartTick = GetTickCount();
         FCliAsteroidFarInfo Info;
         if (!CliAsteroidGetFarInfo(Field, &Info))
@@ -1026,7 +1028,7 @@ namespace
         int Pending;
     };
 
-    double const kBuildBudgetMs = 100.0;
+    double const kBuildBudgetMs = 4.0; // fallback only; initial preparation runs during loading
 
     void BuildPending(FCliAsteroid* Field, void* Ctx)
     {
@@ -1167,8 +1169,23 @@ void FarRocksShutdown()
     G_Fields.clear();
 }
 
+void FarRocksPrepareSystem()
+{
+    if (!GatesPass()) return;
+    RuntimeHitchScope Hitch("preload", "FarRocks system geometry and buffers");
+    // All systems, independent of camera direction. Resetting the budget for
+    // each loading visit is deliberate; there is no flight-frame budget here.
+    CliAsteroidForEach([](FCliAsteroid* Field, void*) {
+        FBuildVisit Visit = {};
+        BuildPending(Field, &Visit);
+        auto* Far = EntryFor(Field, false);
+        if (Far && Far->bBuilt && !Far->bFailed) EnsureProgram(Far->P.bDebris);
+    }, nullptr);
+}
+
 void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
 {
+    RuntimeHitchScope Hitch("render_phase", "FarRocks");
     if (Cam == nullptr || DALib::Pipeline == nullptr || !GatesPass())
         return;
     // Fields only take part when one has [FarRocks] or the auto switch can give one a default.
@@ -1436,6 +1453,7 @@ void FarRocksForget(FCliAsteroid const*) {}
 bool FarRocksReplacesBand(FCliAsteroid const*) { return false; }
 bool FarRocksReplacesBillboards(FCliAsteroid const*) { return false; }
 void FarRocksDrawAll(ICamera*, float, int) {}
+void FarRocksPrepareSystem() {}
 void FarRocksShutdown() {}
 
 #endif

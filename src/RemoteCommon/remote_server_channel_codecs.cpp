@@ -1159,6 +1159,7 @@ unsigned int FRpcServerActivateObjectPacket::Encode(unsigned char** BufferHolder
     if (!Stream.Put(&ObjectId, 4u)) return 0x16u;                      // 06b5ccd5
     if (!Stream.Put(&bActivate, 1u)) return 0x16u;                     // 06b5cd08
     if (!Stream.Put(&Field_0x08, 4u)) return 0x16u;                    // 06b5cd3b
+    if (bActivate == 2 && !Stream.Put(&Animation, sizeof(Animation))) return 0x16u;
     return Stream.FinishEncodeSuccess(OutLength);
 }
 
@@ -1169,6 +1170,7 @@ unsigned int FRpcServerActivateObjectPacket::Decode(const unsigned char* Buffer,
     if (!Stream.Get(&ObjectId, 4u)) return MarshalError;
     if (!Stream.Get(&bActivate, 1u)) return MarshalError;
     if (!Stream.Get(&Field_0x08, 4u)) return MarshalError;
+    if (bActivate == 2 && !Stream.Get(&Animation, sizeof(Animation))) return MarshalError;
     return Stream.Finish(OutLength, false);
 }
 

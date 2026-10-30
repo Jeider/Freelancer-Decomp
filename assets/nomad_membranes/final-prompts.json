@@ -1,0 +1,20 @@
+{
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "source": "assets/nomad_membranes/outer-v3.png",
+      "prompt": "Generate a production-ready seamless square diffuse texture for a translucent blue alien energy membrane in the game Freelancer. This is ONLY the RGB diffuse channel: opacity is provided separately by the game material. It must be FULLY OPAQUE, full-bleed, edge to edge: no transparency, no border, no margin, no corner rounding, no vignette, no isolated object. Deep desaturated blue and violet cellular currents, icy cyan fine branching energy filaments, smooth thin silky organic folds with subtle pearl highlights. Large irregular softly connected cells with delicate finer fibres inside, not rocks or brains. The same pattern density and brightness at edges and in the centre, seamless periodic texture in both axes. Flat orthographic texture atlas tile, no perspective, no lighting gradient. Moderate contrast, restrained highlights, no bright white patches, no text, stars or mechanical structures. Fill ALL pixels INCLUDING the four exact square corners with continuous blue membrane pattern.",
+      "opacity": "native material Oc=0.6"
+    },
+    {
+      "source": "assets/nomad_membranes/inner-v2.png",
+      "prompt": "Targeted technical correction of this gold organic membrane game texture. Preserve the existing connected organic ivory-gold fibres, cell shapes and muted olive/amber palette. Make the film between the fibres substantially truly transparent, about 15-35 percent opacity in the large cell interiors, retaining 65-90 percent opacity on the finer glowing fibres. This must be actual RGBA alpha, not an opaque picture of a transparent material, and not black or a checkerboard painted into the image. No edge fading, no border, no rounded corners; the same pattern density and opacity distribution must continue all the way to all four edges. Infinite seamless repeating square UV texture. Keep highlights restrained and detailed, avoid washed-out white. Output only the texture.",
+      "opacity": "generated alpha preserved"
+    },
+    {
+      "source": "assets/nomad_membranes/energy-v1.png",
+      "prompt": "Edit this red alien energy game texture from Freelancer Nomad Lair into a higher-quality seamless square plasma texture. Flat full-frame UV asset at highest available square resolution; preserve its crimson, dark maroon, red-orange and restrained pale salmon palette. Replace excessive speckled grain with coherent flowing plasma folds and branching cellular energy streams at several scales. Clear larger swirling structures, fine silky filaments and subtle depth inside the energy, dark red channels between luminous flowing regions. Keep an even composition, controlled brightness and original red identity; no bright central sun, no recognizable objects, no explosion, no stars, no lightning bolts, no text, no border or vignette, no checkerboard. Seamless across both axes with continuous structures on opposite edges. Opaque RGB energy texture, preserve full opacity. Not a photograph or 3D scene, no external lighting or perspective.",
+      "opacity": "opaque"
+    }
+  ]
+}

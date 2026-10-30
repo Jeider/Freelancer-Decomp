@@ -65,6 +65,9 @@ void ClearButtonMontage();
 // the colour of the RGBA bytes. True then. Callers: the 21 HUD_Targetable_Objects sites the
 // XREF header lists (FUN_004ef030, FUN_004f0620, FUN_004f0900) and ButtonControl's body draw
 // FUN_00559aa0 (0x00559b86, missing from that header; Mode 0, Angle 0).
+// Port: the 16 targeting marker names in hud_marker_geometry.h instead enqueue
+// untextured geometry with the same projection, colour and mirror/rotation inputs.
+// These markers do not require Tile->Shape; other montage tiles retain retail behaviour.
 bool NnMontageDrawTileAt(FButtonMontageTile const* Tile, float const* Position,
                          unsigned char const* Rgba, float Size, int Mode, float Angle);
 

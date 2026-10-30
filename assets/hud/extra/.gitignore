@@ -1,0 +1,4 @@
+# Original game art is staged locally, not redistributed.
+*.3db
+*.tga
+*_sources.json

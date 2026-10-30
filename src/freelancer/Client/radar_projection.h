@@ -2,6 +2,7 @@
 #pragma once
 #include <algorithm>
 #include <cmath>
+#include "../../include/common_server_asteroid.h"
 
 namespace RadarProjection
 {
@@ -74,9 +75,12 @@ namespace RadarProjection
     { return (std::max)(0, (std::min)(2, current + (zoomIn ? -1 : 1))); }
 
     inline bool Accept(unsigned id, unsigned playerId, unsigned type, unsigned mask,
-                       bool targetable, bool dying)
+                       bool targetable, bool dying, bool valuable = false)
     {
-        return id != 0 && id != playerId && (type & mask) != 0 && targetable && !dying;
+        // Server physics represents moving asteroids as solars; they are scenery,
+        // not radar contacts (including the mining scan and auto-open policy).
+        return id != 0 && id != playerId && (!IsServerAsteroidType(type) || valuable) &&
+               (type & mask) != 0 && targetable && !dying;
     }
 
     // FL orientation is local-to-world. Its transpose converts the relative

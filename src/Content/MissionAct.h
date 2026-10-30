@@ -56,6 +56,16 @@ public:
 
 // Act_ActTrig: new(0x10), ctor FUN_06ec7880, vtable 06fb5ba4.
 // +0x0c id of the trigger to activate.
+class ActAnimation : public Act
+{
+public:
+    explicit ActAnimation(FMissionScript* mission) : Act(mission) {}
+    void Parse(INI_Reader&) override;
+    bool Execute() override;
+    TString<0x30> Object;
+    TString<0x60> Animation;
+};
+
 class ActActTrig : public Act
 {
 public:

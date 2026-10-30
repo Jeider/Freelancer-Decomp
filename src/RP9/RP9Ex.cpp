@@ -19,6 +19,7 @@
 //   are re-queued to their pre-pass values, fixed-function stages the pass touched are saved
 //   and re-sent, shaders are unbound, colour target / depth surface / viewport are restored.
 #include "RP9Ex.h"
+#include "RP9UserGraphics.h"
 #include "RP9DeviceCallCache.h"
 #include "RP9PlanetQuality.h"
 #include "readfile.h"
@@ -37,6 +38,7 @@
 // d3dx9.h after RP9.h (render/d3d8_min.h already pulled the Windows SDK d3d9.h).
 #include <d3dx9.h>
 #include "RP9ShaderCache.h"
+#include "RP9ShaderWarmup.h"
 
 namespace
 {
@@ -214,7 +216,12 @@ namespace
     RuntimeHitchScope Hitch("shader", Path.c_str());
         std::string Messages;bool Hit=false,Stored=false;
         ULONGLONG Start=GetTickCount64();
-        const HRESULT Hr=Rp9ShaderCache::Compile(Source,Include,Entry,Profile,0,OutCode,&Messages,&Hit,&Stored);
+        // A source may opt out of the D3DX optimiser: its long ray-march loops can take minutes
+        // at the default level. SKIPOPTIMIZATION, not OPTIMIZATION_LEVEL0: level 0 turns a break
+        // inside a loop into "break_ne -c, -c", which never fires (the ray marched on through
+        // the black hole).
+        const DWORD Flags=Source.find("RP9_SKIP_OPTIMIZATION")!=std::string::npos ? D3DXSHADER_SKIPOPTIMIZATION : 0;
+        const HRESULT Hr=Rp9ShaderCache::Compile(Source,Include,Entry,Profile,Flags,OutCode,&Messages,&Hit,&Stored);
         const bool bOk = SUCCEEDED(Hr);
         if (!bOk)
             ExLogf(kExFdumpError, "ERROR", __LINE__, "%s: %s %s failed to compile (hr 0x%08x)",
@@ -232,6 +239,7 @@ namespace
     {
         if (Device == nullptr || Program->VsBytecode.empty() || Program->PsBytecode.empty())
             return S_OK;
+        RuntimeHitchScope DeviceHitch("shader_device", Program->Path.c_str());
         HRESULT Hr = S_OK;
         if (Program->Vs == nullptr)
             Hr = Device->CreateVertexShader((const DWORD*)(&Program->VsBytecode[0]), &Program->Vs);
@@ -245,6 +253,7 @@ namespace
 
     void ReleaseProgramShaders(FRPExProgram* Program)
     {
+        Program->DriverWarmed = false;
         if (Program->Vs != nullptr)
         {
             Program->Vs->Release();
@@ -643,6 +652,7 @@ namespace
         Ex->CurrentTarget = nullptr;
         Ex->bDepthBound = false;
         Ex->bInPass = false;
+        Ex->bHudSurfacePass = false;
     }
 
     // The IRPDraw::DrawPrimitive sequence: the stream cache selects the FVF, FlushDrawState
@@ -799,6 +809,8 @@ void FDirectX9::ExReleaseDeviceResources()
     FRp9ExState* Ex = Ex_;
     if (Ex == nullptr)
         return;
+    Ex->SurfaceDriverWarmed = false;
+    if(Ex->NomadEnergySaved) {Ex->NomadEnergySaved->Release();Ex->NomadEnergySaved=nullptr;}
     Ex->bSurfaceNormalCached=Ex->bSurfaceLightsCached=false;
     if(Device_)
     {
@@ -850,6 +862,9 @@ void FDirectX9::ExReleaseAllGpu()
     ExShipNormalsRelease();
     ExRockNormalsRelease();
     Ex->MeshInstances.Release();
+    if(Ex->NomadEnergyVs) {Ex->NomadEnergyVs->Release();Ex->NomadEnergyVs=nullptr;}
+    if(Ex->NomadEnergyPs) {Ex->NomadEnergyPs->Release();Ex->NomadEnergyPs=nullptr;}
+    Ex->bNomadEnergyPrepared=false;
     if (Ex->SurfaceVs != nullptr) { Ex->SurfaceVs->Release(); Ex->SurfaceVs = nullptr; }
     if (Ex->SurfaceLowPs) { Ex->SurfaceLowPs->Release(); Ex->SurfaceLowPs=nullptr; }
     if (Ex->SurfaceLowCubePs) { Ex->SurfaceLowCubePs->Release(); Ex->SurfaceLowCubePs=nullptr; }
@@ -862,6 +877,7 @@ void FDirectX9::ExReleaseAllGpu()
     if(Ex->NomadVs){Ex->NomadVs->Release();Ex->NomadVs=nullptr;}
     if(Ex->NomadDepthPs){Ex->NomadDepthPs->Release();Ex->NomadDepthPs=nullptr;}
     if(Ex->NomadLayers){Ex->NomadLayers->Release();Ex->NomadLayers=nullptr;}
+    for(auto*& Texture:Ex->NomadBones) if(Texture){Texture->Release();Texture=nullptr;}
     Ex->bNomadTextureTried=false;Ex->bNomadCompileFailed=false;
     if (Ex->IceLayers) { Ex->IceLayers->Release(); Ex->IceLayers=nullptr; }
     Ex->bIceTextureTried=false;
@@ -967,6 +983,7 @@ GENRESULT DACOM_API FDirectX9::GetExCaps(FRPExCaps* Out)
     Full.MaxPixelShaderInstructionsExecuted = Caps.MaxPShaderInstructionsExecuted;
     Full.bMeshInstances = Caps.VertexShaderVersion >= D3DVS_VERSION(3, 0) && Caps.MaxStreams >= 2 &&
         (Caps.DevCaps2 & D3DDEVCAPS2_STREAMOFFSET) != 0;
+    Full.bHudSurface = (Caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND) != 0;
     D3DADAPTER_IDENTIFIER9 Identifier;
     memset(&Identifier, 0, sizeof(Identifier));
     if (D3d_ != nullptr && SUCCEEDED(D3d_->GetAdapterIdentifier(Adapter, 0, &Identifier)))
@@ -1171,6 +1188,18 @@ GENRESULT DACOM_API FDirectX9::BeginExPass(const FRPExPassDesc* Desc)
     }
     if (Desc == nullptr)
         return GR_INVALID_PARMS;
+    // D3D8 never initialized the D3D9-only alpha-factor cache entries. Zero is not a
+    // legal D3DBLEND/BLENDOP: seed them before saving the state a HUD pass restores.
+    if ((Desc->Flags & RPExPassHudSurface) != 0)
+    {
+        for (unsigned id = D3DRS_SRCBLENDALPHA; id <= D3DRS_BLENDOPALPHA; ++id)
+        {
+            if (RenderStates_.Entries[id].Pending != 0) continue;
+            DWORD value = 0;
+            if (SUCCEEDED(Device_->GetRenderState(static_cast<D3DRENDERSTATETYPE>(id), &value)))
+                RenderStates_.MarkDirty(id, value);
+        }
+    }
     FRPExTexture* Target = Desc->ColorTarget;
     if (Target != nullptr && (Target->Kind != Rp9ExTextureRenderTarget || Target->Surface == nullptr))
         return GR_INVALID_PARMS;
@@ -1202,16 +1231,20 @@ GENRESULT DACOM_API FDirectX9::BeginExPass(const FRPExPassDesc* Desc)
     // A pass may draw before binding a program: no surface shader may remain bound.
     ExSurfaceRelease();
     Ex->bInPass = true;
+    Ex->bHudSurfacePass = (Desc->Flags & RPExPassHudSurface) != 0;
     ExGpuMark(FRp9GpuTimers::ExBegin);
 
     // The pass's starting render states (through the cache; EndExPass re-queues the old ones).
-    ExSetPassState(this, D3DRS_ALPHABLENDENABLE, FALSE);
-    ExSetPassState(this, D3DRS_ALPHATESTENABLE, FALSE);
-    ExSetPassState(this, D3DRS_FOGENABLE, FALSE);
-    ExSetPassState(this, D3DRS_STENCILENABLE, FALSE);
-    ExSetPassState(this, D3DRS_CULLMODE, D3DCULL_NONE);
-    ExSetPassState(this, D3DRS_LIGHTING, FALSE);
-    ExSetPassState(this, D3DRS_COLORWRITEENABLE, 0xF);
+    if (!Ex->bHudSurfacePass)
+    {
+        ExSetPassState(this, D3DRS_ALPHABLENDENABLE, FALSE);
+        ExSetPassState(this, D3DRS_ALPHATESTENABLE, FALSE);
+        ExSetPassState(this, D3DRS_FOGENABLE, FALSE);
+        ExSetPassState(this, D3DRS_STENCILENABLE, FALSE);
+        ExSetPassState(this, D3DRS_CULLMODE, D3DCULL_NONE);
+        ExSetPassState(this, D3DRS_LIGHTING, FALSE);
+        ExSetPassState(this, D3DRS_COLORWRITEENABLE, 0xF);
+    }
 
     const HRESULT Hr = ExSelectTarget(this, Target, (Desc->Flags & RPExPassKeepDepth) != 0);
     if (FAILED(Hr))
@@ -1578,8 +1611,8 @@ namespace
         GetPrivateProfileStringA("Render",Key,"",Text,sizeof(Text),Path);
         char* End=nullptr;
         double Value=strtod(Text,&End);
-        if(End==Text || !std::isfinite(Value)) return Default;
-        return (float)std::fmax(Min,std::fmin(Max,Value));
+        if(End==Text || !std::isfinite(Value)) Value=Default;
+        return Rp9UserGraphics(Key,(float)std::fmax(Min,std::fmin(Max,Value)));
     }
 
     // port.ini next to the exe, [Render] <Key> (metres; 0 or missing = off).
@@ -1596,7 +1629,7 @@ namespace
         char Text[64] = {};
         GetPrivateProfileStringA("Render", Key, "0", Text, sizeof(Text), Path);
         const double Value = atof(Text);
-        return Value > 0.0 ? (float)(Value) : 0.0f;
+        return Rp9UserGraphics(Key,Value > 0.0 ? (float)(Value) : 0.0f);
     }
 
     // Surface shader warm-up: at device creation (in the menus) every surface variant is compiled
@@ -1649,7 +1682,7 @@ void StartSurfaceShaderWarmup()
                 Jobs.push_back({std::string("#define SURFACE_GREENHOUSE 1\n")+Variant+Cube+Source,"PSMain","ps_3_0"});
     Jobs.push_back({std::string("#define SURFACE_NOMAD 1\n")+Source,"VSMain","vs_3_0"});
     Jobs.push_back({std::string("#define SURFACE_NOMAD 1\n#define SURFACE_NOMAD_LIGHT 1\n#define SURFACE_NO_SHADOW 1\n")+Source,"PSNomadDepth","ps_3_0"});
-    for(const char* Detail:{"", "#define SURFACE_NOMAD_LIGHT 1\n"})
+    for(const char* Detail:{"", "#define SURFACE_NOMAD_LIGHT 1\n", "#define SURFACE_BEAST 1\n"})
         for(const char* Shadow:{"", "#define SURFACE_NO_SHADOW 1\n"})
             Jobs.push_back({std::string("#define SURFACE_NOMAD 1\n")+Detail+Shadow+Source,"PSMain","ps_3_0"});
     for(const char* Shadow:{"", "#define SURFACE_NO_SHADOW 1\n"})
@@ -1680,6 +1713,7 @@ void StartSurfaceShaderWarmup()
     };
     struct FPair { const char* File; const char* Vs; const char* Ps; };
     static const FPair Whole[] = {
+        {"nomad_energy.hlsl","VSMain","PSMain"},
         {"code_beam.hlsl","VSMain","PSMain"}, {"planet_atmosphere.hlsl","VSMain","PSMain"},
         {"planet_surface.hlsl","VSMain","PSMain"}, {"planet_ring.hlsl","VSMain","PSMain"},
         {"room_material.hlsl","VSMain","PSMain"}, {"room_material.hlsl","VSSkin","PSMain"},
@@ -1811,6 +1845,105 @@ GENRESULT DACOM_API FDirectX9::SetSoftParticles(unsigned long Kind)
     Ex->SoftKind = Kind <= RPExSoftClouds ? Kind : RPExSoftOff;
     Ex->SoftFadeOverride = 0.0f;
     return GR_OK;
+}
+
+GENRESULT DACOM_API FDirectX9::WarmSceneCaches()
+{
+    if (!Device_ || !Ex_ || Ex_->bInPass || Ex_->bShadowDrawing) return GR_GENERIC;
+    RuntimeHitchScope Hitch("preload", "system graphics driver warmup");
+    ExFlushSurfaceInstances();
+    auto* E = Ex_;
+    std::vector<Rp9Warmup::Pair> pairs;
+    bool surfaces = ReadPortFade("surface_shaders") > .5f && !E->SurfaceDriverWarmed;
+    bool prepared = true;
+    if (surfaces)
+    {
+        // Workers only compile bytecode. Wait at this loading boundary rather
+        // than duplicate their expensive cold compiles on the device thread.
+        ULONGLONG const start = GetTickCount64();
+        while (G_SurfaceWarmState == 1 && GetTickCount64()-start < 120000) Sleep(1);
+        if (G_SurfaceWarmState == 1) return GR_GENERIC;
+        char module[MAX_PATH] = {};
+        GetModuleFileNameA(nullptr,module,MAX_PATH);
+        char* slash = strrchr(module,'\\');
+        if (!slash) return GR_GENERIC;
+        slash[1]=0;
+        std::string path = std::string(module)+"../DATA_EXTRA/SHADERS/surface_material.hlsl", source;
+        if (FILE* f=fopen(path.c_str(),"rb")) {
+            char buffer[4096]; size_t n;
+            while ((n=fread(buffer,1,sizeof(buffer),f))!=0) source.append(buffer,n);
+            fclose(f);
+        }
+        if(source.empty()) return GR_GENERIC;
+        auto vertex = [&](IDirect3DVertexShader9*& shader, char const* prefix) {
+            if(shader) return true;
+            std::vector<unsigned char> code;
+            return CompileStage(std::string(prefix)+source,path,nullptr,"VSMain","vs_3_0",&code) &&
+                SUCCEEDED(Device_->CreateVertexShader(reinterpret_cast<DWORD const*>(code.data()),&shader));
+        };
+        prepared=vertex(E->SurfaceVs,"") && vertex(E->NomadVs,"#define SURFACE_NOMAD 1\n");
+        auto pixel = [&](IDirect3DPixelShader9*& shader, IDirect3DVertexShader9* vs,
+                         std::string const& prefix, char const* entry="PSMain") {
+            if(!vs) {prepared=false;return;}
+            if(!shader) {
+                std::vector<unsigned char> code;
+                if(!CompileStage(prefix+source,path,nullptr,entry,"ps_3_0",&code) ||
+                   FAILED(Device_->CreatePixelShader(reinterpret_cast<DWORD const*>(code.data()),&shader))) {
+                    prepared=false;return;
+                }
+            }
+            pairs.push_back({vs,shader,true});
+        };
+        IDirect3DPixelShader9** standard[]={&E->SurfacePs,&E->SurfaceCubePs,
+            &E->SurfaceNoShadowPs,&E->SurfaceNoShadowCubePs,&E->SurfaceLowPs,&E->SurfaceLowCubePs};
+        for(unsigned tier=0;tier<3;++tier) for(unsigned cube=0;cube<2;++cube) {
+            std::string prefix=tier==2 ? "#define SURFACE_LOW_DETAIL 1\n" : tier==1 ? "#define SURFACE_NO_SHADOW 1\n" : "";
+            if(cube)prefix+="#define SURFACE_ENV_CUBE 1\n";
+            pixel(*standard[tier*2+cube],E->SurfaceVs,prefix);
+        }
+        for(unsigned shadow=0;shadow<2;++shadow) for(unsigned cube=0;cube<2;++cube) {
+            std::string suffix=shadow ? "#define SURFACE_NO_SHADOW 1\n" : "";
+            if(cube)suffix+="#define SURFACE_ENV_CUBE 1\n";
+            unsigned i=shadow*2+cube;
+            pixel(E->ShipNormalPs[i],E->SurfaceVs,"#define SURFACE_SHIP_NORMALS 1\n"+suffix);
+            pixel(E->RockPs[i],E->NomadVs,"#define SURFACE_ROCK 1\n"+suffix);
+            pixel(E->GreenhousePs[i],E->SurfaceVs,"#define SURFACE_GREENHOUSE 1\n"+suffix);
+        }
+        for(unsigned light=0;light<3;++light) for(unsigned shadow=0;shadow<2;++shadow) {
+            std::string prefix="#define SURFACE_NOMAD 1\n";
+            if(light==1)prefix+="#define SURFACE_NOMAD_LIGHT 1\n";
+            if(light==2)prefix+="#define SURFACE_BEAST 1\n";
+            if(shadow)prefix+="#define SURFACE_NO_SHADOW 1\n";
+            pixel(E->NomadPs[light*2+shadow],E->NomadVs,prefix);
+        }
+        pixel(E->NomadDepthPs,E->NomadVs,
+            "#define SURFACE_NOMAD 1\n#define SURFACE_NOMAD_LIGHT 1\n#define SURFACE_NO_SHADOW 1\n","PSNomadDepth");
+    }
+    if(surfaces) {
+        ExNomadEnergyPrepare();
+        if(E->bNomadEnergyEnabled && E->NomadEnergyStrength>0) {
+            if(E->NomadEnergyVs && E->NomadEnergyPs) pairs.push_back({E->NomadEnergyVs,E->NomadEnergyPs,true});
+            else prepared=false;
+        }
+    }
+    std::vector<FRPExProgram*> programs;
+    // These programs were registered by the current system's field preparation.
+    // Other effects can have different vertex interfaces; keep this pass scoped.
+    for(auto* p:E->Programs) if(!p->DriverWarmed && p->Vs && p->Ps &&
+        (p->Path.find("far_rocks.hlsl")!=std::string::npos || p->Path.find("field_dust.hlsl")!=std::string::npos)) {
+        pairs.push_back({p->Vs,p->Ps,false}); programs.push_back(p);
+    }
+    HRESULT const hr=Rp9Warmup::Draw(Device_,E->bInScene,pairs);
+    Rp9DeviceCalls().Invalidate();
+    if(SUCCEEDED(hr)) {
+        if(surfaces && prepared)E->SurfaceDriverWarmed=true;
+        for(auto* p:programs)p->DriverWarmed=true;
+    }
+    ExLogf(SUCCEEDED(hr) && prepared ? kExFdumpNotice : kExFdumpWarning,
+        SUCCEEDED(hr) && prepared ? "NOTICE" : "WARNING",__LINE__,
+        "system graphics warmup: %u pairs, prepared=%d, driver=0x%08x",
+        static_cast<unsigned>(pairs.size()),static_cast<int>(prepared),static_cast<unsigned>(hr));
+    return SUCCEEDED(hr) && prepared ? GR_OK : GR_GENERIC;
 }
 
 GENRESULT DACOM_API FDirectX9::SetCodeBeamEnabled(unsigned long Enabled)
@@ -2940,15 +3073,17 @@ GENRESULT DACOM_API FDirectX9::GetPlanetRingProfile(float* Out, unsigned long Co
 
 // ---- generic surface materials ------------------------------------------------------------
 
+#include "RP9NomadEnergy.inl"
+
 GENRESULT DACOM_API FDirectX9::SetSurfaceShader(unsigned long Shader, float Roughness,
                                                float EnvironmentStrength)
 {
-    if (Shader > RPSurfaceRockDebris || !std::isfinite(Roughness) || !std::isfinite(EnvironmentStrength))
+    if (Shader > RPSurfaceBeast || !std::isfinite(Roughness) || !std::isfinite(EnvironmentStrength))
         return GR_INVALID_PARMS;
     Ex_->SurfaceShader = Shader;
     // Keep both field passes on the same transform path if menu warm-up completes
     // during traversal. The scope ends only when the caller resets the profile.
-    Ex_->bNomadScopeNative=Shader>=RPSurfaceNomadLair && Shader<=RPSurfaceNomadInterior && G_SurfaceWarmState==1;
+    Ex_->bNomadScopeNative=IsNomadSurface(Shader) && G_SurfaceWarmState==1;
     Ex_->SurfaceRoughness = Roughness;
     Ex_->SurfaceEnvironment = EnvironmentStrength;
     return GR_OK;
@@ -3022,6 +3157,8 @@ bool FDirectX9::ExSurfaceBegin()
 bool FDirectX9::ExSurfaceBeginImpl()
 {
     FRp9ExState* Ex = Ex_;
+    // Energy gets a native base draw and a separate overlay, never the relief shader.
+    if(Ex && IsNomadEnergy(Ex->SurfaceShader)) return false;
     if (Ex && Ex->bRoomFrame && ExRoomMaterialBegin()) return true;
     if (Ex == nullptr || Device_ == nullptr || Ex->bInPass || Ex->bShadowDrawing || Ex->bSoftActive ||
         Ex->bSurfaceActive || !Ex->bSurfaceMaterialValid)
@@ -3045,6 +3182,9 @@ bool FDirectX9::ExSurfaceBeginImpl()
         Ex->bNomadShader=ReadShadowSetting("nomad_shader",1,0,1)>0.5f;
         Ex->NomadRelief=ReadShadowSetting("nomad_relief",1.15f,0,2);
         Ex->NomadGlow=ReadShadowSetting("nomad_glow",0.32f,0,1);
+        Ex->BeastRelief=ReadShadowSetting("beast_relief",1.0f,0,2);
+        Ex->bDysonShader=ReadShadowSetting("dyson_shader",1,0,1)>.5f;
+        Ex->DysonRelief=ReadShadowSetting("dyson_relief",1.0f,0,2);
     }
     const bool Ice=Ex->SurfaceShader==RPSurfaceIce && Ex->bIceShader;
     // Rock: an object in an IRPRockNormals scope (asteroids, debris, mining asteroids), or any material
@@ -3053,8 +3193,12 @@ bool FDirectX9::ExSurfaceBeginImpl()
     const bool RockProfile=Ex->bRockEnabled && (Ex->SurfaceShader==RPSurfaceRock || Ex->SurfaceShader==RPSurfaceRockDebris);
     const unsigned RockClassNow=Ex->RockClass ? Ex->RockClass :
         (RockProfile ? (Ex->SurfaceShader==RPSurfaceRockDebris ? (unsigned)RPRockDebris : (unsigned)RPRockAsteroid) : 0u);
-    const bool Nomad=Ex->bNomadShader && Ex->SurfaceShader>=RPSurfaceNomadLair && Ex->SurfaceShader<=RPSurfaceNomadInterior;
+    if(Ex->SurfaceShader==RPSurfaceDyson && !Ex->bDysonShader) return false;
+    const bool Nomad=(Ex->SurfaceShader==RPSurfaceDyson ? Ex->bDysonShader : Ex->bNomadShader) && IsNomadSurface(Ex->SurfaceShader);
+    const int BoneIndex=Ex->SurfaceShader>=RPSurfaceLairBone1 && Ex->SurfaceShader<=RPSurfaceLairSkinBone ?
+        int(Ex->SurfaceShader-RPSurfaceLairBone1) : -1;
     const bool Dyson=Nomad && Ex->SurfaceShader==RPSurfaceDyson;
+    const bool Beast=Nomad && Ex->SurfaceShader==RPSurfaceBeast;
     if(Nomad && Ex->bNomadScopeNative) return false;
     if (!Ex->bSurfaceEnabled || Ex->SurfaceShader == RPSurfaceLegacy ||
         (Ex->SurfaceDistanceTier==2 && !Ex->bSurfaceCockpit && !Ice && !Nomad && RockClassNow==0))
@@ -3173,11 +3317,12 @@ bool FDirectX9::ExSurfaceBeginImpl()
     const bool LowDetail=Ex->SurfaceDistanceTier==1 && !Cockpit && !Glass && !Ice && !Nomad && !ShipNormals && !Rock;
     // rock_shadows = 0: asteroids and debris take no local shadows (no hard ship / hull shadow edge on a
     // rock seen close up); the sun still lights them and the planets' light is unchanged.
-    const bool ShadowReceiver=!Dyson && !LowDetail && Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u &&
+    // BEAST uses the inexpensive rock-style finish, without PCSS shadow sampling.
+    const bool ShadowReceiver=!Dyson && !Beast && !LowDetail && Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u &&
         !(Rock && !Ex->bRockShadows);
     // Non-receivers use a variant without the shadow code: fewer registers for every pixel.
     const bool NomadDepth=Dyson && RenderStates_.GetPending(D3DRS_COLORWRITEENABLE)==0;
-    IDirect3DPixelShader9*& SurfacePs = ShipNormals ? Ex->ShipNormalPs[(ShadowReceiver?0:2)+(IsCube?1:0)] : Rock ? Ex->RockPs[(ShadowReceiver?0:2)+(IsCube?1:0)] : NomadDepth ? Ex->NomadDepthPs : Nomad ? Ex->NomadPs[(Dyson?2:0)+(ShadowReceiver?0:1)] : Greenhouse ? Ex->GreenhousePs[(ShadowReceiver ? 0:2)+(IsCube ? 1:0)] : LowDetail ?
+    IDirect3DPixelShader9*& SurfacePs = ShipNormals ? Ex->ShipNormalPs[(ShadowReceiver?0:2)+(IsCube?1:0)] : Rock ? Ex->RockPs[(ShadowReceiver?0:2)+(IsCube?1:0)] : NomadDepth ? Ex->NomadDepthPs : Nomad ? Ex->NomadPs[(Beast?4:(Dyson?2:0))+(ShadowReceiver?0:1)] : Greenhouse ? Ex->GreenhousePs[(ShadowReceiver ? 0:2)+(IsCube ? 1:0)] : LowDetail ?
         (IsCube ? Ex->SurfaceLowCubePs : Ex->SurfaceLowPs) :
         (ShadowReceiver ? (IsCube ? Ex->SurfaceCubePs : Ex->SurfacePs) :
                           (IsCube ? Ex->SurfaceNoShadowCubePs : Ex->SurfaceNoShadowPs));
@@ -3188,6 +3333,9 @@ bool FDirectX9::ExSurfaceBeginImpl()
         return false;
     if (SurfaceVs == nullptr || SurfacePs == nullptr)
     {
+        const char* ShaderKind = Rock ? "surface rock" : ShipNormals ? "surface ship normals" :
+            Nomad ? "surface nomad" : Greenhouse ? "surface greenhouse" : "surface standard";
+        RuntimeHitchScope SetupHitch("shader_setup", ShaderKind);
         char Module[MAX_PATH] = {};
         DWORD Length = GetModuleFileNameA(nullptr, Module, MAX_PATH);
         char* Slash = strrchr(Module, '\\');
@@ -3209,12 +3357,13 @@ bool FDirectX9::ExSurfaceBeginImpl()
         const char* Variant = LowDetail ? "#define SURFACE_LOW_DETAIL 1\n" :
             (ShadowReceiver ? "" : "#define SURFACE_NO_SHADOW 1\n");
         const std::string PixelSource = std::string(ShipNormals ? "#define SURFACE_SHIP_NORMALS 1\n" : "") + std::string(Rock ? "#define SURFACE_ROCK 1\n" : "") + std::string(Nomad ? "#define SURFACE_NOMAD 1\n" : "") +
-            (Dyson ? "#define SURFACE_NOMAD_LIGHT 1\n" : "") +
+            (Dyson ? "#define SURFACE_NOMAD_LIGHT 1\n" : Beast ? "#define SURFACE_BEAST 1\n" : "") +
             std::string(Greenhouse ? "#define SURFACE_GREENHOUSE 1\n" : "") + std::string(Variant) +
             (IsCube ? "#define SURFACE_ENV_CUBE 1\n" : "") + Source;
         const std::string VertexSource=std::string((Nomad || Rock)?"#define SURFACE_NOMAD 1\n":"")+Source;
         bool Ok = !Source.empty() && CompileStage(VertexSource, Path, nullptr, "VSMain", "vs_3_0", &Vs) &&
             CompileStage(PixelSource, Path, nullptr, NomadDepth?"PSNomadDepth":"PSMain", "ps_3_0", &Ps);
+        RuntimeHitchScope DeviceHitch("shader_device", ShaderKind);
         if (Ok && SurfaceVs == nullptr)
             Ok = SUCCEEDED(Device_->CreateVertexShader((const DWORD*)Vs.data(), &SurfaceVs));
         if (Ok && SurfacePs == nullptr)
@@ -3281,17 +3430,22 @@ bool FDirectX9::ExSurfaceBeginImpl()
             __LINE__,"crystal ice layers %s",Ex->IceLayers ? "loaded" : "missing; keeping native material");
     }
     if(Ice && !Ex->IceLayers) return false;
-    if(Nomad && !Ex->bNomadTextureTried) {
+    if(Nomad && !Dyson && !Beast && !Ex->bNomadTextureTried) {
         Ex->bNomadTextureTried=true;
         char module[MAX_PATH]={};GetModuleFileNameA(nullptr,module,MAX_PATH);
         char* slash=strrchr(module,'\\');
         if(slash){slash[1]=0;const std::string path=std::string(module)+"../DATA_EXTRA/TEXTURES/nomad_layers.dds";
             D3DXCreateTextureFromFileExA(Device_,path.c_str(),D3DX_DEFAULT,D3DX_DEFAULT,D3DX_DEFAULT,
-                0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,D3DX_DEFAULT,D3DX_DEFAULT,0,nullptr,nullptr,&Ex->NomadLayers);}
+                0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,D3DX_DEFAULT,D3DX_DEFAULT,0,nullptr,nullptr,&Ex->NomadLayers);
+            for(unsigned i=0;i<5;++i) {
+                const std::string bone=std::string(module)+"../DATA_EXTRA/TEXTURES/lair_bone"+std::to_string(i+1)+".dds";
+                D3DXCreateTextureFromFileExA(Device_,bone.c_str(),D3DX_DEFAULT,D3DX_DEFAULT,D3DX_DEFAULT,
+                    0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,D3DX_DEFAULT,D3DX_DEFAULT,0,nullptr,nullptr,&Ex->NomadBones[i]);
+            }}
         ExLogf(Ex->NomadLayers?kExFdumpNotice:kExFdumpWarning,Ex->NomadLayers?"NOTICE":"WARNING",__LINE__,
             "organic nomad layers %s",Ex->NomadLayers?"loaded":"missing; native material retained");
     }
-    if(Nomad && !Ex->NomadLayers) return false;
+    if(Nomad && !Dyson && !Beast && !Ex->NomadLayers) return false;
     float Ps[107 * 4] = {};
     auto Set = [&](unsigned Reg, float X, float Y, float Z, float W) {
         float* D = Ps + Reg * 4; D[0] = X; D[1] = Y; D[2] = Z; D[3] = W;
@@ -3318,7 +3472,8 @@ bool FDirectX9::ExSurfaceBeginImpl()
     D3DLIGHT9 Lights[8];
     const unsigned Count = ExCollectSurfaceLights(Lights, 8);
     // Dull rock reflects the environment far less than the authored envmap says; scrap keeps it all.
-    const float EnvScale = (Rock && RockClassNow != RPRockDebris) ? (0.1f + 2.0f * Ex->RockAsteroidGloss) : 1.0f;
+    const float EnvScale = Rp9UserGraphics("environment_maps",
+        (Rock && RockClassNow != RPRockDebris) ? (0.1f + 2.0f * Ex->RockAsteroidGloss) : 1.0f);
     Set(4, HasBase ? 1.0f : 0.0f, ColourVertex ? 1.0f : 0.0f,
         PlainShadowReceiver ? 0 : (Ex->SurfaceEnvironment >= 0 ? Clamp(Ex->SurfaceEnvironment, 0, 2) : 1.0f) * EnvScale, (float)Count);
     unsigned long FogMode = RenderStates_.GetPending(kRsFogTableMode);
@@ -3425,9 +3580,18 @@ bool FDirectX9::ExSurfaceBeginImpl()
     Set(95,1.0f/Ex->ShadowResolution[1],Ex->ShadowShortReach,Tier==2 ? 1.0f : 0.0f,StationMap ? 1.0f : 0.0f);
     Set(96,Ice ? 1.0f : 0.0f,Ex->IceDepth,Ex->IceFrost,Ex->IceTransmission);
     // Cockpit panel relief: only the cockpit pass's opaque lit materials; zero everywhere else.
-    Set(106,Cockpit ? Ex->CockpitRelief : 0.0f,0,0,0);
-    if(Nomad) Set(96,Dyson?2.0f:(Ex->SurfaceShader==RPSurfaceNomadInterior?3.0f:1.0f),Ex->NomadRelief,Ex->NomadGlow,
+    Set(106,Cockpit ? Ex->CockpitRelief : 0.0f,1-Rp9UserGraphics("surface_highlights",1),
+        1-Rp9UserGraphics("environment_maps",1),1-Rp9UserGraphics("surface_relief",1));
+    if(Nomad) Set(96,Dyson?2.0f:((Ex->SurfaceShader==RPSurfaceNomadInterior || Ex->SurfaceShader==RPSurfaceLairSkinBone)?3.0f:1.0f),Dyson?Ex->DysonRelief:(Beast?Ex->BeastRelief:Ex->NomadRelief),Ex->NomadGlow,
         static_cast<float>(GetTickCount64()%1024000)*0.001f);
+    if(Nomad) Set(102,BoneIndex>=0 && Ex->NomadBones[BoneIndex]?1.0f:0.0f,
+        Ex->RockDetail?Ex->RockDetailStrength:0.0f,Ex->RockMacroStrength,2.1f);
+    if(Dyson) {
+        D3DSURFACE_DESC desc={};
+        if(!HasBase || FAILED(static_cast<IDirect3DTexture9*>(BaseTexture)->GetLevelDesc(0,&desc)) || !desc.Width || !desc.Height)
+            return false;
+        Set(102,1.f/desc.Width,1.f/desc.Height,0,0);
+    }
     if(Rock)
     {
         // Detail strength, fade range, tiling of the detail map over the object's UVs; then macro
@@ -3502,17 +3666,24 @@ bool FDirectX9::ExSurfaceBeginImpl()
         EnvState(17, D3DTEXF_LINEAR), EnvState(18, D3DTEXF_LINEAR),
         EnvState(21, 1), EnvState(19, 0)};
     BindHigh(2, EnvTexture, EnvStates);
-    if(Ice || Nomad)
+    if(Ice || (Nomad && !Dyson && !Beast))
     {
         static const unsigned long IceStates[8]={D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,
             D3DTEXF_LINEAR,D3DTEXF_LINEAR,D3DTEXF_LINEAR,1,0};
-        BindHigh(5,Nomad?Ex->NomadLayers:Ex->IceLayers,IceStates);
+        BindHigh(5,Nomad?(BoneIndex>=0 && Ex->NomadBones[BoneIndex]?Ex->NomadBones[BoneIndex]:Ex->NomadLayers):Ex->IceLayers,IceStates);
+        if(Nomad && !Dyson) {
+            BindHigh(6,Ex->RockDetail,IceStates);
+            Rp9SetSamplerState(Device_,13,D3DSAMP_SRGBTEXTURE,0);
+            Rp9SetSamplerState(Device_,14,D3DSAMP_SRGBTEXTURE,0);
+        }
     }
     Ex->SurfaceSamplerWrites = Calls.HighSamplerWrites;
     if(Rock)
     {
-        static const unsigned long RockStates[8]={D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,
-            D3DTEXF_LINEAR,D3DTEXF_ANISOTROPIC,D3DTEXF_LINEAR,4,0};
+        ExInitQualityConfig();
+        const unsigned long RockStates[8]={D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,D3DTADDRESS_WRAP,
+            D3DTEXF_LINEAR,static_cast<unsigned long>(Ex->QualityAnisotropy>1 ? D3DTEXF_ANISOTROPIC : D3DTEXF_LINEAR),
+            D3DTEXF_LINEAR,Ex->QualityAnisotropy,0};
         BindHigh(5,Ex->RockDetail,RockStates);
         // The detail map holds linear slopes whatever the previous material's sampler said.
         Rp9SetSamplerState(Device_,13,D3DSAMP_SRGBTEXTURE,0);
@@ -3561,13 +3732,14 @@ bool FDirectX9::ExSurfaceBeginImpl()
     // Per material / lights / per-frame shadow block / weapon glints / style and tier.
     Upload(0, 12);
     Upload(12, 40);
+    Upload(106, 1);
     if (!LowDetail)
     {
         Upload(52, 25);
         Upload(77, 17);
         Upload(94, 3);
-        Upload(106, 1);
-        if(Nomad) Upload(97,5);
+
+        if(Nomad) Upload(97,6);
         else if(Rock) { Upload(97,5); Upload(102,4); }
         else if(ShipNormals) Upload(97,1);
     }
@@ -3625,7 +3797,7 @@ bool FDirectX9::ExQueueSurfaceInstance(unsigned long Prim,unsigned int Min,unsig
            (Params.BehaviorFlags&D3DCREATE_SOFTWARE_VERTEXPROCESSING)) E->bSurfaceInstancing=false;
     }
     auto* Vb=StreamCache_.VertexBuffer;auto* Ib=StreamCache_.IndexBuffer;
-    if(E->SurfaceShader>=RPSurfaceNomadLair && E->SurfaceShader<=RPSurfaceNomadInterior) return false;
+    if(IsNomadSurface(E->SurfaceShader)) return false;
     if(!E->bInstanceScope || !E->bSurfaceInstancing || E->bInstanceFailed || !E->bSurfaceActive ||
        E->bShadowDrawing || E->bInPass || E->bSurfaceCockpit || E->bSurfaceGlass ||
        Prim!=D3DPT_TRIANGLELIST || !Vb || !Vb->Gpu || !Ib || !Ib->Gpu || Ib==&ScratchIb_ ||
@@ -4067,6 +4239,7 @@ GENRESULT DACOM_API FDirectX9::BeginLocalShadowFrame(const float* View12, const 
     E->ShadowEclipseRange = 0.0f; E->ShadowEclipseSunAngle = 0.0f;
     E->bShadowFrameValid=false;
     E->bShadowStaticPrepared=false;
+    if (Rp9UserGraphics("local_shadows",1)<.5f) return GR_GENERIC;
     if (!Device_ || E->bShadowDrawing || !View12 || !Position || !SunDirection || E->bShadowFailed)
         return GR_GENERIC;
     if(!E->bShadowConfigRead)
@@ -4467,8 +4640,9 @@ void FDirectX9::ExInitQualityConfig()
     // 0 off, 1 the space scene before the HUD, 2 the whole frame at SwapBuffers (HUD included;
     // FXAA damages small interface text, so it is opt-in).
     Ex_->QualityFxaaMode=(unsigned)ReadShadowSetting("fxaa",1,0,2);
-    ExLogf(kExFdumpNotice,"NOTICE",__LINE__,"frame quality: SMAA 1x High before UI, AF %ux, fallback FXAA %s, MSAA off (INTZ depth)",
-        Ex_->QualityAnisotropy,Ex_->QualityFxaaMode==2 ? "full frame" : Ex_->QualityFxaaMode==1 ? "before HUD" : "off");
+    Ex_->QualitySmaaEnabled=Rp9UserGraphics("smaa",1)>0.5f;
+    ExLogf(kExFdumpNotice,"NOTICE",__LINE__,"frame quality: SMAA %s, AF %ux, FXAA %s, MSAA off (INTZ depth)",
+        Ex_->QualitySmaaEnabled ? "1x High before UI" : "off", Ex_->QualityAnisotropy,Ex_->QualityFxaaMode==2 ? "full frame" : Ex_->QualityFxaaMode==1 ? "before HUD" : "off");
 }
 
 GENRESULT DACOM_API FDirectX9::CaptureSceneColor(FRPExTexture* Destination)

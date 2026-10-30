@@ -968,7 +968,7 @@ void ShipViewControl::LoadEquipment(EquipDescList const* List)
         EquipDesc const& Desc = *It;
 #ifdef FREELANCER_EQUIPMENT_SLOTS
         Archetype::Equipment const* Arch = EquipmentSlots::Enabled() ? Archetype::GetEquipment(Desc.ArchId) : nullptr;
-        if (Arch && EquipmentClasses::IsManaged(unsigned(Arch->get_hp_type())))
+        if (Arch && EquipmentClasses::IsInternal(unsigned(Arch->get_hp_type())))
         {
             It = Equipment.Items.erase(It); // internal devices have no external visual attachment
             continue;
@@ -1723,7 +1723,7 @@ void ShipViewControl::BuildHardpointList()
                     Entry.Name = Hp.Value;
                     Entry.Ids = EquipmentClasses::CaptionBase + int(Type - EquipmentClasses::First);
                     Entry.SortKey = SortKey;
-                    Entry.Group = 3;
+                    Entry.Group = EquipmentClasses::Tab(Type);
                     Entry.Class = 16 + EquipmentClasses::Family(Type);
                     if (Existing) *Existing = Entry;
                     else Collected.push_back(Entry);

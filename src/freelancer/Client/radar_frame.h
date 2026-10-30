@@ -7,7 +7,7 @@ namespace RadarFrame
     inline unsigned Color(unsigned rgb,float alpha)
     { return (unsigned(RadarProjection::Bounded(alpha,0,1,0.8f)*255)<<24)|(rgb&0xffffffu); }
     template<class DrawLine>
-    void Emit(RadarProjection::Layout const& l,int rangeIndex,float opacity,DrawLine draw,float sweepAngle=0,float ringAngle=0)
+    void Emit(RadarProjection::Layout const& l,int rangeIndex,float opacity,DrawLine draw,float sweepAngle=0,float ringAngle=0,bool running=true)
     {
         // Ship-driven rim and scanner light have independent angles.
         float const cs=std::cos(ringAngle),sn=std::sin(ringAngle);
@@ -47,7 +47,7 @@ namespace RadarFrame
         // fades behind the leading ray; radial fade softens center and outer edge.
         constexpr int rays=64,segments=4;
         constexpr float tail=.62f;
-        for(int side=0;side<2;++side) for(int ray=0;ray<rays;++ray)
+        if (running) for(int side=0;side<2;++side) for(int ray=0;ray<rays;++ray)
         {
             float const age=float(ray)/float(rays-1);
             float const a=sweepAngle+float(side)*3.14159265359f-age*tail;
@@ -63,6 +63,7 @@ namespace RadarFrame
                      (std::max)(.65f,l.radius*inner*tail/rays*.6f));
             }
         }
+        if (!running) return;
         float const s=(std::max)(3.f,l.radius*.022f);
         draw(l.x-s,l.y+s,l.x,l.y-s,Color(0x70ffb0,opacity),1.2f);
         draw(l.x,l.y-s,l.x+s,l.y+s,Color(0x70ffb0,opacity),1.2f);

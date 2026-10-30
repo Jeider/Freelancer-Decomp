@@ -515,3 +515,33 @@ puff_colorb = 100, 70, 150
 distance = 6000
 color = 40, 30, 60
 ```
+
+
+### Nebula source permission for local shadows (RP9)
+
+The nebula source INI supports this optional key in its existing lighting section:
+
+```ini
+[NebulaLight]
+shadows = false
+```
+
+`true` (also `1`) is the default; `false` (`0`) disables scene local shadow processing
+while the camera is inside this nebula's original zone. This is an authored source
+parameter, not a `NebulaOverride`. It works independently of the volumetric toggle,
+graphics nebula visibility, and exclusion holes; leaving the zone restores normal
+shadow processing. Any containing nebula with `shadows = false` suppresses local
+shadows, even when another overlapping nebula permits them. Decorative ring-volume
+companions are excluded. Reload the system/restart after editing the source INI.
+
+The client exits before collecting shadow casters or drawing near/far/static-cache
+maps. It clears previous-frame readiness/receiver/eclipse inputs, and objects use
+non-shadow surface variants. Ordinary lighting/materials remain; this key controls
+local object shadow maps, not separate planetary-atmosphere or cloud self-shading
+implementations. Sphere uses `shadows = false` in
+`DATA/SOLAR/NEBULA_MOD/sphere_nebula.ini` for the performance comparison.
+
+`tools/nebula_control/check.py` exercises the production parser/query and defaults,
+zone boundaries, independent volumetric/exclusion state and reloads. The RP9 fixture
+in `tools/nomad_surfaces/route.cpp` verifies stale shadow state is cleared without
+building maps. Deploy via `tools/nebula_control/install_shadows.py` (verified backup).

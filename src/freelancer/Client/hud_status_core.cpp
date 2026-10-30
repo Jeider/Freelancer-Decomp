@@ -19,6 +19,7 @@
 #include "client_gameobj.h"
 #include "client_objdb.h"
 #include "common_archetype.h"
+#include "sensor_detection.h"
 #include "common_cequip.h"
 #include "common_csys.h"
 #include "common_misc.h"
@@ -668,12 +669,8 @@ HUD_Status::HUD_Status(INI_Reader& /*Reader*/)
     {
         RegisterEvent(kStatusCommandIds[Index]);
     }
-#ifdef FREELANCER_MOD_PLUGINS
-    // Port-only, the mod's Invisibility.dll (docs/mod_plugins.md): USER_CLOAK (0x8e), a keymap
-    // command retail defines but never handles.
-    if (PORT_PLUGIN_ON("Invisibility"))
-        RegisterEvent(0x8e);
-#endif
+    // Native rebindable cloak command, also used by Health.
+    RegisterEvent(0x8e);
 }
 
 HUD_Status::~HUD_Status()
@@ -1914,38 +1911,13 @@ bool HUD_Status::IsLootInReach()
         return false;
     }
 
-    // 0x004de418..0x004de4ae: bucket 7 (FUN_00540fc0), along ListNext (+0x14).
+    CETractor const* const tractor = SensorDetection::WorkingTractor(Ship);
+    if (!tractor) return false;
     int Kind = 7;
-    FClientGameobj* Loot = ClientObjDb_GetKindHead(&Kind);
-    while (Loot != nullptr)
-    {
-        // Slot 0 (get_position) of the player first, then of the loot; the distance squared is
-        // summed x, z, y on the FPU. FCOM / TEST AH,5 / JP skips >= 1e6 (DAT_005d848c) and NaN.
-        Vector const& PlayerPos = Player->get_position();
-        Vector const& LootPos = static_cast<IObjRW*>(Loot)->get_position();
-        double const Dx = static_cast<double>(LootPos.x) - static_cast<double>(PlayerPos.x);
-        double const Dy = static_cast<double>(LootPos.y) - static_cast<double>(PlayerPos.y);
-        double const Dz = static_cast<double>(LootPos.z) - static_cast<double>(PlayerPos.z);
-        double const DistanceSquared = Dx * Dx + Dz * Dz + Dy * Dy;
-        if (DistanceSquared < 1000000.0)
-        {
-            // 0x004de475..0x004de4a7: the CLoot behind it (+0xc, Object, class & 0x803) -- no
-            // null test before +0xec is read -- and the ship's room for its contents.
-            CBase* const Base = static_cast<CBase*>(static_cast<IObjInspectImpl*>(Loot));
-            CObject* LootObject = nullptr;
-            if (Base != nullptr && Base->Object != nullptr &&
-                (static_cast<unsigned>(Base->Object->ObjectClass) & 0x803u) == 0x803u)
-            {
-                LootObject = Base->Object;
-            }
-            CLoot* const Container = static_cast<CLoot*>(LootObject);
-            if (Ship->get_space_for_cargo_type(Container->ContentsArch) > 0)
-            {
-                return true;
-            }
-        }
-        Loot = Loot->ListNext;
-    }
+    for (FClientGameobj* loot = ClientObjDb_GetKindHead(&Kind); loot; loot = loot->ListNext)
+        if (!loot->is_dying() && SensorDetection::CanCollect(tractor, loot->cobject()))
+            return true;
+
     return false;
 }
 
@@ -2204,28 +2176,14 @@ void HUD_Status::TractorInAllLoot()
         return;
     }
 
-    // 0x004de505..0x004de588: the loot (bucket 7) within 1000 m. FUN_00423b60 takes the
-    // player's position (slot 0, asked first) from the loot's into three floats; the square is
-    // summed y, z, x on the FPU against 1e6 (DAT_005d848c), TEST AH,5 / JP skipping >= and NaN.
-    std::vector<IObjRW*> Loot; // retail vector<IObjInspect*> at [ESP+0x40]
+    CShip const* const ship = HudShipOfObjRw(Player);
+    CETractor const* const tractor = SensorDetection::WorkingTractor(ship);
+    if (!tractor || GetPlayerEngineCruiseActive() || ship->is_using_tradelane()) return;
+    std::vector<IObjRW*> Loot;
     int Kind = 7;
-    FClientGameobj* Item = ClientObjDb_GetKindHead(&Kind); // FUN_00540fc0
-    while (Item != nullptr)
-    {
-        Vector const& PlayerPos = Player->get_position();
-        Vector const& ItemPos = static_cast<IObjRW*>(Item)->get_position();
-        float const OffsetZ = ItemPos.z - PlayerPos.z;
-        float const OffsetY = ItemPos.y - PlayerPos.y;
-        float const OffsetX = ItemPos.x - PlayerPos.x;
-        double DistanceSquared = static_cast<double>(OffsetY) * static_cast<double>(OffsetY) +
-                                 static_cast<double>(OffsetZ) * static_cast<double>(OffsetZ);
-        DistanceSquared += static_cast<double>(OffsetX) * static_cast<double>(OffsetX);
-        if (DistanceSquared < 1000000.0)
-        {
-            Loot.insert(Loot.end(), static_cast<IObjRW*>(Item));
-        }
-        Item = Item->ListNext;
-    }
+    for (FClientGameobj* item = ClientObjDb_GetKindHead(&Kind); item; item = item->ListNext)
+        if (!item->is_dying() && SensorDetection::CanCollect(tractor, item->cobject()))
+            Loot.push_back(static_cast<IObjRW*>(item));
 
     // 0x004de58a..0x004de67d: a value per loot -- 1e30 for contents of volume 0, 1e20 for
     // nanobots and shield batteries (both ids read once, before the loop), else the good's
@@ -2396,7 +2354,6 @@ bool HUD_Status::OnEvent(unsigned MsgId)
         TractorInAllLoot(); // 0x004dbae3, FUN_004de4c0
         return true;
 
-#ifdef FREELANCER_MOD_PLUGINS
     case 0x8e:
     {
         // Port-only, the mod's Invisibility.dll: toggle the cloaking device. The plugin hid this
@@ -2413,7 +2370,6 @@ bool HUD_Status::OnEvent(unsigned MsgId)
         }
         return true;
     }
-#endif
 
     case 0x8f:
     {
@@ -2472,6 +2428,7 @@ bool HUD_Status::OnEvent(unsigned MsgId)
         G_WeaponGroups.SetCurrent(Group);                        // FUN_004f6180
         G_WeaponGroups.Activate(Group);                          // FUN_004f5920
         ActiveWeaponGroup = Group;
+        SetSavedWeaponGroup(unsigned(Group));
         Field588 = 1.0f; // DAT_005d8484
         return true;
     }

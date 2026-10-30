@@ -267,6 +267,16 @@ extern "C" __declspec(dllexport) int __cdecl PortConsoleServer(int Op, void* In)
         return kPortConsoleOk;
     case kPortConsoleJump:
         return Jump(*static_cast<FPortConsoleJump*>(In));
+    case kPortConsoleGodmode:
+    {
+        // Port-only: the mission scripts' invulnerability (Act_Invulnerable) on the player's ship.
+        unsigned Ship = 0;
+        pub::Player::GetShip(kPlayer, Ship);
+        if (Ship == 0)
+            return kPortConsoleNotInSpace;
+        bool const bOn = *static_cast<int const*>(In) != 0;
+        return pub::SpaceObj::SetInvincible(Ship, bOn, bOn, 0.0f) >= 0 ? kPortConsoleOk : kPortConsoleFailed;
+    }
     default:
         return kPortConsoleFailed;
     }

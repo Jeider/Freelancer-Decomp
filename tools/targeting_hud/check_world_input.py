@@ -36,6 +36,7 @@ struct CArchGroup {
 struct CObject {unsigned ObjectClass=0x503;};
 struct CEGun;
 struct CEqObj:CObject {
+    unsigned TypeBits=0;
     unsigned Id=123; float CloakPercent=0; unsigned short sub=0x8002;
     struct Groups {CArchGroup* group=nullptr; CArchGroup* FindByID(unsigned short) {return group;}} ArchGroups;
     struct Equip {CEGun* gun=nullptr; CEGun* FindByID(unsigned short) {return gun;}} EquipManager;
@@ -59,11 +60,21 @@ struct CEScanner {
     static CEScanner const* cast(CEScanner* s) {return s;}
     float GetRadarRange() const {return range;}
 };
+struct IObjRW;
 struct CShip:CEqObj {
     struct Equip {CEScanner* scanner=nullptr; CEScanner* FindFirst(unsigned) {return scanner;}} EquipManager;
     Vector WorldPosition;
+    IObjRW* target=nullptr;unsigned short selectedSub=0;
+    IObjRW* get_target(){return target;}
+    unsigned short get_sub_target(){return selectedSub;}
+    bool centerValid=true;Vector center={0,0,100};
+    bool get_sub_obj_center_of_mass(unsigned short,Vector& p){p=center;return centerValid;}
 };
-struct IObjRW {};
+struct IObjRW {CShip* ship=nullptr;unsigned type=0;int typeResult=0;
+    int get_type(unsigned& t){t=type;return typeResult;}
+    float attitude=-1;int attitudeResult=0;
+    int get_attitude_towards(float& out,IObjRW const*) const {out=attitude;return attitudeResult;}};
+using IObjInspect=IObjRW;
 struct ICamera {};
 struct FMouseEvent {struct {unsigned char Byte18=0;} Record; bool bMove=false; unsigned ButtonIndex=0;};
 struct FSpaceCommand {unsigned Id=0,ObjectId=0;unsigned short SubObjectId=0;unsigned char Byte26=0;};
@@ -73,14 +84,17 @@ bool IsArchGroupID(unsigned short id) {return id>=0x8000;}
 bool IsEquipID(unsigned short id) {return id>1&&id<0x8000;}
 }
 struct Hover {CEqObj* object=nullptr;CArchGroup* group=nullptr;CEGun* turret=nullptr;long root=-1;unsigned short subId=0;};
-struct {bool capturedLeft=false;void ClearWire(){}} state;
+struct WireState {bool capturedLeft=false;Hover drawn;void ClearWire(){drawn={};}} state,selectedState;
 struct {void* window=reinterpret_cast<void*>(1);} g_client;
 constexpr int kGameOptInterfaceGroup=6,kGameOptHud=10;
 bool savedAutoselect=true;
 bool GetSavedTargetingAutoselect(){return savedAutoselect;}
 void SetSavedTargetingAutoselect(bool value){savedAutoselect=value;}
 bool foreground=true,hud=true,blocked=false,letterbox=false,loading=false,focus=false,ui=false;
-CShip playerShip;IObjRW player;ICamera camera;IObjRW* activePlayer=&player;
+bool G_bNnScreenUp=false,paused=false,transition=false;
+bool IsClientServerTickPaused(){return paused;}
+bool IsClientLocationInTransition(){return transition;}
+CShip playerShip;IObjRW player{&playerShip};ICamera camera;IObjRW* activePlayer=&player;
 FCameraRayHit nextHit;FSpaceCommand lastCommand;unsigned sends=0,raycasts=0;
 void* GetForegroundWindow(){return foreground?g_client.window:nullptr;}
 int GetGameOption(int){return hud;}
@@ -90,7 +104,9 @@ bool IsSpaceInitInProgress(){return loading;}
 bool HudGetInputFocus(){return focus;}
 void* Win3DGetHover(){return ui?g_client.window:nullptr;}
 IObjRW* GetPlayerObjRW(){return activePlayer;}
-CShip* HudShipOfObjRw(IObjRW* p){return p?&playerShip:nullptr;}
+IObjRW contact;IObjRW* foundContact=&contact;
+IObjRW* ClientObjDb_FindObject(unsigned,int kind){assert(kind==0);return foundContact;}
+CShip* HudShipOfObjRw(IObjRW* p){return p?p->ship:nullptr;}
 void GetClientSoftwareCursor(int* x,int* y,int* z){*x=100;*y=200;*z=0;}
 void CameraRayPick(FCameraRayHit* hit,ICamera*,float x,float y,CObject const* ignore,bool skip){
     assert(x==100 && y==200 && ignore==&playerShip && skip);*hit=nextHit;++raycasts;
@@ -105,6 +121,26 @@ int main(){
     CEScanner scanner;playerShip.EquipManager.scanner=&scanner;
     nextHit.Object=&target;nextHit.Instance=42;nextHit.Point.z=100;
     FMouseEvent down;down.Record.Byte18=1;FMouseEvent up;
+    // Native hostility threshold, both ship types and both subsystem kinds.
+    GunArchData probeArch;CEGun probeTurret;probeTurret.arch=&probeArch;probeTurret.owner=&target;
+    target.EquipManager.gun=&probeTurret;
+    for(unsigned type:{0x80000u,0x40000u}) for(unsigned short sub:{(unsigned short)0x8002,(unsigned short)18}) {
+        target.TypeBits=type;target.sub=sub;
+        for(float attitude:{-1.f,-.6f,-.5999f,0.f,.6f,1.f}) {
+            contact.attitude=attitude;unsigned before=sends;
+            assert(bool(Pick(&camera).object)==(attitude<=-.6f));
+            assert(VulnerableTargetingMouse(down)==(attitude<=-.6f));
+            assert(sends==before+(attitude<=-.6f?1u:0u));
+            // A change to neutral between press and release must retain click ownership.
+            contact.attitude=0;assert(VulnerableTargetingMouse(up)==(attitude<=-.6f));
+        }
+        contact.attitude=-1;contact.attitudeResult=-1;assert(!Pick(&camera).object);contact.attitudeResult=0;
+        foundContact=nullptr;assert(!Pick(&camera).object);foundContact=&contact;
+        contact.attitude=0;assert(!Pick(&camera).object);
+        contact.attitude=-1;assert(Pick(&camera).object); // Relation changes take effect immediately.
+    }
+    target.TypeBits=0x10000;contact.attitude=0;assert(Pick(&camera).object);
+    target.TypeBits=0;target.sub=0x8002;sends=0;contact.attitude=-1;
     assert(VulnerableAutoselectEnabled());
     SetVulnerableAutoselect(false);
     assert(!VulnerableTargetingMouse(down) && sends==0);
@@ -176,14 +212,23 @@ int main(){
 for name in ('camera', 'player', 'playerShip'):
     stub = re.sub(r'\b' + name + r'\b', 'test_' + name, stub)
     checks = re.sub(r'\b' + name + r'\b', 'test_' + name, checks)
-code = stub + '\n'.join(function(s) for s in ('bool Available()', 'bool VulnerableAutoselectEnabled()', 'void SetVulnerableAutoselect(', 'bool IsTurret(', 'Hover Pick(',
+vulnerable_source = source
+source = (repo / 'src/freelancer/Client/star_sys.cpp').read_text()
+attitude_function = function('int GetAttitudeClass(')
+source = vulnerable_source
+production = attitude_function + '\n'.join(function(s) for s in ('bool Available(', 'bool VulnerableAutoselectEnabled()', 'void SetVulnerableAutoselect(', 'bool IsTurret(', 'bool CanAutoselect(', 'Hover ResolvePart(', 'bool InScannerRange(', 'Hover Pick(',
     'bool VulnerableTargetingMouse(', 'void VulnerableTargetingReset(')) + checks
-(out / 'check.cpp').write_text(code)
 vc = Path('C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231')
 sdk = Path('C:/Program Files (x86)/Windows Kits/10')
 version = '10.0.26100.0'
 env = dict(os.environ)
 env['INCLUDE'] = ';'.join(str(p) for p in [vc / 'include'] + [sdk / 'Include' / version / x for x in ('ucrt', 'shared', 'um')])
 env['LIB'] = ';'.join(str(p) for p in [vc / 'lib/x86'] + [sdk / 'Lib' / version / x / 'x86' for x in ('ucrt', 'um')])
-subprocess.run([str(vc / 'bin/Hostx64/x86/cl.exe'), '/nologo', '/std:c++17', '/W4', '/WX', '/EHsc', '/MT', 'check.cpp', '/Fecheck.exe'], cwd=out, env=env, check=True)
-subprocess.run([str(out / 'check.exe')], cwd=out, check=True)
+def compile_check(code, destination):
+    destination.mkdir(parents=True, exist_ok=True)
+    (destination / 'check.cpp').write_text(code)
+    subprocess.run([str(vc / 'bin/Hostx64/x86/cl.exe'), '/nologo', '/std:c++17', '/W4', '/WX', '/EHsc', '/MT', 'check.cpp', '/Fecheck.exe'], cwd=destination, env=env, check=True)
+    subprocess.run([str(destination / 'check.exe')], cwd=destination, check=True)
+
+if __name__ == '__main__':
+    compile_check(stub + production, out)

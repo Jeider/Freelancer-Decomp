@@ -6,6 +6,9 @@
 
 // CSolar (retail CSolar.cpp).
 #include "common_cobject.h"
+#include "common_gravity.h"
+#include "solar_animation.h"
+#include "common_server_asteroid.h"
 #include "common_cobject_internal.h" // CmnCobject::GetObjectDbCollisionGroup
 
 #include "common_goods.h"
@@ -75,6 +78,8 @@ CSolar::CSolar(CSolar const& Other)
 // ~CEqObj -- exactly the reverse declaration order of ContinualAnims / GateAnim below.
 CSolar::~CSolar()
 {
+    SolarAnimation::Forget(this);
+    CmnGravity::UnregisterSolar(this);
     // .text:062b7446..062b7479
     for (std::list<FAnimScriptRef>::const_iterator It = ContinualAnims.begin();
          It != ContinualAnims.end(); ++It)
@@ -172,6 +177,8 @@ void CSolar::init(CreateParms const& Parms)
         init_continual_anim(*It);
 
     CSimple::update_zones(0.0f, 0);
+    CmnGravity::RegisterSolar(this);
+    SolarAnimation::Initialize(this);
 }
 
 void CSolar::init_continual_anim(char const* AnimName)
@@ -254,8 +261,17 @@ float CSolar::get_mass() const
     return Archetype->Mass;
 }
 
+float CSolar::get_physical_radius_r(Vector& OutCenter) const
+{
+    if (IsServerAsteroidType(TypeBits))
+        return CObject::get_physical_radius_r(OutCenter);
+    return CSimple::get_physical_radius_r(OutCenter);
+}
+
 Vector CSolar::get_velocity() const
 {
+    if (IsServerAsteroidType(TypeBits))
+        return CObject::get_velocity();
     // .text:063623d0: zero the three floats of the returned Vector (RET 4). ICF-folded
     // with CAsteroid::get_velocity.
     Vector Zero;
@@ -273,6 +289,8 @@ Archetype::Solar const* CSolar::solararch() const
 
 Vector CSolar::get_angular_velocity() const
 {
+    if (IsServerAsteroidType(TypeBits))
+        return CObject::get_angular_velocity();
     // .text:0629ac70-0629acf8. Only a planetary solar (TypeBits & 7, the is_planetary test)
     // with a physics body (+0x54) reports a spin; everything else returns zero. The
     // object-space angular velocity (PhySys::GetAngularVelocityOS, 0629ac8d) is rotated to
@@ -383,6 +401,19 @@ unsigned int CSolar::get_tradelane_space_name() const
 
 void CSolar::init_physics(Vector const& Velocity, Vector const& AngularVelocity)
 {
+    if (IsServerAsteroidType(TypeBits))
+    {
+        PhySys::CreateParms Phy = {};
+        Phy.Mass = Archetype->Mass > 0.0f ? Archetype->Mass : 1000.0f;
+        Phy.CollisionGroupId = GetObjectDbCollisionGroup(ObjectDb);
+        Phy.Type = 2;
+        Phy.bEnableCollisions = 1;
+        strcpy(Phy.Name, "SrvAst");
+        PhySys::BuildIVP_Real(this, Phy);
+        PhySys::AddToVelocity(this, Velocity);
+        PhySys::AddToAngularVelocityOS(this, AngularVelocity);
+        return;
+    }
     // Listing .text:062b7780 .. .text:062b791e (RET 8). Velocity is never read (only ESI =
     // this and EDI = AngularVelocity are loaded).
     (void)Velocity;

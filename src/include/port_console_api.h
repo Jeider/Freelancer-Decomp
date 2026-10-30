@@ -18,6 +18,7 @@ enum EPortConsoleOp
     kPortConsoleForceLand = 2, // In: unsigned base id
     kPortConsoleSystem = 3,    // In: FPortConsoleSystem
     kPortConsoleJump = 4,      // In: FPortConsoleJump
+    kPortConsoleGodmode = 5,   // In: int (1 on, 0 off); the player's ship takes no damage
 };
 
 enum EPortConsoleResult

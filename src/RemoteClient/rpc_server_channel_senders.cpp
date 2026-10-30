@@ -244,6 +244,7 @@ void CClientImpl::SendServerActivateObject(unsigned int ClientId, const FPayload
         Typed->ObjectId = Info.ObjectId;
         Typed->Field_0x08 = Info.Field_0x08;
         Typed->bActivate = Info.bActivate;
+        if (Info.bActivate == 2) Typed->Animation = Info.Animation;
         PushToClient(ClientId, Packet->AsRaw());
     }
 }

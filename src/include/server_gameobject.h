@@ -921,6 +921,16 @@ public:
 };
 
 // .rdata:06d65564 -- notify .text:06ced380 (RET 8).
+class SrvCloak : public ServerEquip
+{
+public:
+    SrvCloak(CEquip* Equip, EqObj* Owner);
+    bool update(float Dt) override;
+private:
+    float SyncTime = 0;
+    bool LastActive = false;
+};
+
 class SrvThruster : public ServerEquip
 {
 public:

@@ -8,6 +8,7 @@
 // See render_ex.h and docs/re/rp9.md, "Ex extensions".
 // Compiled only with FREELANCER_RP9 (src/Directory.Build.props).
 #ifdef FREELANCER_RP9
+#include "hud_tilt.h"
 #include "render_ex.h"
 
 #include "far_rocks.h"
@@ -15,6 +16,7 @@
 #include "gate_tunnel.h"
 #include "tradelane_visual.h"
 #include "jumphole_visual.h"
+#include "black_hole_visual.h"
 #include "jumpgate_visual.h"
 #include "ship_warp_visual.h"
 #include "engine_heat_visual.h"
@@ -388,9 +390,11 @@ void RenderEx::Startup()
 
 void RenderEx::Shutdown()
 {
+    HudTilt::Shutdown();
     EngineHeatVisualShutdown();
     ShipWarpVisualRenderShutdown();
     JumpHoleVisualRenderShutdown();
+    BlackHoleVisualRenderShutdown();
     JumpGateVisualRenderShutdown();
     TradeLaneVisualRenderShutdown();
     GateTunnelRenderShutdown();

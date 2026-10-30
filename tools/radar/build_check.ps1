@@ -10,6 +10,10 @@ $env:INCLUDE = "$vc/include;$sdk/Include/$version/ucrt;$sdk/Include/$version/sha
 $env:LIB = "$vc/lib/x86;$sdk/Lib/$version/ucrt/x86;$sdk/Lib/$version/um/x86"
 Push-Location $out
 try {
+    & "$vc/bin/Hostx64/x86/cl.exe" /nologo /std:c++17 /O2 /W4 /WX /MT /EHsc (Join-Path $PSScriptRoot 'test_deployment.cpp') /Fedeployment.exe
+    if ($LASTEXITCODE -ne 0) { throw 'Radar deployment test build failed' }
+    & (Join-Path $out 'deployment.exe')
+    if ($LASTEXITCODE -ne 0) { throw 'Radar deployment checks failed' }
     & "$vc/bin/Hostx64/x86/cl.exe" /nologo /std:c++17 /O2 /W4 /WX /MT /EHsc (Join-Path $PSScriptRoot 'test_projection.cpp') /Fecheck.exe
     if ($LASTEXITCODE -ne 0) { throw 'Radar test build failed' }
     & (Join-Path $out 'check.exe')

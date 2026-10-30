@@ -7,6 +7,7 @@
 #pragma once
 
 #include "rpc_packet_codec.h"
+#include "solar_animation.h"
 #include "common_misc.h"
 #include <cstring>
 #include <iostream>
@@ -714,6 +715,7 @@ public:
     unsigned int ObjectId;
     unsigned char bActivate; // Raw native byte, never normalized.
     unsigned int Field_0x08; // Activate-state index (rpc_iclient_args.h).
+    SolarAnimationCommand Animation;
 };
 
 // 0x0b FLPACKET_SERVER_LAND: RC 06b4b140 / ctor 06b4b180, RS 06be5c60 / 06be5ca0;

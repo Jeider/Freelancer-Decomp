@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "space_scene_obj_draw.h"
+#include "server_asteroid_fade.h"
+#include "runtime_hitch_log.h"
+#include "cockpit_effect_brightness.h"
 #ifdef FREELANCER_DBG_OPTIONS
 #include "dbg_options.h" // port-only beta DBG_OPTIONS window
 #endif
@@ -33,6 +36,7 @@
 #include "gate_tunnel.h"    // FGateTunnel::Draw (FUN_004ffab0)
 #include "tradelane_visual.h"
 #include "jumphole_visual.h"
+#include "black_hole_visual.h"
 #include "jumpgate_visual.h"
 #include "ship_warp_visual.h"
 #include "engine_heat_visual.h"
@@ -1951,7 +1955,9 @@ namespace
         for(unsigned I=0;I<Selection.Count;++I)
         {
             auto const& G=Selection.Groups[I];if(!G.Shots) continue;
-            GENRESULT Group=Glints->AddWeaponGlint(G.Position,UnusedDirection,G.Colour,G.Owner);
+            float const Brightness=CockpitEffectBrightness::Scale(CockpitEffectBrightness::Kind::Weapon,Camera);
+            float const Colour[3]={G.Colour[0]*Brightness,G.Colour[1]*Brightness,G.Colour[2]*Brightness};
+            GENRESULT Group=Glints->AddWeaponGlint(G.Position,UnusedDirection,Colour,G.Owner);
             if(Group>0) {Tracking.Admit((unsigned)Group-1,G.Token,G.Owner,G.Remaining);Submitted=true;}
         }
         Tracking.Finish();
@@ -1993,6 +1999,7 @@ namespace
     bool LocalShadowEligible(FClientGameobj* Go)
     {
         if(!Go || (Go->ManagerKind!=1 && Go->ManagerKind!=2)) return false;
+        if(ServerAsteroidFade::Opacity(Go)<1.0f) return false;
         unsigned Type=0; Go->get_type(Type);
         // NON_TARGETABLE includes decorative planet-circle helpers in mods.
         // They are not physical hulls and must not black out nearby ships.
@@ -2085,12 +2092,22 @@ namespace
 
     IRPLocalShadows* BuildLocalShadows(FSpaceCamera* Cam)
     {
+        RuntimeHitchScope Hitch("render_phase", "local shadow maps");
         if(PortConfigInt("Render","local_shadows",0)==0 || PortConfigInt("Render","surface_shaders",0)==0)
             return nullptr;
         IRPLocalShadows* Shadows=nullptr;
         if(DALib::Pipeline->QueryInterface(Iids::RPLocalShadows,reinterpret_cast<void**>(&Shadows))<0 || !Shadows)
             return nullptr;
         ICamera* Camera=AsCamera(Cam);
+        if(NebulaVolume::ShadowsDisabledAt(Camera->GetPosition()))
+        {
+            // Begin resets receivers, ready masks and planet eclipse inputs before
+            // validating its pointers. Null inputs stop before any GPU map work.
+            // This prevents the previous outside frame's maps leaking into the zone.
+            Shadows->BeginLocalShadowFrame(nullptr,nullptr,nullptr);
+            Shadows->Release();
+            return nullptr;
+        }
         FStarSphereList* Stars=StarSphereList();
         if(!Stars || !Stars->Count || !Stars->Sentinel->Next->Sphere) {Shadows->Release();return nullptr;}
         Vector Sun;
@@ -3381,7 +3398,12 @@ unsigned* EquippedObjSubmitDrawRetail(FClientEquippedObj* Self, unsigned* OutLod
     // loaded with no test (0x005337aa) and compared with 0.0f (DAT_005c7474) by FCOM, TEST
     // AH,0x41 / JNZ: not above (NaN included) goes to 0x00533827.
     CEqObj* const EqObj = EquippedObjEqObj(Self);
-    float const Fade = EqObj->CloakPercent;
+    // Compose visual spawn opacity without changing the shared CEqObj cloak
+    // (cloak affects targeting and is also seen by the server in single player).
+    float Fade = EqObj->CloakPercent;
+    float const SpawnOpacity = ServerAsteroidFade::Opacity(Self);
+    if (SpawnOpacity < 1.0f)
+        Fade = 1.0f - (1.0f - Fade) * SpawnOpacity;
     if (Fade > 0.0f)
     {
         // 0x005337bd..0x005337db: FSUBR double 1.0 (DAT_005c89b8), +0xe0 = 1, FSTP float; then
@@ -3757,8 +3779,14 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     NebulaVolume::DrawBackdrop(Camera);
 #endif
 
-    DrainBucket2Special(Cam);   // FUN_0051f8d0
-    DrainMeshAndAsteroids(Cam); // FUN_0051f950
+    {
+        RuntimeHitchScope Hitch("render_phase", "special background objects");
+        DrainBucket2Special(Cam);   // FUN_0051f8d0
+    }
+    {
+        RuntimeHitchScope Hitch("render_phase", "opaque objects and asteroids");
+        DrainMeshAndAsteroids(Cam); // FUN_0051f950
+    }
 #ifdef FREELANCER_RP9
     if(G_LocalShadows) {G_LocalShadows->SetLocalShadowReceiver(0);G_LocalShadows->Release();G_LocalShadows=nullptr;}
     // Retain this camera frame's immutable spots for the subsequent cockpit pass.
@@ -3771,7 +3799,10 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     // also draws over its fog). The scene above was drawn with near = GetZNear, far = Far.
     // The field dust first: the nebula then composites over it.
     FieldDustDraw(Camera, Camera->GetZNear(), Far, G_FieldEnclosure);
-    NebulaVolume::Draw(Camera, Camera->GetZNear(), Far);
+    {
+        RuntimeHitchScope Hitch("render_phase", "nebula volume");
+        NebulaVolume::Draw(Camera, Camera->GetZNear(), Far);
+    }
     // Background fog glow uses the intact opaque depth. Foreground transparent
     // geometry/effects and the first-person cockpit are composited afterwards.
     if ((LayerFlags & 0x100u) != 0) StarSphereDrawNebulaHalo(Cam);
@@ -3813,6 +3844,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
             // 0x0051c7a0..0x0051c7d1: back to the pass's far plane, FUN_004f7480(this, frame
             // time, -1), FUN_00421ed0(0xb60).
             CameraSetNearFar(Cam, Camera->GetZNear(), Far);
+            BlackHoleVisualDraw(Cam);
             SpaceEffectsDrawFrame(Cam, static_cast<float>(GetClientFrameTimeCapped()), -1);
             JumpHoleVisualDraw(Cam);
             JumpGateVisualDraw(Cam);

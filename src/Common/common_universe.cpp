@@ -6,6 +6,7 @@
 
 #include "common_universe.h"
 #include "common_universe_internal.h"
+#include "common_gravity.h"
 
 #include "common_archetype.h"
 #include "common_cobjdb.h"
@@ -707,6 +708,7 @@ namespace
     // universe load. Only the keys below are read here; the full record is FUN_06336380's job.
     void ReadSystemFileObject(INI_Reader& Reader, SYSTEM& System, FUniverseLoadCarry& Carry)
     {
+        CmnGravity::ObjectSettings Gravity;
         unsigned NicknameId = 0;                   // [ESP+0x2c] (ID_String::clear 06337f2b)
         unsigned BaseId = 0;                       // [ESP+0x10]
         int IdsName = 0;                           // [ESP+0x30]
@@ -755,6 +757,11 @@ namespace
             {
                 Visit = (unsigned char)Reader.get_value_int(0);
             }
+            else if (CmnGravity::ReadObjectValue(Reader, Gravity))
+            {
+                // Per-object settings are stored after nickname has been read;
+                // key order in a section does not affect gravity registration.
+            }
             else if (Reader.is_value("goto"))
             {
                 // .text:063380b4-063380f9: the gate map entry is {ESI, goto} -- the nickname
@@ -767,6 +774,14 @@ namespace
         } while (Reader.read_value());
 
         Carry.ObjectNickname = CarriedNickname;    // 06338114 MOV [ESP+0x20],ESI
+
+        if (NicknameId != 0)
+        {
+            if (Gravity.enabled)
+                System.GravityObjects[NicknameId] = Gravity.field;
+            else
+                System.GravityObjects.erase(NicknameId);
+        }
 
         if (bSawGoto)
         {

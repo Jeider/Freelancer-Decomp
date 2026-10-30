@@ -12,6 +12,7 @@
 // Where Direct3D 9 cannot reproduce RP8 exactly the code says "RP9-GAP:"; docs/re/rp9.md lists
 // them with the D3D8 -> D3D9 translation table.
 #include "RP9.h"
+#include "RP9UserGraphics.h"
 #include "RP9Ex.h"
 #include "RP9DeviceCallCache.h"
 #include "RP9LightCompatibility.h"
@@ -1348,6 +1349,8 @@ GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
         Face = (IRPShipNormals*)(this);
     else if (IidEqual(Iid, Iids::RPRockNormals))
         Face = (IRPRockNormals*)(this);
+    else if (IidEqual(Iid, Iids::RPRenderWarmup))
+        Face = (IRPRenderWarmup*)(this);
     else if (IidEqual(Iid, Iids::RPLocalShadows))
         Face = (IRPLocalShadows*)(this);
     else if (IidEqual(Iid, Iids::RPWeaponGlints))
@@ -2254,6 +2257,21 @@ void FRp9TransformCache::Commit(IDirect3DDevice9* Device, D3DTRANSFORMSTATETYPE 
 // RP8: FDirectX8::FlushDrawState
 void FDirectX9::FlushDrawState(IDirect3DDevice9* Device)
 {
+    if (Ex_ && Ex_->bHudSurfacePass)
+    {
+        // RGB is accumulated premultiplied against transparent black. Preserve additive
+        // light without making it occlude the scene when the surface is composited.
+        const bool Surface = Ex_->CurrentTarget != nullptr;
+        const bool Additive = RenderStates_.Entries[D3DRS_DESTBLEND].Pending == D3DBLEND_ONE;
+        RenderStates_.MarkDirty(D3DRS_SEPARATEALPHABLENDENABLE,
+            Surface ? TRUE : Ex_->SavedPending[D3DRS_SEPARATEALPHABLENDENABLE]);
+        RenderStates_.MarkDirty(D3DRS_SRCBLENDALPHA,
+            Surface ? (Additive ? D3DBLEND_ZERO : D3DBLEND_ONE) : Ex_->SavedPending[D3DRS_SRCBLENDALPHA]);
+        RenderStates_.MarkDirty(D3DRS_DESTBLENDALPHA,
+            Surface ? (Additive ? D3DBLEND_ONE : RenderStates_.Entries[D3DRS_DESTBLEND].Pending) : Ex_->SavedPending[D3DRS_DESTBLENDALPHA]);
+        RenderStates_.MarkDirty(D3DRS_BLENDOPALPHA,
+            Surface ? D3DBLENDOP_ADD : Ex_->SavedPending[D3DRS_BLENDOPALPHA]);
+    }
     RenderStates_.Flush(Device);
     FRp9StreamCache& Cache = StreamCache_;
     bool bStreamDone = false;
@@ -3573,8 +3591,8 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
     {
         strcpy(PortSlash+1,"port.ini");
         Rp9DeviceCalls().Enabled=GetPrivateProfileIntA("Render","state_cache",0,PortIni)!=0;
-        if(GetPrivateProfileIntA("Render","vsync",1,PortIni)==0)
-            PresentInterval9=D3DPRESENT_INTERVAL_IMMEDIATE;
+        PresentInterval9=Rp9UserGraphics("vsync",float(GetPrivateProfileIntA("Render","vsync",1,PortIni)))>.5f
+            ? D3DPRESENT_INTERVAL_ONE : D3DPRESENT_INTERVAL_IMMEDIATE;
     }
     D3DPRESENT_PARAMETERS Present;
     memset(&Present, 0, sizeof(Present));
@@ -3887,6 +3905,11 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitive(unsigned long Prim, unsigned
     ExNoteDraw(PrimCount);
     Hr = Device->DrawIndexedPrimitive((D3DPRIMITIVETYPE)(Prim), DeviceBaseVertex_, MinIndex,
                                       NumVertices, StartIndex, PrimCount);
+    if(SUCCEEDED(Hr) && !bPlanet && !bAtmosphere && !bSoft && !bSurface && ExNomadEnergyBegin()) {
+        ExNoteDraw(PrimCount);
+        Device->DrawIndexedPrimitive((D3DPRIMITIVETYPE)Prim,DeviceBaseVertex_,MinIndex,NumVertices,StartIndex,PrimCount);
+        ExNomadEnergyEnd();
+    }
     if (bSurface)
         ExSurfaceEnd();
     if (bSoft)
@@ -5175,6 +5198,7 @@ GENRESULT DACOM_API FDirectX9::SetRenderState(D3DRENDERSTATETYPE State, int Valu
         "set_render_state() called outside of create_buffers/destroy_buffers", 3586);
     if (Ready != GR_OK)
         return Ready;
+    if (State==D3DRS_SPECULARENABLE && Value!=0 && Rp9UserGraphics("surface_highlights",1)<.5f) Value=0;
     // Requests are deferred; device errors occur at the next draw-state flush.
     const bool bDirtyThisGeneration = RenderStates_.MarkDirty(State, (unsigned long)Value);
     if (bDirtyThisGeneration && (unsigned int)(State) == kD3d8RsSoftwareVertexProcessing)
@@ -5211,6 +5235,11 @@ GENRESULT DACOM_API FDirectX9::SetTextureStageState(int Stage, int Type, int Val
         }
         else if(Type==kD3d8TssMaxAnisotropy) Value=Ex_->QualityAnisotropy;
         else if(Type==kD3d8TssMipFilter && Value>0) Value=D3DTEXF_LINEAR;
+    }
+    else
+    {
+        if(Type==kD3d8TssMaxAnisotropy) Value=1;
+        else if(Type==kD3d8TssMinFilter && Value==D3DTEXF_ANISOTROPIC) Value=D3DTEXF_LINEAR;
     }
     // FUN_06d0fbcf 06d0fc40: entry {value, valid byte}; valid && value == Value -> nothing;
     // else Device+0xfc SetTextureStageState, valid = (hr >= 0), valid -> value = Value; 0.
@@ -5391,6 +5420,11 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitive(unsigned long Prim, unsigned int Fv
         ExSurfaceRelease(); // a fixed-function draw after a surface draw
     ExNoteDraw(PrimCount);
     Result = Device_->DrawPrimitiveUP((D3DPRIMITIVETYPE)(Prim), PrimCount, Verts, Stride);
+    if(SUCCEEDED(Result) && !bRing && !bPlanet && !bAtmosphere && !bSoft && !bSurface && ExNomadEnergyBegin()) {
+        ExNoteDraw(PrimCount);
+        Device_->DrawPrimitiveUP((D3DPRIMITIVETYPE)Prim,PrimCount,Verts,Stride);
+        ExNomadEnergyEnd();
+    }
     if (bSurface)
         ExSurfaceEnd();
     if (bSoft)
@@ -5440,6 +5474,11 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveUp(unsigned long Prim, unsign
     ExNoteDraw(PrimCount);
     Result = Device_->DrawIndexedPrimitiveUP((D3DPRIMITIVETYPE)(Prim), 0, VertCount,
                                              PrimCount, Indices, D3DFMT_INDEX16, Verts, Stride);
+    if(SUCCEEDED(Result) && !bBeam && !bPlanet && !bAtmosphere && !bSoft && !bSurface && ExNomadEnergyBegin()) {
+        ExNoteDraw(PrimCount);
+        Device_->DrawIndexedPrimitiveUP((D3DPRIMITIVETYPE)Prim,0,VertCount,PrimCount,Indices,D3DFMT_INDEX16,Verts,Stride);
+        ExNomadEnergyEnd();
+    }
     if (bBeam)
         ExCodeBeamEnd();
     if (bSurface)
@@ -5481,6 +5520,11 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitiveVb(unsigned long Prim, void* Vb, uns
         ExSurfaceRelease(); // a fixed-function draw after a surface draw
     ExNoteDraw(PrimCount);
     Result = Device_->DrawPrimitive((D3DPRIMITIVETYPE)(Prim), StartVertex, PrimCount);
+    if(SUCCEEDED(Result) && !bPlanet && !bAtmosphere && !bSoft && !bSurface && ExNomadEnergyBegin()) {
+        ExNoteDraw(PrimCount);
+        Device_->DrawPrimitive((D3DPRIMITIVETYPE)Prim,StartVertex,PrimCount);
+        ExNomadEnergyEnd();
+    }
     if (bSurface)
         ExSurfaceEnd();
     if (bSoft)
@@ -5548,6 +5592,11 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveVb(unsigned long Prim, void* 
     ExNoteDraw(PrimCount);
     Result = Device_->DrawIndexedPrimitive((D3DPRIMITIVETYPE)(Prim), DeviceBaseVertex_, 0,
                                            NumVerts, LockOffset, PrimCount);
+    if(SUCCEEDED(Result) && !bPlanet && !bAtmosphere && !bSoft && !bSurface && ExNomadEnergyBegin()) {
+        ExNoteDraw(PrimCount);
+        Device_->DrawIndexedPrimitive((D3DPRIMITIVETYPE)Prim,DeviceBaseVertex_,0,NumVerts,LockOffset,PrimCount);
+        ExNomadEnergyEnd();
+    }
     if (bSurface)
         ExSurfaceEnd();
     if (bSoft)

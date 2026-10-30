@@ -827,6 +827,16 @@ void NnArrivalTextShowRaw(float Delay, uintptr_t Arg)
     Self->Caption->SetProperty(0x1e, Arg, 0);
 }
 
+void NnArrivalTextShowCaption(wchar_t const* Text)
+{
+    NnArrivalText* const Self = EnsureNnArrivalText();
+    if (!Self) return;
+    Self->Delay = 0;
+    Self->HoldTime = 3;
+    Self->bWaitForLetterbox = 0;
+    Self->Caption->SetProperty(0x1d, reinterpret_cast<uintptr_t>(Text), 0);
+}
+
 void NnArrivalTextShowSystemNow()
 {
     // FUN_0045b490 (cdecl): ensure, then FUN_0045aff0(1).

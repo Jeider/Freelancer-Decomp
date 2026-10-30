@@ -62,6 +62,7 @@ struct FRPExProgram
     std::vector<unsigned char> PsBytecode;
     IDirect3DVertexShader9* Vs;
     IDirect3DPixelShader9* Ps;
+    bool DriverWarmed = false;
 };
 
 enum ERp9ExTextureKind : unsigned int
@@ -178,6 +179,7 @@ struct FRp9ExState
 
     // The open pass (BeginExPass .. EndExPass).
     bool bInPass;
+    bool bHudSurfacePass = false;
     bool bDepthBound;
     IDirect3DSurface9* SavedColor;
     IDirect3DSurface9* SavedDepth;
@@ -314,14 +316,23 @@ struct FRp9ExState
     IDirect3DPixelShader9* SurfaceNoShadowPs = nullptr;
     IDirect3DPixelShader9* SurfaceNoShadowCubePs = nullptr;
     IDirect3DPixelShader9* GreenhousePs[4] = {}; // full/no-shadow, 2D/cube
-    IDirect3DPixelShader9* NomadPs[4] = {}; // lair/dyson, shadow/no-shadow
+    IDirect3DPixelShader9* NomadPs[6] = {}; // lair/dyson/beast, shadow/no-shadow
     IDirect3DVertexShader9* NomadVs = nullptr;
     IDirect3DPixelShader9* NomadDepthPs = nullptr;
     IDirect3DTexture9* NomadLayers = nullptr;
+    IDirect3DTexture9* NomadBones[5] = {};
     bool bNomadTextureTried=false, bNomadCompileFailed=false;
     bool bNomadScopeNative=false;
     bool bNomadShader=true;
     float NomadRelief=1.15f, NomadGlow=0.32f;
+    float BeastRelief=1.0f;
+    bool bDysonShader=true;
+    float DysonRelief=1.0f;
+    IDirect3DVertexShader9* NomadEnergyVs = nullptr;
+    IDirect3DPixelShader9* NomadEnergyPs = nullptr;
+    IDirect3DStateBlock9* NomadEnergySaved = nullptr;
+    bool bNomadEnergyPrepared = false, bNomadEnergyEnabled = true;
+    float NomadEnergyStrength = 0.7f;
     // What the surface route last left on the device. Shaders stay bound after a surface draw
     // (a fixed-function draw unbinds them, ExSurfaceRelease); the shadow maps (s8/s9) and the
     // environment map (s10) sit on samplers fixed-function rendering never uses, so no stage
@@ -332,9 +343,9 @@ struct FRp9ExState
     IDirect3DPixelShader9* SurfaceBoundPs = nullptr;
     float SurfacePsMirror[107 * 4] = {};
     bool SurfacePsMirrorValid[107] = {};
-    IDirect3DBaseTexture9* SurfaceSamplerTexture[6] = {};
-    unsigned long SurfaceSamplerStates[6][8] = {};
-    bool SurfaceSamplerValid[6] = {};
+    IDirect3DBaseTexture9* SurfaceSamplerTexture[7] = {};
+    unsigned long SurfaceSamplerStates[7][8] = {};
+    bool SurfaceSamplerValid[7] = {};
 
     struct WeaponGlintGroup
     {
@@ -455,6 +466,7 @@ struct FRp9ExState
     FRp9GpuTimers GpuTimers;
     // The "caching shaders" line drawn while the surface shader warm-up runs.
     ID3DXFont* WarmupFont = nullptr;
+    bool SurfaceDriverWarmed = false;
     IDirect3DStateBlock9* WarmupSavedState = nullptr;
     int WarmupLanguage = -1; // -1 unread, 0 English, 1 Russian
     DWORD RenderStatsAt=0;unsigned RenderStatsFrames=0;

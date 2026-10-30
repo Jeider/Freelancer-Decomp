@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "hud_tilt.h"
 #include "nn_static_control.h"
 #include "hud_widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
 
@@ -464,6 +465,7 @@ void NnStaticControl::Draw()
     // Port-only: owners that walk their children themselves (HudTargetBase, NN_MainButton)
     // reach this without the Win3D draw walk, so the control sets its own HUD shift.
     FWidescreenHudShiftScope const WidescreenScope(WidescreenHudShiftPixelsFor(this), true);
+    HudTilt::DrawScope const Tilt(this);
 #endif
     // LAB_00588770.
     Win3D::Draw(); // FUN_0059e5c0

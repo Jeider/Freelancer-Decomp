@@ -979,9 +979,9 @@ public:
                         unsigned int* OutLength) override {   // 06da8f80
         return RpcDecodeServerActivateObject(*this, Buffer, Size, OutLength);
     }
-    unsigned char Body[0xc];   // +0x20
+    unsigned char Body[sizeof(FPayloadServerActivateObject)];   // optional named animation
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_ACTIVATEOBJECT) == 0x2cu, "FLPACKET_SERVER_ACTIVATEOBJECT is operator new(0x2c)");
+static_assert(sizeof(FPacket_FLPACKET_SERVER_ACTIVATEOBJECT) == 0x20 + sizeof(FPayloadServerActivateObject), "activation storage");
 
 // FLPACKET_SERVER_LAND -- id 0x2000b, registered at 06d9bd69.
 // Factory FUN_06d9d440: operator new(0x2c) + ctor FUN_06d9d480. Vtable .rdata:06db50dc =

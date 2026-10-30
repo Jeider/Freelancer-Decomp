@@ -366,25 +366,7 @@ bool HUD_Targeting::BindContent()
     float const half[] = {0.014f, 0.014f, 0};
     windowButton = source->CreateButtonControl("TargetingWindow", "interface\\hud\\HUD_targetedobject.3db",
         nullptr, "ui_item_select", nullptr, zero, nullptr, half, 0, 1, 0, 0, HudIds::TargetWindow, 0, 0);
-    lockButton = source->CreateButtonControl("TargetingWindowLock", "interface\\hud\\HUD_target_window_lock.3db",
-        nullptr, "ui_item_select", nullptr, zero, nullptr, half, 0, 1, 0, 0, HudIds::TargetLock, 0, 0);
-    if (!windowButton || !lockButton) { ReleaseContent(); return false; }
-    // Match the rendered ship icon, not the 0.014 input hit box. Montage scale
-    // is the quad's circumscribed radius (draw width = scale * sqrt(2)).
-    auto const* windowTile = static_cast<NnButtonControl*>(windowButton)->MontageTile;
-    float iconRadius = windowTile ? windowTile->Scale : 0.022f;
-    if (!std::isfinite(iconRadius) || iconRadius <= 0) iconRadius = 0.022f;
-    if (ClientMeshHolderHasInstance(&lockButton->MeshHolder))
-    {
-        float radius = 0, unused[3] = {};
-        DALib::Engine->GetInstanceExtent(lockButton->MeshHolder.EngineInstance, 1, &radius, unused);
-        if (std::isfinite(radius) && radius > 0)
-        {
-            float rotation[9];
-            for (int i = 0; i < 9; ++i) rotation[i] = lockButton->Orientation[i] * iconRadius / radius;
-            lockButton->SetOrientation(rotation);
-        }
-    }
+    if (!windowButton) { ReleaseContent(); return false; }
     UpdateHostButtons();
     source->LabelRefreshTimer = 1.0f;
     source->Slot15();
@@ -402,12 +384,12 @@ bool HUD_Targeting::CanShow(bool hostControls) const
 void HUD_Targeting::UpdateHostButtons()
 {
     HudTarget* source = Source();
-    if (!source || !windowButton || !lockButton) return;
+    if (!source || !windowButton) return;
     WinControl* anchor = source->ContactListButton;
     bool const moving = source->ButtonMover::IsActive() || source->ButtonScaler::IsActive();
     bool const visible = CanShow(true) && !moving;
-    WinControl* buttons[] = {windowButton, lockButton};
-    for (int i = 0; i < 2; ++i)
+    WinControl* buttons[] = {windowButton};
+    for (int i = 0; i < 1; ++i)
     {
         std::memcpy(buttons[i]->AttachPosition, anchor->AttachPosition, sizeof(anchor->AttachPosition));
         // SetOffset repositions from Parent->Position. NnButtonControl adds its
@@ -423,14 +405,12 @@ void HUD_Targeting::UpdateHostButtons()
         source->FormationButton->SetOffset(scan->Offset[0] + 0.029f, scan->Offset[1], scan->Offset[2]);
     }
     windowButton->SetProperty(0xc, windowState.open ? 1 : 0, 0);
-    lockButton->SetProperty(3, windowState.locked ? HudIds::TargetUnlock : HudIds::TargetLock, 0);
-    lockButton->SetProperty(0xc, windowState.locked ? 1 : 0, 0);
 }
 
 bool HUD_Targeting::HostProperty(int msg, uintptr_t a, uintptr_t /*b*/)
 {
     WinControl* button = reinterpret_cast<WinControl*>(a);
-    if (!button || (button != windowButton && button != lockButton) || !Source()) return false;
+    if (!button || button != windowButton || !Source()) return false;
     if (msg == 0x26 && CanShow(true))
     {
         ReconcileVisibility();
@@ -442,11 +422,6 @@ bool HUD_Targeting::HostProperty(int msg, uintptr_t a, uintptr_t /*b*/)
                 windowState.open = true;
             }
             else windowState.ToggleOpen();
-        }
-        else
-        {
-            windowState.ToggleLock();
-            SetSavedTargetingWindowLocked(windowState.locked);
         }
         SetSavedTargetingWindowOpen(windowState.open);
         ReconcileVisibility();
@@ -526,7 +501,7 @@ void HUD_Targeting::UpdateButtons()
     bool const hasTarget = source && source->ViewObject.target();
     for (auto const& saved : subtargetButtons)
         if (saved.button) saved.button->SetProperty(1, 1, 0);
-    autoselectButton->SetProperty(1, expanded && source && source->TargetingIsCruiser() ? 0 : 1, 0);
+    autoselectButton->SetProperty(1, expanded && source && source->TargetingShowsAutoselect() ? 0 : 1, 0);
     autoselectButton->SetProperty(3, VulnerableAutoselectEnabled() ? HudIds::AutoselectDisable : HudIds::AutoselectEnable, 0);
     autoselectButton->SetProperty(0xc, VulnerableAutoselectEnabled() ? 1 : 0, 0);
     for (int i = 0; i < ProjectionCount; ++i)
@@ -546,7 +521,7 @@ intptr_t HUD_Targeting::SetProperty(int msg, uintptr_t a, uintptr_t b)
         if (!collapsed)
         {
             if (a == reinterpret_cast<uintptr_t>(autoselectButton) &&
-                Source() && Source()->TargetingIsCruiser())
+                Source() && Source()->TargetingShowsAutoselect())
             {
                 SetVulnerableAutoselect(!VulnerableAutoselectEnabled());
                 UpdateButtons();

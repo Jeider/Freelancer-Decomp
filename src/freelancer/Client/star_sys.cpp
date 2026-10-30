@@ -21,6 +21,10 @@
 #include "menu_sound_arch.h"
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h" // NebulaVolume::RegisterNebula (port-only)
+#include "far_rocks.h"
+#include "field_dust.h"
+#include "render/IRPRenderWarmup.h"
+#include "render/IRenderPipeline.h"
 #endif
 #include "player_behavior.h"
 #include "player_spawn.h"
@@ -56,6 +60,9 @@
 
 #include <cstring>
 #include <list>
+#include <string>
+#include <algorithm>
+#include "runtime_hitch_log.h"
 
 namespace
 {
@@ -224,6 +231,36 @@ namespace
                         PreloadObjectArchetype(Reader.get_value_string(), 2);
                 }
             }
+        }
+    }
+
+    // Server fields create solars lazily as ships approach. Pin their meshes,
+    // collision data and companion materials until system exit, just like the
+    // explicit [Archetype] preload list, rather than loading on the first spawn.
+    void PreloadFieldObjectArchetypes(char const* File)
+    {
+        RuntimeHitchScope Hitch("preload", "system server asteroid archetypes");
+        char Path[1024]; GetFileSysPath(Path, File, DALib::Data);
+        INI_Reader Reader;
+        if (!Reader.open(Path, false)) return;
+        while (Reader.read_header())
+        {
+            if (!Reader.is_header("ServerDynamicAsteroids")) continue;
+            std::string Name;
+            int Count=0;
+            while (Reader.read_value())
+            {
+                if (Reader.is_value("asteroid")) Name=Reader.get_value_string();
+                else if (Reader.is_value("count")) Count=Reader.get_value_int(0);
+            }
+            if (Count<=0 || Name.empty()) continue;
+            ID_String Nick; Nick.Id=CreateID(Name.c_str());
+            Archetype::Root* Arch=Archetype::GetSolarByName(Nick);
+            if (!Arch || std::find(G_PreloadArchetypes.begin(),G_PreloadArchetypes.end(),Arch)!=G_PreloadArchetypes.end()) continue;
+            Arch->load();
+            if (!Arch->is_loaded()) { Arch->Release(); continue; }
+            if (Arch->Companion) Arch->Companion->Load(1);
+            G_PreloadArchetypes.push_back(Arch);
         }
     }
 
@@ -452,6 +489,7 @@ namespace
                     else if (Reader.is_value("zone"))
                         CopyTruncated(Zone, sizeof(Zone), Reader.get_value_string());
                 }
+                PreloadFieldObjectArchetypes(File);
                 CliAsteroidCreateAndLoad(File, Zone); // FUN_0051ff50
             }
             else if (Reader.is_header("Nebula"))
@@ -461,6 +499,7 @@ namespace
                 File[0] = '\0';
                 Zone[0] = '\0';
                 FNebulaEffect* Nebula = nullptr;
+                bool Volumetric = true;
                 while (Reader.read_value())
                 {
                     if (Reader.is_value("file"))
@@ -474,14 +513,18 @@ namespace
                     {
                         CopyTruncated(Zone, sizeof(Zone), Reader.get_value_string());
                     }
+                    else if (Reader.is_value("volumetric"))
+                    {
+                        Volumetric = Reader.get_value_bool(0);
+                    }
                 }
                 if (Nebula != nullptr)
                 {
                     using FLoad = void(__thiscall*)(FNebulaEffect*, char const*, char const*);
                     Nebula->Load(File, Zone); // slot 0
 #ifdef FREELANCER_RP9
-                    // Port-only: the file name for volumetric.ini [NebulaOverride] file=.
-                    NebulaVolume::RegisterNebula(Nebula, File);
+                    // Port-only: source identity and this system entry's volume permission.
+                    NebulaVolume::RegisterNebula(Nebula, File, Volumetric);
 #endif
                     G_Nebulae.push_back(Nebula);
                 }
@@ -878,6 +921,19 @@ void StarSysEnter(unsigned SystemId)
 
     StarSysLoadIni(Path); // FUN_00553740
     RefreshLoadingProgress();
+#ifdef FREELANCER_RP9
+    FarRocksPrepareSystem();
+    RefreshLoadingProgress();
+    FieldDustPrepareSystem();
+    IRPRenderWarmup* Warmup = nullptr;
+    if (DALib::Pipeline && DALib::Pipeline->QueryInterface(Iids::RPRenderWarmup,
+        reinterpret_cast<void**>(&Warmup)) >= 0 && Warmup)
+    {
+        Warmup->WarmSceneCaches();
+        Warmup->Release();
+    }
+    RefreshLoadingProgress();
+#endif
 
     for (std::list<Archetype::Root*>::iterator It = G_ObjectArchetypes.begin();
          It != G_ObjectArchetypes.end(); ++It)

@@ -12,6 +12,9 @@ static void Check(HRESULT hr){if(FAILED(hr)){printf("HRESULT %08lx\n",hr);exit(2
 static std::string Read(const char* p){FILE* f=fopen(p,"rb");Need(f!=nullptr,p);std::string s;char b[4096];size_t n;while((n=fread(b,1,sizeof b,f)))s.append(b,n);fclose(f);return s;}
 static std::vector<unsigned char> Compile(const std::string& s,const char* e,const char* p){std::vector<unsigned char> c;std::string errors;bool hit=false,stored=false;HRESULT h=Rp9ShaderCache::Compile(s,nullptr,e,p,0,&c,&errors,&hit,&stored);if(!errors.empty())puts(errors.c_str());Check(h);printf("%s %s %zu bytes\n",e,p,c.size());return c;}
 struct V{float x,y,z,nx,ny,nz,u,v;};
+#ifdef NOMAD_BENCHMARK
+#include "benchmark.h"
+#endif
 int main(){
  setvbuf(stdout,nullptr,_IONBF,0);SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX|SEM_NOOPENFILEERRORBOX);
  // A visible witness point enclosed by a mesh sphere must never be rejected.
@@ -25,39 +28,63 @@ int main(){
  Need(AsteroidBoundsInFrustum(11,0,10,2,1,1,100),"edge-straddling cube");
  Need(NomadSurfaceProfile("DETAILMAP_LAIR_SKIN01")==7 && NomadSurfaceProfile("detailmap_lair_rock01")==5 && NomadSurfaceProfile("nomad_glow")==0,"material identity policy");
  puts("PASS 200000 conservative frustum witnesses and explicit material identities");
- const int W=960,H=720;HWND window=CreateWindowA("STATIC","Nomad checks",WS_POPUP,0,0,W,H,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
+ const int W=getenv("NOMAD_BENCH_WIDTH")?atoi(getenv("NOMAD_BENCH_WIDTH")):960,H=W==3840?2160:W==1920?1080:720;HWND window=CreateWindowA("STATIC","Nomad checks",WS_POPUP,0,0,W,H,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
  auto* api=Direct3DCreate9(D3D_SDK_VERSION);Need(api!=nullptr,"D3D9");D3DADAPTER_IDENTIFIER9 info={};api->GetAdapterIdentifier(0,0,&info);printf("GPU %s\n",info.Description);
  D3DPRESENT_PARAMETERS pp={};pp.Windowed=TRUE;pp.SwapEffect=D3DSWAPEFFECT_DISCARD;pp.BackBufferWidth=W;pp.BackBufferHeight=H;pp.BackBufferFormat=D3DFMT_A8R8G8B8;pp.EnableAutoDepthStencil=TRUE;pp.AutoDepthStencilFormat=D3DFMT_D24S8;
  IDirect3DDevice9* d=nullptr;Check(api->CreateDevice(0,D3DDEVTYPE_HAL,window,D3DCREATE_HARDWARE_VERTEXPROCESSING,&pp,&d));
- auto source=Read("DATA_EXTRA/SHADERS/surface_material.hlsl"),baseline=Read("src/obj/nomad_surfaces/baseline/DATA_EXTRA/SHADERS/surface_material.hlsl");
- // Without the opt-in macro the compiler must produce identical old shader code.
- if(!getenv("NOMAD_QUICK")) for(const char* variant:{"","#define SURFACE_NO_SHADOW 1\n","#define SURFACE_LOW_DETAIL 1\n"}){
-  auto a=Compile(std::string(variant)+source,"PSMain","ps_3_0"),b=Compile(std::string(variant)+baseline,"PSMain","ps_3_0");
-  Need(a==b,"unrelated surface bytecode changed");}
- if(!getenv("NOMAD_QUICK")) puts("PASS unrelated surface bytecode identical to pre-change working tree");
+ auto source=Read("DATA_EXTRA/SHADERS/surface_material.hlsl"),baseline=Read("src/obj/nomad_lair_revision/baseline/surface_material.hlsl");
+ const bool originalLair=source.find("LairStyle")==std::string::npos;
+ const bool fixedFrame=source.find("float3 rawTangent=tangent;")!=std::string::npos;
+ // Current Dyson and BEAST comparisons are in their dedicated fixtures below.
  const std::string prefix="#define SURFACE_NOMAD 1\n";
  auto code=Compile(prefix+source,"VSMain","vs_3_0");IDirect3DVertexShader9* vs=nullptr;Check(d->CreateVertexShader((DWORD*)code.data(),&vs));
  IDirect3DPixelShader9 *ps[4]={},*depth=nullptr;
- for(int i=0;i<4;++i){code=Compile(prefix+(i>=2?"#define SURFACE_NOMAD_LIGHT 1\n":"")+(i%2?"#define SURFACE_NO_SHADOW 1\n":"")+source,"PSMain","ps_3_0");Check(d->CreatePixelShader((DWORD*)code.data(),&ps[i]));}
+ for(int i=0;i<4;++i){code=Compile(prefix+(i>=2?"#define SURFACE_NOMAD_LIGHT 1\n":"")+((i%2 || getenv("BEAST_ONLY"))?"#define SURFACE_NO_SHADOW 1\n":"")+source,"PSMain","ps_3_0");Check(d->CreatePixelShader((DWORD*)code.data(),&ps[i]));}
  code=Compile(prefix+"#define SURFACE_NOMAD_LIGHT 1\n#define SURFACE_NO_SHADOW 1\n"+source,"PSNomadDepth","ps_3_0");Check(d->CreatePixelShader((DWORD*)code.data(),&depth));
- IDirect3DTexture9 *textures[3]={},*layers=nullptr,*illum=nullptr;
+ IDirect3DTexture9 *textures[3]={},*layers=nullptr,*illum=nullptr,*rock=nullptr;
+ Check(D3DXCreateTextureFromFileA(d,"src/obj/nomad_lair_revision/rock.dds",&rock));d->SetTexture(14,rock);
  for(int i=0;i<3;++i)Check(D3DXCreateTextureFromFileA(d,(std::string("src/obj/nomad_surfaces/")+(i==0?"inside.dds":i==1?"outside.dds":"dyson.dds")).c_str(),&textures[i]));
  Check(D3DXCreateTextureFromFileA(d,"DATA_EXTRA/TEXTURES/nomad_layers.dds",&layers));Check(D3DXCreateTextureFromFileA(d,"src/obj/nomad_surfaces/illumination.dds",&illum));
  d->SetTexture(0,textures[0]);d->SetTexture(1,illum);d->SetTexture(13,layers);
- for(int s:{0,1,13})for(auto f:{D3DSAMP_MINFILTER,D3DSAMP_MAGFILTER,D3DSAMP_MIPFILTER})d->SetSamplerState(s,f,D3DTEXF_LINEAR);
+ for(int s:{0,1,13,14})for(auto f:{D3DSAMP_MINFILTER,D3DSAMP_MAGFILTER,D3DSAMP_MIPFILTER})d->SetSamplerState(s,f,D3DTEXF_LINEAR);
  d->SetVertexShader(vs);d->SetFVF(D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_TEX1);d->SetRenderState(D3DRS_CULLMODE,D3DCULL_NONE);d->SetRenderState(D3DRS_ZENABLE,TRUE);d->SetRenderState(D3DRS_ZWRITEENABLE,TRUE);d->SetRenderState(D3DRS_ZFUNC,D3DCMP_LESSEQUAL);
  IDirect3DSurface9 *rt=nullptr,*read=nullptr;Check(d->GetRenderTarget(0,&rt));Check(d->CreateOffscreenPlainSurface(W,H,D3DFMT_A8R8G8B8,D3DPOOL_SYSTEMMEM,&read,nullptr));
- float vc[68]={},pc[102*4]={};D3DXMATRIX id;D3DXMatrixIdentity(&id);for(int i=0;i<4;++i)memcpy(vc+i*16,&id,64);vc[67]=1;
+ float vc[68]={},pc[103*4]={};D3DXMATRIX id;D3DXMatrixIdentity(&id);for(int i=0;i<4;++i)memcpy(vc+i*16,&id,64);vc[67]=1;
+ pc[409]=2.4f;pc[410]=3;pc[411]=2.1f;
  pc[0]=pc[1]=pc[2]=pc[3]=1;pc[4]=pc[5]=pc[6]=.12f;pc[16]=1;pc[19]=1;pc[28]=pc[29]=4;pc[31]=-1;
  pc[51]=3;pc[52]=-.35f;pc[53]=.3f;pc[54]=1;pc[56]=.65f;pc[57]=.8f;pc[58]=.72f;pc[60]=pc[61]=pc[62]=1;
  pc[384]=3;pc[385]=1.15f;pc[386]=.32f;pc[388]=7;pc[391]=1;memcpy(pc+392,&id,64);
  V quad[]={{-1,-1,.5,0,0,-1,0,1},{-1,1,.5,0,0,-1,0,0},{1,-1,.5,0,0,-1,1,1},{1,-1,.5,0,0,-1,1,1},{-1,1,.5,0,0,-1,0,0},{1,1,.5,0,0,-1,1,0}};
- auto draw=[&](IDirect3DPixelShader9* shader,const V* v,size_t n){Check(d->SetPixelShader(shader));Check(d->SetVertexShaderConstantF(0,vc,17));Check(d->SetPixelShaderConstantF(0,pc,102));Check(d->DrawPrimitiveUP(D3DPT_TRIANGLELIST,(UINT)n/3,v,sizeof(V)));};
+ auto draw=[&](IDirect3DPixelShader9* shader,const V* v,size_t n){Check(d->SetPixelShader(shader));Check(d->SetVertexShaderConstantF(0,vc,17));Check(d->SetPixelShaderConstantF(0,pc,103));Check(d->DrawPrimitiveUP(D3DPT_TRIANGLELIST,(UINT)n/3,v,sizeof(V)));};
  auto pixels=[&](){Check(d->GetRenderTargetData(rt,read));D3DLOCKED_RECT l;Check(read->LockRect(&l,nullptr,D3DLOCK_READONLY));std::vector<DWORD> result(W*H);for(int y=0;y<H;++y)memcpy(result.data()+y*W,(char*)l.pBits+y*l.Pitch,W*4);read->UnlockRect();return result;};
  auto render=[&](IDirect3DPixelShader9* shader,const V* v,size_t n){Check(d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff070d16,1,0));Check(d->BeginScene());draw(shader,v,n);Check(d->EndScene());return pixels();};
  auto changed=[&](const std::vector<DWORD>& a,const std::vector<DWORD>& b){size_t n=0;for(size_t i=0;i<a.size();++i)n+=a[i]!=b[i];return n;};
  auto save=[&](const char* name){Check(D3DXSaveSurfaceToFileA((std::string("src/obj/nomad_surfaces/")+name+".png").c_str(),D3DXIFF_PNG,rt,nullptr,nullptr));};
+#ifdef NOMAD_BENCHMARK
+ return BenchmarkNomad(d,source,vs,ps,vc,pc,quad,W,H);
+#endif
+ #include "beast_check.h"
+ #include "dyson_check.h"
+ if(getenv("BEAST_ONLY")) return 0;
  auto wet=render(ps[1],quad,6);pc[385]=0;auto flat=render(ps[1],quad,6);Need(changed(wet,flat)>W*H/4,"strong relief visible");pc[385]=1.15f;
+ if(fixedFrame && originalLair) {
+  auto error=[](const std::vector<DWORD>& a,const std::vector<DWORD>& b){double sum=0;for(size_t i=0;i<a.size();++i)for(int shift:{0,8,16})sum+=abs(int((a[i]>>shift)&255)-int((b[i]>>shift)&255));return sum/(a.size()*3);};
+  for(float scale:{.1f,.01f,.001f}) {
+   for(int i:{0,5,10}){vc[i]=scale;vc[16+i]=1/scale;}
+   double delta=error(wet,render(ps[1],quad,6));printf("close-up frame scale %.3f: mean RGB error %.6f\n",scale,delta);
+   Need(delta<.15,"close-up relief invariant to derivative magnitude");
+  }
+  auto oldCode=Compile(prefix+"#define SURFACE_NO_SHADOW 1\n"+baseline,"PSMain","ps_3_0");
+  IDirect3DPixelShader9* oldPs=nullptr;Check(d->CreatePixelShader((DWORD*)oldCode.data(),&oldPs));
+  auto oldClose=render(oldPs,quad,6);
+  for(int i:{0,5,10})vc[i]=vc[16+i]=1;
+  Need(error(oldClose,render(oldPs,quad,6))>1,"regression reproduces original close-up cutoff");
+  V zoom[6];memcpy(zoom,quad,sizeof zoom);for(auto& v:zoom){v.u=.45f+v.u*.002f;v.v=.45f+v.v*.002f;}
+  auto zoomRelief=render(ps[1],zoom,6),oldZoom=render(oldPs,zoom,6);pc[385]=0;
+  Need(changed(zoomRelief,render(ps[1],zoom,6))>W*H/4,"tiny UV derivatives retain relief");
+  Need(changed(oldZoom,render(oldPs,zoom,6))==0,"original UV cutoff reproduced");
+  pc[385]=1.15f;oldPs->Release();puts("PASS close-up cutoff reproduced in original and removed in fixed shader");
+ }
  pc[386]=0;pc[387]=0;auto organic0=render(ps[1],quad,6);pc[387]=4;auto organic4=render(ps[1],quad,6);
  Need(changed(organic0,organic4)>W*H/100,"ET tissue animates independently of added vascular glow");
  for(size_t i=0;i<organic0.size();++i)Need((organic0[i]>>24)==(organic4[i]>>24),"organic motion preserves alpha");
@@ -66,6 +93,26 @@ int main(){
   Need(changed(static0,render(ps[profile==2?3:1],quad,6))==0,"exterior, Dyson and Bt detail do not acquire ET animation");}
  pc[384]=3;pc[388]=7;pc[387]=0;pc[386]=.32f;
  puts("PASS ET animation, stable alpha, clock wrap and non-ET exclusion");
+ if(!originalLair) { // The simplified style alone restricts all extra glow to ET.
+ IDirect3DTexture9* split=nullptr;Check(d->CreateTexture(64,64,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,&split,nullptr));
+ D3DLOCKED_RECT splitLock;Check(split->LockRect(0,&splitLock,nullptr,0));
+ for(int y=0;y<64;++y)for(int x=0;x<64;++x)((DWORD*)((char*)splitLock.pBits+y*splitLock.Pitch))[x]=x<32?0xff000000:0xff582419;
+ split->UnlockRect(0);d->SetTexture(1,split);pc[387]=0;auto split0=render(ps[1],quad,6);pc[387]=4;auto split4=render(ps[1],quad,6);
+ size_t moving=0;for(int y=0;y<H;++y)for(int x=16;x<W/2-20;++x)Need(split0[y*W+x]==split4[y*W+x],"black ET hull must remain completely static");
+ for(int y=0;y<H;++y)for(int x=W/2+20;x<W-16;++x)moving+=split0[y*W+x]!=split4[y*W+x];
+ Need(moving>W*H/20,"emissive tissue region remains alive");
+ if(const char* previous=getenv("NOMAD_PREVIOUS_SHADER")) {
+  auto previousCode=Compile(prefix+"#define SURFACE_NO_SHADOW 1\n"+Read(previous),"PSMain","ps_3_0");
+  IDirect3DPixelShader9* previousPs=nullptr;Check(d->CreatePixelShader((DWORD*)previousCode.data(),&previousPs));
+  pc[387]=0;auto previousPixels=render(previousPs,quad,6);previousPs->Release();size_t enhanced=0;
+  for(int y=0;y<H;++y)for(int x=16;x<W/2-20;++x)Need(previousPixels[y*W+x]==split0[y*W+x],"volume revision preserves black ET hull pixels");
+  for(int y=0;y<H;++y)for(int x=W/2+20;x<W-16;++x)enhanced+=previousPixels[y*W+x]!=split0[y*W+x];
+  Need(enhanced>W*H/10,"volume and gloss revision changes tissue visibly");
+  puts("PASS previous shader comparison: hull identical, organic volume/gloss visibly changed");
+ }
+ d->SetTexture(1,illum);split->Release();pc[387]=0;
+ puts("PASS exact ET partition: black hull static; emissive tissue moves");
+ }
  pc[19]=0;pc[4]=pc[5]=pc[6]=0;pc[386]=0;auto glow=render(ps[1],quad,6);pc[391]=0;auto dark=render(ps[1],quad,6);Need(changed(glow,dark)>W*H/10,"authored illumination retained in darkness");
  pc[391]=1;pc[386]=.32f;pc[19]=1;pc[4]=pc[5]=pc[6]=.12f;
  pc[23]=3;pc[21]=.1f;pc[24]=.1f;pc[25]=.2f;pc[26]=.3f;auto fog=render(ps[1],quad,6);
@@ -91,9 +138,21 @@ int main(){
  for(int i=0;i<3;++i){d->SetTexture(0,textures[i]);pc[384]=i==0?3.f:i==1?1.f:2.f;pc[391]=i==0?1.f:0.f;pc[385]=1.15f;render(ps[i==2?3:1],panel.data(),panel.size());save(i==0?"inside_wet":i==1?"outside_relief":"dyson_relief");
   if(i==0){pc[385]=0;render(ps[1],panel.data(),panel.size());save("inside_flat");pc[385]=1.15f;pc[52]=.6f;pc[53]=-.2f;render(ps[1],panel.data(),panel.size());save("inside_light_shift");pc[52]=-.35f;pc[53]=.3f;}}
  puts("PASS saved actual material texture previews");
+ const char* boneSources[]={"lair_rock_dtl01","lair_rock_dtl02","lair_rock_dtl03","lair_rock_dtl04","lair_skin02"};
+ for(int i=0;i<5;++i){
+  IDirect3DTexture9 *boneTexture=nullptr,*boneMask=nullptr,*boneEmission=nullptr;
+  Check(D3DXCreateTextureFromFileA(d,(std::string("src/obj/nomad_lair_revision/")+boneSources[i]+".tga.dds").c_str(),&boneTexture));
+  Check(D3DXCreateTextureFromFileA(d,(std::string("DATA_EXTRA/TEXTURES/lair_bone")+std::to_string(i+1)+".dds").c_str(),&boneMask));
+  if(i==4){Check(D3DXCreateTextureFromFileA(d,"src/obj/nomad_lair_revision/lair_skin02_illum.tga.dds",&boneEmission));d->SetTexture(1,boneEmission);}
+  d->SetTexture(0,boneTexture);d->SetTexture(13,originalLair?layers:boneMask);pc[408]=originalLair?0.f:1.f;pc[384]=i==4?3.f:1.f;pc[391]=i==4?1.f:0.f;
+  render(ps[1],panel.data(),panel.size());save((std::string("../nomad_lair_revision/bone_preview")+std::to_string(i+1)).c_str());
+  boneTexture->Release();boneMask->Release();if(boneEmission)boneEmission->Release();
+ }
+ pc[408]=0;d->SetTexture(13,layers);d->SetTexture(1,illum);
+ puts("PASS five actual lair bone/tissue material previews");
  d->SetTexture(0,textures[0]);pc[384]=3;pc[391]=1;pc[388]=7;pc[385]=1.15f;
  CreateDirectoryA("src/obj/nomad_surfaces/motion",nullptr);
  for(int frame=0;frame<96;++frame){pc[387]=frame*(16.f/96);render(ps[1],panel.data(),panel.size());char name[64];sprintf(name,"motion/et_%03d",frame);save(name);}
  pc[387]=0;puts("PASS 96 real GPU animation frames saved (16-second cycle)");
- d->SetVertexShader(nullptr);d->SetPixelShader(nullptr);for(int s:{0,1,13})d->SetTexture(s,nullptr);for(auto* p:ps)p->Release();depth->Release();vs->Release();for(auto* t:textures)t->Release();illum->Release();layers->Release();rt->Release();read->Release();d->Release();api->Release();DestroyWindow(window);
+ d->SetVertexShader(nullptr);d->SetPixelShader(nullptr);for(int s:{0,1,13,14})d->SetTexture(s,nullptr);for(auto* p:ps)p->Release();depth->Release();vs->Release();for(auto* t:textures)t->Release();illum->Release();layers->Release();rock->Release();rt->Release();read->Release();d->Release();api->Release();DestroyWindow(window);
 }

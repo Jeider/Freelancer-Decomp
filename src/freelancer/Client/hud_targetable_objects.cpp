@@ -582,6 +582,40 @@ bool HudTargetableObjects::ProjectContact(Vector const* World, float Radius, Vec
     return true;
 }
 
+namespace {
+    bool MatchesWaypointContact(IObjRW* Object, FHudContactRecord const& Record, bool User)
+    {
+        if (Object == nullptr || Record.bValid == 0)
+            return false;
+        if (Record.ObjectId != 0)
+            return Object->get_id() == Record.ObjectId;
+        HUD_Waypoint* const Waypoint = GetHudWaypoint();
+        if (Waypoint != nullptr && Waypoint->GetWaypointObject() == Object)
+        {
+            // A selected free-space point has its own client Solar id. Match
+            // its owning entry, even if the Solar and stored point differ a
+            // little; SetWaypoint itself allows reuse within two metres.
+            if ((Waypoint->bUser != 0) != User)
+                return false;
+            if (!User)
+                return Waypoint->Index == 0;
+            FPlayerWaypointRecord const* const First = GetPlayerWaypointRetail(0);
+            return First != nullptr && First->AutoId == Waypoint->Id;
+        }
+        Vector const Pos = Object->get_position();
+        return Pos.x == Record.World.x && Pos.y == Record.World.y && Pos.z == Record.World.z;
+    }
+
+    bool IsPlayerWaypointContact(IObjRW* Object, FHudContactRecord const& Record)
+    {
+        HUD_Waypoint* const Waypoint = GetHudWaypoint();
+        // Also name a deliberately selected later route point correctly.
+        if (Waypoint != nullptr && Waypoint->GetWaypointObject() == Object)
+            return Waypoint->bUser != 0;
+        return Record.bIsWaypoint != 0;
+    }
+}
+
 void HudTargetableObjects::RebuildContacts()
 {
     // FUN_004ed180. 0x004ed18a..0x004ed1da: +0x36c = Scanner + 0x24 (no null test -- Render only
@@ -699,9 +733,9 @@ void HudTargetableObjects::RebuildContacts()
         // 0x004ed505..0x004ed56f.
         Record.World = Object->get_position();
         Record.bIsBestPath =
-            (BestPathRecord.bValid != 0 && Object->get_id() == BestPathRecord.ObjectId) ? 1 : 0;
+            MatchesWaypointContact(Object, BestPathRecord, false) ? 1 : 0;
         Record.bIsWaypoint =
-            (WaypointRecord.bValid != 0 && Object->get_id() == WaypointRecord.ObjectId) ? 1 : 0;
+            MatchesWaypointContact(Object, WaypointRecord, true) ? 1 : 0;
         Record.ObjectId = Object->get_id();
 
         // 0x004ed572..0x004ed5b9.
@@ -1822,11 +1856,18 @@ namespace
         return Out;
     }
 
-    // Every FUN_005a2940 call in FUN_004eada0 passes width 2.0f (0x40000000).
+    float HudMarkerLineWidth()
+    {
+        // Keep the existing 1080p weight; scale vector brackets/lead crosses with
+        // display height just like the projected target-corner geometry.
+        float const Width = 2.0f * static_cast<float>(G_RenderSurfaceHeight) / 1080.0f;
+        return Width > 2.0f ? Width : 2.0f;
+    }
+
     void DrawBracketLine(Vector const& A, Vector const& B, unsigned long Color,
                          unsigned long EdgeColor)
     {
-        Win3DImmedDrawLine(&A.x, &B.x, Color, EdgeColor, 2.0f);
+        Win3DImmedDrawLine(&A.x, &B.x, Color, EdgeColor, HudMarkerLineWidth());
     }
 }
 
@@ -2167,11 +2208,6 @@ namespace
         Text->FontString = Saved;
     }
 
-    // The FCOMP / TEST AH,0x44 / JP triple: all three components equal (ordered).
-    bool SameWorldPosition(Vector const& A, Vector const& B)
-    {
-        return A.x == B.x && A.y == B.y && A.z == B.z;
-    }
 }
 
 void HudTargetableObjects::DrawWaypointMarker(FHudContactRecord const* Record,
@@ -2235,15 +2271,13 @@ void HudTargetableObjects::DrawTargetReticle()
             SelectPulse = 0.0f;
             LastTargetId = TargetId;
         }
-        if (WaypointRecord.bValid != 0 &&
-            SameWorldPosition(Target->get_position(), WaypointRecord.World))
+        if (MatchesWaypointContact(Target, WaypointRecord, true))
         {
             bWaypointDone = true;
             bTargetSeen = true;
             bTargetIsWaypoint = true;
         }
-        if (BestPathRecord.bValid != 0 &&
-            SameWorldPosition(Target->get_position(), BestPathRecord.World))
+        if (MatchesWaypointContact(Target, BestPathRecord, false))
         {
             bTargetIsBestPath = true;
             bTargetSeen = true;
@@ -2442,11 +2476,9 @@ void HudTargetableObjects::DrawTargetReticle()
     }
     TargetRecord.Distance = Distance;
     TargetRecord.bIsBestPath = static_cast<unsigned char>(
-        (BestPathRecord.bValid != 0 &&
-         SameWorldPosition(ShipTarget->get_position(), BestPathRecord.World)) ? 1 : 0);
+        MatchesWaypointContact(ShipTarget, BestPathRecord, false) ? 1 : 0);
     TargetRecord.bIsWaypoint = static_cast<unsigned char>(
-        (WaypointRecord.bValid != 0 &&
-         SameWorldPosition(ShipTarget->get_position(), WaypointRecord.World)) ? 1 : 0);
+        MatchesWaypointContact(ShipTarget, WaypointRecord, true) ? 1 : 0);
     if (bOnScreen)
         DrawOnScreenTarget(ShipTarget, &TargetRecord);
     else
@@ -2956,7 +2988,8 @@ void HudTargetableObjects::DrawOnScreenTarget(IObjRW* Object, FHudContactRecord 
             P, static_cast<float>(ReticleHeight * static_cast<double>(0.8f) * static_cast<double>(Scale) +
                                   static_cast<double>(P.y)));   // [ESP+0x3c]
         DrawReticleLabel(ReticleRangeText,
-                         (Record->bIsWaypoint != 0) ? &WaypointLabel : &BestPathLabel, CaptionPoint);
+                         IsPlayerWaypointContact(Object, *Record) ? &WaypointLabel : &BestPathLabel,
+                         CaptionPoint);
         return;
     }
 
@@ -3578,7 +3611,7 @@ void HudTargetableObjects::DrawOffScreenContact(IObjRW* Object, FHudContactRecor
     {
         // 0x004f119b..0x004f1292: with all four target tiles, the hat (Color with the alpha
         // byte) when watch-listed or best path, then the background and the arrow at 0.1 --
-        // the player arrow twice for a player ship, else the target arrow and its outline.
+        // the player background/detail pair, else the target arrow and its outline.
         if (CurrentTargetArrow != nullptr && CurrentTargetArrowOutline != nullptr &&
             PlayerArrow != nullptr && CurrentTargetArrowHat != nullptr)
         {
@@ -3593,7 +3626,7 @@ void HudTargetableObjects::DrawOffScreenContact(IObjRW* Object, FHudContactRecor
             FButtonMontageTile const* Second;
             if (bPlayerShip)
             {
-                NnMontageDrawTileAt(PlayerArrow, Point, BackgroundRgba, 0.1f, 0, Angle);
+                NnMontageDrawTileAt(PlayerArrowBackground, Point, BackgroundRgba, 0.1f, 0, Angle);
                 Second = PlayerArrow;
             }
             else
@@ -3854,10 +3887,10 @@ void HudTargetableObjects::DrawLeadMarkers()
         float const Y = Marker.LeadScreen.y;
         float const LeftEnd[3] = {X - Size, Y, 0.0f};
         float const RightEnd[3] = {Size + X, Y, 0.0f};
-        Win3DImmedDrawLine(LeftEnd, RightEnd, Color, EdgeColor, 2.0f);   // FUN_005a2940
+        Win3DImmedDrawLine(LeftEnd, RightEnd, Color, EdgeColor, HudMarkerLineWidth());
         float const TopEnd[3] = {X, Y - Size, 0.0f};
         float const BottomEnd[3] = {X, Size + Y, 0.0f};
-        Win3DImmedDrawLine(TopEnd, BottomEnd, Color, EdgeColor, 2.0f);
+        Win3DImmedDrawLine(TopEnd, BottomEnd, Color, EdgeColor, HudMarkerLineWidth());
     }
 }
 

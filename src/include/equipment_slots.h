@@ -7,7 +7,7 @@ class INI_Reader;
 class EquipDescList;
 class CEquip;
 struct EquipDesc;
-namespace Archetype { struct Root; struct Equipment; struct Ship; }
+namespace Archetype { struct Root; struct Equipment; struct Ship; struct Solar; struct EqObj; }
 
 namespace EquipmentSlots
 {
@@ -16,8 +16,14 @@ namespace EquipmentSlots
     COMMON_API bool ReadEquipment(Archetype::Equipment const& Arch, INI_Reader& Ini);
     COMMON_API void CopyDefinition(Archetype::Root const& To, Archetype::Root const& From);
     COMMON_API unsigned GetType(Archetype::Equipment const& Arch);
+    COMMON_API bool ReadSolar(Archetype::Solar& Solar, INI_Reader& Ini);
+    COMMON_API bool ValidateObject(Archetype::EqObj const* Object, EquipDescList const& Items);
     COMMON_API bool ReadShip(Archetype::Ship& Ship, INI_Reader& Ini);
     COMMON_API bool Validate(Archetype::Ship const* Ship, EquipDescList const& Items);
+    // Validate new/changed mounts while preserving previously authored attachments.
+    COMMON_API bool ValidateChange(Archetype::Ship const* Ship, EquipDescList const& Before, EquipDescList const& After);
+    // Compatibility no-op: loadout/save mounted state is authoritative.
+    COMMON_API void RestoreLoadout(Archetype::Ship const* Ship, EquipDescList& Items);
     COMMON_API bool CanMount(Archetype::Ship const* Ship, EquipDescList const& Items,
                             EquipDesc const& Item, char const* Slot);
     COMMON_API void Bind(CEquip const* Item, char const* Slot);

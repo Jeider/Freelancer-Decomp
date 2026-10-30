@@ -147,6 +147,7 @@ namespace
 
     // In the order of the is_value chain (06ebceea-06ebf59c).
     FActFactoryEntry const GActFactory[] = {
+        {"Act_Animation", &NewTriggerAction<ActAnimation>},
         {"Act_ActTrig", &NewTriggerAction<ActActTrig>},
         {"Act_AddAmbient", &NewTriggerAction<ActAddAmbient>},
         {"Act_AddRTC", &NewTriggerAction<ActAddRtc>},

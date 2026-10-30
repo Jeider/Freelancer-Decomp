@@ -1,5 +1,7 @@
 #include "hud_vulnerable.h"
 
+#include "client_gameobj.h"
+#include "client_objdb.h"
 #include "common_archetype.h"
 #include "common_cobject.h"
 #include "common_cequip.h"
@@ -16,10 +18,13 @@
 #include "input_manager.h"
 #include "menu_sound_arch.h"
 #include "menu_ui_init.h"
+#include "menu_universe_base.h"
+#include "nn_modal.h"
 #include "part_cache.h"
 #include "player_behavior.h"
 #include "space_camera.h"
 #include "space_letterbox.h"
+#include "star_sys.h"
 #include "win3d.h"
 #include "win3d_render.h"
 #include "win3d_immediate.h"
@@ -74,15 +79,16 @@ namespace
             subId = 0;
             parts.clear();
         }
-    } state;
+    } state, selectedState;
 
-    bool Available()
+    bool Available(bool picking = true)
     {
         return GetForegroundWindow() == g_client.window &&
             GetGameOption(kGameOptInterfaceGroup) && GetGameOption(kGameOptHud) &&
-            !HudIsMousePickBlocked() && !IsLetterboxVisible() &&
+            !G_bNnScreenUp && !IsClientServerTickPaused() && !IsClientLocationInTransition() &&
+            !IsLetterboxVisible() &&
             !IsSpaceInitInProgress() && !HudGetInputFocus() &&
-            Win3DGetHover() == nullptr && GetPlayerObjRW();
+            GetPlayerObjRW() && (!picking || (!HudIsMousePickBlocked() && Win3DGetHover() == nullptr));
     }
 
     bool IsTurret(CEGun* gun)
@@ -102,23 +108,18 @@ namespace
         return false;
     }
 
-    Hover Pick(ICamera* camera)
+    bool CanAutoselect(CEqObj* object)
     {
-        if (!camera) return {};
-        auto* player = static_cast<IObjRW*>(GetPlayerObjRW());
-        CShip* playerShip = HudShipOfObjRw(player);
-        if (!playerShip) return {};
-        int x = 0, y = 0, z = 0;
-        GetClientSoftwareCursor(&x, &y, &z);
-        FCameraRayHit hit = {};
-        // Nearest physical surface only: a normal hull part in front blocks a
-        // vulnerable part behind it. No bracket/nearest-contact assistance.
-        CameraRayPick(&hit, camera, static_cast<float>(x), static_cast<float>(y), playerShip, true);
-        if (!hit.Object || (static_cast<unsigned>(hit.Object->ObjectClass) & 0x503u) != 0x503u)
-            return {};
-        auto* object = static_cast<CEqObj*>(hit.Object);
-        if (object == playerShip || object->CloakPercent >= 1.0f) return {};
-        unsigned short const sub = object->inst_to_subobj_id(hit.Instance);
+        // Use the live HUD attitude, including mission/reputation changes.
+        // Other ship classes retain their existing subsystem picking behaviour.
+        if ((object->TypeBits & (0x80000u | 0x40000u)) == 0) return true;
+        return GetAttitudeClass(static_cast<IObjRW*>(GetPlayerObjRW()),
+            ClientObjDb_FindObject(object->Id, 0)) == -1;
+    }
+
+    Hover ResolvePart(CEqObj* object, unsigned short sub)
+    {
+        if (!object || object->CloakPercent >= 1.0f || !CanAutoselect(object)) return {};
         CArchGroup* group = nullptr;
         CEGun* turret = nullptr;
         long root = -1;
@@ -137,19 +138,55 @@ namespace
             root = turret->GetRootIndex();
         }
         if (root == -1) return {};
+        return {object, group, turret, root, sub};
+    }
+
+    bool InScannerRange(CShip* playerShip, Vector const& point)
+    {
         // Respect the player's scanner range, measured to the hit surface.
         CEScanner const* scanner = CEScanner::cast(playerShip->EquipManager.FindFirst(0x80000));
         if (scanner)
         {
             Vector const& p = playerShip->WorldPosition;
-            double const dx = hit.Point.x - p.x, dy = hit.Point.y - p.y, dz = hit.Point.z - p.z;
+            double const dx = point.x - p.x, dy = point.y - p.y, dz = point.z - p.z;
             double const range = scanner->GetRadarRange();
-            if (dx * dx + dy * dy + dz * dz > range * range) return {};
+            if (dx * dx + dy * dy + dz * dz > range * range) return false;
         }
-        return {object, group, turret, root, sub};
+        return true;
     }
 
-    bool PrepareWire(Hover const& hover)
+    Hover Pick(ICamera* camera)
+    {
+        if (!camera) return {};
+        auto* playerShip = HudShipOfObjRw(static_cast<IObjRW*>(GetPlayerObjRW()));
+        if (!playerShip) return {};
+        int x = 0, y = 0, z = 0;
+        GetClientSoftwareCursor(&x, &y, &z);
+        FCameraRayHit hit = {};
+        // Only the nearest physical surface can own a hover or click.
+        CameraRayPick(&hit, camera, static_cast<float>(x), static_cast<float>(y), playerShip, true);
+        if (!hit.Object || (static_cast<unsigned>(hit.Object->ObjectClass) & 0x503u) != 0x503u)
+            return {};
+        auto* object = static_cast<CEqObj*>(hit.Object);
+        if (object == playerShip || !InScannerRange(playerShip, hit.Point)) return {};
+        return ResolvePart(object, object->inst_to_subobj_id(hit.Instance));
+    }
+
+    Hover SelectedPart()
+    {
+        auto* playerShip = HudShipOfObjRw(static_cast<IObjRW*>(GetPlayerObjRW()));
+        if (!playerShip) return {};
+        auto* object = HudShipOfObjRw(playerShip->get_target());
+        if (!object || object == playerShip) return {};
+        Hover const selected = ResolvePart(object, playerShip->get_sub_target());
+        if (!selected.object) return {};
+        Vector point;
+        if (!object->get_sub_obj_center_of_mass(selected.subId, point) ||
+            !InScannerRange(playerShip, point)) return {};
+        return selected;
+    }
+
+    bool PrepareWire(Hover const& hover, WireState& state)
     {
         long const root = hover.root;
         std::vector<std::pair<void*, int>> parts;
@@ -303,6 +340,7 @@ void SetVulnerableAutoselect(bool enabled)
 {
     SetSavedTargetingAutoselect(enabled);
     state.ClearWire();
+    selectedState.ClearWire();
     // Keep ownership of a pending left release if the toggle changes mid-click.
 }
 
@@ -331,12 +369,10 @@ bool VulnerableTargetingMouse(FMouseEvent const& event)
     return true;
 }
 
-void VulnerableTargetingDraw(FSpaceCamera* camera)
+static void DrawPartWire(FSpaceCamera* camera, Hover const& hover, WireState& state)
 {
-    if (!camera || !VulnerableAutoselectEnabled() || !Available()) { state.ClearWire(); return; }
-    Hover const hover = Pick(AsCamera(camera));
     if (!hover.object) { state.ClearWire(); return; }
-    if (!PrepareWire(hover)) return;
+    if (!PrepareWire(hover, state)) return;
     // Follow health (including the critical red pulse), without the HUD's extra
     // grey/amber mouse-hover animation masking the part's damage colour.
     unsigned const color = hover.turret ? HudEquipmentDamageWireColor(hover.turret) :
@@ -401,8 +437,26 @@ void VulnerableTargetingDraw(FSpaceCamera* camera)
     flush();
 }
 
+void VulnerableTargetingDraw(FSpaceCamera* camera)
+{
+    if (!camera || !VulnerableAutoselectEnabled() || !Available(false))
+    {
+        state.ClearWire();
+        selectedState.ClearWire();
+        return;
+    }
+    // Resolve the live native selection every frame: no cursor, HUD panel or
+    // flash timer dependency, and no retained pointer to a destroyed subsystem.
+    Hover const selected = SelectedPart();
+    DrawPartWire(camera, selected, selectedState);
+    Hover const hover = Available() ? Pick(AsCamera(camera)) : Hover{};
+    if (hover.object == selected.object && hover.subId == selected.subId) state.ClearWire();
+    else DrawPartWire(camera, hover, state);
+}
+
 void VulnerableTargetingReset()
 {
     state.ClearWire();
+    selectedState.ClearWire();
     state.capturedLeft = false;
 }

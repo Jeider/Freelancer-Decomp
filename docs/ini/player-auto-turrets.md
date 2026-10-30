@@ -11,7 +11,7 @@ Port-only player turret control. Requires `FreelancerPlayerAutoTurrets=1` in Com
 | Key | Type | Default | Meaning / accepted values | Source |
 |---|---|---|---|---|
 | `enabled` | integer boolean | `0` | `0` disables; any nonzero integer enables the SP controller and UI. Does not issue an order. | [Enabled](../../src/freelancer/Client/player_auto_turrets.cpp) |
-| `reserve_percent` | integer | `35` | Initial weapon-power floor, clamped to `0..90`. Saved character/hull preferences take precedence. UI cycles `0 → 20 → 35 → 50 → 0`; resume threshold is floor + 10 percentage points. | [Reconcile / CycleReserve](../../src/freelancer/Client/player_auto_turrets.cpp) |
+| `reserve_percent` | integer | `35` | Initial weapon-power floor, clamped to `0..90`. The value in the current game save takes precedence. UI arrows adjust it by 5 percentage points; resume threshold is floor + 10. | [BehaviorFor / SetReservePercent](../../src/freelancer/Client/player_auto_turrets.cpp) |
 
 Keys are single-valued. There are no `engclass`, scanner-class, perk or booster settings required by this controller.
 
@@ -23,14 +23,13 @@ Sections are `v1.<character-name UTF-16 hex>.<hull-archetype-id hex>`. At most 2
 
 | Key | Type | Default | Meaning / accepted values | Source |
 |---|---|---|---|---|
-| `reserve_percent` | unsigned profile integer | clamped `port.ini` value | Clamped above to 90. A malformed negative profile integer is read unsigned and therefore clamps to 90. UI writes only the preset values. | [LoadPreferences](../../src/freelancer/Client/player_auto_turrets.cpp) |
-| `mode` | profile integer | `2` | `1`: selected target; every other value: hostile free fire. Preference only, never armed state. | [LoadPreferences / SetPreferredMode](../../src/freelancer/Client/player_auto_turrets.cpp) |
-| mounted hardpoint name, e.g. `HpTurret01` | profile integer boolean | `1` | Membership of that hardpoint in the automatic group; `0` excluded, nonzero included. Applies to eligible equipment. New equipment appearing during an order is excluded until a subsequent explicit selection/start cycle. | [SavedSelection / ToggleMember](../../src/freelancer/Client/player_auto_turrets.cpp) |
+| `enabled` | profile integer boolean | `0` | Legacy fallback only when the current save has no explicit master value. Options > Miscellaneous writes the native save on Apply instead. | [LoadPreferences](../../src/freelancer/Client/player_auto_turrets.cpp) |
+| mounted hardpoint name, e.g. `HpTurret01` | profile integer boolean | `1` | Membership in automatic control; `0` excluded, nonzero included. Restored for newly discovered eligible guns, regardless of the global master switch. | [SavedSelection / ToggleMember](../../src/freelancer/Client/player_auto_turrets.cpp) |
 
-No target, current order, firing permission, cooldown or energy is persisted. Missing/unavailable character identity skips persistence. Failed writes produce an `Auto turrets: could not save preferences` diagnostic; the live selection remains usable.
+Old profile `mode` and `reserve_percent` entries are no longer read. Individual hardpoint choices still use this INI; the global master and reserve use the native save `interface` word (bits 22..28). Missing character identity skips per-hardpoint persistence. A failed profile write leaves the live selection usable and emits a diagnostic. Targets, cooldowns and energy are transient.
 
 ## Keyboard and resources
 
-The four `USER_PLAYER_AUTO_TURRET*` commands are registered by the client, appended to the cockpit accelerator group and shown in the ordinary keyboard preferences without modifying `KeyMap.ini` or `keylist.ini`. Bindings are stored through the normal `UserKeyMap.ini` mechanism. No default keys are imposed. The native camera command `USER_AUTO_TURRET` is unchanged.
+The checkbox and reserve arrows are on the native Options > Miscellaneous page, available after loading a game. Per-gun buttons remain beside weapon rows. The native camera command `USER_AUTO_TURRET` is unchanged.
 
 HUD text uses the private virtual IDS range `0x7fee0000..0x7fee000b` and `0x7fee0020..0x7fee0023`; `PortLanguage() == ru` selects Russian, otherwise English. The optional staged icon has a fixed path `interface\hud\HUD_player_auto_turret.3db`; without it the existing targeted-object icon is used. These are implementation constants, not INI keys.

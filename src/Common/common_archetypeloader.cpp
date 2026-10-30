@@ -53,6 +53,8 @@ namespace
         { "InternalFX", 0x18 },
         { "TradeLane", 0x1D },
         { "RepairDroid", 0x19 },
+        { "GravityDevice", Archetype::AClassGravityDevice },
+        { "DoorKey", Archetype::AClassDoorKey },
         { "RepairKit", 0x1A },
         { "ShieldBattery", 0x1B },
         { "CloakingDevice", 0x1C },
@@ -98,6 +100,8 @@ namespace
         case 0x17: return new Archetype::AttachedFXEquip(Companion);
         case 0x18: return new Archetype::InternalFXEquip(Companion);
         case 0x1D: return new Archetype::TradeLaneEquip(Companion);
+        case Archetype::AClassGravityDevice: return new Archetype::GravityDevice(Companion);
+        case Archetype::AClassDoorKey: return new Archetype::DoorKey(Companion);
         case 0x19: return new Archetype::RepairDroid(Companion);
         case 0x1A: return new Archetype::RepairKit(Companion);
         case 0x1B: return new Archetype::ShieldBattery(Companion);

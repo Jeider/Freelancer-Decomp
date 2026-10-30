@@ -5,6 +5,8 @@
 // Author: Giperion.
 
 #include "perf_options.h"
+#include "hud_tilt.h"
+#include "graphics_settings.h"
 #include "gf_script_object.h" // LAB_004548f0 / FUN_00454910: one transition-script latch.
 
 #include "cli_asteroid.h"
@@ -188,6 +190,7 @@ namespace
 
     void ApplyUseEnvironmentMaps(float Value)  // LAB_005b4700 - DAT_0067ed10
     {
+        Value=PortGraphicsRenderValue("environment_maps",Value);
         // v > 0 and a pipeline: ask device ability 8; a non-zero answer keeps the raw value
         // in slot 0, every other path stores 0 (005b473a). The HRESULT is not examined.
         unsigned long Ability = 0;
@@ -499,6 +502,9 @@ float GetPerfGenericEffectPerf() { return G_GenericEffectPerf; }
 
 bool LoadPerfOptions(char const* FileName, FPerfDisplaySettings* Display)
 {
+    // Separate section: extending the retail registry would invalidate old PerfCount.
+    HudTilt::SetConfiguredAngle(0);
+    (void)GraphicsSettings::Get(GraphicsSettings::Shadows); // freeze startup preferences
     // FUN_005b38d0. 0x005b38fb: GetUserDataPath's result is not tested.
     char UserPath[MAX_PATH];
     GetUserDataPath(UserPath);
@@ -578,6 +584,12 @@ bool LoadPerfOptions(char const* FileName, FPerfDisplaySettings* Display)
                     bOk = bVersionOk;
                 } while (Ini.read_value());
             }
+            else if (Ini.is_header("HUD"))
+            {
+                while (Ini.read_value())
+                    if (Ini.is_value("hud_tilt_degrees"))
+                        HudTilt::SetConfiguredAngle(Ini.get_value_float(0));
+            }
             else if (Ini.is_header("Display") && Display != nullptr)
             {
                 if (!Ini.read_value())
@@ -643,5 +655,9 @@ void SavePerfOptions(char const* FileName)
     fprintf(File, "size= %d, %d\n", g_display.width, g_display.height);
     fprintf(File, "color_bpp= %d\n", g_display.color_bpp);
     fprintf(File, "depth_bpp= %d\n", g_display.depth_bpp);
+    fprintf(File, "\n[HUD]\nhud_tilt_degrees = %.0f\n", static_cast<double>(HudTilt::ConfiguredAngle()));
+    fprintf(File,"\n[Graphics]\n");
+    for (int i=0;i<GraphicsSettings::Count;++i)
+        fprintf(File,"%s = %d\n",GraphicsSettings::Key(i),GraphicsSettings::Get(i,true));
     fclose(File);
 }

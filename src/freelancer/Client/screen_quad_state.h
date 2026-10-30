@@ -111,6 +111,17 @@ void ScreenQuadBeginBatchFrame(unsigned long const* Frame, int BlendMode, bool b
 // node FUN_00402e30 returned, i.e. the container's current node.
 void ScreenQuadAppendRecord(FScreenQuadRecord const& Record);
 
+struct FScreenQuadColorVertex
+{
+    float X, Y;
+    unsigned Color;
+};
+
+// Append an untextured, convex quad to the current alpha-blended batch. Clips to
+// the camera viewport with interpolated colours; a repeated final point is a triangle.
+void ScreenQuadEnqueueColorQuad(FScreenQuadColorVertex const* Vertices,
+                                float Depth, float Rhw, int const* ClipRect);
+
 // FUN_004034a0 (cdecl) -- one icon square of Size (world units) around Position through Cam
 // (FUN_00403350), in the current node with the container's UV rect: with |Angle| <= 1e-5 an
 // axis-aligned record clipped to the viewport (FUN_00404670 on both axes), otherwise four

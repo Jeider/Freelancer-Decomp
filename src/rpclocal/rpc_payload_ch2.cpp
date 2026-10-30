@@ -317,6 +317,7 @@ static bool MarshalActivateObject(FPacketBase* Packet, const unsigned int* Args,
     Wire->ObjectId = Info->ObjectId;
     Wire->Field_0x08 = Info->Field_0x08;
     Wire->bActivate = Info->bActivate;
+    if (Info->bActivate == 2) Wire->Animation = Info->Animation;
     return true;
 }
 
@@ -329,6 +330,7 @@ static bool DeliverActivateObject(const FPacketBase* Packet, IClient* Client, IC
     GActivateObjectStatic.Pad_0x05[1] = 0;
     GActivateObjectStatic.Pad_0x05[2] = 0;
     GActivateObjectStatic.Field_0x08 = Wire.Field_0x08;
+    if (Wire.bActivate == 2) GActivateObjectStatic.Animation = Wire.Animation;
     Client->SendServerActivateObject(1u, GActivateObjectStatic);
     return true;
 }
@@ -2987,7 +2989,7 @@ const FRpcPayloadCodec GChannel2Codecs[] = {
       MarshalLaunch,                 DeliverLaunch },
     { 2, 0x08, "FLPACKET_SERVER_CHARSELECTVERIFIED",           0x10,
       MarshalCharSelectVerified,     DeliverCharSelectVerified },
-    { 2, 0x0a, "FLPACKET_SERVER_ACTIVATEOBJECT",               0x0c,
+    { 2, 0x0a, "FLPACKET_SERVER_ACTIVATEOBJECT",               sizeof(FPayloadServerActivateObject),
       MarshalActivateObject,         DeliverActivateObject },
     { 2, 0x0b, "FLPACKET_SERVER_LAND",                         0x0c,
       MarshalThreeDwordsByRef,       DeliverLand },

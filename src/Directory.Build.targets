@@ -191,4 +191,7 @@
     <Warning Text="AddressSanitizer runtime DLLs not found under $(VCToolsInstallDir)bin\Hostx86\x86 or Hostx64\x86."
              Condition="'$(FlASanRtDir)'==''" />
   </Target>
+  <ItemDefinitionGroup Condition="'$(FreelancerPlayerFlightActions)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
+    <ClCompile><PreprocessorDefinitions>FREELANCER_PLAYER_FLIGHT_ACTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>
+  </ItemDefinitionGroup>
 </Project>

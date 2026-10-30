@@ -1,8 +1,7 @@
-"""Compile the production session-state functions against a recording server stub."""
+"""Exercise production global HUD preferences against a profile store and recording server."""
 import os
 import subprocess
 from pathlib import Path
-
 repo = Path(__file__).resolve().parents[2]
 out = repo / 'src/obj/targeting_save_check'
 out.mkdir(parents=True, exist_ok=True)
@@ -12,198 +11,67 @@ fixture = r'''
 #include <cassert>
 #include <cstring>
 #include <cstdio>
-#include "../../freelancer/Client/targeting_window_state.h"
+#include <cstdlib>
+#include <string>
+constexpr int MAX_PATH=260;
+std::string profile;
+unsigned profileWrites=0;
+bool writeOk=true;
+bool GetUserDataPath(char* out){strcpy_s(out,MAX_PATH,"mock-user");return true;}
+unsigned GetLastError(){return 5;}
+#define FDUMP(...) ((void)0)
+unsigned GetPrivateProfileStringA(char const*,char const*,char const*,char* out,unsigned size,char const*){
+    strcpy_s(out,size,profile.c_str());return unsigned(profile.size());
+}
+bool WritePrivateProfileStringA(char const*,char const*,char const* text,char const* path){
+    assert(strcmp(path,"mock-user\\hud_preferences.ini")==0);
+    if(!writeOk)return false; profile=text;++profileWrites;return true;
+}
 struct RecordingServer {
-    unsigned word = 0;
-    unsigned sends = 0;
-    void SetInterfaceState(unsigned id, unsigned char* data, int size) {
-        assert(id == 7 && size == 4);
-        memcpy(&word, data, 4);
-        ++sends;
-    }
+    unsigned word=0,sends=0;
+    void SetInterfaceState(unsigned,unsigned char* data,int size){assert(size==4);memcpy(&word,data,4);++sends;}
 } server;
-RecordingServer* G_Server = &server;
-unsigned GetPlayerConnectionId() { return 7; }
+RecordingServer* G_Server=&server;
+unsigned GetPlayerConnectionId(){return 7;}
 '''
 checks = r'''
-int main() {
-    assert(!GetSavedRadarEnabled());
-    assert(!GetSavedHealthWindowOpen());
-    for(unsigned defaultRange=0;defaultRange<3;++defaultRange)
-        assert(GetSavedRadarRange(defaultRange)==defaultRange);
-    assert(GetSavedRadarRange(99)==2);
-    for(unsigned range=0;range<3;++range)for(unsigned on=0;on<2;++on) {
-        unsigned const untouched=0xa530800fu & ~((3u<<18)|(1u<<17));
-        AssignGameSessionFlags(untouched);
-        SetSavedRadarEnabled(on!=0);SetSavedRadarRange(range);
-        unsigned const saved=server.word;
-        assert(saved==(untouched | (on<<17) | ((range+1)<<18)));
-        unsigned const writes=server.sends;
-        SetSavedRadarRange(range);SetSavedRadarRange(3);SetSavedRadarRange(~0u);
-        assert(server.sends==writes);
-        ToggleAuxiliaryHudWindowsMinimized();
-        assert(GetSavedRadarEnabled()==(on!=0)&&GetSavedRadarRange(2)==range);
-        assert(server.sends==writes);
-        AssignGameSessionFlags(3);assert(!GetSavedRadarEnabled()&&GetSavedRadarRange(1)==1);
-        AssignGameSessionFlags(saved);
-        assert(GetSavedRadarEnabled()==(on!=0)&&GetSavedRadarRange(0)==range);
-        assert(server.sends==writes);
-        for(unsigned bit=1;bit<=8;bit<<=1) {
-            SetGameSessionFlags(bit,true);SetGameSessionFlags(bit,false);
-            assert(GetSavedRadarEnabled()==(on!=0)&&GetSavedRadarRange(2)==range);
-        }
+void RestartProfile(){GHudLoaded=GHudStored=false;GHudPreferences=0;GHudPath[0]=0;}
+int main(){
+    assert(GetShowWeaponGroups() && GetSavedRadarAutoMode()==0);
+    assert(profileWrites==0); // Reading main-menu defaults must not suppress migration.
+    AssignGameSessionFlags(3|(2u<<20)|(1u<<8)|(2u<<4));
+    assert(GetSavedRadarAutoMode()==2 && GetSavedHealthWindowLocked() && GetSavedTargetingProjection()==2);
+    assert(profileWrites==1 && server.sends==0);
+    AssignGameSessionFlags(0); // Another character cannot overwrite global choices.
+    assert(GetSavedRadarAutoMode()==2 && GetSavedHealthWindowLocked());
+    for(unsigned mode=0;mode<3;++mode) for(unsigned projection=0;projection<4;++projection)
+    for(unsigned group=0;group<6;++group) for(unsigned open=0;open<2;++open){
+        SetSavedRadarAutoMode(mode);SetSavedTargetingProjection(projection);SetSavedWeaponGroup(group);
+        SetSavedHealthWindowLocked(open!=0);SetSavedHealthWindowOpen(open!=0);SetSavedHealthViewLeft(open!=0);
+        SetSavedTargetingWindowLocked(open!=0);SetSavedTargetingWindowOpen(open!=0);SetSavedTargetingAutoselect(open!=0);
+        SetSavedRadarEnabled(open!=0);SetSavedRadarRange(mode);SetSavedAutoTurretsEnabled(open!=0);
+        SetSavedAutoTurretReserve(group*15);SetShowWeaponGroups(open!=0);
+        unsigned const writes=profileWrites;
+        SetSavedHealthWindowOpen(open!=0);SetSavedRadarEnabled(open!=0);SetShowWeaponGroups(open!=0);
+        assert(profileWrites==writes && server.sends==0); // No per-frame disk/network traffic.
+        RestartProfile();AssignGameSessionFlags(~0u);
+        assert(GetSavedRadarAutoMode()==mode && GetSavedRadarRange(2)==mode && GetSavedRadarEnabled()==(open!=0));
+        assert(GetSavedTargetingProjection()==projection && GetSavedWeaponGroup()==group);
+        assert(GetSavedHealthWindowLocked()==(open!=0) && GetSavedHealthWindowOpen()==(open!=0));
+        assert(GetSavedTargetingWindowLocked()==(open!=0) && GetSavedTargetingWindowOpen()==(open!=0));
+        assert(GetSavedTargetingAutoselect()==(open!=0) && GetSavedHealthViewLeft()==(open!=0));
+        assert(GetSavedAutoTurretsEnabled(false)==(open!=0) && GetSavedAutoTurretReserve(0)==group*15);
+        assert(GetShowWeaponGroups()==(open!=0) && profileWrites==writes && server.sends==0);
     }
-    AssignGameSessionFlags(3);
-    puts("PASS: radar on/off and all ranges round trip independently of Backspace/native HUD bits; legacy INI fallback; no repeat writes");
-    AssignGameSessionFlags(0x5a01000f);
-    SetSavedRadarEnabled(true);
-    assert(GetSavedRadarEnabled() && server.word==0x5a03000f);
-    auto const radarSaved=server.word;
-    AssignGameSessionFlags(3);
-    assert(!GetSavedRadarEnabled());
-    AssignGameSessionFlags(radarSaved);
-    assert(GetSavedRadarEnabled());
-    SetSavedRadarEnabled(false);
-    assert(server.word==0x5a01000f);
-    AssignGameSessionFlags(3);
-    assert(GetSavedTargetingProjection() == 0);
-    assert(GetSavedTargetingAutoselect() && !GetSavedTargetingWindowLocked());
-    for (unsigned native = 0; native < 16; ++native) {
-        for (unsigned previous = 0; previous < 4; ++previous) {
-            for (unsigned mode = 0; mode < 4; ++mode) {
-                const unsigned untouched = 0xa5a50000u | native;
-                AssignGameSessionFlags(untouched | (previous << 4));
-                const auto before = server.sends;
-                SetSavedTargetingProjection(mode);
-                assert(server.sends == before + 1);
-                assert(server.word == (untouched | (mode << 4)));
-                const auto saved = server.word;
-                for (unsigned bit = 1; bit <= 8; bit <<= 1) {
-                    SetGameSessionFlags(bit, true);
-                    assert(TestGameSessionFlags(bit));
-                    assert(GetSavedTargetingProjection() == mode);
-                    SetGameSessionFlags(bit, false);
-                    assert(!TestGameSessionFlags(bit));
-                    assert(GetSavedTargetingProjection() == mode);
-                }
-                // Server load overwrites the word without broadcasting it back.
-                const auto sends = server.sends;
-                AssignGameSessionFlags(saved);
-                assert(server.sends == sends);
-                assert(GetSavedTargetingProjection() == mode);
-                AssignGameSessionFlags(3); // Loading a legacy save after any mode.
-                assert(GetSavedTargetingProjection() == 0);
-            }
-        }
-    }
-    const auto sends = server.sends;
-    SetSavedTargetingProjection(4);
-    SetSavedTargetingProjection(~0u);
-    assert(server.sends == sends && GetSavedTargetingProjection() == 0);
-    G_Server = nullptr;
-    SetSavedTargetingProjection(3);
-    assert(GetSavedTargetingProjection() == 3 && server.sends == sends);
-    G_Server = &server;
-    for (unsigned native=0; native<16; ++native) for(unsigned mode=0; mode<4; ++mode)
-    for(unsigned initial=0; initial<4; ++initial) for(unsigned chosen=0; chosen<4; ++chosen) {
-        unsigned const untouched=0xa5a50000u | native | (mode<<4);
-        AssignGameSessionFlags(untouched | (initial<<6));
-        bool const automatic=(chosen&1)==0, locked=(chosen&2)!=0;
-        auto const before=server.sends;
-        SetSavedTargetingAutoselect(automatic);
-        assert(server.sends==before+1);
-        assert(server.word==(untouched | ((initial&2)<<6) | ((chosen&1)<<6)));
-        SetSavedTargetingWindowLocked(locked);
-        assert(server.sends==before+2 && server.word==(untouched | (chosen<<6)));
-        auto const saved=server.word;
-        assert(GetSavedTargetingProjection()==mode);
-        assert(GetSavedTargetingAutoselect()==automatic && GetSavedTargetingWindowLocked()==locked);
-        for(unsigned bit=1;bit<=8;bit<<=1) {
-            SetGameSessionFlags(bit,true);SetGameSessionFlags(bit,false);
-            assert(GetSavedTargetingAutoselect()==automatic && GetSavedTargetingWindowLocked()==locked);
-        }
-        SetSavedTargetingProjection((mode+1)%4);
-        assert(GetSavedTargetingAutoselect()==automatic && GetSavedTargetingWindowLocked()==locked);
-        auto const beforeLoad=server.sends;
-        AssignGameSessionFlags(3); // Load a different legacy player, then restore this one.
-        assert(GetSavedTargetingAutoselect() && !GetSavedTargetingWindowLocked());
-        AssignGameSessionFlags(saved);
-        assert(server.sends==beforeLoad);
-        assert(GetSavedTargetingAutoselect()==automatic && GetSavedTargetingWindowLocked()==locked);
-        assert(GetSavedTargetingProjection()==mode);
-    }
-    assert(!GetSavedHealthWindowLocked());
-    for(unsigned bits=0;bits<256;++bits)for(unsigned locked=0;locked<2;++locked){
-        unsigned const original=0xa5a50000u | bits;
-        AssignGameSessionFlags(original);
-        auto const before=server.sends;
-        SetSavedHealthWindowLocked(locked!=0);
-        assert(server.sends==before+1 && server.word==(original | (locked<<8)));
-        auto const saved=server.word;
-        SetSavedTargetingAutoselect(false);SetSavedTargetingWindowLocked(true);SetSavedTargetingProjection(3);
-        SetGameSessionFlags(2,false);
-        assert(GetSavedHealthWindowLocked()==(locked!=0));
-        AssignGameSessionFlags(3);assert(!GetSavedHealthWindowLocked());
-        AssignGameSessionFlags(saved);assert(GetSavedHealthWindowLocked()==(locked!=0));
-        SetSavedHealthWindowLocked(false);assert(server.word==original);
-    }
-    puts("PASS: Health lock bit round trips, survives all other HUD changes, preserves other bits and defaults unlocked in legacy saves");
-    for (unsigned options=0; options<128; ++options) for(unsigned group=0;group<6;++group) {
-        AssignGameSessionFlags(0xa5000003u);
-        bool const healthOpen=(options&1)!=0, targetOpen=(options&2)!=0;
-        bool const healthLock=(options&4)!=0, targetLock=(options&8)!=0;
-        bool const left=(options&16)!=0;
-        unsigned const projection=(options>>5)&3;
-        SetSavedHealthWindowLocked(healthLock);SetSavedTargetingWindowLocked(targetLock);
-        SetSavedHealthWindowOpen(healthOpen);SetSavedTargetingWindowOpen(targetOpen);
-        SetSavedHealthViewLeft(left);SetSavedTargetingProjection(projection);SetSavedWeaponGroup(group);
-        assert(GetSavedHealthWindowOpen()==healthOpen&&GetSavedTargetingWindowOpen()==targetOpen);
-        assert(GetSavedHealthViewLeft()==left&&GetSavedWeaponGroup()==group);
-        auto const saved=server.word;
-        assert((saved&0xfffe000fu)==0xa5000003u);
-        auto const sent=server.sends;
-        SetSavedHealthWindowOpen(healthOpen);SetSavedTargetingWindowOpen(targetOpen);
-        SetSavedHealthViewLeft(left);SetSavedWeaponGroup(group);
-        assert(server.sends==sent); // Reconciliation every frame never floods the server.
-        ToggleAuxiliaryHudWindowsMinimized();assert(AreAuxiliaryHudWindowsMinimized());
-        assert(GetSavedHealthWindowOpen()==healthOpen&&GetSavedTargetingWindowOpen()==targetOpen);
-        ToggleAuxiliaryHudWindowsMinimized();assert(!AreAuxiliaryHudWindowsMinimized());
-        assert(server.sends==sent&&server.word==saved);
-        ToggleAuxiliaryHudWindowsMinimized();
-        unsigned const revision=GetGameSessionLoadRevision();
-        AssignGameSessionFlags(3);
-        assert(GetGameSessionLoadRevision()==revision+1&&!AreAuxiliaryHudWindowsMinimized());
-        assert(!GetSavedHealthWindowOpen()&&GetSavedTargetingWindowOpen());
-        assert(!GetSavedHealthViewLeft()&&GetSavedWeaponGroup()==0);
-        AssignGameSessionFlags(saved);
-        assert(server.sends==sent);
-        assert(GetSavedHealthWindowOpen()==healthOpen&&GetSavedTargetingWindowOpen()==targetOpen);
-        assert(GetSavedHealthWindowLocked()==healthLock&&GetSavedTargetingWindowLocked()==targetLock);
-        assert(GetSavedHealthViewLeft()==left&&GetSavedTargetingProjection()==projection&&GetSavedWeaponGroup()==group);
-        TargetingWindowState target;
-        target.Restore(targetOpen,targetLock);
-        target.Observe(0, false);target.Observe(0, false);assert(target.open==(targetLock&&targetOpen));
-        target.Observe(17, true);assert(target.open==targetOpen); // First real target uses saved preference.
-        target.Observe(17, true);assert(target.open==targetOpen);
-        target.Observe(0, false);assert(target.open==(targetLock&&targetOpen));
-        target.Observe(18, true);assert(target.open==(!targetLock||targetOpen)); // Lock freezes either state.
-        target.ToggleOpen();assert(target.open==(targetLock&&!targetOpen)); // Manual override remains possible.
-        target.Restore(!targetOpen,!targetLock);target.Observe(19, true);assert(target.open==!targetOpen);
-    }
-    AssignGameSessionFlags(3|0x180u); // Old locked saves predate visibility markers.
-    assert(!GetSavedHealthWindowOpen()&&!GetSavedTargetingWindowOpen());
-    SetSavedHealthWindowOpen(true);SetSavedTargetingWindowOpen(true);
-    assert(GetSavedHealthWindowOpen()&&GetSavedTargetingWindowOpen()); // Lock must not force manual windows closed.
-    AssignGameSessionFlags(3|(7u<<12));assert(GetSavedWeaponGroup()==0);
-    SetSavedWeaponGroup(0);assert((server.word&(7u<<12))==0);
-    auto const invalidSends=server.sends;
-    SetSavedWeaponGroup(6);SetSavedWeaponGroup(~0u);assert(server.sends==invalidSends);
-    puts("PASS: 768 complete UI save/load combinations, six weapon groups, no per-frame writes, legacy saves, player reload, first-target restoration and temporary minimize/restore");
-    auto const offlineSends=server.sends;
-    G_Server=nullptr;
-    SetSavedTargetingAutoselect(false);SetSavedTargetingWindowLocked(true);
-    assert(!GetSavedTargetingAutoselect() && GetSavedTargetingWindowLocked() && server.sends==offlineSends);
-    puts("PASS: projection/autoselect/lock round trips, all toggle transitions, legacy defaults, native/unrelated bits, live player reload, single broadcasts and offline updates");
+    auto before=profile;
+    SetSavedRadarAutoMode(3);SetSavedRadarRange(3);SetSavedWeaponGroup(6);SetSavedTargetingProjection(4);SetSavedAutoTurretReserve(91);
+    assert(profile==before);
+    writeOk=false;SetShowWeaponGroups(!GetShowWeaponGroups());assert(!HudPreferencesSaved() && profile==before);
+    writeOk=true;SetShowWeaponGroups(!GetShowWeaponGroups());assert(HudPreferencesSaved() && profile!=before);
+    SetGameSessionFlags(8,false);assert(server.word==7 && (server.word&~15u)==0);
+    SetGameSessionFlags(8,true);assert(server.word==15);
+    before=profile;G_Server=nullptr;SetSavedRadarAutoMode(0);assert(GetSavedRadarAutoMode()==0);
+    puts("PASS: global HUD profile, one-time legacy import, cross-character/restart persistence, no save broadcasts, write failure, native flags");
 }
 '''
 (out / 'check.cpp').write_text(fixture + session + checks)

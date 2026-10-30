@@ -7,6 +7,7 @@
 #pragma once
 
 #include "common_server_types.h"   // CHARACTER_ID (PlayerData::selected_character)
+#include "player_action_stats.h"
 #include "common_goods.h"            // EquipDescList (PlayerData::equipment, +0x278)
 #include "common_archetype.h"        // SubObjectID::EquipIdMaker (+0x3C8), CollisionGroupDesc
 #include "common_text.h"             // FmtStr (PlayerData::mission_log, +0x390)
@@ -612,6 +613,8 @@ struct PlayerData {
         std::list<FmtStr> MissionLog;                // +0x374 `log`
         unsigned int Interface;                      // +0x380 (ctor: untouched)
         std::map<unsigned int, unsigned char> Visits; // +0x384 `visit`
+        PlayerActionStats::State ActionCounters; // Port-only cumulative counters, old saves default to zero.
+        std::map<unsigned, float> CloakCooldowns;
 
         // FUN_06d46ab0. What retail leaves uninitialised (Position,
         // Orientation, Interface and the accessory slots past the count) is

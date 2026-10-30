@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "hud_tilt.h"
 #include "hud_target.h"
 #include "hud_widescreen.h"
 
@@ -1747,32 +1748,6 @@ void HudTargetBase::ColourViewParts()
     ColourEquipParts();
 }
 
-void HudTargetBase::HighlightSelectedViewPart(unsigned short subId)
-{
-    if (subId == SUBOBJ_ID_NONE) return;
-    CObject* const object = GetViewCObject();
-    if (!object || (static_cast<unsigned>(object->ObjectClass) & 0x103u) != 0x103u) return;
-    auto* eq = static_cast<CEqObj*>(object);
-    long root = -1;
-    bool recursive = false;
-    if (SubObjectID::IsArchGroupID(subId))
-    {
-        CArchGroup* group = eq->ArchGroups.FindByID(subId);
-        if (!group || !group->Arch || !group->Arch->bVulnerable || group->State != 1 || group->HitPts <= 0) return;
-        root = group->GetRootIndex();
-    }
-    else if (SubObjectID::IsEquipID(subId))
-    {
-        CEGun* gun = CEGun::cast(eq->EquipManager.FindByID(subId));
-        if (!gun || gun->GetOwner() != eq || gun->IsDestroyed() || gun->GetHitPoints() <= 0 || !gun->IsConnected()) return;
-        root = gun->GetRootIndex();
-        recursive = true;
-    }
-    // Steady warm yellow; hover animations and mouse-flight mode cannot erase it.
-    // The next ColourViewParts rebuild restores health colours when selection ends.
-    if (root != -1) PartCacheActivatePart(&PartCache, InstanceFromIndex(root), recursive, 0xffffe060u);
-}
-
 unsigned HudCollisionGroupWireColor(CArchGroup* Group, bool hovered)
 {
     // Mark vulnerable groups immediately, even at full health. This is only
@@ -1935,6 +1910,8 @@ void HudTargetBase::UpdateSubTargetToolTip(bool showTooltip)
     // Picking belongs to the shifted ship window; cursor-anchored tooltips are
     // screen-wide roots. Read their mouse ray and bounds in the unshifted camera.
     FWidescreenHudShiftScope TooltipScope(0.0f, false);
+    HudTilt::InputScope FlatTooltip(nullptr);
+    GetClientSoftwareCursor(&CursorX, &CursorY, &CursorZ);
 #endif
 
     if (PickedCount > 1)
