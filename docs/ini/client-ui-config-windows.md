@@ -6,9 +6,9 @@ This page documents the INI files that lay out and drive the client's 3D user-in
 
 ### Global HUD preferences and Health controls (2026-10-30)
 
-Port HUD choices live in `hud_preferences.ini` in `GetUserDataPath()`, shared by all characters. The old interface word is imported once if no global profile exists. Radar deployment/range/automation, Targeting projection/autoselect/auto-open, Health auto-open/view/visibility, active weapon group and auto-turret master/reserve are global. Native interface bits 0–3 and weapon-group membership remain game state. New saves strip the former HUD preference bits. Miscellaneous preferences can be edited from the main menu and retain Apply/Cancel behavior.
+Port HUD choices live in `hud_preferences.ini` in `GetUserDataPath()`, shared by all characters. The old interface word is imported once if no global profile exists. Radar deployment/range/automation, Targeting projection/autoselect/auto-open, Health auto-open/view/visibility, active weapon group, ship-status button mode, cruise wing animation and auto-turret master/reserve are global. Native interface bits 0–3 and weapon-group membership remain game state. New saves strip the former HUD preference bits. Interface preferences can be edited from the main menu and retain Apply/Cancel behavior.
 
-**Show weapon groups** is a global toggle, enabled by default. Health shows the three original `HUD_weaponsgroup1..3.3db` icons in one row from its left edge, with the current group highlighted. The right edge holds the cloak button when a cloak is installed; the icon cannot spin, reflects device activation and becomes disabled if destroyed. It invokes `USER_CLOAK` through the normal client/server activation path. No keyboard bindings are assigned. `DATA/INTERFACE/HUD/EXTRA/HUD_DefCloak.3db` now contains a standalone copy of the Health opening button, with unique mesh/material names and a full-icon `HUD_health_cloak_icon.tga` texture. Replace its `Texture library / HUD_health_cloak_icon.tga / MIP0` to supply new art; the Beta texture atlas is no longer used.
+**Ship status buttons** is a global two-choice setting. **Weapon groups** (the default) shows the three original `HUD_weaponsgroup1..3.3db` icons in the three bottom-left slots with the current group highlighted; **Ship animation** puts WingAnim Play/Pause in those same slots instead. The projection buttons remain opposite them at bottom right. The cruise-wing preference and capship-subtarget autoselect are edited only in Interface, not through HUD buttons, and are not written to character saves. The right edge holds the cloak button when a cloak is installed; the icon cannot spin, reflects device activation and becomes disabled if destroyed. It invokes `USER_CLOAK` through the normal client/server activation path. No keyboard bindings are assigned. `DATA/INTERFACE/HUD/EXTRA/HUD_DefCloak.3db` now contains a standalone copy of the Health opening button, with unique mesh/material names and a full-icon `HUD_health_cloak_icon.tga` texture. Replace its `Texture library / HUD_health_cloak_icon.tga / MIP0` to supply new art; the Beta texture atlas is no longer used.
 
 All files are read through `INI_Reader` ([parsers.md](parsers.md)); section and key names are case-insensitive; repeated keys are delivered in file order. Conventions are the same as in [client-ui-config.md](client-ui-config.md#file-location--how-it-is-found): *Type* names the getter (*string*, *int*, *number* = `get_value_float`, *bool*); a **flag** key is true when `get_value_float(0) != 0` (so `1` is on, `0` or an empty value is off, and the words `true`/`false` are not understood); a **vector** key `x, y, z` is three numbers in that order; the Default column is the value the control's constructor leaves in place when the key is absent. "Not validated" means the code does not check the value.
 
@@ -348,12 +348,12 @@ for assets, input behavior and validation limits.
 ### Port-only route navigation
 
 `port.ini [Navigation]`, with `FreelancerPlayerFlightActions=1`.
-Miscellaneous > Navigation exposes the generator, F2 route following and
+Interface > Navigation exposes the generator, F2 route following and
 automatic base docking, alongside the two existing tooltip/rollover-help options.
 Navigation preferences apply after confirmation and are saved globally in
 `navigation.ini` under the user data directory. Explicit user values override
 the defaults below; these controls also work in the main menu. Cancel discards
-pending changes; Defaults resets only the selected Miscellaneous tab.
+pending changes; Defaults resets only the selected Interface tab.
 
 | Key | Default | Meaning |
 | --- | --- | --- |

@@ -29,7 +29,7 @@ namespace
     constexpr float PanelHalfWidth = 0.0923861f;
     constexpr float ViewHalfWidth = PanelHalfWidth - 0.008f;
     constexpr float ButtonStep = 0.026f;
-    constexpr float ButtonLeft = -2.0f * ButtonStep;
+    constexpr float ButtonLeft = -1.5f * ButtonStep;
     constexpr float ButtonY = -0.070f;
     constexpr float IconRadius = 0.016f;
     constexpr float ViewTop = 0.073f;
@@ -56,6 +56,12 @@ bool TargetingHostProperty(HudTarget const* source, int msg, uintptr_t a, uintpt
 void TargetingUpdateHostButtons(HudTarget const* source)
 {
     if (TargetingOwnsContent(source)) ActivePanel->UpdateHostButtons();
+}
+
+bool TargetingWindowOpen() { return ActivePanel && ActivePanel->WindowOpen(); }
+void TargetingSetWindowOpen(bool open)
+{
+    if (ActivePanel) ActivePanel->SetWindowOpen(open);
 }
 
 HUD_Targeting::HUD_Targeting(INI_Reader& reader)
@@ -205,6 +211,18 @@ void HUD_Targeting::ReconcileVisibility()
     if (CanShow() && !IsAnimating() && collapsed == windowState.open) TogglePanel();
 }
 
+void HUD_Targeting::SetWindowOpen(bool value)
+{
+    ReconcileVisibility();
+    if (value && !windowState.targetId && !windowState.locked) return;
+    windowState.open = value;
+    windowState.restorePending = false;
+    if (windowState.targetId || windowState.locked)
+        SetSavedTargetingWindowOpen(value);
+    ReconcileVisibility();
+    UpdateButtons();
+}
+
 void HUD_Targeting::TogglePanel()
 {
     if (IsAnimating()) return;
@@ -272,11 +290,6 @@ bool HUD_Targeting::Init()
         return false;
     }
     float const half[] = {IconRadius, IconRadius, 0.0f};
-    float const autoPos[] = {center.X + ButtonLeft, center.Y + ButtonY, 0.0f};
-    autoselectButton = CreateButtonControl("TargetingAutoselect", "interface\\hud\\HUD_nextsub.3db",
-        nullptr, "ui_item_select", nullptr, autoPos, nullptr, half, 0, 1, 0, 0, HudIds::AutoselectEnable, 0, 0);
-    if (!autoselectButton) return false;
-    NormalizeIcon(autoselectButton, 0);
     char const* const names[] = {"TargetingVanilla", "TargetingFit", "TargetingTop", "TargetingSide"};
     char const* const meshes[] = {"interface\\hud\\HUD_target_view1.3db",
         "interface\\hud\\HUD_target_view2.3db", "interface\\hud\\HUD_target_view3.3db",
@@ -286,7 +299,7 @@ bool HUD_Targeting::Init()
         "interface\\hud\\hud_formation.3db"};
     for (int i = 0; i < ProjectionCount; ++i)
     {
-        float const pos[] = {center.X + ButtonLeft + (i + 1) * ButtonStep, center.Y + ButtonY, 0.0f};
+        float const pos[] = {center.X + ButtonLeft + i * ButtonStep, center.Y + ButtonY, 0.0f};
         projections[i] = CreateButtonControl(names[i], meshes[i], nullptr, "ui_item_select",
             nullptr, pos, nullptr, half, 0, 1, 0, 0, HudIds::TargetVanilla + i, 0, 0);
         if (!projections[i]) return false;
@@ -374,9 +387,9 @@ bool HUD_Targeting::BindContent()
     return true;
 }
 
-bool HUD_Targeting::CanShow(bool hostControls) const
+bool HUD_Targeting::CanShow() const
 {
-    return enabled && (hostControls || !AreAuxiliaryHudWindowsMinimized()) && GetGameOption(kGameOptInterfaceGroup) && GetGameOption(kGameOptHud) &&
+    return enabled && GetGameOption(kGameOptInterfaceGroup) && GetGameOption(kGameOptHud) &&
         !IsSpaceInitInProgress() && !G_bNnScreenUp && !IsLetterboxVisible() &&
         GetPlayerObjRW() && GetClientMouseCursorDrawFlag();
 }
@@ -387,7 +400,9 @@ void HUD_Targeting::UpdateHostButtons()
     if (!source || !windowButton) return;
     WinControl* anchor = source->ContactListButton;
     bool const moving = source->ButtonMover::IsActive() || source->ButtonScaler::IsActive();
-    bool const visible = CanShow(true) && !moving;
+    // Keep the replacement icon attached to the moving native anchor. Hiding
+    // it until the animation ends makes it pop into existence one frame late.
+    bool const visible = CanShow();
     WinControl* buttons[] = {windowButton};
     for (int i = 0; i < 1; ++i)
     {
@@ -411,18 +426,10 @@ bool HUD_Targeting::HostProperty(int msg, uintptr_t a, uintptr_t /*b*/)
 {
     WinControl* button = reinterpret_cast<WinControl*>(a);
     if (!button || button != windowButton || !Source()) return false;
-    if (msg == 0x26 && CanShow(true))
+    if (msg == 0x26 && CanShow())
     {
         ReconcileVisibility();
-        if (button == windowButton)
-        {
-            if (AreAuxiliaryHudWindowsMinimized())
-            {
-                ToggleAuxiliaryHudWindowsMinimized();
-                windowState.open = true;
-            }
-            else windowState.ToggleOpen();
-        }
+        windowState.ToggleOpen();
         SetSavedTargetingWindowOpen(windowState.open);
         ReconcileVisibility();
         UpdateHostButtons();
@@ -471,7 +478,6 @@ void HUD_Targeting::Draw()
         // Keep the native labels attached for later placement, but devote the
         // panel to the wireframe even when the pointer is over a subsystem.
     }
-    if (autoselectButton->Flags & kWin3DVisible) autoselectButton->Draw();
     for (auto* button : projections)
         if (button->Flags & kWin3DVisible) button->Draw();
 }
@@ -501,9 +507,6 @@ void HUD_Targeting::UpdateButtons()
     bool const hasTarget = source && source->ViewObject.target();
     for (auto const& saved : subtargetButtons)
         if (saved.button) saved.button->SetProperty(1, 1, 0);
-    autoselectButton->SetProperty(1, expanded && source && source->TargetingShowsAutoselect() ? 0 : 1, 0);
-    autoselectButton->SetProperty(3, VulnerableAutoselectEnabled() ? HudIds::AutoselectDisable : HudIds::AutoselectEnable, 0);
-    autoselectButton->SetProperty(0xc, VulnerableAutoselectEnabled() ? 1 : 0, 0);
     for (int i = 0; i < ProjectionCount; ++i)
     {
         projections[i]->SetProperty(1, expanded && hasTarget ? 0 : 1, 0);
@@ -520,13 +523,6 @@ intptr_t HUD_Targeting::SetProperty(int msg, uintptr_t a, uintptr_t b)
     {
         if (!collapsed)
         {
-            if (a == reinterpret_cast<uintptr_t>(autoselectButton) &&
-                Source() && Source()->TargetingShowsAutoselect())
-            {
-                SetVulnerableAutoselect(!VulnerableAutoselectEnabled());
-                UpdateButtons();
-                return 1;
-            }
             for (int i = 0; i < ProjectionCount; ++i)
                 if (a == reinterpret_cast<uintptr_t>(projections[i]))
                 {

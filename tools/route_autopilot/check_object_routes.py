@@ -27,6 +27,8 @@ stub = r'''
 #include <deque>
 using namespace RouteGeometry;
 using Vector=V;
+constexpr unsigned SERVER_ASTEROID_TYPE=0x00800010u;
+bool IsServerAsteroidType(unsigned type){return type==SERVER_ASTEROID_TYPE;}
 struct IObjRW {
     unsigned id=0,type=0x100;
     V position;
@@ -34,10 +36,16 @@ struct IObjRW {
     bool dockable=false;
     V get_position(){return position;}
     unsigned get_id(){return id;}
+    void get_type(unsigned& value){value=type;}
     void get_physical_radius(float& r,V& c){r=radius;c=position;}
     void get_atmosphere_range(float& r){r=atmosphere;}
-} playerObject,fixtureTarget;
-struct ObjDb {IObjRW* FindById(unsigned* id){return *id==fixtureTarget.id?&fixtureTarget:nullptr;}} fixtureDb;
+} playerObject,fixtureTarget,movingRock;
+std::vector<IObjRW*> fixtureObjects;
+struct ObjDb {
+    IObjRW* FindById(unsigned* id){return *id==fixtureTarget.id?&fixtureTarget:nullptr;}
+    IObjRW* GetNext(uintptr_t* iter){return iter[0]<fixtureObjects.size()?fixtureObjects[iter[0]++]:nullptr;}
+} fixtureDb;
+using IObjDB=ObjDb;
 ObjDb* GetClientObjDb(){return &fixtureDb;}
 struct FPlayerWaypointRecord {V Pos;unsigned SystemId=55,ObjectId=0;int AutoId=0;};
 std::vector<FPlayerWaypointRecord> waypoints;
@@ -53,7 +61,8 @@ namespace RoutePlanner {
 V v(V p){return p;}
 unsigned cachedSystem=55;
 float margin=350;
-std::vector<Sphere> hazards;
+struct Hazard {V center;float radius;unsigned object=0;void* zone=nullptr;bool atmosphere=false,dynamic=false;};
+std::vector<Hazard> hazards;
 std::vector<Vertex> corridors;
 bool BetaEnabled(){return true;}
 void load(){}
@@ -81,7 +90,7 @@ bool gotoPoint(V point,bool){assert(RoutePlanner::clear(point,point));return tru
 }
 '''
 production = '\nnamespace RoutePlanner {\n' + ''.join(extract(planner, sig) for sig in
-    ('bool plan(', 'bool Plan(', 'bool PlanApproach(')) + '}\n'
+    ('void refreshDynamicHazards()', 'bool plan(', 'bool Plan(', 'bool PlanApproach(')) + '}\n'
 production += '\nnamespace PlayerRoute {\n' + ''.join(extract(route, sig) for sig in
     ('bool prepare()', 'static bool refineWaypoints()')) + '}\n'
 checks = r'''
@@ -154,6 +163,26 @@ int main(){
     assert(RoutePlanner::clear(from,waypoints.front().Pos));
     followMap(from);
     assert(length(playerObject.position-target.position)>1150);
+
+    // Server rocks are refreshed at their current positions on every new plan.
+    // Moving away must remove the old ghost; unrelated static hazards survive.
+    RoutePlanner::hazards.clear();RoutePlanner::margin=350;
+    movingRock.id=900;movingRock.type=SERVER_ASTEROID_TYPE;movingRock.radius=500;
+    movingRock.atmosphere=0;movingRock.position={0,0,0};fixtureObjects={&movingRock};
+    from={-10000,0,0};V to={10000,0,0};
+    assert(RoutePlanner::Plan(from,to,path)&&path.size()>1);
+    movingRock.position={0,5000,0};
+    RoutePlanner::hazards.push_back({{0,10000,0},300});
+    assert(RoutePlanner::Plan(from,to,path)&&path.size()==1);
+    assert(RoutePlanner::hazards.size()==2);
+    bool currentRock=false,staticSolid=false;
+    for(auto const& h:RoutePlanner::hazards){
+        currentRock|=h.dynamic&&length(h.center-movingRock.position)<.01f;
+        staticSolid|=!h.dynamic&&length(h.center-V{0,10000,0})<.01f;
+    }
+    assert(currentRock&&staticSolid);
+    fixtureObjects.clear();
+    puts("PASS: dynamic server-asteroid positions replace stale route hazards without discarding static solids.");
     printf("PASS: %u Tokyo core approaches through production map/F2 planners; alternate side, following waypoint, atmosphere and blocked destination; no Dock for non-dockable targets.\n",count);
     puts("PASS: map/F2 departure from overlapping Tokyo core/dock guards to another object.");
 }

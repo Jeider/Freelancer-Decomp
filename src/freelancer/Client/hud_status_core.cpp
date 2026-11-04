@@ -35,6 +35,7 @@
 #include "hud_targetable_objects.h"
 #include "hud_weapon_groups.h"
 #include "hud_health.h"
+#include "hud_targeting.h"
 #include "player_turret_hud.h"
 #include "hud_radar.h"
 #include "ids_strings.h"
@@ -287,27 +288,19 @@ bool HUD_Core::OnEvent(unsigned MsgId)
 
     HUD_Status* const Status = G_HudStatus;
     HudTargetBase* Target = G_HudTargetPanel;
-    unsigned char const bStatusOpen = Status->bExpanded;
-    if (bStatusOpen == 0 && Target->bExpanded == 0)
-    {
-        // 0x004d53ab: both closed -- both open, the target panel re-read from DAT_00674b04.
-        static_cast<EventHandler*>(Status)->OnEvent(0x6d);
-        static_cast<EventHandler*>(G_HudTargetPanel)->OnEvent(0x6d);
-        NnMainButtonOnModalOpen();
-        return true;
-    }
-
-    // 0x004d53d7..0x004d5403: close whichever is open (the target flag read after the status
-    // panel has handled the command, from a fresh DAT_00674b04 when the status panel was open).
-    if (bStatusOpen != 0)
+    // Backspace always closes the detached panels; only their own buttons reopen
+    // them. When everything is closed, reopen just the two native outer panels.
+    bool const open = !HealthWindowOpen() && !TargetingWindowOpen() &&
+                      Status->bExpanded == 0 && Target->bExpanded == 0;
+    HealthSetWindowOpen(false);
+    TargetingSetWindowOpen(false);
+    if ((Status->bExpanded != 0) != open)
     {
         static_cast<EventHandler*>(Status)->OnEvent(0x6d);
         Target = G_HudTargetPanel;
     }
-    if (Target->bExpanded != 0)
-    {
+    if ((Target->bExpanded != 0) != open)
         static_cast<EventHandler*>(Target)->OnEvent(0x6d);
-    }
     NnMainButtonOnModalOpen();
     return true;
 }
@@ -503,10 +496,9 @@ void HUD_Core::Draw()
     float const Hull = static_cast<CSimple*>(HullObject)->get_relative_health();
     DrawBars(755.0f, 0xff782a33u, Hull);
 
-    // 0x004d589d..0x004d5966: speed along the ship's forward axis (orientation column 2), the
-    // tradelane speed in a lane, capped at 300 in cruise, then pushed away from 0 to +-1.
+    // 0x004d589d..0x004d5966: speed along the ship's forward axis (orientation column 2), or
+    // the tradelane speed in a lane, then pushed away from 0 to +-1. Cruise shows actual speed.
     float Speed = 0.0f;
-    bool bSkipPositive = false;
     if (Ship->is_using_tradelane())
     {
         Speed = Ship->get_tradelane_speed();
@@ -521,15 +513,10 @@ void HUD_Core::Draw()
                      static_cast<double>(AxisY) * static_cast<double>(Velocity.y);
         Dot += static_cast<double>(AxisX) * static_cast<double>(Velocity.x);
         Speed = static_cast<float>(-Dot);
-        if (Ship->is_cruise_active() && Speed > 300.0f)
-        {
-            Speed = 300.0f;
-            bSkipPositive = true;
-        }
     }
 
     bool bRounded = false;
-    if (!bSkipPositive && Speed > 1.0e-5f && Speed < 1.0f)
+    if (Speed > 1.0e-5f && Speed < 1.0f)
     {
         Speed = 1.0f;
         bRounded = true;
@@ -794,6 +781,15 @@ bool HUD_Status::Create(Win3D* NewParent, void* Data)
                                               0.016999999f, 1.0f, 0, 0, 0, 1);
         WeaponText[Index]->SetProperty(0x24, 1, 0);
 
+#ifdef FREELANCER_PLAYER_AUTO_TURRETS
+        // Reserve a gap for the auto-turret toggle: inset both left hit edges by 0.008
+        // while preserving the right edges and the visible text layout.
+        WeaponNumberText[Index]->HalfExtents[0] = 0.006f;
+        WeaponNumberText[Index]->HitOffset[0] = 0.004f;
+        WeaponText[Index]->HalfExtents[0] = 0.0785f;
+        WeaponText[Index]->HitOffset[0] = 0.004f;
+#endif
+
         sprintf(ControlName, "AmmoText%d", Index);
         float const AmmoPos[3] = {0.458f, RowY, 0.0f};
         AmmoText[Index] = CreateTextControl(ControlName, "HudSmall", AmmoPos, nullptr, 0.04f, 0.017f,
@@ -808,7 +804,8 @@ bool HUD_Status::Create(Win3D* NewParent, void* Data)
     float const SmallHalf[3] = {0.014f, 0.014f, 0.0f};
 
     // 0x004dacc7..0x004dad42
-    float const ClosePos[3] = {0.383f, -0.307f, -0.5f};
+    // Raise the close icon by one icon height so it clears the first weapon row.
+    float const ClosePos[3] = {0.383f, -0.279f, -0.5f};
     CloseButton = CreateButtonControl("StatusCloseButton", "interface\\NeuroNet\\Inventory\\x.3db",
                                       nullptr, "ui_select_item", nullptr, ClosePos, nullptr,
                                       SmallHalf, 0, 1, 0, 0, 0x409, 0, 0);
@@ -1398,7 +1395,8 @@ bool HUD_Status::MouseEvent(FWin3DMouseEvent const* Event)
     {
         NnToolTipHideGlobal(); // FUN_004be390
         unsigned short const SubId = SubTargetId; // +0x3b4
-        if (SubId != SUBOBJ_ID_NONE && Event->Field1 == 2)
+        if (SubId != SUBOBJ_ID_NONE && Event->Field1 == 2 &&
+            !PlayerTurretHud::BlockWeaponRowFallback(this))
         {
             ToggleLauncher(SubId);
         }

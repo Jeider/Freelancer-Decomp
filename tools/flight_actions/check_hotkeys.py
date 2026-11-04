@@ -28,10 +28,11 @@ STUB = r'''
 #include "player_flight_actions.h"
 #include "menu_keymap_config.h"
 bool feature=true,screen=false,letterbox=false,focus=false,blocked=false,dying=false;
-bool launching=false,lane=false,cruise=false,capable=true,havePlayer=true;
+bool launching=false,lane=false,cruise=false,capable=true,havePlayer=true,target=true;
 struct IBehaviorManager {int CurrentBehaviorIndex=0x13;bool LockManeuversByte=false;} testBehavior;
 struct CShip {
     IBehaviorManager* get_behavior_interface(){return &testBehavior;}
+    void* get_target(){return target?this:nullptr;}
     bool is_launching(){return launching;}bool is_using_tradelane(){return lane;}
     bool is_cruise_active(){return cruise;}
 } testShip;
@@ -40,8 +41,9 @@ CShip* HudShipOfObjRw(IObjRW* p){return p?&testShip:nullptr;}
 IObjRW* GetPlayerObjRW(){return havePlayer?&obj:nullptr;}
 bool HudIsMousePickBlocked(){return blocked;}
 bool IsLetterboxVisible(){return letterbox;}
-bool HudGetInputFocus(){return focus;}
+void* HudGetInputFocus(){return focus?reinterpret_cast<void*>(1):nullptr;}
 bool& G_bNnScreenUp=screen;
+namespace CockpitFreeLook { bool Enabled(){return false;}void Reset(){} }
 struct Record {unsigned Modifiers=0;unsigned char Byte18=1,Byte19=0;} record;
 Record* HudCommandRecord(){return &record;}
 unsigned nativeCalls=0,begins=0;int lastAction=-1;
@@ -108,13 +110,16 @@ int main(){
     for(bool* gate:{&focus,&screen,&letterbox,&blocked,&dying,&launching,&lane,&testBehavior.LockManeuversByte}){
         *gate=true;DispatchKeyCommand(FirstCommand,1);assert(begins==old);*gate=false;
     }
+    target=false;DispatchKeyCommand(FirstCommand,1);assert(begins==old);target=true;
     record.Byte19=1;DispatchKeyCommand(FirstCommand,1);assert(begins==old);record.Byte19=0;
     record.Byte18=0;DispatchKeyCommand(FirstCommand,1);assert(begins==old);record.Byte18=1;
     havePlayer=false;DispatchKeyCommand(FirstCommand,1);assert(begins==old);havePlayer=true;
     capable=false;DispatchKeyCommand(FirstCommand,1);assert(begins==old);capable=true;
     feature=false;DispatchKeyCommand(FirstCommand,1);assert(begins==old);feature=true;
     cruise=true;DispatchKeyCommand(FirstCommand,1);assert(begins==old+1); // F2 weave works in cruise.
-    testBehavior.CurrentBehaviorIndex=0x13;DispatchKeyCommand(FirstCommand,1);assert(begins==old+1);cruise=false;
+    testBehavior.CurrentBehaviorIndex=0x13;DispatchKeyCommand(FirstCommand,1);assert(begins==old+1);
+    DispatchKeyCommand(FirstCommand+1,1);assert(begins==old+2); // Engine-kill turn exits cruise itself.
+    DispatchKeyCommand(FirstCommand+2,1);assert(begins==old+2);cruise=false;
     assert(ResolveNicknameId("USER_PLAYER_EVADE")==FirstCommand);
     assert(ResolveNicknameId("USER_PLAYER_REVERSE_TURN")==FirstCommand+1);
     assert(ResolveNicknameId("USER_PLAYER_REVERSE_STRAFE")==FirstCommand+2);

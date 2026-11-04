@@ -31,3 +31,47 @@ namespace HudIds
     constexpr int TargetList = 238225;
     constexpr int CutsceneSkipPrompt = 238226;
 }
+
+namespace PreferenceIds
+{
+    constexpr int Interface = 238227;
+    constexpr int GeneralTab = 238228;
+    constexpr int NavigationTab = 238229;
+    constexpr int RadarAuto = 238230;
+    constexpr int TargetAutoOpen = 238231;
+    constexpr int HealthAutoOpen = 238232;
+    constexpr int AutoTurrets = 238233;
+    constexpr int AutoTurretReserve = 238234;
+    constexpr int RouteGenerator = 238235;
+    constexpr int RouteFollowF2 = 238236;
+    constexpr int AutoDock = 238237;
+    constexpr int HudTilt = 238238;
+    constexpr int ShipStatusButtons = 238239;
+    constexpr int CapshipAutoselect = 238240;
+    constexpr int CruiseWingAnimation = 238241;
+    constexpr int ShipAnimation = 238242;
+    constexpr int WeaponGroups = 238243;
+    constexpr int Standard = 238244;
+    constexpr int AvoidObstacles = 238245;
+    constexpr int RadarNever = 238246;
+    constexpr int RadarAnyContact = 238247;
+    constexpr int RadarEnemy = 238248;
+    constexpr int SettingsSaveFailed = 238249;
+    constexpr int Unavailable = 238250;
+    constexpr int GraphicsShadows = 238251;
+    constexpr int GraphicsSurfaceRelief = 238252;
+    constexpr int GraphicsHighlights = 238253;
+    constexpr int GraphicsReflections = 238254;
+    constexpr int GraphicsAnisotropy = 238255;
+    constexpr int GraphicsAntialiasing = 238256;
+    constexpr int GraphicsNebulae = 238257;
+    constexpr int GraphicsVsync = 238258;
+    constexpr int GraphicsFpsLimit = 238259;
+    constexpr int GraphicsOff = 238260;
+    constexpr int GraphicsOn = 238261;
+    constexpr int GraphicsLow = 238262;
+    constexpr int GraphicsMedium = 238263;
+    constexpr int GraphicsHigh = 238264;
+    constexpr int GraphicsRestartPending = 238265;
+    constexpr int GraphicsRestartHint = 238266;
+}

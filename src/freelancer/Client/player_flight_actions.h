@@ -17,13 +17,14 @@ bool Enabled();
 bool Command(unsigned id);
 wchar_t const* KeyText(unsigned ids);
 void CreateButtons(HUD_Maneuvers* hud);
-bool HasButtons();
+bool HasButtons(int behavior);
 bool IsGotoWeaving();
 char const* TelemetryAction();
 void Layout(HUD_Maneuvers* hud,int behavior);
 bool Click(unsigned long button);
 void Release(HUD_Maneuvers* hud);
 void Cancel();
+bool RequestCancel();
 void BeforeUpdate();
 void Tick(float dt,bool docking);
 bool BlockMouse();
@@ -35,13 +36,14 @@ inline bool Enabled() { return false; }
 inline bool Command(unsigned) { return false; }
 inline wchar_t const* KeyText(unsigned) { return nullptr; }
 inline void CreateButtons(HUD_Maneuvers*) {}
-inline bool HasButtons() { return false; }
+inline bool HasButtons(int) { return false; }
 inline bool IsGotoWeaving() { return false; }
 inline char const* TelemetryAction() { return "none"; }
 inline void Layout(HUD_Maneuvers*,int) {}
 inline bool Click(unsigned long) { return false; }
 inline void Release(HUD_Maneuvers*) {}
 inline void Cancel() {}
+inline bool RequestCancel() { return true; }
 inline void BeforeUpdate() {}
 inline void Tick(float,bool) {}
 inline bool BlockMouse() { return false; }

@@ -96,6 +96,12 @@ void HealthUpdateHostButtons(HUD_Status const* source)
     if (HealthOwnsShipView(source)) ActiveHealth->UpdateHostButtons();
 }
 
+bool HealthWindowOpen() { return ActiveHealth && ActiveHealth->WindowOpen(); }
+void HealthSetWindowOpen(bool open)
+{
+    if (ActiveHealth) ActiveHealth->SetWindowOpen(open);
+}
+
 HUD_Health::HUD_Health(INI_Reader& reader)
 {
     HUDItem::Name = "Health";
@@ -191,27 +197,30 @@ bool HUD_Health::Init()
         zero, nullptr, half, 0, 1, 0, 0, 0, 0, 0);
     if (!slideIcon) return false;
     NormalizeIcon(slideIcon, 4, 0.022f);
-    char const* const names[] = {"HealthWingPlay", "HealthWingPause", "HealthWingLock", "HealthTop", "HealthLeft"};
+    char const* const names[] = {"HealthWingPlay", "HealthWingPause", "HealthTop", "HealthLeft"};
     char const* const meshes[] = {"interface\\hud\\HUD_health_wing.3db",
-        "interface\\hud\\HUD_health_pause.3db", "interface\\hud\\HUD_health_wing_lock.3db",
+        "interface\\hud\\HUD_health_pause.3db",
         "interface\\hud\\HUD_target_view1.3db", "interface\\hud\\HUD_target_view2.3db"};
-    int const tips[] = {HudIds::WingPlay, HudIds::WingPause, HudIds::WingLock, HudIds::HealthTop, HudIds::HealthLeft};
+    int const tips[] = {HudIds::WingPlay, HudIds::WingPause, HudIds::HealthTop, HudIds::HealthLeft};
     float const toolbarHalf[] = {0.013f, 0.016f, 0};
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 4; ++i)
     {
-        float const pos[] = {center.X + (i - 2) * 0.026f, center.Y - 0.070f, 0};
+        // Original bottom row: animation/groups on the left, views opposite them.
+        float const pos[] = {center.X + (i < 2 ? (i - 2) * 0.026f : (i - 1) * 0.026f),
+                             center.Y - 0.070f, 0};
         toolbar[i] = CreateButtonControl(names[i], meshes[i], nullptr, "ui_item_select", nullptr,
             pos, nullptr, toolbarHalf, 0, 1, 0, 0, tips[i], 0, 0);
         if (!toolbar[i]) return false;
-        NormalizeIcon(toolbar[i], i + 5, i < 3 ? 0.008f : 0.016f);
+        NormalizeIcon(toolbar[i], i + 5, i < 2 ? 0.008f : 0.016f);
     }
-    // A single row across Health's top edge: cloak, centered weapon groups, repair droid.
+    // Cloak and repair droid stay on the top edge. Weapon groups replace
+    // the three animation slots at the bottom left when selected.
     for (int i = 0; i < 3; ++i)
     {
         char name[40], mesh[80];
         sprintf_s(name, "HealthWeaponGroup%d", i + 1);
         sprintf_s(mesh, "interface\\hud\\HUD_weaponsgroup%d.3db", i + 1);
-        float const pos[] = {center.X + (i - 1) * 0.024f, center.Y + 0.066f, 0};
+        float const pos[] = {center.X + (i - 2) * 0.026f, center.Y - 0.070f, 0};
         float const groupHalf[] = {0.0115f, 0.014f, 0};
         weaponGroups[i] = CreateButtonControl(name, mesh, nullptr, "ui_item_select", nullptr,
             pos, nullptr, groupHalf, 0, 1, 0, 0, HudIds::WeaponGroup1 + i, 0, 0);
@@ -274,9 +283,9 @@ bool HUD_Health::BindHost()
     return true;
 }
 
-bool HUD_Health::CanShow(bool hostControls) const
+bool HUD_Health::CanShow() const
 {
-    return enabled && (hostControls || !AreAuxiliaryHudWindowsMinimized()) && GetGameOption(kGameOptInterfaceGroup) && GetGameOption(kGameOptHud) &&
+    return enabled && GetGameOption(kGameOptInterfaceGroup) && GetGameOption(kGameOptHud) &&
         !IsSpaceInitInProgress() && !G_bNnScreenUp && !IsLetterboxVisible() &&
         GetPlayerObjRW() && GetClientMouseCursorDrawFlag();
 }
@@ -285,50 +294,58 @@ void HUD_Health::UpdateHostButtons()
 {
     auto* source = Source();
     if (!source || !hostButton) return;
-    bool const moving = source->ButtonMover::IsActive() || source->ButtonScaler::IsActive();
-    bool const visible = CanShow(true) && !moving;
+    bool const moving = source->ButtonMover::IsActive();
+    bool const visible = CanShow();
     bool const expanded = source->bExpanded != 0;
     hostButton->SetProperty(1, visible ? 0 : 1, 0);
     hostButton->SetProperty(0xc, windowState.open ? 1 : 0, 0);
+
+    // HUD_Status draws only ViewPanel while its scaler runs, so these controls
+    // disappear with the panel without an extra visibility transition. During
+    // the mover, ButtonMover has already written RepairButton's native offset:
+    // home (-.371) -> offscreen (-.400) when opening, and back when closing.
+    // Preserve that animation while remapping its static endpoints to our layout.
+    float healthX, repairX, batteryX, y, countY;
     if (moving)
     {
-        PlayerTurretHud::Update(source, source->RepairButton->AttachPosition, false, 0, 0);
-        return;
+        float const slide = (std::max)(0.0f, (std::min)(1.0f,
+            (-0.371f - source->RepairButton->Offset[1]) / 0.029f));
+        // Native slide is vertical only. Keep the collapsed X coordinates
+        // throughout it; interpolating X makes the icons enter from the left.
+        healthX = 0.344f;
+        repairX = 0.396f;
+        batteryX = 0.449f;
+        y = -0.371f - 0.029f * slide;
+        // Native counts travel from -.359 to -.400, rather than keeping
+        // their collapsed +.011 offset from the button all the way down.
+        countY = -0.360f - 0.040f * slide;
     }
-    float const y = expanded ? -0.171f : -0.371f;
-    // Collapsed: leave the list opener at .295, then space Health and consumables evenly.
-    // Expanded: the opener is hidden, so retain the compact three-item header.
-    float const healthX = expanded ? 0.292f : 0.344f;
-    float const repairX = expanded ? 0.343f : 0.396f;
-    float const batteryX = expanded ? 0.396f : 0.449f;
+    else
+    {
+        healthX = expanded ? 0.292f : 0.344f;
+        repairX = expanded ? 0.343f : 0.396f;
+        batteryX = expanded ? 0.396f : 0.449f;
+        y = expanded ? -0.171f : -0.371f;
+        countY = y + 0.011f;
+    }
     PlayerTurretHud::Update(source, source->RepairButton->AttachPosition, visible, healthX + 0.068f, y);
     // Copy attachment, then SetOffset once: Position already includes attachment.
     std::memcpy(hostButton->AttachPosition, source->RepairButton->AttachPosition, sizeof(hostButton->AttachPosition));
     hostButton->SetOffset(healthX, y, 0);
     source->RepairButton->SetOffset(repairX, y, 0);
-    source->RepairCountText->SetOffset(repairX + 0.010f, y + 0.011f, 0);
+    source->RepairCountText->SetOffset(repairX + 0.010f, countY, 0);
     source->UseBatteryButton->SetOffset(batteryX, y, 0);
-    source->BatteryCountText->SetOffset(batteryX + 0.010f, y + 0.011f, 0);
+    source->BatteryCountText->SetOffset(batteryX + 0.010f, countY, 0);
 }
 
 bool HUD_Health::HostProperty(int msg, uintptr_t a, uintptr_t)
 {
     auto* button = reinterpret_cast<WinControl*>(a);
     if (!Source() || !button || button != hostButton) return false;
-    if (msg == 0x26 && CanShow(true))
+    if (msg == 0x26 && CanShow())
     {
         RestoreSavedState();
-        if (button == hostButton)
-        {
-            if (AreAuxiliaryHudWindowsMinimized())
-            {
-                ToggleAuxiliaryHudWindowsMinimized();
-                windowState.open = true;
-                SetSavedHealthWindowOpen(true);
-                SyncPanel();
-            }
-            else TogglePanel();
-        }
+        TogglePanel();
         return true;
     }
     return false;
@@ -390,6 +407,16 @@ FVector HUD_Health::IconHome() const
 {
     return hostButton && Source() ? FVector{hostButton->Offset[0], hostButton->Offset[1], 0}
                                  : FVector{center.X, center.Y, 0};
+}
+
+void HUD_Health::SetWindowOpen(bool value)
+{
+    RestoreSavedState();
+    windowState.SetLocked(GetSavedHealthWindowLocked());
+    windowState.open = value;
+    windowState.automaticOpening = false;
+    SetSavedHealthWindowOpen(value);
+    SyncPanel();
 }
 
 void HUD_Health::TogglePanel()
@@ -462,15 +489,15 @@ void HUD_Health::UpdateVisibility()
     bool const paused = WingAnimPaused();
     toolbar[0]->SetProperty(3, paused ? HudIds::WingResume : HudIds::WingPlay, 0);
     toolbar[1]->SetProperty(3, paused ? HudIds::WingResume : HudIds::WingPause, 0);
-    toolbar[2]->SetProperty(3, WingAnimCruiseLocked() ? HudIds::WingUnlock : HudIds::WingLock, 0);
+    bool const animationButtons = bExpanded && ViewObject.target() && !GetShowWeaponGroups();
     bool const selected[] = {wing && WingAnimDisplayState() == 2 && !paused, paused,
-                             WingAnimCruiseLocked(), !viewLeft, viewLeft};
-    for (int i = 0; i < 5; ++i)
+                             !viewLeft, viewLeft};
+    for (int i = 0; i < 4; ++i)
     {
-        toolbar[i]->SetProperty(1, bExpanded && ViewObject.target() ? 0 : 1, 0);
+        toolbar[i]->SetProperty(1, (i < 2 ? animationButtons : bExpanded && ViewObject.target()) ? 0 : 1, 0);
         toolbar[i]->SetProperty(0xc, selected[i] ? 1 : 0, 0);
         auto* button = static_cast<NnButtonControl*>(toolbar[i]);
-        bool const usable = i >= 3 || (wing && (i != 1 || WingAnimCanPause()));
+        bool const usable = i >= 2 || (wing && (i != 1 || WingAnimCanPause()));
         button->SetFlags331(static_cast<unsigned char>((button->GetFlags331() & ~2u) | (usable ? 2u : 0u)));
     }
     bool const showGroups = bExpanded && ViewObject.target() && GetShowWeaponGroups();
@@ -635,15 +662,14 @@ intptr_t HUD_Health::SetProperty(int msg, uintptr_t a, uintptr_t b)
         for (int i = 0; i < 3; ++i)
             if (Source() && GetShowWeaponGroups() && a == reinterpret_cast<uintptr_t>(weaponGroups[i]))
                 return Source()->OnEvent(0x91 + i);
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < 4; ++i)
             if (a == reinterpret_cast<uintptr_t>(toolbar[i]))
             {
                 if (i == 0) WingAnimRequestToggle();
                 else if (i == 1) WingAnimTogglePause();
-                else if (i == 2) WingAnimSetCruiseLocked(!WingAnimCruiseLocked());
                 else
                 {
-                    viewLeft = i == 4;
+                    viewLeft = i == 3;
                     SetSavedHealthViewLeft(viewLeft);
                     SubTargetId = SUBOBJ_ID_NONE;
                 }

@@ -92,6 +92,8 @@ public:
 
     // FUN_062db3b0 (item 1667). Not exported.
     explicit PathfindManager(IBehaviorManager* NewOwner);
+    // Port extension: releases this ship's server-asteroid bypass memory.
+    ~PathfindManager();
 
     // 0x062db820 ?clear_user_zone@PathfindManager@@QAEXXZ
     COMMON_API void clear_user_zone();

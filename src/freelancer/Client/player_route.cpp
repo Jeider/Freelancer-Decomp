@@ -40,7 +40,7 @@ std::deque<V> leg;
 BaseWatcher owner;
 unsigned connection=0,system=0,jumpSystem=0,exitGate=0;
 bool internal=false,refining=false;
-bool issued=false;
+bool issued=false,reissueAfterRemoval=false;
 bool cruiseRequested=true;
 bool mouseOverride=false,replanAfterMouse=false;
 bool haveGoal=false,rebuildOnStart=false,pendingStart=false,receivingPath=false;
@@ -225,7 +225,7 @@ void Cancel(bool freeFlight) {
     if(haveGoal && (pendingStart || (Active() && !route.empty() && route.front().user))) rebuildOnStart=true;
     pendingStart=false; mouseOverride=false; replanAfterMouse=false;
     bool wasActive=Active(); state=State::Off; route.clear(); leg.clear(); owner.set(nullptr);
-    issued=false; jumpSystem=exitGate=0; elapsed=stalled=0;
+    issued=false; reissueAfterRemoval=false; jumpSystem=exitGate=0; elapsed=stalled=0;
     if(wasActive && freeFlight) {
         Guard guard;
         PlayerFlightActions::Cancel();
@@ -287,14 +287,37 @@ void SetCruiseRequested(bool enabled) {
 void Landed() { Cancel(); haveGoal=rebuildOnStart=false; RoutePlanner::Invalidate(); }
 void RouteChanged() {
     if(internal || refining || receivingPath) return;
-    Cancel(true); haveGoal=rebuildOnStart=false;
+    // Clearing/replacing map markers is not a flight command. The active route
+    // owns its point copies; restore only its native directive if the selected
+    // marker disappears, exactly as for a single waypoint removal.
+    if(Active()) {
+        if(state==State::Flying) reissueAfterRemoval=true;
+        return;
+    }
+    Cancel(); haveGoal=rebuildOnStart=false;
+}
+void WaypointRemoved() {
+    if(internal || refining || receivingPath) return;
+    // The deleted HUD target can make native Go To drop to Freeflight. Reissue
+    // only the current point directive on the next route tick, without replanning.
+    if(state==State::Flying) reissueAfterRemoval=true;
 }
 void PathRequested() {
     if(internal) return;
-    Cancel(); haveGoal=rebuildOnStart=false;
+    // A best-path request edits the map; it does not cancel the route already
+    // being flown. It only supersedes an F2 request that has not started yet.
+    pendingStart=false;
+    if(!Active()) Cancel();
+    haveGoal=rebuildOnStart=false;
 }
 void BeginPathResponse() {
     receivingPath=true;
+    if(Active()) {
+        // Replacing the selected map marker can make native Go To fall back to
+        // Freeflight. Keep the copied route and recover its current point only.
+        if(state==State::Flying) reissueAfterRemoval=true;
+        return;
+    }
     if(!pendingStart) Cancel();
 }
 
@@ -305,22 +328,16 @@ bool Start(HUD_Maneuvers*,bool rebuilt) {
     if(!p || !s || !b || p->is_dying() || b->LockManeuversByte || s->is_using_tradelane() || s->is_launching()) return true;
     Cancel(); PlayerFlightActions::Cancel(); RoutePlanner::Invalidate();
     cruiseRequested=true;
-    auto target=s->get_target(); unsigned selected=target?target->get_id():0;
+    auto target=s->get_target();
     int selectedIndex=rebuilt?0:selectedRouteIndex(target);
     bool useRoute=rebuilt || !target || selectedIndex>=0;
     if(rebuildRoute(useRoute)) return true;
+    // With no selected user waypoint, leave an ordinary object F2 entirely to
+    // native Go To. Safe-path planning belongs only to actual waypoint routes.
+    if(!useRoute) return false;
     int start=(std::max)(selectedIndex,0);
-    if(useRoute) {
-        for(int i=start;i<GetPlayerWaypointCountRetail();++i) route.push_back({*GetPlayerWaypointRetail(i),true});
-    }
-    if(route.empty() && target) {
-        // Mission waypoints are left owned by the mission system. Follow its
-        // currently selected objective without deleting or inventing objectives.
-        route.push_back({{target->get_position(),GetPlayerStarSystemIdRetail(),typeOf(target)==0x200?0:selected,0}});
-    }
+    for(int i=start;i<GetPlayerWaypointCountRetail();++i) route.push_back({*GetPlayerWaypointRetail(i),true});
     if(route.empty()) return false; // Native Go To's "ahead" action.
-    // Ships retain normal Go To/follow behavior rather than snapshot coordinates.
-    if(target && (typeOf(target)&0x7f0000)!=0 && !useRoute) {route.clear();return false;}
     connection=GetPlayerConnectionId(); system=GetPlayerStarSystemIdRetail();
     state=State::Flying; owner.set(static_cast<Watchable*>(p)); previous=v(p->get_position());
     ClearMouseFlightSteering();
@@ -380,6 +397,11 @@ void Tick(float dt,bool docking) {
     // Input may change between simulation and rendering. Resume before the
     // behavior manager's next update, without waiting for the render callback.
     BlockMouse();
+    if(reissueAfterRemoval) {
+        reissueAfterRemoval=false;
+        if(!mouseOverride && !leg.empty() &&
+           !gotoPoint(leg.front(),leg.size()>1 || route.size()>1 || route.front().dock)) {fail();return;}
+    }
     if(mouseOverride) {
         if(b->CurrentBehaviorIndex!=2) {Cancel();return;}
         // Manual steering may last arbitrarily long. Count only actual passage

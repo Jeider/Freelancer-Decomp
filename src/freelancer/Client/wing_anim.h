@@ -20,9 +20,9 @@
 // A request made while the wing moves (the launch included) is queued and runs when the move
 // ends; the last request wins, and one the move already satisfies is dropped.
 // Health shares this controller: pause retains channel times/direction, manual
-// play or an allowed automatic request resumes, and cruise lock blocks future
-// cruise transitions (including an already queued cruise request). Dock/launch
-// requests are independent of that lock. Paused/locked state resets on ship change.
+// play or an allowed automatic request resumes. The Miscellaneous preference
+// controls future cruise transitions (including an already queued request).
+// Dock/launch requests are independent. Paused state resets on ship change.
 
 #ifdef FREELANCER_MOD_PLUGINS
 

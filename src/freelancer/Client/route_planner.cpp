@@ -5,7 +5,9 @@
 #include "player_behavior.h"
 #include "character_select_equip.h"
 #include "common_universe.h"
+#include "common_server_asteroid.h"
 #include "port_config.h"
+#include <algorithm>
 #include <map>
 #include <string>
 #include <cstring>
@@ -15,7 +17,7 @@ namespace {
 using namespace RouteGeometry;
 V v(Vector const& p) { return {p.x,p.y,p.z}; }
 Vector vec(V p) { return {p.x,p.y,p.z}; }
-struct Hazard { V center; float radius; unsigned object=0; Universe::IZone const* zone=nullptr; bool atmosphere=false; };
+struct Hazard { V center; float radius; unsigned object=0; Universe::IZone const* zone=nullptr; bool atmosphere=false; bool dynamic=false; };
 std::vector<Hazard> hazards;
 std::vector<Vertex> corridors;
 unsigned cachedSystem=0;
@@ -46,7 +48,7 @@ void load() {
     uintptr_t iter[3]={0,0,0xfdff};
     while(auto obj=db->GetNext(iter)) {
         unsigned type=0; obj->get_type(type);
-        if(type==0x200u || type==0x80u) continue;
+        if(type==0x200u || type==0x80u || IsServerAsteroidType(type)) continue;
         float radius=0,atmosphere=0; Vector center;
         obj->get_physical_radius(radius,center);
         obj->get_atmosphere_range(atmosphere);
@@ -82,6 +84,25 @@ void load() {
         auto points=betaPath(path.second);
         for(size_t i=0;i<points.size();++i) corridors.push_back({points[i],id,static_cast<int>(i)});
         ++id;
+    }
+}
+void refreshDynamicHazards() {
+    // Static solids and zones stay cached for the loaded system. Server rocks
+    // move, so retaining their old spheres would create ghosts and miss their
+    // current positions. Rebuild only this small dynamic subset per new plan;
+    // local PathfindManager avoidance owns changes while a leg is being flown.
+    hazards.erase(std::remove_if(hazards.begin(),hazards.end(),
+        [](Hazard const& h){return h.dynamic;}),hazards.end());
+    IObjDB* db=GetClientObjDb();
+    if(!db) return;
+    uintptr_t iter[3]={0,0,0xfdff};
+    while(auto obj=db->GetNext(iter)) {
+        unsigned type=0; obj->get_type(type);
+        if(!IsServerAsteroidType(type)) continue;
+        float radius=0; Vector center;
+        obj->get_physical_radius(radius,center);
+        if(radius>10 && std::isfinite(radius))
+            hazards.push_back({v(center),radius,obj->get_id(),nullptr,false,true});
     }
 }
 bool clear(V from,V to,unsigned dockTarget=0,float dockRange=0) {
@@ -135,6 +156,7 @@ void Invalidate() { cachedSystem=0; hazards.clear(); corridors.clear(); }
 bool Plan(V from,V to,std::vector<V>& result) {
     load(); result.clear();
     if(!cachedSystem) return false;
+    refreshDynamicHazards();
     if(!std::isfinite(length(from)) || !std::isfinite(length(to))) return false;
     if(length(to-from)<1) {result.push_back(to);return true;}
     return plan(from,to,{to},result);
@@ -144,6 +166,7 @@ bool PlanApproach(V from,unsigned destination,std::vector<V>& result) {
     auto db=GetClientObjDb();
     auto target=db && destination ? db->FindById(&destination):nullptr;
     if(!cachedSystem || !target || !std::isfinite(length(from))) return false;
+    refreshDynamicHazards();
     float radius=0,atmosphere=0; Vector physicalCenter;
     target->get_physical_radius(radius,physicalCenter);
     target->get_atmosphere_range(atmosphere);
@@ -159,6 +182,7 @@ bool PlanDock(V from,V center,unsigned destination,float range,std::vector<V>& r
     load(); result.clear();
     if(!cachedSystem || !destination || !std::isfinite(length(from)) ||
        !std::isfinite(length(center)) || !std::isfinite(range) || range<=0) return false;
+    refreshDynamicHazards();
     // Keep the arrival sphere beyond the target's guard even for large ships
     // or a user clearance larger than the usual 2000 m docking distance.
     for(auto const& h:hazards) if(h.object==destination)

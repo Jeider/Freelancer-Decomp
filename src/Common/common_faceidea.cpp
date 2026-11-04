@@ -879,9 +879,9 @@ int FaceIdea::Update(float /*DeltaTime*/)
     {
         // 062d717f-062d72d3. Two RefreshCachedIfacePosition idioms, two
         // GetIfacePositionOrZero calls on the same node, and one get_velocity
-        // (slot 0x4 at 062d7241) -- the second delta leads the target by one
-        // second of its own velocity, and the angle between the two deltas is
-        // how far the aim point has to swing.
+        // (slot 0x4 at 062d7241) -- retail's second delta leads the target by one
+        // second of its own velocity (0.1 s for the player in this port), and the
+        // angle between the two deltas is how far the aim point has to swing.
         RefreshCachedIfacePosition(Sys);
         Vector NodePos{};
         GetIfacePositionOrZero(&NodePos, LeadNode);
@@ -891,15 +891,20 @@ int FaceIdea::Update(float /*DeltaTime*/)
         Vector NodePosAgain{};
         GetIfacePositionOrZero(&NodePosAgain, LeadNode);
         Vector const NodeVelocity = LeadNode->get_velocity();
+        // Port tuning: the player's ordinary Go To used a static point before
+        // the native object directive was restored. Its one-second lead can
+        // produce an excessive turn-throttle correction near a moving target.
+        // Keep retail timing for AI, but limit the player's contribution to 0.1 s.
+        float const leadSeconds = Sys->SelfTarget.Iface->is_player() ? 0.1f : 1.0f;
         // 062d7244-062d727f: x and y FSTP the (pos + vel) sum to float before subtracting
         // the cached centre; z subtracts from the unrounded sum.
         Vector const Center = CachedIfacePosition(Sys);
-        float const LeadX = NodePosAgain.x + NodeVelocity.x;
-        float const LeadY = NodePosAgain.y + NodeVelocity.y;
+        float const LeadX = NodePosAgain.x + NodeVelocity.x * leadSeconds;
+        float const LeadY = NodePosAgain.y + NodeVelocity.y * leadSeconds;
         Vector LeadDelta;
         LeadDelta.x = LeadX - Center.x;
         LeadDelta.y = LeadY - Center.y;
-        LeadDelta.z = static_cast<float>((static_cast<double>(NodePosAgain.z) + NodeVelocity.z) - Center.z);
+        LeadDelta.z = static_cast<float>((static_cast<double>(NodePosAgain.z) + NodeVelocity.z * leadSeconds) - Center.z);
 
         Vector DirectDir{};
         Vector LeadDir{};

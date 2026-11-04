@@ -257,7 +257,7 @@ void UpdatePlayerFields(StarSystem& system, std::vector<Vector> const& players, 
     population.elapsed += dt;
     bool const forwardMode = std::any_of(population.fields.begin(), population.fields.end(),
         [](PlayerField const& field) { return field.settings.forwardFormation; });
-    if (population.elapsed < (forwardMode ? 0.1f : 0.5f)) return;
+    if (population.elapsed < (forwardMode ? 0.05f : 0.25f)) return;
     population.elapsed = 0;
     int active = population.fixedCount;
     // Refresh authoritative positions before counting either player's population.
@@ -439,6 +439,9 @@ void LoadField(StarSystem& system, char const* file, Universe::IZone const& zone
                 else if (reader.is_value("placement_offset")) f.offset = Bounded(reader, 200, 0, 100000);
                 else if (reader.is_value("despawn_radius")) f.despawnRadius = Bounded(reader, 0, 0, 300000);
             }
+            // Port tuning: double the authored population while retaining the
+            // per-system object budget and bounded per-tick creation work.
+            f.count = (std::min)(512, f.count * 2);
             if (f.count > 0 && f.archetype) fields.push_back(f);
         } else if (reader.is_header("LootableZone")) {
             auto* lootZone = &zone;

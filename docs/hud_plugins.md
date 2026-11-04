@@ -39,13 +39,17 @@ target and applies its saved visibility to the first hostile ship selection; sub
 selection changes follow its normal auto-open rules. Weapon-group restore activates
 the saved group once a ship is available, instead of forcing group 1.
 
-Backspace (`USER_MINIMIZE_HUD`) temporarily hides the detached windows too; pressing
-it again restores their desired state. This temporary override is not saved and
-does not alter either window's open/closed preference. Radar and its buttons are
-independent of Backspace. Its enabled flag is saved in bit 17; bits 18..19 store
-range index + 1 (zero uses the HUD INI default).
+Backspace (`USER_MINIMIZE_HUD`) never opens detached Health/Targeting; they reopen
+only through their own controls. If any of the four native/detached windows is open,
+Backspace closes every open window. Only when all four are closed does the next
+Backspace open the two native outer panels, HUD_Status and HUD_Target, leaving
+Health and Targeting closed. There is no hidden overlay, cached snapshot or
+per-window restoration state.
+Radar and its buttons are independent of Backspace. Radar's
+enabled flag is saved in bit 17; bits 18..19 store range index + 1 (zero uses the
+HUD INI default).
 
-The native preferences menu has a separate **Miscellaneous** button with General
+The native preferences menu has a separate **Interface** button with General
 and Navigation tabs. Radar auto-show and route generation use drop-down lists:
 click the value field to open the choices in a dark NeuroNet panel with native
 fonts, thin frames and yellow marking of the current value. Hover/keyboard focus
@@ -54,15 +58,23 @@ Esc, Tab or an outside click dismisses without changing the value. Up/Down,
 Home/End and the wheel move the highlight; Enter/Space or a click chooses an item.
 The former Interface-page Miscellaneous block moves here and continues to use
 PerfOptions: tooltips and rollover help are on Navigation; transition skipping,
-maneuver-bar auto-hide and cockpit geometry visibility stay on General. HUD controls follow:
+maneuver-bar auto-hide and cockpit geometry visibility stay on General. All twelve General rows fit
+without a scrollbar and begin close to the tabs. HUD controls follow:
 radar auto-show (no / any contact / enemy), enemy status auto-open, ship status damage
-auto-open, the global auto-turret switch and energy reserve (0..90%, steps of 5).
+auto-open, capship-subtarget autoselect, ship-status buttons (ship animation / weapon groups),
+cruise wing animation, the global auto-turret switch and energy reserve (0..90%, steps of 5).
 Yes/No options use native checkboxes again; numeric percentages retain their own
 stepper. HUD changes are staged until the native Apply confirmation; Cancel discards
 them. These rows are unavailable in the main menu until a game is loaded. The former
 HUD settings window and maneuver-bar gear are removed. The two host-panel auto-open
 locks and large auto-turret button are also removed; Health's separate wing-animation
 lock and individual weapon-row auto-turret buttons remain.
+
+Port-added preference captions and localized values are loaded from NameResources
+IDS 238227..238266 rather than selected by language in C++. Their Russian and
+English master strings live in Pythonlancer `text/static.py`; this includes the
+Interface/General/Navigation captions, capship-subtarget autoselect and graphics
+settings. Native PerfOptions and checkbox captions retain their original IDs.
 
 Drop-down prototype (2026-10-30): `NnDropdownPopup` provides native wire buttons,
 ItemName text and a filled overlay, shared by radar auto-show and route generation.
@@ -94,7 +106,7 @@ Release Win32 and both UI harnesses passed. Installed package:
 dependencies were hash-verified; `port.ini` was preserved byte-for-byte. Live
 appearance after this correction remains to be checked in game.
 
-Resolution-style Miscellaneous selectors installed (2026-10-30): both tabs use
+Resolution-style Interface selectors installed (2026-10-30): both tabs use
 the same vertical UICycle dimensions and separate value/arrow frames as the
 native video-mode control. Boolean ranges are 0..1; other ranges and staged
 saving remain unchanged. The existing settings harness now operates the arrow
@@ -111,7 +123,13 @@ the user data directory, with `port.ini [Navigation]` as installation defaults.
 They are available before loading a game. Edits survive tab changes and are
 committed by Apply; Cancel discards them. Defaults affects only the active tab.
 F2 includes waypoint passage, trade-lane entry and jumps through gates/holes.
-The separate base-docking permission covers only bases and planetary docking
+Deleting, adding, clearing or replacing waypoints while requesting a new best
+path changes the map without cancelling or braking the active route, which
+retains its copied flight points. This also applies while the server response
+refines the new map route. If replacing or deleting the selected marker makes
+native Go To drop to Freeflight, the next route tick reissues only the current
+point directive from those saved coordinates, without replanning; the next F2
+uses the updated waypoint list. The separate base-docking permission covers only bases and planetary docking
 rings. When it is off, F2 still uses lanes and jumps, then continues from the
 checked approach with the native F2/Go To command to the destination base.
 It keeps flying instead of stopping at the preceding waypoint; native Go To
@@ -170,11 +188,15 @@ Object-arrival correction (2026-10-30): map refinement previously sent a
 non-dockable destination to the point planner at its centre. Tokyo's `ku_ksu_03`
 in `KU_KYUSHU/ku_ksu.ini` demonstrates the failure: `odissey_core` is at
 (-50000, 0, -41560), and `odissey.cmp` has a Level0 VMeshRef radius of 1650 m.
-The centre lies inside its own obstacle. Map refinement and F2 now share
+The centre lies inside its own obstacle. Map refinement and waypoint-route F2 share
 `PlanApproach`, selecting arrival points outside physical bounds/atmosphere,
 clearance and hull radius. Nearby station components remain obstacles. The
 object ID stays the final goal; any following leg starts at the actual arrival
-point. No unchecked segment into the object's centre is added.
+point. No unchecked segment into the object's centre is added. Ordinary F2 on a
+single selected object with no selected user waypoint bypasses this planner and
+uses native Go To directly. For the player, the native FaceIdea lead contribution
+is limited to 0.1 seconds of target velocity (AI retains the original one second),
+preventing an excessive turn-throttle correction near a moving target.
 
 With base docking disabled, the final checked approach now invokes the existing
 HUD F2/Go To request instead of cancelling with throttle zero. The native
@@ -198,7 +220,10 @@ an explicit-value marker; bits 24..28 encode reserve / 5 + 1 (zero uses `port.in
 The master switch gates automatic fire without changing individual gun selection
 or activation. The native cockpit flag (bit 3) is restored in both directions on
 space entry, so loading an external-view save clears a previous cockpit preference.
-Temporary rear/turret/script cameras do not write that preference.
+Temporary rear/turret/script cameras do not write that preference. With cockpit
+free look active and no modal UI, Esc first disables only free look and restores
+ordinary cockpit input; the camera stays in first person, and the next Esc opens
+the pause menu.
 
 Radar automation polls the same detectable contacts as the radar every 0.2 seconds,
 even while closed. Hostile mode includes incoming missiles. After matching contacts
@@ -215,7 +240,7 @@ new buttons and the weapon-list icon. The editable translations are in the mod's
 language DLLs, verifies that IDs are unused and preserves all unrelated resources.
 It is an initial migration, not the translator's normal rebuild command; later edits
 use Pythonlancer's existing static-string generation/resource import workflow.
-Locks, pause/resume and autoselect show captions for the action their next click
+Locks and pause/resume show captions for the action their next click
 will perform. Native key-binding hints remain enabled on weapon-group buttons.
 Button tooltip anchors include the HUD's widescreen shift once and are clamped
 against the full-screen camera, independently of the button's depth or montage path.
@@ -228,22 +253,26 @@ The top/left damage wireframe fits the rendered vertices to the viewport, using
 the same fitting method as Targeting. Equipment state, subsystem damage colours,
 hover descriptions and right-click weapon activation use the native ship logic.
 The wireframe fills the space up to the inner top edge. Hull/shield gauges stay
-in HUD_Core. Its bottom row has five buttons with equal hit areas at the same spacing
-as Targeting: WingAnim play/resume, pause/resume, cruise-animation lock, top view,
-and left view. There is no sixth/Fit button; both projections use geometric fitting.
-The left camera is opposite Targeting's right camera. Projection selection stays
-local to Health and does not alter Targeting's saved projection.
+in HUD_Core. The original bottom row is selected in Interface preferences:
+**Ship status buttons** puts either three weapon groups or WingAnim Play/Pause in
+the three left slots, opposite the top-view and left-view buttons on the right.
+Neither animation nor weapon-group buttons occupy the upper row. Both projections
+use geometric fitting. The left camera is opposite Targeting's right camera.
+Projection selection stays local to Health and does not alter Targeting's saved
+projection.
 
 The animation controls call WingAnim's shared action API (also used by its key),
 not a separate animation implementation. Play resumes a paused movement; otherwise
 it toggles the eventual wing position. Pause holds the current channel times and
 direction; play, pause again, or an allowed automatic animation request resumes it.
-An opposite automatic destination queues behind the resumed movement. Cruise lock
-blocks new cruise requests and cancels a queued cruise request without cancelling
-a manual request or the current movement. Unlocking does not replay missed cruise
-events. Launch and docking behavior remain independent of this cruise-only lock.
-Pause and lock reset on a ship change. Ships without WingAnim have disabled animation
-buttons, while both projection buttons remain available.
+An opposite automatic destination queues behind the resumed movement. The
+**Wing animation in cruise** Interface preference blocks new cruise requests
+and cancels a queued cruise request without cancelling a manual request or the
+current movement. Re-enabling it does not replay missed cruise events. Launch
+and docking behavior remain independent of this cruise-only preference. It lives
+in the global HUD profile, not character saves. Pause resets on a ship change.
+Ships without WingAnim have disabled animation buttons, while both projection
+buttons remain available.
 
 Health uses the native static part cache, built when the viewed ship changes.
 Damage colours and part visibility still update, but the preview does not follow
@@ -260,7 +289,7 @@ uses hull, collision-group and equipment health bands (75%, 50%, below 25%, dest
 including disappearance of an attached part; vulnerable groups retain their orange
 baseline. No geometry is rebuilt for this monitoring.
 
-The ship-status option in Miscellaneous preferences disables automatic opening, without
+The ship-status option in Interface preferences disables automatic opening, without
 closing an existing window or preventing manual opening. Unlocking arms future
 warnings without replaying old ones. The lock is saved in bit 8 of the native
 `interface` word, independently of Targeting; legacy saves default to unlocked.
@@ -276,10 +305,15 @@ previous behavior.
 
 HUD_Status has Health on the left, with nanobots/count and shield
 batteries/count on the right in both expanded and collapsed layouts. The expanded
-consumables are shifted left by one lock-icon width (0.031), to X=0.358/0.411. Weapon
+consumables use X=0.343/0.396; the collapsed pair uses X=0.396/0.449. Weapon
 groups 1, 2 and 3 form a vertical column under the close cross, left of the weapon
-numbers, with the original 0.024 pitch starting at the first group. They hide when HUD_Status is collapsed; all custom
-buttons hide during its native animation. The weapon-group buttons are
+numbers, with the original 0.024 pitch starting at the first group. They hide when HUD_Status is collapsed. During the native
+slide, Health and the consumables follow the native mover's vertical interpolation
+at fixed collapsed X coordinates, without horizontal drift or fixed-screen hangs.
+The counts retain their own native vertical travel rather than the buttons' shorter
+distance. During the native scale phase, HUD_Status's
+own draw path shows only the panel background, hiding these controls at the same
+time as the native consumables. The weapon-group buttons are
 ported from Whiskas/T-Mech's `HudWeaponGroups.dll` (the mod DLL matches
 `plugins/HudInventory_RC1/HudWeaponGroups.dll`, SHA256
 `EB3AC067F430A1E54ADD7EFFDFE67254971C46DE7F9220A5A0356DC9C6895515`).
@@ -291,12 +325,12 @@ keyboard switching, and server/save persistence. Groups 4–6 remain available t
 the existing keyboard commands; none of the three buttons lights for those groups.
 
 The Health open/slide icon reuses `HUD_targetedobject.3db` at 0.022 radius.
-Its former auto-open lock is now an option in Miscellaneous preferences.
+Its former auto-open lock is now an option in Interface preferences.
 The earlier standalone `HUD_health.3db` asset remains available but is no longer
 used by these controls. No icon, shared VMS or montage edits are required.
-The three animation glyphs are independent native meshes generated by
-`tools/make_health_controls.py`: `HUD_health_wing.3db`, `HUD_health_pause.3db`, and
-`HUD_health_wing_lock.3db`. Their unique `UI_` materials use normal HUD tinting.
+The two animation glyphs are independent native meshes generated by
+`tools/make_health_controls.py`: `HUD_health_wing.3db` and `HUD_health_pause.3db`.
+The former cruise-lock mesh is no longer used by the interface. Their unique `UI_` materials use normal HUD tinting.
 They render at half their original size (0.008 radius); their hit areas are unchanged.
 No shared library is modified. Top/left reuse `HUD_target_view1.3db` and
 `HUD_target_view2.3db`, respectively, at the original 0.016 radius.
@@ -322,8 +356,9 @@ scan sweeps and subtarget markers. It shows the same selection as the original
 target view, including neutral objects; no selection leaves an empty background.
 The contact/formation list and other action buttons stay in their original panel.
 The redundant list/target-view switches in HUD_Target are hidden while Targeting owns
-the view. The Targeting-window button occupies the old list slot;
-automatic opening is configured in Miscellaneous preferences. Formation moves to 0.029 right of scan
+the view. The Targeting-window button occupies the old list slot and follows that
+anchor throughout the native panel animation instead of appearing only at its end;
+automatic opening is configured in Interface preferences. Formation moves to 0.029 right of scan
 in the expanded HUD_Target toolbar, retaining separate hit boxes.
 The view is independent of the contact list's collapsed state. It starts hidden,
 opens automatically only on selection of a hostile ship and closes when selection is cleared or is a waypoint
@@ -343,26 +378,22 @@ NeuroNet and letterbox.
 Rank, target name and subtarget/location text are currently hidden, including on
 hover. Subsystem text remains suppressed; toolbar buttons have localized tooltips. Their former
 header space extends the wireframe viewport up to the inner top edge; the same
-enlarged rectangle handles picking. The projection buttons appear only with a selected target. The left
-autoselect toggle is available whenever the panel is expanded.
+enlarged rectangle handles picking. The four centered projection buttons appear only with a selected target.
 `vulnerable = true` in a ship/solar's `[CollisionGroup]` marks that group's
 wireframe orange from full health. It defaults to false and is copied by archetype
 inheritance. Real damage retains the native red/critical colours. This visual
 marker does not modify health or fuses; cosmetic startup damage is unnecessary
 for marked groups.
 
-The "Toggle autoselect subtarget" button (using `HUD_nextsub.3db`) enables direct
+The **Capship subtarget autoselect** Interface preference enables direct
 weak-point and turret selection on a ship's world model without holding Ctrl. It defaults on,
-stays enabled across target changes and shows its selected state on the button.
-The Targeting toolbar exposes this toggle for a live ship of type CRUISER
-(including the mod's destroyers) or GUNBOAT. Other targets hide it without changing the saved mode.
-World hover, direct subsystem clicks and the persistent world wireframe on these two
-ship types require a hostile HUD attitude. Neutral/friendly ships do not intercept
-subsystem clicks; attitude changes take effect on the next draw or click.
-Autoselect and the auto-opening lock are stored per player in bits 6 and 7 of the
-native save `interface` word, alongside projection bits 4..5. Bit 6 means disabled,
-so old/new saves default to autoselect enabled and lock off. Each click updates the
-server state for the next game save; loading a save replaces both values live.
+stays enabled across target changes and is not exposed as a HUD toolbar button.
+World hover, direct subsystem clicks and the persistent world wireframe on live
+CRUISER (including the mod's destroyers) or GUNBOAT targets require a hostile HUD attitude.
+Neutral/friendly ships do not intercept subsystem clicks; attitude changes take
+effect on the next draw or click. Autoselect and the auto-opening lock are stored
+in the global HUD profile, not character saves. Loading another profile replaces
+both values live.
 HUD destruction resets transient hover/click data without changing saved preferences.
 The nearest physical ray hit must belong to a live marked collision group or an attached
 turret; ordinary hull surfaces in front block the pick. Turrets need no `vulnerable`
@@ -408,9 +439,10 @@ and embedded `Texture library / HUD_target_window_lock_icon.tga / MIP0` for artw
 The wireframe uses the full rectangle between the inner top edge and toolbar. Its camera distance
 and centre fit the rendered vertices against all four side planes and the near
 plane, leaving a two-pixel border; native target/status view sizes are unaffected.
-The lowered bottom toolbar has five equally sized buttons, larger than the original
-toolbar: autoselect, Vanilla, Fit, Top and Side. Previous/next subsystem buttons are hidden.
-The centred row uses a 0.026 button pitch with separate horizontal hit boxes;
+The lowered bottom toolbar has four equally sized, centered buttons:
+Vanilla, Fit, Top and Side. Previous/next subsystem buttons and the former
+autoselect button are hidden. The centred row uses a 0.026 button pitch with
+separate horizontal hit boxes;
 icon artwork retains its 0.016 normalization radius.
 The two native subsystem buttons are reparented
 here and are available for any selected object with subsystems, including normal
@@ -682,7 +714,11 @@ All three start unassigned; no default keys or modifiers are reserved:
 The same key toggles its action, just like the button. Key repeat and release do
 not trigger it. Mode-inapplicable keys do not cancel an active action. Chat/input
 focus, modal screens, cutscenes, launch, tradelanes and locked maneuvers block it;
-freeflight actions additionally require cruise to be off. Button tooltips show the
+the spiral and reverse/strafe additionally require cruise to be off. Go To weave
+requires a selected target: native targetless F2-ahead restores the ordinary small
+tab and Cruise position, hides the weave button, blocks its shortcut and cancels
+an active weave. The engine-kill
+turn can start during cruise and disengages cruise itself. Button tooltips show the
 current binding, including a user remap. The command IDs are 0xd0..0xd2 and remain
 stable in builds without auto turrets. Loading an old user map leaves these actions
 unassigned and preserves all existing control bindings.
@@ -694,7 +730,19 @@ mode gating, unassigned defaults and save/reload behavior in controlled fixtures
 The controller writes bounded steering torque and native thrust controls after the
 normal object update and before physics. It never sets position, orientation or
 velocity. The clockwise spiral tracks an unwrapped full turn; the reversal tracks a
-half turn with the engine disengaged. Completion checks actual angular progress
+half turn with the engine disengaged. When started outside cruise with an intact,
+enabled thruster, and forward speed below 105% of
+`get_speed(1.0, ThrustEquipEngine)`, the reversal first accelerates straight ahead
+with Engine Kill plus afterburner for a full second. Reaching the speed threshold
+does not end this boost early. At or above 105%, or without a functioning
+thruster, the preliminary phase is skipped; losing the thruster mid-boost also
+ends it. It then disables the afterburner and starts steering. A cruise entry
+skips the preliminary boost. After the half turn settles, a separate
+one-second exit phase explicitly engages the engine, applies full throttle and
+afterburner, and keeps the input lock active. It then disables the afterburner,
+restores the saved throttle directly to the ship and returns control. The figure's
+12-second steering timeout starts after the preliminary boost. Completion checks
+actual angular progress
 and angular velocity; these two figures have a 12-second timeout. Ship torque, angular
 drag, inertia and nudge force remain authoritative. A missing required force
 makes that action unavailable. There is no invulnerability or recharge cheat.
@@ -710,8 +758,10 @@ Engine `reverse_fraction` and ship strafe force/power use remain authoritative.
 
 Go To's sine weave physically turns the nose left and right with bounded steering
 torque while the native autopilot continues throttle, cruise and arrival handling.
-Forward engine thrust creates the curved flight path; the action adds no lateral
-nudge or strafe. It reads
+It also applies native left strafe throughout the left half-wave and native right
+strafe throughout the right half-wave. Manual steering and initial destination
+alignment suspend strafe; cancellation clears it. The action adds no lateral nudge.
+It reads
 the actual Go To destination (object or point), independently of the selected
 weapon target. Scripted spline routes are excluded. `goto_weave_interval`
 (default 2.0 seconds, finite positive values) is one half-wave; the complete
@@ -728,15 +778,23 @@ changed it. Arrival, target loss, a behavior change or an obstructed look-ahead 
 cancels the weave and hands steering back to Go To. The ray veto is not full path
 planning. Actual turn amplitude and trajectory depend on ship handling.
 
-Clicking the active action again, Escape, manual steering, throttle, strafe, cruise,
-engine toggle or afterburner cancels it. Mouse movement only cancels when it is
-actually mouse-flight input, outside the HUD and outside cockpit free look.
-Weapon aim and firing otherwise remain available. Engine state and throttle
-are restored on completion/cancellation while the same ship is still in
-Freeflight; a new autopilot state owns its own settings. A watched ship identity,
-system check, docking/launch/lane/letterbox/mission-lock checks and frame-stall
-cancellation protect handoffs. The simulation tick, not HUD visibility, drives
-the action. Pause does not advance it.
+While the clockwise spiral or engine-kill turn is executing, manual steering,
+throttle, strafe, cruise, engine toggle, afterburner, Escape and repeated action
+activation wait for the figure to complete rather than interrupting or restarting
+it. Reverse/strafe has no such lock: clicking it again or using those controls
+cancels it as before. Once a finite figure is complete, manual cancellation can
+release its waiting/returning camera without replaying control restoration.
+Autopilot/behavior handoffs and safety resets can still force cancellation.
+Mouse movement is blocked only while it owns a finite figure; clicks in the HUD
+and cockpit free look do not count as steering. Weapon aim and firing otherwise
+remain available. Throttle is restored on completion/cancellation while the same
+ship is still in Freeflight; the engine-kill turn always re-engages the engine,
+including when ordinary Engine Kill was already active on entry, so its saved
+positive throttle accelerates the ship after the reversal. Other actions restore
+the entry engine state. A new autopilot state owns its own settings. A watched
+ship identity, system check, docking/launch/lane/letterbox/mission-lock checks and
+frame-stall cancellation protect handoffs. The simulation tick, not HUD visibility,
+drives the action. Pause does not advance it.
 
 During Go To weave, the third-person camera uses a stable route direction and
 the initial up reference, rather than following the ship's alternating yaw/roll.
@@ -820,7 +878,7 @@ Updated `D:/games/FL_MOD` on 2026-10-29 with Go To's repeating yaw turns,
 stable route camera and original Beta `hud_mnvrevade` icon. The default requested
 angle is 25 degrees on either side, with a four-second complete cycle; both are
 configurable. Forward thrust traces the wave. The existing Freeflight actions,
-early three-second reversal camera orbit and native Miscellaneous preferences page are
+early three-second reversal camera orbit and native Interface preferences page are
 included. Release Win32 and the physical yaw/camera harness passed; imports
 against four installed DLLs and all seven installed payload hashes (client/PDB,
 preserved config with the new angle default, and four icon models) were checked.
@@ -888,8 +946,25 @@ Unloaded systems are planned after entry. This is a hybrid planner with recovere
 Beta rules and a new safety extension, not a binary-identical Beta generator;
 the inspected Beta functions did not establish a guarantee of avoiding every
 hazard. `retail` keeps the original map generator; F2's local safety planning
-still operates. Dynamic combat and moving obstacles remain the native pilot's
+still operates. Other dynamic combat and moving obstacles remain the native pilot's
 responsibility. Mission objective lists remain owned by the mission system.
+
+Server-asteroid avoidance (2026-11-02): local steering is reduced to a minimal
+last-instant correction. `PathfindManager` looks only 0.35 seconds along the
+intended route, adds no clearance beyond the physical radii, never requests
+braking and never blocks cruise. A server rock whose surface comes within 300 m
+also triggers the native strafe controller away from its dominant local axis;
+the chosen direction is held until the rock leaves that range, and only our own
+strafe is cancelled on exit. Distant rocks and dense fields with no immediate
+full-speed opening are otherwise ignored; avoidance memory is reset on Freeflight,
+disabled avoidance, system changes and manager destruction. F2 no longer caches server
+rocks as static system hazards: each new plan rebuilds their spheres at current
+positions, while the local controller handles motion during the leg.
+`tools/physics/check_server_asteroids.py` covers distant-rock pass-through,
+full-speed isolated and crossing-rock bypasses, persistent side, dense-field
+fallback, overlap escape and arrival; the route suite checks that moving a rock
+removes its old hazard without discarding static solids. Release Win32 Common
+and Freelancer builds pass. Live-flight validation is still required.
 
 Validation: Release Win32, original maneuver/camera simulations, and
 `tools/route_autopilot/check.ps1` (30/60/144 Hz passage, long-frame crossing,

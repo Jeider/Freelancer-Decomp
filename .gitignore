@@ -23,6 +23,7 @@ bin/*.exp
 bin/*.lib
 bin_debug/
 binasan/
+out/
 
 # Keep the runtime config in bin/ (read from beside the exe)
 !bin/*.ini

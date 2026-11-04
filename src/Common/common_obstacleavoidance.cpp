@@ -24,6 +24,7 @@
 #include "common_pathfind.h"      // PathfindManager (embeds ObstacleAvoidance at +0x268)
 #include "common_cobjdb.h"        // IObjDB
 #include "common_spatial.h"       // ISpatialPartition, FSpatialQueryResult (ClassifyShipObstaclePhase)
+#include "common_server_asteroid.h" // SERVER_ASTEROID player no-brake filter
 #include "x87_trig.h"             // retail's inline FSIN / FCOS
 
 #include <cmath>
@@ -160,6 +161,10 @@ void ObstacleAvoidance::Update(float Dt)
     // 062de49a-062de4b3: the watched object (0 when nothing is watched), dereferenced
     // below without a test.
     IObjRW* const Ship = PathfindOwnerObject(Owner);
+    // The player's dedicated server-asteroid bypass is always full-speed. Do
+    // not let native contact handling brake or cancel cruise for those rocks;
+    // physical collision response remains enabled. NPCs retain retail handling.
+    bool const IgnoreServerAsteroids = Ship->is_player();
 
     // 062de4b3-062de4ed: age the slot timers. `Timer > 0` (TEST AH,0x41 / JNZ skips <=, ==
     // and unordered); the stored float is Timer - Dt, and the unrounded difference is
@@ -326,7 +331,8 @@ void ObstacleAvoidance::Update(float Dt)
         }
         CSimple const* const HitSimple = (CSimple const*)HitObject;
         unsigned const HitType = HitSimple->TypeBits;
-        if ((HitType & 0x20c150) == 0 || HitType == OwnType)
+        if ((HitType & 0x20c150) == 0 || HitType == OwnType ||
+            (IgnoreServerAsteroids && IsServerAsteroidType(HitType)))
         {
             continue;
         }
@@ -1169,6 +1175,7 @@ int PathfindManager::ClassifyObstaclePhase()
     float BestDistance = 3.40282347e+38f; // S+0x44, 0x7f7fffff
     IObjRW* BestCandidate = nullptr;      // S+0x6c
     ObstacleAvoidance::Slot BestSlot{};   // S+0x8c, read only after a candidate set it
+    bool const IgnoreServerAsteroids = PathfindOwnerObject(This->Owner)->is_player();
     for (int Pass = 0; Pass < 2; ++Pass)
     {
         unsigned const Count = (Pass == 0) ? (unsigned)CandidateList->Count : Nearby.Count;
@@ -1189,7 +1196,8 @@ int PathfindManager::ClassifyObstaclePhase()
 
             unsigned Type = 0;
             Candidate->get_type(Type);
-            if ((Type & TypeMask) == 0)
+            if ((Type & TypeMask) == 0 ||
+                (IgnoreServerAsteroids && IsServerAsteroidType(Type)))
                 continue;
             bool const bCandidateClose = (Type & 7u) != 0;
 

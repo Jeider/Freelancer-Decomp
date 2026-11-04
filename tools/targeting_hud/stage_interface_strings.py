@@ -1,4 +1,4 @@
-"""Stage new HUD IDS in Pythonlancer and both DLLs; never modify the installed mod.
+"""Stage port HUD/preference IDS in Pythonlancer and both DLLs; never modify the installed mod.
 
 Once installed, translations live in Pythonlancer/text/static.py (managers.ids).
 Only empty/new string slots are accepted. Every unrelated DLL resource is verified.
@@ -42,6 +42,48 @@ ROWS = [
     ('WeaponGroup2', 'Группа орудий 2', 'Weapon group 2'),
     ('WeaponGroup3', 'Группа орудий 3', 'Weapon group 3'),
     ('WeaponList', 'Показать список орудий', 'Show weapon list'),
+    ('TargetList', 'Список целей', 'Target list'),
+    ('CutsceneSkipPrompt', 'Нажми Enter, чтобы пропустить катсцену', 'Press Enter to skip the cutscene'),
+    ('Interface', 'Интерфейс', 'Interface'),
+    ('GeneralTab', 'Общее', 'General'),
+    ('NavigationTab', 'Навигация', 'Navigation'),
+    ('RadarAuto', 'Автопоказ радара', 'Show radar automatically'),
+    ('TargetAutoOpen', 'Автоматически открывать статус врага', 'Open enemy status automatically'),
+    ('HealthAutoOpen', 'Автоматически показывать статус корабля', 'Show ship status automatically'),
+    ('AutoTurrets', 'Включить автотурели', 'Enable auto turrets'),
+    ('AutoTurretReserve', 'Резерв энергии автотурелей', 'Auto turret energy reserve'),
+    ('RouteGenerator', 'Генератор маршрута', 'Route generator'),
+    ('RouteFollowF2', 'Автопролёт маршрута по F2', 'Follow route with F2'),
+    ('AutoDock', 'Автостыковка с базами', 'Auto-dock with bases'),
+    ('HudTilt', 'Наклон HUD', 'HUD tilt'),
+    ('ShipStatusButtons', 'Кнопки в статусе корабля', 'Ship status buttons'),
+    ('CapshipAutoselect', 'Автовыбор элементов крупных кораблей', 'Capship subtarget autoselect'),
+    ('CruiseWingAnimation', 'Анимация крыльев на круизе', 'Wing animation in cruise'),
+    ('ShipAnimation', 'Анимация корабля', 'Ship animation'),
+    ('WeaponGroups', 'Группы орудий', 'Weapon groups'),
+    ('Standard', 'Стандартный', 'Standard'),
+    ('AvoidObstacles', 'Обход препятствий', 'Avoid obstacles'),
+    ('RadarNever', 'Нет', 'No'),
+    ('RadarAnyContact', 'При появлении любой цели', 'When any contact appears'),
+    ('RadarEnemy', 'При появлении противника', 'When an enemy appears'),
+    ('SettingsSaveFailed', 'Не удалось сохранить настройки', 'Could not save settings'),
+    ('Unavailable', 'Недоступно', 'Unavailable'),
+    ('GraphicsShadows', 'Тени', 'Shadows'),
+    ('GraphicsSurfaceRelief', 'Рельеф поверхностей', 'Surface relief'),
+    ('GraphicsHighlights', 'Блики', 'Highlights'),
+    ('GraphicsReflections', 'Отражения', 'Reflections'),
+    ('GraphicsAnisotropy', 'Анизотропная фильтрация', 'Anisotropic filtering'),
+    ('GraphicsAntialiasing', 'Сглаживание', 'Antialiasing'),
+    ('GraphicsNebulae', 'Объёмные туманности', 'Volumetric nebulae'),
+    ('GraphicsVsync', 'Вертикальная синхронизация', 'Vertical sync'),
+    ('GraphicsFpsLimit', 'Лимит FPS', 'FPS limit'),
+    ('GraphicsOff', 'Выкл', 'Off'),
+    ('GraphicsOn', 'Вкл', 'On'),
+    ('GraphicsLow', 'Низкое', 'Low'),
+    ('GraphicsMedium', 'Среднее', 'Medium'),
+    ('GraphicsHigh', 'Высокое', 'High'),
+    ('GraphicsRestartPending', 'Изменения вступят в силу после перезапуска игры', 'Changes take effect after restarting the game'),
+    ('GraphicsRestartHint', 'Эти настройки применяются после перезапуска игры', 'These settings apply after restarting the game'),
 ]
 
 k = c.WinDLL('kernel32', use_last_error=True)
@@ -162,18 +204,23 @@ def main():
     relative = 'Assets/Pythonlancer/text/static.py'
     original = (GAME / relative).read_text(encoding='utf-8')
     tree = ast.parse(original)
-    ids = [node.args[0].value for node in ast.walk(tree)
+    ids = {node.args[0].value: node for node in ast.walk(tree)
            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'Static'
-           and node.args and isinstance(node.args[0], ast.Constant)]
-    assert not set(ids).intersection(range(238200, 238225)), 'New IDs already used in Pythonlancer'
+           and node.args and isinstance(node.args[0], ast.Constant)}
+    first_id, last_id = 238200, 238200 + len(ROWS) - 1
     header = (REPO / 'src/freelancer/Client/hud_interface_ids.h').read_text()
-    block = '    # HUD: Targeting / Health. MS(Russian, English); keep numeric IDs stable.\n'
-    for i, (name, ru, en) in enumerate(ROWS, 238200):
+    block = '    # Port UI: HUD and preferences. MS(Russian, English); keep numeric IDs stable.\n'
+    for i, (name, ru, en) in enumerate(ROWS, first_id):
         assert re.search(rf'\b{name}\s*=\s*{i}\s*;', header), name
         assert max(len(ru), len(en)) < 128
-        block += f'    Static({i}, MS({ru!r}, {en!r})),  # {name}\n'
+        if i in ids:
+            value = ids[i].args[1]
+            assert (isinstance(value, ast.Call) and isinstance(value.func, ast.Name) and
+                    value.func.id == 'MS' and len(value.args) == 2 and
+                    tuple(arg.value for arg in value.args) == (ru, en)), f'Pythonlancer text mismatch: {i}'
+        else:
+            block += f'    Static({i}, MS({ru!r}, {en!r})),  # {name}\n'
     patched = original.replace('STATIC_NAMES = [\n', 'STATIC_NAMES = [\n' + block + '\n', 1)
-    assert patched != original
     ast.parse(patched)
     output = STAGE / relative
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -191,7 +238,7 @@ def main():
         assert text.count('\nNAME\n') == len(ROWS)
     stage_dll('EXE/NameResources.dll', 1)
     stage_dll('RESOURCES_ENG/NameResources.dll', 2)
-    print('PASS: IDs 238200..238224 match the C++ header and compile with Pythonlancer in RU/EN')
+    print(f'PASS: IDs {first_id}..{last_id} match the C++ header and compile with Pythonlancer in RU/EN')
     sources = [relative, 'EXE/NameResources.dll', 'RESOURCES_ENG/NameResources.dll']
     manifest = [{'relative': f, 'original': hashlib.sha256((GAME/f).read_bytes()).hexdigest().upper(),
                  'prepared': hashlib.sha256((STAGE/f).read_bytes()).hexdigest().upper()} for f in sources]

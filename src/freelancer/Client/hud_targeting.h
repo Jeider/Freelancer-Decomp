@@ -8,6 +8,8 @@ class NnTextControl;
 bool TargetingOwnsContent(HudTarget const* source);
 bool TargetingHostProperty(HudTarget const* source, int msg, uintptr_t a, uintptr_t b);
 void TargetingUpdateHostButtons(HudTarget const* source);
+bool TargetingWindowOpen();
+void TargetingSetWindowOpen(bool open);
 
 class HUD_Targeting final : public HUDItem, public WinControl, public ButtonMover, public ButtonScaler
 {
@@ -26,11 +28,13 @@ public:
     void OnScaleFinished() override;
     bool HostProperty(int msg, uintptr_t a, uintptr_t b);
     void UpdateHostButtons();
+    bool WindowOpen() const { return windowState.open; }
+    void SetWindowOpen(bool open);
 
 private:
     static constexpr int ProjectionCount = 4;
     bool BindContent();
-    bool CanShow(bool hostControls = false) const;
+    bool CanShow() const;
     HudTarget* Source() const;
     void UpdateButtons();
     void ReleaseContent();
@@ -61,7 +65,6 @@ private:
         float offset[3], attach[3];
     } subtargetButtons[2];
     WinControl* projections[ProjectionCount] = {};
-    WinControl* autoselectButton = nullptr;
     WinControl* openButton = nullptr;
     WinControl* windowButton = nullptr;
     WinControl* lockButton = nullptr;

@@ -72,6 +72,7 @@ void GetFileSysPath(char* out,char const* file,void*){strcpy(out,file);}
 namespace Archetype {
 struct Solar {
     unsigned ObjectType=SERVER_ASTEROID_TYPE;bool loaded=true,fail=false;int refs=0;
+    struct {unsigned Id=0;} Loadout;
     bool load(){++refs;if(loaded || fail)return false;loaded=true;return true;}
     bool is_loaded(){return loaded;}void Release(){--refs;}
     long create_instance(void*){return 1;}
@@ -81,7 +82,7 @@ Solar* GetSolar(unsigned id){return id==CreateID("rock")?&arch:nullptr;}
 }
 struct CFLIDMaker {unsigned next=0;static CFLIDMaker* GetInstance(){static CFLIDMaker i;return &i;}unsigned AllocateObjectID(){return ++next;}};
 struct CSolarCreateInfo {
-    unsigned Field_0xb4=999,Field_0xbc=999,ObjId=0,ArchetypeNickname=0;
+    unsigned Field_0xb4=999,Field_0xbc=999,ObjId=0,ArchetypeNickname=0,Field_0x6c=0;
     struct {unsigned Id=0;} Field_0xb8;
     Vector Position;Quaternion Orientation;
     int HitPts=0,Field_0xac=0,Field_0xad=0,CollisionGroups=0;
@@ -134,7 +135,7 @@ int main(){
     // Exclusions follow the spawn section; a preloaded arch returns false from load().
     files["field"]={settings,{"Exclusion Zones",{{"exclusion","excluded"}}}};
     StarSystem system;LoadServerAsteroidFields(system);
-    assert(system.objects.size()==10&&system.tracked.size()==10&&Archetype::arch.refs==0);
+    assert(system.objects.size()==20&&system.tracked.size()==20&&Archetype::arch.refs==0);
     std::vector<Vector> positions;
     for(auto* s:system.objects){
         positions.push_back(s->raw.pos);
@@ -148,7 +149,7 @@ int main(){
     Universe::excluded.radius=10000;LoadServerAsteroidFields(system);assert(system.objects.empty());
     Archetype::arch.ObjectType=0x10;LoadServerAsteroidFields(system);assert(system.objects.empty());Archetype::arch.ObjectType=SERVER_ASTEROID_TYPE;
     Archetype::arch.loaded=false;Archetype::arch.fail=true;LoadServerAsteroidFields(system);assert(system.objects.empty()&&Archetype::arch.refs==0);Archetype::arch.fail=false;
-    files["field"]={settings};LoadServerAsteroidFields(system);assert(system.objects.size()==10&&Archetype::arch.refs==0);system.clear();
+    files["field"]={settings};LoadServerAsteroidFields(system);assert(system.objects.size()==20&&Archetype::arch.refs==0);system.clear();
     // Counts are bounded per section and per system. NaN uses finite defaults.
     settings.values={{"asteroid","rock"},{"count","999999"},{"placement_radius","nan"},{"max_velocity","nan"},{"max_angular_velocity","-5"}};
     files["field"]={settings,settings,settings,settings,settings};LoadServerAsteroidFields(system);
@@ -163,12 +164,16 @@ int main(){
     files["field"]={settings};LoadServerAsteroidFields(system);
     assert(system.objects.empty()); // no player -> no population on load
     UpdatePlayerFields(system,{},.5f);assert(system.objects.empty());
-    // Two co-located players share 30, and creation work is bounded per tick.
+    // Two co-located players share the doubled 60-rock population. Creation is
+    // bounded per tick, and ordinary fields now replenish every 0.25 seconds.
     std::vector<Vector> players{{4000,0,0},{4000,0,0}};
     UpdatePlayerFields(system,players,.5f);assert(system.objects.size()==24);
-    UpdatePlayerFields(system,players,.5f);assert(system.objects.size()==30);
+    UpdatePlayerFields(system,players,.1f);assert(system.objects.size()==24);
+    UpdatePlayerFields(system,players,.1f);assert(system.objects.size()==24);
+    UpdatePlayerFields(system,players,.05f);assert(system.objects.size()==48);
+    UpdatePlayerFields(system,players,.25f);assert(system.objects.size()==60);
     auto& field=Populations.at(&system).fields[0];
-    assert(field.rocks.size()==30);
+    assert(field.rocks.size()==60);
     for(auto const& state:field.rocks){
         assert(DistanceSquared(state.pos,players[0])<=1000000);
         assert(DistanceSquared(state.pos,players[0])>=250*250);
@@ -178,7 +183,8 @@ int main(){
     // One pilot leaving does not suspend the other pilot's population.
     players[0]={-4000,0,0};UpdatePlayerFields(system,players,.5f);
     assert(field.rocks[0].id==first&&!objectsById[first]->destroyed);
-    UpdatePlayerFields(system,players,.5f);assert(field.rocks.size()==60);
+    UpdatePlayerFields(system,players,.5f);assert(field.rocks.size()==108);
+    UpdatePlayerFields(system,players,.25f);assert(field.rocks.size()==120);
     // Actual death is remembered, and does not refill the hole immediately.
     auto killed=field.rocks[1].id;objectsById[killed]->destroy(1,0);
     size_t total=field.rocks.size();
@@ -210,18 +216,18 @@ int main(){
     LoadServerAsteroidFields(system);players={{4000,0,0},{4100,0,0}};
     for(int tick=0;tick<5;++tick)UpdatePlayerFields(system,players,.5f);
     auto const& overlapping=Populations.at(&system).fields[0].rocks;
-    assert(overlapping.size()>=30&&overlapping.size()<60);
-    for(auto p:players){unsigned count=0;for(auto const& r:overlapping)if(DistanceSquared(p,r.pos)<=1000000)++count;assert(count<=30);}
+    assert(overlapping.size()>=60&&overlapping.size()<120);
+    for(auto p:players){unsigned count=0;for(auto const& r:overlapping)if(DistanceSquared(p,r.pos)<=1000000)++count;assert(count<=60);}
     UnloadServerAsteroidFields(system);system.clear();
     LoadServerAsteroidFields(system);Populations.at(&system).fixedCount=1020;
     UpdatePlayerFields(system,players,.5f);UpdatePlayerFields(system,players,.5f);
     assert(system.objects.size()==4);UnloadServerAsteroidFields(system);system.clear();assert(Archetype::arch.refs==0);
-    // The Sig8 density increase uses three sections of 60, still budgeted over ticks.
+    // The Sig8 density increase doubles three sections of 60 to 120, still budgeted over ticks.
     settings.values={{"asteroid","rock"},{"count","60"},{"spawn_mode","player"},{"placement_radius","1000"}};
     files["field"]={settings,settings,settings};LoadServerAsteroidFields(system);
-    for(int tick=0;tick<10;++tick)UpdatePlayerFields(system,{{4000,0,0}},.5f);
-    assert(system.objects.size()==180);
-    for(auto const& f:Populations.at(&system).fields)assert(f.rocks.size()==60);
+    for(int tick=0;tick<15;++tick)UpdatePlayerFields(system,{{4000,0,0}},.5f);
+    assert(system.objects.size()==360);
+    for(auto const& f:Populations.at(&system).fields)assert(f.rocks.size()==120);
     UnloadServerAsteroidFields(system);system.clear();assert(Archetype::arch.refs==0);
     puts("PASS: player anchors, overlapping/separated players, spawn budget, death memory, camera independence, suspend/restore HP and velocity, unload");
 
@@ -231,7 +237,7 @@ int main(){
     files["field"]={settings};LoadServerAsteroidFields(system);
     players={{0,0,0}};std::vector<Vector> velocities{{100,0,0}};std::vector<unsigned> ids{41};
     assert(ServerAsteroidViewRadius(system)==4500);
-    for(unsigned tick=1;tick<=3;++tick){
+    for(unsigned tick=1;tick<=6;++tick){
         UpdatePlayerFields(system,players,.1f,velocities,ids);
         assert(system.objects.size()==tick*4);
     }
@@ -239,13 +245,13 @@ int main(){
     for(auto const& r:distant.rocks){assert(length(r.pos)>=2600&&length(r.pos)<=3000&&r.pos.x>0);}
     // Nearby second player, reordered network IDs and changed view cannot duplicate the field.
     UpdatePlayerFields(system,{{0,0,0},{0,0,0}},.1f,{{100,0,0},{100,0,0}},{77,41});
-    assert(system.objects.size()==12);
+    assert(system.objects.size()==24);
     for(auto const& r:distant.rocks)objectsById[r.id]->raw.pos={4000,0,0};
     for(int tick=0;tick<5;++tick)UpdatePlayerFields(system,players,.1f,velocities,ids);
-    assert(system.objects.size()==12); // drifting away does not refill around a stationary ship
+    assert(system.objects.size()==24); // drifting away does not refill around a stationary ship
     players[0]={200,0,0};UpdatePlayerFields(system,players,.1f,velocities,ids);
-    assert(system.objects.size()==16);
-    for(size_t i=12;i<16;++i){
+    assert(system.objects.size()==28);
+    for(size_t i=24;i<28;++i){
         auto const& r=distant.rocks[i];float d=std::sqrt(DistanceSquared(r.pos,players[0]));
         assert(d>=2600&&d<=3000&&r.pos.x>players[0].x);
     }
@@ -262,7 +268,7 @@ int main(){
     Universe::zone.orientation.E[0][1]=.6f;Universe::zone.orientation.E[1][1]=.8f;
     LoadServerAsteroidFields(system);players={Universe::zone.pos};velocities={{0,0,100}};
     for(int tick=0;tick<20;++tick)UpdatePlayerFields(system,players,.1f,velocities,ids);
-    assert(system.objects.size()==12);
+    assert(system.objects.size()==24);
     for(auto const& r:Populations.at(&system).fields[0].rocks){
         assert(std::fabs((r.pos.x-1000)*.6f+(r.pos.y-2000)*.8f)<=100.01f);
         assert(std::fabs(r.velocity.x*.6f+r.velocity.y*.8f)<.001f);
@@ -279,7 +285,7 @@ int main(){
     LoadServerAsteroidFields(system);
     for(int tick=0;tick<20;++tick)UpdatePlayerFields(system,players,.1f,velocities,ids);
     auto& mined=Populations.at(&system).fields[0];
-    assert(mined.rocks.size()==12 && system.drops.empty());
+    assert(mined.rocks.size()==24 && system.drops.empty());
     unsigned minedId=mined.rocks[0].id;Vector death=mined.rocks[0].pos;
     OnServerAsteroidKilled(system,minedId,death);
     assert(system.drops.size()==1 && mined.rocks[0].dead && !mined.rocks[0].id);
@@ -296,7 +302,7 @@ int main(){
     files["field"].back()={"LootableZone",{{"zone","excluded"}}};
     LoadServerAsteroidFields(system);
     for(int tick=0;tick<20;++tick)UpdatePlayerFields(system,players,.1f,velocities,ids);
-    auto& named=Populations.at(&system).fields[0];assert(named.rocks.size()==12);
+    auto& named=Populations.at(&system).fields[0];assert(named.rocks.size()==24);
     OnServerAsteroidKilled(system,named.rocks[0].id,named.rocks[0].pos);assert(system.drops.size()==2);
     // Suspension is not a death and must never roll loot.
     UpdatePlayerFields(system,{},.1f);assert(system.drops.size()==2);
@@ -307,9 +313,11 @@ int main(){
 
 
 def main():
+    source_text = (ROOT/'src/Server/server_asteroid_fields.cpp').read_text()
+    assert 'f.count = (std::min)(512, f.count * 2);' in source_text
+    assert 'forwardMode ? 0.05f : 0.25f' in source_text
     OUT.mkdir(parents=True, exist_ok=True)
-    source = (ROOT/'src/Server/server_asteroid_fields.cpp').read_text()
-    source = '\n'.join(line for line in source.splitlines() if not line.startswith('#include'))
+    source = '\n'.join(line for line in source_text.splitlines() if not line.startswith('#include'))
     (OUT/'check.cpp').write_text(STUB+source+CHECK)
     vc = Path('C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231')
     sdk = Path('C:/Program Files (x86)/Windows Kits/10'); version = '10.0.26100.0'

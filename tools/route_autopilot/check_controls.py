@@ -23,6 +23,13 @@ route = (CLIENT / 'player_route.cpp').read_text()
 behavior = (CLIENT / 'player_behavior.cpp').read_text()
 actions = (CLIENT / 'player_flight_actions.cpp').read_text()
 hud = (CLIENT / 'hud_maneuvers.cpp').read_text()
+spawn = (CLIENT / 'player_spawn.cpp').read_text()
+face = (ROOT / 'src/Common/common_faceidea.cpp').read_text()
+assert 'is_player() ? 0.1f : 1.0f' in face
+assert 'NodeVelocity.x * leadSeconds' in face and 'NodeVelocity.z * leadSeconds' in face
+assert 'Cancel(true)' not in extract(route, 'void RouteChanged()')
+assert 'PlayerRoute::RouteChanged' not in extract(spawn, 'void RemovePlayerWaypointRetail(')
+assert 'PlayerRoute::RouteChanged' not in extract(spawn, 'bool AddPlayerWaypointRetail(')
 common = (ROOT / 'src/Common/common_behaviormanager.cpp').read_text()
 replay = extract(common, 'if (ObjRwFromWatchable(WatchablePtr)->is_player())')
 
@@ -149,7 +156,7 @@ void RequestBestPathRetail(Vector const&,Vector const&,unsigned,unsigned);
 void RemovePlayerWaypointRetail(int);
 namespace RoutePlanner { void Invalidate(){} }
 namespace PlayerFlightActions {
-enum Kind { None,GotoWeave,ReverseStrafe };
+enum Kind { SpiralClockwise,ReverseTurn,ReverseStrafe,GotoWeave,Count,None };
 Kind active=None;
 POINT mouseStart;
 struct Camera { bool holding(){return false;} } turnCamera;
@@ -158,7 +165,7 @@ void finish(bool){active=None;}
 namespace PlayerRoute {
 enum class State { Off,Flying,Docking,Lane,Jump };
 State state=State::Flying;
-bool internal=false,refining=false,cruiseRequested=true,issued=true;
+bool internal=false,refining=false,cruiseRequested=true,issued=true,reissueAfterRemoval=false;
 bool mouseOverride=false,replanAfterMouse=false;
 bool haveGoal=false,rebuildOnStart=false,pendingStart=false,receivingPath=false;
 FPlayerWaypointRecord savedGoal{};
@@ -183,6 +190,7 @@ void Cancel(bool stop=false);
 bool Start(HUD_Maneuvers*,bool rebuilt=false);
 void PathRequested();
 void RouteChanged();
+void WaypointRemoved();
 bool prepared=false,refineOK=true;
 bool gotoPoint(V,bool);
 // Geometry is tested separately. Exercise the real Go To directive update at
@@ -195,16 +203,17 @@ void fail(bool=false){Cancel(true);}
 void RequestBestPathRetail(Vector const& a,Vector const& b,unsigned id,unsigned sys){
     PlayerRoute::PathRequested();requests.push_back({a,b,id,sys});
 }
-void RemovePlayerWaypointRetail(int i){PlayerRoute::RouteChanged();waypoints.erase(waypoints.begin()+i);}
+void RemovePlayerWaypointRetail(int i){waypoints.erase(waypoints.begin()+i);PlayerRoute::WaypointRemoved();}
+void AddPlayerWaypointRetail(V p,unsigned sys,unsigned id){waypoints.push_back({p,sys,id,int(waypoints.size()+1)});}
 '''.replace('REPLAY_PLAYER_DIRECTION', replay)
 
 production = '\nnamespace PlayerFlightActions {\n' + ''.join(
-    extract(actions, sig) for sig in ('void Cancel()', 'bool IsGotoWeaving()', 'bool BlockMouse()')) + '}\n'
+    extract(actions, sig) for sig in ('bool locksInput(', 'void Cancel()', 'bool RequestCancel()', 'bool IsGotoWeaving()', 'bool BlockMouse()')) + '}\n'
 production += '\nnamespace PlayerRoute {\n' + ''.join(
     extract(route, sig) for sig in ('bool Active()', 'int selectedRouteIndex(', 'bool rebuildRoute(',
                                     'void Cancel(', 'bool dock()', 'void consume()', 'bool BlockMouse()', 'bool MouseSteering(',
                                     'bool ReleaseMouseSteering()',
-                                    'bool Keyboard(', 'void SetCruiseRequested(', 'void RouteChanged()',
+                                    'bool Keyboard(', 'void SetCruiseRequested(', 'void RouteChanged()', 'void WaypointRemoved()',
                                     'void PathRequested()', 'void BeginPathResponse()', 'bool gotoPoint(',
                                     'bool Start(', 'void Tick(', 'bool RefineWaypoints()')) + '}\n'
 production += extract(behavior, 'void ClearMouseFlightSteering()')
@@ -320,7 +329,48 @@ int main(){
     assert(Start(nullptr) && route.front().point.AutoId==22);
     pilot.replayPlayerDirection();
     assert(length(pilot.LastCommandedDirection)==0 && !pilot.UserTurningInputState && !nativeGoto.Flag2ea);
+    // Deleting the selected map marker leaves the active copied route and native
+    // Go To directive untouched. A later F2 reads the updated waypoint list.
+    RemovePlayerWaypointRetail(1);
+    assert(Active() && route.front().point.AutoId==22 && pilot.CurrentBehaviorIndex==2);
+    assert(reissueAfterRemoval);
+    V removedTarget=leg.front();prepared=false;
+    hull.target=nullptr;pilot.CurrentBehaviorIndex=0x13; // Native Go To loses its selected target.
+    Tick(1/60.f,false);
+    assert(Active() && route.front().point.AutoId==22 && pilot.CurrentBehaviorIndex==2);
+    assert(!reissueAfterRemoval && !prepared && leg.front().x==removedTarget.x);
+    assert(nativeGoto.destination.x==removedTarget.x && pilot.cruise && pilot.throttle==1);
+    // Internal route refinement/removal must not schedule a redundant reissue.
+    internal=true;WaypointRemoved();internal=false;
+    refining=true;WaypointRemoved();refining=false;
+    receivingPath=true;WaypointRemoved();receivingPath=false;
+    assert(!reissueAfterRemoval && Active() && pilot.CurrentBehaviorIndex==2);
+
+    // Building a different waypoint route must not cancel or brake the route
+    // already flying. Cover map reset, request and server response separately.
+    unsigned mapEditCruiseOff=pilot.cruiseOff;
+    RouteChanged();
+    assert(Active() && route.front().point.AutoId==22 && reissueAfterRemoval);
+    assert(pilot.cruise && pilot.throttle==1 && pilot.cruiseOff==mapEditCruiseOff);
+    pilot.CurrentBehaviorIndex=0x13;Tick(1/60.f,false);
+    assert(Active() && pilot.CurrentBehaviorIndex==2 && !prepared && leg.front().x==removedTarget.x);
+    PathRequested();
+    assert(Active() && route.front().point.AutoId==22 && pilot.CurrentBehaviorIndex==2);
+    BeginPathResponse();
+    assert(Active() && receivingPath && reissueAfterRemoval && pilot.CurrentBehaviorIndex==2);
+    RouteChanged(); // The response's map replacement must not cancel the flight.
+    assert(RefineWaypoints() && Active() && !receivingPath && !prepared);
+    assert(route.front().point.AutoId==22 && leg.front().x==removedTarget.x);
+    pilot.CurrentBehaviorIndex=0x13;Tick(1/60.f,false);
+    assert(Active() && pilot.CurrentBehaviorIndex==2 && !prepared && leg.front().x==removedTarget.x);
+    assert(pilot.cruise && pilot.throttle==1 && pilot.cruiseOff==mapEditCruiseOff);
+
+    hull.target=nullptr; // Resume the saved route independently of the deleted marker.
     haveGoal=true;savedGoal=waypoints.back();goalConnection=login;
+    AddPlayerWaypointRetail({45000,0,0},55,0);
+    assert(Active() && route.front().point.AutoId==22 && pilot.CurrentBehaviorIndex==2);
+    internal=true;RemovePlayerWaypointRetail(int(waypoints.size()-1));internal=false;
+    assert(!reissueAfterRemoval && Active() && pilot.CurrentBehaviorIndex==2);
     Cancel(); // Freeflight switches directive separately, keeping cruise/throttle.
     pilot.CurrentBehaviorIndex=0x13;
     assert(rebuildOnStart && !Active() && pilot.cruise && pilot.throttle==1);
@@ -346,11 +396,11 @@ int main(){
     goalConnection=login;rebuildOnStart=true;++login;
     assert(!rebuildRoute(true));
 
-    // A selected mission waypoint must not accidentally start the player's map route.
+    // A selected mission/object target without a user waypoint stays entirely
+    // on native F2; no one-node route or safe-path preflight is created.
     haveGoal=rebuildOnStart=false;hudWaypoint.bUser=0;hull.target=&marker;
     assert(selectedRouteIndex(&marker)==-1);
-    assert(Start(nullptr) && route.size()==1 && !route.front().user);
-    assert(length(route.front().point.Pos-marker.position)==0);
+    prepared=false;assert(!Start(nullptr) && !Active() && !prepared && route.empty());
     // Without base-docking permission, the final checked approach must hand off
     // to the native F2 object command, never stop at the preceding waypoint.
     Cancel();headLook=false;G_MouseFlightLocked=false;mouseButtons=0;
@@ -378,7 +428,7 @@ int main(){
         }
         Cancel();
     }
-    objects.clear();hull.target=&marker;haveGoal=rebuildOnStart=false;
+    objects.clear();hull.target=nullptr;haveGoal=rebuildOnStart=false;
     NavigationSettings::values[NavigationSettings::Autopilot]=0;
     assert(!Start(nullptr)&&!Active()); // Native F2 gets control back.
     NavigationSettings::values[NavigationSettings::Autopilot]=1;
@@ -387,7 +437,7 @@ int main(){
     NavigationSettings::values[NavigationSettings::Autopilot]=0;
     Tick(1/60.f,false);
     assert(!Active()&&pilot.cruise&&pilot.throttle==1); // Applying settings does not brake.
-    puts("PASS: F2 includes lane entry, gates and holes with base docking on/off; stations and planetary docking rings require base permission; mouse release resumes F2; cruise retained; waypoint 2; Freeflight/F2 replans; cancelled/stale responses cannot restart flight.");
+    puts("PASS: native single-object F2; waypoint deletion/addition preserves active route; lane/gate/hole travel, docking, mouse resume, cruise, replans and stale-response cancellation.");
 }
 '''
 (OUT / 'check.cpp').write_text('#include "' + (CLIENT / 'route_geometry.h').as_posix() + '"\n'

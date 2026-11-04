@@ -13,6 +13,7 @@ out.mkdir(parents=True, exist_ok=True)
 common = (root/'src/Common/graphics_settings.cpp').read_text().replace('#include "common_misc.h"', '')
 ui = (root/'src/freelancer/Client/nn_preferences_graphics.cpp').read_text()
 ui = ui[ui.index('namespace\n{'):]
+assert 'Russian()' not in ui and 'PortLanguage' not in ui
 perf = (root/'src/freelancer/Client/perf_options.cpp').read_text()
 save = perf[perf.index('void SavePerfOptions('):]
 stub = r'''
@@ -27,8 +28,12 @@ stub = r'''
 #include <string>
 #include <vector>
 #include "graphics_policy.h"
+#include "hud_interface_ids.h"
 bool GetUserDataPath(char* p){return GetCurrentDirectoryA(MAX_PATH,p)!=0;}
 char const* PortLanguage(){return "ru";}
+void GetIdsStringWWithRawFallback(unsigned id,wchar_t* text,int count){
+ swprintf_s(text,count,L"IDS%u",id);
+}
 namespace HudTilt {float ConfiguredAngle(){return 24.f;}}
 constexpr unsigned kOptionCount=36;
 bool G_bSkipMachineWarnings=false;
@@ -121,6 +126,7 @@ int main(int argc,char** argv){
  Set(-1,5);Set(Count,5);Set(Shadows,999);assert(!RestartRequired());
  NnPreferences p;assert(p.CreateGraphicsRows());p.SnapshotGraphics();p.SetGraphicsHidden(false);
  for(int i=0;i<Count;++i){auto& c=p.GraphicsCells[i];assert(!c.Label->mockHidden);
+  wchar_t expected[32];swprintf_s(expected,L"IDS%u",238251+i);assert(c.Label->text==expected);
   assert(c.Label->position[1]>.22f-12*.035f && c.Label->position[1]<.22f-2*.035f);
   assert(c.Label->position[0]+c.Label->width<.181f);
   assert((c.Toggle!=nullptr)==Toggle(i));assert((c.Choice!=nullptr)!=Toggle(i));
@@ -165,6 +171,6 @@ sdk = Path('C:/Program Files (x86)/Windows Kits/10'); version='10.0.26100.0'
 env=dict(os.environ)
 env['INCLUDE']=';'.join(map(str,[vc/'include']+[sdk/'Include'/version/x for x in ('ucrt','shared','um')]))
 env['LIB']=';'.join(map(str,[vc/'lib/x86']+[sdk/'Lib'/version/x/'x86' for x in ('ucrt','um')]))
-subprocess.run([str(vc/'bin/Hostx64/x86/cl.exe'),'/nologo','/std:c++17','/W4','/WX','/EHsc','/MT',f'/I{root/"src/include"}','check.cpp','/Fecheck.exe'],cwd=out,env=env,check=True)
+subprocess.run([str(vc/'bin/Hostx64/x86/cl.exe'),'/nologo','/std:c++17','/W4','/WX','/EHsc','/MT',f'/I{root/"src/include"}',f'/I{root/"src/freelancer/Client"}','check.cpp','/Fecheck.exe'],cwd=out,env=env,check=True)
 for mode in ('legacy0','legacy9','legacy10','exercise','reload'):
     subprocess.run([str(out/'check.exe'),mode],cwd=out,check=True)

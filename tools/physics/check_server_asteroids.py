@@ -76,35 +76,70 @@ int main(){
     assert(!std::isfinite(Contact({5,0,0},{10,0,0},20,3))); // separating overlap
     assert(Contact({0,0,0},{0,0,0},20,3)==0);
     Vec p{0,0,0},v{0,0,-100},goal{0,0,-2000},right{1,0,0};
-    Rock rock{{0,0,-100},{0,0,0},20};Result result;
-    assert(Choose(p,v,goal,right,10,&rock,1,result));
+    Rock rock{{0,0,-100},{0,0,0},20,77};Result result;Memory memory;
+    assert(!Choose(p,v,goal,right,10,&rock,1,result,&memory)); // outside 0.35 s
+    rock.position={0,0,-60};
+    assert(Choose(p,v,goal,right,10,&rock,1,result,&memory));
     assert(std::fabs(result.direction.x)+std::fabs(result.direction.y)>.1);
-    assert(!std::isfinite(Contact(Sub(rock.position,p),Sub(rock.velocity,Mul(result.direction,100*result.speedScale)),40,3)));
+    assert(result.speedScale==1); // Never brake for a server asteroid.
+    assert(memory.engaged&&memory.rockId==77);
+    assert(!std::isfinite(Contact(Sub(rock.position,p),Sub(rock.velocity,Mul(result.direction,100)),30,.35)));
     rock.position={200,0,-100};assert(!Choose(p,v,goal,right,10,&rock,1,result));
     rock.position={0,0,100};assert(!Choose(p,v,goal,right,10,&rock,1,result));
     rock.position={0,0,-100};rock.velocity={0,0,-200};assert(!Choose(p,v,goal,right,10,&rock,1,result));
-    rock.position={100,0,-100};rock.velocity={-100,0,0};assert(Choose(p,v,goal,right,10,&rock,1,result));
+    rock.position={45,0,-45};rock.velocity={-100,0,0};assert(Choose(p,v,goal,right,10,&rock,1,result));
     rock.position={0,0,-500};rock.velocity={0,0,0};
     assert(!Choose(p,v,{0,0,-50},right,10,&rock,1,result)); // beyond arrival point
-    // Straight route with two rocks, then a finite response when all routes are blocked.
-    Rock obstacles[]={{{0,0,-180},{0,0,0},25},{{90,0,-200},{0,0,0},35}};
+    // Multiple nearby rocks still use full speed, with no extra clearance.
+    Rock obstacles[]={{{0,0,-60},{0,0,0},25},{{90,0,-200},{0,0,0},35}};
     assert(Choose(p,v,goal,right,12,obstacles,2,result));
+    assert(result.speedScale==1);
     for(auto const& r:obstacles)
-        assert(!std::isfinite(Contact(Sub(r.position,p),Sub(r.velocity,Mul(result.direction,100*result.speedScale)),r.radius+22,3)));
+        assert(!std::isfinite(Contact(Sub(r.position,p),Sub(r.velocity,Mul(result.direction,100)),r.radius+12,.35)));
     Rock enclosing{{0,0,0},{0,0,0},1000};
     assert(Choose(p,v,goal,right,10,&enclosing,1,result)&&Finite(result.direction));
-    // A ship follows the steering requests through an isolated obstacle.
-    rock={{0,0,-180},{0,0,0},20};p={0,0,0};v={0,0,-100};
-    double closest=10000;
+    assert(Dot(result.direction,right)>.5); // Escape an actual physical overlap.
+    // Any correction is brief, full-speed and keeps its lateral side.
+    rock={{0,0,-60},{0,0,0},20,77};p={0,0,0};v={0,0,-100};memory=Memory{};
+    double sideSign=0;unsigned sideFlips=0,avoidTicks=0;
     for(int tick=0;tick<600;++tick){
-        bool avoiding=Choose(p,v,goal,right,10,&rock,1,result);
-        Vec target=avoiding?Mul(result.direction,100*result.speedScale):Mul(Unit(Sub(goal,p),{0,0,-1}),100);
+        bool avoiding=Choose(p,v,goal,right,10,&rock,1,result,&memory);
+        if(avoiding){
+            ++avoidTicks;assert(result.speedScale==1);
+            if(std::fabs(result.direction.x)>.05){
+                double sign=result.direction.x>0?1:-1;
+                if(sideSign&&sign!=sideSign)++sideFlips;
+                sideSign=sign;
+            }
+        }
+        Vec target=avoiding?Mul(result.direction,100):Mul(Unit(Sub(goal,p),{0,0,-1}),100);
         v=Add(v,Mul(Sub(target,v),.2));p=Add(p,Mul(v,.05));
-        double distance=std::sqrt(Dot(Sub(rock.position,p),Sub(rock.position,p)));
-        if(distance<closest)closest=distance;
     }
-    assert(closest>30 && p.z<-1000);
-    puts("PASS: predictive steering, crossing/receding rocks, clearance, destination, finite fallback and route simulation");
+    assert(p.z<-1000 && avoidTicks>0 && avoidTicks<100 && sideFlips==0);
+    // Distant rocks, including cruise-speed and crossing rocks, are ignored.
+    Rock cruise{{0,0,-1800},{0,0,0},120,88};memory=Memory{};
+    assert(!Choose({0,0,0},{0,0,-300},{0,0,-8000},right,20,&cruise,1,result,&memory));
+    cruise.position={0,0,-650};
+    assert(!Choose({0,0,0},{0,0,-300},{0,0,-8000},right,20,&cruise,1,result,&memory));
+    cruise.position={0,0,-220};
+    assert(Choose({0,0,0},{0,0,-300},{0,0,-8000},right,20,&cruise,1,result,&memory));
+    assert(result.speedScale==1&&std::fabs(result.direction.x)+std::fabs(result.direction.y)>.2);
+    Rock crossing{{180,0,-700},{-35,0,0},50,99};
+    assert(!Choose({0,0,0},{0,0,-150},{0,0,-3000},right,12,&crossing,1,result));
+
+    // A dense field yields to the normal route instead of braking or reversing.
+    std::vector<Rock> dense;
+    for(double angle:{0.0,0.7})for(unsigned side=0;side<8;++side){
+        double phi=side*0.7853981633974483;
+        Vec lateral=Add(Mul(right,std::cos(phi)),Mul(Unit(Cross(right,{0,0,-1}),{0,1,0}),std::sin(phi)));
+        Vec direction=Add(Mul({0,0,-1},std::cos(angle)),Mul(lateral,std::sin(angle)));
+        dense.push_back({Mul(direction,425),{0,0,0},400,unsigned(dense.size()+1)});
+        if(angle==0)break;
+    }
+    memory=Memory{};
+    assert(!Choose({0,0,0},{0,0,-100},{0,0,-3000},right,10,dense.data(),unsigned(dense.size()),result,&memory));
+    assert(!memory.engaged);
+    puts("PASS: minimal last-instant steering, distant/dense fields ignored, no braking, persistent side and overlap escape");
 
     // Real production observer notifier/destructor; separate player views.
     GameObject asteroid;CSolarCreateInfo info;
@@ -136,6 +171,13 @@ int main(){
 '''
 
 def main():
+    avoidance = (ROOT / 'src/Common/common_asteroid_avoidance.cpp').read_text()
+    obstacle = (ROOT / 'src/Common/common_obstacleavoidance.cpp').read_text()
+    assert 'double nearestSurface=200.0;' in avoidance
+    assert 'bool const IgnoreServerAsteroids = Ship->is_player();' in obstacle
+    assert '(IgnoreServerAsteroids && IsServerAsteroidType(HitType))' in obstacle
+    assert 'bool const IgnoreServerAsteroids = PathfindOwnerObject(This->Owner)->is_player();' in obstacle
+    assert '(IgnoreServerAsteroids && IsServerAsteroidType(Type))' in obstacle
     OUT.mkdir(parents=True, exist_ok=True)
     code = STUB + function('src/Common/common_ceqobj.cpp', 'bool CEqObj::is_targetable() const')
     code += function('src/Server/server_classes.cpp', 'void SystemPlayerView_CreateSolarForPlayer(')

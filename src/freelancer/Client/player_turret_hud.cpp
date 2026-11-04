@@ -3,6 +3,7 @@
 #include "player_auto_turrets.h"
 #include "hud_status_core.h"
 #include "nn_button_control.h"
+#include "nn_text_control.h"
 #include "nn_montage_draw.h"
 #include "hud_target.h"
 #include "common_cequip.h"
@@ -10,6 +11,7 @@
 #include "port_config.h"
 #include "DALib.h"
 #include "engine/engbase.h"
+#include "win3d_engine_submit.h"
 #include <cmath>
 #include <cstring>
 
@@ -73,6 +75,26 @@ namespace
             if (auto* gun = Member(i)) if (gun->GetID() == id) return int(i);
         return -1;
     }
+    bool TextHit(NnTextControl const* text, float const* ray, bool original)
+    {
+        float const TextHalfWidth = text->Width * 0.5f;
+        float const HalfHeight = text->Height * 0.5f;
+        float HalfWidth = TextHalfWidth;
+        float CentreX = static_cast<float>(static_cast<double>(text->Position[0]) +
+            static_cast<double>(text->Offset[0]) + static_cast<double>(TextHalfWidth));
+        if (!original && text->HalfExtents[0] > 0.0f)
+        {
+            HalfWidth = text->HalfExtents[0];
+            CentreX += text->HitOffset[0];
+        }
+        float const CentreY = static_cast<float>(static_cast<double>(text->Position[1]) +
+            static_cast<double>(text->Offset[1]) - static_cast<double>(HalfHeight));
+        float const CentreZ = text->Position[2] + text->Offset[2];
+        float const HitHalfExtents[3] = {HalfWidth, HalfHeight, 0.0f};
+        float Matrix[12] = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+                            CentreX, CentreY, CentreZ};
+        return Win3DRayHitsAabbHalfExtents(HitHalfExtents, Matrix, ray);
+    }
 }
 
 bool Text(unsigned id, std::wstring& text)
@@ -133,9 +155,43 @@ void UpdateRows(HUD_Status* host)
         button->SetProperty(0xc, Selected(unsigned(member)), 0);
         auto* anchor = host->WeaponNumberText[slot];
         std::memcpy(button->AttachPosition, anchor->AttachPosition, sizeof(button->AttachPosition));
-        // Tuck beside the weapon number, clear of Close; compensate for the mesh's asymmetry.
-        button->SetOffset(anchor->Offset[0] - 0.002f, anchor->Offset[1] - 0.011f, anchor->Offset[2]);
+        // Keep the toggle clear of the weapon label and give its hit area room to the left.
+        button->SetOffset(anchor->Offset[0] - 0.014f, anchor->Offset[1] - 0.011f, anchor->Offset[2]);
     }
+}
+
+bool BlockWeaponRowFallback(HUD_Status const* host)
+{
+    if (host != owner || !Enabled()) return false;
+    float Ray[3];
+    Win3DGetMouseRay(Ray);
+
+    // A click on a turret toggle must never fall through to the panel's equipment activation.
+    for (int i = 1; i < Controls; ++i)
+        if (buttons[i] && (buttons[i]->Flags & kWin3DVisible) && buttons[i]->HitTest(Ray))
+            return true;
+
+    // Keep the clickable weapon-row rectangles identical to their hover rectangles. Without
+    // this guard HUD_Status itself accepts the trimmed area and activates the hovered hardpoint.
+    for (int slot = 0; slot < 10; ++slot)
+    {
+        auto* number = static_cast<NnTextControl const*>(host->WeaponNumberText[slot]);
+        if (!(number->Flags & kWin3DVisible)) continue;
+        NnTextControl const* texts[3] = {
+            number,
+            static_cast<NnTextControl const*>(host->WeaponText[slot]),
+            static_cast<NnTextControl const*>(host->AmmoText[slot])
+        };
+        bool OriginalHit = false;
+        bool ActiveHit = false;
+        for (auto* text : texts)
+        {
+            OriginalHit = TextHit(text, Ray, true) || OriginalHit;
+            ActiveHit = TextHit(text, Ray, false) || ActiveHit;
+        }
+        if (OriginalHit && !ActiveHit) return true;
+    }
+    return false;
 }
 
 bool Property(HUD_Status const* host, int msg, uintptr_t control)

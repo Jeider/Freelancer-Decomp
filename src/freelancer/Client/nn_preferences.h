@@ -245,9 +245,8 @@ public:
     std::vector<FPrefOption> MiscOptions;
     std::vector<FPrefMiscRow> MiscRows;
     std::vector<WinControl*> MiscWidgets;
-    static constexpr int MiscVisibleRows = 11;
+    static constexpr int MiscVisibleRows = 12;
     FPrefMiscCell MiscCells[MiscVisibleRows];
-    UiScroll* MiscScroll = nullptr;
     int MiscTop = 0;
     int MiscTab = 0;
     bool MiscSaveFailed = false;

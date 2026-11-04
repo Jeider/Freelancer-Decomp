@@ -11,6 +11,7 @@
 #ifdef FREELANCER_MOD_PLUGINS
 
 #include "player_behavior.h"     // GetPlayerEngineCruiseActive, GetPlayerObjRW
+#include "game_options.h"
 #include "port_plugins.h"
 
 #include "DALib.h"
@@ -51,7 +52,6 @@ namespace
     enum class EManual { None, Toggle, Pause, Resume };
     EManual G_Manual = EManual::None;
     bool G_bPaused = false;
-    bool G_bCruiseLocked = false;
     bool G_bPendingCruise = false;
     int G_PausedHandle = -1;
 
@@ -182,7 +182,6 @@ void WingAnimTick()
         G_Manual = EManual::None;
         G_bPaused = false;
         G_PausedHandle = -1;
-        G_bCruiseLocked = false;
         G_bPendingCruise = false;
         G_Pending = EPending::None;
         return;
@@ -250,7 +249,7 @@ void WingAnimTick()
     {
         G_bCruiseLast = bCruise;
         // Track changes even while locked: unlocking does not replay old events.
-        if (!G_bCruiseLocked)
+        if (GetWingCruiseAnimationEnabled())
         {
             if (bCruise) RequestFold(true);
             else RequestExtend(true);
@@ -325,7 +324,7 @@ bool WingAnimAvailable()
 
 bool WingAnimPaused() { return WingAnimAvailable() && G_bPaused; }
 bool WingAnimCanPause() { return WingAnimAvailable() && IsMoving(); }
-bool WingAnimCruiseLocked() { return WingAnimAvailable() && G_bCruiseLocked; }
+bool WingAnimCruiseLocked() { return !GetWingCruiseAnimationEnabled(); }
 
 bool WingAnimRequestToggle()
 {
@@ -343,8 +342,7 @@ bool WingAnimTogglePause()
 
 void WingAnimSetCruiseLocked(bool locked)
 {
-    if (!WingAnimAvailable()) return;
-    G_bCruiseLocked = locked;
+    SetWingCruiseAnimationEnabled(!locked);
     if (locked && G_bPendingCruise)
     {
         G_Pending = EPending::None;

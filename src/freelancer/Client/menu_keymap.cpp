@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "flight_telemetry.h"
+#include "cockpit_free_look.h"
 #include "menu_keymap_config.h"
 #include "player_auto_turrets.h"
 #include "player_flight_actions.h"
@@ -266,6 +267,15 @@ namespace
         auto const* telemetryRecord = HudCommandRecord();
         FlightTelemetry::Input(NicknameId, EventKind, telemetryRecord->Byte18 != 0,
             telemetryRecord->Byte19 != 0, telemetryRecord->Modifiers);
+        // USER_CANCEL (Esc by default) leaves cockpit free look before it can
+        // cancel another gameplay mode. Raw modal handlers ran before keymap
+        // dispatch, and the next USER_CANCEL follows its ordinary path.
+        if (NicknameId == 0xf && telemetryRecord->Byte18 != 0 && telemetryRecord->Byte19 == 0 &&
+            CockpitFreeLook::Enabled() && !G_bNnScreenUp && HudGetInputFocus() == nullptr)
+        {
+            CockpitFreeLook::Reset();
+            return true;
+        }
 #ifdef FREELANCER_PLAYER_FLIGHT_ACTIONS
         if (PlayerFlightActions::IsCommand(NicknameId) && PlayerFlightActions::Enabled())
         {

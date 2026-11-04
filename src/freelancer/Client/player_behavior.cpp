@@ -164,7 +164,7 @@ void ResetPlayerBehaviorDirection()
 void SetPlayerStrafeBurst(int Dir)
 {
     if (Dir != 0) PlayerRoute::Cancel(true);
-    if (Dir != 0) PlayerFlightActions::Cancel();
+    if (Dir != 0 && !PlayerFlightActions::RequestCancel()) return;
     // 0x004c7a4a.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
@@ -177,7 +177,7 @@ void SetPlayerStrafeBurst(int Dir)
 void SetPlayerAfterburner(bool bOn)
 {
     if (bOn) PlayerRoute::Cancel(true);
-    if (bOn) PlayerFlightActions::Cancel();
+    if (bOn && !PlayerFlightActions::RequestCancel()) return;
     // 0x004c798a.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
@@ -212,7 +212,7 @@ void SetPlayerAutoAvoidance(bool bOn)
 void SetPlayerBrakeReverse(bool bOn)
 {
     if (bOn) PlayerRoute::Cancel(true);
-    if (bOn) PlayerFlightActions::Cancel();
+    if (bOn && !PlayerFlightActions::RequestCancel()) return;
     // 0x004c7a7a.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
@@ -225,7 +225,7 @@ void SetPlayerBrakeReverse(bool bOn)
 void SetPlayerCruise(bool bOn)
 {
     PlayerRoute::SetCruiseRequested(bOn);
-    PlayerFlightActions::Cancel();
+    if (!PlayerFlightActions::RequestCancel()) return;
     // 0x004c7aaa.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
@@ -238,7 +238,7 @@ void SetPlayerCruise(bool bOn)
 void SetPlayerEngageEngine(bool bOn)
 {
     PlayerRoute::Cancel(true);
-    PlayerFlightActions::Cancel();
+    if (!PlayerFlightActions::RequestCancel()) return;
     // 0x004c7ada.
     IBehaviorManager* const Manager = PlayerBehaviorManager();
     if (Manager != nullptr)
@@ -251,7 +251,7 @@ void SetPlayerEngageEngine(bool bOn)
 void SetPlayerThrottle(float Throttle)
 {
     PlayerRoute::Cancel(true);
-    PlayerFlightActions::Cancel();
+    if (!PlayerFlightActions::RequestCancel()) return;
     // 0x004c7afe: the argument is stored FIRST, unclamped, and only then overwritten if it is out
     // of range. Nothing observes the intermediate value, but the order is retail's.
     G_PlayerThrottle = Throttle;

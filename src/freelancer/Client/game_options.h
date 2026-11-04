@@ -212,11 +212,12 @@ bool GetSavedAutoTurretsEnabled(bool fallback);
 void SetSavedAutoTurretsEnabled(bool enabled);
 unsigned GetSavedAutoTurretReserve(unsigned fallback);
 void SetSavedAutoTurretReserve(unsigned percent);
-// Temporary USER_MINIMIZE_HUD overlay; does not change saved window choices.
-bool AreAuxiliaryHudWindowsMinimized();
-void ToggleAuxiliaryHudWindowsMinimized();
+// Auxiliary HUD visibility state for detached windows.
 
 // Miscellaneous preferences and Health controls.
 bool HudPreferencesSaved();
 bool GetShowWeaponGroups();
 void SetShowWeaponGroups(bool show);
+// Global preference only; never written to a character save.
+bool GetWingCruiseAnimationEnabled();
+void SetWingCruiseAnimationEnabled(bool enabled);

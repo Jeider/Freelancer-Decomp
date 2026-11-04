@@ -9,6 +9,7 @@ out = repo / 'src/obj/misc_settings_check'
 out.mkdir(parents=True, exist_ok=True)
 source = (repo / 'src/freelancer/Client/nn_preferences_misc.cpp').read_text(encoding='ascii')
 source = source[source.index('namespace\n{'):]
+assert 'Russian()' not in source and 'PortLanguage' not in source
 header = (repo / 'src/freelancer/Client/nn_preferences.h').read_text()
 rows = header[header.index('struct FPrefOption\n'):header.index('// One key map row')]
 options = (repo / 'src/freelancer/Client/game_options.cpp').read_text()
@@ -44,10 +45,12 @@ stub = r'''
 #include <vector>
 #include <map>
 #include "hud_tilt.h"
+#include "hud_interface_ids.h"
 #define FREELANCER_RP9
 #define FREELANCER_WIDESCREEN_SUPPORT
 #define FREELANCER_PLAYER_AUTO_TURRETS
 #define FREELANCER_PLAYER_FLIGHT_ACTIONS
+#define FREELANCER_MOD_PLUGINS
 struct Server { unsigned word=0,sends=0; void SetInterfaceState(unsigned,unsigned char* p,int size) {
     assert(size==4);memcpy(&word,p,4);++sends;
 }} server;
@@ -101,6 +104,7 @@ struct NnDropdownPopup:WinControl {
     void Close(){open=false;}bool IsOpen(){return open;}void Draw(){}
 };
 void DrawNnDropdownCaret(WireButtonControl const*){}
+void WingAnimSetCruiseLocked(bool locked){SetWingCruiseAnimationEnabled(!locked);}
 NnDropdownPopup* CreateNnDropdownPopup(WinControl*);
 struct UiScroll:WinControl {
     float RangeMin_=0,RangeMax_=0,Value_=0,Page_=0,DefaultPage_=0,Step_=1,width=0,height=0;
@@ -134,14 +138,13 @@ page = r'''
 FPrefOption BlankOption(){FPrefOption p={};p.Id=p.InfoIds=p.Default=p.Min=p.Max=-1;return p;}
 struct NnPreferences:WinControl {
     bool bSeedMode=false,bInGame=true,bFlipping=false,bDirty=false,bConfirmMode=false;
-    int CurPage=1,MiscTop=0;static constexpr int MiscVisibleRows=11;
+    int CurPage=1,MiscTop=0;static constexpr int MiscVisibleRows=12;
     int MiscTab=0;bool MiscSaveFailed=false;
     WireButtonControl* MiscTabButtons[2]={};NnTextControl* MiscTabTexts[2]={};
     NnTextControl* MiscSaveHint=nullptr;std::vector<int> MiscRowIndices;
     NnButtonControl* MiscButton=nullptr;NnTextControl* MiscText=nullptr;
     std::vector<FPrefOption> OptionsA,MiscOptions;std::vector<FPrefMiscRow> MiscRows;
     std::vector<WinControl*> MiscWidgets,owned;FPrefMiscCell MiscCells[MiscVisibleRows];
-    UiScroll* MiscScroll=nullptr;
     NnDropdownPopup* MiscDropdown=nullptr;int MiscDropdownRow=-1;
     NnTextControl title,cancelText,defaultsText;
     WireButtonControl cancel,defaults;
@@ -209,7 +212,11 @@ int main(){
     NnPreferences p;Globals(p);assert(p.CreateMiscPage(-.3f,.205f,.077f));
     AssignGameSessionFlags(3);SetSavedRadarAutoMode(2);SetSavedAutoTurretsEnabled(true);SetSavedAutoTurretReserve(35);
     auto const baseline=server.word,writes=server.sends;
-    Enter(p);assert(!p.bDirty&&p.MiscRows.size()==15&&p.MiscRowIndices.size()==10&&p.MiscScroll->mockHidden);
+    Enter(p);assert(!p.bDirty&&p.MiscRows.size()==17&&p.MiscRowIndices.size()==12);
+    assert(p.Title->caption==L"IDS238227");
+    assert(p.MiscCells[10].Label->caption==L"IDS238240");
+    assert(p.MiscCells[0].Label->offset[1]>.145f); // Another half-row closer to the tabs.
+    for(int slot=0;slot<12;++slot) assert(!p.MiscCells[slot].Label->mockHidden);
     assert(p.MiscRowIndices[0]==2); // The two help options moved to Navigation.
     for(int i=0;i<8;++i){auto& c=p.MiscCells[i];assert(!c.Label->mockHidden&&!c.Value->mockHidden);
         assert(c.Label->offset[2]==0&&c.ValueRule->offset[2]==0&&c.Cycle->offset[2]==-1);
@@ -222,7 +229,9 @@ int main(){
         assert(c.Cycle->offset[0]>=c.ArrowRule->offset[0]-c.ArrowRule->half[0]);
         assert(c.Cycle->offset[0]+c.Cycle->width<=c.ArrowRule->offset[0]+c.ArrowRule->half[0]);
     }
-    assert(p.MiscCells[10].ValueRule->mockHidden&&p.MiscCells[10].Cycle->mockHidden);
+    assert(p.MiscCells[10].ValueRule->mockHidden&&p.MiscCells[10].Cycle->mockHidden&&!p.MiscCells[10].Toggle->mockHidden);
+    assert(!p.MiscCells[9].Choice->mockHidden&&p.MiscCells[9].Toggle->mockHidden);
+    assert(!p.MiscCells[11].Toggle->mockHidden); // All twelve General rows fit without scrolling.
     // Tilt is a degree selector on General, not a navigation toggle or save flag.
     assert(p.MiscRows[13].Setting==8 && p.MiscRows[13].Tab==0);
     assert(!p.MiscCells[8].Cycle->mockHidden && p.MiscCells[8].Toggle->mockHidden);
@@ -291,10 +300,15 @@ int main(){
     auto const mainWrites=server.sends;
     assert(!main.MiscCells[8].Cycle->mockHidden);
     assert(!main.MiscCells[3].Choice->mockHidden && !main.MiscCells[4].Toggle->mockHidden);
-    assert(!main.MiscCells[5].Toggle->mockHidden && !main.MiscCells[9].Toggle->mockHidden);
-    Toggle(main,9);assert(GetShowWeaponGroups());
+    assert(!main.MiscCells[5].Toggle->mockHidden && !main.MiscCells[9].Choice->mockHidden);
+    assert(!main.MiscCells[10].Toggle->mockHidden);
+    Select(main,9,0);assert(GetShowWeaponGroups()); // Dropdown is staged until Apply.
+    Toggle(main,10);assert(GetSavedTargetingAutoselect());
     main.CommitMisc();main.SnapshotMisc();main.RefreshMiscRows();
-    assert(!main.bDirty && !GetShowWeaponGroups() && server.sends==mainWrites);
+    assert(!main.bDirty && !GetShowWeaponGroups() && !GetSavedTargetingAutoselect() && server.sends==mainWrites);
+    Toggle(main,11);assert(GetWingCruiseAnimationEnabled());
+    main.CommitMisc();main.SnapshotMisc();main.RefreshMiscRows();
+    assert(!GetWingCruiseAnimationEnabled()&&server.sends==mainWrites);
     main.MiscProperty(0x26,main.DefaultsButton,0);assert(perf[2].Applied==1);main.RevertMisc();assert(perf[2].Applied==0);
     // Navigation edits survive tab switches, remain staged until Apply, persist
     // across a fresh settings load and are available in the main menu too.
@@ -330,16 +344,6 @@ int main(){
     p.MiscProperty(0x26,p.MiscTabButtons[0],0);assert(!p.MiscDropdown->IsOpen());
     float const generator=p.MiscRows[10].Value;
     p.MiscProperty(0x3e,p.MiscDropdown,1);assert(p.MiscRows[10].Value==generator);
-    for(int i=0;i<15;++i)p.MiscRows.push_back(p.MiscRows[2]);
-    p.RefreshMiscRows();assert(!p.MiscScroll->mockHidden);
-    for(bool up:{false,true}){
-        for(int i=0;i<30;++i){
-            auto* s=p.MiscScroll;s->SetProperty(0x38,int(s->Value_)+(up?-2:2),0);
-            p.MiscProperty(0x3e,s,s->SetProperty(0x3b,0,0));
-        }
-        assert(p.MiscTop==(up?0:14));
-    }
-    p.MiscProperty(0x3e,p.MiscScroll,999);assert(p.MiscTop==14&&p.MiscScroll->Value_==14);
     NnPreferences seed;seed.bSeedMode=true;seed.OptionsA={Option(1897,true),Option(1400)};seed.MoveOptions();
     assert(seed.OptionsA.size()==2&&seed.MiscOptions.empty());
     puts("PASS: General/Navigation tabs; help migration; generator/F2/autodock persistence, Apply/Cancel/defaults and write failure; main-menu access; native widgets, HUD save isolation and page lifecycle");

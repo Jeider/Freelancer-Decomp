@@ -7,6 +7,8 @@ class HUD_Status;
 bool HealthOwnsShipView(HUD_Status const* source);
 bool HealthHostProperty(HUD_Status const* source, int msg, uintptr_t a, uintptr_t b);
 void HealthUpdateHostButtons(HUD_Status const* source);
+bool HealthWindowOpen();
+void HealthSetWindowOpen(bool open);
 void HealthNotifyDamageMessage(unsigned messageId);
 
 // Independent player damage view; HUD_Status retains the weapons and consumables.
@@ -29,11 +31,13 @@ public:
     bool Owns(HUD_Status const* source) const;
     bool HostProperty(int msg, uintptr_t a, uintptr_t b);
     void UpdateHostButtons();
+    bool WindowOpen() const { return windowState.open; }
+    void SetWindowOpen(bool open);
     void NotifyDamage();
 private:
     HUD_Status* Source() const;
     bool BindHost();
-    bool CanShow(bool hostControls = false) const;
+    bool CanShow() const;
     void ReleaseHost();
     void TogglePanel();
     void SyncPanel();
@@ -50,7 +54,7 @@ private:
     WinControl* hostButton = nullptr;
     WinControl* lockButton = nullptr;
     WinControl* slideIcon = nullptr;
-    WinControl* toolbar[5] = {};
+    WinControl* toolbar[4] = {};
     WinControl* weaponGroups[3] = {};
     WinControl* cloakButton = nullptr;
     WinControl* cloakTimerText = nullptr;

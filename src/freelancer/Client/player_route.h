@@ -18,6 +18,7 @@ void PathRequested();
 void BeginPathResponse();
 void Landed();
 void RouteChanged();
+void WaypointRemoved();
 // The map still asks the server for intersystem/tradelane topology. This refines
 // its free-space legs with the selectable beta corridor planner and hazard checks.
 bool RefineWaypoints();
@@ -36,6 +37,7 @@ inline void PathRequested() {}
 inline void BeginPathResponse() {}
 inline void Landed() {}
 inline void RouteChanged() {}
+inline void WaypointRemoved() {}
 inline bool RefineWaypoints() { return true; }
 #endif
 }

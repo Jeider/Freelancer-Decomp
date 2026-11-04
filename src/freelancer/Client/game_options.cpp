@@ -182,9 +182,9 @@ namespace
     constexpr unsigned AutoTurretsSaved = 1u << 23;
     constexpr unsigned AutoTurretReserveMask = 31u << 24; // 0 unset, 1..19 = 0..90%.
     unsigned GSessionLoadRevision = 0;
-    bool GAuxiliaryHudMinimized = false;
-    constexpr unsigned HudPreferencesMask = 0x7ffffff0u;
+    constexpr unsigned HudPreferencesMask = 0xfffffff0u;
     constexpr unsigned WeaponGroupsHidden = 1u << 29;
+    constexpr unsigned WingCruiseAnimationOff = 1u << 31;
     unsigned GHudPreferences = 0;
     bool GHudLoaded = false, GHudStored = false, GHudSaveOk = true;
     char GHudPath[MAX_PATH] = {};
@@ -343,7 +343,6 @@ void SetSavedRadarRange(unsigned range)
     if (range < 3 && ((HudPreferencesFlags() & RadarRangeMask) >> RadarRangeShift) != range + 1)
         SetGameSessionFlagValue(RadarRangeMask, (range + 1) << RadarRangeShift);
 }
-bool AreAuxiliaryHudWindowsMinimized() { return GAuxiliaryHudMinimized; }
 unsigned GetSavedRadarAutoMode()
 {
     unsigned const mode = (HudPreferencesFlags() & RadarAutoMask) >> 20;
@@ -374,7 +373,6 @@ void SetSavedAutoTurretReserve(unsigned percent)
 {
     if (percent <= 90) SetGameSessionFlagValue(AutoTurretReserveMask, (percent / 5 + 1) << 24);
 }
-void ToggleAuxiliaryHudWindowsMinimized() { GAuxiliaryHudMinimized = !GAuxiliaryHudMinimized; }
 
 void AssignGameSessionFlags(unsigned Value)
 {
@@ -383,7 +381,6 @@ void AssignGameSessionFlags(unsigned Value)
     if (!GHudStored) SaveHudPreferences(Value & HudPreferencesMask);
     GSessionFlags = Value & 0xfu;
     ++GSessionLoadRevision;
-    GAuxiliaryHudMinimized = false;
 }
 
 bool HudPreferencesSaved() { return GHudSaveOk; }
@@ -391,6 +388,14 @@ bool GetShowWeaponGroups() { return !(HudPreferencesFlags() & WeaponGroupsHidden
 void SetShowWeaponGroups(bool show)
 {
     SetGameSessionFlagValue(WeaponGroupsHidden, show ? 0 : WeaponGroupsHidden);
+}
+bool GetWingCruiseAnimationEnabled()
+{
+    return (HudPreferencesFlags() & WingCruiseAnimationOff) == 0;
+}
+void SetWingCruiseAnimationEnabled(bool enabled)
+{
+    SetGameSessionFlagValue(WingCruiseAnimationOff, enabled ? 0 : WingCruiseAnimationOff);
 }
 
 bool TestGameSessionFlags(unsigned Mask)

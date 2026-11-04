@@ -121,7 +121,8 @@ void ResetPlayerWaypointsRetail()
 
 void RemovePlayerWaypointRetail(int Index)
 {
-    PlayerRoute::RouteChanged();
+    // The active route owns copies of its points. Removing a map marker must not
+    // brake or replace the current F2 directive; the next F2 uses the new list.
     // FUN_004c46e0 (cdecl): Index in [0, count) drops the count by one and, unless it was the
     // last record, moves every later record down one slot.
     if (Index < 0 || Index >= G_PlayerWaypointCount)
@@ -129,6 +130,7 @@ void RemovePlayerWaypointRetail(int Index)
     G_PlayerWaypointCount = G_PlayerWaypointCount - 1;
     for (int Slot = Index; Slot < G_PlayerWaypointCount; ++Slot)
         G_PlayerWaypoints[Slot] = G_PlayerWaypoints[Slot + 1];
+    PlayerRoute::WaypointRemoved();
 }
 
 int GetPlayerWaypointMaxIdRetail()
@@ -210,7 +212,8 @@ void SetMissionOfferSequenceRetail(FGfScriptSequence* Sequence)
 
 bool AddPlayerWaypointRetail(Vector const& Pos, unsigned SystemId, unsigned ObjectId)
 {
-    PlayerRoute::RouteChanged();
+    // Map edits do not own the active flight. Keep the current route/directive;
+    // a subsequent F2 starts from the newly added waypoint list.
     // FUN_004c4780 (cdecl): refused at 0x63 records or once the largest AutoId reaches 0x63;
     // otherwise the record goes to the end with AutoId = largest + 1.
     if (G_PlayerWaypointCount >= kMaxPlayerWaypoints)

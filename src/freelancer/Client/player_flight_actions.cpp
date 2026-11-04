@@ -35,6 +35,8 @@ BaseWatcher cameraOwner;
 Kind active=None;
 V start[3],axis,cameraUp;
 float elapsed=0,progress=0,total=0,throttle=0,cameraBlend=0;
+float reverseBoost=0;
+bool reverseExit=false;
 bool engine=true;
 ReverseStrafeCycle strafeCycle;
 FlightActionCamera::ReverseTurnCamera turnCamera;
@@ -56,7 +58,8 @@ bool valid(IObjRW* p,Kind k=ReverseTurn) {
     CShip* s=HudShipOfObjRw(p);
     IBehaviorManager* b=s ? s->get_behavior_interface() : nullptr;
     return b && b->CurrentBehaviorIndex==(k==GotoWeave ? 2:0x13) && !b->LockManeuversByte &&
-        !s->is_launching() && !s->is_using_tradelane() && (k==GotoWeave || !s->is_cruise_active());
+        (k!=GotoWeave || s->get_target()) && !s->is_launching() && !s->is_using_tradelane() &&
+        (k==GotoWeave || k==ReverseTurn || !s->is_cruise_active());
 }
 bool assets() {
     char path[MAX_PATH];
@@ -114,8 +117,10 @@ void restoreGotoSteering() {
 }
 void tickGoto(IObjRW* p,CShip* s,float dt) {
     auto b=s->get_behavior_interface();
-    if(b && b->CurrentBehaviorIndex==2 && static_cast<GotoBehavior*>(b->BehaviorDispatchTable[2])->Flag2ea)
+    if(b && b->CurrentBehaviorIndex==2 && static_cast<GotoBehavior*>(b->BehaviorDispatchTable[2])->Flag2ea) {
+        p->set_strafe_dir(StrafeNone);
         return; // Native manual steering temporarily takes precedence over weaving.
+    }
     V destination; float clearance;
     if(!gotoDestination(s,destination,clearance) || clearance<=0) { Cancel(); return; }
     // Route heading is measured from the centre line's origin, not from each
@@ -128,6 +133,7 @@ void tickGoto(IObjRW* p,CShip* s,float dt) {
     // Let Go To first face the destination if activated during a large turn.
     // Never fight the native initial alignment with a 180-degree servo error.
     if(dot(back*-1.f,bearing)<0.5f) {
+        p->set_strafe_dir(StrafeNone);
         strafeCycle.phase=0; elapsed=0;
         return;
     }
@@ -154,8 +160,9 @@ void tickGoto(IObjRW* p,CShip* s,float dt) {
     float tx=torque(dot(error,right),dot(omega,right),a->RotationInertiaX,a->AngularDragX*drag,a->SteeringTorqueX);
     float ty=torque(dot(error,up),dot(omega,up),a->RotationInertiaY,a->AngularDragY*drag,a->SteeringTorqueY);
     float tz=torque(dot(error,back),dot(omega,back),a->RotationInertiaZ,a->AngularDragZ*drag,a->SteeringTorqueZ);
-    // Turn the physical ship. Its existing forward thrust now traces the weave;
-    // this action adds no strafe/nudge and never writes orientation or velocity.
+    // Turn the physical ship and apply native strafe in the same direction.
+    // Forward and lateral thrust trace the weave; orientation/velocity are never assigned.
+    p->set_strafe_dir(strafeCycle.left() ? StrafeLeft : StrafeRight);
     p->set_axis_throttle(vec(right*tx+up*ty+back*tz));
     Vector applied;
     if(p->get_axis_throttle(applied)==0) { gotoAppliedSteering=v(applied); gotoSteeringApplied=true; }
@@ -166,12 +173,28 @@ void applyReverseStrafe(IObjRW* p) {
     p->set_throttle(-1.f);
     p->set_strafe_dir(strafeCycle.left() ? StrafeLeft : StrafeRight);
 }
+bool afterburnerAvailable(CShip const* s) {
+    auto thruster=CEThruster::cast(s->EquipManager.FindFirst(EquipTypeThruster));
+    return thruster && !thruster->IsDestroyed() && !thruster->IsDisabled() &&
+        thruster->IsControllerEnabled() && std::isfinite(thruster->GetThrust()) &&
+        thruster->GetThrust()>0;
+}
+bool reverseNeedsBoost(IObjRW* p,V forward) {
+    float maximum=p->get_speed(1.f,ThrustEquipEngine);
+    return std::isfinite(maximum) && maximum>0 &&
+        dot(v(p->get_velocity()),forward)<maximum*1.05f;
+}
+bool locksInput(Kind k) { return k==SpiralClockwise || k==ReverseTurn; }
 void begin(Kind k) {
+    // A finite figure owns the controls until it settles. Its button/key cannot
+    // restart it or replace it halfway through; reverse/strafe remains a toggle.
+    if(locksInput(active)) return;
     if(active==k || (k==ReverseTurn && active==None && turnCamera.holding())) { Cancel(); return; }
     Cancel();
     IObjRW* p=player();
     if(!enabled() || !valid(p,k)) return;
     CShip* s=HudShipOfObjRw(p);
+    bool const cruising=s->is_cruise_active();
     if(!supported(k,s)) return;
     for(int i=0;i<3;++i) start[i]=column(s->Orientation,i);
     if(k==GotoWeave) {
@@ -196,7 +219,16 @@ void begin(Kind k) {
     elapsed=progress=0;
     GetCursorPos(&mouseStart);
     if(k!=GotoWeave) ClearMouseFlightSteering();
-    if(k==ReverseTurn) SetPlayerEngageEngine(false);
+    if(k==ReverseTurn) {
+        // Outside cruise, boost for the full second whenever forward speed is
+        // below 105% of the ordinary engine maximum and a working thruster exists.
+        reverseExit=false;
+        reverseBoost=!cruising && afterburnerAvailable(s) && reverseNeedsBoost(p,start[2]*-1.f) ? 1.f : 0.f;
+        if(cruising) SetPlayerCruise(false);
+        engine=true;
+        SetPlayerEngageEngine(false);
+        if(reverseBoost>0) SetPlayerAfterburner(true);
+    }
     if(k==ReverseStrafe) {
         strafeCycle.reset(PortConfigFloat("FlightActions","reverse_strafe_interval",2.f));
         SetPlayerEngageEngine(true);
@@ -221,6 +253,9 @@ void finish(bool completed) {
     if(active==None) return;
     restoringControls=true;
     Kind previous=active;
+    bool const stopBoost=previous==ReverseTurn && reverseBoost>0;
+    reverseBoost=0;
+    reverseExit=false;
     if(previous==GotoWeave) restoreGotoSteering();
     active=None;
     IObjRW* held=ObjRwFromWatchable(const_cast<Watchable*>(owner.target()));
@@ -230,15 +265,16 @@ void finish(bool completed) {
         if(s && s->PhysicsSystemId==system) {
             Vector zero={0,0,0};
             if(previous!=GotoWeave) held->set_nudge_vec(zero);
-            if(previous==ReverseStrafe) held->set_strafe_dir(StrafeNone);
+            if(previous==ReverseStrafe || previous==GotoWeave) held->set_strafe_dir(StrafeNone);
             // Never write an old free-flight state into a new docking/lane behavior.
             auto manager=s->get_behavior_interface();
             if(previous!=GotoWeave && manager && manager->CurrentBehaviorIndex==0x13 && !held->is_dying() &&
                 !s->is_launching() && !s->is_using_tradelane()) {
                 held->set_axis_throttle(zero);
                 // Restore before wheel/held-throttle input reads the current value.
-                if(previous==ReverseStrafe) held->set_throttle(throttle);
+                if(previous==ReverseStrafe || previous==ReverseTurn) held->set_throttle(throttle);
                 if(held==p) {
+                    if(stopBoost) SetPlayerAfterburner(false);
                     SetPlayerThrottle(throttle);
                     SetPlayerEngageEngine(engine);
                     ClearMouseFlightSteering();
@@ -256,6 +292,14 @@ void finish(bool completed) {
 
 void Cancel() {
     finish(false);
+}
+
+bool RequestCancel() {
+    // Manual input cannot abandon a half-finished finite figure. Internal
+    // handoffs still use Cancel for death, docking, behavior and system safety.
+    if(locksInput(active)) return false;
+    Cancel();
+    return true;
 }
 
 bool Enabled() { return enabled(); }
@@ -308,6 +352,32 @@ void Tick(float dt,bool docking) {
     // A stalled frame cannot skip a complete figure or leave stale commands running.
     if(active!=ReverseStrafe) {
         if(dt>0.25f) { Cancel(); return; }
+        if(active==ReverseTurn && reverseBoost>0) {
+            auto manager=s->get_behavior_interface();
+            if(reverseExit) {
+                // Explicitly leave Engine Kill and accelerate in the new
+                // direction before returning any controls to the player.
+                manager->update_current_behavior_engage_engine(true);
+                manager->update_current_behavior_throttle(1.f);
+                p->set_throttle(1.f);
+            } else if(!afterburnerAvailable(s)) {
+                reverseBoost=0; // The thruster disappeared or broke mid-boost.
+            }
+            if(reverseBoost>0) {
+                // Speed does not cut this phase short: hold the full second.
+                if(!reverseExit || afterburnerAvailable(s))
+                    manager->update_current_behavior_afterburner(true);
+                reverseBoost-=dt;
+            }
+            if(reverseBoost>0) {
+                Vector zero={0,0,0};
+                p->set_axis_throttle(zero);
+                return;
+            }
+            reverseBoost=0;
+            SetPlayerAfterburner(false);
+            if(reverseExit) { finish(true); return; }
+        }
         elapsed+=dt;
         if(elapsed>12.f) { Cancel(); return; }
     }
@@ -334,11 +404,29 @@ void Tick(float dt,bool docking) {
         strafeCycle.advance(dt);
     }
     p->set_nudge_vec(vec(nudge));
-    if(total>0 && settled(progress,total,length(error),length(omega))) finish(true);
+    if(total>0 && settled(progress,total,length(error),length(omega))) {
+        if(active==ReverseTurn) {
+            // Keep the action (and its input lock) alive for a one-second,
+            // explicitly powered exit. Camera release can follow real motion.
+            reverseExit=true;
+            reverseBoost=1.f;
+            turnCamera.complete();
+            auto manager=s->get_behavior_interface();
+            manager->update_current_behavior_engage_engine(true);
+            manager->update_current_behavior_throttle(1.f);
+            if(afterburnerAvailable(s)) manager->update_current_behavior_afterburner(true);
+            p->set_throttle(1.f);
+            Vector zero={0,0,0};
+            p->set_axis_throttle(zero);
+            return;
+        }
+        finish(true);
+    }
 }
 
 bool BlockMouse() {
     if(active==GotoWeave) return false; // Native Go To accepts temporary manual steering.
+    if(locksInput(active)) return true;
     if(active==None && !turnCamera.holding()) return false;
     POINT now; GetCursorPos(&now);
     // A click in the HUD must not count as steering. Moving back into space does.
@@ -351,7 +439,8 @@ bool BlockMouse() {
 }
 bool Keyboard(float x,float y,float z) {
     if((active==None && !turnCamera.holding()) || (x==0 && y==0 && z==0)) return false;
-    Cancel(); return true;
+    if(!locksInput(active)) Cancel();
+    return true;
 }
 
 void CreateButtons(HUD_Maneuvers* hud) {
@@ -367,7 +456,12 @@ void CreateButtons(HUD_Maneuvers* hud) {
         buttons[i]->SetProperty(1,1,0);
     }
 }
-bool HasButtons() { return enabled() && buttons[0]!=nullptr; }
+bool HasButtons(int behavior) {
+    if(!enabled() || !buttons[0]) return false;
+    if(behavior!=2) return true;
+    CShip* ship=HudShipOfObjRw(player());
+    return ship && ship->get_target();
+}
 bool IsGotoWeaving() { return active==GotoWeave; }
 char const* TelemetryAction() {
     switch(active) {
@@ -381,7 +475,9 @@ char const* TelemetryAction() {
 void Layout(HUD_Maneuvers* hud,int behavior) {
     if(hud!=panel || !buttons[0]) return;
     bool freeflight=enabled() && behavior==0x13;
-    bool go=enabled() && behavior==2;
+    IObjRW* p=player();
+    CShip* ship=HudShipOfObjRw(p);
+    bool go=enabled() && behavior==2 && ship && ship->get_target();
     float pos[3]{};
     hud->CruiseButton->SetProperty(7,reinterpret_cast<uintptr_t>(pos),0);
     float center=pos[0];
@@ -396,7 +492,7 @@ void Layout(HUD_Maneuvers* hud,int behavior) {
         buttons[i]->SetProperty(6,reinterpret_cast<uintptr_t>(pos),0);
         buttons[i]->SetProperty(0xc,active==i || (i==ReverseTurn && turnCamera.holding()) ? 1:0,0);
         auto b=static_cast<NnButtonControl*>(buttons[i]);
-        bool available=show && valid(player(),static_cast<Kind>(i)) && supported(static_cast<Kind>(i),HudShipOfObjRw(player()));
+        bool available=show && valid(p,static_cast<Kind>(i)) && supported(static_cast<Kind>(i),ship);
         b->SetFlags331(static_cast<unsigned char>((b->GetFlags331()&~2u)|(available?2u:0u)));
     }
 }

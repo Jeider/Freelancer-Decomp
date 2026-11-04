@@ -161,6 +161,11 @@ PathfindManager::PathfindManager(IBehaviorManager* NewOwner)
     BlendStart.z = 0.0f;                             // 062db71d
 }
 
+PathfindManager::~PathfindManager()
+{
+    ResetServerAsteroidAvoidance(this);
+}
+
 // FUN_062db7c0, Common.dll.txt 225799-225826 (21 insns), thiscall, `RET 4`. Sole caller is
 // ConnectBehaviorManagerObjectDb (FUN_062d2830, .text:062d2879).
 void SetPathfindObjectDb(PathfindManager* Self, IObjDB* ObjectDb)
@@ -299,6 +304,7 @@ void PathfindManager::Update(float Dt)
     // stores of FUN_062db780 inlined in its order, then FUN_062db7a0 on +0x16c.
     if (BehaviorIndex == 6 || BehaviorIndex == 8 || BehaviorIndex == 0x13 || BehaviorIndex == -1)
     {
+        ResetServerAsteroidAvoidance(this,PathfindOwnerObject(Owner));
         Avoidance.ResetContact();
         Reaction.ResetState();
         return;
@@ -441,6 +447,7 @@ int PathfindManager::SelectAvoidancePoint(Vector* OutPoint, float* OutScale, int
     // FUN_062dda10 (Common.dll.txt 228937-229152), all 208 instructions traced.
     if (Flag245 == 0 || Field_254 == 0)                             // 062dda17-062dda2e
     {
+        ResetServerAsteroidAvoidance(this,PathfindOwnerObject(Owner));
         return 2;
     }
 
@@ -449,6 +456,7 @@ int PathfindManager::SelectAvoidancePoint(Vector* OutPoint, float* OutScale, int
     Vector ExitDirection;
     if (GetUserZoneApproachDirection(&ExitDirection) == 0)
     {
+        ResetServerAsteroidAvoidance(this,Ship);
         // 062dda62-062ddb00: kind 2, the point 100 units along the exit direction from the
         // owner (get_orientation +0x10, folded with get_transform). *OutScale untouched.
         *OutKind = 2;
@@ -462,6 +470,7 @@ int PathfindManager::SelectAvoidancePoint(Vector* OutPoint, float* OutScale, int
 
     if (Reaction.State != 3)
     {
+        ResetServerAsteroidAvoidance(this,PathfindOwnerObject(Owner));
         // 062ddb10-062ddb91: kind 3, the point 100 units along the reaction heading;
         // x and y are summed unrounded, z is rounded first (FSTP to a local).
         IObjRW* const Self = PathfindOwnerObject(Owner);
@@ -504,8 +513,9 @@ int PathfindManager::SelectAvoidancePoint(Vector* OutPoint, float* OutScale, int
         return 0;
     }
 
-    // 062ddc41-062ddcb5: the avoidance point, unless its contact is the excluded Field_064.
-    if (FindServerAsteroidAvoidance(Ship, Avoidance.PhysSystemId, CachedTargetPosition,
+    // Server-asteroid steering is deliberately reduced to a minimal last-instant
+    // correction. It must not take over the autopilot around distant rocks.
+    if (FindServerAsteroidAvoidance(this, Ship, Avoidance.PhysSystemId, CachedTargetPosition,
                                     *OutPoint, *OutScale))
     {
         *OutKind = 1;

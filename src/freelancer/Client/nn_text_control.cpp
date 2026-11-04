@@ -314,16 +314,23 @@ bool NnTextControl::HitTest(float const* Ray)
     double const SumY = static_cast<double>(Position[1]) + static_cast<double>(Offset[1]);
     float const CentreZ =
         static_cast<float>(static_cast<double>(Position[2]) + static_cast<double>(Offset[2]));
-    float const HalfWidth = Width * 0.5f;   // FMUL DAT_005c75e0, FSTP float
+    float HalfWidth = Width * 0.5f;         // FMUL DAT_005c75e0, FSTP float
     float const HalfHeight = Height * 0.5f;
-    float const CentreX = static_cast<float>(SumX + static_cast<double>(HalfWidth));
+    float CentreX = static_cast<float>(SumX + static_cast<double>(HalfWidth));
     float const CentreY = static_cast<float>(SumY - static_cast<double>(HalfHeight));
 
-    float const HalfExtents[3] = {HalfWidth, HalfHeight, 0.0f};
+    // Port-only optional horizontal hit box; zero HalfExtents preserves the retail text rectangle.
+    if (HalfExtents[0] > 0.0f)
+    {
+        HalfWidth = HalfExtents[0];
+        CentreX += HitOffset[0];
+    }
+
+    float const HitHalfExtents[3] = {HalfWidth, HalfHeight, 0.0f};
     float Matrix[12] = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
                         CentreX, CentreY, CentreZ};
     // 0058a333: FUN_005a1130(HalfExtents; Matrix, Ray); false -> false.
-    if (!Win3DRayHitsAabbHalfExtents(HalfExtents, Matrix, Ray))
+    if (!Win3DRayHitsAabbHalfExtents(HitHalfExtents, Matrix, Ray))
         return false;
 
     if (Dword344 != 0)

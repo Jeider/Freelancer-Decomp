@@ -426,7 +426,8 @@ bool HUD_Maneuvers::OnEvent(unsigned MsgId)
         // 0x004d81d9: USER_CANCEL.
         if (NnMainButtonHasActivePanel())
             return false;
-        PlayerFlightActions::Cancel();
+        if (!PlayerFlightActions::RequestCancel())
+            return true;
         if (!HudStatusIsRearView() && HudStatusIsTurretView())
         {
             HudPostCommand(0xbf, 0);
@@ -494,7 +495,8 @@ bool HUD_Maneuvers::OnEvent(unsigned MsgId)
 #endif
         // 0x004d8354: the mouse wheel steps the throttle by 0.2 (DAT_005d8298).
         int const Wheel = GetClientMouseWheel();
-        if (Wheel != 0) PlayerFlightActions::Cancel();
+        if (Wheel != 0 && !PlayerFlightActions::RequestCancel())
+            return true;
         if (Wheel < 0)
         {
             double const Lower = static_cast<double>(GetLastPlayerThrottle()) -
@@ -587,9 +589,8 @@ void HUD_Maneuvers::Update()
 {
     // LAB_004d85c0 (this = the WinControl face).
     // 0x004d85c4: TEST AH,0x44 / JNP -- skipped only when the rate compares equal to 0.
-    if (!(ThrottleRate == 0.0f))
+    if (!(ThrottleRate == 0.0f) && PlayerFlightActions::RequestCancel())
     {
-        PlayerFlightActions::Cancel();
         float const Last = GetLastPlayerThrottle();
         double const Sum =
             GetClientFrameTimeCapped() * static_cast<double>(ThrottleRate) + static_cast<double>(Last);
@@ -814,7 +815,7 @@ void HUD_Maneuvers::UpdateTabAndCruise(int BehaviorId)
         Anchor = Buttons[2];
     Anchor->SetProperty(7, reinterpret_cast<uintptr_t>(Offset), 0);
 
-    int const TabVariant = PlayerFlightActions::HasButtons() ? (BehaviorId == 0x13 ? 3 : BehaviorId == 2 ? 2 : 1) : 1;
+    int const TabVariant = PlayerFlightActions::HasButtons(BehaviorId) ? (BehaviorId == 0x13 ? 3 : BehaviorId == 2 ? 2 : 1) : 1;
     if (bTabMeshReset != TabVariant)
     {
         bTabMeshReset = TabVariant;

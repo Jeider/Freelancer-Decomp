@@ -234,7 +234,7 @@ uses `spawn_mode = forward`: new rocks form only in the outer 15% of
 minimum distance. A moving ship receives new rocks ahead of its velocity;
 the camera is never consulted. Existing rocks keep their world positions and
 motion. Creation is spread across updates (at most four new/restored objects
-per 0.1 s across forward fields). Client instances fade in over 0.75 s using
+per 0.05 s across forward fields). Client instances fade in over 0.75 s using
 material opacity, without changing gameplay cloak, collisions or network state.
 The fade belongs to the object lifetime and is unaffected by camera changes.
 After initial filling, new placement is
@@ -242,8 +242,8 @@ triggered by travelling 5% of the placement radius (minimum 100 m), not by
 standing still while rocks drift away. In Sig8 this gives a 3 km formation
 radius and a 4.5 km suspension radius. The preset migration takes the former
 far `despawn_radius` from the INI as the new placement radius, preserving that
-distance on subsequent runs. The target is 180 across this larger neighbourhood,
-not 180 within 1 km. Multiplayer interest distance covers the suspension radius
+distance on subsequent runs. The target is 360 across this larger neighbourhood,
+not 360 within 1 km. Multiplayer interest distance covers the suspension radius
 so the native 2.5 km unowned-object cutoff does not delay distant creation.
 
 With
@@ -255,7 +255,7 @@ outside physical objects and at least `placement_offset` plus the rock radius
 from every player's ship. The Sig8 ruins' central 3000 m exclusion stays clear at
 spawn. Rocks can subsequently drift into exclusions or outside the field.
 
-In legacy `player` mode, every half-second the server can create/restore up to 24 rocks per system, up to
+In legacy `player` mode, every quarter-second the server can create/restore up to 24 rocks per system, up to
 1024 active generated rocks (including any fixed-mode population). Rocks beyond
 `despawn_radius` of **all** players are suspended in memory with their position,
 orientation, velocity and remaining hull. Their distant simulation pauses; returning
@@ -266,13 +266,15 @@ At capacity or near obstructions/exclusions, the visible population can be lower
 than the target. Camera changes never create, remove or reposition these objects.
 
 Omitting `spawn_mode` (or using `field`) retains the original finite mode: generate
-`count` objects once around the zone centre when the system loads, without streaming.
+twice `count` objects once around the zone centre when the system loads, without streaming.
+Every mode doubles the authored count (capped at 512 per section) while retaining the
+shared 1024-active-object system limit.
 
 | Key | Default | Meaning / limits |
 |---|---|---|
 | `asteroid` | required | Nickname of a **Solar** with `type = SERVER_ASTEROID`. |
 | `spawn_mode` | `field` | `forward` forms distant rocks as ships travel; `player` refills a ship-centred sphere; `field` selects a fixed population at system load. |
-| `count` | 0 | 0–256 per section: target in each player's neighbourhood, or total in fixed mode. |
+| `count` | 0 | Authored 0–256 per section; the runtime target is twice this value (up to 512), in each player's neighbourhood or total in fixed mode. |
 | `placement_radius` | 3000 | Placement/counting radius in metres, 10–100000. Fixed mode additionally limits it to the zone radius. |
 | `placement_offset` | 200 | Minimum spawning distance from ships, plus rock radius; clamped to 0–70% of placement radius in `player`, 0–90% in `forward`. Forward mode additionally excludes the inner 85%. |
 | `despawn_radius` | twice placement radius (`player`), 1.5 times (`forward`) | Suspend only beyond this distance from every player; cannot be smaller than the mode's default, maximum 300000 m. |
@@ -293,14 +295,19 @@ at the rock's position. Named loot zones take precedence over the field fallback
 Suspension, unload and repeated death notifications never produce extra loot.
 
 Player autopilot and NPC pathfinding use nearby physical rock sizes and velocities
-to choose a detour and reduce approach speed. This supplements the existing
-obstacle reactions; it is not a guarantee against collisions in a blocked corridor.
+for a minimal last-instant, full-speed detour. Native strafe assistance starts only
+within 200 m of a rock's surface. For the player, server asteroids are excluded
+from native obstacle-contact throttle/cruise suppression: the custom bypass still
+tries to steer around them, but a blocked path continues at full speed into the
+physical collision rather than braking. NPC native avoidance is unchanged. This
+supplements the existing obstacle reactions and is not a guarantee against
+collisions in a blocked corridor.
 
 The old `[DynamicAsteroids]` type remains client-owned. In all five Sig8 test fields,
 the three existing sections have `count = 0` so they retain mesh/material inputs
 for the distant decorative `[FarRocks]` renderer without spawning duplicate local
-rocks. Each field's three new server sections each target 60 rocks within 3000 m
-of ships. `[FarRocks]`, `[AsteroidBillboards]`, dust, bands and exclusions are
+rocks. Each field's three new server sections have an authored count of 60 and
+therefore target 120 rocks within 3000 m of ships. `[FarRocks]`, `[AsteroidBillboards]`, dust, bands and exclusions are
 unchanged. The global creation budget and 1024 active-object limit apply across
 all five fields together. `tools/physics/prepare_sig8_asteroids.py`
 prepares this preset and a hash-checked installer; it does not itself modify the game.

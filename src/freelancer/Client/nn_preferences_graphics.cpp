@@ -4,35 +4,44 @@
 #include "nn_dropdown.h"
 #include "wire_controls.h"
 #include "nn_ui_pulse.h"
-#include "port_config.h"
+#include "ids_strings.h"
+#include "hud_interface_ids.h"
 #include <cstring>
 #include <string>
 
 namespace
 {
-    bool Russian() { return _stricmp(PortLanguage(),"ru")==0; }
     void Visible(WinControl* control, bool visible) { if (control) control->SetProperty(1,!visible,0); }
     float RowY(int row, bool inGame) { return (inGame?.2105f:.2205f)-(3+row)*.035f; }
-    wchar_t const* Label(int setting)
+    std::wstring IdText(unsigned id)
     {
-        static wchar_t const* const ru[]={L"\u0422\u0435\u043d\u0438",L"\u0420\u0435\u043b\u044c\u0435\u0444 \u043f\u043e\u0432\u0435\u0440\u0445\u043d\u043e\u0441\u0442\u0435\u0439",L"\u0411\u043b\u0438\u043a\u0438",L"\u041e\u0442\u0440\u0430\u0436\u0435\u043d\u0438\u044f",
-            L"\u0410\u043d\u0438\u0437\u043e\u0442\u0440\u043e\u043f\u043d\u0430\u044f \u0444\u0438\u043b\u044c\u0442\u0440\u0430\u0446\u0438\u044f",L"\u0421\u0433\u043b\u0430\u0436\u0438\u0432\u0430\u043d\u0438\u0435",L"\u041e\u0431\u044a\u0451\u043c\u043d\u044b\u0435 \u0442\u0443\u043c\u0430\u043d\u043d\u043e\u0441\u0442\u0438",L"\u0412\u0435\u0440\u0442\u0438\u043a\u0430\u043b\u044c\u043d\u0430\u044f \u0441\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0430\u0446\u0438\u044f",L"\u041b\u0438\u043c\u0438\u0442 FPS"};
-        static wchar_t const* const en[]={L"Shadows",L"Surface relief",L"Highlights",L"Reflections",
-            L"Anisotropic filtering",L"Antialiasing",L"Volumetric nebulae",L"Vertical sync",L"FPS limit"};
-        return (Russian()?ru:en)[setting];
+        wchar_t text[256] = {};
+        GetIdsStringWWithRawFallback(id, text, 256);
+        return text;
+    }
+    std::wstring Label(int setting)
+    {
+        constexpr int ids[]={PreferenceIds::GraphicsShadows,PreferenceIds::GraphicsSurfaceRelief,PreferenceIds::GraphicsHighlights,
+            PreferenceIds::GraphicsReflections,PreferenceIds::GraphicsAnisotropy,PreferenceIds::GraphicsAntialiasing,
+            PreferenceIds::GraphicsNebulae,PreferenceIds::GraphicsVsync,PreferenceIds::GraphicsFpsLimit};
+        return IdText(ids[setting]);
     }
     std::wstring ValueText(int setting, int value)
     {
         using namespace GraphicsSettings;
-        wchar_t const* off=Russian()?L"\u0412\u044b\u043a\u043b":L"Off";
-        if (Toggle(setting)) return value ? (Russian()?L"\u0412\u043a\u043b":L"On") : off;
+        if (Toggle(setting)) return IdText(value ? PreferenceIds::GraphicsOn : PreferenceIds::GraphicsOff);
         if (setting==Shadows || setting==Nebulae)
         {
-            wchar_t const* const ru[]={L"\u0412\u044b\u043a\u043b",L"\u041d\u0438\u0437\u043a\u043e\u0435",L"\u0421\u0440\u0435\u0434\u043d\u0435\u0435",L"\u0412\u044b\u0441\u043e\u043a\u043e\u0435"};
-            wchar_t const* const en[]={L"Off",L"Low",L"Medium",L"High"};
-            return (Russian()?ru:en)[value];
+            constexpr int ids[]={PreferenceIds::GraphicsOff,PreferenceIds::GraphicsLow,PreferenceIds::GraphicsMedium,PreferenceIds::GraphicsHigh};
+            return IdText(ids[value]);
         }
-        if (setting==Antialiasing) return value==2 ? L"SMAA" : value==1 ? L"FXAA" : off;
+        std::wstring const off=IdText(PreferenceIds::GraphicsOff);
+        if (setting==Antialiasing)
+        {
+            if (value==2) return L"SMAA";
+            if (value==1) return L"FXAA";
+            return off;
+        }
         if (setting==Anisotropy) return value ? std::to_wstring(1<<value)+L"x" : off;
         if (setting==FpsLimit) return std::to_wstring(Fps(value));
         return L"";
@@ -55,7 +64,7 @@ bool NnPreferences::CreateGraphicsRows()
         auto& cell=GraphicsCells[i];
         char name[40];
         sprintf_s(name,"GraphicsLabel%d",i);
-        cell.Label=text(name,Label(i),-.11f,RowY(i,bInGame!=0),.29f,0,.9f);
+        cell.Label=text(name,Label(i).c_str(),-.11f,RowY(i,bInGame!=0),.29f,0,.9f);
         sprintf_s(name,"GraphicsValue%d",i);
         cell.Value=text(name,L"",.188f,RowY(i,bInGame!=0),.207f,1,.9f);
         float const at[3]={.302f,RowY(i,bInGame!=0)-.0145f,0},half[3]={.121f,.0145f,0};
@@ -105,8 +114,7 @@ void NnPreferences::RefreshGraphicsRows()
         if (cell.Toggle) cell.Toggle->SetProperty(0x30,GraphicsValues[i]!=0,0);
         pending|=GraphicsValues[i]!=GraphicsSettings::Get(i);
     }
-    GraphicsHint->SetText(pending ? (Russian()?L"\u0418\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u0432\u0441\u0442\u0443\u043f\u044f\u0442 \u0432 \u0441\u0438\u043b\u0443 \u043f\u043e\u0441\u043b\u0435 \u043f\u0435\u0440\u0435\u0437\u0430\u043f\u0443\u0441\u043a\u0430 \u0438\u0433\u0440\u044b":L"Changes take effect after restarting the game") :
-        (Russian()?L"\u042d\u0442\u0438 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u043f\u0440\u0438\u043c\u0435\u043d\u044f\u044e\u0442\u0441\u044f \u043f\u043e\u0441\u043b\u0435 \u043f\u0435\u0440\u0435\u0437\u0430\u043f\u0443\u0441\u043a\u0430 \u0438\u0433\u0440\u044b":L"These settings apply after restarting the game"));
+    GraphicsHint->SetText(IdText(pending ? PreferenceIds::GraphicsRestartPending : PreferenceIds::GraphicsRestartHint).c_str());
     GraphicsHint->TextColour=pending?G_NnPaletteArgb_679ba4:G_NnPaletteArgb_679b94;
 }
 void NnPreferences::SnapshotGraphics()
