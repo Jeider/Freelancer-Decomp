@@ -8,6 +8,7 @@
 // the BaseDataList_* entry points. Split out of common_goods.cpp.
 
 #include "common_goods.h"
+#include "common_interior_profiles.h"
 #include "common_goods_internal.h" // kPathChars
 #include "common_id.h"
 #include "common_ini.h"
@@ -72,6 +73,7 @@ BaseData::BaseData()
 // 06264a40: delete every RoomData in the list, then the list and the market map go.
 BaseData::~BaseData()
 {
+    BaseInteriors::ResetBase(BaseId);
     for (std::list<RoomData*>::iterator It = Rooms.begin(); It != Rooms.end(); ++It)
         delete *It;
     Rooms.clear();
@@ -254,6 +256,7 @@ void BaseData::read_Room_block(INI_Reader* Reader)
 void BaseData::read_from_ini(char const* RelPath, unsigned NewBaseId)
 {
     BaseId = NewBaseId;
+    BaseInteriors::ResetBase(BaseId);
 
     char FullPath[kPathChars];
     GetFileSysPath(FullPath, RelPath, DALib::Data);
@@ -271,6 +274,10 @@ void BaseData::read_from_ini(char const* RelPath, unsigned NewBaseId)
             {
                 read_Room_block(&Reader);
             }
+            else if (Reader.is_header("InteriorProfile"))
+            {
+                BaseInteriors::ReadProfile(BaseId, Reader);
+            }
             else
             {
                 FDUMP(0x100001, "%s(%d) : *** ERROR: Invalid ini block in file %s\n",
@@ -278,6 +285,7 @@ void BaseData::read_from_ini(char const* RelPath, unsigned NewBaseId)
             }
         }
         Reader.close();
+        BaseInteriors::ValidateProfiles(*this);
     }
     else
     {

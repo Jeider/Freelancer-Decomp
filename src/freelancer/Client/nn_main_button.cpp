@@ -327,6 +327,7 @@ void NN_MainButton::Update()
     Win3D::Update();
     ButtonMover::Update();  // FUN_0055e170
     ButtonScaler::Update(); // FUN_0055e5e0
+    ResumeAfterServiceClose();
 
     // 0x0045c949: FUN_004bc990 -- the story star's per-frame decision whether to show itself
     // (NN_StoryStar.cpp).
@@ -544,7 +545,8 @@ void NN_MainButton::OnMoveFinished()
     if (QueuedButton != nullptr)
     {
         OpenPanel(QueuedButton, QueuedPanelId);
-        QueuedButton = nullptr;
+        if (!bWaitingForServiceClose)
+            QueuedButton = nullptr;
     }
 }
 
@@ -676,6 +678,21 @@ void NN_MainButton::OpenPanel(WinControl* Button, int PanelId)
     // 0x0045cd7e: FUN_004424f0(1) -- the NavBar's open service tab closes.
     NavBarCloseService(true);
 
+    // Closing a base service has its own shrink/slide animation. Do not start
+    // the NeuroNet panel underneath it; Update resumes this request when idle.
+    if (OpenButton == nullptr && NavBarIsAnimating())
+    {
+        QueuedButton = Button;
+        QueuedPanelId = PanelId;
+        bWaitingForServiceClose = true;
+        return;
+    }
+    if (bWaitingForServiceClose)
+    {
+        bWaitingForServiceClose = false;
+        QueuedButton = nullptr;
+    }
+
     // 0x0045cd85..0x0045cdaf: another panel is open -- queue this one and close that.
     if (OpenButton != nullptr)
     {
@@ -711,8 +728,24 @@ void NN_MainButton::OpenPanel(WinControl* Button, int PanelId)
     UpdateRootHighlights();
 }
 
+void NN_MainButton::ResumeAfterServiceClose()
+{
+    if (!bWaitingForServiceClose || NavBarIsAnimating() ||
+        ButtonMover::IsActive() || ButtonScaler::IsActive())
+        return;
+    bWaitingForServiceClose = false;
+    if (QueuedButton != nullptr)
+    {
+        OpenPanel(QueuedButton, QueuedPanelId);
+        if (!bWaitingForServiceClose)
+            QueuedButton = nullptr;
+    }
+}
+
 void NN_MainButton::ResetPanel()
 {
+    bWaitingForServiceClose = false;
+    QueuedButton = nullptr;
     // FUN_0045cef0.
     if (OpenButton != nullptr)
     {
@@ -730,6 +763,11 @@ void NN_MainButton::ResetPanel()
 
 void NN_MainButton::ClosePanel()
 {
+    if (bWaitingForServiceClose)
+    {
+        bWaitingForServiceClose = false;
+        QueuedButton = nullptr;
+    }
     // FUN_0045cf60.
     if (ButtonMover::IsActive() || ButtonScaler::IsActive() || OpenButton == nullptr)
     {

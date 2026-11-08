@@ -50,6 +50,55 @@
 #include "../include/rpc_iclient_args.h"        // FServerBurnFuseInfo (EqObj::light_fuse)
 #include <map>                                  // ServerFuseDB::Get (EqObj::light_fuse)
 #include <cstring>                              // memcpy (EqObj::build_equip_loot)
+#include <mutex>
+
+namespace
+{
+struct CloakMissionQueue
+{
+    std::mutex Lock;
+    unsigned long long Sequence = 0;
+    std::vector<pub::Controller::CloakActivation> Events;
+};
+CloakMissionQueue& CloakEvents()
+{
+    // Equipment can be destroyed during CRT teardown; only value payloads are retained.
+    static auto* queue = new CloakMissionQueue;
+    return *queue;
+}
+void QueueCloakEvent(EqObj* owner,bool active)
+{
+    if (!owner || !owner->OwnerSystem || owner->is_destroyed()) return;
+    auto& queue = CloakEvents();std::lock_guard<std::mutex> guard(queue.Lock);
+    auto* obj = owner->ceqobj();
+    queue.Events.push_back({owner->get_id(),obj->PhysicsSystemId,obj->OwnerPlayer,active?1u:0u,++queue.Sequence});
+}
+}
+
+SERVER_API unsigned long long __cdecl pub::Controller::GetCloakEventSequence()
+{
+    auto& queue = CloakEvents();std::lock_guard<std::mutex> guard(queue.Lock);
+    return queue.Sequence;
+}
+void ServerFlushCloakEvents()
+{
+    std::vector<pub::Controller::CloakActivation> pending;
+    {
+        auto& queue = CloakEvents();std::lock_guard<std::mutex> guard(queue.Lock);
+        pending.swap(queue.Events);
+    }
+    // Common sends its notification BEFORE changing bActive. Defer mission actions
+    // until that call and the physics/equipment iteration have both returned.
+    for (const auto& event : pending)
+    {
+        auto* ship = static_cast<CShip*>(CObject::Find(event.ShipId,CObject::ClassShip));
+        if (!ship) continue;
+        const bool valid = ship->PhysicsSystemId == event.SystemId && ship->OwnerPlayer == event.PlayerId;
+        ship->Release();
+        if (!valid) continue;
+        pub::Controller::_SendMessage(0,pub::Controller::EMessage::CloakActivated,&event);
+    }
+}
 
 // DAT_06d8fb14 (IServerImpl.cpp) and FUN_06d43650 (pub::Controller::_SendMessage
 // with a zero id; Server_ControllerDispatch, common_server_controller.h) -- the Ship
@@ -2736,8 +2785,7 @@ void EqObj::create_server_equip(unsigned short EquipId)
     switch (Equip->Type)
     {
     case EquipTypeCloak:
-        if (static_cast<CECloakingDevice*>(Equip)->CloakArch()->GetSettings().enabled)
-            ServerEquips.push_back(new SrvCloak(Equip, this));
+        ServerEquips.push_back(new SrvCloak(Equip, this));
         break;
     case 0x80:       // .text:06ce8a08 .. 06ce8a3e  new(0x18), +0x0c = 0, vt .rdata:06d655ac
         ServerEquips.push_back(new SrvGun(Equip, this));
@@ -4310,9 +4358,17 @@ SrvCloak::SrvCloak(CEquip* InEquip, EqObj* InOwner) : ServerEquip(InEquip, InOwn
     LastActive = Equip->IsActive();
 }
 
+void SrvCloak::notify(Event Code, void* Param)
+{
+    if (Equip && (Code == EquipActivating || Code == EquipDeactivating))
+        QueueCloakEvent(Owner,Code == EquipActivating);
+    ServerEquip::notify(Code,Param);
+}
+
 bool SrvCloak::update(float Dt)
 {
     if (!Equip) return false;
+    if (!static_cast<CECloakingDevice*>(Equip)->CloakArch()->GetSettings().enabled) return true;
     bool active = Equip->IsActive();
     SyncTime -= Dt;
     if (Owner->OwnerSystem && (active != LastActive || SyncTime <= 0))

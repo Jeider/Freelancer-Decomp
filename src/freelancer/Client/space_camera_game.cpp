@@ -47,6 +47,7 @@
 #include "nn_modal.h"          // G_bNnScreenUp (DAT_0067dcc8)
 #include "player_behavior.h"    // ToggleMouseFlightLock, SetPlayerBehaviorDirectionGated
 #include "player_flight_actions.h"
+#include "player_train.h"
 #include "player_route.h"
 #include "player_spawn.h"       // GetPlayerConnectionId (DAT_00673344)
 #include "space_letterbox.h"
@@ -1093,6 +1094,7 @@ void HudCameraUpdate(FHudCamera* Cam, float DeltaSeconds)
     bool const KeyboardHandoff = CockpitLook != WasCockpitLook && KeyboardBehavior &&
         KeyboardBehavior->Opaque168[0] != 0 && (Steer.x != 0.f || Steer.y != 0.f || Steer.z != 0.f);
     WasCockpitLook = CockpitLook;
+    if(Steer.x!=0 || Steer.y!=0 || Steer.z!=0)PlayerTrain::CancelApproach();
     bool const FlightActionHandoff = PlayerFlightActions::Keyboard(Steer.x, Steer.y, Steer.z);
     bool const RouteHandoff = PlayerRoute::Keyboard(Steer.x, Steer.y, Steer.z);
     if (RouteHandoff || FlightActionHandoff || KeyboardHandoff || !(DiffX * DiffX <= kSendThresholdSq) || !(DiffY * DiffY <= kSendThresholdSq) ||

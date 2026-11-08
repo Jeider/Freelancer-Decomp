@@ -219,6 +219,35 @@ def align_target_group(meshes):
         meshes[key]['alignment'] = {'angle': angle, 'offset': offset.tolist()}
 
 
+def align_contact_hat(meshes, atlas):
+    # NSTargetHat belongs to the retail contact triangle. Our contact/detail
+    # use the smaller Beta triangle: sharing the tile centre alone displaces
+    # the hat into the arrow. Register the three outside edges, retaining the
+    # retail hat's contour, opening and spacing relative to its own arrow.
+    def triangle(mesh):
+        points = mesh['points']
+        hull = points[ConvexHull(points).vertices]
+        lines = sorted(zip(hull, np.roll(hull, -1, axis=0)),
+                       key=lambda e: np.linalg.norm(e[1]-e[0]), reverse=True)[:3]
+        corners = []
+        for i, (a, b) in enumerate(lines):
+            c, d = lines[(i+1) % 3]
+            u, v = b-a, d-c
+            corners.append(a + np.linalg.solve(np.column_stack((u, -v)), c-a)[0]*u)
+        corners = np.array(corners)
+        tip = int(np.argmin(corners.sum(axis=1)))
+        rest = sorted((i for i in range(3) if i != tip), key=lambda i: corners[i, 1])
+        return corners[[tip]+rest]
+    source = triangle(trace(atlas, 8, 'NSTargetArrow'))
+    target = triangle(meshes['ContactDetail'])
+    transform = np.linalg.solve(np.column_stack((source, np.ones(3))), target)
+    hat = meshes['ContactHat']
+    hat['points'] = np.column_stack((hat['points'], np.ones(len(hat['points'])))) @ transform
+    linear = transform[:2].T
+    offset = linear @ np.array([128., 128.]) + transform[2] - 128
+    hat['alignment'] = {'matrix': linear.tolist(), 'offset': offset.tolist()}
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('folder', type=Path)
@@ -263,6 +292,7 @@ def main():
     meshes['Quotes'] = trace(args.retail_atlas,4,'CurrentTargetArrowQuotes')
     meshes['ContactHat'] = trace(args.retail_atlas,7,'NSTargetHat')
     align_target_group(meshes)
+    align_contact_hat(meshes, args.retail_atlas)
     meshes['LootDetail'] = outlined(meshes['Loot'],7)
     meshes['PlayerDetail'] = outlined(meshes['Player'],7)
     meshes['SmallPlayerDetail'] = outlined(meshes['SmallPlayer'],7)

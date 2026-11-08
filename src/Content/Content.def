@@ -13,3 +13,21 @@ EXPORTS
     ??_7IDLL@@6B@ @5 DATA
     CreateInstance @6
     DestroyInstance @7
+    RpgPlayerCanLaunch @8
+    RpgSetPlayerCanLaunch @9
+    RpgDialogStart @10
+    RpgDialogChoiceCount @11
+    RpgDialogNodeText @12
+    RpgDialogChoiceText @13
+    RpgDialogChoose @14
+    TrainCourierBaseTransfer @15
+    RpgDialogNodeTextIds @16
+    RpgDialogChoiceTextIds @17
+    TrainCourierGetHud @18
+    RpgDialogBeginSession @19
+    RpgDialogEndSession @20
+    RpgDialogRenderText @21
+    RpgDialogSceneGroup @22
+    RpgDialogFragment @23
+    RpgDialogEscape @24
+    RpgDialogGestureGroup @25

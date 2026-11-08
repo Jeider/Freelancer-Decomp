@@ -7,6 +7,10 @@
 #include "perf_options.h"
 #include "hud_tilt.h"
 #include "graphics_settings.h"
+#include "color_grade_preferences.h"
+#ifdef FREELANCER_DLSS5
+#include "base_neural_preferences.h"
+#endif
 #include "gf_script_object.h" // LAB_004548f0 / FUN_00454910: one transition-script latch.
 
 #include "cli_asteroid.h"
@@ -505,6 +509,9 @@ bool LoadPerfOptions(char const* FileName, FPerfDisplaySettings* Display)
     // Separate section: extending the retail registry would invalidate old PerfCount.
     HudTilt::SetConfiguredAngle(0);
     (void)GraphicsSettings::Get(GraphicsSettings::Shadows); // freeze startup preferences
+#ifdef FREELANCER_DLSS5
+    (void)BaseNeural::ConfiguredStrengthPercent(); // load before a later save truncates the INI
+#endif
     // FUN_005b38d0. 0x005b38fb: GetUserDataPath's result is not tested.
     char UserPath[MAX_PATH];
     GetUserDataPath(UserPath);
@@ -632,6 +639,7 @@ void SavePerfOptions(char const* FileName)
     char IniPath[MAX_PATH];
     _makepath(IniPath, nullptr, UserPath, FileName, nullptr);
 
+    (void)ColorGrade::ConfiguredPreset(); // Load before truncating the preferences file.
     FILE* File = fopen(IniPath, "w");
     if (File == nullptr)
         return;
@@ -659,5 +667,9 @@ void SavePerfOptions(char const* FileName)
     fprintf(File,"\n[Graphics]\n");
     for (int i=0;i<GraphicsSettings::Count;++i)
         fprintf(File,"%s = %d\n",GraphicsSettings::Key(i),GraphicsSettings::Get(i,true));
+#ifdef FREELANCER_DLSS5
+    BaseNeural::WritePreferences(File);
+#endif
+    ColorGrade::WritePreferences(File);
     fclose(File);
 }

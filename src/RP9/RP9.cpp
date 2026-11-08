@@ -1357,8 +1357,14 @@ GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
         Face = (IRPWeaponGlints*)(this);
     else if (IidEqual(Iid, Iids::RPFrameQuality))
         Face = (IRPFrameQuality*)(this);
+    else if (IidEqual(Iid, Iids::RPColorGrade))
+        Face = (IRPColorGrade*)(this);
     else if (IidEqual(Iid, Iids::RPSceneCapture))
         Face = (IRPSceneCapture*)(this);
+#ifdef FREELANCER_DLSS5
+    else if (IidEqual(Iid, Iids::RPBaseNeural))
+        Face = (IRPBaseNeural*)(this);
+#endif
     else if (IidEqual(Iid, Iids::RPPlanetAtmosphere))
         Face = (IRPPlanetAtmosphere*)(this);
     else if (IidEqual(Iid, Iids::RPPlanetSurface))
@@ -4144,7 +4150,11 @@ GENRESULT DACOM_API FDirectX9::SetViewportRect(int X, int Y, int W, int H)
         ViewportCache_.Y = (DWORD)(Y);
         ViewportCache_.Width = (DWORD)(W);
         ViewportCache_.Height = (DWORD)(H);
-        Hr = Device_->SetViewport(&ViewportCache_);
+        D3DVIEWPORT9 ActualViewport=ViewportCache_;
+#ifdef FREELANCER_DLSS5
+        ExScaleBaseNeuralViewport(ActualViewport);
+#endif
+        Hr = Device_->SetViewport(&ActualViewport);
         if (!FAILED(Hr))
             bViewportRectValid_ = 1;
     }
@@ -4190,7 +4200,11 @@ GENRESULT DACOM_API FDirectX9::SetDepthRange(float MinZ, float MaxZ)
     {
         ViewportCache_.MinZ = MinZ;
         ViewportCache_.MaxZ = MaxZ;
-        const HRESULT Hr = Device_->SetViewport(&ViewportCache_);
+        D3DVIEWPORT9 ActualViewport=ViewportCache_;
+#ifdef FREELANCER_DLSS5
+        ExScaleBaseNeuralViewport(ActualViewport);
+#endif
+        const HRESULT Hr = Device_->SetViewport(&ActualViewport);
         if (SUCCEEDED(Hr))
             bDepthRangeValid_ = 1;
     }
@@ -7584,6 +7598,23 @@ GENRESULT DACOM_API FDirectX9::LoadCubemap(IFileSystem* FileSystem, const char* 
     if (FileSystem != nullptr)
         FileSystem->Release();
     return (GENRESULT)(Hr);
+}
+
+extern "C" __declspec(dllexport) void __cdecl Rp9SetScissor(void* Pipeline, int Enable, int X, int Y,
+                                                          int W, int H)
+{
+    FDirectX9* const Self = static_cast<FDirectX9*>(Pipeline);
+    if (Self == nullptr || Self->Device_ == nullptr)
+        return;
+    Self->Device_->SetRenderState(D3DRS_SCISSORTESTENABLE, Enable != 0 ? TRUE : FALSE);
+    if (Enable == 0 || W <= 0 || H <= 0)
+        return;
+    RECT Box;
+    Box.left = X;
+    Box.top = Y;
+    Box.right = X + W;
+    Box.bottom = Y + H;
+    Self->Device_->SetScissorRect(&Box);
 }
 
 // RP8: DllMain (registers "DirectX9" with RP8's priority 0x40000000)

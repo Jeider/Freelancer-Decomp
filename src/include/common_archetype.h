@@ -786,6 +786,10 @@ namespace Archetype
         virtual void redefine(Root const& Other);
         virtual AClassType get_class_type() const;
 
+        // Port shiparch flag, kept outside the retail object layout.
+        bool GetExtraManeuvers() const;
+        void SetExtraManeuvers(bool Enabled);
+
 
         // 0x929a0 ?get_legal_hps@Ship@Archetype@@QBEPBV?$vector@UCacheString@@V?$allocator@UCacheString@@@std@@@std@@W4HpAttachmentType@@@Z
         // (.text:062f29a0): linear scan of the hp_type table for Type, null when the hull declares

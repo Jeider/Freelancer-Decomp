@@ -43,6 +43,7 @@ namespace Archetype
     namespace
     {
         std::map<Solar const*, bool> RadarWireframeSettings;
+        std::map<Ship const*, bool> ExtraManeuverSettings;
         // FUN_062fbb90 (item 1955) + listing PTR_s_berth_063eca00 -- 8-entry name/value table
         // consulted by EqObj::read's "docking_sphere" case (value index 0). No match -> Type=0
         // (unlike LookupHpType's miss-defaults-to-4; docking_sphere has no such fallback in
@@ -1070,8 +1071,20 @@ namespace Archetype
         HpTractorSource.Value = StringAlloc("HpHeadlight", false);
     }
 
+    bool Ship::GetExtraManeuvers() const
+    {
+        return ExtraManeuverSettings.find(this) == ExtraManeuverSettings.end();
+    }
+
+    void Ship::SetExtraManeuvers(bool Enabled)
+    {
+        if (Enabled) ExtraManeuverSettings.erase(this);
+        else ExtraManeuverSettings[this] = false;
+    }
+
     Ship::~Ship()
     {
+        ExtraManeuverSettings.erase(this);
         // Common.dll.c 0xd000: retail's +0x130 is a VC6 std::vector whose 0x14-byte elements each
         // own an inner VC6 vector<CacheString> (its _First at element+8). Retail frees each inner
         // buffer, nulls that element's three pointers, then frees the outer buffer. The port holds
@@ -1093,6 +1106,12 @@ namespace Archetype
         // (06310b70, the whole value); hp_type uses the indexed one (06310a30).
         if (EqObj::read(Reader))
             return true;
+
+        if (Reader.is_value("extra_maneuvers"))
+        {
+            SetExtraManeuvers(Reader.get_value_bool(0));
+            return true;
+        }
 
         if (Reader.is_value("bay_door_anim"))
         {
@@ -1330,6 +1349,7 @@ namespace Archetype
     {
         Root::redefine(Other);
         Ship const* Donor = (Ship const*)&Other;
+        SetExtraManeuvers(Donor->GetExtraManeuvers());
         if (Donor->HpBaySurface.Value != HpBaySurface.Value)
             HpBaySurface.Value = Donor->HpBaySurface.Value;
         if (Donor->HpBayExternal.Value != HpBayExternal.Value)

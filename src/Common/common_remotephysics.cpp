@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "common_physys.h"
+#include "common_train.h"
 
 #include "common_archetype.h"
 #include "common_cobject.h"
@@ -138,6 +139,7 @@ void CRemotePhysicsController::RemoteUpdate(Vector const& Position,
 void CRemotePhysicsController::do_simulation_controller(IVP_Event_Sim* EventSim,
                                                         IVP_U_Vector<IVP_Core>* AffectedCores)
 {
+    if(CmnTrain::IsTrailer(static_cast<CObject*>(RealObject->client_data)))return;
     (void)AffectedCores;  // [ESP+0x30] after the prologue; never read
 
     IVP_Controller_Manager_Ensure_Core_To_Be_In_Simulation(Core);  // .text:062923e6-062923f4

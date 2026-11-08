@@ -16,10 +16,13 @@
 #include "../include/server_cobject.h"
 #include "../include/server_playerdb.h"
 #include "../include/server_savegame.h"
+#include "../include/common_misc.h"
 
 #include <cctype>
 #include <cmath>
 #include <cstring>
+#include <vector>
+#include <utility>
 
 namespace pub
 {
@@ -36,6 +39,67 @@ namespace
 
     FPortConsoleSystem G_PendingSystem;
     bool G_bPendingSystem = false;
+
+    int Money(FPortConsoleMoney& in)
+    {
+        int cash=0;
+        if(pub::Player::InspectCash(kPlayer,cash)<0 || in.Mode<0 || in.Mode>2)
+            return kPortConsoleFailed;
+        if(in.Mode) {
+            long long target=in.Mode==1?in.Amount:static_cast<long long>(cash)+in.Amount;
+            target=target<0?0:target>999999999?999999999:target;
+            if(pub::Player::AdjustCash(kPlayer,static_cast<int>(target)-cash)<0)
+                return kPortConsoleFailed;
+        }
+        return pub::Player::InspectCash(kPlayer,in.Balance)<0?kPortConsoleFailed:kPortConsoleOk;
+    }
+
+    int Rep(FPortConsoleRep& in)
+    {
+        int rep=-1;
+        if(pub::Player::GetRep(kPlayer,rep)<0 || in.Mode<0 || in.Mode>5)
+            return kPortConsoleFailed;
+        static unsigned revision=~0u;
+        static int owner=-1;
+        static std::vector<std::pair<unsigned,float>> saved;
+        if(revision!=in.Revision || owner!=rep) {
+            saved.clear();revision=in.Revision;owner=rep;
+        }
+        if((in.Mode==1 || in.Mode==3) &&
+           (!std::isfinite(in.Value) || in.Value<-1 || in.Value>1))return kPortConsoleFailed;
+        if(in.Mode==0 || in.Mode==1) {
+            float before=0;
+            if(pub::Reputation::GetReputation(rep,in.Faction,before)<0)return kPortConsoleFailed;
+            if(in.Mode==1 && pub::Reputation::SetReputation(rep,in.Faction,in.Value)<0)
+                return kPortConsoleFailed;
+            return pub::Reputation::GetReputation(rep,in.Faction,in.Value)<0?kPortConsoleFailed:kPortConsoleOk;
+        }
+        if(in.Mode==5) {
+            if(saved.empty())return kPortConsoleFailed;
+            for(auto const& entry:saved)
+                if(pub::Reputation::SetReputation(rep,entry.first,entry.second)<0)return kPortConsoleFailed;
+            saved.clear();return kPortConsoleOk;
+        }
+        struct Groups:pub::Reputation::Enumerator {
+            std::vector<unsigned> ids;
+            char Execute(unsigned id) override {ids.push_back(id);return 1;}
+        } groups;
+        if(pub::Reputation::EnumerateGroups(groups)<0 || groups.ids.empty())return kPortConsoleFailed;
+        std::vector<std::pair<unsigned,float>> before,after;
+        for(auto id:groups.ids) {
+            float value=0;
+            if(pub::Reputation::GetReputation(rep,id,value)<0)return kPortConsoleFailed;
+            before.push_back({id,value});
+            value=in.Value;
+            // Adoxa uses each group's feelings towards the selected faction.
+            if(in.Mode==4 && pub::Reputation::GetReputation(id,in.Faction,value)<0)return kPortConsoleFailed;
+            after.push_back({id,value});
+        }
+        if(saved.empty())saved=before;
+        if(in.Mode!=2)for(auto const& entry:after)
+            if(pub::Reputation::SetReputation(rep,entry.first,entry.second)<0)return kPortConsoleFailed;
+        return kPortConsoleOk;
+    }
 
     void AddAxis(Vector& Pos, float Distance, Matrix const& Orient, int Axis)
     {
@@ -250,8 +314,14 @@ bool PortConsoleTakeSystemSwitch(unsigned ShipId, unsigned& OutSystem, Vector& I
 
 extern "C" __declspec(dllexport) int __cdecl PortConsoleServer(int Op, void* In)
 {
+    if(!In || !SinglePlayer() || !Players.is_valid(kPlayer))
+        return Op==kPortConsoleSave?0:kPortConsoleFailed;
     switch (Op)
     {
+    case kPortConsoleMoney:
+        return Money(*static_cast<FPortConsoleMoney*>(In));
+    case kPortConsoleRep:
+        return Rep(*static_cast<FPortConsoleRep*>(In));
     case kPortConsoleSave:
     {
         // console.dll cmdSave: PlayerData::save straight away, in space too.

@@ -6,6 +6,8 @@
 
 #include "gf_script_object.h"
 #include "cutscene_skip.h"
+#include "rpg_dialog.h"
+#include "rpg_dialog_protocol.h"
 
 #include "DALib.h"
 #include "character_info.h"
@@ -203,7 +205,7 @@ void FGfScript::Teardown()
         Engine->Slot13Detach(Index);
     }
     Engine = nullptr;
-    Sequence->ClearProps();
+    if (!RpgFragment) Sequence->ClearProps();
     Mirror = nullptr;
     malloc_strfree(&Name);
     malloc_strfree(&ScriptFile);
@@ -842,7 +844,22 @@ void FGfScriptSequence::StartEntry(int Index)
         bScriptFade = 1;
 
     FGfScriptEntry& Started = Entries[Current];
-    Started.Script->Start(Started.Engine, Started.ScriptFile, BindMode, bLoop, Field_0x05,
+#ifdef FREELANCER_RPG_WORLD
+    bool const RpgOffer = OfferType == RpgDialogOfferType && Entry.Kind == RpgScriptOfferEntryKind;
+    bool const RpgChoice = OfferType == RpgDialogOfferType &&
+                           (Entry.Kind == RpgDialogEntryKind || Entry.Kind == RpgScriptOfferEntryKind);
+    unsigned char const EntryLoop = RpgChoice ? 1 : bLoop;
+    Started.Script->RpgBoundActors = RpgChoice &&
+        (_stricmp(Started.ScriptFile, "SCRIPTS\\RPG\\conversation.thn") == 0 ||
+         (_strnicmp(Started.ScriptFile, "SCRIPTS\\RPG\\rm", 14) == 0 &&
+          strlen(Started.ScriptFile) == 35 &&
+          strspn(Started.ScriptFile + 14, "0123456789") == 4 &&
+          _stricmp(Started.ScriptFile + 18, "\\conversation.thn") == 0));
+    if (Started.Script->RpgBoundActors) bFindable = 1;
+#else
+    unsigned char const EntryLoop = bLoop;
+#endif
+    Started.Script->Start(Started.Engine, Started.ScriptFile, BindMode, EntryLoop, Field_0x05,
                           bApplySpatial, Priority, bScriptFade, Name, bPropsToRoom,
                           bSoundsUseFade);
 
@@ -860,6 +877,11 @@ void FGfScriptSequence::StartEntry(int Index)
         PlayerDeformInstance = Script->PlayerDeformInstance;
         PlayerCharacter = Script->PlayerCharacter;
     }
+#ifdef FREELANCER_RPG_WORLD
+    if (RpgOffer) RpgDialogOpenOffer(this);
+    else if (RpgChoice && OfferArg != 0) RpgDialogOpenTree(this, static_cast<unsigned>(OfferArg));
+    else if (RpgChoice) RpgDialogOpen(this);
+#endif
 
     // 0x004550f2..0x004551c2: a kind-1 entry (an offer). The entries after it are scanned while
     // their kinds are 2, 3, 4 or 6 -- 2 and 4 mark an Accept branch, 3 a Decline branch, 6
@@ -1034,6 +1056,9 @@ void FGfScriptSequence::Setup()
 //   +0x2c = 1; +0x24 -> IServer slot 69 (+0x114)(session, +0x24); +0x18 -> the callback.
 void FGfScriptSequence::StopPlayback(unsigned char bArg)
 {
+#ifdef FREELANCER_RPG_WORLD
+    RpgDialogClose(this);
+#endif
     CutsceneSkipInvalidate(this);
     if (bStopped != 0)
         return;
@@ -1385,6 +1410,11 @@ int FGfScriptSequence::FindNextOfKinds(int const* Kinds, int KindCount) const
 int FGfScriptSequence::NextEntryIndex() const
 {
     int const Kind = Entries[Current].Kind;
+#ifdef FREELANCER_RPG_WORLD
+    if (OfferType == RpgDialogOfferType &&
+        (Kind == RpgDialogEntryKind || Kind == RpgScriptOfferEntryKind))
+        return Current + 1;
+#endif
     int Step = 0;
     if (Kind == 0)
         return Current + 1;
@@ -1461,6 +1491,11 @@ int FGfScriptSequence::NextEntryIndex() const
 // !+0xc4.
 bool FGfScriptSequence::Update(int Ms)
 {
+#ifdef FREELANCER_RPG_WORLD
+    if (bPlaying && bActive) RpgDialogUpdate(this, Ms);
+    if (RpgDialogConsumeAccept())
+        G_Server->MissionResponse(RpgScriptOfferId, RpgScriptOfferKind, 1, GetPlayerConnectionId());
+#endif
     if (bPlaying == 0)
         return false;
     if (bActive == 0)

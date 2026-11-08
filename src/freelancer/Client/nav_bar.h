@@ -190,6 +190,7 @@ void NavBarOpenDealer(int Index);
 void NavBarOpenButton(unsigned Type);
 // FUN_004424f0 -- the open service tab closed (FUN_0043e600 first when bNotify).
 void NavBarCloseService(bool bNotify);
+void NavBarOpenParking();
 // FUN_00442720 -- a NavBar and one of the four service windows exist.
 bool NavBarHasServiceWindow();
 // FUN_00442790 -- the NavBar's mover or scaler runs (no slot 2 test).

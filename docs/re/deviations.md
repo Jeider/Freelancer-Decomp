@@ -340,6 +340,28 @@ Rule for new code: a port of a call to `MSVCRT.DLL::atoi`/`atol`/`_wtoi`/`_wtol`
 **Why.** The owner tests multiplayer by running several local clients against one FLServer.
 
 
+## Single-player ship cache (SHIP-CACHE, 2026-11-05)
+
+Status: OPEN — intentional port-only feature at the owner's direct request. Owner: Giperion; Server.dll / Content.dll / freelancer.exe. Removal condition: only an explicit instruction from the owner. Not compiled out; the live path is refused when `IsMPServer()` is set.
+
+Retail keeps one hull (`PlayerData::ship_archetype` + one `EquipDescList`). `Act_SetShipAndLoadout` still replaces that hull and does not store the old one. The port adds a side table, not a field inside the 0x418 slot: `Act_CacheShipAndSetLoadout` / `Act_RestoreCachedShip`, dealer parking (`NN_ShipPark`, opened from a Park button on `NN_ShipTrader`), and `[Player]` keys `ship_cache` / `ship_cache_equip` / `ship_cache_group` / `ship_cache_wg`. Multiplayer requests return -3 and the Park button is not created.
+
+2026-11-07: parking rights are local to each base, with zero initial slots, a default maximum of three, and a 20,000-credit permanent purchase through an RPG manager. `DATA/RPG/ship_parking.ini` supports per-base overrides. Server validates the base, capacity and purchase quote; full-lot exchanges replace a record in place. `ship_parking_version` and `ship_parking_owned` persist rights even when the lot is empty. Legacy parked ships receive up to the configured maximum once, with excess ships preserved. Mission caches are tagged separately, excluded from parking enumeration/limits, and cannot be taken through the parking UI. See [implementation and checks](../../tools/ship_parking/README.txt).
+
+## Shared VMesh material lifetime (2026-11-08)
+
+RendComp keeps facegroup materials on the reference-counted `FVmeshData`, releasing
+them at its final destruction. Retail `FVMeshPart::~FVMeshPart` clears those shared
+slots when any individual part is unloaded. Different train CMPs and their parts
+reuse the same mesh data, so unloading a delivered consist could erase the active
+consist's materials: wagon bodies disappeared while cargo pods and physics remained.
+HookUp retains its existing replace/release semantics; no ABI or model change.
+`tools/train_courier/check_mesh_lifetime.py` reproduces the lost draw submissions
+with the original destructor and exercises the production destructor, HookUp and
+Draw with shared/overlapping facegroups, repeated hookups, failed material lookup
+and both library/part release orders. Graphics submission is counted with a mock
+material; an in-game replay remains the visual acceptance check.
+
 ## Desktop HUD tilt prototype 2026 10 30
 
 At the user's request, RP9 builds may render flight side panels into a transparent target and project them with a static perspective angle. Retail Win3D draws these panels directly. `Client/hud_tilt.cpp` and `SHADERS/hud_tilt.hlsl` preserve panel contents and inverse-map pointer coordinates; world markers and central controls stay flat. User `PerfOptions.ini [HUD] hud_tilt_degrees` defaults to 0 (disabled), is rounded and clamped to 0..50, and is editable with native arrows on Miscellaneous > General. Apply/Cancel/Defaults follow the settings lifecycle; a separate INI section preserves the original PerfCount. The experimental `port.ini [Render]` key is retired. Requires `FREELANCER_RP9`, `FREELANCER_WIDESCREEN_SUPPORT` and the appended RP9 `bHudSurface` capability. No existing virtual slots change. Removal condition: user requests removal; angle 0 restores the direct path. Validation and limitations: [HUD tilt checks](../../tools/hud_tilt/README.txt).

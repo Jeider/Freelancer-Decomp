@@ -63,6 +63,7 @@
 #endif
 
 #include "common_physys_internal.h"
+#include "common_train.h"
 
 using namespace CmnPhySys;
 
@@ -505,6 +506,11 @@ namespace
 // .text:06284370..06284389: FUN_06284390(Object, bIncludeChildren, true, OutCenter).
 float __cdecl PhySys::GetRadiusR(CObject const* Object, bool bIncludeChildren, Vector& OutCenter)
 {
+    float trainRadius;
+    if(CmnTrain::Bounds(Object,trainRadius,OutCenter))return trainRadius;
+    // The ship's avoidance/selection bounds must include its independent wagons.
+    if (CmnTrain::IsHead(Object))
+        bIncludeChildren = true;
     return PhySys_GetRadius(Object, bIncludeChildren, 1u, OutCenter);   // 0628437d PUSH 0x1
 }
 

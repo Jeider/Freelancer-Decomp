@@ -18,6 +18,7 @@
 #include "common_iface.h"     // IObjInspect / IObjRW / IBehaviorManager / ObjRwFromWatchable
 #include "common_pathfind.h"  // PathfindManager (IBehaviorManager::Pathfind)
 #include "common_systemmanager.h" // SystemManager / ThrustManager (BaseIdea::Handle)
+#include "common_train.h"
 #include "x86math.h"          // I3DMathEngine::TransformMatrix
 
 #include <cmath>
@@ -305,7 +306,8 @@ int SplineMoveIdea::Update(float Dt)
     // and sample the far point at T3 = ((Radius + bonus) / SpeedNorm) + T2, one FSTP.
     Elem->RefreshPos();
     float const LookaheadRadiusBonus = bWide ? 200.0f : 50.0f; // DAT_0639b22c / DAT_0639e6d4
-    float const T3 = (float)(((double)Elem->CachedRadius + LookaheadRadiusBonus) / SpeedNorm + T2);
+    float const SteeringRadius = CmnTrain::SteeringRadius(Elem->Iface->cobject(), Elem->CachedRadius);
+    float const T3 = (float)(((double)SteeringRadius + LookaheadRadiusBonus) / SpeedNorm + T2);
     Vector const FarPoint = Spline->calculate_spline_vector(T3);
 
     if (!bWide)

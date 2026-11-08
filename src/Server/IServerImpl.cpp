@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "server_action_stats.h"
+#include "base_interior_profiles.h"
 #include "equipment_slots.h"
 #include "../include/common_server.h"
 #ifdef FREELANCER_MOD_PLUGINS
@@ -42,6 +43,7 @@
 #include "../include/common_animdb.h"     // AnimDB::Update (FUN_06d10320)
 #include "server_solar_animation.h"
 #include "../include/server_createinfo.h" // FShipCreateRequest, Server_Acquire3DMathEngine (PlayerLaunch)
+#include "server_train_courier.h"
 #include "../include/x86math.h"           // I3DMathEngine (PlayerLaunch)
 #ifdef FREELANCER_FLSHARP
 #include "../include/common_flsharp.h"    // port-only FLSharp feature switches
@@ -320,6 +322,7 @@ void IServerImpl::ElapseTime(float dt) {
         if (real_dt < 0.0) real_dt = 0.0;
         g_ElapsedTimeAccum += real_dt;
         Server_PhysicsUpdate(dt);
+        ServerFlushCloakEvents();
         Server_SubsystemUpdate(dt);                // FUN_06d18860, .text:06d4519b PUSH ESI (the dt argument)
         Server_TimerTick(dt);
         Server_TimerFiring(dt);
@@ -769,6 +772,10 @@ void IServerImpl::CharacterSkipAutosave(unsigned int session_id) {
     // IClient slot 21, message 0x35 with &client_id). The port used to store the
     // archetype itself and send 0x35 with an invented {session, arch} payload.
 void IServerImpl::ReqShipArch(unsigned int arch_id, unsigned int session_id) {
+        if (!Players.is_valid(session_id)) return;
+        if (!BaseInteriors::ServiceAllowed(Players[session_id].current_base,
+                                    Players[session_id].ship_archetype, "ShipDealer") &&
+            arch_id != Players[session_id].ship_archetype) return;
         if (!SinglePlayer() && Players[session_id].entered_base_id == 0) return;
 #ifdef FREELANCER_EQUIPMENT_SLOTS
         bool const ChangedHull = Players[session_id].ship_archetype != arch_id;
@@ -1055,6 +1062,8 @@ void IServerImpl::BaseExit(unsigned int base_id, unsigned int session_id) {
     //   06d179ed..06d179fc  FUN_06d43650(0x29, {param_1, sid})
 void IServerImpl::LocationEnter(unsigned int location_id, unsigned int session_id) {
         if (!Players.is_valid(session_id)) return;
+        if (!BaseInteriors::RoomAllowed(Players[session_id].current_base, location_id,
+                                       Players[session_id].ship_archetype)) return;
         if ((Players[session_id].current_location & 0x3fffffff) != 0) return;
         if ((Players[session_id].current_base & 0x3fffffff) == 0) return;
         if (GetBaseDB()->find_location(location_id) == nullptr) return;
@@ -1218,6 +1227,13 @@ void IServerImpl::TradeResponse(const unsigned char* data, int size, unsigned in
 
     // GFGoodBuy — retail packs struct fields + session_id, sends message 0x1c
 void IServerImpl::GFGoodBuy(const SGFGoodBuyInfo& info, unsigned int session_id) {
+        if (!Players.is_valid(session_id)) return;
+        if (!BaseInteriors::ServiceAllowed(Players[session_id].current_base,
+                                    Players[session_id].ship_archetype, "ShipDealer"))
+        {
+            GoodInfo const* Good = GoodList::find_by_id(info.Field_0x08);
+            if (Good && (Good->Category == GoodCategoryShip || Good->Category == GoodCategoryShipHull)) return;
+        }
         ServerActionStats::BeginTrade(session_id, info.Field_0x08, info.Field_0x0c, true);
         // .text:06d17bb0..06d17be9 has no branch -- no session test; the port's
         // `!p || !p->active` early-out is gone (w4-server-guards).
@@ -1429,6 +1445,13 @@ void IServerImpl::SystemSwitchOutComplete(unsigned int ship_id, unsigned int ses
 
     // PlayerLaunch — retail 0xfb20: complex launch sequence (~160 lines decompiled)
 void IServerImpl::PlayerLaunch(unsigned int ship_id, unsigned int session_id) {
+#ifdef FREELANCER_RPG_WORLD
+        HMODULE Content = GetModuleHandleA("Content.dll");
+        auto CanLaunch = Content == nullptr ? nullptr :
+            reinterpret_cast<unsigned char (__cdecl*)()>(GetProcAddress(Content, "RpgPlayerCanLaunch"));
+        if (CanLaunch != nullptr && CanLaunch() == 0)
+            return;
+#endif
         unsigned int max_players = PlayerDB_GetMaxPlayers();
         if (session_id == 0 || (session_id - 1) >= max_players) return;
         // .text:06cefb74: client_id (+0x348) != 0 -- PlayerDB_GetPlayer's null. No
@@ -1492,15 +1515,21 @@ void IServerImpl::PlayerLaunch(unsigned int ship_id, unsigned int session_id) {
         // preset; position and orientation land in the request (+0x4c / +0x58).
         unsigned int LaunchObjId = 0;
         int LaunchKind = -1;
+        Matrix LaunchOrient;
+        bool CourierTransfer = false;
+#ifdef FREELANCER_RPG_WORLD
+        CourierTransfer = TrainCourierLaunchPose(session_id,Req.Position,Req.Orientation,LaunchObjId,LaunchKind);
+#endif
+        if (!CourierTransfer) {
         Server_GetLaunchPosition(session_id, &LaunchObjId, &LaunchKind, &Req.Position,
                                  &Req.Orientation);
-
+        }
+        if (!CourierTransfer || LaunchObjId != 0) {
         // .text:06cefcc2 .. 06cefd10 -- the file's math engine (DAT_06d8d758):
         // QuaternionToMatrix (vt +0x54) into [ESP+0x48], then TransformMatrix
         // (vt +0x2c) of HpPos by it into [ESP+0x14].
         if (GIServerSMathEngine == nullptr)
             GIServerSMathEngine = Server_Acquire3DMathEngine();
-        Matrix LaunchOrient;
         GIServerSMathEngine->QuaternionToMatrix(reinterpret_cast<FMatrix&>(LaunchOrient),
                                                 reinterpret_cast<FQuaternion const&>(Req.Orientation));
         if (GIServerSMathEngine == nullptr)
@@ -1515,6 +1544,7 @@ void IServerImpl::PlayerLaunch(unsigned int ship_id, unsigned int session_id) {
         Req.Position.x = Req.Position.x - HpOffset.x;
         Req.Position.y = Req.Position.y - HpOffset.y;
         Req.Position.z = Req.Position.z - HpOffset.z;
+        }
 
         // .text:06cefd1e .. 06cefdd7 -- IClient +0xf0 (SendServerLaunch) FLPACKET_SERVER_LAUNCH
         // with the record at [ESP+0x48].
@@ -3290,6 +3320,11 @@ extern "C" int __cdecl Server_ControllerDispatch(unsigned int Flid, pub::Control
                                                  const void* MsgData) {
     RefreshLoadingProgress();
     if ((Flid & 0x3fffffff) == 0) {
+#ifdef FREELANCER_RPG_WORLD
+        if(MsgId==pub::Controller::EMessage::LoadGame)TrainCourierReset();
+        else if(MsgId==pub::Controller::EMessage::PlayerLogout && MsgData)
+            TrainCourierReset(*static_cast<unsigned const*>(MsgData));
+#endif
         // Broadcast arm (retail 0x06d4409c-0x06d440cd).
         g_ReentrancyGuard++;
         FControllerNode* cur = g_ControllerListSentinel.Next;
@@ -4358,6 +4393,9 @@ static void Server_ControllerCleanup() {
 //   4. --DAT_06d8f764; at zero drain the deferred-create list (as _SendMessage does)
 // Port field names: HeartbeatTimer is retail +0x10 (period), HeartbeatAccum +0x14.
 static void Server_TimerTick(float dt) {
+#ifdef FREELANCER_RPG_WORLD
+    TrainCourierTick();
+#endif
     for (std::list<FControllerNode*>::iterator It = g_DestroyPending.begin();
          It != g_DestroyPending.end(); ++It) {
         FControllerNode* Node = *It;

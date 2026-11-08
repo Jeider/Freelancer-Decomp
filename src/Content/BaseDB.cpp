@@ -12,6 +12,7 @@
 #include "ContentStaticIds.h"
 
 #include "BaseDB.h"
+#include "RpgContacts.h"
 #include "BaseSupport.h"         // FMissionOfferAcceptMsg, RefreshMissionVendorOffers
 #include "ContentInternal.h"     // OpenContentDataIni
 #include "ContentPlayerState.h"
@@ -383,6 +384,9 @@ void FContentBase::Unload()
 {
     if (--LoadCount != 0)
         return;
+#ifdef FREELANCER_RPG_WORLD
+    RpgContactsUnload(*this);
+#endif
     RoomStates.clear();
     Rooms.clear();
     Npcs.clear();
@@ -452,6 +456,9 @@ void __cdecl BuildContentBases()
 // FUN_06eabf40 (06eabf40-06eac082).
 void __cdecl LoadDynBaseInfo(INI_Reader* Reader)
 {
+#ifdef FREELANCER_RPG_WORLD
+    RpgContactsClear();
+#endif
     GContentBases.clear();
     BuildContentBases();
 
@@ -476,6 +483,9 @@ void __cdecl LoadDynBaseInfo(INI_Reader* Reader)
 // FUN_06eabe80 (06eabe80-06eabf38).
 void __cdecl UnloadContentBases()
 {
+#ifdef FREELANCER_RPG_WORLD
+    RpgContactsClear();
+#endif
     GContentBases.clear();
 }
 
@@ -1296,6 +1306,9 @@ void FContentBase::GetCommoditiesInDemand(std::vector<FBaseCommodity>* Out) cons
 // FUN_06eaa3e0 (06eaa3e0-06eaa77f).
 void FContentBase::OnPlayerEnter(unsigned int PlayerId)
 {
+#ifdef FREELANCER_RPG_WORLD
+    RpgContactsEnter(*this, PlayerId);
+#endif
     for (std::vector<FBaseRoom>::iterator Room = Rooms.begin(); Room != Rooms.end(); ++Room)
     {
         std::list<FBaseFixture*>& Fixtures = Room->Fixtures.Fixtures;
@@ -1383,6 +1396,9 @@ void FContentBase::OnPlayerEnter(unsigned int PlayerId)
 // FUN_06eaa790 (06eaa790-06eaa814).
 void FContentBase::OnPlayerExit(unsigned int PlayerId)
 {
+#ifdef FREELANCER_RPG_WORLD
+    RpgContactsLeave(*this, PlayerId);
+#endif
     for (std::map<unsigned int, FBaseRoomState>::iterator State = RoomStates.begin();
          State != RoomStates.end(); ++State)
     {

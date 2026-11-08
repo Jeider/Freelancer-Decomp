@@ -9,6 +9,7 @@
 // templates and the FlashLightSet / FlashLightLine key reader. Split out of common_goods.cpp.
 
 #include "common_goods.h"
+#include "common_interior_profiles.h"
 #include "common_goods_internal.h" // kPathChars, MallocCopy
 #include "msvcrt_compat.h"         // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 #include "thorn_iface.h"
@@ -918,6 +919,7 @@ void RoomData::clear()
 // 062748d0 ?destroy@RoomData@@QAEXXZ. Frees what the room owns, then clear().
 void RoomData::destroy()
 {
+    BaseInteriors::ForgetRoom(this);
     // 062748d4..06274923: the two init strings, the AnimationCount animation names, the
     // goodscart script.
     malloc_strfree(&Nickname);
@@ -1031,7 +1033,11 @@ void RoomData::read_RoomInfo_block(INI_Reader* Reader)
 {
     while (Reader->read_value())
     {
-        if (Reader->is_value("set_script"))
+        if (Reader->is_value("characters"))
+        {
+            BaseInteriors::SetCharacters(this, Reader->get_value_bool(0));
+        }
+        else if (Reader->is_value("set_script"))
         {
             // 062754c2..062754cf: the value goes straight to read_set_script, nothing is kept.
             read_set_script(Reader->get_value_string());
@@ -1335,6 +1341,8 @@ void RoomData::read_PlayerShipPlacement_block(INI_Reader* Reader)
 
     while (Reader->read_value())
     {
+        if (BaseInteriors::ReadPlacementValue(Place, *Reader))
+            continue;
         if (Reader->is_value("name"))
         {
             char const* const FileName = Reader->get_file_name();
@@ -1404,6 +1412,7 @@ void RoomData::read_Hotspot_block(INI_Reader* Reader)
         {"Launch", 4},            {"StartDealer", 5},       {"StartShipDealer", 7},
         {"FrontDesk", 6},         {"StartEquipDealer", 8},  {"MoveRight", 9},
         {"MoveLeft", 10},         {"VirtualRoom", 11},      {"Repair", 12},
+        {"StartShipPark", 13},
     };
 
     // Retail pushes the new (still-empty) entry into the vector immediately (via the shared

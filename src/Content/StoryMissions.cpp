@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "ContentInternal.h"
+#include "RpgDialog.h"
 // TU0-14 static IDs (06ea1000..06ea58c0: 16 ids + "default" per retail TU; the port merges
 // the 15 mission TUs into this file, so one copy stands for all 15).
 #include "ContentStaticIds.h"
@@ -60,6 +61,27 @@ namespace
             : FMissionScript(InControllerId, Parms)
         {
             LoadMissionIni(reinterpret_cast<char const*>(Parms) + 0xc);
+        }
+    };
+
+    // Port-only authored script. Not a vignette and not Story's GenericMission.
+    class FScriptMission : public FMissionScript
+    {
+    public:
+        FScriptMission(unsigned int const* InControllerId, FStoryMissionCreateParms const* Parms)
+            : FMissionScript(InControllerId, Parms)
+        {
+            StoryEvents = nullptr;
+            char const* Path = RpgPendingScript();
+            if (Path == nullptr || Path[0] == '\0')
+                Path = "Missions\\Custom\\om15_train.ini";
+            LoadMissionIni(Path);
+        }
+
+        void EndMission() override
+        {
+            RpgSetPlayerCanLaunch(1);
+            FMissionScript::EndMission();
         }
     };
 
@@ -468,6 +490,11 @@ namespace
 IDLL* CreateGenericMission(char const*, unsigned int ControllerId, void const* Parms)
 {
     return NewMission<FGenericMission>(ControllerId, Parms);
+}
+
+IDLL* CreateScriptMission(char const*, unsigned int ControllerId, void const* Parms)
+{
+    return NewMission<FScriptMission>(ControllerId, Parms);
 }
 
 IDLL* CreateMission01a(char const*, unsigned int ControllerId, void const* Parms)

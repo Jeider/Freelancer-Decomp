@@ -62,6 +62,7 @@
 #endif
 
 #include "common_physys_internal.h"
+#include "common_train.h"
 
 using namespace CmnPhySys;
 
@@ -339,8 +340,13 @@ namespace
             Engine->SetInstanceTransform(PhySys_InstanceHandle(Instance), New); // IEngine +0x70
             PhySys_SetInstanceObject(Instance, New);                     // IEngine +0x7c
             PhySys_AppendPart(New, PartId, Instance);                    // FUN_0628f700
-            PhySys_BuildPartIVP_Real(New, Part, Parms);                  // FUN_06289100
-            PhySys::AttachGolemController(New, Parms);                   // FUN_06288e60
+            PhySys::CreateParms BodyParms = Parms;
+            CmnTrain::ChildParms(New, BodyParms);
+            PhySys_BuildPartIVP_Real(New, Part, BodyParms);              // FUN_06289100
+            if (CmnTrain::IsWagon(New))
+                New->PhysicsControlMode = 1; // independent body, owned by the train joint solver
+            else
+                PhySys::AttachGolemController(New, BodyParms);          // FUN_06288e60
             RecursionOwner = New;
         }
         else
@@ -366,6 +372,7 @@ namespace
 // .text:06288970..06288b21.
 void __cdecl PhySys::BuildIVP_Real(CObject* Object, CreateParms const& Parms)
 {
+    CmnTrain::Prepare(Object);
     long const Instance = Object->EngineInstanceId;
 
     // .text:06288973..06288989
@@ -422,6 +429,7 @@ void __cdecl PhySys::BuildIVP_Real(CObject* Object, CreateParms const& Parms)
     // .text:06288ac1..06288acd
     if (Parms.bEnableCollisions != 0)
         Object->enable_collisions_r(true);
+    CmnTrain::Build(Object);
 }
 
 // ============================================================================
@@ -678,6 +686,7 @@ namespace
 // collision states come back.
 void __cdecl PhySys::Attach(CObject* Parent, CObject* Child)
 {
+    Parent = CmnTrain::AttachmentOwner(Parent, Child);
     // .text:06284cb8..06284ce4: the save list (an EH-guarded local, freed at 06284df1).
     FCollisionSaveList SaveList;
     PhySys_DisableCollisionsAndDetachSubtree(Child->EngineInstanceId, Child, SaveList);
@@ -714,6 +723,7 @@ void __cdecl PhySys::Attach(CObject* Parent, CObject* Child)
 // (golem): delete the controller. Every mode ends at 0.
 void __cdecl PhySys::Detach(CObject* Object, DetachParms const& Parms)
 {
+    CmnTrain::Forget(Object);
     // .text:0628492d..06284934
     if (Object->PhysicsControlMode == 2)
     {
@@ -783,6 +793,7 @@ void CmnPhySys::PhySys_DeleteBody(IVP_Real_Object* Body)
     // (IVP_Polygon / IVP_Ball) exactly as the vtable call does.
     if (Body != nullptr)
     {
+        CmnTrain::Forget(static_cast<CObject*>(Body->client_data));
         delete Body;
     }
 }
@@ -903,16 +914,18 @@ namespace
     // every other object hanging off its instance tree.
     void PhySys_ReMakeBody(CObject* Object, PhySys::CreateParms const& Parms, float Radius)
     {
+        PhySys::CreateParms BodyParms = Parms;
+        CmnTrain::ChildParms(Object, BodyParms);
         // .text:0628a52b..0628a54e
         IVP_RealObjectConstructionTemplate Template;
         Template.set_short_name(Parms.Name);
         // .text:0628a553..0628a59d: FlagsHi is 0 here (BuildIVP_Sphere / BuildPartIVP_Real
         // copy CreateParms+0x1c instead).
-        PhySys_FillTemplateDamping(Template, Parms);
+        PhySys_FillTemplateDamping(Template, BodyParms);
         Template.FlagsHi = 0;
         // .text:0628a57c..0628a5de
-        if (Parms.bHasInertia != 0)
-            PhySys_FillTemplateInertia(Template, Parms.Inertia);
+        if (BodyParms.bHasInertia != 0)
+            PhySys_FillTemplateInertia(Template, BodyParms.Inertia);
 
         // .text:0628a5e6..0628a631: lower_bound FUN_062fd030 plus the key test, no end() test:
         // a miss uses the map head node's unconstructed storage as the system
@@ -958,7 +971,10 @@ namespace
             // .text:0628a727..0628a75c
             PhySys_ReMakeBody(Child, Parms, 0.0f);
             CObject* const Root = PhySys_InstanceObject(GetRoot(Owner->EngineInstanceId));
-            PhySys::Attach(Root, Child);
+            if (CmnTrain::IsWagon(Child))
+                Child->PhysicsControlMode = 1;
+            else
+                PhySys::Attach(Root, Child);
             // .text:0628a761..0628a775: no test on the manager.
             if (Parms.bEnableCollisions != 0)
                 Child->CollisionStateMgr->enable_collisions(true, true);
@@ -978,6 +994,7 @@ namespace
 void __cdecl PhySys::ReMakePhysicalR(CObject* Object, CreateParms const& Parms, float Radius)
 {
     PhySys_ReMakeBody(Object, Parms, Radius);                // FUN_0628a510
+    CmnTrain::Build(Object);
     if (Parms.bEnableCollisions != 0)                        // +0x1d
         Object->enable_collisions_r(true);
 }

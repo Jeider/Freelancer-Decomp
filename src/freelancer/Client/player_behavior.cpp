@@ -9,6 +9,7 @@
 #include "player_behavior.h"
 #include "flight_telemetry.h"
 #include "player_flight_actions.h"
+#include "player_train.h"
 #include "player_route.h"
 #include "cockpit_free_look.h"
 
@@ -163,6 +164,7 @@ void ResetPlayerBehaviorDirection()
 
 void SetPlayerStrafeBurst(int Dir)
 {
+    if(Dir!=0)PlayerTrain::CancelApproach();
     if (Dir != 0) PlayerRoute::Cancel(true);
     if (Dir != 0 && !PlayerFlightActions::RequestCancel()) return;
     // 0x004c7a4a.
@@ -176,6 +178,7 @@ void SetPlayerStrafeBurst(int Dir)
 
 void SetPlayerAfterburner(bool bOn)
 {
+    if(bOn)PlayerTrain::CancelApproach();
     if (bOn) PlayerRoute::Cancel(true);
     if (bOn && !PlayerFlightActions::RequestCancel()) return;
     // 0x004c798a.
@@ -211,6 +214,7 @@ void SetPlayerAutoAvoidance(bool bOn)
 
 void SetPlayerBrakeReverse(bool bOn)
 {
+    if(bOn)PlayerTrain::CancelApproach();
     if (bOn) PlayerRoute::Cancel(true);
     if (bOn && !PlayerFlightActions::RequestCancel()) return;
     // 0x004c7a7a.
@@ -224,6 +228,7 @@ void SetPlayerBrakeReverse(bool bOn)
 
 void SetPlayerCruise(bool bOn)
 {
+    PlayerTrain::CancelApproach();
     PlayerRoute::SetCruiseRequested(bOn);
     if (!PlayerFlightActions::RequestCancel()) return;
     // 0x004c7aaa.
@@ -237,6 +242,7 @@ void SetPlayerCruise(bool bOn)
 
 void SetPlayerEngageEngine(bool bOn)
 {
+    PlayerTrain::CancelApproach();
     PlayerRoute::Cancel(true);
     if (!PlayerFlightActions::RequestCancel()) return;
     // 0x004c7ada.
@@ -250,6 +256,7 @@ void SetPlayerEngageEngine(bool bOn)
 
 void SetPlayerThrottle(float Throttle)
 {
+    PlayerTrain::CancelApproach();
     PlayerRoute::Cancel(true);
     if (!PlayerFlightActions::RequestCancel()) return;
     // 0x004c7afe: the argument is stored FIRST, unclamped, and only then overwritten if it is out
@@ -411,6 +418,7 @@ void UpdateMouseFlightDirection()
 {
     FlightTelemetry::OriginScope telemetryOrigin(FlightTelemetry::Origin::MouseSteering);
     if (PlayerRoute::BlockMouse()) return;
+    if (PlayerTrain::IsApproaching()) return;
     if (PlayerFlightActions::BlockMouse()) return;
     if (CockpitFreeLook::BlocksMouseFlight()) return;
     // 0x004c7cc5..0x004c7d0a: the ship's behavior interface, when the player is in a ship in the

@@ -604,6 +604,12 @@ bool NeuroNetNavMap::Create(Win3D* NewParent, void* Data)
             0, 0);
     }
     {
+        float const Position[3] = {0.175f, 0.295f, 0.0f};
+        ParkListFilter = CreateButtonControl(
+            "NavMapParkListFilter", "Interface\\neuronet\\inventory\\gotoship.3db", nullptr,
+            "ui_select_item", nullptr, Position, nullptr, SmallHalf, 0, 0, 0, 0, 0x4de, 0, 0);
+    }
+    {
         float const Position[3] = {-0.092f, 0.295f, 0.0f};
         PhysicalFilter = CreateButtonControl(
             "NavMapPhysicalFilter",
@@ -982,7 +988,7 @@ bool NeuroNetNavMap::Create(Win3D* NewParent, void* Data)
     // survive a reopen.
     if (BestPathGetWaypointCount() > 0)
         G_NavMapFilterMode = 3;
-    else if (G_NavMapFilterMode == 6 || G_NavMapFilterMode == 7)
+    else if (G_NavMapFilterMode == 6 || G_NavMapFilterMode == 7 || G_NavMapFilterMode == 8)
         G_NavMapFilterMode = 0;
 
     // 00490bcc..00490c50
@@ -1027,6 +1033,8 @@ bool NeuroNetNavMap::Slot23(unsigned Msg, unsigned A, unsigned B)
             FilterTitle->SetProperty(1, 0, 0);
             LegendFilter->SetProperty(1, 0, 0);
             BaseListFilter->SetProperty(1, 0, 0);
+            if (ParkListFilter != nullptr)
+                ParkListFilter->SetProperty(1, 0, 0);
             MineableFilter->SetProperty(1, 0, 0);
 
             unsigned char const bNoZones = MissionZoneIds.empty() ? 1 : 0;
@@ -1243,6 +1251,8 @@ void NeuroNetNavMap::InitialShow()
     FilterTitle->SetProperty(1, 1, 0);
     LegendFilter->SetProperty(1, 1, 0);
     BaseListFilter->SetProperty(1, 1, 0);
+    if (ParkListFilter != nullptr)
+        ParkListFilter->SetProperty(1, 1, 0);
     AllFilter->SetProperty(1, 1, 0);
     HostileFilter->SetProperty(1, 1, 0);
     FriendlyFilter->SetProperty(1, 1, 0);

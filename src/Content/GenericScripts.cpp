@@ -14,6 +14,7 @@
 #include "ContentStaticIds.h"
 
 #include "GenericScripts.h"
+#include "RpgContacts.h"
 
 #include "ContentInternal.h"
 #include "ContentPlayerState.h"  // FindContentPlayerState, FContentPlayerState
@@ -723,6 +724,10 @@ namespace
 // character.
 void __cdecl StartBarCharacterScript(FBarCharacterList::iterator Character)
 {
+#ifdef FREELANCER_RPG_WORLD
+    if (RpgContactsOwns(&*Character))
+        return;
+#endif
     if (Character->Placement == -1)
         return;
     Character->SetBehavior(BuildBarBehavior(&*Character));

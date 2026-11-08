@@ -13,6 +13,7 @@
 #include "space_letterbox.h"
 #include "nn_modal.h"
 #include "cutscene_skip.h"
+#include "rpg_dialog.h"
 #ifdef FREELANCER_MOD_PLUGINS
 #include "wing_anim.h" // port-only wing animation key
 #endif
@@ -714,6 +715,10 @@ bool KeyMapRouteInputMessage(unsigned Message, unsigned Wparam, unsigned Lparam)
     if (DbgChaseHandleKey(Message, Wparam))
         return true;
     if (DbgOptionsHandleKey(Message, Wparam))
+        return true;
+#endif
+#ifdef FREELANCER_RPG_WORLD
+    if (RpgDialogHandleKey(Message, Wparam, Lparam))
         return true;
 #endif
     if (CutsceneSkipHandleKey(Message, Wparam, Lparam))

@@ -47,6 +47,7 @@ namespace RenderEx
     // nebula_volume.h.)
     void AfterSpaceScene();
     void AntialiasScene(); // Completed 3D frame (space/cockpit/rooms), before UI.
+    void ColorGradeScene();
     void RoomMaterialFrame(bool Enabled);
     void RoomContactShadows();
     bool BeginRoomShadow(const float* CameraView12, const float* Center, float Radius, bool Character);

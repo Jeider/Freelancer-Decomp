@@ -15,6 +15,7 @@
 #include "tooltip_hover.h"        // FToolTipHoverInfo / NnToolTipFeedHover (FUN_004be370)
 #include "win3d.h"
 #include "win3d_engine_submit.h"  // FUN_0059efa0 / FUN_00434630 / FUN_00434670
+#include "star_sphere.h"          // Win3DBindModelview
 #include "win3d_immediate.h"      // Win3DEnable / Disable, viewport and projection helpers
 #include "win3d_render.h"         // Win3DApplyCamera (FUN_00422950)
 #include "win_factory.h"
@@ -53,6 +54,8 @@ namespace
     // DAT_0067c53c -- the 3DMathEngine this class acquires on first use (FUN_005b73e0), shared
     // by Draw (0x00588bc5) and SetOrientation (0x00588d19).
     I3DMathEngine* G_StaticMathEngine = nullptr;
+    NnStaticControl* G_ClipControl = nullptr;
+    float G_ClipFill = 1.0f;
 
     I3DMathEngine* StaticMathEngine()
     {
@@ -164,6 +167,12 @@ namespace
     {
         return (Ini->get_value_float(0) != 0.0) ? 1 : 0;
     }
+}
+
+void NnStaticControlSetClip(NnStaticControl* Control, float Fill)
+{
+    G_ClipControl = Control;
+    G_ClipFill = Fill;
 }
 
 NnStaticControl::NnStaticControl()
@@ -577,6 +586,19 @@ void NnStaticControl::Draw()
         SpaceCameraSetFovY(&Camera, kWindowFovY);                  // FUN_0040fa10
         Win3DSetViewport(AsCamera(&Camera), kStaticControlCpp, 0x13d); // FUN_00422610
         Win3DApplyCameraPerspective(AsCamera(&Camera));             // FUN_00422910
+        if (G_ClipControl == this && G_ClipFill < 1.0f)
+        {
+            int const Width = Rect[2] - Rect[0] + 1;
+            int const Height = Rect[3] - Rect[1] + 1;
+            int const Shown = static_cast<int>(static_cast<float>(Width) * G_ClipFill);
+            using FSetScissor = void(__cdecl*)(void*, int, int, int, int, int);
+            HMODULE const Rp9 = GetModuleHandleA("RP9.dll");
+            FSetScissor const SetScissor = Rp9 != nullptr
+                ? reinterpret_cast<FSetScissor>(GetProcAddress(Rp9, "Rp9SetScissor"))
+                : nullptr;
+            if (SetScissor != nullptr)
+                SetScissor(DALib::Pipeline, 1, Rect[0], Rect[1], Shown > 1 ? Shown : 1, Height);
+        }
         ViewCamera = &Camera;
     }
 
@@ -632,6 +654,16 @@ void NnStaticControl::Draw()
     // 0x00588c7f: the Win3D camera, the saved viewport and the instance's place back.
     if (bRenderToWindow != 0)
     {
+        if (G_ClipControl == this)
+        {
+            using FSetScissor = void(__cdecl*)(void*, int, int, int, int, int);
+            HMODULE const Rp9 = GetModuleHandleA("RP9.dll");
+            FSetScissor const SetScissor = Rp9 != nullptr
+                ? reinterpret_cast<FSetScissor>(GetProcAddress(Rp9, "Rp9SetScissor"))
+                : nullptr;
+            if (SetScissor != nullptr)
+                SetScissor(DALib::Pipeline, 0, 0, 0, 0, 0);
+        }
         Win3DApplyCamera(AsCamera(Win3DGetCamera())); // FUN_00422950(&DAT_0067dbf8)
         Win3DSetViewportRect(SavedViewport[0], SavedViewport[1], SavedViewport[2],
                              SavedViewport[3], kStaticControlCpp, 0x185); // FUN_00421620

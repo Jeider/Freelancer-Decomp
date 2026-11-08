@@ -417,6 +417,8 @@ struct FRp9ExState
     bool bGammaFailed = false;
     float Gamma[4] = {1.0f, 0.0f, 1.0f, 0.0f};
     IDirect3DPixelShader9* GammaPs = nullptr;
+    IDirect3DPixelShader9* ColorGradePs = nullptr;
+    bool bColorGradeFailed = false;
     IDirect3DStateBlock9* QualitySavedState = nullptr;
     float ShadowBiasScale = 0.5f;
     // [0] near, [1] far, [2] the near map's moving casters (ships, asteroids).

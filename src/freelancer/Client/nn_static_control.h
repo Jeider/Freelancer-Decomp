@@ -118,3 +118,7 @@ static_assert(offsetof(NnStaticControl, Camera) == 0x350, "StaticControl +0x350"
 static_assert(offsetof(NnStaticControl, MeshColour) == 0x410, "StaticControl +0x410");
 static_assert(offsetof(NnStaticControl, ForceRadius) == 0x418, "StaticControl +0x418");
 static_assert(offsetof(NnStaticControl, RotationSpeed) == 0x41c, "StaticControl +0x41c");
+
+// Port-only. While Control draws, the render-to-window viewport keeps the fitted camera
+// and shows only the left Fill fraction, so the mesh is clipped instead of squashed.
+void NnStaticControlSetClip(NnStaticControl* Control, float Fill);

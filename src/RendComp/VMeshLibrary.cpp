@@ -434,8 +434,9 @@ static FVmeshData* VMeshDataConstruct(FVmeshData* This, const char* Name, unsign
     return This;
 }
 
-// FUN_06c2df00: map entry, group membership, name, leaf bytes and the material array go (the
-// materials themselves are released by the parts, FUN_06c30980), then the negative event.
+// FUN_06c2df00, with shared material ownership moved here from individual parts.
+// A material slot has one reference regardless of how many parts use its facegroup.
+// Keep it until the final mesh-data reference (parts and libraries) is released.
 static void VMeshDataDestruct(FVmeshData* This)
 {
     VMeshDataMapErase(This);
@@ -443,6 +444,12 @@ static void VMeshDataDestruct(FVmeshData* This)
         VMeshGroupRemove(This->Group, This);
     if (This->Name != nullptr)
         std::free(This->Name);
+    if (This->Materials != nullptr)
+    {
+        for (unsigned int Index = 0; Index < This->Header->FaceGroups; ++Index)
+            if (This->Materials[Index] != nullptr)
+                This->Materials[Index]->Release();
+    }
     delete[] (const unsigned char*)This->Header;
     delete[] This->Materials;
     LogStream::LogEvent("Memory_VMeshData", -This->SizeKib, 0x610);

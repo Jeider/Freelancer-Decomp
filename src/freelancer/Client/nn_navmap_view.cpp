@@ -364,6 +364,8 @@ void NeuroNetNavMap::EnterSystemView()
     FilterTitle->SetProperty(1, bHidden, 0);
     LegendFilter->SetProperty(1, bHidden, 0);
     BaseListFilter->SetProperty(1, bHidden, 0);
+    if (ParkListFilter != nullptr)
+        ParkListFilter->SetProperty(1, bHidden, 0);
     for (int Index = 0; Index < 4; ++Index)
         FactionLabels[Index]->SetProperty(1, 1, 0);
 #ifdef FREELANCER_ADOXA
@@ -442,6 +444,8 @@ void NeuroNetNavMap::EnterUniverseView()
     MineableFilter->SetProperty(1, 1, 0);
     LegendFilter->SetProperty(1, 1, 0);
     BaseListFilter->SetProperty(1, 1, 0);
+    if (ParkListFilter != nullptr)
+        ParkListFilter->SetProperty(1, 1, 0);
     AllFilter->SetProperty(1, 1, 0);
     HostileFilter->SetProperty(1, 1, 0);
     FriendlyFilter->SetProperty(1, 1, 0);

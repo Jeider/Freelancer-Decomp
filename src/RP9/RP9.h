@@ -33,7 +33,11 @@
 #include "render/IRPLocalShadows.h"
 #include "render/IRPWeaponGlints.h"
 #include "render/IRPFrameQuality.h"
+#include "render/IRPColorGrade.h"
 #include "render/IRPSceneCapture.h"
+#ifdef FREELANCER_DLSS5
+#include "render/IRPBaseNeural.h"
+#endif
 #include "render/IRPPlanetAtmosphere.h"
 #include "render/IRPPlanetSurface.h"
 
@@ -386,10 +390,20 @@ class FDirectX9 final : public IRenderPipeline,
                         public IRenderPipelineEx,
                         public IRPDrawEx,
                         public IRPSurfaceShader, public IRPSurfaceContext, public IRPRoomMaterials, public IRPRoomShadows,
-                        public IRPLocalShadows, public IRPFrameQuality, public IRPWeaponGlints,
+                        public IRPLocalShadows, public IRPFrameQuality, public IRPColorGrade, public IRPWeaponGlints,
                         public IRPPlanetAtmosphere, public IRPPlanetSurface, public IRPSceneCapture, public IRPCodeBeam, public IRPShipNormals, public IRPRockNormals, public IRPVolumeBeam, public IRPRenderWarmup
+#ifdef FREELANCER_DLSS5
+                        , public IRPBaseNeural
+#endif
 {
 public:
+#ifdef FREELANCER_DLSS5
+    GENRESULT DACOM_API ProcessBaseNeural(BaseNeuralBridge::Frame const* Frame) override;
+    void DACOM_API StopBaseNeural() override;
+    GENRESULT DACOM_API BeginBaseSupersample(float Scale) override;
+    GENRESULT DACOM_API EndBaseSupersample() override;
+    void ExScaleBaseNeuralViewport(D3DVIEWPORT9& Viewport);
+#endif
     FDirectX9();
     ~FDirectX9();
 
@@ -707,6 +721,7 @@ public:
 
     GENRESULT QueryLocal(const char* Iid, void** Out);
     GENRESULT DACOM_API ApplySceneAntialiasing() override;
+    GENRESULT DACOM_API ApplyColorGrade(unsigned Preset) override;
     GENRESULT DACOM_API CaptureSceneColor(FRPExTexture* Destination) override;
     void ExInitQualityConfig();
     void FlushDrawState(IDirect3DDevice9* Device); // formerly static FlushDrawState

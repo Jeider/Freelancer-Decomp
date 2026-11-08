@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "room_control.h"
+#include "base_interior_profiles.h"
 #ifdef FREELANCER_RP9
 #include "render_ex.h"
 #include "graphics_settings.h"
@@ -494,6 +495,8 @@ static FCharacterObject* CreatePlacedCharacter(std::vector<FRoomCharPlacement>& 
                                                CharacterProperties const& Props,
                                                FRoomRuntime* Room)
 {
+    if (!BaseInteriors::HasCharacters(GetRoomRuntimeRoomData(Room)))
+        return nullptr; // Explicit characters=false in this room INI.
     // 0x00435960..0x0043597f.
     int CharType = static_cast<int>(Props.CharType);
     if (Props.SessionId != 0 && Props.SessionId != GetPlayerConnectionId())
@@ -1767,7 +1770,7 @@ void FRoomShipPad::CreatePlayerShip()
     Desc.Pos = Place->Frame.Pos;
     Desc.Orient = Place->Frame.Orient;
     // 0x0044883e: shadow on. 0x00448843..0x00448846: +0x3c = Place +0x08, the pad's y.
-    Desc.bShadow = 1;
+    Desc.bShadow = BaseInteriors::PlacementShadow(Place) ? 1 : 0;
     Desc.Float1C = Place->Frame.Pos.y;
     // 0x0044884a..0x0044885b: malloc_strcpy(&Desc +0x34, Place->LaunchingScript (+0x3c)).
     malloc_strcpy(&Desc.LaunchScript, Place->LaunchingScript);
@@ -1861,7 +1864,8 @@ void FRoomShipPadTable::Build(FRoomRuntime* Runtime, FClientMarket* Market)
     for (Index = 0; Index < Count; ++Index)
     {
         FRoomShipPad const& Pad = Pads[Index];
-        if (Pad.Ship == nullptr && Pad.ForSale == nullptr && Pad.Place->bIsPlayerShip)
+        if (Pad.Ship == nullptr && Pad.ForSale == nullptr && Pad.Place->bIsPlayerShip &&
+            BaseInteriors::PlacementMatches(Pad.Place, GetPlayerShipArchetypeIdRetail()))
         {
             Found = Index;
             break;

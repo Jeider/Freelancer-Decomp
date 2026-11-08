@@ -328,14 +328,17 @@ def preview(atlas):
     reference = Image.open(io.BytesIO(blob)).transpose(Image.Transpose.FLIP_TOP_BOTTOM)
     manifest=json.loads((OUT/'beta_marker_manifest.json').read_text())
     registrations={index:manifest[key]['alignment'] for index,key in
-                   ((2,'Target'),(3,'TargetHat'),(4,'Quotes'),(5,'TargetDetail'))}
+                   ((2,'Target'),(3,'TargetHat'),(4,'Quotes'),(5,'TargetDetail'),(7,'ContactHat'))}
     def registered_tile(index):
         tile=reference.crop((index%4*256,index//4*256,index%4*256+256,index//4*256+256))
         if index in registrations:
             registration=registrations[index]
-            angle=registration['angle'];offset=np.array(registration['offset'])
-            c,s=np.cos(angle),np.sin(angle)
-            inverse=np.array([[c,s],[-s,c]])
+            offset=np.array(registration['offset'])
+            if 'matrix' in registration:
+                inverse=np.linalg.inv(registration['matrix'])
+            else:
+                angle=registration['angle'];c,s=np.cos(angle),np.sin(angle)
+                inverse=np.array([[c,s],[-s,c]])
             translation=np.array([128.,128.])-inverse@(np.array([128.,128.])+offset)
             tile=tile.transform((256,256),Image.Transform.AFFINE,
                                 tuple(np.column_stack((inverse,translation)).ravel()),

@@ -482,6 +482,16 @@ public:
 };
 
 // Act_PlayerCanTradelane: new(0x20), ctor FUN_06eccbe0, vtable 06fb5f00 (dtor FUN_06ecc8f0).
+class ActPlayerCanLaunch : public Act
+{
+public:
+    explicit ActPlayerCanLaunch(FMissionScript* InMission);
+    void Parse(INI_Reader& Reader) override;
+    bool Execute() override;
+
+    unsigned char bCanLaunch;
+};
+
 class ActPlayerCanTradelane : public Act
 {
 public:
@@ -1079,6 +1089,29 @@ public:
     TString<0x20> ShipName;    // +0x30 s0
     EquipDescVector Loadout;   // +0x54 pub::GetLoadout of GetLoadoutID(s1) unless "none"
     unsigned int ShipArchId;   // +0x64 (ctor 0) pub::GetShipID(s0) unless "none"
+};
+
+class ActCacheShipAndSetLoadout : public Act
+{
+public:
+    explicit ActCacheShipAndSetLoadout(FMissionScript* InMission);
+    void Parse(INI_Reader& Reader) override;
+    bool Execute() override;
+
+    TString<0x40> CacheName;
+    TString<0x20> ShipName;
+    EquipDescVector Loadout;
+    unsigned int ShipArchId;
+};
+
+class ActRestoreCachedShip : public Act
+{
+public:
+    explicit ActRestoreCachedShip(FMissionScript* InMission);
+    void Parse(INI_Reader& Reader) override;
+    bool Execute() override;
+
+    TString<0x40> CacheName;
 };
 
 // Act_SetVibe: new(0x7c), ctor FUN_06ec9df0, vtable 06fb5db8.

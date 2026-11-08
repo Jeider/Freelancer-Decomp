@@ -30,6 +30,7 @@
 #include "particle_effect.h"
 #include "player_behavior.h"
 #include "player_spawn.h"
+#include "player_train.h"
 #include "server_connect.h"
 #include "space_camera.h"
 #include "star_sys.h"             // StarSysNoteTargetChange (FUN_005532d0) -- launcher fire
@@ -1613,7 +1614,9 @@ unsigned CliShipFireWeapons(void* AdjustorThis, unsigned short const* HardpointI
                             unsigned HardpointCount, Vector const* TargetPos, int PlayerId)
 {
     PlayerAutoTurrets::Reconcile();
-    return CliShipFireWeaponsImpl(AdjustorThis, HardpointIds, HardpointCount, TargetPos, PlayerId, false, nullptr);
+    auto result=CliShipFireWeaponsImpl(AdjustorThis, HardpointIds, HardpointCount, TargetPos, PlayerId, false, nullptr);
+    PlayerTrain::FireCoupled(static_cast<IObjAffect*>(AdjustorThis),HardpointIds,HardpointCount,TargetPos,PlayerId);
+    return result;
 }
 
 #ifdef FREELANCER_PLAYER_AUTO_TURRETS

@@ -23,7 +23,7 @@
 #ifdef FREELANCER_RP9
 #include "far_rocks.h"     // FarRocksParseSection / FarRocksForget / FarRocksReplacesBand (port-only)
 #include "field_dust.h"    // FieldDustParseSection / FieldDustForget (port-only)
-#include "nebula_volume.h" // NebulaVolume::AsteroidSpawnReach (port-only Direct3D 9 nebula)
+#include "nebula_volume.h" // port-only Direct3D 9 nebula composite
 #include "asteroid_frustum.h"
 #include "render/IRPSurfaceShader.h"
 #include "render/IRPRockNormals.h"
@@ -54,7 +54,7 @@
 namespace {
     // RockClass: IRPRockNormals class of the field's rocks (0 = keep its own look); RockRadius: the
     // mean bounding radius of one rock in the merged cube mesh, in metres.
-    struct NearFieldBounds { float Radius=0; bool Dyson=false; unsigned RockClass=0; float RockRadius=0; };
+    struct NearFieldBounds { float Radius=0; bool Dyson=false; bool RockNormals=true; unsigned RockClass=0; float RockRadius=0; };
     std::unordered_map<FCliAsteroid*,NearFieldBounds>& NearBounds() {
         static auto* map=new std::unordered_map<FCliAsteroid*,NearFieldBounds>(); return *map;
     }
@@ -72,18 +72,6 @@ struct FCliAsteroidExclusionInline
     }
 
 #ifdef FREELANCER_RP9
-    // Port-only (CliAsteroidTickOne's extended spawn distance under the volumetric nebula):
-    // the squared value as stored, read and put back around one near-field draw.
-    static float GetMaxCliDistSq(Exclusion::AsteroidExclusionZoneMgr const* Mgr)
-    {
-        return Mgr->MaxCliDist;
-    }
-
-    static void SetMaxCliDistSq(Exclusion::AsteroidExclusionZoneMgr* Mgr, float DistSq)
-    {
-        Mgr->MaxCliDist = DistSq;
-    }
-
     // Port-only (far rocks): the zones of the manager, up to Max, none of them null.
     static int GetZones(Exclusion::AsteroidExclusionZoneMgr const* Mgr, Universe::IZone const** Out, int Max)
     {
@@ -884,6 +872,13 @@ namespace
                 // clamps and hands to the renderer (0x00521641..0x00521670).
                 Lod = FloatToIntTrunc(Reader.get_value_float(0));
             }
+#ifdef FREELANCER_RP9
+            else if (Reader.is_value("rock_normals"))
+            {
+                // Opt out of the field-wide rock relief, e.g. for authored mine materials.
+                NearBounds()[This].RockNormals = Reader.get_value_bool(0);
+            }
+#endif
             else if (Reader.is_value("tint_field"))
             {
                 float R = Reader.get_value_float(0) * KInv255;
@@ -2741,7 +2736,7 @@ namespace
         CliAsteroidFillMeshDesc(&Field->MeshDesc, Field->MeshVerts,
                                 static_cast<unsigned short>(TotalVerts));
 #ifdef FREELANCER_RP9
-        NearFieldBounds bounds;
+        NearFieldBounds bounds=NearBounds()[Field]; // retain the [Field] relief permission
         double radius2=0;
         for(int i=0;i<TotalVerts;++i) {
             const float* p=reinterpret_cast<const float*>(static_cast<const unsigned char*>(Field->MeshVerts)+i*kCubeVertStride);
@@ -2754,7 +2749,7 @@ namespace
         bounds.Dyson=path=="solar\\asteroids_mod\\dyson\\sphere_field.ini";
         // Port-only (IRPRockNormals): every ordinary rock and debris field gets relief normals. Nomad,
         // lair, dyson and ice fields keep their own shaders. A field is judged by its ini name.
-        if(!bounds.Dyson && !RockNormalExcludedModel(path.c_str()) && path.find("_ice")==std::string::npos &&
+        if(bounds.RockNormals && !bounds.Dyson && !RockNormalExcludedModel(path.c_str()) && path.find("_ice")==std::string::npos &&
            path.find("ice_")==std::string::npos)
         {
             bounds.RockClass=path.find("debris")!=std::string::npos ? RPRockDebris : RPRockAsteroid;
@@ -2972,16 +2967,8 @@ namespace
     // .text:00522a60..0052470b (__thiscall on the field, RET 4: the camera). Two tests only -- the
     // common field (+0x04) and the byte +0x00; nothing on the camera, the zone, the pipeline or
     // the vertex-buffer manager.
-#ifdef FREELANCER_RP9
-    // Port-only parameters (CliAsteroidTickOne, the volumetric nebula's extended spawn
-    // distance): FillOverride > 0 replaces the fill distance (fill_dist * detail) of the cube
-    // walk, FadeBandOverride > 0 the width of the alpha fade before the reach (retail: half a
-    // cube). Both 0: retail exactly.
-    void CliAsteroidDrawNearField(FCliAsteroid* Field, FSpaceCamera* Cam, double FillOverride,
-                                  double FadeBandOverride)
-#else
+    // fill_dist and the retail detail multiplier govern every field, including RP9 volumes.
     void CliAsteroidDrawNearField(FCliAsteroid* Field, FSpaceCamera* Cam)
-#endif
     {
         if (Field->CmnField == nullptr)
             return;
@@ -3087,13 +3074,7 @@ namespace
         // FPU; the two lateral extents _ftol(tan * fill).
         float const TanX = static_cast<float>(tan(static_cast<double>(HalfFovX)));
         float const TanY = static_cast<float>(tan(static_cast<double>(FovY)));
-#ifdef FREELANCER_RP9
-        double const Fill = FillOverride > 0.0
-                                ? FillOverride
-                                : static_cast<double>(Field->FillDistAt24) * Field->Scale230;
-#else
         double const Fill = static_cast<double>(Field->FillDistAt24) * Field->Scale230;
-#endif
         int const ExtX = AsteroidFtol(TanX * Fill);
         int const ExtY = AsteroidFtol(TanY * Fill);
 
@@ -3194,19 +3175,10 @@ namespace
         // 0x0052393b..0x00523970: half a cube (DAT_005c75e0); the reach = fill + margin on the FPU,
         // stored as a float; the fade start float(reach - half cube).
         float const HalfCube = static_cast<float>(static_cast<double>(Field->CubeSize) * 0.5f);
-#ifdef FREELANCER_RP9
-        double const ReachD = Fill + Margin; // retail: FILD +0x24 * +0x230 + margin, = Fill
-        float const Reach = static_cast<float>(ReachD);
-        // Port-only: the fade band of the extended spawn distance (retail: half a cube).
-        double const FadeWidth =
-            FadeBandOverride > 0.0 ? FadeBandOverride : static_cast<double>(HalfCube);
-        float const FadeStart = static_cast<float>(ReachD - FadeWidth);
-#else
         double const ReachD =
             static_cast<double>(Field->FillDistAt24) * Field->Scale230 + Margin;
         float const Reach = static_cast<float>(ReachD);
         float const FadeStart = static_cast<float>(ReachD - HalfCube);
-#endif
 
         // 0x00523977..0x0052399a: the camera's own cube id (from the camera position, not the
         // cached eye); the seen byte cleared; the first-draw byte set.
@@ -3346,13 +3318,8 @@ namespace
                     // AH,0x41 / JNP) -> next cube. Otherwise the alpha is max_alpha.
                     if (FadeStart < Depth)
                     {
-#ifdef FREELANCER_RP9
-                        double Alpha =
-                            ((static_cast<double>(Reach) - Depth) / FadeWidth) * Field->ScaleCC;
-#else
                         double Alpha =
                             ((static_cast<double>(Reach) - Depth) / HalfCube) * Field->ScaleCC;
-#endif
                         if (Alpha > Field->ScaleCC)
                             Alpha = Field->ScaleCC;
                         else if (Alpha < 0.0)
@@ -3473,36 +3440,6 @@ namespace
     }
 
 #ifdef FREELANCER_RP9
-    // Port-only: CAsteroidField::near_field (Common .text:062a53c0) with an extended fill
-    // distance -- the margin (cube + fill) * 1.74f around the zone, the zone's extent along the
-    // line to its centre. The common field's own FillDist is left alone (it also drives the
-    // server-side asteroid population).
-    bool CliAsteroidNearFieldExtended(FCliAsteroid const* Field, Vector const& Pos, double Fill)
-    {
-        Universe::IZone const* const Zone = Field->Zone;
-        if (Zone == nullptr)
-            return true;
-        double const Margin = (static_cast<double>(Field->CubeSize) + Fill) * 1.74;
-        Vector const& Center = Zone->GetPos();
-        double const Dx = static_cast<double>(Pos.x) - Center.x;
-        double const Dy = static_cast<double>(Pos.y) - Center.y;
-        double const Dz = static_cast<double>(Pos.z) - Center.z;
-        double const Reach = static_cast<double>(Zone->GetRadius()) + Margin;
-        double const DistSq = Dx * Dx + Dy * Dy + Dz * Dz;
-        if (DistSq > Reach * Reach)
-            return false;
-        double const Dist = sqrt(DistSq);
-        if (!(Dist > 0.0001))
-            return true;
-        Vector Dir;
-        Dir.x = static_cast<float>(Dx / Dist);
-        Dir.y = static_cast<float>(Dy / Dist);
-        Dir.z = static_cast<float>(Dz / Dist);
-        return Dist - Zone->GetRadiusAlong(Dir) <= Margin;
-    }
-#endif
-
-#ifdef FREELANCER_RP9
     // Inherently translucent fields (gas mines) do not write depth. Composite the volume first,
     // then draw their original meshes; otherwise the volume mistakes them for distant sky.
     FCliAsteroid* GTransparentFields[64];
@@ -3521,33 +3458,8 @@ namespace
         CamPos.y = Pos3[1];
         CamPos.z = Pos3[2];
 
-#ifdef FREELANCER_RP9
-        // Port-only: under the Direct3D 9 volumetric nebula (nebula_volume.cpp) the haze is far
-        // thinner than retail's linear fog, which hid the end of the cube walk (fill_dist *
-        // detail + 1.25 cubes, faded over its last half cube) and the billboards' hand-over
-        // there. While a drawn nebula overlaps this field the cube walk goes out to where the
-        // haze leaves asteroid_spawn_transmittance (at most asteroid_max_spawn_distance), fades
-        // over asteroid_fade_fraction of that depth, the billboards' near fade planes and the
-        // exclusion zones' cut-off follow it, and the near-field test widens with it. 0 = retail.
-        float SpawnFadeFraction = 0.0f;
-        float const SpawnReach = NebulaVolume::AsteroidSpawnReach(Field->Zone, &SpawnFadeFraction);
-        double ExtFill = 0.0;
-        double ExtFadeBand = 0.0;
-        if (SpawnReach > 0.0f && !(Field->ScaleCC < 1.0f))
-        {
-            double const RetailFill = static_cast<double>(Field->FillDistAt24) * Field->Scale230;
-            double const Margin =
-                static_cast<double>(static_cast<float>(static_cast<double>(Field->CubeSize) * 1.25f));
-            double const HalfCube = static_cast<double>(Field->CubeSize) * 0.5;
-            if (static_cast<double>(SpawnReach) - Margin > RetailFill)
-            {
-                ExtFill = static_cast<double>(SpawnReach) - Margin;
-                ExtFadeBand = static_cast<double>(SpawnReach) * SpawnFadeFraction;
-                if (ExtFadeBand < HalfCube)
-                    ExtFadeBand = HalfCube;
-            }
-        }
-#endif
+        // Volumetric fog must not override authored fill_dist. Keep the native near-field,
+        // billboard and exclusion cut-offs in agreement with the cube walk and detail slider.
 
         // 0x005225fd..0x00522658: [AsteroidBillboards] (+0x198), ASTEROID_EXT above 1 (signed
         // JLE), [EFFECTS], each read only when the one before passed, and FUN_0054e040 on the
@@ -3577,21 +3489,8 @@ namespace
                 }
             }
             BillboardLinkDynamicBand(&Field->Billboard, MaxBand, MaxPlacement);
-            if (ExtFill > 0.0)
-            {
-                // Port-only: the billboards fade in over the cubes' extended fade band (retail:
-                // from the fill distance to the reach, FUN_0054feb0), then the planes go back.
-                float const SavedFar = Field->Billboard.Float40;
-                float const SavedNear = Field->Billboard.Float44;
-                Field->Billboard.Float40 = SpawnReach;
-                Field->Billboard.Float44 = static_cast<float>(SpawnReach - ExtFadeBand);
-                BillboardDraw(&Field->Billboard, Cam, Field->ExclusionMgr, 2);
-                Field->Billboard.Float40 = SavedFar;
-                Field->Billboard.Float44 = SavedNear;
-            }
-            else
 #endif
-                BillboardDraw(&Field->Billboard, Cam, Field->ExclusionMgr, 2);
+            BillboardDraw(&Field->Billboard, Cam, Field->ExclusionMgr, 2);
         }
 
         // 0x0052265d..0x005226c4: ASTEROIDS, [OBJECTS], the common field (+4) and its
@@ -3600,12 +3499,7 @@ namespace
         // 1.0f (FCOMP DAT_005c75dc, TEST AH,5 / JP: only strictly less clears).
         if (GetGameOption(kGameOptAsteroids) != 0 && GetGameOption(kGameOptObjectsGroup) != 0 &&
             Field->CmnField != nullptr &&
-#ifdef FREELANCER_RP9
-            (ExtFill > 0.0 ? CliAsteroidNearFieldExtended(Field, CamPos, ExtFill)
-                           : Field->CmnField->near_field(CamPos)))
-#else
             Field->CmnField->near_field(CamPos))
-#endif
         {
 #ifdef FREELANCER_RP9
             if (Field->ScaleCC < 1.0f && NebulaVolume::IsActive() &&
@@ -3619,32 +3513,7 @@ namespace
                     CliAsteroidAmbientPass(Field, Cam, kAmbientScaleArg);
                     bAmbientDone = 1;
                 }
-#ifdef FREELANCER_RP9
-                // Port-only: the fading cubes write depth while translucent; the volume adds the
-                // medium behind them for the part they let through (their alpha reaches 0 at the
-                // view depth ExtFill, see CliAsteroidDrawNearField).
-                if (ExtFill > 0.0)
-                    NebulaVolume::NoteAsteroidFade(static_cast<float>(ExtFill),
-                                                   static_cast<float>(ExtFadeBand),
-                                                   static_cast<float>(Field->CubeSize));
-                if (ExtFill > 0.0 && Field->ExclusionMgr != nullptr)
-                {
-                    // Port-only: the exclusion zones are cut off at fill * 1.25 from the camera
-                    // (FUN_00524880, MaxCliDist); the extended walk needs them as far as it goes.
-                    float const SavedDistSq =
-                        FCliAsteroidExclusionInline::GetMaxCliDistSq(Field->ExclusionMgr);
-                    double const ExtDist = ExtFill * 1.25;
-                    float const ExtDistSq = static_cast<float>(ExtDist * ExtDist);
-                    if (ExtDistSq > SavedDistSq)
-                        FCliAsteroidExclusionInline::SetMaxCliDistSq(Field->ExclusionMgr, ExtDistSq);
-                    CliAsteroidDrawNearField(Field, Cam, ExtFill, ExtFadeBand);
-                    FCliAsteroidExclusionInline::SetMaxCliDistSq(Field->ExclusionMgr, SavedDistSq);
-                }
-                else
-                    CliAsteroidDrawNearField(Field, Cam, ExtFill, ExtFadeBand);
-#else
                 CliAsteroidDrawNearField(Field, Cam);
-#endif
                 if (Field->ScaleCC < 1.0f)
                     bAmbientDone = 0;
             }
@@ -3676,7 +3545,7 @@ void CliAsteroidDrawTransparentFields(FSpaceCamera* Cam)
         // Original material alpha, depth test, local fog and source fill_dist remain intact.
         // Physics, mine activation and explosion creation do not pass through this draw queue.
         CliAsteroidAmbientPass(Field, Cam, kAmbientScaleArg);
-        CliAsteroidDrawNearField(Field, Cam, 0.0, 0.0);
+        CliAsteroidDrawNearField(Field, Cam);
     }
 }
 #endif

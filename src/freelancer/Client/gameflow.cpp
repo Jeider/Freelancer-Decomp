@@ -7,6 +7,9 @@
 // gf\Gameflow.cpp (the GF state, DAT_006686a0, vftable 0x005cae24) and the supt\Support.cpp
 // functions it drives (0x00558850..0x005592aa). See gameflow.h.
 
+#ifdef FREELANCER_DLSS5
+#include "base_neural_render.h"
+#endif
 #include "gameflow.h"
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
@@ -33,6 +36,7 @@
 #include "menu_universe_base.h"     // the LocationController (DAT_00668708)
 #include "nn_arrival_text.h"        // NnArrivalTextShowBase (FUN_0045b2d0)
 #include "nn_modal.h"               // NnSystemInit / NnSystemShutdown (FUN_0045a100 / FUN_0045a140)
+#include "player_spawn.h"
 #include "room_camera.h"             // FRoomCamera (FUN_0041a140's receiver)
 #include "room_control.h"
 #include "sound_config.h"           // SetClientAudioMode (FUN_00428030)
@@ -83,6 +87,52 @@ namespace
     // it is read there; its only other writer is 0x00454f0e (SetGameflowArrivalDelayMs).
     unsigned G_GameflowArrivalDelayMs = 0;
     unsigned G_GameflowHoldUntilFrame = 0;     // DAT_006799e8 -- FUN_00558bf0
+    unsigned G_CourierTransferBase = 0;
+    DWORD G_CourierTransferRetry = 0;
+
+    bool CourierBaseTransfer(unsigned BaseId, bool Prepare)
+    {
+#ifdef FREELANCER_RPG_WORLD
+        if (!SinglePlayer())
+            return false;
+        HMODULE const Content = GetModuleHandleA("Content.dll");
+        using TransferFn = int (__cdecl*)(unsigned, unsigned, int);
+        auto const Transfer = Content ? reinterpret_cast<TransferFn>(
+            GetProcAddress(Content, "TrainCourierBaseTransfer")) : nullptr;
+        return Transfer && Transfer(GetPlayerConnectionId(), BaseId, Prepare ? 1 : 0) != 0;
+#else
+        return false;
+#endif
+    }
+
+    bool EnterCourierTransferBase(unsigned BaseId)
+    {
+        if (!CourierBaseTransfer(BaseId, false))
+            return false;
+        // BaseEnter is needed for the ship cache. No LocationEnter, room/RTC,
+        // arrival caption or launch button is involved in this transition.
+        SetClientLocationBase(BaseId);
+        G_CourierTransferBase = BaseId;
+        G_CourierTransferRetry = GetTickCount();
+        RoomControlSetLandingPending(0);
+        SetFadeImmediate(1.0f);
+        SetFadeTarget(1.0f, 0.0f);
+        return true;
+    }
+
+    int UpdateCourierTransferBase()
+    {
+        DWORD const Now = GetTickCount();
+        if (static_cast<LONG>(Now - G_CourierTransferRetry) >= 0)
+        {
+            // Retry a technical transfer failure without ending the mission or
+            // caching the locomotive over the player's original ship.
+            if (CourierBaseTransfer(G_CourierTransferBase, true))
+                return 2; // Space; GF::Destroy performs the matching BaseExit.
+            G_CourierTransferRetry = Now + 250;
+        }
+        return 0;
+    }
 
     // DAT_006799fc / DAT_00679a00 -- the last cursor point the tracking saw (LAB_00558da0, a
     // static initializer, zeroes both).
@@ -336,6 +386,8 @@ namespace
     // FUN_00558c10 (cdecl) -- the base frame: tick, draw, sound, and the next state code.
     int UpdateGameflowBaseFrame()
     {
+        if (G_CourierTransferBase != 0)
+            return UpdateCourierTransferBase();
         // 0x00558c19..0x00558c47: the capped frame time, zeroed while the frame counter has not
         // passed DAT_006799e8 (CMP / JA keeps it only when count > hold, unsigned).
         double Dt = GetClientFrameTimeCapped();
@@ -359,7 +411,12 @@ namespace
             Win3DSetViewport(nullptr, kSupportCpp, 0x222);  // FUN_00422610
             Win3DSetPipelineClearColor(0.0f, 0.0f, 0.0f, 1.0f); // FUN_004214d0
             ClearWin3DBuffers(kWin3DClearColour | kWin3DClearDepth); // FUN_004215e0(0x4100)
-            DrawClientLocation();                           // FUN_0043bbc0 on DAT_00668708
+            {
+#ifdef FREELANCER_DLSS5
+                BaseNeural::FrameScope NeuralFrame;
+#endif
+                DrawClientLocation();                       // FUN_0043bbc0 on DAT_00668708
+            }
             ClearWin3DBuffers(kWin3DClearDepth);            // FUN_004215e0(0x100)
             Win3DSetDepthFunc(4);                           // FUN_00422120
             Win3DDrawAll();                                 // FUN_0059e300
@@ -531,6 +588,7 @@ namespace
 
     bool GF::Init(int Param)
     {
+        G_CourierTransferBase = 0;
         // LAB_004372a0 (RET 4): +0x04 = 1, +0x05 = 0, +0x06 = the argument's low byte (MOV DL,
         // [ESP+4]); true. FUN_005b2a30 case 3 pushes a dword whose low byte it set to 1 and
         // maybe cleared (0x005b2b75 / 0x005b2b9b) -- only that byte is read here.
@@ -728,6 +786,9 @@ bool EnterGameflowBase(unsigned BaseId, unsigned LocationId, bool bFromIntro)
     SetClientLocationKeepAudio();
     RefreshLoadingProgress();
 
+    if (EnterCourierTransferBase(BaseId))
+        return true;
+
     // 0x00558978..0x005589a8.
     if (LocationId == 0)
     {
@@ -776,6 +837,14 @@ void LeaveGameflowBase()
     // FUN_00558a50.
     SetClientFpsCap(RtcSlider::get_default_fps_cap()); // DAT_00610a0c
     LeaveClientLocationBase();                // FUN_0043b3e0 on DAT_00668708
+    if (G_CourierTransferBase != 0)
+    {
+        // ChangeClientLocation normally clears the room-transition latch. The
+        // courier skips every room, so finish it after the matching BaseExit.
+        // Otherwise HudIsMousePickBlocked rejects flight keys in space.
+        ResetClientLocationController();
+        G_CourierTransferBase = 0;
+    }
     // 0x00558a67: FUN_004564e0 on DAT_0066d2d0 -- every script sequence deleted, id 0xf
     // unregistered.
     G_GfScriptManager.Shutdown();

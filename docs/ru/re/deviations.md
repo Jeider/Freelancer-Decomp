@@ -337,4 +337,12 @@ Retail зовёт `atoi`/`atol`/`_wtoi` из системного `MSVCRT.DLL`: 
 
 **Ретейл.** `WinMain` начинается с `CreateMutexA(NULL, FALSE, "FreelancerClient")` (.text:005b2f87..005b2fac); нулевой хендл или `GetLastError() == ERROR_ALREADY_EXISTS` (0xb7) ведёт к выходу (LAB_005b3385) и возврату 1, поэтому на машине работает только один клиент.
 **Порт.** Тот же код, компилируется только при определённом `FL_SINGLE_INSTANCE`. Его никто не определяет, поэтому по умолчанию клиент не создаёт мьютекс и запускается любое число экземпляров.
+
+## Клиент / Remote*: UDP вместо DirectPlay и пропуск ворот мультиплеера (NET-UDP, 2026-11-04)
+
+Статус: ЖИВО — намеренное отклонение. Владелец: этот форк. Условие снятия: только явное указание владельца. Сингл на `rpclocal` не затронут.
+
+Retail: сетевой режим ходит в `IDirectPlay8Client` / `IDirectPlay8Server` (`CDPClient`, `CDPServer`). Старт клиента вызывает `EBUEula` и при отказе не входит в игру. «Сетевая игра» сначала показывает текст `0x601eb` (`NnPromptRunYesNo`, `TypeSelect::Slot23` case 4, `.text:00566c25`), затем выбор LAN / INTERNET (`0x601ed` / `0x601ec`, вопрос `0x601f0`). Список INTERNET качает `gundll.dll`.
+
+Порт: `RemoteClient` / `RemoteServer` шлют через `src/net/net_session.cpp`. `EBUEula` возвращает 1 без окна (`src/EBUEula/EBUEula.cpp`). Case 4 не показывает ни ESRB, ни выбор списка: сразу `G_bEnumerateLanHosts = 1`. Кнопки `NnPrompt` под widescreen не ловятся, диалог из-за этого не возвращён. Свой глобальный список не сделан. Подробности: [net_transport.md](net_transport.md).
 **Почему.** Владелец тестирует мультиплеер, запуская несколько локальных клиентов против одного FLServer.

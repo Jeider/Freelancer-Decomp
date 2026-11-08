@@ -62,6 +62,24 @@ Slopes are strong on purpose (capped near 67 degrees, never flipped).
 
 Debris is recognised by the object kind, or by "debris" in the model or field name.
 
+An asteroid INI can set `[Field] rock_normals = false` to disable the field-wide relief
+scope (default `true`). This leaves geometry normals, native lighting and material-specific
+profiles intact. ASF HQ uses it for `mine_radiate`, whose authored texture is not a rock
+texture. The permission resets when the field reloads; other fields are unaffected.
+
+For dense mine fields inside a nebula, keep `contains_fog_zone = 1` in `[Field]` so native
+object fog receives the nebula controller. A `[NebulaOverride]` with `asteroid_spawn = 0`,
+`extend_far_plane = 0` and `replace_object_fog = 0` retains authored `fill_dist` and native
+fog/scene limits alongside volumetric clouds. This is the ASF HQ profile; it does not
+change mine placement, collisions or activation. Prometheus and mission 8 ASF HQ use the
+same fog/relief policy.
+
+Cube fields now always use their own `fill_dist` multiplied by the retail asteroid-detail
+setting, with the original cube margin and half-cube fade. Volumetric settings cannot extend
+this distance, move the billboard hand-over, or widen the near-field/exclusion checks.
+This applies to every system, including fields whose authored distance exceeds the former
+6000m volume cap (Sphere and Sphere2 retain `fill_dist = 15000`).
+
 **Left alone:** nomad, lair, dyson (their own surface profiles), and ice (`ast_icecrystal*`, `*_ice_*`, fields
 named `*_ice*`): they keep the ice shader. The far rocks (`far_rocks.hlsl`) and the billboards are not
 changed.

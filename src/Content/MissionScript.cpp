@@ -90,6 +90,8 @@ namespace
 
     // In the order of the is_value chain (06ebb890-06ebce72).
     FCndFactoryEntry const GCndFactory[] = {
+        {"Cnd_CloakState", &NewTriggerCondition<CndCloakState>, 1, {EMessage::Heartbeat}},
+        {"Cnd_ActCloak", &NewTriggerCondition<CndActCloak>, 1, {EMessage::CloakActivated}},
         {"Cnd_BaseEnter", &NewTriggerCondition<CndBaseEnter>, 1, {EMessage::BaseEnter}},
         {"Cnd_BaseExit", &NewTriggerCondition<CndBaseExit>, 1, {EMessage::BaseExit}},
         {"Cnd_CargoScanned", &NewTriggerCondition<CndCargoScanned>, 1, {EMessage::CargoScanned}},
@@ -187,6 +189,7 @@ namespace
         {"Act_NNPath", &NewTriggerAction<ActNnPath>},
         {"Act_NNIds", &NewTriggerAction<ActNnIds>},
         {"Act_PlayerCanDock", &NewTriggerAction<ActPlayerCanDock>},
+        {"Act_PlayerCanLaunch", &NewTriggerAction<ActPlayerCanLaunch>},
         {"Act_PlayerCanTradelane", &NewTriggerAction<ActPlayerCanTradelane>},
         {"Act_PlayerEnemyClamp", &NewTriggerAction<ActPlayerEnemyClamp>},
         {"Act_PlayerForm", &NewTriggerAction<ActPlayerForm>},
@@ -220,6 +223,8 @@ namespace
         {"Act_SetOrient", &NewTriggerAction<ActSetOrient>},
         {"Act_SetRep", &NewTriggerAction<ActSetRep>},
         {"Act_SetShipAndLoadout", &NewTriggerAction<ActSetShipAndLoadout>},
+        {"Act_CacheShipAndSetLoadout", &NewTriggerAction<ActCacheShipAndSetLoadout>},
+        {"Act_RestoreCachedShip", &NewTriggerAction<ActRestoreCachedShip>},
         {"Act_SetTitle", &NewTriggerAction<ActSetTitle>},
         {"Act_SetVibe", &NewTriggerAction<ActSetVibe>},
         {"Act_SetVibeLbl", &NewTriggerAction<ActSetVibeLbl>},
@@ -1097,6 +1102,10 @@ void FMissionScript::HandleMissionMessage(EMessage MessageId, void const* Messag
         if (Parms[0] == PlayerId)
             DispatchMissionTriggerEvent(this, &EventId, MessageParms);
         break;
+    case EMessage::CloakActivated:
+        DispatchMissionTriggerEvent(this, &EventId, MessageParms);
+        bBaseBody = false;
+        break;
     case EMessage::PlayerLogin:
     case EMessage::SystemLoaded:
     case EMessage::LoadGame:
@@ -1691,6 +1700,10 @@ void FMissionScript::OnMessage100b(void const* MessageParms)
     if (Player == nullptr)
         return;
     FMissionObjective* First = Player->Objectives.GetFront();
+    // Ending a manual mission clears its objectives before EndLiveMission
+    // broadcasts PlayerMissionChanged(0), including to other active scripts.
+    if (First == nullptr)
+        return;
     unsigned int const SavedType = First->Objective.Type;
     First->Objective.Type = SavedType | 0x30;
     Player->SetField25(true);

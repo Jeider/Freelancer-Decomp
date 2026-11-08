@@ -29,8 +29,11 @@ STUB = r'''
 #include "menu_keymap_config.h"
 bool feature=true,screen=false,letterbox=false,focus=false,blocked=false,dying=false;
 bool launching=false,lane=false,cruise=false,capable=true,havePlayer=true,target=true;
+bool extraManeuvers=true;
+struct ShipArch {bool GetExtraManeuvers()const{return extraManeuvers;}} testArch;
 struct IBehaviorManager {int CurrentBehaviorIndex=0x13;bool LockManeuversByte=false;} testBehavior;
 struct CShip {
+    ShipArch* shiparch(){return &testArch;}
     IBehaviorManager* get_behavior_interface(){return &testBehavior;}
     void* get_target(){return target?this:nullptr;}
     bool is_launching(){return launching;}bool is_using_tradelane(){return lane;}
@@ -110,6 +113,11 @@ int main(){
     for(bool* gate:{&focus,&screen,&letterbox,&blocked,&dying,&launching,&lane,&testBehavior.LockManeuversByte}){
         *gate=true;DispatchKeyCommand(FirstCommand,1);assert(begins==old);*gate=false;
     }
+    extraManeuvers=false;
+    for(int mode:{0x13,2})for(unsigned id=FirstCommand;id<FirstCommand+CommandCount;++id){
+        testBehavior.CurrentBehaviorIndex=mode;DispatchKeyCommand(id,1);assert(begins==old);
+    }
+    extraManeuvers=true;testBehavior.CurrentBehaviorIndex=2;
     target=false;DispatchKeyCommand(FirstCommand,1);assert(begins==old);target=true;
     record.Byte19=1;DispatchKeyCommand(FirstCommand,1);assert(begins==old);record.Byte19=0;
     record.Byte18=0;DispatchKeyCommand(FirstCommand,1);assert(begins==old);record.Byte18=1;
@@ -152,7 +160,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     actions = (ROOT / 'src/freelancer/Client/player_flight_actions.cpp').read_text()
     keymap = (ROOT / 'src/freelancer/Client/menu_keymap.cpp').read_text()
-    code = STUB + '\nnamespace PlayerFlightActions {\n' + extract(actions, 'bool valid(') + extract(actions, 'bool Command(') + '}\n'
+    code = STUB + '\nnamespace PlayerFlightActions {\n' + extract(actions, 'bool allowed(') + extract(actions, 'bool valid(') + extract(actions, 'bool Command(') + '}\n'
     for signature in ('bool DispatchKeyCommand(', 'int LoadUserKeyMapIni(', 'int SaveUserKeyMapIni('):
         code += extract(keymap, signature)
     (OUT / 'check.cpp').write_text(code + CHECK)

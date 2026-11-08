@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "nn_ship_trader.h"
+#include "base_interior_profiles.h"
 #include "ui_scroll.h"
 #include <algorithm>
 
@@ -120,6 +121,9 @@ void NnShipTrader::Close()
 
 bool NnShipTrader::Create(Win3D* NewParent, void* Data)
 {
+    if (!BaseInteriors::ServiceAllowed(GetClientLocationCurrentBase(),
+                                       GetPlayerShipArchetypeIdRetail(), "ShipDealer"))
+        return false;
     // FUN_004b7440 (RET 8).
     //
     // 004b745b..004b74b3: the market of the base the player is at and its ships (category 3).

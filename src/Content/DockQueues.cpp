@@ -35,6 +35,10 @@
 #include "common_server.h"
 #include "common_server_controller.h"   // pub::Controller::_SendMessage
 #include "server_cobject.h"      // EQInfo, TerminalInfo, ActivateEquipment, GetTerminalInfo
+#ifdef FREELANCER_RPG_WORLD
+#include "train_courier_bridge.h"
+#include <windows.h>
+#endif
 
 #include <algorithm>
 #include <cfloat>
@@ -871,6 +875,26 @@ int __cdecl CheckDockPermission(std::vector<unsigned int> const* ClassIds, int c
                                 unsigned int const* DockTargetId, int* DockIndex)
 {
     FContentPlayerState* Player = FindContentPlayerStateByShip(ShipId);
+#ifdef FREELANCER_RPG_WORLD
+    if (Player != nullptr && pub::SinglePlayer())
+    {
+        HMODULE Server = GetModuleHandleA("Server.dll");
+        auto Bridge = Server ? reinterpret_cast<TrainCourier::BridgeFn>(
+            GetProcAddress(Server, TrainCourier::BridgeExport)) : nullptr;
+        TrainCourier::Packet Request;
+        Request.player = Player->PlayerId;
+        Request.operation = TrainCourier::Operation::IsParkedSolar;
+        Request.launchSolar = *DockTargetId;
+        if (Bridge && Bridge(&Request) && Request.result == 1)
+        {
+            // Keep the berth for the outgoing Roid_Miner-style launch. Incoming
+            // docking is denied even after the courier mission has ended.
+            pub::Player::SendNNMessage(Player->PlayerId, pub::GetNicknameId("info_access_denied"));
+            *DockIndex = -1;
+            return DOCK_HOST_RESPONSE_1;
+        }
+    }
+#endif
     bool bPlayerMayDock = true;
     if (Player != nullptr)
         bPlayerMayDock = Player->CanDockAt(*DockTargetId);

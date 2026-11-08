@@ -25,7 +25,7 @@ typedef BOOL(WINAPI* FSymGetLineFromAddr64)(HANDLE, DWORD64, PDWORD, PIMAGEHLP_L
 
 bool GbEnabled = false;
 bool GbWriting = false;
-int GKeep = 5;
+int GKeep = 100;
 char GDirectory[MAX_PATH] = {};
 HMODULE GDbgHelp = nullptr;
 FMiniDumpWriteDump GMiniDumpWriteDump = nullptr;
@@ -110,7 +110,7 @@ void StartWatchdog();
 void Initialize()
 {
     GbEnabled = PortConfigInt("Debug", "crash_dumps", 1) != 0;
-    GKeep = (std::max)(1, PortConfigInt("Debug", "crash_dumps_keep", 5));
+    GKeep = (std::max)(1, PortConfigInt("Debug", "crash_dumps_keep", 100));
     if (!GbEnabled)
         return;
     // <game>\CRASHDUMPS, next to EXE.

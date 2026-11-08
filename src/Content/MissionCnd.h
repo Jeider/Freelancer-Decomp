@@ -63,6 +63,29 @@ public:
     unsigned int TriggerId;  // +0x08 ID_String
 };
 
+// Port conditions: active device state, independent of the visual fade fraction.
+class CndCloakState : public Cnd
+{
+public:
+    explicit CndCloakState(FMissionScript* InMission);
+    void Parse(INI_Reader& Reader) override;
+    bool Matches(pub::Controller::EMessage EventId, void const* EventParms) override;
+protected:
+    TString<0x30> ShipLabel;
+    bool Active = false;
+    bool Valid = false;
+};
+
+class CndActCloak : public CndCloakState
+{
+public:
+    explicit CndActCloak(FMissionScript* InMission);
+    void OnActivate() override;
+    bool Matches(pub::Controller::EMessage EventId, void const* EventParms) override;
+private:
+    unsigned long long ArmedAfter = 0;
+};
+
 // Cnd_BaseEnter: new(0x10), ctor inline in FUN_06ebb850 (06ebb8c0), vtable 06fb5770,
 // event 1 (inline push at 06ebb8f4). Cnd_BaseExit: same class shape, vtable 06fb5744,
 // event 2. Parse FUN_06ebf770, Matches LAB_06ebf750 (both shared).

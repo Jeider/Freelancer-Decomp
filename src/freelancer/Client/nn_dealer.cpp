@@ -1000,7 +1000,8 @@ void NnDealer::Update()
         if (ShipPrice < 0) // JNS
             ShipPrice = 0;
         FormatGroupedNumber(ToolTipText, ShipPrice, 0x3c9);
-        ShipDealerShipPrice->SetProperty(0x1d, reinterpret_cast<uintptr_t>(ToolTipText), 0);
+        if (ShipDealerShipPrice != nullptr)
+            ShipDealerShipPrice->SetProperty(0x1d, reinterpret_cast<uintptr_t>(ToolTipText), 0);
 
         int const Cost = Field9f8 - Field9fc - OwnResale + PartnerResale;
         if (ShipBuyProblem != nullptr && Cost > static_cast<int>(GetPlayerCreditsRetail())) // JLE
@@ -1016,7 +1017,8 @@ void NnDealer::Update()
         {
             ContinueButton->SetProperty(1, 0, 0);
             ContinueText->SetProperty(1, 0, 0);
-            ShipBuyProblem->SetProperty(0x1e, 0, 0);
+            if (ShipBuyProblem != nullptr)
+                ShipBuyProblem->SetProperty(0x1e, 0, 0);
         }
     }
 
@@ -1176,14 +1178,7 @@ intptr_t NnDealer::SetProperty(int Msg, uintptr_t A, uintptr_t B)
         }
         if (Control == ContinueButton && Inventory != nullptr) // +0x9e0
         {
-            if (GetPlayerShipArchetypeIdRetail() == 0) // FUN_004c3e10
-            {
-                NnMainButtonOnModalOpen();
-                return 1;
-            }
-            if (Field98c != 0)
-                return 1;
-            BuyShip(); // FUN_00483ae0
+            BuyShip(); // FUN_00483ae0. A parked hull is 0; that must not cancel the purchase.
             return 1;
         }
         if (Control == BuySellTradeButton) // +0x9b0

@@ -16,6 +16,7 @@
 #include "RtcScripts.h"
 #include "common_id.h"
 #include "common_iface.h"
+#include "common_cequip.h"
 #include "common_ini.h"
 #include "common_server.h"
 
@@ -277,6 +278,55 @@ void Cnd::Load(INI_Reader* /*Reader*/)
 void Cnd::SetTriggerId(unsigned int Id)
 {
     TriggerId = Id;
+}
+
+// ---------------------------------------------------------------------------------------
+// Port-only cloak conditions
+// ---------------------------------------------------------------------------------------
+CndCloakState::CndCloakState(FMissionScript* InMission) : Cnd(InMission)
+{
+    InitEmpty(ShipLabel);
+}
+
+void CndCloakState::Parse(INI_Reader& Reader)
+{
+    Valid = !Reader.is_value_empty(0) && !Reader.is_value_empty(1) && Reader.is_value_empty(2);
+    // StringIndex reuses its scratch buffer, including in is_value_empty().
+    ShipLabel = Valid ? Reader.get_value_string(0) : "";
+    const char* value = Valid ? Reader.get_value_string(1) : "";
+    Valid = Valid && (!_stricmp(value,"true") || !_stricmp(value,"false") || !strcmp(value,"1") || !strcmp(value,"0"));
+    Active = Valid && (!_stricmp(value,"true") || !strcmp(value,"1"));
+    if (!Valid) FDUMP(0x100001,"Cloak condition requires <ship>, <bool>; trigger %08x\n",TriggerId);
+}
+
+bool CndCloakState::Matches(pub::Controller::EMessage EventId, void const*)
+{
+    if (!Valid || (EventId != pub::Controller::EMessage::Heartbeat && static_cast<int>(EventId) != -1)) return false;
+    const unsigned id = Mission->GetLabelShipId(&ShipLabel);
+    auto* ship = id ? static_cast<CShip*>(CObject::Find(id,CObject::ClassShip)) : nullptr;
+    if (!ship) return false; // An absent/docked ship is not an uncloaked ship.
+    bool active = false;
+    CEquipTraverser walk(EquipTypeCloak);
+    while (auto* equip = ship->EquipManager.Traverse(walk))
+        if (!equip->IsDestroyed() && equip->IsActive()) {active = true;break;}
+    ship->Release();
+    return active == Active;
+}
+
+CndActCloak::CndActCloak(FMissionScript* InMission) : CndCloakState(InMission)
+{
+    OnActivate();
+}
+void CndActCloak::OnActivate()
+{
+    ArmedAfter = pub::Controller::GetCloakEventSequence();
+}
+bool CndActCloak::Matches(pub::Controller::EMessage EventId, void const* EventParms)
+{
+    if (!Valid || EventId != pub::Controller::EMessage::CloakActivated || !EventParms) return false;
+    const auto& event = *static_cast<pub::Controller::CloakActivation const*>(EventParms);
+    const unsigned id = Mission->GetLabelShipId(&ShipLabel);
+    return id && event.ShipId == id && event.Sequence > ArmedAfter && (event.Active != 0) == Active;
 }
 
 // ---------------------------------------------------------------------------------------

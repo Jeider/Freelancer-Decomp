@@ -306,7 +306,7 @@ Every block appends one hotspot (button), even an empty one.
 | Key | Type | Default | Meaning / allowed values | Source |
 |---|---|---|---|---|
 | `name` | string | none | Hotspot name. | [common_roomdata.cpp](../../src/Common/common_roomdata.cpp#L1390) |
-| `behavior` | enum | -1 | Case-insensitive; only the first token (split at `,` `;` `/` space) is compared. Values: `ExitDoor`=1, `NewsVendor`=2, `MissionVendor`=3, `Launch`=4, `StartDealer`=5, `FrontDesk`=6, `StartShipDealer`=7, `StartEquipDealer`=8, `MoveRight`=9, `MoveLeft`=10, `VirtualRoom`=11, `Repair`=12. An unknown word stores -1 without any message. | same |
+| `behavior` | enum | -1 | Case-insensitive; only the first token (split at `,` `;` `/` space) is compared. Values: `ExitDoor`=1, `NewsVendor`=2, `MissionVendor`=3, `Launch`=4, `StartDealer`=5, `FrontDesk`=6, `StartShipDealer`=7, `StartEquipDealer`=8, `MoveRight`=9, `MoveLeft`=10, `VirtualRoom`=11, `Repair`=12, `StartShipPark`=13 (port-only, opens the hangar). An unknown word stores -1 without any message. | same |
 | `room_switch` | string | none | Room to switch to. | same |
 | `virtual_room` | string | none | Virtual room name. | same |
 | `set_virtual_room` | string | none | Virtual room to set. | same |

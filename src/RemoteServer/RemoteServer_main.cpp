@@ -15,7 +15,7 @@
 #include "../include/common_misc.h" // SinglePlayer
 // CollisionGroupDesc's complete definition (ch2 0x48, IClient::SendServerSetCollisionGroups).
 #include "../include/common_archetype.h"
-#include "../include/dalib_net.h"
+#include "../include/net_session.h"
 #include "../include/rpc_packet.h"
 #include "../include/rpc_packet_codec.h"
 #include "../include/rpc_server_channel_codec.h" // Canonical hardpoint dictionary builder.
@@ -25,6 +25,7 @@
 #include <list>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <cwchar>
 
 #include "../include/rpc_iclient_args.h"
@@ -82,7 +83,7 @@ struct FRemoteServerImpl final : IServerImpl
     void SetActiveConnection(EFLConnection Connection) override;
     bool SwapConnections(EFLConnection ConnA, EFLConnection ConnB) override;
 
-    FRemoteServerClient* Transport = nullptr;
+    NetClient* Transport = nullptr;
     CRITICAL_SECTION CriticalSection;
     bool bConnected = false;
     EFLConnection ActiveConnection = static_cast<EFLConnection>(0);
@@ -91,13 +92,9 @@ struct FRemoteServerImpl final : IServerImpl
 extern "C" __declspec(dllexport) FRemoteServerImpl Server;
 FRemoteServerImpl Server;
 
-class FRemoteServerClient final : public CDPClient
-{
-public:
-    void OnReceive(unsigned char* Data, unsigned long Size) override;
-    void OnConnect(long Result) override;
-    void OnDisconnect() override;
-};
+void OnRemoteConnect(long Result, void*);
+void OnRemoteReceive(unsigned char* Data, unsigned int Size, void*);
+void OnRemoteDisconnect(void*);
 
 extern int RegisterChannel1Packets(FPacketSerializer* Serializer);
 extern int RegisterChannel2Packets(FPacketSerializer* Serializer);
@@ -110,7 +107,12 @@ bool FRemoteServerImpl::Startup(const SStartupInfo& Info)
     GStartupClient = LoadClientModule(Info.ModulePath);
     if (GStartupClient != nullptr) {
         bResult = GStartupClient->Startup(Info.MaxPlayers, Info.Port);
-        Transport = new (std::nothrow) FRemoteServerClient;
+        Transport = new (std::nothrow) NetClient();
+        NetClientHandler Handler = {};
+        Handler.OnConnect = &OnRemoteConnect;
+        Handler.OnReceive = &OnRemoteReceive;
+        Handler.OnDisconnect = &OnRemoteDisconnect;
+        Transport->SetHandler(Handler);
         if (bResult) {
             Serializer = RpcGetRemotePacketSerializer();
             if (Serializer != nullptr &&
@@ -146,7 +148,7 @@ void FRemoteServerImpl::Shutdown()
 int FRemoteServerImpl::Update()
 {
     GiveServerRunPermission();
-    Transport->DispatchMsgs(100);
+    Transport->Dispatch();
     WaitForClientRunPermission();
     return 1;
 }
@@ -165,7 +167,7 @@ void FRemoteServerImpl::PushToServer(CDAPacket* Packet)
 }
 
 // LAB_06bd98a0 only accepts a nonnull DirectPlay buffer.
-void FRemoteServerClient::OnReceive(unsigned char* Data, unsigned long Size)
+void OnRemoteReceive(unsigned char* Data, unsigned int Size, void*)
 {
     if (Data != nullptr) {
         extern void RpcDispatchMsgs(IServerImpl*, const unsigned char*, unsigned int);
@@ -174,19 +176,21 @@ void FRemoteServerClient::OnReceive(unsigned char* Data, unsigned long Size)
 }
 
 // LAB_06bd98c0.
-void FRemoteServerClient::OnDisconnect()
+void OnRemoteDisconnect(void*)
 {
     Server.bConnected = false;
     GStartupClient->DisconnectClient(0);
 }
 
 // LAB_06bd98e0 reports only failed DirectPlay connections to freelancer.exe.
-void FRemoteServerClient::OnConnect(long Result)
+void OnRemoteConnect(long Result, void*)
 {
     if (Result != 0) {
         typedef void (__cdecl* FHandleConnectError)(long);
         FHandleConnectError Handler = reinterpret_cast<FHandleConnectError>(GetProcAddress(GetModuleHandleA(nullptr), "HandleConnectError"));
         Handler(Result);
+    } else {
+        Server.bConnected = true;
     }
 }
 
@@ -214,29 +218,30 @@ void FRemoteServerImpl::DisConnect(unsigned int SessionId, EFLConnection Type)
 // LAB_06bd9b50 skips the native seven-byte URL prefix and tries ports right to left.
 void FRemoteServerImpl::Connect(const char* ServerName, unsigned short* Password)
 {
-    GUID ApplicationGuid = {0xa690f026, 0x26f0, 0x4e57, {0xac, 0xa0, 0xec, 0xf8, 0x68, 0xe4, 0x8d, 0x21}};
-    Transport->SetGUID(ApplicationGuid);
+    (void)Password;
     char* Copy = _strdup(ServerName);
-    char* Host = Copy;
-    char* Separator = std::strrchr(Copy, ':');
-    if (Separator != nullptr) {
-        char* Ports = Separator + 1;
-        *Separator = '\0';
-        Host += 7;
-        char* Comma = std::strrchr(Ports, ',');
-        wchar_t Address[1024];
-        while (Comma != nullptr) {
-            *Comma = '\0';
-            unsigned short Port = static_cast<unsigned short>(MsvcrtAtoi(Comma + 1));
-            _swprintf(Address, L"x-directplay:/hostname=%S;port=%d", Host, static_cast<unsigned int>(Port));
-            Transport->AddConnectAttempt(Address, reinterpret_cast<wchar_t*>(Password));
-            Comma = std::strrchr(Ports, ',');
-        }
-        unsigned short Port = static_cast<unsigned short>(MsvcrtAtoi(Ports));
-        _swprintf(Address, L"x-directplay:/hostname=%S;port=%d", Host, static_cast<unsigned int>(Port));
-        Transport->AddConnectAttempt(Address, reinterpret_cast<wchar_t*>(Password));
+    char Host[256] = "127.0.0.1";
+    unsigned short Port = 2302;
+    char* NamePos = std::strstr(Copy, "hostname=");
+    if (NamePos != nullptr) {
+        NamePos += 9;
+        char* End = std::strchr(NamePos, ';');
+        if (End != nullptr)
+            *End = '\0';
+        strncpy(Host, NamePos, sizeof(Host) - 1);
     }
-    Transport->ProcessConnectAttempt();
+    char* PortPos = std::strstr(Copy, "port=");
+    if (PortPos != nullptr)
+        Port = static_cast<unsigned short>(MsvcrtAtoi(PortPos + 5));
+    else {
+        char* Separator = std::strrchr(Copy, ':');
+        if (Separator != nullptr && NamePos == nullptr) {
+            *Separator = '\0';
+            strncpy(Host, Copy, sizeof(Host) - 1);
+            Port = static_cast<unsigned short>(MsvcrtAtoi(Separator + 1));
+        }
+    }
+    Transport->Connect(Host, Port);
     std::free(Copy);
 }
 

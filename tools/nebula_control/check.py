@@ -30,6 +30,9 @@ struct FNebulaVolumeExclusionAccess{
  static int Count(Manager const* m){return (int)m->Zones.size();}
  static Exclusion const* At(Manager const* m,int i){return m->Zones[i];}};
 struct FNebulaVolumeSettings{float Enabled=1;};
+// Current production SettingsFor applies the user's graphics quality last.
+// It must never re-enable an explicitly disabled/excluded instance.
+void ApplyUserQuality(FNebulaVolumeSettings& s){s.Enabled=1;}
 struct FNebulaOverride{char File[64]={},Style[32]={};FNebulaVolumeSettings Settings;};
 FNebulaVolumeSettings GSettings;
 std::vector<FNebulaOverride> GOverrides,GStyles;
@@ -66,6 +69,19 @@ int main(){
  assert(CameraInsideNebulaExclusion(&a,center));assert(!CameraInsideNebulaExclusion(&a,edge));assert(!CameraInsideNebulaExclusion(&a,far));
  assert(!CameraInsideNebulaExclusion(nullptr,center));assert(!CameraInsideNebulaExclusion(&a,nullptr));assert(!CameraInsideNebulaExclusion(&b,center));
  puts("PASS full exclusion list beyond GPU limit, boundaries, outside, absent manager and null entries");
+ // Sphere: an exclusion without any mesh covers the entire 40km asteroid field,
+ // including the old leaking 35..40km annulus. Outside restores volumetric rendering.
+ Zone sphere;sphere.Radius=40000;Exclusion meshless{&sphere};Manager sphereManager;
+ sphereManager.Zones.push_back(&meshless);FNebulaEffect sphereNebula;sphereNebula.ExclusionMgr=&sphereManager;
+ for(float radius:{0.f,34999.f,35001.f,37500.f,39999.f}){
+   float point[3]={radius,0,0};assert(CameraInsideNebulaExclusion(&sphereNebula,point));}
+ float sphereOutside[3]={40001,0,0};assert(!CameraInsideNebulaExclusion(&sphereNebula,sphereOutside));
+ puts("PASS meshless Sphere exclusion: core and old 35..40km annulus excluded; exterior remains available");
+ sphere.Radius=28000;
+ for(float radius:{0.f,14999.f,15001.f,22000.f,27999.f}){
+   float point[3]={radius,0,0};assert(CameraInsideNebulaExclusion(&sphereNebula,point));}
+ float sphere2Outside[3]={28001,0,0};assert(!CameraInsideNebulaExclusion(&sphereNebula,sphere2Outside));
+ puts("PASS meshless Sphere2 exclusion: full 28km field, including old 15..28km leaking annulus");
  NebulaVolume::RegisterNebula(&a,"shared.ini");assert(GNebulae.size()==2);
  GNebulae[0].CameraExcluded=CameraInsideNebulaExclusion(&a,center);assert(SettingsFor(&a).Enabled==0 && SettingsFor(&b).Enabled==1);
  GNebulae[0].CameraExcluded=CameraInsideNebulaExclusion(&a,far);assert(SettingsFor(&a).Enabled==1);

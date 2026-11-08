@@ -8,8 +8,13 @@
 // See render_ex.h and docs/re/rp9.md, "Ex extensions".
 // Compiled only with FREELANCER_RP9 (src/Directory.Build.props).
 #ifdef FREELANCER_RP9
+#ifdef FREELANCER_DLSS5
+#include "base_neural_render.h"
+#endif
 #include "hud_tilt.h"
 #include "render_ex.h"
+#include "color_grade_preferences.h"
+#include "render/IRPColorGrade.h"
 
 #include "far_rocks.h"
 #include "field_dust.h"
@@ -20,6 +25,7 @@
 #include "jumpgate_visual.h"
 #include "ship_warp_visual.h"
 #include "engine_heat_visual.h"
+#include "cloak_visual.h"
 #include "nebula_volume.h"
 #include "space_haze.h"
 
@@ -390,8 +396,12 @@ void RenderEx::Startup()
 
 void RenderEx::Shutdown()
 {
+#ifdef FREELANCER_DLSS5
+    BaseNeural::Stop();
+#endif
     HudTilt::Shutdown();
     EngineHeatVisualShutdown();
+    CloakVisualShutdown();
     ShipWarpVisualRenderShutdown();
     JumpHoleVisualRenderShutdown();
     BlackHoleVisualRenderShutdown();
@@ -477,6 +487,7 @@ void RenderEx::AfterSpaceScene()
     }
     PollHotReload();
     AntialiasScene();
+    ColorGradeScene();
     if (GSettings.bSceneDepthView)
         DrawSceneDepthView();
 }
@@ -512,6 +523,15 @@ void RenderEx::AntialiasScene()
         Quality->ApplySceneAntialiasing();
         Quality->Release();
     }
+}
+
+void RenderEx::ColorGradeScene()
+{
+    if(!IsAvailable())return;
+    int preset=ColorGrade::Preset();if(!preset)return;
+    IRPColorGrade* grade=nullptr;
+    if(DALib::Pipeline->QueryInterface(Iids::RPColorGrade,reinterpret_cast<void**>(&grade))>=0&&grade)
+    {grade->ApplyColorGrade(unsigned(preset));grade->Release();}
 }
 
 bool RenderEx::BeginRoomShadow(const float* CameraView12, const float* Center, float Radius, bool Character)

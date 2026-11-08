@@ -68,13 +68,23 @@ found by the client through `GetProcAddress(server.dll, "PortConsoleServer")`, s
 
 | Command | Action |
 |---|---|
-| `save` / `s` [name \| 1-9] | save now, in space too (`PlayerData_SaveGame`); one character or none is a quick save `qsave<c>.fl` |
+| `save` [name \| 1-9] | save now, in space too (`PlayerData_SaveGame`); one character or none is a quick save `qsave<c>.fl`; `s` belongs to `system` |
 | `load` / `l` [name \| 1-9] | load such a save (`QueueLoadGameCharacter`; `[ModServer] account_folder` picks the folder) |
-| `base` <name> | land at a base (nickname, or part of the name; `pub::Player::ForceLand`), from space |
-| `system` <name> [x,y,z [rx,ry,rz] \| object] | move to another system: same coordinates, a position, or at an object (nickname or `~part`); `SystemSwitchOutComplete` takes it instead of a gate, without the autosave |
-| `jump` / `j` [forward,right,up \| object] | move in this system: by an offset, to an object, or (nothing) to the target |
-| `launch` | the base's launch tab |
+| `base` / `b` <name> | enter a base by nickname or partial name: `ForceLand` in space; location-controller exit/enter from another base, without launching or autosaving |
+| `system` / `s` <name> [x,y,z [rx,ry,rz] \| object] | move to another system from space: same coordinates, a position, or at an object (nickname or `~part`); `SystemSwitchOutComplete` takes it instead of a gate, without the autosave |
+| `jump` / `ju` / `j` [forward,right,up \| object] | move in this system: by an offset, to an object, or (nothing) to the target |
+| `launch` | native launch action, including from rooms without a launch tab; keeps equipment checks and normal launch behavior |
+| `money` / `cash` [amount \| +amount \| -amount] | inspect, set, add or subtract credits; suffix `k` means thousands; balance clamps to 0..999999999 |
+| `rep` faction [value] | inspect/set a faction by nickname or short-name prefix; `l/b/k/r` mean the four houses' police factions |
+| `rep =` [value \| faction], `rep undo` | snapshot all reputations, optionally set all or copy faction relations; undo restores the first snapshot, scoped to the current loaded game |
 | `ghost` | toggle the ship's collisions (the `DISABLE_COLLIDE` option) |
+
+Reputation values accept -1..1, percentages such as `60`, or Adoxa's case-sensitive
+`H/h/nh/n/nf/f/F` (-0.9/-0.6/-0.2/0/0.2/0.6/0.9). Invalid and non-finite input is rejected.
+The reference is the author's [Console v1.24 source](http://adoxa.altervista.org/freelancer/plugins.html#console)
+(`cmdCash`, `cmdRep`, `ChangeBase`, `cmdLaunch`). `money` is a port alias for the original `cash`.
+Run `python tools/console/check.py` for production-handler tests with mocked game/UI services;
+interactive transitions and audio still need an in-game check.
 
 ## Chase camera and hardpoints
 

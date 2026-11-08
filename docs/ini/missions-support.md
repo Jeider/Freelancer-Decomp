@@ -1,5 +1,8 @@
 # Mission support tables: RTC scripts, voices, generic scripts, NPC records, story data
 
+Port extension: [static RPG contacts](../re/rpg_contacts.md) documents
+`RPG/contacts.ini` and its presence-only RTC subset with local `[NPC]` records.
+
 Supporting INI files read by `Content.dll` for the mission layer: bar RTC scripts (`[CharacterEncounter]`), named story NPCs, generic bar scripts and their per-voice exclusions, voice line durations and voice properties, the player toughness (rank) table, the base NPC offer records (`bribe`/`know`/`rumor`) and the story stage names. Mission scripts themselves are in [missions.md](missions.md).
 
 ## File location / how it is found

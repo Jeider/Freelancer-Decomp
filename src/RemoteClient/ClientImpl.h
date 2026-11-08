@@ -7,6 +7,7 @@
 #pragma once
 
 #include "../include/rpc_iclient.h"
+#include "../include/net_session.h"
 
 class CClientImpl : public IClient, public IChatClient {
 public:
@@ -14,13 +15,13 @@ public:
     ~CClientImpl();
 
     class FPacketSerializer* Serializer;
-    class CDPServer* Host;
-    class CDPClientProxy* ClientProxies[128];
+    NetHost* Host;
+    NetLink* ClientProxies[128];
     int NumClients;
     unsigned int Field_0x214;
     bool bStarted;
 
-    CDPClientProxy* FindProxy(unsigned int ClientId) const;
+    NetLink* FindProxy(unsigned int ClientId) const;
 
     virtual void SendCommonFireWeapon(unsigned int ClientId, const XFireWeaponInfo& Info) override;
     virtual void SendCommonActivateEquip(unsigned int ClientId, const XActivateEquip& Info) override;
@@ -170,4 +171,4 @@ public:
 
 extern "C" __declspec(dllexport) CClientImpl Client;
 
-CDPServer* CreateRemoteClientHost();
+

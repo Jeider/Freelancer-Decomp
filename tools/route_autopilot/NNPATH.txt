@@ -1,0 +1,54 @@
+F2 snapshots of mission NNPath -- 2026-11-07
+
+PlayerRoute copies the current NNPath on F2: the first objective has low kind
+10, subsequent objectives kind 9. It resolves positions, system IDs and live
+object IDs into owned route nodes. No FmtStr or HUD/mission pointers survive.
+An unresolved/non-finite record rejects the snapshot as a whole.
+
+Selecting a mission marker starts from its matching position; selecting a
+lane/gate/base in the path starts from that object. If an NNPath refresh made
+the selected mission marker stale, start at the current first point. With no
+selected target and no map waypoints, F2 also starts at the first mission point.
+User waypoints take precedence when explicitly selected. Unrelated object
+targets retain native Go To.
+
+Mission updates do not replace the cached route. Repeated F2 takes a fresh
+snapshot. Cancelling and re-engaging also reads the current mission path rather
+than requesting a new map path toward an old saved goal. Consuming cached
+mission nodes never removes points from the mission or user waypoint lists.
+The immutable snapshot is separate from the consumed execution queue and remains
+available after cancellation/failure until player F2 or leaving the flight
+session. Live path/map notifications cannot reissue directives for this snapshot.
+
+An issued Dock is not a completed lane traversal. CShip sets its lane flag
+before LaneAction finishes entry; a brief flag followed by an interrupted exit
+near the entrance must not consume the cached F3 task. The route requires arrival
+near its cached exit endpoint. On a denied/interrupted ride it stops instead of
+skipping entry and flying to the exit under ordinary engines. The original
+snapshot is retained; player F2 explicitly requests a new one.
+RouteAuto lines in FLSpew record snapshots, issued docks, lane starts/completions
+and incomplete rides, including object IDs and distances for in-game diagnosis.
+
+Lane/gate IDs use the existing docking/transition code. The server's NNPath
+normally describes only the current system, ending at the next jump gate.
+That snapshot ends after the jump; F2 in the next system takes the next segment.
+No whole-mission route is invented or automatically appended.
+
+Checks:
+  powershell -File tools/route_autopilot/check.ps1
+Includes production F2/Tick logic with recorded NNPath updates, source deletion,
+repeated F2, invalid objectives, marker replacement during native Dock, failed
+entry, interrupted lane traversal and a gate transition, plus existing map
+routes and geometry checks. This is not an
+in-game playthrough.
+
+Build/install:
+  python tools/route_autopilot/build_nnpath.py
+  python tools/route_autopilot/install_nnpath.py
+  python tools/route_autopilot/install_nnpath.py --apply
+The narrow build requires bin/freelancer.exe to match the installed client and
+its recorded link inputs to be older than that baseline. Only player_route.cpp
+is recompiled. The installer verifies old/new hashes, preserves DLLs/configs,
+backs up EXE/PDB and refuses a running game. Outputs and manifest live in
+src/obj/route_autopilot/nnpath. A future unrelated client build should include
+the updated player_route.cpp so it does not overwrite this change.

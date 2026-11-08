@@ -349,7 +349,13 @@ FThornComponent* FGfScript::SpawnMonitor(FThornEntitySnap const* Snap)
 void FGfScript::ApplySpecialCamera(FThornEntitySnap const* Snap, FThornComponent* Obj,
                                    float const* CameraProps4)
 {
-    char const* const EntityName = Snap->Name;
+    char const* EntityName = Snap->Name;
+#ifdef FREELANCER_RPG_WORLD
+    if (RpgBoundActors && !RpgFragment) {
+        if (_stricmp(EntityName, "RpgCamera_vendor") == 0) EntityName = "camera/ACU";
+        else if (_stricmp(EntityName, "RpgCamera_player") == 0) EntityName = "camera/PCU";
+    }
+#endif
     size_t const PrefixLength = strlen("camera/");
     if (_strnicmp(EntityName, "camera/", PrefixLength) != 0)
         return;
@@ -702,6 +708,14 @@ void FGfScript::ResolveCompoundTarget(int Index, FRoomObject** OutObject, long* 
 //   Every character found or made gets FUN_004454e0 with the script's +0x55.
 FCharacterObject* FGfScript::ResolveCharacter(FThornEntitySnap const* Snap, char const* Actor)
 {
+#ifdef FREELANCER_RPG_WORLD
+    if (RpgBoundActors) {
+        auto* Existing = Actor && _stricmp(Actor, "Player") == 0 ? RoomControlPlayerCharacter(Room) :
+            Actor && Mirror ? Mirror->First() : nullptr;
+        if (Existing && !RpgFragment) Existing->TakeOverForScript(Field_0x55);
+        return Existing;
+    }
+#endif
     FCharacterObject* Character = nullptr;
     bool bPlayer = false;
     bool bRole = false;

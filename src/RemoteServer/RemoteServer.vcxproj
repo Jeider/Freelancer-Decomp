@@ -59,11 +59,12 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>kernel32.lib;user32.lib;dacom.lib;Common.lib;Server.lib;freelancer.lib;rpclocal.lib;DALib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;ws2_32.lib;dacom.lib;Common.lib;Server.lib;freelancer.lib;rpclocal.lib;DALib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="RemoteServer_main.cpp" />
+    <ClCompile Include="..\net\net_session.cpp" />
     <ClCompile Include="rpc_server_channel_receive.cpp" />
     <ClCompile Include="IServerImpl.cpp" />
     <ClCompile Include="rpc_server_packets.cpp" />

@@ -208,6 +208,7 @@
     <ClCompile Include="common_carchgroup.cpp" />
     <ClCompile Include="common_ceqobj.cpp" />
     <ClCompile Include="common_cship.cpp" />
+    <ClCompile Include="common_train.cpp" />
     <ClCompile Include="common_gravity.cpp" />
     <ClCompile Include="solar_animation.cpp" />
     <ClCompile Include="common_asteroid_avoidance.cpp" />
@@ -263,6 +264,7 @@
     <ClCompile Include="common_loadout.cpp" />
     <ClCompile Include="common_goodinfo.cpp" />
     <ClCompile Include="common_basedata.cpp" />
+    <ClCompile Include="common_interior_profiles.cpp" />
     <ClCompile Include="common_roomdata.cpp" />
     <ClCompile Include="common_hardpointsummary.cpp" />
     <ClCompile Include="common_roominfo.cpp" />

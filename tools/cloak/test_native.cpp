@@ -132,4 +132,5 @@ int main(int argc, char** argv)
     replica.ApplyRemoteState(false); replica.Update(2,0); assert(!replica.IsActive());
     CECloakingDevice old(nullptr,6,&legacy,false); assert(old.IsActive());
     std::puts("PASS: native cloak parsing, fades, expiry, cooldown, persistence, destruction and correction");
+    return 0;
 }

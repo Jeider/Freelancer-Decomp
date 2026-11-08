@@ -1,5 +1,30 @@
 # Mission trigger conditions (`Cnd_*`)
 
+## Cloak conditions (port extension)
+
+| Condition | Meaning |
+| --- | --- |
+| `Cnd_CloakState = <ship>, <bool>` | Check the device's current state on trigger activation and subsequent heartbeats: `true` = enabled, `false` = disabled. |
+| `Cnd_ActCloak = <ship>, <bool>` | Wait for a successful switch to the requested state after this trigger is armed: `true` = enabled, `false` = disabled. |
+
+`<ship>` is `Player` (case insensitive) or a mission ship name. Both arguments are required;
+booleans accept `true`/`false` or `1`/`0`. State changes take effect at the start of the visual
+fade. A ship without an active, intact cloak matches `false`; a missing ship matches neither.
+Activation events include real manual/scripted switches and automatic timeout deactivation.
+Rejected cooldown attempts, duplicate commands and periodic network synchronization do not
+produce events. Arming a condition while already cloaked does not generate an activation.
+Old queued events are not replayed after activation/rearming or loading a mission save.
+
+Each line below is an alternative condition for its own `[Trigger]`:
+
+```ini
+Cnd_CloakState = Player, true  ; currently enabled
+Cnd_CloakState = Player, false ; currently disabled
+Cnd_ActCloak = Player, true    ; player enables cloak
+Cnd_ActCloak = Player, false   ; player disables cloak (also timeout)
+Cnd_ActCloak = escort, true    ; mission ship enables cloak
+```
+
 Reference for every condition a `[Trigger]` section can use in a mission script. A trigger has exactly one condition; its parameters are read **positionally** from the comma-separated value list of the `Cnd_*` line by that condition's `Parse` function.
 
 ## File location / how it is found

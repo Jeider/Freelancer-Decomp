@@ -6,7 +6,6 @@
 
 #include "ClientImpl.h"
 #include "remoteclient.h"
-#include "dalib_net.h"
 #include "common_server.h"
 #include "server_iserverimpl.h"
 #include "rpc_packet.h"
@@ -46,52 +45,41 @@ namespace
     }
 
     FRemoteClientLogFunction GServerLog = &DefaultServerLog;
-
-    class CRemoteClientProxy : public CDPClientProxy
-    {
-    public:
-        ~CRemoteClientProxy() override;
-        void OnReceive(unsigned char* Data, unsigned long Size) override;
-        void OnConnect(long Result) override;
-        void OnDisconnect() override;
-
-        unsigned int ClientId = 0;
-    };
-
-    class CRemoteClientHost : public CDPServer
-    {
-    public:
-        CDPClientProxy* CreateClientProxy() override;
-    };
 }
+
+void OnNetConnect(NetLink* Link, void* User);
+void OnNetReceive(NetLink* Link, unsigned char* Data, unsigned int Size, void* User);
+void OnNetDisconnect(NetLink* Link, void* User);
 
 void HandleClientPacket(unsigned int ClientId, CDAPacket* Packet);
 IServer* RemoteClientGetServer();
 
 double CClientImpl::GetLinkSaturation(unsigned int ClientId)
 {
-    CDPClientProxy* Proxy = FindProxy(ClientId);
+    NetLink* Proxy = FindProxy(ClientId);
     return Proxy != nullptr ? Proxy->GetLinkSaturation() : 0.0;
 }
 
 unsigned int CClientImpl::GetSendQBytes(unsigned int ClientId)
 {
-    CDPClientProxy* Proxy = FindProxy(ClientId);
+    NetLink* Proxy = FindProxy(ClientId);
     return Proxy != nullptr ? Proxy->GetSendQBytes() : 0u;
 }
 
 unsigned int CClientImpl::GetSendQSize(unsigned int ClientId)
 {
-    CDPClientProxy* Proxy = FindProxy(ClientId);
+    NetLink* Proxy = FindProxy(ClientId);
     return Proxy != nullptr ? Proxy->GetSendQSize() : 0u;
 }
 
 void CClientImpl::DisconnectClient(unsigned int ClientId)
 {
     --NumClients;
-    CDPClientProxy* Proxy = FindProxy(ClientId);
+    NetLink* Proxy = FindProxy(ClientId);
     if (Proxy != nullptr)
         Proxy->Disconnect();
+    if (Host != nullptr)
+        Host->Drop(ClientId);
     RemoteClientGetServer()->DisConnect(ClientId, static_cast<EFLConnection>(0));
     if (ClientId != 0 && ClientId <= 128)
         ClientProxies[ClientId - 1] = nullptr;
@@ -99,15 +87,26 @@ void CClientImpl::DisconnectClient(unsigned int ClientId)
 
 int CClientImpl::Update()
 {
-    Host->DispatchMsgs();
+    Host->Dispatch();
     return 1;
 }
 
 bool CClientImpl::Startup(unsigned int MaxPlayers, unsigned int Port)
 {
     NumClients = 0;
-    Host = CreateRemoteClientHost();
-    Host->BeginHosting(Port);
+    Host = new (std::nothrow) NetHost();
+    NetHostHandler Handler = {};
+    Handler.OnConnect = &OnNetConnect;
+    Handler.OnReceive = &OnNetReceive;
+    Handler.OnDisconnect = &OnNetDisconnect;
+    Host->SetHandler(Handler);
+    if (!Host->BeginHosting(Port))
+    {
+        delete Host;
+        Host = nullptr;
+        GServerLog(ErrorCode{0x100004}, "CStartup: Could not initialize server sockets.");
+        return false;
+    }
     Host->SetSessionName(L"Freelancer Default Session Name");
     Host->SetPassword(L"");
     Host->SetMaxPlayers(static_cast<int>(MaxPlayers));
@@ -147,7 +146,7 @@ void CClientImpl::Shutdown()
 void CClientImpl::PushToClient(unsigned int ClientId, CDAPacket* Packet)
 {
     FPacketBase* WirePacket = reinterpret_cast<FPacketBase*>(Packet);
-    CDPClientProxy* Proxy = FindProxy(ClientId);
+    NetLink* Proxy = FindProxy(ClientId);
     if (Proxy != nullptr)
     {
         if (WirePacket == nullptr)
@@ -198,9 +197,8 @@ void SetServerLogFunction(FRemoteClientLogFunction Function)
 
 void ForceClientLogout(unsigned int ClientId)
 {
-    CDPClientProxy* Proxy = Client.FindProxy(ClientId);
-    if (Proxy != nullptr)
-        Proxy->Disconnect();
+    if (Client.FindProxy(ClientId) != nullptr)
+        Client.DisconnectClient(ClientId);
 }
 
 void GetRemoteClientPort(std::vector<unsigned long>& Ports)
@@ -230,7 +228,7 @@ IChatServer* RemoteClientGetChatServer()
     return GLocalChatServer;
 }
 
-CDPClientProxy* CClientImpl::FindProxy(unsigned int ClientId) const
+NetLink* CClientImpl::FindProxy(unsigned int ClientId) const
 {
     // Raw PE 06b39630: JBE/JA reject 0 and IDs above 128.
     return ClientId != 0 && ClientId <= 128 ? ClientProxies[ClientId - 1] : nullptr;
@@ -251,55 +249,31 @@ int GetNumClients()
     return Client.NumClients;
 }
 
-CDPServer* CreateRemoteClientHost()
+void OnNetConnect(NetLink* Link, void*)
 {
-    return new (std::nothrow) CRemoteClientHost();
-}
-
-CDPClientProxy* CRemoteClientHost::CreateClientProxy()
-{
-    return new (std::nothrow) CRemoteClientProxy();
-}
-
-CRemoteClientProxy::~CRemoteClientProxy()
-{
-    if (ClientId != 0 && ClientId <= 128)
-        Client.ClientProxies[ClientId - 1] = nullptr;
-}
-
-void CRemoteClientProxy::OnDisconnect()
-{
-    Client.DisconnectClient(ClientId);
-}
-
-void CRemoteClientProxy::OnConnect(long Result)
-{
-    if (ClientId == 0)
-    {
-        for (unsigned int Index = 0; Index < 128; ++Index)
-        {
-            if (Client.ClientProxies[Index] == nullptr)
-            {
-                Client.ClientProxies[Index] = this;
-                ClientId = Index + 1;
-                break;
-            }
-        }
-    }
+    if (Link == nullptr || Link->Slot == 0 || Link->Slot > 128)
+        return;
+    Client.ClientProxies[Link->Slot - 1] = Link;
     ++Client.NumClients;
     FPacketBase* Packet = nullptr;
     if (Client.Serializer->Allocate(2, 1, &Packet) == 0)
     {
-        static_cast<FRpcConnectResponsePacket*>(Packet)->Value = ClientId;
-        Client.PushToClient(ClientId, Packet->AsRaw());
+        static_cast<FRpcConnectResponsePacket*>(Packet)->Value = Link->Slot;
+        Client.PushToClient(Link->Slot, Packet->AsRaw());
     }
-    RemoteClientGetServer()->OnConnect(ClientId);
+    RemoteClientGetServer()->OnConnect(Link->Slot);
 }
 
-void CRemoteClientProxy::OnReceive(unsigned char* Data, unsigned long Size)
+void OnNetDisconnect(NetLink* Link, void*)
+{
+    if (Link != nullptr)
+        Client.DisconnectClient(Link->Slot);
+}
+
+void OnNetReceive(NetLink* Link, unsigned char* Data, unsigned int Size, void*)
 {
     int Remaining = static_cast<int>(Size);
-    if (Data == nullptr || Remaining <= 0)
+    if (Link == nullptr || Data == nullptr || Remaining <= 0)
         return;
 
     unsigned char* Cursor = Data;
@@ -317,14 +291,12 @@ void CRemoteClientProxy::OnReceive(unsigned char* Data, unsigned long Size)
         Client.Serializer->Allocate(Channel, Opcode, &Packet);
         if (Packet == nullptr || Packet->Decode(Cursor, Remaining, &DecodedSize) != 0)
         {
-            Disconnect();
+            Link->Disconnect();
             return;
         }
 
-        HandleClientPacket(ClientId, Packet->AsRaw());
+        HandleClientPacket(Link->Slot, Packet->AsRaw());
         Remaining -= static_cast<int>(DecodedSize);
-        // 06b3932d subtracts DecodedSize from ESI only. Unlike remoteserver's
-        // decoder loop, retail does not advance EDI past the decoded body.
     } while (Remaining > 0);
 }
 
@@ -333,19 +305,15 @@ int GetClientStats(FClientStats* Stats, int* Count)
     int Written = 0;
     for (unsigned int Index = 0; Index < 128; ++Index)
     {
-        CDPClientProxy* Proxy = Client.ClientProxies[Index];
+        NetLink* Proxy = Client.ClientProxies[Index];
         if (Proxy != nullptr)
         {
-            DPN_CONNECTION_INFO Info;
-            if (Proxy->GetConnectionStats(&Info))
-            {
-                Stats[Written].BytesSentGuaranteed = Info.dwBytesSentGuaranteed;
-                Stats[Written].BytesReceivedGuaranteed = Info.dwBytesReceivedGuaranteed;
-                Stats[Written].PacketsSentGuaranteed = Info.dwPacketsSentGuaranteed;
-                Stats[Written].PacketsReceivedGuaranteed = Info.dwPacketsReceivedGuaranteed;
-                Stats[Written].ThroughputBps = Info.dwThroughputBPS;
-                ++Written;
-            }
+            Stats[Written].BytesSentGuaranteed = Proxy->GetSendQBytes();
+            Stats[Written].BytesReceivedGuaranteed = 0;
+            Stats[Written].PacketsSentGuaranteed = Proxy->GetSendQSize();
+            Stats[Written].PacketsReceivedGuaranteed = 0;
+            Stats[Written].ThroughputBps = 0;
+            ++Written;
         }
     }
     *Count = Written;

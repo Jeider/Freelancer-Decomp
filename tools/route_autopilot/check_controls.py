@@ -59,6 +59,8 @@ void NnVoiceEnqueueByName(char const*){}
 void PlayOrRewindUiSoundSlot(int){}
 namespace CockpitFreeLook { bool BlocksMouseFlight(){return headLook;} }
 namespace FlightTelemetry { void Command(char const*,float,float=0,float=0){} }
+void FDUMP(int,char const*,...) {}
+namespace PlayerTrain { void CancelApproach() {} }
 namespace NavigationSettings { enum Setting {Generator,Autopilot,AutoDock}; int values[3]={1,1,1};int Get(Setting s){return values[s];} }
 namespace pub::AI {
 struct DirectiveGotoOp { int Field_0C=0,Field_1C=0,Field_58=0; V Destination; float Field_50=0; };
@@ -126,8 +128,9 @@ struct IObjRW:Watchable {
 };
 struct CShip {
     IObjRW* target=nullptr;
+    bool inLane=false;
     IObjRW* get_target(){return target;}
-    bool is_using_tradelane(){return false;}
+    bool is_using_tradelane(){return inLane;}
     bool is_launching(){return false;}
 } hull;
 IObjRW playerObject;
@@ -146,9 +149,24 @@ struct FPlayerWaypointRecord { V Pos; unsigned SystemId=55,ObjectId=0; int AutoI
 std::vector<FPlayerWaypointRecord> waypoints;
 int GetPlayerWaypointCountRetail(){return static_cast<int>(waypoints.size());}
 FPlayerWaypointRecord* GetPlayerWaypointRetail(int i){return &waypoints[static_cast<size_t>(i)];}
+struct FBestPathWaypoint {
+    unsigned Field_0x18=10;
+    V position;
+    unsigned system=55;
+    IObjRW* object=nullptr;
+    bool resolved=true;
+};
+std::vector<FBestPathWaypoint> missionPoints;
+int BestPathGetWaypointCount(){return int(missionPoints.size());}
+FBestPathWaypoint* BestPathGetWaypoint(int i){return &missionPoints[size_t(i)];}
+bool BestPathWaypointResolvePosition(FBestPathWaypoint const* p,V* pos,unsigned* sys){
+    *pos=p->position;*sys=p->system;return p->resolved;
+}
+IObjRW* BestPathWaypointResolveObject(FBestPathWaypoint const* p){return p->object;}
 unsigned login=1;
+unsigned currentSystem=55;
 unsigned GetPlayerConnectionId(){return login;}
-unsigned GetPlayerStarSystemIdRetail(){return 55;}
+unsigned GetPlayerStarSystemIdRetail(){return currentSystem;}
 int PortConfigInt(char const*,char const*,int fallback){return fallback;}
 struct Request {V from,to;unsigned object,system;};
 std::vector<Request> requests;
@@ -175,6 +193,8 @@ V previous;
 float bestDistance=0,stalled=0,elapsed=0;
 struct Node { FPlayerWaypointRecord point; bool user=false,dock=false,laneExit=false; };
 std::deque<Node> route(1);
+std::deque<Node> missionSnapshot;
+bool missionRoute=false;
 std::deque<V> leg;
 IObjRW* player(){return &playerObject;}
 CShip* ship(){return &hull;}
@@ -210,7 +230,7 @@ void AddPlayerWaypointRetail(V p,unsigned sys,unsigned id){waypoints.push_back({
 production = '\nnamespace PlayerFlightActions {\n' + ''.join(
     extract(actions, sig) for sig in ('bool locksInput(', 'void Cancel()', 'bool RequestCancel()', 'bool IsGotoWeaving()', 'bool BlockMouse()')) + '}\n'
 production += '\nnamespace PlayerRoute {\n' + ''.join(
-    extract(route, sig) for sig in ('bool Active()', 'int selectedRouteIndex(', 'bool rebuildRoute(',
+    extract(route, sig) for sig in ('bool Active()', 'int selectedRouteIndex(', 'bool cacheMissionRoute(', 'bool rebuildRoute(',
                                     'void Cancel(', 'bool dock()', 'void consume()', 'bool BlockMouse()', 'bool MouseSteering(',
                                     'bool ReleaseMouseSteering()',
                                     'bool Keyboard(', 'void SetCruiseRequested(', 'void RouteChanged()', 'void WaypointRemoved()',
@@ -396,11 +416,119 @@ int main(){
     goalConnection=login;rebuildOnStart=true;++login;
     assert(!rebuildRoute(true));
 
-    // A selected mission/object target without a user waypoint stays entirely
-    // on native F2; no one-node route or safe-path preflight is created.
+    // A marker with no current NNPath still falls back to native F2.
     haveGoal=rebuildOnStart=false;hudWaypoint.bUser=0;hull.target=&marker;
     assert(selectedRouteIndex(&marker)==-1);
     prepared=false;assert(!Start(nullptr) && !Active() && !prepared && route.empty());
+    // F2 snapshots the ordered NNPath, including real object identities. No
+    // mission marker pointers or user waypoint IDs belong to that copy.
+    IObjRW missionGate;missionGate.id=456;missionGate.type=0x40;
+    missionGate.position={30000,0,0};objects={&missionGate};
+    playerObject.position={0,0,0};marker.position={1000,0,0};
+    hudWaypoint.object=&marker;hudWaypoint.Index=99;hudWaypoint.bUser=0;
+    missionPoints={{0x3a,{1000,0,0}},{9,{9000,0,0}},{9,missionGate.position,55,&missionGate}};
+    waypoints.clear();requests.clear();
+    haveGoal=rebuildOnStart=true;goalConnection=login; // Old map goal must not win.
+    assert(Start(nullptr)&&Active()&&route.size()==3&&requests.empty());
+    assert(!haveGoal&&!rebuildOnStart);
+    for(auto const& node:route)assert(!node.user&&node.point.AutoId==0);
+    assert(route.back().point.ObjectId==456);
+    // Heartbeats replace/delete the source vector. They cannot reissue Go To,
+    // change the cache or act like another player F2. Point Go To does not own
+    // the mission HUD solar, so deleting that solar cannot invalidate its op.
+    missionPoints={{0x1a,{80000,0,0}}};missionPoints.clear();RouteChanged();
+    auto unchangedUpdates=nativeGoto.destinationUpdates;
+    assert(!reissueAfterRemoval);
+    Tick(1/60.f,false);
+    assert(Active()&&pilot.CurrentBehaviorIndex==2&&nativeGoto.destination.x==1000);
+    assert(nativeGoto.destinationUpdates==unchangedUpdates&&missionSnapshot.size()==3);
+    playerObject.position={1000,0,0};Tick(1/60.f,false);
+    assert(route.size()==2&&route.front().point.Pos.x==9000&&nativeGoto.destination.x==9000);
+    assert(waypoints.empty()&&missionPoints.empty()&&pilot.cruise);
+    assert(missionSnapshot.size()==3&&missionSnapshot.front().point.Pos.x==1000);
+    // Repeated F2 takes the current NNPath; a stale HUD index/position cannot
+    // accidentally skip the new route. No implicit refresh occurred before F2.
+    missionPoints={{10,{15000,0,0}},{9,{25000,0,0}}};
+    assert(route.front().point.Pos.x==9000);
+    assert(Start(nullptr)&&route.size()==2&&nativeGoto.destination.x==15000);
+    // A selected later NNPath marker starts at that point, not at an old index.
+    marker.position={25000,0,0};
+    assert(Start(nullptr)&&route.size()==1&&route.front().point.Pos.x==25000);
+    // No target uses the first NNPath stop when there is no map route.
+    hull.target=nullptr;
+    assert(Start(nullptr)&&route.size()==2&&route.front().point.Pos.x==15000);
+    // Explicit map waypoints and unrelated targets keep their existing behavior.
+    waypoints={{{40000,0,0},55,0,77}};hudWaypoint.bUser=1;hudWaypoint.Id=77;
+    hull.target=&marker;
+    assert(Start(nullptr)&&route.size()==1&&route.front().user&&route.front().point.AutoId==77);
+    waypoints.clear();hull.target=&missionGate;
+    assert(!Start(nullptr)&&!Active());
+    // Invalid or non-route objectives cannot produce a partial snapshot.
+    hull.target=&marker;hudWaypoint.bUser=0;
+    missionPoints[1].resolved=false;
+    assert(!Start(nullptr)&&route.empty());
+    missionPoints[1].resolved=true;missionPoints[0].Field_0x18=0x10;
+    assert(!Start(nullptr)&&route.empty());
+    missionPoints={{10,{NAN,0,0}}};
+    assert(!Start(nullptr)&&route.empty());
+    missionPoints.clear();
+    // Lane entry/exit IDs survive NNPath deletion during the ride. The second
+    // endpoint is consumed on exit; it must not send us back into the lane.
+    IObjRW laneIn,laneOut;laneIn.id=601;laneOut.id=602;
+    laneIn.type=laneOut.type=0x80;
+    laneIn.position={10000,0,0};laneOut.position={20000,0,0};
+    objects={&laneIn,&laneOut};hull.target=&laneIn;playerObject.position={0,0,0};
+    missionPoints={{10,laneIn.position,55,&laneIn},{9,laneOut.position,55,&laneOut},{9,{30000,0,0}}};
+    assert(Start(nullptr)&&route.size()==3);
+    route.front().dock=true;assert(dock());
+    // NNPath advances while the native Dock is still approaching the ring.
+    // Its updates must not rewrite/complete the cached F3 or replace Dock by Go To.
+    missionPoints={{10,{99000,0,0}}};RouteChanged();WaypointRemoved();BeginPathResponse();
+    receivingPath=false;
+    auto unchangedDirectives=pilot.directiveChanges;
+    auto unchangedDockRequests=pilot.dockRequests;
+    Tick(3.f,false);
+    assert(state==State::Docking&&route.front().point.ObjectId==601);
+    assert(pilot.directiveChanges==unchangedDirectives&&pilot.dockRequests==unchangedDockRequests);
+    assert(!reissueAfterRemoval&&missionSnapshot.size()==3);
+    hull.inLane=true;Tick(1/60.f,true);
+    assert(state==State::Lane);
+    missionPoints.clear();RouteChanged();hull.inLane=false;playerObject.position=laneOut.position;
+    Tick(1/60.f,false);
+    assert(state==State::Flying&&route.size()==1&&nativeGoto.destination.x==30000);
+    // Regression: a brief lane flag followed by exit at the entrance is NOT a
+    // completed ride. Nor is interruption halfway to the cached exit. Stop,
+    // retain the immutable snapshot, and never fly to the next task automatically.
+    for(float stoppedAt:{10000.f,15000.f}) {
+        playerObject.position={0,0,0};hull.target=&laneIn;
+        missionPoints={{10,laneIn.position,55,&laneIn},{9,laneOut.position,55,&laneOut},{9,{30000,0,0}}};
+        assert(Start(nullptr)&&route.size()==3);
+        route.front().dock=true;assert(dock());
+        hull.inLane=true;Tick(1/60.f,false);
+        missionPoints={{10,{90000,0,0}}};RouteChanged();
+        playerObject.position={stoppedAt,0,0};hull.inLane=false;pilot.CurrentBehaviorIndex=0x13;
+        auto updatesBeforeExit=nativeGoto.destinationUpdates;
+        Tick(1/60.f,false);
+        assert(!Active()&&pilot.throttle==0&&!pilot.cruise);
+        assert(nativeGoto.destinationUpdates==updatesBeforeExit);
+        assert(missionSnapshot.size()==3&&missionSnapshot.front().point.ObjectId==601);
+        missionPoints.clear();RouteChanged();WaypointRemoved();
+        assert(missionSnapshot.size()==3);
+    }
+    // A dock rejection before the lane flag also cannot consume its cached F3.
+    playerObject.position={0,0,0};hull.target=&laneIn;
+    missionPoints={{10,laneIn.position,55,&laneIn},{9,laneOut.position,55,&laneOut}};
+    assert(Start(nullptr));route.front().dock=true;assert(dock());
+    missionPoints.clear();RouteChanged();pilot.CurrentBehaviorIndex=0x13;Tick(3.f,false);
+    assert(!Active()&&missionSnapshot.front().point.ObjectId==601&&pilot.throttle==0);
+    // NNPath's current-system snapshot ends at the jump gate. After the jump
+    // finish that snapshot, rather than docking back or inventing further legs.
+    objects={&missionGate};hull.target=&missionGate;
+    missionPoints={{10,missionGate.position,55,&missionGate}};
+    assert(Start(nullptr)&&route.front().point.ObjectId==456);
+    route.front().dock=true;assert(dock());
+    missionPoints.clear();currentSystem=66;Tick(1/60.f,false);
+    assert(!Active()&&route.empty());currentSystem=55;
     // Without base-docking permission, the final checked approach must hand off
     // to the native F2 object command, never stop at the preceding waypoint.
     Cancel();headLook=false;G_MouseFlightLocked=false;mouseButtons=0;
@@ -437,7 +565,7 @@ int main(){
     NavigationSettings::values[NavigationSettings::Autopilot]=0;
     Tick(1/60.f,false);
     assert(!Active()&&pilot.cruise&&pilot.throttle==1); // Applying settings does not brake.
-    puts("PASS: native single-object F2; waypoint deletion/addition preserves active route; lane/gate/hole travel, docking, mouse resume, cruise, replans and stale-response cancellation.");
+    puts("PASS: NNPath snapshot/replacement/lane/jump; native single-object F2; waypoint edits, docking, mouse resume, cruise, replans and stale-response cancellation.");
 }
 '''
 (OUT / 'check.cpp').write_text('#include "' + (CLIENT / 'route_geometry.h').as_posix() + '"\n'

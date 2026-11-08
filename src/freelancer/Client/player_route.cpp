@@ -36,6 +36,10 @@ struct Node { FPlayerWaypointRecord point; bool user=false; bool dock=false; boo
 enum class State { Off,Flying,Docking,Lane,Jump };
 State state=State::Off;
 std::deque<Node> route;
+// Immutable F2 snapshot, separate from the queue consumed while flying. Only
+// another player F2 or leaving the flight session replaces/discards this copy.
+std::deque<Node> missionSnapshot;
+bool missionRoute=false;
 std::deque<V> leg;
 BaseWatcher owner;
 unsigned connection=0,system=0,jumpSystem=0,exitGate=0;
@@ -66,6 +70,49 @@ int selectedRouteIndex(IObjRW* target) {
            (userPoint && point->AutoId==waypoint->Id)) return i;
     }
     return -1;
+}
+bool cacheMissionRoute(IObjRW* target) {
+    int const count=BestPathGetWaypointCount();
+    if(count==0) return false;
+    auto waypoint=GetHudWaypoint();
+    bool const missionMarker=target && waypoint && !waypoint->bUser &&
+        waypoint->GetWaypointObject()==target;
+    int start=target ? -1 : 0;
+    std::deque<Node> snapshot;
+    for(int i=0;i<count;++i) {
+        auto record=BestPathGetWaypoint(i);
+        // NNPath sends a numbered first stop (10), followed by hidden route
+        // legs (9). Other mission objectives are not an ordered flight path.
+        if(!record || (record->Field_0x18&0xfu)!=(i==0?10u:9u)) return false;
+        FPlayerWaypointRecord point{};
+        if(!BestPathWaypointResolvePosition(record,&point.Pos,&point.SystemId) ||
+           !point.SystemId || !std::isfinite(point.Pos.x) ||
+           !std::isfinite(point.Pos.y) || !std::isfinite(point.Pos.z)) return false;
+        auto destination=BestPathWaypointResolveObject(record);
+        point.ObjectId=destination ? destination->get_id() : 0;
+        // The HUD index can be stale after an NNPath refresh. Match the actual
+        // selected marker by position, or a lane/gate/base by its object ID.
+        if(start<0 && target && ((destination && destination==target) ||
+           (missionMarker && point.SystemId==GetPlayerStarSystemIdRetail() &&
+            length(v(point.Pos)-v(target->get_position()))<2))) start=i;
+        snapshot.push_back({point,false});
+    }
+    // A replaced mission marker still selects the current NNPath, not an old
+    // vector index. Unrelated selected objects keep native single-object F2.
+    if(start<0 && missionMarker) start=0;
+    if(start<0) return false;
+    snapshot.erase(snapshot.begin(),snapshot.begin()+start);
+    missionSnapshot=snapshot;
+    route.swap(snapshot);
+    missionRoute=true;
+    FDUMP(0x100002,"RouteAuto: NNPath snapshot points=%u start=%d\n",unsigned(route.size()),start);
+    for(auto const& node:route)
+        FDUMP(0x100002,"RouteAuto: cached system=%u object=%u pos=%.0f,%.0f,%.0f\n",
+              node.point.SystemId,node.point.ObjectId,node.point.Pos.x,node.point.Pos.y,node.point.Pos.z);
+    // Only value records survive: never keep FmtStr/mission/HUD pointers, and
+    // never consume mission points from the player's editable waypoint list.
+    haveGoal=rebuildOnStart=false;
+    return true;
 }
 bool rebuildRoute(bool useRoute) {
     if(!useRoute || !haveGoal || !rebuildOnStart || goalConnection!=GetPlayerConnectionId()) return false;
@@ -155,13 +202,18 @@ bool dock() {
     }
     Guard guard;
     player()->set_target(target,SUBOBJ_ID_NONE,GetPlayerConnectionId());
-    if(b->external_player_evaluate(7)==EvalSkip) return false;
+    if(b->external_player_evaluate(7)==EvalSkip) {
+        FDUMP(0x100002,"RouteAuto: dock unavailable object=%u; cached stop remains incomplete\n",target->get_id());
+        return false;
+    }
     PlayerFlightActions::Cancel();
     pub::AI::DirectiveDockOp op; op.DockObjectId=target->get_id();
     if((type&0x80)!=0 && route.size()>1 && route[1].point.SystemId==system &&
        (typeOf(object(route[1].point.ObjectId))&0x80)!=0)
         op.Field_10=static_cast<int>(route[1].point.ObjectId);
     if(!b->set_current_directive(directive(7),&op)) return false;
+    FDUMP(0x100002,"RouteAuto: dock issued object=%u exit=%u mission=%d\n",
+          target->get_id(),unsigned(op.Field_10),missionRoute?1:0);
     notify(target->get_id(),7);
     state=State::Docking; elapsed=0; issued=true;
     if((type&0x840)!=0) {
@@ -225,6 +277,7 @@ void Cancel(bool freeFlight) {
     if(haveGoal && (pendingStart || (Active() && !route.empty() && route.front().user))) rebuildOnStart=true;
     pendingStart=false; mouseOverride=false; replanAfterMouse=false;
     bool wasActive=Active(); state=State::Off; route.clear(); leg.clear(); owner.set(nullptr);
+    missionRoute=false;
     issued=false; reissueAfterRemoval=false; jumpSystem=exitGate=0; elapsed=stalled=0;
     if(wasActive && freeFlight) {
         Guard guard;
@@ -284,9 +337,10 @@ bool ReleaseMouseSteering() {
 void SetCruiseRequested(bool enabled) {
     if(Active() && !internal) cruiseRequested=enabled;
 }
-void Landed() { Cancel(); haveGoal=rebuildOnStart=false; RoutePlanner::Invalidate(); }
+void Landed() { Cancel(); missionSnapshot.clear(); haveGoal=rebuildOnStart=false; RoutePlanner::Invalidate(); }
 void RouteChanged() {
     if(internal || refining || receivingPath) return;
+    if(missionRoute) return; // Live NNPath/map changes do not own the F2 snapshot.
     // Clearing/replacing map markers is not a flight command. The active route
     // owns its point copies; restore only its native directive if the selected
     // marker disappears, exactly as for a single waypoint removal.
@@ -298,6 +352,7 @@ void RouteChanged() {
 }
 void WaypointRemoved() {
     if(internal || refining || receivingPath) return;
+    if(missionRoute) return; // Its coordinate directive does not target HUD solars.
     // The deleted HUD target can make native Go To drop to Freeflight. Reissue
     // only the current point directive on the next route tick, without replanning.
     if(state==State::Flying) reissueAfterRemoval=true;
@@ -312,6 +367,7 @@ void PathRequested() {
 }
 void BeginPathResponse() {
     receivingPath=true;
+    if(missionRoute) return;
     if(Active()) {
         // Replacing the selected map marker can make native Go To fall back to
         // Freeflight. Keep the copied route and recover its current point only.
@@ -327,16 +383,21 @@ bool Start(HUD_Maneuvers*,bool rebuilt) {
     auto p=player(); auto s=ship(); auto b=manager();
     if(!p || !s || !b || p->is_dying() || b->LockManeuversByte || s->is_using_tradelane() || s->is_launching()) return true;
     Cancel(); PlayerFlightActions::Cancel(); RoutePlanner::Invalidate();
+    if(!rebuilt) missionSnapshot.clear(); // Explicit player F2, never an NNPath update.
     cruiseRequested=true;
     auto target=s->get_target();
     int selectedIndex=rebuilt?0:selectedRouteIndex(target);
-    bool useRoute=rebuilt || !target || selectedIndex>=0;
-    if(rebuildRoute(useRoute)) return true;
-    // With no selected user waypoint, leave an ordinary object F2 entirely to
-    // native Go To. Safe-path planning belongs only to actual waypoint routes.
-    if(!useRoute) return false;
-    int start=(std::max)(selectedIndex,0);
-    for(int i=start;i<GetPlayerWaypointCountRetail();++i) route.push_back({*GetPlayerWaypointRetail(i),true});
+    bool mission=!rebuilt && selectedIndex<0 &&
+        (target || GetPlayerWaypointCountRetail()==0) && cacheMissionRoute(target);
+    if(!mission) {
+        bool useRoute=rebuilt || !target || selectedIndex>=0;
+        if(rebuildRoute(useRoute)) return true;
+        // Unrelated objects still use native Go To. Only a map route or an
+        // explicit NNPath snapshot belongs to the route autopilot.
+        if(!useRoute) return false;
+        int start=(std::max)(selectedIndex,0);
+        for(int i=start;i<GetPlayerWaypointCountRetail();++i) route.push_back({*GetPlayerWaypointRetail(i),true});
+    }
     if(route.empty()) return false; // Native Go To's "ahead" action.
     connection=GetPlayerConnectionId(); system=GetPlayerStarSystemIdRetail();
     state=State::Flying; owner.set(static_cast<Watchable*>(p)); previous=v(p->get_position());
@@ -375,8 +436,26 @@ void Tick(float dt,bool docking) {
         return;
     }
     if(state==State::Docking || state==State::Lane) {
-        if(s->is_using_tradelane()) { state=State::Lane; return; }
+        if(s->is_using_tradelane()) {
+            if(state!=State::Lane)
+                FDUMP(0x100002,"RouteAuto: lane action started entry=%u\n",route.front().point.ObjectId);
+            state=State::Lane; return;
+        }
         if(state==State::Lane && !IsLetterboxVisible() && !docking) {
+            // CShip sets is_using_tradelane before LaneAction has completed its
+            // entry. A failed/disrupted entry can clear it again at the same
+            // ring. Do not consume the mandatory entrance and fly past it.
+            bool const hasExit=route.size()>1 && route[1].point.SystemId==system &&
+                (typeOf(object(route[1].point.ObjectId))&0x80)!=0;
+            float const entryDistance=length(v(route.front().point.Pos)-v(p->get_position()));
+            float const exitDistance=hasExit ? length(v(route[1].point.Pos)-v(p->get_position())) : -1.f;
+            if((hasExit && exitDistance>=2000) || (!hasExit && entryDistance<2000)) {
+                FDUMP(0x100002,"RouteAuto: lane incomplete entry=%u entry_distance=%.0f exit_distance=%.0f; stop, retain F2 snapshot\n",
+                      route.front().point.ObjectId,entryDistance,exitDistance);
+                fail(); return;
+            }
+            FDUMP(0x100002,"RouteAuto: lane completed entry=%u exit_distance=%.0f\n",
+                  route.front().point.ObjectId,exitDistance);
             consume();
             if(!route.empty() && route.front().point.SystemId==system &&
                (typeOf(object(route.front().point.ObjectId))&0x80)!=0) {
@@ -389,8 +468,11 @@ void Tick(float dt,bool docking) {
             if(route.empty()) {Cancel();return;}
             state=State::Flying; if(!prepare()) fail(); return;
         }
-        if(!docking && !IsLetterboxVisible() && elapsed>2 && b->CurrentBehaviorIndex!=7) fail();
-        else if(elapsed>300) fail();
+        if(!docking && !IsLetterboxVisible() && elapsed>2 && b->CurrentBehaviorIndex!=7) {
+            FDUMP(0x100002,"RouteAuto: dock ended before lane/jump object=%u behavior=%d; retain F2 snapshot\n",
+                  route.front().point.ObjectId,b->CurrentBehaviorIndex);
+            fail();
+        } else if(elapsed>300) fail();
         return;
     }
     if(docking || IsLetterboxVisible() || b->LockManeuversByte) { Cancel(); return; }

@@ -28,6 +28,8 @@
 #include "nn_story_star.h"           // StoryStarReset (FUN_004b9bb0)
 #include "nn_text_scratch.h"         // DAT_0066dc60 / DAT_0066fc60 / DAT_006119f8
 #include "nn_tooltip.h"              // NnToolTipHideGlobal (FUN_004be390)
+#include "cargo_bar_control.h"       // ToolTipHoverSetCaption
+#include "tooltip_hover.h"
 #include "player_behavior.h"         // GetPlayerObjRW (FUN_0054baf0)
 #include "player_spawn.h"            // the player's waypoints, RequestBestPathRetail
 #include "rich_text_win.h"
@@ -38,6 +40,10 @@
 #include "common_misc.h"             // SUBOBJ_ID_NONE
 #include "common_server.h"           // IServer
 #include "common_text.h"             // FmtStr, RenderDisplayList, StyleNode
+#include "common_archetype.h"
+#include "ship_cache.h"
+
+#include <windows.h>
 #include "common_universe.h"
 #include "dacom.h"                   // FDUMP
 #ifdef FREELANCER_FLSHARP
@@ -136,6 +142,23 @@ intptr_t NeuroNetNavMap::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 {
     // LAB_00493680 (RET 0xc). The switch on Msg - 0x26 (byte table 0x004945c0): 0x26 click,
     // 0x2c / 0x2d hover, 0x3e scroll; everything else returns 0 -- without WinControl's body.
+    if (Msg == 0x4f && ParkListFilter != nullptr &&
+        A == reinterpret_cast<uintptr_t>(ParkListFilter))
+    {
+        FToolTipHoverInfo Info;
+        ToolTipHoverSetCaption(&Info, L"\x041F\x0440\x0438\x043F\x0430\x0440\x043A\x043E\x0432\x0430\x043D\x043D\x044B\x0435 \x043A\x043E\x0440\x0430\x0431\x043B\x0438");
+        Info.Ids = -1;
+        Info.IdsAlt = 0;
+        Info.WorldPos[0] = ParkListFilter->Position[0] + ParkListFilter->Offset[0];
+        Info.WorldPos[1] = ParkListFilter->Position[1] + ParkListFilter->Offset[1];
+        Info.WorldPos[2] = ParkListFilter->Position[2] + ParkListFilter->Offset[2];
+        Info.HalfExtents[0] = ParkListFilter->HalfExtents[0];
+        Info.HalfExtents[1] = ParkListFilter->HalfExtents[1];
+        Info.HalfExtents[2] = ParkListFilter->HalfExtents[2];
+        Info.bLive = 1;
+        NnToolTipFeedHover(&Info);
+        return 1;
+    }
     if (Msg == 0x2c || Msg == 0x2d)
     {
         // caseD_2c 0x00494556..0x004945ad: only the objective rows.
@@ -370,9 +393,17 @@ intptr_t NeuroNetNavMap::SetProperty(int Msg, uintptr_t A, uintptr_t B)
     }
     if (A == reinterpret_cast<uintptr_t>(BaseListFilter))
     {
+        bBaseListBuilt = 0;
         BuildBaseList();   // FUN_004a2370
         RefreshBaseList(); // FUN_004a2930
         SetFilterMode(7);
+        return 0;
+    }
+    if (ParkListFilter != nullptr && A == reinterpret_cast<uintptr_t>(ParkListFilter))
+    {
+        BuildParkList();
+        RefreshBaseList();
+        SetFilterMode(8);
         return 0;
     }
     if (A == reinterpret_cast<uintptr_t>(LegendFilter))
@@ -635,7 +666,8 @@ bool NeuroNetNavMap::MouseEvent(FWin3DMouseEvent const* Event)
     NnToolTipHideGlobal(); // FUN_004be390
 
     // 0x00497d58..0x00497d72: nothing in the legend, info card and base list modes.
-    if (G_NavMapFilterMode == 4 || G_NavMapFilterMode == 6 || G_NavMapFilterMode == 7)
+    if (G_NavMapFilterMode == 4 || G_NavMapFilterMode == 6 || G_NavMapFilterMode == 7 ||
+        G_NavMapFilterMode == 8)
         return true;
 
     // 0x00497d78..0x00497dda: the cursor inside ScreenRect (x kept in the FPU, y stored);
@@ -1163,6 +1195,82 @@ void NeuroNetNavMap::ConfirmAbortMission()
 // ----------------------------------------------------------------------------------------
 // The known-bases list
 // ----------------------------------------------------------------------------------------
+
+void NeuroNetNavMap::BuildParkList()
+{
+    bBaseListBuilt = 1;
+    BaseEntries.clear();
+    BaseNames.clear();
+    SystemNames.clear();
+    BaseListFirstRow = 0;
+
+    HMODULE const Server = GetModuleHandleA("Server.dll");
+    if (Server == nullptr)
+        return;
+    using FCount = int(__cdecl*)(unsigned);
+    using FGet = int(__cdecl*)(unsigned, int, PlayerShipCacheView*);
+    FCount const CountFn = reinterpret_cast<FCount>(GetProcAddress(Server, "PlayerShipCache_Count"));
+    FGet const GetFn = reinterpret_cast<FGet>(GetProcAddress(Server, "PlayerShipCache_Get"));
+    if (CountFn == nullptr || GetFn == nullptr)
+        return;
+    unsigned const PlayerId = GetPlayerConnectionId();
+    int const Count = CountFn(PlayerId);
+    if (Count <= 0)
+        return;
+
+    int BaseIndex = 0;
+    for (int Index = 0; Index < Count; ++Index)
+    {
+        PlayerShipCacheView View;
+        memset(&View, 0, sizeof(View));
+        if (GetFn(PlayerId, Index, &View) != 0 || View.ShipArchetype == 0 || View.BaseId == 0)
+            continue;
+        unsigned SystemId = 0;
+        float Pos[3] = {};
+        int IdsName = 0;
+        bool bFound = false;
+        for (Universe::ISystem* System = Universe::GetFirstSystem(); System != nullptr && !bFound;
+             System = Universe::GetNextSystem())
+        {
+            unsigned const Objects = static_cast<unsigned>(System->GetObjectCount());
+            for (unsigned ObjectIndex = 0; ObjectIndex < Objects; ++ObjectIndex)
+            {
+                Universe::FSystemObject Object;
+                if (!System->GetSystemObject(ObjectIndex, &Object) ||
+                    (Object.DockWith != View.BaseId && Object.BaseId != View.BaseId))
+                    continue;
+                SystemId = System->GetId();
+                Pos[0] = Object.Pos.x;
+                Pos[1] = Object.Pos.y;
+                Pos[2] = Object.Pos.z;
+                IdsName = Object.IdsName;
+                bFound = true;
+                break;
+            }
+        }
+        if (!bFound)
+            continue;
+        if (Universe::IBase* const Base = Universe::get_base(View.BaseId))
+            IdsName = Base->GetStridName();
+        Archetype::Ship const* const Ship = Archetype::GetShip(View.ShipArchetype);
+        int const ShipIds = Ship != nullptr ? Ship->IdsName : 0;
+        GetIdsStringWWithRawFallback(static_cast<unsigned>(IdsName), G_NnTextScratchB,
+                                     G_NnTextScratchCapacity);
+        BaseNames.push_back(std::wstring(G_NnTextScratchB));
+        GetIdsStringWWithRawFallback(static_cast<unsigned>(ShipIds), G_NnTextScratchB,
+                                     G_NnTextScratchCapacity);
+        SystemNames.push_back(std::wstring(G_NnTextScratchB));
+        FNavMapBaseEntry Entry;
+        Entry.SystemId = SystemId;
+        Entry.Pos[0] = Pos[0];
+        Entry.Pos[1] = Pos[1];
+        Entry.Pos[2] = Pos[2];
+        Entry.BaseIndex = BaseIndex;
+        Entry.SystemIndex = BaseIndex;
+        ++BaseIndex;
+        BaseEntries.push_back(Entry);
+    }
+}
 
 void NeuroNetNavMap::BuildBaseList()
 {

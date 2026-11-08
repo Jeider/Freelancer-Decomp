@@ -24,6 +24,7 @@
 #include "../include/common_casteroid.h" // CmnAsteroid::CAsteroidSystem (SrvAsteroidSystem AddRef/Release/get_sys_id)
 #include "../include/common_id.h"
 #include "../include/common_server_playerdb.h"
+#include "../include/ship_cache.h"
 #include "../include/server_savegame.h" // PlayerData_CreateNewCharacter (retail FUN_06d4b790)
 #include "../include/server_savefile.h" // Server_AccountDirName / Server_GetAccountsRoot (FUN_06d49f60)
 #include "../include/common_ini.h"
@@ -2458,6 +2459,7 @@ unsigned char PlayerDB::login(const SLoginInfo& Info, unsigned int SessionId) {
 //      of wave 7. PlayerData gained the counter; see the field note there.
 // ---------------------------------------------------------------------------
 static void PlayerData_Teardown(PlayerData& Slot) {
+    ShipCache_Clear(Slot.client_id);
     ServerActionStats::Clear(Slot.client_id);
     CECloakingDevice::LoadCooldowns(Slot.client_id, {});
     PlayerDB& Db = Players;

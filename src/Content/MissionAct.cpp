@@ -1203,6 +1203,23 @@ void ActPlayerCanDock::Parse(INI_Reader& Reader)
 }
 
 // FUN_06eccb00: FUN_06f49b00 gate, then FUN_06f47ba0(player state, +0x0c, &+0x10).
+ActPlayerCanLaunch::ActPlayerCanLaunch(FMissionScript* InMission)
+    : Act(InMission)
+    , bCanLaunch(1)
+{
+}
+
+void ActPlayerCanLaunch::Parse(INI_Reader& Reader)
+{
+    bCanLaunch = Reader.get_value_bool(0) ? 1 : 0;
+}
+
+bool ActPlayerCanLaunch::Execute()
+{
+    RpgSetPlayerCanLaunch(bCanLaunch);
+    return true;
+}
+
 bool ActPlayerCanDock::Execute()
 {
     if (FindContentPlayerState(Mission->PlayerId) != nullptr)
@@ -3952,6 +3969,58 @@ void ActSetShipAndLoadout::Parse(INI_Reader& Reader)
 bool ActSetShipAndLoadout::Execute()
 {
     pub::Player::SetShipAndLoadout(Mission->PlayerId, ShipArchId, Loadout);
+    return true;
+}
+
+ActCacheShipAndSetLoadout::ActCacheShipAndSetLoadout(FMissionScript* InMission)
+    : Act(InMission)
+    , ShipArchId(0)
+{
+    ClearTString(CacheName);
+    ClearTString(ShipName);
+}
+
+void ActCacheShipAndSetLoadout::Parse(INI_Reader& Reader)
+{
+    if (!Reader.is_value_empty(0))
+        CacheName = Reader.get_value_string(0);
+    if (!Reader.is_value_empty(1))
+    {
+        ShipName = Reader.get_value_string(1);
+        if (_stricmp(Reader.get_value_string(1), "none") != 0)
+            pub::GetShipID(ShipArchId, Reader.get_value_string(1));
+    }
+    if (Reader.is_value_empty(2))
+        return;
+    if (_stricmp(Reader.get_value_string(2), "none") == 0)
+        return;
+    unsigned int LoadoutId = 0;
+    if (pub::GetLoadoutID(LoadoutId, Reader.get_value_string(2)) != 0)
+        return;
+    pub::GetLoadout(Loadout, LoadoutId);
+}
+
+bool ActCacheShipAndSetLoadout::Execute()
+{
+    pub::Player::CacheShipAndSetLoadout(Mission->PlayerId, CacheName.Data, ShipArchId, Loadout);
+    return true;
+}
+
+ActRestoreCachedShip::ActRestoreCachedShip(FMissionScript* InMission)
+    : Act(InMission)
+{
+    ClearTString(CacheName);
+}
+
+void ActRestoreCachedShip::Parse(INI_Reader& Reader)
+{
+    if (!Reader.is_value_empty(0))
+        CacheName = Reader.get_value_string(0);
+}
+
+bool ActRestoreCachedShip::Execute()
+{
+    pub::Player::RestoreCachedShip(Mission->PlayerId, CacheName.Data);
     return true;
 }
 

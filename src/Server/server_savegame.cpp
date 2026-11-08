@@ -37,6 +37,7 @@
 #include <locale>
 #include "../include/server_savefile.h"        // FLS1, account paths, last saved path
 #include "../include/common_net.h"             // IsMPServer
+#include "../include/ship_cache.h"
 #include "../include/common_universe.h"
 #include "../include/common_archetype.h"
 #include "../include/common_cobject.h"         // SubObjectID::EquipIdMaker
@@ -419,6 +420,8 @@ bool __cdecl PlayerData_LoadSaveRecord(PlayerData& Slot, char const* Path,
         Record.Interface = 3;              // .text:06d4736b
         Record.ActionCounters = {};
         Record.CloakCooldowns.clear();
+        Record.ShipCache.clear();
+        Record.ShipParking = ShipParkingSave();
         ComCostume.Descriptions = GetCostumeDescriptions();
         BaseCostume.Descriptions = GetCostumeDescriptions();
         Record.WeaponGroups.clear();       // .text:06d473a3 erase(0, npos)
@@ -637,6 +640,7 @@ bool __cdecl PlayerData_LoadSaveRecord(PlayerData& Slot, char const* Path,
                     number >> std::ws;
                     if (number.eof()) Record.ActionCounters.Load(Reader.get_value_string(0), value);
                 }
+            } else if (ShipCache_TryRead(Record.ShipCache, Record.ShipParking, Reader)) {
             } else if (Reader.is_value("interface")) {
                 Record.Interface = static_cast<unsigned int>(Reader.get_value_int(0));
             } else if (Reader.is_value("log")) {
@@ -928,6 +932,7 @@ void __cdecl PlayerData_ApplySavedCharacter(PlayerData& Slot,
     ServerActionStats::Load(SessionId, Record.ActionCounters);
     CECloakingDevice::LoadCooldowns(SessionId, Record.CloakCooldowns);
     if (Record.BaseId == 0) ServerActionStats::EnteredSpace(SessionId, false);
+    ShipCache_Install(SessionId, Record.ShipCache, Record.ShipParking);
 }
 
 // ===========================================================================
@@ -1119,6 +1124,7 @@ void BuildAccountDirForName(char* Out, wchar_t const* AccountName) {
 } // namespace
 
 bool __cdecl PlayerData_CreateNewCharacter(PlayerData& Slot, SCreateCharacterInfo const& Info) {
+    ShipCache_Clear(Slot.client_id);
     // .text:06d4b7d0 -- FUN_06d464f0(S+0x18c, this). The `this == NULL` arm
     // (.text:06d4b7f2, empty directory) is unreachable: the only caller passes
     // EBP = &m_PlayerArray[SessionId - 1] (.text:06d5416f).

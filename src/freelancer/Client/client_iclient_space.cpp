@@ -30,6 +30,7 @@
 #include "common_server_asteroid.h"
 #include "common_csys.h"              // Acquire3DMathEngine (FUN_005b73e0)
 #include "common_goods.h"             // EquipDescList / EquipDescVector / Loadout
+#include "common_fuses.h"             // Import Common's vector<unsigned short> ABI.
 #include "common_iface.h"             // IBehaviorManager, IDirectiveInfo, FBehaviorManagerEvent
 #include "common_misc.h"              // DamageList, SUBOBJ_ID_NONE / SUBOBJ_ID_ROOT
 #include "common_physys.h"            // PhySys::AnyActive / RCSet / RCEnd

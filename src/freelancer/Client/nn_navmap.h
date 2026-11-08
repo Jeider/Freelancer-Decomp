@@ -236,6 +236,7 @@ public:
     void ShowObjectTools();
     // FUN_004a2370 -- once (bBaseListBuilt): every visited base of every visited system.
     void BuildBaseList();
+    void BuildParkList();
     // FUN_004a2760 (RET 4) -- bubble sort BaseEntries by base name (bByBase) or by system name
     // then base name.
     void SortBaseList(unsigned char bByBase);
@@ -682,6 +683,7 @@ public:
     unsigned char bBaseListBuilt;       // +0x1004 ctor 0; FUN_004a2370's latch
     unsigned char Pad1005[3];
     int BaseListFirstRow;               // +0x1008 ctor 0; the scroll bar's row (0x3e)
+    WinControl* ParkListFilter = nullptr;
 
 private:
     NeuroNetNavMap(NeuroNetNavMap const&) = delete;

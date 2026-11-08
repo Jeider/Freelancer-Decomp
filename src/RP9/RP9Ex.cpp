@@ -37,6 +37,10 @@
 
 // d3dx9.h after RP9.h (render/d3d8_min.h already pulled the Windows SDK d3d9.h).
 #include <d3dx9.h>
+#include "ColorGradeShader.h"
+#ifdef FREELANCER_DLSS5
+#include "BaseNeuralSupersample.h"
+#endif
 #include "RP9ShaderCache.h"
 #include "RP9ShaderWarmup.h"
 
@@ -632,7 +636,11 @@ namespace
             Self->ViewportCache_ = Ex->SavedViewport;
             Self->bViewportRectValid_ = Ex->bSavedViewportRectValid;
             Self->bDepthRangeValid_ = Ex->bSavedDepthRangeValid;
-            Device->SetViewport(&Self->ViewportCache_);
+            D3DVIEWPORT9 ActualViewport=Self->ViewportCache_;
+#ifdef FREELANCER_DLSS5
+            Self->ExScaleBaseNeuralViewport(ActualViewport);
+#endif
+            Device->SetViewport(&ActualViewport);
         }
         Self->RenderStates_.RestorePending(Ex->SavedPending);
         if (Ex->SavedColor != nullptr)
@@ -802,6 +810,9 @@ HRESULT FDirectX9::ExCreateDeviceResources(bool bIntzDepth, D3DFORMAT DepthForma
 
 void FDirectX9::ExReleaseDeviceResources()
 {
+#ifdef FREELANCER_DLSS5
+    StopBaseNeural();
+#endif
     ExReleaseSurfaceInstances();
     Rp9DeviceCalls().Invalidate();
     ExRoomShadowRelease();
@@ -832,6 +843,8 @@ void FDirectX9::ExReleaseDeviceResources()
     for(auto*& Texture : Ex->QualitySmaaTargets) {if(Texture) Texture->Release();Texture=nullptr;}
     Ex->bQualitySmaaFailed=false;
     if(Ex->GammaPs) {Ex->GammaPs->Release();Ex->GammaPs=nullptr;}
+    if(Ex->ColorGradePs) {Ex->ColorGradePs->Release();Ex->ColorGradePs=nullptr;}
+    Ex->bColorGradeFailed=false;
     if (Ex->bInPass)
         ExEndPassInternal(this);
     // The device must not hold the surface being released (Reset requires every
@@ -4705,6 +4718,92 @@ GENRESULT DACOM_API FDirectX9::ApplySceneAntialiasing()
     return ExApplyFrameAntialiasing();
 }
 
+#ifdef FREELANCER_DLSS5
+namespace
+{
+    HMODULE BaseNeuralModule = nullptr;
+    BaseNeuralBridge::Api const* BaseNeuralApi = nullptr;
+    BaseNeuralSupersample BaseSupersample;
+    bool BaseSupersampleLogged=false;
+}
+
+void FDirectX9::ExScaleBaseNeuralViewport(D3DVIEWPORT9& Viewport) { BaseSupersample.ScaleViewport(Viewport); }
+GENRESULT DACOM_API FDirectX9::BeginBaseSupersample(float Scale)
+{
+    if(!Device_||!Ex_||!Ex_->bInScene||Ex_->bInPass||Ex_->bShadowDrawing)return GR_GENERIC;
+    ExFlushSurfaceInstances();
+    HRESULT Hr=BaseSupersample.Begin(Device_,Scale);
+    if(Hr==S_OK&&!BaseSupersampleLogged){ExLogf(kExFdumpWarning,"INFO",__LINE__,"BaseNeural supersample active scale=%.2f",Scale);BaseSupersampleLogged=true;}
+    return GENRESULT(Hr);
+}
+GENRESULT DACOM_API FDirectX9::EndBaseSupersample()
+{
+    if(!BaseSupersample.Active())return S_FALSE;
+    ExFlushSurfaceInstances();
+    HRESULT Hr=BaseSupersample.End(true);
+    Rp9DeviceCalls().Invalidate();bViewportRectValid_=bDepthRangeValid_=0;
+    return GENRESULT(Hr);
+}
+
+void DACOM_API FDirectX9::StopBaseNeural()
+{
+    BaseSupersample.Reset();
+    BaseSupersampleLogged=false;
+    if (BaseNeuralApi) BaseNeuralApi->stop();
+    BaseNeuralApi = nullptr;
+    if (BaseNeuralModule) FreeLibrary(BaseNeuralModule);
+    BaseNeuralModule = nullptr;
+}
+
+GENRESULT DACOM_API FDirectX9::ProcessBaseNeural(BaseNeuralBridge::Frame const* Frame)
+{
+    using namespace BaseNeuralBridge;
+    if (!Frame || Frame->size != sizeof(*Frame) || Frame->version != Version ||
+        !Device_ || !Ex_ || Ex_->bInPass || Ex_->bShadowDrawing || Ex_->bSurfaceActive || Ex_->bPlanetActive)
+        return Failed;
+    if (!BaseNeuralApi)
+    {
+        // The DX11 adapter is registered by ReShade. Do not inject it into an ordinary
+        // D3D9 game or load any NVIDIA libraries merely because this flag was compiled in.
+        if (!GetModuleHandleExA(0, "fl_base_neural.addon32", &BaseNeuralModule)) return Unavailable;
+        auto Get = reinterpret_cast<GetApi>(GetProcAddress(BaseNeuralModule, "FlBaseNeuralGetApi"));
+        BaseNeuralApi = Get ? Get(Version) : nullptr;
+        if (!BaseNeuralApi || BaseNeuralApi->size != sizeof(Api) ||
+            BaseNeuralApi->version != Version || !BaseNeuralApi->process || !BaseNeuralApi->stop)
+        {
+            BaseNeuralApi = nullptr;
+            StopBaseNeural();
+            return Unavailable;
+        }
+    }
+    ExFlushSurfaceInstances();
+    IDirect3DSurface9* Color = nullptr;
+    D3DSURFACE_DESC Desc = {};
+    HRESULT Hr = Device_->GetRenderTarget(0, &Color);
+    if (SUCCEEDED(Hr) && Color) Hr = Color->GetDesc(&Desc);
+    else Hr = E_FAIL;
+    if (Color) Color->Release();
+    if (FAILED(Hr)) return Failed;
+    BaseNeuralBridge::Frame Request = *Frame;
+    Request.width = Desc.Width; Request.height = Desc.Height;
+    bool const WasInScene = Ex_->bInScene;
+    if (WasInScene)
+    {
+        Hr = Device_->EndScene();
+        if (FAILED(Hr)) return Failed;
+        Ex_->bInScene = false;
+    }
+    int const Result = BaseNeuralApi->process(&Request);
+    if (WasInScene)
+    {
+        Hr = Device_->BeginScene();
+        Ex_->bInScene = SUCCEEDED(Hr);
+        if (FAILED(Hr)) return Failed;
+    }
+    return Result;
+}
+#endif
+
 GENRESULT FDirectX9::ExApplyFrameAntialiasing()
 {
     ExFlushSurfaceInstances();
@@ -4989,6 +5088,22 @@ GENRESULT FDirectX9::ExApplyWindowedGamma()
         {E->bGammaFailed=true;return GR_GENERIC;}
     }
     return ExApplyFramePass(E->GammaPs, E->Gamma);
+}
+
+GENRESULT DACOM_API FDirectX9::ApplyColorGrade(unsigned Preset)
+{
+    if(Preset==0)return GR_OK; // Identity costs no render pass or allocation.
+    if(Preset>3||!Device_||!Ex_||Ex_->bColorGradeFailed)return GR_GENERIC;
+    ExFlushSurfaceInstances();
+    if(!Ex_->ColorGradePs)
+    {
+        std::vector<unsigned char> Code;
+        if(!CompileStage(std::string(ColorGradeShader),std::string("color_grade"),nullptr,"PSMain","ps_3_0",&Code)||
+           FAILED(Device_->CreatePixelShader((DWORD*)Code.data(),&Ex_->ColorGradePs)))
+        {Ex_->bColorGradeFailed=true;return GR_GENERIC;}
+    }
+    float settings[4]={float(Preset),0,0,0};
+    return ExApplyFramePass(Ex_->ColorGradePs,settings);
 }
 
 #include "RP9RoomMaterials.inl"

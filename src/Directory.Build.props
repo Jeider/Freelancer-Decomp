@@ -9,6 +9,7 @@
     <!-- Port-only Direct3D 9 rendering (RP9.dll + the client's Ex hooks: volumetric nebula),
          FREELANCER_RP9; 0 builds neither RP9.dll nor the client hooks (docs/re/rp9.md). -->
     <FreelancerRp9 Condition="'$(FreelancerRp9)'==''">0</FreelancerRp9>
+    <FreelancerDlss5 Condition="'$(FreelancerDlss5)'==''">0</FreelancerDlss5>
     <!-- Port-only walk mode in base rooms (docs/walk_mode.md), FREELANCER_WALK_MODE; off by default. -->
     <FreelancerWalkMode Condition="'$(FreelancerWalkMode)'==''">0</FreelancerWalkMode>
     <!-- Port-only HUD_Target layout of the HudTarget.dll plugin (docs/hud_plugins.md),
@@ -38,6 +39,7 @@
     <!-- Port-only armor/scanner/tractor slots; independent of adoxa engclass. -->
     <FreelancerEquipmentSlots Condition="'$(FreelancerEquipmentSlots)'==''">0</FreelancerEquipmentSlots>
     <FreelancerPlayerFlightActions Condition="'$(FreelancerPlayerFlightActions)'==''">0</FreelancerPlayerFlightActions>
+    <FreelancerRpgWorld Condition="'$(FreelancerRpgWorld)'==''">0</FreelancerRpgWorld>
     <FreelancerPlayerAutoTurrets Condition="'$(FreelancerPlayerAutoTurrets)'==''">0</FreelancerPlayerAutoTurrets>
     <!-- Port-only behaviour of other mod plugins (AnimKey, MultiCruise, Invisibility, Interceptor,
          PowerDamage; docs/mod_plugins.md), FREELANCER_MOD_PLUGINS; off by default. -->

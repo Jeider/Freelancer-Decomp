@@ -1,0 +1,208 @@
+duration=10000
+entities={
+{
+		srt_grp=0,
+		spatialprops={
+			pos={
+				0,
+				0,
+				0
+			},
+			orient={
+				{
+					0.9999980000000001,
+					0,
+					-0.001769
+				},
+				{
+					0.001769,
+					-0.002306,
+					0.999996
+				},
+				{
+					-4e-006,
+					-0.999997,
+					-0.002306
+				}
+			}
+		},
+		type=5,
+		template_name="",
+		lightprops={
+			range=2000,
+			specular={
+				0,
+				0,
+				0
+			},
+			ambient={
+				0,
+				0,
+				0
+			},
+			type=3,
+			atten={
+				1,
+				0,
+				4e-006
+			},
+			diffuse={
+				0,
+				0,
+				0
+			},
+			theta=90,
+			on=0,
+			color={
+				255,
+				255,
+				255
+			},
+			cutoff=98.999977,
+			direction={
+				0,
+				0,
+				1
+			}
+		},
+		lt_grp=0,
+		entity_name="LtShadowSource",
+		usr_flg=0
+	},
+{
+		srt_grp=0,
+		spatialprops={
+			pos={
+				-9.7723,
+				12.688908,
+				6.296179
+			},
+			orient={
+				{
+					0.665026,
+					0,
+					0.74682
+				},
+				{
+					0.047019,
+					0.998016,
+					-0.04187
+				},
+				{
+					-0.745338,
+					0.062959,
+					0.6637070000000001
+				}
+			}
+		},
+		type=5,
+		template_name="",
+		lightprops={
+			range=2000,
+			specular={
+				0,
+				0,
+				0
+			},
+			ambient={
+				0,
+				0,
+				0
+			},
+			type=1,
+			atten={
+				1,
+				0,
+				4e-006
+			},
+			diffuse={
+				0.74902,
+				0.74902,
+				0.74902
+			},
+			theta=90,
+			on=0,
+			color={
+				255,
+				255,
+				255
+			},
+			cutoff=98.999977,
+			direction={
+				0,
+				0,
+				1
+			}
+		},
+		lt_grp=0,
+		entity_name="LtGlareSource",
+		usr_flg=0
+	},
+{
+		flags=6,
+		userprops={
+			category="Room"
+		},
+		spatialprops={
+			pos={
+				0,
+				0,
+				0
+			},
+			orient={
+				{
+					1,
+					0,
+					0
+				},
+				{
+					0,
+					1,
+					0
+				},
+				{
+					0,
+					0,
+					1
+				}
+			}
+		},
+		type=1,
+		template_name="rh_08_depot",
+		lt_grp=9,
+		srt_grp=0,
+		entity_name="Set_rh_08_depot",
+		usr_flg=0
+	},
+{
+    entity_name="Camera_0", type=3, template_name="", usr_flg=0, lt_grp=0, srt_grp=0,
+    spatialprops={pos={-8, 2.7, 0}, orient={{0,0,1},{0,1,0},{-1,0,0}}},
+    cameraprops={fovh=28, hvaspect=1.333333, nearplane=0.3, farplane=20000}
+},
+{
+    entity_name="Camera_Trader_Desk", type=3, template_name="", usr_flg=0, lt_grp=0, srt_grp=0,
+    spatialprops={pos={-8, 2.7, 0}, orient={{0,0,1},{0,1,0},{-1,0,0}}},
+    cameraprops={fovh=28, hvaspect=1.333333, nearplane=0.3, farplane=20000}
+},
+{
+    entity_name="Camera_Trader_Wide", type=3, template_name="", usr_flg=0, lt_grp=0, srt_grp=0,
+    spatialprops={pos={-8, 2.7, 0}, orient={{0,0,1},{0,1,0},{-1,0,0}}},
+    cameraprops={fovh=28, hvaspect=1.333333, nearplane=0.3, farplane=20000}
+},
+{
+    entity_name="Camera_Equip_Desk", type=3, template_name="", usr_flg=0, lt_grp=0, srt_grp=0,
+    spatialprops={pos={-8, 2.7, 0}, orient={{0,0,1},{0,1,0},{-1,0,0}}},
+    cameraprops={fovh=28, hvaspect=1.333333, nearplane=0.3, farplane=20000}
+},
+{
+    entity_name="Camera_Wide", type=3, template_name="", usr_flg=0, lt_grp=0, srt_grp=0,
+    spatialprops={pos={-8, 2.7, 0}, orient={{0,0,1},{0,1,0},{-1,0,0}}},
+    cameraprops={fovh=28, hvaspect=1.333333, nearplane=0.3, farplane=20000}
+},
+{
+    entity_name="X/ShipExterior/01", type=7, template_name="", usr_flg=0,
+    lt_grp=0, srt_grp=0,
+    spatialprops={pos={1200,0,0}, orient={{1,0,0},{0,1,0},{0,0,1}}}
+}
+}
+events={}

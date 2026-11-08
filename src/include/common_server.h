@@ -780,6 +780,8 @@ namespace AI {
 }
 
 namespace Player {
+    SERVER_API int __cdecl GetSystem(const unsigned int& PlayerId, unsigned int& OutSystemId);
+    SERVER_API int __cdecl GetBase(const unsigned int& PlayerId, unsigned int& OutBaseId);
     struct MissionObjective {
         unsigned int Type;
         FmtStr Description;
@@ -807,6 +809,10 @@ namespace Player {
     // Content.dll Act_SetShipAndLoadout (LAB_06ec9a70).
     SERVER_API int __cdecl SetShipAndLoadout(const unsigned int& PlayerId, unsigned int ShipArchId,
                                              const EquipDescVector& Loadout);
+    SERVER_API int __cdecl CacheShipAndSetLoadout(const unsigned int& PlayerId, char const* CacheId,
+                                                  unsigned int ShipArchId,
+                                                  const EquipDescVector& Loadout);
+    SERVER_API int __cdecl RestoreCachedShip(const unsigned int& PlayerId, char const* CacheId);
     SERVER_API int __cdecl InspectCash(const unsigned int& PlayerId, int& OutCash);
     // ?SetInitialPos@Player@pub@@YAHABIABVVector@@@Z / ?SetInitialOrnt@Player@pub@@YAHABIABVMatrix@@@Z
     // — bodies server_pub.cpp. Content.dll Act_SetInitialPlayerPos (FUN_06ecdad0).

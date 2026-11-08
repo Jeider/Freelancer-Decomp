@@ -925,11 +925,15 @@ class SrvCloak : public ServerEquip
 {
 public:
     SrvCloak(CEquip* Equip, EqObj* Owner);
+    void notify(Event Code, void* Param) override;
     bool update(float Dt) override;
 private:
     float SyncTime = 0;
     bool LastActive = false;
 };
+
+// Dispatch copied cloak events outside equipment/physics iteration.
+void ServerFlushCloakEvents();
 
 class SrvThruster : public ServerEquip
 {

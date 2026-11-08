@@ -436,38 +436,9 @@ bool TypeSelect::Slot23(unsigned Msg, unsigned A, unsigned /*B*/)
         // 0x00566c25: Multiplayer. Until it has been accepted once (DAT_0067c210), the online-
         // play notice (misctextinfo2 0x601eb, style 0xc9b7, no server step, no tool tips);
         // declined -> 0x00566ee5: return true, nothing started, the latch left clear.
-        if (G_bMultiplayerNoticeAccepted == 0)
-        {
-            if (!NnPromptRunYesNo(0x601eb, 0xc9b7, false, 0, 0)) // FUN_004740f0
-                return true;
-        }
-
-        // 0x00566c4a..0x00566d31: the latch, then three lists, each loaded with FUN_0057da40
-        // and, when that succeeds, trimmed by FUN_0057eb40: the Yes caption 0x601ed ("LAN"),
-        // the No caption 0x601ec ("INTERNET") and the question 0x601f0.
         G_bMultiplayerNoticeAccepted = 1;
-        RenderDisplayList LanCaption;      // [ESP+0x1c]
-        RenderDisplayList InternetCaption; // [ESP+0x34]
-        RenderDisplayList Question;        // [ESP+0x28]
-        if (LoadIdsIntoRdl(0x601ed, LanCaption))
-            RdlRemoveLastParagraph(LanCaption);
-        if (LoadIdsIntoRdl(0x601ec, InternetCaption))
-            RdlRemoveLastParagraph(InternetCaption);
-        if (LoadIdsIntoRdl(0x601f0, Question))
-            RdlRemoveLastParagraph(Question);
-
-        // 0x00566d34..0x00566d60: FUN_00474260(&question, 0xc9b7, &lan, &internet, &choice, 0)
-        // with the choice preset to -1; no choice -> 0x00566e31: return true.
-        int Choice = -1;
-        if (!NnPromptRunChoice(&Question, 0xc9b7, &LanCaption, &InternetCaption, &Choice,
-                               false))
-            return true;
-
-        // 0x00566d66..0x00566d86
-        G_bEnumerateLanHosts = 1;                      // DAT_00615b18
-        G_bInternetServerList = 0;                     // DAT_00615b10
-        if (Choice == 1)
-            G_bInternetServerList = 1;
+        G_bEnumerateLanHosts = 1;
+        G_bInternetServerList = 0;
         G_LoginMgr.ResetServerLists();                 // FUN_005abc80(&DAT_0067e7b8)
 
         // 0x00566d8b..0x00566dc1: the slide-out of case 3 inlined; its outcome is the result.

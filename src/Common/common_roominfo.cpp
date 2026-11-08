@@ -9,6 +9,7 @@
 // Split out of common_goods.cpp.
 
 #include "common_goods.h"
+#include "common_interior_profiles.h"
 #include "common_misc.h" // malloc_strcpy / malloc_strfree
 #include "dacom.h"
 
@@ -422,6 +423,7 @@ void ShipPlaceInfo::clear()
 
 void ShipPlaceInfo::destroy()
 {
+    BaseInteriors::ForgetPlacement(this);
     // 06273a50 (ICF-shared with the dtor): malloc_strfree +0x00, +0x38, +0x3c, then the
     // clear() stores.
     malloc_strfree(const_cast<char**>(&Nickname));

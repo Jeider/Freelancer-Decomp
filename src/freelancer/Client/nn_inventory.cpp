@@ -7,6 +7,7 @@
 // Retail NN_Inventory -- see nn_inventory.h for the class, its vftable and layout.
 
 #include "nn_inventory.h"
+#include "base_interior_profiles.h"
 #include "inventory_categories.h"
 #if defined(FREELANCER_ADOXA) || defined(FREELANCER_EQUIPMENT_SLOTS)
 #include "common_adoxa_api.h" // AmmoLimit
@@ -5012,6 +5013,9 @@ void NnInventoryOpenDealer(int TradeMode, FNnInventoryResultFn ResultFn, void* R
 
 void NnInventoryOpenShipDealer(int Index, FNnInventoryResultFn ResultFn, void* ResultArg)
 {
+    if (!BaseInteriors::ServiceAllowed(GetClientLocationCurrentBase(),
+                                       GetPlayerShipArchetypeIdRetail(), "ShipDealer"))
+        return;
     // FUN_00477bf0 (cdecl).
 
     // 0x00477c08..0x00477c4b: the current base's market (FUN_0043a510(DAT_0066873c) on

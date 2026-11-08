@@ -14,6 +14,9 @@
 #include "ContentStaticIds.h"   // TU33 static IDs 06efe8e0..06efeac0
 #include "ContentDefaultId.h"   // TU33 06efeae0 (CreateID("default") -> DAT_06fcf3e8)
 #include "BaseDB.h"
+#include "RpgContacts.h"
+#include "RpgSpace.h"
+#include "TrainCourier.h"
 #include "DockQueues.h"         // AllocateFormationId (FUN_06efeb00)
 #include "Encounters.h"
 #include "MissionObject.h"      // FNnPathLeg
@@ -464,6 +467,9 @@ namespace
     // FUN_06efebb0 (06efebb0-06efec06).
     FGameSupport::~FGameSupport()
     {
+#ifdef FREELANCER_RPG_WORLD
+        RpgSpaceClear();
+#endif
         // 06efebdb: FUN_06efe870.
         UnloadContentGameTables();
         // 06efebe0-06efebee: DAT_06fcf254->vtbl[+0x10](1) = virtual deleting dtor.
@@ -474,9 +480,16 @@ namespace
     // FUN_06f002e0 (06f002e0-06f003d6).
     void FGameSupport::OnPlayerLoad(FPlayerLoadMessage const* Message)
     {
+#ifdef FREELANCER_RPG_WORLD
+        RpgSpaceTrackPlayer(Message->PlayerId);
+        TrainCourierOnPlayerLoad(Message->PlayerId, nullptr);
+#endif
         FContentPlayerState* State = ReplaceContentPlayerState(Message->PlayerId);
         Message->Reader->reset();
         LoadContentPlayerState(State, Message->Reader);
+#ifdef FREELANCER_RPG_WORLD
+        TrainCourierOnPlayerLoad(Message->PlayerId, Message->Reader);
+#endif
     }
 
     // GameSupport message 0x33 (06eff8d7-06effaec): build the statistics block and
@@ -574,6 +587,9 @@ namespace
         {
             // 06eff1c6: base exit.
             FBaseMessage const* Message = static_cast<FBaseMessage const*>(Parms);
+#ifdef FREELANCER_RPG_WORLD
+            RpgSpaceTrackPlayer(Message->PlayerId);
+#endif
             FContentBase* Base = FindContentBaseInfo(&Message->BaseId);
             FContentPlayerState* State = FindContentPlayerState(Message->PlayerId);
             if (State != nullptr)
@@ -601,6 +617,9 @@ namespace
             float DeltaTime = *static_cast<float const*>(Parms);
             GGameSupportElapsed = GGameSupportElapsed + DeltaTime;
             UpdateAllContentPlayerTimes(DeltaTime);
+#ifdef FREELANCER_RPG_WORLD
+            RpgSpaceTick(ControllerId,DeltaTime);
+#endif
             break;
         }
         case EMessage::LocationEnter:
@@ -644,6 +663,10 @@ namespace
             break;
         }
         case EMessage::PlayerLogout:
+#ifdef FREELANCER_RPG_WORLD
+            RpgContactsLogout(*static_cast<unsigned int const*>(Parms));
+            RpgSpaceLogout(*static_cast<unsigned int const*>(Parms));
+#endif
             // 06effb82: logout, parms = &player id.
             RemoveContentPlayerState(*static_cast<unsigned int const*>(Parms));
             break;
@@ -655,11 +678,17 @@ namespace
         {
             // 06eff13b: system enter.
             FSystemMessage const* Message = static_cast<FSystemMessage const*>(Parms);
+#ifdef FREELANCER_RPG_WORLD
+            RpgSpaceTrackPlayer(Message->PlayerId);
+#endif
             FindContentPlayerState(Message->PlayerId)->OnSystemChange(Message->SystemId);
             break;
         }
         case EMessage::LoadGame:
         {
+#ifdef FREELANCER_RPG_WORLD
+            RpgSpaceClear();
+#endif
             // 06effe5e: load a save, parms = INI_Reader*.
             INI_Reader* Reader = static_cast<INI_Reader*>(const_cast<void*>(Parms));
             LoadDynBaseInfo(Reader);                            // FUN_06eabf40

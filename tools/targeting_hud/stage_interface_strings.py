@@ -84,6 +84,14 @@ ROWS = [
     ('GraphicsHigh', 'Высокое', 'High'),
     ('GraphicsRestartPending', 'Изменения вступят в силу после перезапуска игры', 'Changes take effect after restarting the game'),
     ('GraphicsRestartHint', 'Эти настройки применяются после перезапуска игры', 'These settings apply after restarting the game'),
+    ('NeuralStrength', 'Сила DLSS 5', 'DLSS 5 strength'),
+    ('NeuralStrengthHint', 'DLSS 5 — сразу; прочие настройки — после перезапуска', 'DLSS 5 applies immediately; other settings require a restart'),
+    ('ColorGradeLabel', 'Цветокоррекция', 'Color grading'),
+    ('ColorGradeNatural', 'Естественный', 'Natural'),
+    ('ColorGradeWarm', 'Тёплый', 'Warm'),
+    ('ColorGradeCool', 'Холодный', 'Cool'),
+    ('ColorGradeHint', 'Цвет и DLSS — сразу; прочие настройки — после перезапуска', 'Color and DLSS apply immediately; other settings require a restart'),
+    ('NeuralEnabled', 'Включить DLSS 5', 'Enable DLSS 5'),
 ]
 
 k = c.WinDLL('kernel32', use_last_error=True)
@@ -160,13 +168,20 @@ def encode_block(strings):
         result += struct.pack('<H', len(encoded) // 2) + encoded
     return result
 
+def row_ids():
+    # 238270..238290 belongs to courier missions; UI additions use a separate block.
+    result=list(range(238200,238269))+list(range(238400,238406))
+    assert len(result)==len(ROWS)
+    return result
+
+
 def stage_dll(relative, column):
     original = GAME / relative
     output = STAGE / relative
     output.parent.mkdir(parents=True, exist_ok=True)
     before = resources(original)
     blocks = {}
-    for i, row in enumerate(ROWS, 238200):
+    for i, row in zip(row_ids(),ROWS):
         assert i >> 16 == 3, 'NameResources.dll index must match freelancer.ini'
         local = i & 65535
         block, slot = local // 16 + 1, local % 16
@@ -191,7 +206,7 @@ def stage_dll(relative, column):
     expected.update({key: encode_block(value) for key, value in blocks.items()})
     assert after == expected, 'Unexpected resource change'
     # Explicitly check that even neighbouring strings in the edited blocks survived.
-    occupied = {i & 65535 for i in range(238200, 238200 + len(ROWS))}
+    occupied = {i & 65535 for i in row_ids()}
     for key in blocks:
         old = decode_block(before.get(key, b'\0' * 32))
         new = decode_block(after[key])
@@ -207,10 +222,10 @@ def main():
     ids = {node.args[0].value: node for node in ast.walk(tree)
            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'Static'
            and node.args and isinstance(node.args[0], ast.Constant)}
-    first_id, last_id = 238200, 238200 + len(ROWS) - 1
+    first_id, last_id = min(row_ids()),max(row_ids())
     header = (REPO / 'src/freelancer/Client/hud_interface_ids.h').read_text()
     block = '    # Port UI: HUD and preferences. MS(Russian, English); keep numeric IDs stable.\n'
-    for i, (name, ru, en) in enumerate(ROWS, first_id):
+    for i, (name, ru, en) in zip(row_ids(),ROWS):
         assert re.search(rf'\b{name}\s*=\s*{i}\s*;', header), name
         assert max(len(ru), len(en)) < 128
         if i in ids:
@@ -220,7 +235,8 @@ def main():
                     tuple(arg.value for arg in value.args) == (ru, en)), f'Pythonlancer text mismatch: {i}'
         else:
             block += f'    Static({i}, MS({ru!r}, {en!r})),  # {name}\n'
-    patched = original.replace('STATIC_NAMES = [\n', 'STATIC_NAMES = [\n' + block + '\n', 1)
+    patched = (original.replace('STATIC_NAMES = [\n', 'STATIC_NAMES = [\n' + block + '\n', 1)
+               if '    Static(' in block else original)
     ast.parse(patched)
     output = STAGE / relative
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -230,7 +246,7 @@ def main():
     namespace = {}
     exec(compile((GAME / 'Assets/Pythonlancer/text/strings.py').read_text(encoding='utf-8'), 'strings.py', 'exec'), namespace)
     db = namespace['IDsDatabase']('hud', 238199)
-    for i, (_, ru, en) in enumerate(ROWS, 238200):
+    for i, (_, ru, en) in zip(row_ids(),ROWS):
         db.add_force(i, namespace['MultiString'](ru, en))
     for language in ('ru', 'en'):
         text = getattr(db, 'compile_' + language)()

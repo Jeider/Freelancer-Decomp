@@ -10,8 +10,11 @@ namespace CockpitEffectBrightness
         Kind creationKind = Kind::None;
         std::unordered_map<void const*, Kind>& Objects()
         {
-            static std::unordered_map<void const*, Kind> objects;
-            return objects;
+            // ClientAtExitTeardown is registered before the first light. It can
+            // delete room/HUD lights after function-static destructors ran.
+            // Keep the registry alive through that final engine teardown.
+            static auto* objects = new std::unordered_map<void const*, Kind>;
+            return *objects;
         }
     }
 

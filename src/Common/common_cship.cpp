@@ -6,6 +6,7 @@
 
 // CShip (retail CShip.cpp), FAnimScriptRef and the CShip-only helpers.
 #include "common_cobject.h"
+#include "common_train.h"
 #include "common_gravity.h"
 #ifdef FREELANCER_EQUIPMENT_SLOTS
 #include "equipment_slots.h"
@@ -236,6 +237,7 @@ void CShip::init_physics(Vector const& Velocity, Vector const& AngularVelocity)
     // transposed orientation (TransformMatrix) into AddToAngularVelocityOS.
     PhySys::AddToVelocity(this, Velocity);
     PhySys::AddToAngularVelocityOS(this, RotateWorldToObjectSpace(Orientation, AngularVelocity));
+    CmnTrain::InheritVelocity(this);
 }
 
 void CShip::init(CreateParms const& Parms)
@@ -1901,6 +1903,9 @@ void CShip::disable_controllers()
 
 void CShip::enable_controllers()
 {
+    // Yard wagons are driven by the train couplings, or fixed like a Solar.
+    // Ordinary ship controllers would wake their parked physics cores.
+    if(CmnTrain::IsTrailer(this))return;
     // Common.dll.c 0x50d80
     CEqObj::enable_controllers();
     Steering.EnableController();
@@ -1917,6 +1922,8 @@ void CShip::enable_controllers()
 
 int CShip::update(float Dt, unsigned Flags)
 {
+    CmnTrain::Build(this);
+    CmnTrain::Sync(this);
     // .text:062b0e30..062b1182. Always returns 0; CEqObj::update's result is dropped.
     if ((Flags & CObject::NO_ACTIONS) == 0)                           // 062b0e3a..062b0e5e
         Actions.update(Dt);

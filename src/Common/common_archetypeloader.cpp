@@ -342,6 +342,7 @@ namespace
             Record->IdsInfo2 = Donor->IdsInfo2;
             Record->IdsInfo3 = Donor->IdsInfo3;
             Record->ShipClass = Donor->ShipClass;
+            Record->SetExtraManeuvers(Donor->GetExtraManeuvers());
             Record->NumExhaustNozzles = Donor->NumExhaustNozzles;
             Record->HoldSize = Donor->HoldSize;
             Record->LinearDrag = Donor->LinearDrag;

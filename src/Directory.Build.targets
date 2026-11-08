@@ -39,6 +39,16 @@
       <PreprocessorDefinitions>FREELANCER_RP9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <!-- Optional base-only NR bridge. Off builds contain neither hooks nor bridge interface. -->
+  <Target Name="ValidateFreelancerDlss5" BeforeTargets="PrepareForBuild"
+          Condition="'$(FreelancerDlss5)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='RP9')">
+    <Error Condition="'$(FreelancerRp9)'!='1'" Text="FreelancerDlss5=1 requires FreelancerRp9=1." />
+  </Target>
+  <ItemDefinitionGroup Condition="'$(FreelancerDlss5)'=='1' and ('$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='RP9')">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_DLSS5;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <!-- Port-only walk mode in base rooms: only the client (freelancer.exe) reads the define. -->
   <ItemDefinitionGroup Condition="'$(FreelancerWalkMode)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
     <ClCompile>
@@ -193,5 +203,8 @@
   </Target>
   <ItemDefinitionGroup Condition="'$(FreelancerPlayerFlightActions)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
     <ClCompile><PreprocessorDefinitions>FREELANCER_PLAYER_FLIGHT_ACTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(FreelancerRpgWorld)'=='1' and ('$(MSBuildProjectName)'=='Content' or '$(MSBuildProjectName)'=='Server' or '$(MSBuildProjectName)'=='freelancer')">
+    <ClCompile><PreprocessorDefinitions>FREELANCER_RPG_WORLD;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>
   </ItemDefinitionGroup>
 </Project>

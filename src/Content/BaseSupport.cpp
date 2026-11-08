@@ -27,6 +27,10 @@
 #include "common_server_controller.h"
 #include "common_text.h"        // FmtStr
 #include "common_tstring.h"
+#include "content.h"
+#ifdef FREELANCER_RPG_WORLD
+#include "rpg_dialog_protocol.h"
+#endif
 
 #include <algorithm>
 #include <cstring>
@@ -403,6 +407,30 @@ namespace
             if (!Msg->bAccepted)
                 break;
             FContentPlayerState* State = FindContentPlayerState(Msg->PlayerId);
+#ifdef FREELANCER_RPG_WORLD
+            if (Msg->Kind == RpgScriptOfferKind && Msg->OfferId == RpgScriptOfferId)
+            {
+                if (State != nullptr && State->GetGroupLiveMission() == 0)
+                {
+                    FStoryMissionCreateParms CreateParms;
+                    CreateParms.PlayerId = State->PlayerId;
+                    CreateParms.StoryEvents = nullptr;
+                    unsigned int const Controller = pub::Controller::Create(
+                        "content.dll", "ScriptMission", &CreateParms, pub::Controller::ABOVE_NORMAL);
+                    if (Controller != 0)
+                    {
+                        ID_String NoVnpc;
+                        NoVnpc.clear();
+                        unsigned int const BaseId =
+                            State->GetBaseRecord() != nullptr ? State->GetBaseRecord()->BaseId : 0;
+                        State->JoinMissionAsGroup(Controller, BaseId, &NoVnpc, false, 0);
+                        pub::Controller::_SendMessage(Controller, pub::Controller::EMessage::MissionStart,
+                                                      nullptr);
+                    }
+                }
+                break;
+            }
+#endif
             if (Msg->Kind == 2)
             {
                 // 06eb50b7-06eb5278: a vendor offer. The visit lookup is not tested for

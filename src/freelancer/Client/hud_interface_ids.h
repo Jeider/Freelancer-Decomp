@@ -74,4 +74,12 @@ namespace PreferenceIds
     constexpr int GraphicsHigh = 238264;
     constexpr int GraphicsRestartPending = 238265;
     constexpr int GraphicsRestartHint = 238266;
+    constexpr int NeuralStrength = 238267;
+    constexpr int NeuralStrengthHint = 238268;
+    constexpr int ColorGradeLabel = 238400;
+    constexpr int ColorGradeNatural = 238401;
+    constexpr int ColorGradeWarm = 238402;
+    constexpr int ColorGradeCool = 238403;
+    constexpr int ColorGradeHint = 238404;
+    constexpr int NeuralEnabled = 238405;
 }

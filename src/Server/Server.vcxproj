@@ -76,6 +76,8 @@
     <ClCompile Include="server_createinfo.cpp" />
     <ClCompile Include="server_savegame.cpp" />
     <ClCompile Include="server_action_stats.cpp" />
+    <ClCompile Include="server_train_yard.cpp" />
+    <ClCompile Include="ship_cache.cpp" />
     <ClInclude Include="server_action_stats.h" />
     <ClInclude Include="..\include\player_action_stats.h" />
     <ClCompile Include="server_savefile.cpp" />

@@ -14,6 +14,26 @@
 
 HMODULE G_ContentModule = nullptr;
 
+#ifdef FREELANCER_RPG_WORLD
+static unsigned char G_PlayerCanLaunch = 1;
+extern "C" unsigned char __cdecl RpgPlayerCanLaunch()
+{
+    return G_PlayerCanLaunch;
+}
+extern "C" void __cdecl RpgSetPlayerCanLaunch(unsigned char Allow)
+{
+    G_PlayerCanLaunch = Allow != 0 ? 1 : 0;
+}
+#else
+extern "C" unsigned char __cdecl RpgPlayerCanLaunch()
+{
+    return 1;
+}
+extern "C" void __cdecl RpgSetPlayerCanLaunch(unsigned char)
+{
+}
+#endif
+
 // Retail DAT_06fce76c.
 unsigned int GContentNextUniqueId = 1;
 
@@ -109,10 +129,12 @@ namespace
         { "Mission_12", &CreateMission12 },
         { "Mission_13", &CreateMission13 },
         { "GenericMission", &CreateGenericMission },
+        { "ScriptMission", &CreateScriptMission },
+        { "TrainCourier", &CreateTrainCourier },
     };
 
     int const G_FactoryCount = sizeof(G_Factories) / sizeof(G_Factories[0]);
-    static_assert(G_FactoryCount == 23, "retail CreateInstance has 23 names");
+    static_assert(G_FactoryCount == 25, "retail 23 names plus port missions");
 }
 
 IDLL* __cdecl CreateInstance(unsigned int ControllerId, char const* Name, void const* Parms)

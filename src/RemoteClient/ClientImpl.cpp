@@ -13,7 +13,6 @@
 #include <windows.h>
 
 #include "../include/rpc_packet.h"
-#include "dalib_net.h"
 #include "rpc_packet_codec.h"
 
 CClientImpl Client;

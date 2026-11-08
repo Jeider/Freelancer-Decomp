@@ -2,7 +2,7 @@
 
 В Freelancer клиент и игровая логика общаются через два абстрактных интерфейса: `IServer` (клиент →
 сервер, 92 метода + `PushToServer`) и `IClient` (сервер → клиент, 126 слотов). Одиночная игра запускает
-сервер в том же процессе; сетевая играет те же вызовы через DirectPlay 8. Эта страница описывает пять
+сервер в том же процессе; сетевая играет те же вызовы через транспорт сессии. В ретейле это DirectPlay 8, в порте — UDP `NetHost` / `NetClient` ([net_transport.md](net_transport.md)). Эта страница описывает пять
 модулей, которые это обеспечивают, и способ их соединения; протокол пакетов вынесен в
 [rpclocal.md](rpclocal.md). Нужна тому, кто работает над одиночной кампанией, сетевым режимом или
 выделенным сервером. Статусы функций, слоты, раскладки аргументов и адреса — в decomp-tracker и в
@@ -12,8 +12,8 @@
 |--------|-----------|------|
 | `Server.dll` | `src/Server/` | Игровая логика: игроки, корабли, базы, миссии, `pub::*` для Content |
 | `rpclocal.dll` | `src/rpclocal/` | Локальный транспорт SP: прокси `IServer` для клиента и `IClient` для сервера, пакеты в очередях |
-| `RemoteServer.dll` | `src/RemoteServer/` | Загружается **клиентом**: `IServer` поверх DirectPlay (с точки зрения клиента — «удалённый сервер») |
-| `RemoteClient.dll` | `src/RemoteClient/` | Загружается **сервером**: `IClient`/`IChatClient` поверх DirectPlay (удалённые клиенты) |
+| `RemoteServer.dll` | `src/RemoteServer/` | Загружается **клиентом**: `IServer` поверх UDP (`NetClient`; в ретейле — DirectPlay) |
+| `RemoteClient.dll` | `src/RemoteClient/` | Загружается **сервером**: `IClient`/`IChatClient` поверх UDP (`NetHost`; в ретейле — DirectPlay) |
 | `FLServer.exe` | `src/FLServer/` | MFC-оболочка выделенного сервера |
 
 Имена DLL обманчивы: `RemoteServer` стоит на стороне клиента, `RemoteClient` — на стороне сервера. Обе

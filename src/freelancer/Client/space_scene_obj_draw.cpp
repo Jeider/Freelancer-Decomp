@@ -40,6 +40,7 @@
 #include "jumpgate_visual.h"
 #include "ship_warp_visual.h"
 #include "engine_heat_visual.h"
+#include "cloak_visual.h"
 #include "globals.h"
 #include "hud_element_list.h"
 #include "jump_effect.h"    // FJumpShipEffect::Tunnel (+0x24)
@@ -3816,6 +3817,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     GbExclusionShellAfterVolume = false;
     NebulaShipAuraDraw(Camera);       // the player's ship in the haze
     CliAsteroidDrawTransparentFields(Cam);
+    if ((LayerFlags & 0x20u) != 0) CloakVisualDraw(Cam);
 #endif
 
     // 0x0051c6f9..0x0051c7d8: layer bit 0x100 -- the effects.

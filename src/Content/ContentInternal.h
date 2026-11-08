@@ -77,6 +77,10 @@ IDLL* CreateStory(char const* Name, unsigned int ControllerId, void const* Parms
 IDLL* CreateDestroyMission(char const* Name, unsigned int ControllerId, void const* Parms);
 // StoryMissions.cpp: one class per CreateInstance name (FUN_06eeec50 table).
 IDLL* CreateGenericMission(char const* Name, unsigned int ControllerId, void const* Parms);
+IDLL* CreateScriptMission(char const* Name, unsigned int ControllerId, void const* Parms);
+IDLL* CreateTrainCourier(char const* Name, unsigned int ControllerId, void const* Parms);
+extern "C" unsigned char __cdecl RpgPlayerCanLaunch();
+extern "C" void __cdecl RpgSetPlayerCanLaunch(unsigned char Allow);
 IDLL* CreateMission01a(char const* Name, unsigned int ControllerId, void const* Parms);
 IDLL* CreateMission01b(char const* Name, unsigned int ControllerId, void const* Parms);
 IDLL* CreateMission02(char const* Name, unsigned int ControllerId, void const* Parms);

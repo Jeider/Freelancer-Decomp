@@ -136,28 +136,14 @@ FVMeshPart::~FVMeshPart()
     Mesh.CloseFaceGroup();
     if (Data != nullptr)
     {
-        for (unsigned int Index = 0; Index < Ref->FacegroupCount; ++Index)
-        {
-            IMaterial** Slot = &Data->Materials[Ref->FacegroupStart + Index];
-            if (*Slot != nullptr)
-            {
-                (*Slot)->Release();
-                *Slot = nullptr;
-            }
-        }
-        if (Data != nullptr)
-        {
-            VMeshDataRelease(Data);
-            Data = nullptr;
-        }
-    }
-    delete[] (const unsigned char*)Ref;
-    Ref = nullptr;
-    if (Data != nullptr)
-    {
+        // Different CMP parts (including different train lengths) share this
+        // VMeshData and its material slots. Unloading one part must not clear
+        // the materials still used to draw surviving parts. The data owns them.
         VMeshDataRelease(Data);
         Data = nullptr;
     }
+    delete[] (const unsigned char*)Ref;
+    Ref = nullptr;
 }
 
 // LAB_06c31d10: exact compares, no AddRef. "1.11_IVMeshLibrary" -> this; IMesh -> +4;

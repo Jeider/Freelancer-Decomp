@@ -5,6 +5,9 @@
 // Author: Giperion.
 
 #include "gf_character_object.h"
+#ifdef FREELANCER_RPG_WORLD
+#include "rpg_dialog_protocol.h"
+#endif
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
 #endif
@@ -1018,6 +1021,11 @@ void FCharacterObject::Slot10(unsigned long /*Cookie*/, int const* /*Point*/)
             else
             {
                 unsigned const Kind = Behavior->Field220;
+#ifdef FREELANCER_RPG_WORLD
+                if (Kind == RpgDialogOfferType)
+                    Cursor = RpgContactCursor(Behavior->Field228);
+                else
+#endif
                 if (Kind == 0)
                     Cursor = "talk_blowoff";
                 else if (Kind == 1)

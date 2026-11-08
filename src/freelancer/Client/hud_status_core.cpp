@@ -6,6 +6,11 @@
 // Author: Giperion.
 
 #include "hud_status_core.h"
+#ifdef FREELANCER_RPG_WORLD
+#include "train_courier_hud.h"
+#include <windows.h>
+namespace { WinControl* CourierTimer=nullptr; }
+#endif
 #ifdef FREELANCER_MOD_PLUGINS
 #include "port_plugins.h"     // port-only mod plugins (Invisibility)
 #include "cli_projectile_fx.h"  // CliShipActivateEquip
@@ -662,6 +667,9 @@ HUD_Status::HUD_Status(INI_Reader& /*Reader*/)
 
 HUD_Status::~HUD_Status()
 {
+#ifdef FREELANCER_RPG_WORLD
+    CourierTimer=nullptr; // child ownership remains with WinControl
+#endif
     PlayerTurretHud::Release(this);
     // FUN_004da740: the vptrs put back, then 0x004da799: DAT_00674aa0 = 0. It frees HpRowCache
     // (+0x5dc), the caption (+0x5d0) and Weapons (+0x58c) next -- here the member destructors,
@@ -849,6 +857,12 @@ bool HUD_Status::Create(Win3D* NewParent, void* Data)
     SpecialModeTextCancel->Flags &= 0xfc;
 
     // 0x004dafe2
+#ifdef FREELANCER_RPG_WORLD
+    float const TimerPosition[3]={.275f,-.16f,0};
+    CourierTimer=CreateTextControl("TrainCourierTimer","HudSmall",TimerPosition,nullptr,
+        .22f,.025f,1.f,0,0,0,1);
+    CourierTimer->Flags &= 0xfc;
+#endif
     RebuildWeaponList();
 
     // 0x004dafe7..0x004db054
@@ -1172,6 +1186,24 @@ void HUD_Status::Draw()
     // HUD_Target_Base's Draw FUN_004e7890.
     RefreshWeaponRows();
     PlayerTurretHud::UpdateRows(this);
+ #ifdef FREELANCER_RPG_WORLD
+    if(CourierTimer) {
+        TrainCourierHud hud;
+        HMODULE content=GetModuleHandleA("Content.dll");
+        auto query=content?reinterpret_cast<TrainCourierHudFn>(GetProcAddress(content,"TrainCourierGetHud")):nullptr;
+        bool visible=query && query(GetPlayerConnectionId(),&hud)!=0;
+        CourierTimer->Flags=static_cast<unsigned char>((CourierTimer->Flags & ~3u)|(visible?2u:0u));
+        if(visible) {
+            wchar_t label[128]={},text[192]={};
+            GetIdsStringW(hud.caption,label,128);
+            unsigned seconds=static_cast<unsigned>(std::ceil(std::fabs(hud.remaining)));
+            _snwprintf_s(text,_countof(text),_TRUNCATE,L"%s %u:%02u",label,seconds/60,seconds%60);
+            float const position[3]={hud.x,hud.y,0};
+            CourierTimer->SetProperty(6,reinterpret_cast<uintptr_t>(position),0);
+            CourierTimer->SetProperty(0x1d,reinterpret_cast<uintptr_t>(text),_countof(text));
+        }
+    }
+ #endif
     HudTargetBase::Draw();
 }
 

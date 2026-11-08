@@ -6,6 +6,7 @@
 
 #include "hud_tilt.h"
 #include "player_flight_actions.h"
+#include "player_train.h"
 #include "nn_button_control.h"
 #include "hud_widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
 
@@ -839,6 +840,7 @@ void NnButtonControl::ShowToolTip()
 #endif
     HudTilt::ProjectTooltip(Info.WorldPos);
     PlayerFlightActions::Tooltip(this, &Info);
+    PlayerTrain::Tooltip(this, &Info);
     NnToolTipFeedHover(&Info);
 }
 

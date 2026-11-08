@@ -11,6 +11,7 @@ root = Path(__file__).resolve().parents[2]
 out = root / 'src/obj/graphics_settings_check'
 out.mkdir(parents=True, exist_ok=True)
 common = (root/'src/Common/graphics_settings.cpp').read_text().replace('#include "common_misc.h"', '')
+grade = (root/'src/freelancer/Client/color_grade_preferences.cpp').read_text().replace('#include "common_misc.h"','').replace('#include "port_config.h"','')
 ui = (root/'src/freelancer/Client/nn_preferences_graphics.cpp').read_text()
 ui = ui[ui.index('namespace\n{'):]
 assert 'Russian()' not in ui and 'PortLanguage' not in ui
@@ -29,6 +30,8 @@ stub = r'''
 #include <vector>
 #include "graphics_policy.h"
 #include "hud_interface_ids.h"
+#include "color_grade_preferences.h"
+int __cdecl PortConfigInt(char const*,char const*,int fallback){return fallback;}
 bool GetUserDataPath(char* p){return GetCurrentDirectoryA(MAX_PATH,p)!=0;}
 char const* PortLanguage(){return "ru";}
 void GetIdsStringWWithRawFallback(unsigned id,wchar_t* text,int count){
@@ -60,6 +63,8 @@ struct NnDropdownPopup:WinControl {
 };
 void DrawNnDropdownCaret(WireButtonControl*){}
 struct NnPreferences:WinControl {
+ FPrefMiscCell ColorGradeCell;
+ int ColorGradeValue=0,ColorGradeOriginal=0;
  FPrefMiscCell GraphicsCells[GraphicsSettings::Count];
  int GraphicsValues[GraphicsSettings::Count]={},GraphicsOriginal[GraphicsSettings::Count]={};
  std::vector<WinControl*> GraphicsWidgets,owned;
@@ -101,6 +106,7 @@ int main(int argc,char** argv){
   puts("PASS: old unlimited/240/360 settings migrate to 180 FPS");return 0;
  }
  if(!strcmp(argv[1],"reload")){
+  assert(ColorGrade::ConfiguredPreset()==3);
   for(int i=0;i<Count;++i)assert(Get(i)==Maximum(i)-Default(i));
   assert(!RestartRequired());puts("PASS: fresh process loads all configured values");return 0;
  }
@@ -156,6 +162,13 @@ checks = checks.replace('p.bConfirmMode=true;Select(p,FpsLimit,0); // blocked me
  p.SetGraphicsHidden(true);assert(!p.GraphicsDropdown->open && p.GraphicsDropdownRow==-1);
  p.SetGraphicsHidden(false);Select(p,Shadows,999);assert(p.GraphicsValues[Shadows]==1);
  p.GraphicsProperty(0x26,p.DefaultsButton,0);for(int i=0;i<Count;++i)assert(p.GraphicsValues[i]==Default(i));
+ assert(ColorGrade::Preset()==0);
+ p.bInGame=true;p.Anim=-2;
+ p.GraphicsProperty(0x26,p.ColorGradeCell.Choice,0);assert(p.GraphicsDropdown->choices.size()==4);
+ p.GraphicsProperty(0x3e,p.GraphicsDropdown,2);assert(ColorGrade::Preset()==2&&ColorGrade::ConfiguredPreset()==0);
+ SavePerfOptions("PerfOptions.ini");p.RevertGraphics();assert(ColorGrade::Preset()==0);
+ p.GraphicsProperty(0x26,p.ColorGradeCell.Choice,0);p.GraphicsProperty(0x3e,p.GraphicsDropdown,3);
+ p.CommitGraphics();p.SnapshotGraphics();assert(ColorGrade::ConfiguredPreset()==3&&!p.GraphicsDirty());
  for(int i=0;i<Count;++i)Set(i,Maximum(i)-Default(i));
  for(unsigned i=0;i<kOptionCount;++i)sprintf_s(G_Options[i].Name,"legacy_%u",i);
  SavePerfOptions("PerfOptions.ini");
@@ -165,7 +178,7 @@ checks = checks.replace('p.bConfirmMode=true;Select(p,FpsLimit,0); // blocked me
  assert(GetPrivateProfileIntA("Display","color_bpp",0,path)==32);
  puts("PASS: migration, invalid input, render gates, quality caps, UI staging/cancel/apply/defaults, persistence");
 ''')
-(out/'check.cpp').write_text(stub+common+save+ui+checks)
+(out/'check.cpp').write_text(stub+common+grade+save+ui+checks)
 vc = Path('C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231')
 sdk = Path('C:/Program Files (x86)/Windows Kits/10'); version='10.0.26100.0'
 env=dict(os.environ)

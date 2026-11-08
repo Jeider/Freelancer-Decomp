@@ -27,6 +27,7 @@
 #include "../include/server_sysdb.h"
 #include "../include/common_misc.h"
 #include "../include/common_net.h"      // IsMPServer (AdjustCash's gate)
+#include "../include/ship_cache.h"
 #include "../include/common_newchar.h"   // RtcSlider::get_slider (pub::GF::GetRtcPerformanceSlider)
 #include "../include/DALib.h"            // DALib::Engine (pub::FindHardpoint releases the archetype handle)
 #include "../include/readfile.h"         // IFileSystem::GetFileSysPath (+0x84, pub::BuildBaseReader)
@@ -1901,6 +1902,8 @@ bool __cdecl PlayerData_SerializeToFile(PlayerSlot& Player, char const* FileName
     ServerActionStats::Save(Out, SavedActionCounters);
     for (auto const& cooldown : SavedCloakCooldowns)
         if (cooldown.second > 0) fprintf(Out, "cloak_cooldown = %u, %.9g\n", cooldown.first, cooldown.second);
+    if (!IsMPServer())
+        ShipCache_Write(Out, Player.client_id);
 
     // .text:06d4deb7 -- bare newline.
     fprintf(Out, "\n");

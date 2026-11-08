@@ -716,7 +716,7 @@ void NeuroNetNavMap::Draw()
     Win3DApplyCamera(AsCamera(&Camera));          // FUN_00422950
 
     int const FilterMode = G_NavMapFilterMode; // DAT_006720a0
-    if (FilterMode != 6 && FilterMode != 7 && FilterMode != 4)
+    if (FilterMode != 6 && FilterMode != 7 && FilterMode != 8 && FilterMode != 4)
     {
         // 0x00492aeb..0x00492b8a: the map meshes by view -- the flat one on the universe view,
         // the zoomed ones in a system (and while a transition heads for them).
@@ -956,6 +956,8 @@ void NeuroNetNavMap::Draw()
         if (IsShown(Tools[Index]))
             Tools[Index]->Draw();
     }
+    if (ParkListFilter != nullptr && IsShown(ParkListFilter))
+        ParkListFilter->Draw();
 #ifdef FREELANCER_ADOXA
     // Port-only, adoxa's territory.dll (docs/adoxa.md; 0x0049293d NavMap_Patch2 / 0x004932fe):
     // the tool list copied into a buffer with the house labels appended, drawn after the tools.
@@ -979,7 +981,7 @@ void NeuroNetNavMap::Draw()
     }
 
     // 0x0049335e..0x004935fb: the base list (mode 7) -- each row lit by the cursor ray.
-    if (G_NavMapFilterMode == 7)
+    if (G_NavMapFilterMode == 7 || G_NavMapFilterMode == 8)
     {
         // 0x0049336c..0x00493465: the cursor's ray through the Win3D camera: the screen point
         // to the near plane, rotated by the camera (I3DMathEngine slot 11), normalised.
@@ -1234,7 +1236,7 @@ void NeuroNetNavMap::DrawLabels()
 {
     // FUN_004999d0: not in the info-card / legend / base-list modes.
     int const Mode = G_NavMapFilterMode;
-    if (Mode == 4 || Mode == 6 || Mode == 7)
+    if (Mode == 4 || Mode == 6 || Mode == 7 || Mode == 8)
         return;
 
     // 0x004999f9..0x00499a29: last frame's rects dropped (FUN_004a3bf0 erase), lighting and

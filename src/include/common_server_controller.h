@@ -20,7 +20,7 @@ enum PRIORITY { HIGHEST = 0, ABOVE_NORMAL = 1, NORMAL = 2, BELOW_NORMAL = 3, LOW
 // The message id of _SendMessage and IDLL::HandleMessage (Content.dll's controllers). Retail
 // has no names for these; a name here comes from the sending function (the IServer method,
 // the ContentCallback method), from the Cnd_* key that Content's mission triggers bind to the
-// id (FUN_06ebb850, 06ebb890-06ebce72), or from the payload. Ids 0x00..0x41 are sent by
+// id (FUN_06ebb850, 06ebb890-06ebce72), or from the payload. Ids 0x00..0x42 are sent by
 // Server.dll (through FUN_06d43650, i.e. _SendMessage(&0u, id, data), unless noted), 0x1000..
 // 0x1011 by Content.dll. Neither module sends 0x0e, 0x0f or 0x34, and no port receiver has a
 // case for them.
@@ -95,6 +95,7 @@ enum class EMessage : int
     TradeResponse         = 0x3f, // IServerImpl::TradeResponse 06d45923: TradeResponseInfo members + player
     LoadGame              = 0x40, // server state load 06d448b7 06d44de0: INI_Reader*
     SaveGame              = 0x41, // server state save 06d44800: FILE*
+    CloakActivated        = 0x42, // port: accepted cloak switch, CloakActivation payload
     MissionStart          = 0x1000, // Content Story 06ea6382 06ea6acd 06ea6c46 (to the story mission): no payload
     CombatState           = 0x1001, // Content combat_state_notification 06ed5a53 06f340e3: {type, param1, param2, system}
     CombatDrift           = 0x1002, // Content combat_drift_event 06f3407e: {ship, system}
@@ -123,6 +124,13 @@ enum class EMessage : int
 struct CreateParms { virtual ~CreateParms() = default; };
 struct FStoryCreateParms final : CreateParms { unsigned int PlayerId; };
 struct TimerExpired { unsigned int Param1; unsigned int Param2; };
+struct CloakActivation
+{
+    unsigned int ShipId, SystemId, PlayerId, Active;
+    unsigned long long Sequence;
+};
+// A condition armed now must not consume an earlier, still queued switch.
+SERVER_API unsigned long long __cdecl GetCloakEventSequence();
 
 SERVER_API unsigned int __cdecl Create(const char* DllPath, const char* InstanceName, const CreateParms* Parms, PRIORITY Priority);
 SERVER_API void __cdecl Destroy(unsigned int Flid);

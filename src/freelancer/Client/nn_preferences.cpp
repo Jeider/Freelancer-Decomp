@@ -12,6 +12,10 @@
 // registered only by the WINFACTORY global below.
 
 #include "nn_preferences.h"
+#include "color_grade_preferences.h"
+#ifdef FREELANCER_DLSS5
+#include "base_neural_preferences.h"
+#endif
 #include "player_auto_turrets.h"
 #include "player_flight_actions.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
@@ -149,6 +153,10 @@ NnPreferences::NnPreferences()
 
 NnPreferences::~NnPreferences()
 {
+    ColorGrade::Cancel();
+#ifdef FREELANCER_DLSS5
+    BaseNeural::CancelStrengthPreview();
+#endif
     // FUN_004a9600: the nine vectors (81c, 80c, 7fc, 554 .. 504) are freed, then the WinControl
     // dtor -- the std::vector members do it here.
 }

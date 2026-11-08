@@ -87,6 +87,20 @@ bool CDPClientProxy::SendMsgs()
     for (CDPMessage* Msg = SendQueue.PeekNextMsg(); Msg != nullptr && bConnected;
          Msg = SendQueue.PeekNextMsg())
     {
+        if (Msg->Size > sizeof(Batch))
+        {
+            if (!Flush())
+                break;
+            bConnected = Owner->SendTo(this, Msg->Data, Msg->Size);
+            QueuedBytes -= (int)(Msg->Size);
+            QueuedCount--;
+            SendQueue.GetNextMsg();
+            free(Msg->Data);
+            delete Msg;
+            if (!bConnected)
+                break;
+            continue;
+        }
         if (BatchSize + Msg->Size > sizeof(Batch))
         {
             if (!Flush())

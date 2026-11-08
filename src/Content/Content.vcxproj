@@ -73,6 +73,8 @@
     <ClInclude Include="ContentPlayerState.h" />
     <ClInclude Include="ContentRefObject.h" />
     <ClInclude Include="BaseDB.h" />
+    <ClInclude Include="RpgContacts.h" />
+    <ClInclude Include="RpgSpace.h" />
     <ClInclude Include="BaseSupport.h" />
     <ClInclude Include="GenericScripts.h" />
     <ClInclude Include="Voices.h" />
@@ -136,6 +138,7 @@
     <ClCompile Include="Story.cpp" />
     <ClCompile Include="StoryLauncher.cpp" />
     <ClCompile Include="StoryMissions.cpp" />
+    <ClCompile Include="TrainCourier.cpp" />
     <ClCompile Include="MissionObject.cpp" />
     <ClCompile Include="MissionScript.cpp" />
     <ClCompile Include="MissionCnd.cpp" />
@@ -172,6 +175,9 @@
     <ClCompile Include="NpcNames.cpp" />
     <ClCompile Include="GotoGuides.cpp" />
     <ClCompile Include="RtcScripts.cpp" />
+    <ClCompile Include="RpgContacts.cpp" />
+    <ClCompile Include="RpgDialog.cpp" />
+    <ClCompile Include="RpgSpace.cpp" />
     <ClCompile Include="MissionDialogs.cpp" />
     <ClCompile Include="MissionSave.cpp" />
     <ClCompile Include="SpawnPlacement.cpp" />

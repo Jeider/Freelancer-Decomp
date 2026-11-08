@@ -6,6 +6,7 @@
     <FreelancerBetaLabel>0</FreelancerBetaLabel>
     <FreelancerWidescreenSupport>1</FreelancerWidescreenSupport>
     <FreelancerRp9>0</FreelancerRp9>
+    <FreelancerDlss5>0</FreelancerDlss5>
     <FreelancerWalkMode>1</FreelancerWalkMode>
     <FreelancerHudTargetView>1</FreelancerHudTargetView>
     <FreelancerHudStatusView>1</FreelancerHudStatusView>
@@ -17,6 +18,7 @@
     <FreelancerAdoxa>1</FreelancerAdoxa>
     <FreelancerEquipmentSlots>1</FreelancerEquipmentSlots>
     <FreelancerPlayerFlightActions>1</FreelancerPlayerFlightActions>
+    <FreelancerRpgWorld>1</FreelancerRpgWorld>
     <FreelancerPlayerAutoTurrets>1</FreelancerPlayerAutoTurrets>
     <FreelancerModPlugins>1</FreelancerModPlugins>
     <FreelancerLanguage>1</FreelancerLanguage>

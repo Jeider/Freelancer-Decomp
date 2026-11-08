@@ -1,0 +1,66 @@
+ARCHIVED / NOT INSTALLED -- 2026-11-06
+
+The user shelved capital-ship base interiors and chose to transfer the player
+to capital ships in space instead. That new mechanic has not been implemented
+as part of this task. Preserve this prototype; do not finish or install it
+unless the user explicitly returns to this design.
+
+Default builds disable the experiment: FREELANCER_BASE_INTERIORS is not defined.
+base_interior_profiles.h and common_interior_profiles.h provide inert defaults,
+the Common implementation and docked-ship refresh are excluded. Normal rooms,
+characters, ship placements and ShipDealer access remain available. No new
+Common.dll imports are required by this feature in default client/server builds.
+The ARCHIVED marker blocks this folder's build.py, check.py and install.py.
+
+PRESERVED WORK
+
+- src/Common/common_interior_profiles.* and src/include/base_interior_profiles.h:
+  unfinished generic [InteriorProfile] parser for a base's own INI. It selects
+  by ship type or archetype, provides a room whitelist/file overrides, a start
+  room and disabled services. Client/server hooks are retained but disabled.
+- Room options characters=false and conditional [PlayerShipPlacement] entries,
+  including shadow=false. These are also disabled by default.
+- DATA_EXTRA/UNIVERSE/ROOM/RH/capital_deck.ini and
+  DATA_EXTRA/SCRIPTS/BASES/capital/rh_depot_mooring.thn: initial exterior berth
+  assembled from equip_depot_deck.ini's Rheinland depot shell. Furniture and
+  character placements removed, original ambient scripts reused, player ship
+  shown using HpMount. These assets still belong to the earlier prototype.
+- tools/capital_interiors/prepare.py and preview.py: asset preparation and
+  software previews using actual CMP meshes. The previews are NOT screenshots
+  of the game; lighting, equipment and rotating proxies are not reproduced.
+- src/include/capital_interiors.h and DATA_EXTRA/INTERFACE/capital_interiors.ini:
+  obsolete first approach, preserved for reference. Production source now
+  references base_interior_profiles.h instead.
+- out/capital_interiors and src/obj/base_interiors contain local prototype
+  artifacts. Older client/server binaries also remain in src/obj/train_yard.
+  Do not install them as part of unrelated train work without rebuilding.
+
+STATE AT SUSPENSION
+
+The first prototype built and its native THN/room-loading check passed.
+It was then partially refactored to custom configuration in each base INI.
+Common.dll for that refactor compiled/linked; the corresponding client/server
+builds were blocked by MSBuild FileTracker access and the approval was interrupted.
+The refactored system has NOT passed end-to-end tests or an in-game check.
+No installation was performed, and the game's om15_01_base config and Pythonlancer
+sources were not changed by this task. The original installation manifest in
+out/capital_interiors/install is stale, not a deployable result.
+
+UNFINISHED IF THIS DESIGN IS RESUMED
+
+- Finish/test the base INI profiles and Pythonlancer serialization. The intended
+  pilot profile was capital on om15_01_base: CRUISER/TRANSPORT/CAPITAL; Deck uses
+  capital_deck.ini; Bar retained; ShipDealer excluded and disabled as a service.
+- Replace the initial global INTERFACE mapping and its tools/tests. check.py,
+  check_native.cpp, install.py and refactor_tmp.py are historical, not a valid
+  workflow for the new parser.
+- Author separate THN ship setpoints and select them in the room INI for a full
+  train, locomotive and cruiser. Automatic runtime ship centering was removed
+  from gf_object_ship.cpp, but preview.py still uses the earlier auto-framing.
+- Update room assets to the new explicit characters/shadow/placement options.
+- Review service validation, profile lifecycle and ship changes while docked.
+- Rebuild compatible Common/client/server together, update the installer and
+  test in game before enabling FREELANCER_BASE_INTERIORS in all three modules.
+
+Do not remove ARCHIVED or enable the compile define merely to make old checks
+pass. Resuming this experiment is a separate user decision.

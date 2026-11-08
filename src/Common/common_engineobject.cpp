@@ -7,6 +7,7 @@
 // EngineObject: the IEngineInstance base of every CObject (engine instance id, transform,
 // radius, instance flags, velocities).
 #include "common_cobject.h"
+#include "common_train.h"
 #include "common_cobject_internal.h" // CmnCobject::CopyMatrix9
 
 #include "DALib.h"
@@ -95,6 +96,10 @@ Matrix const& DACOM_API EngineObject::get_orientation(long Inst) const
 void DACOM_API EngineObject::set_transform(long Inst, Transform const& Xform)
 {
     (void)Inst;
+    // Engine hierarchy updates must not replace simulated wagon poses with the
+    // CMP's rest-pose joints. Direct physics/teleport setters remain unaffected.
+    if (CmnTrain::KeepPose(this))
+        return;
     set_transform(Xform);
 }
 

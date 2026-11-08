@@ -19,6 +19,24 @@ enum EPortConsoleOp
     kPortConsoleSystem = 3,    // In: FPortConsoleSystem
     kPortConsoleJump = 4,      // In: FPortConsoleJump
     kPortConsoleGodmode = 5,   // In: int (1 on, 0 off); the player's ship takes no damage
+    kPortConsoleMoney = 6,     // In/out: FPortConsoleMoney
+    kPortConsoleRep = 7,       // In/out: FPortConsoleRep
+};
+
+struct FPortConsoleMoney
+{
+    int Mode;                 // 0 inspect, 1 set, 2 add (signed Amount)
+    int Amount;
+    int Balance;
+};
+
+struct FPortConsoleRep
+{
+    int Mode;                 // 0 inspect, 1 set faction, 2 snapshot, 3 set all,
+                              // 4 copy faction relations, 5 undo snapshot
+    unsigned Faction;
+    float Value;
+    unsigned Revision;        // client load revision: undo cannot cross saves
 };
 
 enum EPortConsoleResult

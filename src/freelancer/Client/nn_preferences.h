@@ -267,6 +267,15 @@ public:
     NnTextControl* GraphicsHint = nullptr;
     NnDropdownPopup* GraphicsDropdown = nullptr;
     int GraphicsDropdownRow = -1;
+    FPrefMiscCell ColorGradeCell;
+    int ColorGradeValue=0,ColorGradeOriginal=0;
+#ifdef FREELANCER_DLSS5
+    NnButtonControl* NeuralEnableToggle=nullptr;
+    bool NeuralEnabled=false,NeuralEnabledOriginal=false;
+    UiScroll* NeuralStrengthSlider = nullptr;
+    NnTextControl* NeuralStrengthValue = nullptr;
+    int NeuralStrength = 100, NeuralStrengthOriginal = 100;
+#endif
 
 private:
     bool CreateGraphicsRows();

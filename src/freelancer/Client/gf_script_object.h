@@ -67,6 +67,8 @@ struct FGfScriptSoundEvent
 
 struct FGfScript
 {
+    bool RpgBoundActors = false;
+    bool RpgFragment = false;
     // FUN_0044eab0 -- the empty event list, then FUN_0044ebf0.
     FGfScript();
     // FUN_0044eb20 -- every spawned object deleted (identity slot 13), the table freed, the event

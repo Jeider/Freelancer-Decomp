@@ -12,6 +12,8 @@ your own installation of Freelancer (see [Local layout](#local-layout)).
 
 ## Where to start
 
+Static NPC presence: [RPG contacts](re/rpg_contacts.md).
+
 | You want to… | Read |
 |--------------|------|
 | Know what is configurable, and where each INI file is read | [ini/README.md](ini/README.md) — reference of every INI file, section and key the code reads |
@@ -36,7 +38,7 @@ your own installation of Freelancer (see [Local layout](#local-layout)).
 | Area | Documents |
 |------|-----------|
 | Engine core | [dacom](re/dacom.md) (object manager, built-in INI parser) · [dalib](re/dalib.md) · [readfile](re/readfile.md) (file system) · [x86math](re/x86math.md) · [system](re/system.md) · [engbase](re/engbase.md) · [zlib](re/zlib.md) · [winmain](re/winmain.md) · [resources](re/resources.md) · [movie](re/movie.md) · [imeui](re/imeui.md) · [luaprofile](re/luaprofile.md) |
-| Rendering | [render](re/render.md) (pipeline, RendComp, ximage) · [shading](re/shading.md) (textures, materials, FLAppearance) · [alchemy](re/alchemy.md) (particles / FX) · [deformable2](re/deformable2.md) · [rp9](re/rp9.md) (port-only Direct3D 9 renderer, volumetric nebula; `FreelancerRp9`) � [black_hole](black_hole.md) (lensed black hole, port-only) |
+| Rendering | [render](re/render.md) (pipeline, RendComp, ximage) · [shading](re/shading.md) (textures, materials, FLAppearance) · [alchemy](re/alchemy.md) (particles / FX) · [deformable2](re/deformable2.md) · [rp9](re/rp9.md) (port-only Direct3D 9 renderer, volumetric nebula; `FreelancerRp9`) � [black_hole](black_hole.md) (lensed black hole, port-only) |
 | Audio | [audio](re/audio.md) |
 | Scripting | [thorn](re/thorn.md) (scene scripts, Lua 3.2) · [thorn_thn_format](re/thorn_thn_format.md) (`.thn` file format) |
 | Game data and logic | [common](re/common.md) · [common_archetype](re/common_archetype.md) · [common_physys](re/common_physys.md) · [content](re/content.md) · [mission script format](re/content_mission_script.md) · [mission opcodes](re/content_mission_opcodes.md) |
@@ -59,6 +61,9 @@ Freelancer\
 
 `EXE\` and `DATA\` come from your own Freelancer 1.1 installation. No retail DLL is loaded at
 runtime: `bin\DACOM.INI` points every `[Libraries]` entry into `bin\`.
+
+The live mod the client actually runs is `D:\games\FL_MOD`. Room INIs, `navbar.ini` and the rest
+of the played `DATA` are edited there. `D:\FL\DBGRUN` is a different tree and is not the mod.
 
 ## Building
 

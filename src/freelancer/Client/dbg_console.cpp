@@ -38,6 +38,14 @@
 #include "common_universe.h"
 #include "port_config.h"
 #include "port_console_api.h"
+#include "port_console_parse.h"
+#include "common_reputation.h"
+#include "character_select_equip.h"
+#include "menu_universe_base.h"
+#include "gameflow.h"
+#include "nn_arrival_text.h"
+#include "server_connect.h"
+#include "common_server.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -227,6 +235,8 @@ namespace
 
     FPortConsoleServerFn ServerConsole()
     {
+        if (!SinglePlayer() || GetPlayerConnectionId() == 0)
+            return nullptr;
         // Single player loads Server.dll into the process; the client does not link it.
         HMODULE const Server = GetModuleHandleA("server.dll");
         return Server != nullptr ? reinterpret_cast<FPortConsoleServerFn>(GetProcAddress(Server, PORT_CONSOLE_SERVER_EXPORT))
@@ -369,11 +379,6 @@ namespace
             Printf("base <nickname or part of the name>");
             return;
         }
-        if (!InSpace())
-        {
-            Printf("* Launch first (base works in space).");
-            return;
-        }
         Universe::IBase* const Base = FindBase(Args);
         if (Base == nullptr)
         {
@@ -382,6 +387,31 @@ namespace
         }
         FPortConsoleServerFn const Server = ServerConsole();
         unsigned Id = Base->GetId();
+        if (Server != nullptr && !InSpace() && GetClientLocationCurrentBase() != 0 &&
+            !IsClientIntroEnvironment() && !IsClientLocationInTransition())
+        {
+            // Adoxa ChangeBase: leave and enter the location controller directly.
+            // Its BaseExit/BaseEnter pair also updates the server's system and
+            // location. ForceLand requires a live ship and cannot do this.
+            auto LocalServer = static_cast<IServer*>(GetLocalServerInterface());
+            if (!LocalServer) { Printf("* No active server.");return; }
+            G_bOpen = false;
+            LocalServer->CharacterSkipAutosave(GetPlayerConnectionId());
+            QueueClientLocationChange(0, 0.f, false);
+            LeaveClientLocationBase();
+            EnterClientLocationBase(Id);
+            SetPlayerBaseIdRetail(Id);
+            SetPlayerFactionScratchRetail(GetClientLocationCurrentRoom());
+            SetGameflowLocationBase(Id);
+            NnArrivalTextShowBase(2.f);
+            Printf("Entered %s.", Base->GetNickname());
+            return;
+        }
+        if (!InSpace())
+        {
+            Printf("* Wait until the base is ready (single player only).");
+            return;
+        }
         if (Server == nullptr || Server(kPortConsoleForceLand, &Id) != kPortConsoleOk)
         {
             Printf("* Landing failed.");
@@ -528,22 +558,109 @@ namespace
     {
         // console.dll cmdLaunch: what clicking the launch tab does (NavBar case 4, 0x00440f94).
         Win3D* const Found = Win3DFindByName("NavBar");
-        if (Found == nullptr)
+        if (Found == nullptr || GetClientLocationCurrentBase() == 0 ||
+            IsClientIntroEnvironment() || IsClientLocationInTransition())
         {
             Printf("* Not in a base.");
             return;
         }
         NavBar* const Bar = static_cast<NavBar*>(Found);
-        for (FNavBarButton& Button : Bar->Buttons)
+        // Adoxa enters case 4 directly, including from rooms with no launch
+        // tab. Keep the native equipment/ship checks and launch animation.
+        FNavBarButton Button;
+        Button.Type = 4;
+        Button.bRoomSwitch = 0;
+        G_bOpen = false;
+        Bar->OnButtonClicked(&Button);
+    }
+
+    void CmdMoney(char const* Args)
+    {
+        FPortConsoleMoney Money = {};
+        if (!PortConsoleParse::Money(Args, Money.Mode, Money.Amount))
         {
-            if (Button.Type == 4 && Button.Hotspot == nullptr)
-            {
-                G_bOpen = false;
-                Bar->OnButtonClicked(&Button);
-                return;
+            Printf("* money [amount | +amount | -amount] (k = 1000; max 999999999)");
+            return;
+        }
+        auto Server = ServerConsole();
+        if (!Server || Server(kPortConsoleMoney, &Money) != kPortConsoleOk)
+            Printf("* Money unavailable: load a single-player game with updated Server.dll.");
+        else
+            Printf("Money = %d", Money.Balance);
+    }
+
+    unsigned FindFaction(std::string name)
+    {
+        if (_stricmp(name.c_str(), "l") == 0)name = "li_p_grp";
+        if (_stricmp(name.c_str(), "b") == 0)name = "br_p_grp";
+        if (_stricmp(name.c_str(), "k") == 0)name = "ku_p_grp";
+        if (_stricmp(name.c_str(), "r") == 0)name = "rh_p_grp";
+        TString<16> nick;nick = name.c_str();
+        unsigned id = name.size() < sizeof(nick.Data) ? Reputation::get_id(nick) : ~0u;
+        if (id != ~0u)return id;
+        struct Find : Reputation::RepGroupCB {
+            std::wstring part;
+            unsigned id = ~0u;
+            char Execute(unsigned const* group) override {
+                wchar_t text[128] = {};
+                GetIdsStringW(Reputation::get_short_name(*group), text, 128);
+                if (_wcsnicmp(text, part.c_str(), part.size()) == 0 &&
+                    (Reputation::get_info_card(*group) != 66205 || *group == 25320)) {
+                    id = *group;return 0;
+                }
+                return 1;
+            }
+        } find;
+        find.part = Widen(name.c_str());
+        Reputation::enumerate(&find);
+        return find.id;
+    }
+
+    void CmdRep(char const* Args)
+    {
+        FPortConsoleRep Rep = {};
+        Rep.Revision = GetGameSessionLoadRevision();
+        std::string text(Args);
+        size_t last = text.find_last_not_of(' ');
+        if (last != std::string::npos)text.resize(last + 1);else text.clear();
+        if (text.empty()) {
+            Printf("rep <faction> [value]; rep = [value | faction]; rep undo");
+            Printf("value: -1..1, -100..100, H/h/nh/n/nf/f/F");return;
+        }
+        if (_stricmp(text.c_str(), "undo") == 0)Rep.Mode = 5;
+        else if (text[0] == '=' && (text.size() == 1 || text[1] == ' ')) {
+            size_t start = text.find_first_not_of(' ', 1);
+            if (start == std::string::npos)Rep.Mode = 2;
+            else if (PortConsoleParse::Rep(text.c_str() + start, Rep.Value))Rep.Mode = 3;
+            else { Rep.Mode = 4;Rep.Faction = FindFaction(text.substr(start)); }
+        } else {
+            size_t split = text.find(' ');
+            Rep.Faction = FindFaction(text.substr(0, split));
+            if (split != std::string::npos) {
+                auto start = text.find_first_not_of(' ', split);
+                if (start == std::string::npos || !PortConsoleParse::Rep(text.c_str() + start, Rep.Value)) {
+                    Printf("* Invalid reputation value.");return;
+                }
+                Rep.Mode = 1;
             }
         }
-        Printf("* No launch button.");
+        if ((Rep.Mode == 0 || Rep.Mode == 1 || Rep.Mode == 4) && Rep.Faction == ~0u) {
+            Printf("* Faction not found.");return;
+        }
+        auto Server = ServerConsole();
+        if (!Server || Server(kPortConsoleRep, &Rep) != kPortConsoleOk) {
+            Printf("* Reputation unavailable (or no snapshot for undo).");return;
+        }
+        if (Rep.Mode == 5)Printf("Reputation restored.");
+        else if (Rep.Mode == 2)Printf("Reputation saved for rep undo.");
+        else if (Rep.Mode == 3)Printf("All reputations = %g (rep undo restores).", double(Rep.Value));
+        else if (Rep.Mode == 4)Printf("Faction relations applied (rep undo restores).");
+        else {
+            wchar_t name[128] = {}, line[160] = {};
+            GetIdsStringW(Reputation::get_short_name(Rep.Faction), name, 128);
+            swprintf_s(line, L"%ls: %g", name, double(Rep.Value));
+            if (!G_bQuiet)Print(line);
+        }
     }
 
     void CmdGodmode(char const* Args)
@@ -611,12 +728,15 @@ namespace
         {"pos", "p", "[x,y,z] the player's position (with x,y,z: move there)", &CmdPos},
         {"quit", nullptr, "quit the game", &CmdQuit},
         {"actions", "stats", "[filter] saved action counters and achievements", &CmdActionStats},
-        {"save", "s", "[name | 1-9] save the game (in space too)", &CmdSave},
+        {"save", nullptr, "[name | 1-9] save the game (in space too)", &CmdSave},
         {"load", "l", "[name | 1-9] load a game saved with save", &CmdLoad},
-        {"base", nullptr, "<name> land at a base", &CmdBase},
-        {"system", nullptr, "<name> [x,y,z [rx,ry,rz] | object] move to another system", &CmdSystem},
-        {"jump", "j", "[forward,right,up | object] move in this system (nothing: to the target)", &CmdJump},
+        {"base", "b", "<name> enter a base, from space or another base", &CmdBase},
+        {"system", "s", "<name> [x,y,z [rx,ry,rz] | object] move to another system", &CmdSystem},
+        {"jump", "ju", "[forward,right,up | object] move in this system (nothing: to the target)", &CmdJump},
+        {"j", nullptr, "alias for jump", &CmdJump},
         {"launch", nullptr, "launch from the base", &CmdLaunch},
+        {"money", "cash", "[amount | +amount | -amount] inspect/set/add credits; k = 1000", &CmdMoney},
+        {"rep", nullptr, "<faction> [value]; = [value | faction]; undo", &CmdRep},
         {"ghost", nullptr, "toggle the ship's collisions", &CmdGhost},
         {"bh", nullptr, "<bits> black hole shader parts off (1 depth, 2 layers, 4 bands/smoke, 8 haze, 16 lens bg)", &CmdBlackHole},
         {"godmode", "god", "[1|0] the ship takes no damage (nothing: toggle)", &CmdGodmode},

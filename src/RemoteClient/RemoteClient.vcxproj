@@ -53,7 +53,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>kernel32.lib;user32.lib;dacom.lib;Common.lib;Server.lib;rpclocal.lib;DALib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;ws2_32.lib;dacom.lib;Common.lib;Server.lib;rpclocal.lib;DALib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -61,6 +61,7 @@
     <ClCompile Include="ClientImpl.cpp" />
     <ClCompile Include="rpc_server_channel_senders.cpp" />
     <ClCompile Include="RemoteClient_transport.cpp" />
+    <ClCompile Include="..\net\net_session.cpp" />
     <ClCompile Include="rpc_client_packets.cpp" />
     <ClCompile Include="..\RemoteCommon\remote_packet_codecs.cpp" />
     <ClCompile Include="..\RemoteCommon\remote_server_channel_codecs.cpp" />

@@ -53,11 +53,12 @@ V v(Vector const& a) { return {a.x,a.y,a.z}; }
 V column(Matrix const& m,int i) { return {m.E[0][i],m.E[1][i],m.E[2][i]}; }
 IObjRW* player() { return static_cast<IObjRW*>(GetPlayerObjRW()); }
 bool enabled() { return PortConfigInt("FlightActions","enabled",1)!=0; }
+bool allowed(CShip* ship) { return ship && ship->shiparch()->GetExtraManeuvers(); }
 bool valid(IObjRW* p,Kind k=ReverseTurn) {
     if (!p || p->is_dying() || IsLetterboxVisible() || HudIsMousePickBlocked()) return false;
     CShip* s=HudShipOfObjRw(p);
     IBehaviorManager* b=s ? s->get_behavior_interface() : nullptr;
-    return b && b->CurrentBehaviorIndex==(k==GotoWeave ? 2:0x13) && !b->LockManeuversByte &&
+    return allowed(s) && b && b->CurrentBehaviorIndex==(k==GotoWeave ? 2:0x13) && !b->LockManeuversByte &&
         (k!=GotoWeave || s->get_target()) && !s->is_launching() && !s->is_using_tradelane() &&
         (k==GotoWeave || k==ReverseTurn || !s->is_cruise_active());
 }
@@ -457,7 +458,7 @@ void CreateButtons(HUD_Maneuvers* hud) {
     }
 }
 bool HasButtons(int behavior) {
-    if(!enabled() || !buttons[0]) return false;
+    if(!enabled() || !buttons[0] || !allowed(HudShipOfObjRw(player()))) return false;
     if(behavior!=2) return true;
     CShip* ship=HudShipOfObjRw(player());
     return ship && ship->get_target();
@@ -474,10 +475,10 @@ char const* TelemetryAction() {
 }
 void Layout(HUD_Maneuvers* hud,int behavior) {
     if(hud!=panel || !buttons[0]) return;
-    bool freeflight=enabled() && behavior==0x13;
     IObjRW* p=player();
     CShip* ship=HudShipOfObjRw(p);
-    bool go=enabled() && behavior==2 && ship && ship->get_target();
+    bool freeflight=enabled() && allowed(ship) && behavior==0x13;
+    bool go=enabled() && allowed(ship) && behavior==2 && ship->get_target();
     float pos[3]{};
     hud->CruiseButton->SetProperty(7,reinterpret_cast<uintptr_t>(pos),0);
     float center=pos[0];

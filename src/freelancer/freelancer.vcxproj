@@ -191,6 +191,8 @@
     <ClInclude Include="Client\tradelane_fx.h" />
     <ClInclude Include="Client\ship_warp_visual.h" />
     <ClInclude Include="Client\engine_heat_visual.h" />
+    <ClInclude Include="Client\cloak_visual.h" />
+    <ClInclude Include="Client\cloak_geometry.h" />
     <ClInclude Include="Client\engine_heat_mesh.h" />
     <ClInclude Include="Client\ship_warp_mesh.h" />
     <ClInclude Include="Client\ship_warp_state.h" />
@@ -233,6 +235,7 @@
     <ClInclude Include="Client\nn_repair.h" />
     <ClInclude Include="Client\nn_story_star.h" />
     <ClInclude Include="Client\nn_ship_trader.h" />
+    <ClInclude Include="Client\nn_ship_park.h" />
     <ClInclude Include="Client\nn_trade.h" />
     <ClInclude Include="Client\cargo_bar_control.h" />
     <ClInclude Include="Client\equip_visual_set.h" />
@@ -270,6 +273,8 @@
     <ClInclude Include="Client\gf_script.h" />
     <ClInclude Include="Client\gf_script_object.h" />
     <ClInclude Include="Client\cutscene_skip.h" />
+    <ClInclude Include="Client\rpg_dialog.h" />
+    <ClInclude Include="Client\rpg_dialog_model.h" />
     <ClInclude Include="Client\gf_thorn_component.h" />
     <ClInclude Include="Client\gf_thorn_compound.h" />
     <ClInclude Include="Client\gf_thorn_deformable.h" />
@@ -450,6 +455,7 @@
     <ClCompile Include="Client\solar_animation_client.cpp" />
     <ClCompile Include="Client\ship_warp_visual.cpp" />
     <ClCompile Include="Client\engine_heat_visual.cpp" />
+    <ClCompile Include="Client\cloak_visual.cpp" />
     <ClCompile Include="Client\tradelane_visual.cpp" />
     <ClCompile Include="Client\black_hole_visual.cpp" />
     <ClCompile Include="Client\jumphole_visual.cpp" />
@@ -524,6 +530,7 @@
     <ClCompile Include="Client\gf_script.cpp" />
     <ClCompile Include="Client\gf_script_object.cpp" />
     <ClCompile Include="Client\cutscene_skip.cpp" />
+    <ClCompile Include="Client\rpg_dialog.cpp" />
     <ClCompile Include="Client\gf_thorn_component.cpp" />
     <ClCompile Include="Client\gf_thorn_compound.cpp" />
     <ClCompile Include="Client\gf_thorn_deformable.cpp" />
@@ -561,12 +568,14 @@
     <ClCompile Include="Client\hud_radar.cpp" />
     <ClCompile Include="Client\nn_preferences_misc.cpp" />
     <ClCompile Include="Client\nn_preferences_graphics.cpp" />
+    <ClCompile Include="Client\color_grade_preferences.cpp" />
     <ClCompile Include="Client\nn_dropdown.cpp" />
     <ClInclude Include="Client\nn_dropdown.h" />
     <ClCompile Include="Client\navigation_settings.cpp" />
     <ClCompile Include="Client\hud_targeting.cpp" />
     <ClCompile Include="Client\hud_health.cpp" />
     <ClCompile Include="Client\player_flight_actions.cpp" />
+    <ClCompile Include="Client\player_train.cpp" />
     <ClCompile Include="Client\player_route.cpp" />
     <ClCompile Include="Client\route_planner.cpp" />
     <ClCompile Include="Client\player_auto_turrets.cpp" />
@@ -594,6 +603,7 @@
     <ClCompile Include="Client\nn_repair.cpp" />
     <ClCompile Include="Client\nn_story_star.cpp" />
     <ClCompile Include="Client\nn_ship_trader.cpp" />
+    <ClCompile Include="Client\nn_ship_park.cpp" />
     <ClCompile Include="Client\nn_trade.cpp" />
     <ClCompile Include="Client\cargo_bar_control.cpp" />
     <ClCompile Include="Client\equip_visual_set.cpp" />
@@ -671,6 +681,12 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ItemGroup Condition="'$(FreelancerDlss5)'=='1'">
+    <ClCompile Include="Client\base_neural_render.cpp" />
+    <ClInclude Include="Client\base_neural_render.h" />
+    <ClCompile Include="Client\base_neural_preferences.cpp" />
+    <ClInclude Include="Client\base_neural_preferences.h" />
+  </ItemGroup>
   <!-- PlayerDB creates Restart.fl from NewPlayer.fl beside the executable: it is tracked in bin\
        and copied into bin_debug\ / binasan\ by copy_dev_ini.py (Directory.Build.targets). -->
 </Project>

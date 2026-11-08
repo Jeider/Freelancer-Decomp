@@ -1,0 +1,14 @@
+{
+  "train_cargo.cmp": {
+    "source_sha256": "d5d0d02e5d9bdf314d3bdca3974bb754eb2ac564f24eaa99e9d88217528a682d",
+    "reason": "Separate the two long side rails to keep the central opening clear. End sections are convex approximations.",
+    "regions": {
+      "Root": [
+        [[2, null, 6.992]],
+        [[2, 6.992, 35.958], [0, null, -0.1]],
+        [[2, 6.992, 35.958], [0, -0.1, null]],
+        [[2, 35.958, null]]
+      ]
+    }
+  }
+}

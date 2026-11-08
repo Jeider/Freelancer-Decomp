@@ -5,6 +5,19 @@
 // Author: Giperion.
 
 #include "nav_bar.h"
+#include "base_interior_profiles.h"
+#ifdef FREELANCER_RPG_WORLD
+#include <windows.h>
+static bool RpgLaunchAllowed()
+{
+    HMODULE Content = GetModuleHandleA("Content.dll");
+    if (Content == nullptr)
+        return true;
+    auto CanLaunch = reinterpret_cast<unsigned char (__cdecl*)()>(
+        GetProcAddress(Content, "RpgPlayerCanLaunch"));
+    return CanLaunch == nullptr || CanLaunch() != 0;
+}
+#endif
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
 #endif
@@ -28,6 +41,7 @@
 #include "mirror_property_bucket.h"
 #include "nn_button_control.h"      // NnButtonControl (+0x330 bits)
 #include "nn_inventory.h"           // NnInventoryOpenDealer (FUN_00477ab0) / OpenShipDealer (FUN_00477bf0)
+
 #include "nn_messaging.h"           // NnVoiceEnqueue (FUN_00489e80)
 #include "nn_modal.h"               // NnMainButtonOnModalOpen (FUN_0045a460), G_bNnScreenUp, NnFloatBits
 #include "nn_repair.h"              // NnRepair::PlayerNeedsRepair (FUN_004b4510)
@@ -132,7 +146,7 @@ namespace
                                        "Interface\\HUD\\HUD_maneuverbox6.cmp"};
 
     // DAT_00610c80 -- 0x13 {IDS name, tooltip ids} pairs (FUN_004d9ca0 is a stricmp walk).
-    FHudNamedValue const kHotspotIds[0x13] = {
+    FHudNamedValue const kHotspotIds[0x14] = {
         {"IDS_HOTSPOT_EXIT", 0x1965},
         {"IDS_HOTSPOT_BAR", 0x196a},
         {"IDS_HOTSPOT_COMMODITYTRADER", 0x1969},
@@ -151,7 +165,8 @@ namespace
         {"IDS_EQUIPMENT_ROOM_RIGHT", 0x40e},
         {"IDS_HOTSPOT_COMMODITYTRADER_ROOM", 0x527},
         {"IDS_HOTSPOT_EQUIPMENTDEALER_ROOM", 0x528},
-        {"IDS_HOTSPOT_SHIPDEALER_ROOM", 0x529}};
+        {"IDS_HOTSPOT_SHIPDEALER_ROOM", 0x529},
+        {"IDS_HOTSPOT_SHIPPARK", 238391}};
 
     // FUN_0043a460 / FUN_00438c00 (identical bodies) -- the current room's runtime.
     FRoomRuntime* CurrentRoomRuntime()
@@ -247,7 +262,7 @@ namespace
     // and 0xc to the close, everything else past it).
     bool IsServiceType(unsigned Type)
     {
-        return Type == 2 || Type == 3 || Type == 7 || Type == 0xc;
+        return Type == 2 || Type == 3 || Type == 7 || Type == 0xc || Type == 13;
     }
 }
 
@@ -625,6 +640,7 @@ void NavBar::NotifyServiceWindows()
     // FUN_0043e600.
     NotifyServiceWindow("NN_Repair");
     NotifyServiceWindow("NN_ShipTrader");
+    NotifyServiceWindow("NN_ShipPark");
     NotifyServiceWindow("NN_News");
     NotifyServiceWindow("NN_MissionVendor");
 }
@@ -677,6 +693,17 @@ void NavBar::Update()
     ManeuverTab->SetProperty(1, (bShow && EnabledTabs != 0) ? 0 : 1, 0);
     for (It = Buttons.begin(); It != Buttons.end(); ++It)
     {
+#ifdef FREELANCER_RPG_WORLD
+        if (!RpgLaunchAllowed() && It->Name == "IDS_HOTSPOT_LAUNCH")
+        {
+            It->bDisabled = 1;
+            It->Control->SetProperty(1, 1, 0);
+            It->Control->SetProperty(2, 1, 0);
+            continue;
+        }
+        if (RpgLaunchAllowed() && It->Name == "IDS_HOTSPOT_LAUNCH")
+            It->bDisabled = 0;
+#endif
         It->Control->SetProperty(1, Hide, 0);
         if (It->bDisabled != 0)
             It->Control->SetProperty(2, 1, 0);
@@ -699,7 +726,8 @@ void NavBar::Update()
             {
                 // 0x0043e8b3..0x0043e911: no dealer window -> the desk tab (type 6) activated.
                 if (Win3DFindByName("NN_Dealer") == nullptr &&
-                    Win3DFindByName("NN_ShipTrader") == nullptr)
+                    Win3DFindByName("NN_ShipTrader") == nullptr &&
+                    Win3DFindByName("NN_ShipPark") == nullptr)
                 {
                     bReturnToDesk = 0;
                     for (It = Buttons.begin(); It != Buttons.end(); ++It)
@@ -827,20 +855,10 @@ void NavBar::Update()
     // animating again after the notify is dropped.
     if (!IsAnimating() && QueuedClose != nullptr)
     {
-        NotifyServiceWindows();
         FNavBarButton* const Button = QueuedClose;
-        if (IsAnimating())
-        {
-            QueuedClose = nullptr;
-            return;
-        }
-        ClosingButton = Button;
-        PlayOrRewindUiSoundSlot(0x1b);
-        MakeServiceBackground(Button->Type, 1.0f);
-        float const Scale = ServiceScale(Button->Type);
-        ButtonScaler::Start(kAnimSeconds);
-        ButtonScaler::AddButton(ScaledBackground, 1.0f, Scale);
         QueuedClose = nullptr;
+        NotifyServiceWindows();
+        CloseService(Button);
         return;
     }
     // 0x0043edfd..0x0043ee29: else a queued open.
@@ -957,6 +975,19 @@ void NavBar::Rebuild()
     for (HotspotIndex = 0; HotspotIndex < Data->Hotspots.size(); ++HotspotIndex)
     {
         RoomButtonInfo const* const Hotspot = Data->Hotspots[HotspotIndex];
+        unsigned const Ship = GetPlayerShipArchetypeIdRetail();
+        // A physical exit must belong to the selected room set. Virtual rooms
+        // (Trader/Equipment tabs inside Deck) are not physical locations.
+        if (Hotspot->RoomSwitch && Hotspot->Behavior != 11 &&
+            !BaseInteriors::RoomAllowed(Data->BaseId,
+                MakeLocationID(Data->BaseId, Hotspot->RoomSwitch), Ship))
+            continue;
+        if (!BaseInteriors::ServiceAllowed(Data->BaseId, Ship, "ShipDealer") &&
+            ((Hotspot->SetVirtualRoom && _stricmp(Hotspot->SetVirtualRoom, "ShipDealer") == 0) ||
+             (Hotspot->RoomSwitch && _stricmp(Hotspot->RoomSwitch, "ShipDealer") == 0) ||
+             (Hotspot->VirtualRoom && _stricmp(Hotspot->VirtualRoom, "ShipDealer") == 0) ||
+             Hotspot->Behavior == 7))
+            continue;
 
         // 0x0043f47f..0x0043f4e5: a hotspot of another virtual room is skipped, except the
         // Deck / Planetscape ones outside any virtual room.
@@ -1019,7 +1050,11 @@ void NavBar::Rebuild()
         if (VirtualRoom.size() == 0 || strcmp(VirtualRoom.c_str(), "Deck") == 0 ||
             strcmp(VirtualRoom.c_str(), "Planetscape") == 0)
         {
-            if (GetPlayerShipArchetypeIdRetail() != 0)
+            if (GetPlayerShipArchetypeIdRetail() != 0
+#ifdef FREELANCER_RPG_WORLD
+                && RpgLaunchAllowed()
+#endif
+            )
                 AddButton(4, 0, 0, "IDS_HOTSPOT_LAUNCH", "IDS_HOTSPOT_LAUNCH");
         }
     }
@@ -1094,7 +1129,7 @@ FNavBarButton* NavBar::AddButton(unsigned Type, int /*Unused*/, unsigned char bR
 
     // 0x0043fb89..0x0043fbc4: its tooltip ids (DAT_00610c80), FDUMP when unknown.
     int Ids = 0;
-    if (!HudLookupNamedValue(kHotspotIds, Button->IdsName, &Ids, 0x13))
+    if (!HudLookupNamedValue(kHotspotIds, Button->IdsName, &Ids, 0x14))
     {
         FDUMP(0x100002, "%s(%d) : *** WARNING: unknown HotspotName = '%s'\n", kNavBarCpp,
               0x530, Button->IdsName);
@@ -1235,6 +1270,7 @@ void NavBar::OpenService(FNavBarButton* Button)
         Target = G_NavBarRepairTarget;
         break;
     case 7:
+    case 13:
         Target = G_NavBarShipTarget;
         break;
     case 3:
@@ -1256,6 +1292,10 @@ void NavBar::OpenService(FNavBarButton* Button)
 
 void NavBar::CloseService(FNavBarButton* Button)
 {
+    // A window's close notification can re-enter through NavBarCloseService.
+    // Do not queue a second close of a tab already shrinking or sliding home.
+    if (ClosingButton == Button || Button->bOpen == 0)
+        return;
     // FUN_00440260 (RET 4). While animating it is queued.
     if (IsAnimating())
     {
@@ -1263,6 +1303,8 @@ void NavBar::CloseService(FNavBarButton* Button)
         return;
     }
     // 0x00440290..0x004403b6: the background at full size shrinks to the type's scale.
+    if (QueuedClose == Button)
+        QueuedClose = nullptr;
     ClosingButton = Button;
     PlayOrRewindUiSoundSlot(0x1b);
     MakeServiceBackground(Button->Type, 1.0f);
@@ -1282,6 +1324,7 @@ float NavBar::ServiceScale(unsigned Type)
     case 0xc:
         return NnFloatBits(0x3da3d70a);
     case 7:
+    case 13:
         return NnFloatBits(0x3d4ccccd);
     default:
         return 1.0f;
@@ -1301,6 +1344,7 @@ void NavBar::MakeServiceBackground(unsigned Type, float Scale)
         return;
     }
     case 7:
+    case 13:
     {
         float const Position[3] = {0.0f, NnFloatBits(0xbdb020c5), NnFloatBits(0xbfa4dd2f)};
         MakeScaledBackground(Scale, "Interface\\NeuroNet\\Inventory\\INV_biginforcard_center.cmp",
@@ -1344,10 +1388,11 @@ void NavBar::OnScaleFinished()
             ClosingButton->bOpen = 0;
             return;
         case 7:
+        case 13:
         case 2:
         case 3:
         {
-            float const* const Target = ClosingButton->Type == 7
+            float const* const Target = ClosingButton->Type == 7 || ClosingButton->Type == 13
                                             ? G_NavBarShipTarget
                                             : (ClosingButton->Type == 2 ? G_NavBarNewsTarget
                                                                         : G_NavBarMissionTarget);
@@ -1416,6 +1461,9 @@ void NavBar::OnScaleFinished()
             ToggleDealerTabs(true);
             return;
         }
+        case 13:
+            WinFactoryCreate("NN_ShipPark", "NN_ShipPark", nullptr, nullptr);
+            return;
         default:
             return;
         }
@@ -1533,6 +1581,10 @@ void NavBar::OnButtonClicked(FNavBarButton* Button)
     {
         // 0x00440f94..0x00441036: launch -- the equipment checked, the ship's launch script
         // (or straight to the mission briefing), then the bar and its controls destroyed.
+#ifdef FREELANCER_RPG_WORLD
+        if (!RpgLaunchAllowed())
+            return;
+#endif
         if (!CheckLaunchEquipment())
             return;
         if (GetPlayerShipArchetypeIdRetail() == 0)
@@ -1582,11 +1634,25 @@ void NavBar::OnButtonClicked(FNavBarButton* Button)
         // 0x0044108c: the ship dealer tab.
         if (Button->bOpen == 0)
         {
+            NotifyServiceWindows();
             OpenService(Button);
             return;
         }
         NotifyServiceWindow("NN_ShipTrader");
         CloseService(Button);
+        return;
+    }
+    case 13:
+    {
+        if (Button->bOpen != 0)
+        {
+            NotifyServiceWindow("NN_ShipPark");
+            return;
+        }
+        // Participate in the service lifecycle: close the current service and
+        // NeuroNet panel, animate this tab, then create the window on completion.
+        NotifyServiceWindows();
+        OpenService(Button);
         return;
     }
     case 0xc:
@@ -1776,6 +1842,7 @@ void NavBar::ActivateButton(FNavBarButton* From, FNavBarButton* To)
             IsShownWindow(Win3DFindByName("NN_Inventory")))
             HudPostCommand(0x6b, 0);
         NotifyServiceWindow("NN_ShipTrader");
+        NotifyServiceWindow("NN_ShipPark");
         RoomControlSetField1340(Room, 1);
         RoomControlClearField1338(Room);
         if (!RoomControlTrackCamera(Room, Camera, &NavBar::ScriptDone, this, nullptr))
@@ -2085,6 +2152,17 @@ void NavBarOpenButton(unsigned Type)
     }
 }
 
+void NavBarOpenParking()
+{
+    NavBar* const Bar = FindNavBar();
+    if (!Bar || Bar->IsAnimating()) return;
+    for (auto& Button : Bar->Buttons)
+        if (!Button.bRoomSwitch && Button.Type == 13 && !Button.bDisabled) {
+            Bar->OnButtonClicked(&Button);
+            return;
+        }
+}
+
 void NavBarCloseService(bool bNotify)
 {
     // FUN_004424f0: the first open tab closed when it is a service (2 / 3 / 7 / 0xc; the
@@ -2113,6 +2191,8 @@ bool NavBarHasServiceWindow()
     if (Win3DFindByName("NN_Repair") != nullptr)
         return true;
     if (Win3DFindByName("NN_ShipTrader") != nullptr)
+        return true;
+    if (Win3DFindByName("NN_ShipPark") != nullptr)
         return true;
     if (Win3DFindByName("NN_News") != nullptr)
         return true;

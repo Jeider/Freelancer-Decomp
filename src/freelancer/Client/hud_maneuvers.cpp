@@ -28,6 +28,7 @@
 #include "perf_options.h"
 #include "player_behavior.h"
 #include "player_flight_actions.h"
+#include "player_train.h"
 #include "player_route.h"
 #include "player_spawn.h"
 #include "space_camera.h"
@@ -255,6 +256,7 @@ HUD_Maneuvers::HUD_Maneuvers(INI_Reader& Reader)
 HUD_Maneuvers::~HUD_Maneuvers()
 {
     PlayerFlightActions::Release(this);
+    PlayerTrain::Release(this);
     CockpitFreeLook::ReleaseHud(this);
     // FUN_004d7a70: DAT_00674a58 = 0, then the +0x390 watcher (set_pointer(0) when watching),
     // the vector freed, Event::Handler FUN_00576010, ~WinControl FUN_0059fa50 and HUDItem's
@@ -306,6 +308,7 @@ bool HUD_Maneuvers::Create(Win3D* NewParent, void* Data)
     CruiseButton->SetProperty(1, 1, 0);
 
     PlayerFlightActions::CreateButtons(this);
+    PlayerTrain::Create(this);
 
     // 0x004d7e08..0x004d7ef2: FUN_005760d0 on the handler at +0x364, in this order.
     unsigned const Commands[0x18] = {
@@ -426,6 +429,7 @@ bool HUD_Maneuvers::OnEvent(unsigned MsgId)
         // 0x004d81d9: USER_CANCEL.
         if (NnMainButtonHasActivePanel())
             return false;
+        PlayerTrain::CancelApproach();
         if (!PlayerFlightActions::RequestCancel())
             return true;
         if (!HudStatusIsRearView() && HudStatusIsTurretView())
@@ -664,6 +668,7 @@ bool HUD_Maneuvers::HitTest(float const* Ray)
 intptr_t HUD_Maneuvers::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 {
     if (Msg == 0x26 && PlayerFlightActions::Click(static_cast<unsigned long>(A))) return 0;
+    if (Msg == 0x26 && PlayerTrain::Click(static_cast<unsigned long>(A))) return 0;
     // LAB_004d8da0 (this = the WinControl face). Only 0x26 is handled; nothing is forwarded to
     // WinControl.
     (void)B;
@@ -792,6 +797,7 @@ void HUD_Maneuvers::UpdateButtons()
 
 void HUD_Maneuvers::UpdateTabAndCruise(int BehaviorId)
 {
+    PlayerTrain::Update(this,BehaviorId);
     // Hide action buttons even when retail returns before laying out Cruise.
     if (BehaviorId != 0x13 && BehaviorId != 2) PlayerFlightActions::Layout(this, BehaviorId);
     // FUN_004d8bf0.
@@ -815,7 +821,8 @@ void HUD_Maneuvers::UpdateTabAndCruise(int BehaviorId)
         Anchor = Buttons[2];
     Anchor->SetProperty(7, reinterpret_cast<uintptr_t>(Offset), 0);
 
-    int const TabVariant = PlayerFlightActions::HasButtons(BehaviorId) ? (BehaviorId == 0x13 ? 3 : BehaviorId == 2 ? 2 : 1) : 1;
+    int const TabVariant = PlayerTrain::HasButton(BehaviorId) ? 2 :
+        PlayerFlightActions::HasButtons(BehaviorId) ? (BehaviorId == 0x13 ? 3 : BehaviorId == 2 ? 2 : 1) : 1;
     if (bTabMeshReset != TabVariant)
     {
         bTabMeshReset = TabVariant;
@@ -844,10 +851,12 @@ void HUD_Maneuvers::UpdateTabAndCruise(int BehaviorId)
     CruiseButton->SetProperty(6, reinterpret_cast<uintptr_t>(Offset), 0);
     CruiseButton->SetProperty(0xc, GetPlayerEngineCruiseActive() ? 1u : 0u, 0);
     if (BehaviorId == 0x13 || BehaviorId == 2) PlayerFlightActions::Layout(this, BehaviorId);
+    PlayerTrain::Layout(this,BehaviorId);
 }
 
 bool HUD_Maneuvers::RequestManeuver(int BehaviorId, bool bFlag)
 {
+    PlayerTrain::CancelApproach();
     PlayerRoute::Cancel();
     PlayerFlightActions::Cancel();
     // FUN_004d8e20.

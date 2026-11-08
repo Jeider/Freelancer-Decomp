@@ -440,7 +440,7 @@ void NeuroNetNavMap::SetFilterMode(int Mode)
 {
     // FUN_004a0220.
     // 004a0229..004a0285: the known-base rows (and their titles) take property 0x24 = mode 7.
-    uintptr_t const bBaseList = Mode == 7 ? 1 : 0;
+    uintptr_t const bBaseList = Mode == 7 || Mode == 8 ? 1 : 0;
     for (int Index = 0; Index < 15; ++Index)
     {
         BaseTexts[Index]->SetProperty(0x24, bBaseList, 0);
@@ -451,7 +451,7 @@ void NeuroNetNavMap::SetFilterMode(int Mode)
 
     // 004a028b..004a037b: leaving an info-card mode (6 / 7) closes the card and brings back
     // what it covered.
-    if (G_NavMapFilterMode == 6 || G_NavMapFilterMode == 7)
+    if (G_NavMapFilterMode == 6 || G_NavMapFilterMode == 7 || G_NavMapFilterMode == 8)
     {
         InfoCard->Flags = static_cast<unsigned char>(InfoCard->Flags & 0xfc);
         CloseInfocardButton->Flags = static_cast<unsigned char>(CloseInfocardButton->Flags & 0xfc);
@@ -472,6 +472,8 @@ void NeuroNetNavMap::SetFilterMode(int Mode)
             PatrolFilter->Flags = static_cast<unsigned char>(PatrolFilter->Flags | 3);
             LegendFilter->Flags = static_cast<unsigned char>(LegendFilter->Flags | 3);
             BaseListFilter->Flags = static_cast<unsigned char>(BaseListFilter->Flags | 3);
+            if (ParkListFilter != nullptr)
+                ParkListFilter->Flags = static_cast<unsigned char>(ParkListFilter->Flags | 3);
             MineableFilter->Flags = static_cast<unsigned char>(MineableFilter->Flags | 3);
             LabelButton->Flags = static_cast<unsigned char>(LabelButton->Flags | 3);
             if (!MissionZoneIds.empty())
@@ -487,6 +489,8 @@ void NeuroNetNavMap::SetFilterMode(int Mode)
     MissionFilter->SetProperty(0xc, G_NavMapFilterMode == 3 ? 1 : 0, 0);
     LegendFilter->SetProperty(0xc, G_NavMapFilterMode == 4 ? 1 : 0, 0);
     BaseListFilter->SetProperty(0xc, G_NavMapFilterMode == 7 ? 1 : 0, 0);
+    if (ParkListFilter != nullptr)
+        ParkListFilter->SetProperty(0xc, G_NavMapFilterMode == 8 ? 1 : 0, 0);
     MineableFilter->SetProperty(0xc, G_NavMapFilterMode == 5 ? 1 : 0, 0);
 
     // 004a0467..004a04ea: the zone filters only in the political / patrol modes.
@@ -512,12 +516,24 @@ void NeuroNetNavMap::SetFilterMode(int Mode)
         MissionFilter->Flags = static_cast<unsigned char>(MissionFilter->Flags & 0xfc);
         LegendFilter->Flags = static_cast<unsigned char>(LegendFilter->Flags & 0xfc);
         BaseListFilter->Flags = static_cast<unsigned char>(BaseListFilter->Flags & 0xfc);
+        if (ParkListFilter != nullptr)
+            ParkListFilter->Flags = static_cast<unsigned char>(ParkListFilter->Flags & 0xfc);
         MineableFilter->Flags = static_cast<unsigned char>(MineableFilter->Flags & 0xfc);
         LabelButton->Flags = static_cast<unsigned char>(LabelButton->Flags & 0xfc);
     }
 
     // 004a0549..004a0564: the title (the mode indexes DAT_00611c84 unchecked, as in retail).
-    FilterTitle->SetProperty(0x1e, kNavMapFilterTitleIds[G_NavMapFilterMode], 0);
+    if (G_NavMapFilterMode >= 0 && G_NavMapFilterMode < 8)
+        FilterTitle->SetProperty(0x1e, kNavMapFilterTitleIds[G_NavMapFilterMode], 0);
+    else
+        FilterTitle->SetProperty(0x1d, reinterpret_cast<uintptr_t>(L"\x041F\x0420\x0418\x041F\x0410\x0420\x041A\x041E\x0412\x0410\x041D\x041D\x042B\x0415 \x041A\x041E\x0420\x0410\x0411\x041B\x0418"), 0);
+    if (SystemTitleText != nullptr)
+    {
+        if (G_NavMapFilterMode == 8)
+            SystemTitleText->SetProperty(0x1d, reinterpret_cast<uintptr_t>(L"\x041A\x041E\x0420\x0410\x0411\x041B\x042C"), 0);
+        else
+            SystemTitleText->SetProperty(0x1e, 0x3cd, 0);
+    }
 }
 
 void NeuroNetNavMap::RefreshMissionZones()

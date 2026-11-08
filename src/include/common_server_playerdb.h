@@ -10,6 +10,7 @@
 #include "player_action_stats.h"
 #include "common_goods.h"            // EquipDescList (PlayerData::equipment, +0x278)
 #include "common_archetype.h"        // SubObjectID::EquipIdMaker (+0x3C8), CollisionGroupDesc
+#include "ship_cache.h"
 #include "common_text.h"             // FmtStr (PlayerData::mission_log, +0x390)
 
 #include <cstddef>
@@ -615,6 +616,8 @@ struct PlayerData {
         std::map<unsigned int, unsigned char> Visits; // +0x384 `visit`
         PlayerActionStats::State ActionCounters; // Port-only cumulative counters, old saves default to zero.
         std::map<unsigned, float> CloakCooldowns;
+        std::vector<ShipCacheRecord> ShipCache;
+        ShipParkingSave ShipParking;
 
         // FUN_06d46ab0. What retail leaves uninitialised (Position,
         // Orientation, Interface and the accessory slots past the count) is

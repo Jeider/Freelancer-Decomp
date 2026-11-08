@@ -148,6 +148,10 @@ public:
     unsigned char bForceMissionLog;
 
 private:
+    // A NeuroNet panel starts only after the base service has finished closing.
+    bool bWaitingForServiceClose = false;
+    void ResumeAfterServiceClose();
+
     // The seven-root loop written out at 0x0045ce7d, 0x0045d15c, 0x0045d3a1, 0x0045d4c4 and
     // 0x0045d5d3: Roots[i]->SetProperty(0xc, Buttons[i] is the open or the closing button, 0)
     // for every non-null root.

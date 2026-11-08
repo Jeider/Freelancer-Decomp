@@ -195,6 +195,11 @@ GENRESULT DACOM_API FThornDeformable::SetFloorHeight(float Height)
 // double at 0x005c75f8, pushed as a double).
 GENRESULT DACOM_API FThornDeformable::AdvanceTime(int DeltaMs)
 {
+#ifdef FREELANCER_RPG_WORLD
+    // Speech and gestures share the session's existing character. Only the session
+    // advances its mixer, otherwise every parallel track speeds up all animations.
+    if (Owner->RpgFragment) return GR_OK;
+#endif
     Character->Update(static_cast<double>(DeltaMs) * 0.001);
     return GR_OK;
 }
@@ -490,6 +495,9 @@ void FThornDeformable::Stop()
         FMotionSlot& Motion = Motions[Index];
         if (Motion.bActive == 0)
             continue;
+#ifdef FREELANCER_RPG_WORLD
+        if (Owner->RpgFragment) Character->RemoveMotionHandle(Motion.Handle);
+#endif
         DALib::Deform->DestroyHandle(Character->Lod.Instance, Motion.Handle);
         GetCharacterInfoDb()->ReleaseScript(Motion.ScriptId);
         Motion.Handle = -1;
@@ -506,6 +514,9 @@ void FThornDeformable::Stop()
             DALib::Deform->StopAim(Character->Lod.Instance, Aim.Handle);
         Aim.bActive = 0;
     }
+#ifdef FREELANCER_RPG_WORLD
+    if (Owner->RpgFragment) return; // Session retains ownership between lines.
+#endif
     if (Character != nullptr)
     {
         Character->LightGroup = 0;

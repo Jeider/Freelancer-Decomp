@@ -4,7 +4,15 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#ifdef FREELANCER_DLSS5
+#include "base_neural_render.h"
+#endif
 #include "menu_universe_base.h"
+#include "base_interior_profiles.h"
+#include "input_manager.h"
+#include "nn_main_button.h"
+#include "nn_modal.h"
+#include "gf_script.h"
 #ifdef FREELANCER_RP9
 #include "render_ex.h"
 #endif
@@ -115,6 +123,9 @@ namespace
         FLocationRoomState* State; // +0x04 FUN_00439d80 (0x00439e9a)
         FRoomRuntime* Runtime;  // +0x08 — FUN_00449260 (Camera* at Runtime+0x500)
         int RefCount;           // +0x0C
+        RoomData* OriginalRoom; // Shared Common data; variants are client-owned.
+        unsigned InteriorProfile;
+        unsigned InteriorShip;
     };
 
     // Retail base record: +0x00 BaseData*, +0x04 runtime, +0x08 refcount, +0x10 the room list.
@@ -137,6 +148,8 @@ namespace
     FLocationBaseEntry* FindLocationBaseEntry(unsigned BaseId);
     FLocationRoomEntry* FindLocationRoomEntry(unsigned LocationId);
     void EnsureRoomRuntime(FLocationRoomEntry* Entry, unsigned LocationId);
+    void PrepareRoomVariant(FLocationRoomEntry* Entry);
+    unsigned ResolveInteriorLocation(unsigned Location);
     IServer* GetLocationServer();
 
     // LocationController scalars. this+0x34 is the base the player is in, this+0x38 the
@@ -181,11 +194,15 @@ namespace
 
     void ApplyLocationAudio(unsigned LocationId)
     {
+        LocationId = ResolveInteriorLocation(LocationId);
         // FUN_0043bab0 (thiscall on DAT_00668708, RET 4).
         // 0x0043babc..0x0043bb07: the room map (this+0x0c, FUN_00432240) -- FUN_00439610's
         // lookup inlined: a miss FDUMPs ("Could not find location id", line 0x110) and the
         // record is read through null, as FindLocationRoomEntry's callers do.
-        RoomData* const Room = FindLocationRoomEntry(LocationId)->Room;
+        FLocationRoomEntry* Entry = FindLocationRoomEntry(LocationId);
+        if (!Entry->Runtime)
+            PrepareRoomVariant(Entry);
+        RoomData* const Room = Entry->Room;
 
         // 0x0043bb09..0x0043bb48: the music (+0xcc) and ambience (+0xd0) ID_Strings copied;
         // with this+0x58 clear, one whose loop flag (+0xd4 / +0xd5) is clear is ID_String::clear.
@@ -257,6 +274,9 @@ void BuildClientLocationMaps()
         {
             FLocationRoomEntry RoomEntry;
             RoomEntry.Room = *RoomIt;
+            RoomEntry.OriginalRoom = *RoomIt;
+            RoomEntry.InteriorProfile = 0;
+            RoomEntry.InteriorShip = 0;
             RoomEntry.State = nullptr;
             RoomEntry.Runtime = nullptr;
             RoomEntry.RefCount = 0;
@@ -313,6 +333,9 @@ void ClearClientLocationMaps()
             UnloadLocationBase(BaseId);
             BaseEntry->RefCount = 0;
         }
+        for (auto& Room : BaseIt->Rooms)
+            if (Room.Room != Room.OriginalRoom)
+                delete Room.Room;
     }
 
     // 0x0043934a..0x0043939f: every base record erased (FUN_0043bf50), then the room map
@@ -394,8 +417,45 @@ namespace
     // Callers hand the room record (FUN_00439610's lookup, 0x00439da0..0x00439df7, done by
     // them) and call it only at a zero count, when +0x04 / +0x08 are clear: retail allocates
     // both unconditionally.
+    void PrepareRoomVariant(FLocationRoomEntry* Entry)
+    {
+        // Never change Common's shared RoomData: in single player the server
+        // uses the same DLL, and other players can have different ship classes.
+        RoomData* Original = Entry->OriginalRoom;
+        char const* File = BaseInteriors::RoomFile(Original->BaseId,
+            Original->RoomId, GetPlayerShipArchetypeIdRetail());
+        if (!File)
+            File = Original->File;
+        if (_stricmp(Entry->Room->File, File) != 0)
+        {
+            if (Entry->Room != Original)
+                delete Entry->Room;
+            Entry->Room = Original;
+            if (_stricmp(File, Original->File) != 0)
+            {
+                Entry->Room = new RoomData();
+                Entry->Room->init(Original->BaseId, Original->RoomId, Original->Nickname, File);
+            }
+        }
+        Entry->Room->load();
+    }
+
+    unsigned ResolveInteriorLocation(unsigned Location)
+    {
+        auto It = G_LocationRooms.find(Location);
+        if (It == G_LocationRooms.end())
+            return Location;
+        RoomData* Room = It->second->OriginalRoom;
+        return BaseInteriors::ResolveRoom(Room->BaseId, Location,
+                                         GetPlayerShipArchetypeIdRetail());
+    }
+
     void EnsureRoomRuntime(FLocationRoomEntry* Entry, unsigned LocationId)
     {
+        PrepareRoomVariant(Entry);
+        Entry->InteriorProfile = BaseInteriors::ProfileId(Entry->Room->BaseId,
+                                                         GetPlayerShipArchetypeIdRetail());
+        Entry->InteriorShip = GetPlayerShipArchetypeIdRetail();
         // 0x00439df9..0x00439e5a: the room's base record through the base map, keyed by
         // RoomData +0x00 (FDUMP at 0x100 and a read through null on a miss); its BaseData's id
         // is what FUN_004496b0 gets -- the port's CreateRoomRuntime reads the same RoomData
@@ -472,7 +532,7 @@ namespace
         for (std::list<FLocationRoomEntry>::iterator It = Entry->Rooms.begin();
              It != Entry->Rooms.end(); ++It)
         {
-            It->Room->load();
+            PrepareRoomVariant(&*It);
         }
 
         // 0x004398a4..0x004398a9: +0x5a set -> return (nothing below runs).
@@ -626,6 +686,11 @@ namespace
              It != Found->Rooms.end(); ++It)
         {
             It->Room->unload();
+            if (It->Room != It->OriginalRoom)
+            {
+                delete It->Room;
+                It->Room = It->OriginalRoom;
+            }
         }
         // 0x00439be3..0x00439bfa: a non-null runtime -- FUN_00439c10 + operator delete; +0x04 = 0. FUN_00439c10 is the runtime's
         // destructor: the market map (+0x30, FUN_00437b70 = std::map dtor), then the news bucket
@@ -1050,6 +1115,34 @@ void ResetClientLocationController()
 
 void TickClientLocationController(float DeltaSeconds)
 {
+#ifdef FREELANCER_BASE_INTERIORS
+    // Mission ship grants/restores can happen while docked. Rebuild at an idle
+    // frame, after dialogue/camera/modal work has finished, using the same ID.
+    if (G_LocationCurrentRoomEntry && G_LocationCurrentRoomEntry->Runtime &&
+        !G_bLocationInTransition && G_LocationPendingRoom == 0 &&
+        !G_bNnScreenUp && GetClientMouseCursorDrawFlag() &&
+        G_GfCameraPool.ActiveIndex == -1)
+    {
+        auto* Entry = G_LocationCurrentRoomEntry;
+        auto* Original = Entry->OriginalRoom;
+        char const* Desired = BaseInteriors::RoomFile(Original->BaseId,
+            Original->RoomId, GetPlayerShipArchetypeIdRetail());
+        if (!Desired)
+            Desired = Original->File;
+        unsigned Target = ResolveInteriorLocation(G_LocationCurrentRoom);
+        unsigned Profile = BaseInteriors::ProfileId(Original->BaseId, GetPlayerShipArchetypeIdRetail());
+        if (Target != G_LocationCurrentRoom || _stricmp(Desired, Entry->Room->File) != 0 ||
+            Profile != Entry->InteriorProfile ||
+            ((Profile || Entry->Room->ShipPlacements.size() > 1) &&
+             Entry->InteriorShip != GetPlayerShipArchetypeIdRetail()))
+        {
+            NavBarDestroy();
+            ChangeClientLocation(Target);
+            ApplyLocationAudio(Target);
+            return;
+        }
+    }
+#endif
     // FUN_00439540 (thiscall, RET 4).
     unsigned const Pending = G_LocationPendingRoom;
     if ((Pending & 0x3fffffffu) == 0)
@@ -1076,7 +1169,7 @@ void QueueClientLocationChange(unsigned Location, float Delay, bool bWithAudio)
 {
     // FUN_0043ba90 (thiscall, RET 0xc): +0x44 = Location, +0x48 = bWithAudio, +0x4c = 0,
     // +0x50 = Delay. Callers: 0x0044d3dc, 0x0045551b, 0x0045552f (not ported).
-    G_LocationPendingRoom = Location;
+    G_LocationPendingRoom = ResolveInteriorLocation(Location);
     G_bLocationPendingAudio = bWithAudio;
     G_LocationPendingElapsed = 0.0f;
     G_LocationPendingDelay = Delay;
@@ -1133,6 +1226,7 @@ void SetClientLocationBase(unsigned BaseId)
 
 void ChangeClientLocation(unsigned Location)
 {
+    Location = ResolveInteriorLocation(Location);
     // FUN_0043b6b0 (thiscall, RET 4).
     G_bLocationInTransition = true;
 
@@ -1225,6 +1319,9 @@ void ChangeClientLocation(unsigned Location)
 
 void LeaveClientLocationBase()
 {
+#ifdef FREELANCER_DLSS5
+    BaseNeural::Stop();
+#endif
     // FUN_0043b3e0 (thiscall).
     unsigned const Base = G_LocationCurrentBase;
     if ((Base & 0x3fffffffu) == 0)
@@ -1271,13 +1368,24 @@ void DrawClientLocation()
     FRoomRuntime* const Runtime = G_LocationCurrentRoomEntry->Runtime;
     if (Runtime == nullptr)
         return;
+#ifdef FREELANCER_DLSS5
+    BaseNeural::BeginScene();
+#endif
 #ifdef FREELANCER_RP9
     RenderEx::RoomMaterialFrame(true);
 #endif
     RoomControlDraw(Runtime);
 #ifdef FREELANCER_RP9
     RenderEx::RoomMaterialFrame(false);
-    RenderEx::AntialiasScene();
+#ifdef FREELANCER_DLSS5
+    // Capture the actual room depth before fullscreen AA binds a depth-less target.
+    // The neural host already supplies DLAA; keep normal AA during warm-up/fallback.
+    bool const neuralApplied=BaseNeural::FinishScene();
+    bool const supersampled=BaseNeural::EndScene();
+    if (!neuralApplied && !supersampled)
+#endif
+        RenderEx::AntialiasScene();
+    RenderEx::ColorGradeScene();
 #endif
 }
 

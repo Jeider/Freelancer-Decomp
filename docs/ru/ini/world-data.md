@@ -297,7 +297,7 @@ file = rooms\xx01_deck.ini
 | Ключ | Тип | По умолчанию | Значение / допустимые значения | Источник |
 |---|---|---|---|---|
 | `name` | строка | нет | Имя hotspot'а. | [common_roomdata.cpp](../../../src/Common/common_roomdata.cpp#L1390) |
-| `behavior` | enum | -1 | Без учёта регистра; сравнивается только первый токен (разделители `,` `;` `/` пробел). Значения: `ExitDoor`=1, `NewsVendor`=2, `MissionVendor`=3, `Launch`=4, `StartDealer`=5, `FrontDesk`=6, `StartShipDealer`=7, `StartEquipDealer`=8, `MoveRight`=9, `MoveLeft`=10, `VirtualRoom`=11, `Repair`=12. Неизвестное слово сохраняет -1 без какого-либо сообщения. | то же |
+| `behavior` | enum | -1 | Без учёта регистра; сравнивается только первый токен (разделители `,` `;` `/` пробел). Значения: `ExitDoor`=1, `NewsVendor`=2, `MissionVendor`=3, `Launch`=4, `StartDealer`=5, `FrontDesk`=6, `StartShipDealer`=7, `StartEquipDealer`=8, `MoveRight`=9, `MoveLeft`=10, `VirtualRoom`=11, `Repair`=12, `StartShipPark`=13 (только порт, открывает ангар). Неизвестное слово сохраняет -1 без какого-либо сообщения. | то же |
 | `room_switch` | строка | нет | Комната, в которую нужно переключиться. | то же |
 | `virtual_room` | строка | нет | Имя виртуальной комнаты. | то же |
 | `set_virtual_room` | строка | нет | Виртуальная комната, которую нужно установить. | то же |
