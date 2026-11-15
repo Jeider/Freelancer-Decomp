@@ -87,6 +87,13 @@ struct FNebulaVolumeExclusionAccess
 namespace
 {
     const char kNebulaVolumeSource[] = "nebula_volume.cpp";
+    unsigned GDiagnosticMask = 0;
+    void LogVolumeOnce(unsigned Bit, char const* Reason, bool Success=false)
+    {
+        if (GDiagnosticMask & Bit) return;
+        GDiagnosticMask |= Bit;
+        FDUMP(Success ? 0x100003 : 0x100002,"Nebula volume: %s.\n",Reason);
+    }
     // DATA_EXTRA-relative (RenderEx::GetExtraData). Shared helpers: SHADERS\nebula_volume.hlsli.
     const char kNebulaVolumeShader[] = "SHADERS\\nebula_volume.hlsl";
     const char kNebulaCompositeShader[] = "SHADERS\\nebula_composite.hlsl";
@@ -135,7 +142,7 @@ namespace
     const int kRegAlienVeins = 109; // alien_vein_colour rgb, w alien_veins (strength)
     const int kRegAlienShape = 110; // x 1 / alien_vein_scale_m, y sharpness, z stretch, w pulse phase
     const int kRegAlienMore = 111; // x alien_vein_density (fraction of space with veins)
-    const int kCompositeRegisterCount = 24;
+    const int kCompositeRegisterCount = 26; // c24 simple interior haze, c25 faded skip sphere
     // Shadow steps grow by this ratio (short near the sample, long toward the light).
     const double kShadowStepGrowth = 1.6;
     // Nebulae drawn per frame at most ([Nebula] max_nebulae is clamped to this).
@@ -193,11 +200,15 @@ namespace
     struct FNebulaVolumeSettings
     {
         float Enabled;
+        float RenderInExclusion; // keep the volume running across exclusion boundaries
         float ResolutionScale;
         float StepCount;
         float StepDistribution;
         float Jitter;
         float MaxMarchDistance;
+        float ExclusionMarchDistance; // cap beyond the clear core, 0 keeps the normal budget
+        float ExclusionTransitionFraction; // fraction of clear radius used to fade the skip, 0 = legacy
+        float ExclusionCoreHaze; // opacity over one clear-core radius, analytical (no noise samples)
         float MarchEndTransmittance;
         float AutoMarchFogDistances;
         float EdgeSoftness;
@@ -371,11 +382,15 @@ namespace
 
     const FSettingKey kSettingKeys[] = {
         {"enabled", &FNebulaVolumeSettings::Enabled},
+        {"render_in_exclusion", &FNebulaVolumeSettings::RenderInExclusion},
         {"resolution_scale", &FNebulaVolumeSettings::ResolutionScale},
         {"step_count", &FNebulaVolumeSettings::StepCount},
         {"step_distribution", &FNebulaVolumeSettings::StepDistribution},
         {"jitter", &FNebulaVolumeSettings::Jitter},
         {"max_march_distance", &FNebulaVolumeSettings::MaxMarchDistance},
+        {"exclusion_march_distance", &FNebulaVolumeSettings::ExclusionMarchDistance},
+        {"exclusion_transition_fraction", &FNebulaVolumeSettings::ExclusionTransitionFraction},
+        {"exclusion_core_haze", &FNebulaVolumeSettings::ExclusionCoreHaze},
         {"march_end_transmittance", &FNebulaVolumeSettings::MarchEndTransmittance},
         {"auto_march_fog_distances", &FNebulaVolumeSettings::AutoMarchFogDistances},
         {"edge_softness", &FNebulaVolumeSettings::EdgeSoftness},
@@ -537,11 +552,15 @@ namespace
     {
         FNebulaVolumeSettings S;
         S.Enabled = 1.0f;
+        S.RenderInExclusion = 1.0f;
         S.ResolutionScale = 0.5f;
         S.StepCount = 96.0f;
         S.StepDistribution = 1.5f;
         S.Jitter = 1.0f;
         S.MaxMarchDistance = 0.0f;
+        S.ExclusionMarchDistance = 6000.0f;
+        S.ExclusionTransitionFraction = 0.2f;
+        S.ExclusionCoreHaze = 0.04f;
         S.MarchEndTransmittance = 0.02f;
         S.AutoMarchFogDistances = 3.0f;
         S.EdgeSoftness = 0.08f;
@@ -630,7 +649,7 @@ namespace
         S.ShadowSteps = 6.0f;
         S.ShadowDistance = 0.0f;
         S.ShadowDensity = 1.0f;
-        S.ExclusionDensityScale = 1.0f;
+        S.ExclusionDensityScale = 0.15f;
         S.HazeTail = 1.0f;
         S.RealBackground = 1.0f;
         S.ExtendFarPlane = 1.0f;
@@ -987,7 +1006,7 @@ namespace
             FRegisteredNebula const& Entry = GNebulae[Registered];
             if (Entry.Nebula != Nebula)
                 continue;
-            if (!Entry.Volumetric || Entry.CameraExcluded)
+            if (!Entry.Volumetric)
             {
                 Settings.Enabled = 0.0f;
                 return Settings;
@@ -1009,6 +1028,14 @@ namespace
                 }
             if (Override != nullptr)
                 ApplyPatch(&Settings, *Override);
+            // Resolve the opt-in after style/override patches, but before user
+            // quality can re-enable an excluded instance. Density still follows
+            // the authored exclusion geometry in the ray marcher.
+            if (Entry.CameraExcluded && !(Settings.RenderInExclusion > 0.5f))
+            {
+                Settings.Enabled = 0.0f;
+                return Settings;
+            }
             break;
         }
         ApplyUserQuality(Settings); // after style and per-nebula overrides
@@ -1729,6 +1756,39 @@ namespace
         float CloudSigma; // 1/m at cloud density 1
         float MarchCap;   // metres from the ray's zone entry (the camera when inside)
     };
+
+    float ExclusionSkipWeight(float const* Skip, float Fraction)
+    {
+        if (!(Skip[3] > 0.0f))
+            return 0.0f;
+        if (!(Fraction > 0.0f))
+            return 1.0f;
+        const float Radius = std::sqrt(Skip[3]);
+        const float Distance = std::sqrt(Skip[0]*Skip[0] + Skip[1]*Skip[1] + Skip[2]*Skip[2]);
+        float Weight = std::fmin(1.0f, std::fmax(0.0f,
+            (Radius - Distance) / std::fmax(1.0f, Radius * std::fmin(Fraction, 1.0f))));
+        return Weight * Weight * (3.0f - 2.0f * Weight);
+    }
+
+    float ExclusionMarchScale(float NormalCap, float InsideCap, float const* Skip)
+    {
+        if (!(NormalCap > 1.0f) || !(InsideCap > 1.0f) || !(Skip[3] > 0.0f))
+            return 1.0f;
+        // Restore the normal budget before the clear-core skip switches off.
+        // This avoids cutting off the far wall on inward-facing rays at the edge.
+        const float Weight = ExclusionSkipWeight(Skip, 0.2f);
+        return 1.0f + (std::fmin(InsideCap / NormalCap, 1.0f) - 1.0f) * Weight;
+    }
+
+    void FadeExclusionSkip(float* Skip, float Weight)
+    {
+        // Scale the sphere about the camera: each ray's exit distance scales by
+        // Weight too. Thus the skipped interval tends continuously to zero on
+        // both inward- and outward-facing rays, without changing shader layouts.
+        for (int Axis = 0; Axis < 3; ++Axis)
+            Skip[Axis] *= Weight;
+        Skip[3] *= Weight * Weight;
+    }
 
     void ComputeMedium(FNebulaEffect const* Nebula, FNebulaVolumeSettings const& S,
                        FMediumParams* Out)
@@ -2452,10 +2512,29 @@ namespace
         const bool bShaderView = GNebulaView == 1 || GNebulaView == 2;
 
         // c10 march: steps, distance cap, step distribution, jitter.
-        const float StepCount = bExclusionSkip
+        float* const Skip = RaymarchRegister(kRegExclusionSkip);
+        const float SkipWeight = bExclusionSkip
+            ? ExclusionSkipWeight(Skip, S.ExclusionTransitionFraction) : 0.0f;
+        float StepCount = bExclusionSkip
             ? std::fmax(8.0f, std::floor(S.StepCount * Clamp(S.ExclusionStepFraction, 0.0f, 1.0f) + 0.5f))
             : S.StepCount;
-        Set4(RaymarchRegister(10), Clamp(StepCount, 1.0f, (float)(kMaxSteps)), Medium.MarchCap,
+        StepCount = S.StepCount + (StepCount - S.StepCount) * SkipWeight;
+        const float MarchScale = bExclusionSkip
+            ? ExclusionMarchScale(Medium.MarchCap, S.ExclusionMarchDistance,
+                                  RaymarchRegister(kRegExclusionSkip)) : 1.0f;
+        // Fill only the interval skipped by the detailed march. Its length fades
+        // with the skip sphere, so this adds no second fog layer at the boundary.
+        const float CoreSigma = bExclusionSkip && !bShaderView && GNebulaView != 4
+            ? -std::log(1.0f - Clamp(S.ExclusionCoreHaze, 0.0f, 0.2f)) /
+                std::fmax(1.0f, std::sqrt(Skip[3])) : 0.0f;
+        Set4(&GCompositeConstants[24 * 4], FogRgb[0], FogRgb[1], FogRgb[2], CoreSigma);
+        // Shorter distance alone would keep the same GPU sample count. Reduce both
+        // to retain similar sample spacing while actually lowering the work.
+        if (MarchScale < 1.0f)
+            StepCount = std::fmax(8.0f, std::floor(StepCount * MarchScale + 0.5f));
+        if (bExclusionSkip && S.ExclusionTransitionFraction > 0.0f)
+            FadeExclusionSkip(Skip, SkipWeight);
+        Set4(RaymarchRegister(10), Clamp(StepCount, 1.0f, (float)(kMaxSteps)), Medium.MarchCap * MarchScale,
              Clamp(S.StepDistribution, 0.25f, 4.0f), Clamp(S.Jitter, 0.0f, 1.0f));
         // c11 medium: the two extinctions, the clear radius ([Fog] near), the debug view.
         Set4(RaymarchRegister(11), HazeSigma, CloudSigma, FogNear,
@@ -3050,6 +3129,7 @@ namespace
         memcpy(&GCompositeConstants[12 * 4], RaymarchRegister(kRegStarWeight), sizeof(float) * 4);
         memcpy(&GCompositeConstants[13 * 4], RaymarchRegister(kRegStarDistance), sizeof(float) * 4);
         memcpy(&GCompositeConstants[14 * 4], RaymarchRegister(kRegFarSphere), sizeof(float) * 16);
+        memcpy(&GCompositeConstants[25 * 4], RaymarchRegister(kRegExclusionSkip), sizeof(float) * 4);
         const FNebulaVolumeSettings& S = Entry.Settings;
         const bool CloseFog = S.VisibilityFadeEnd > S.VisibilityFadeStart &&
             !(S.BackdropRadius > 1.0f) && RaymarchRegister(11)[3] < 0.5f;
@@ -3088,7 +3168,7 @@ namespace
         Pass.Flags = 0;
         Pass.ClearColor = 0;
         if (Ex->BeginExPass(&Pass) != GR_OK)
-            return false;
+        { LogVolumeOnce(128,"BeginExPass failed"); return false; }
         const bool bIce = Entry.Settings.IceCrystal > 0.5f;
         const bool bFaceted = Entry.Settings.FacetedClouds > 0.5f;
         const bool bFibre = Entry.Settings.FibreClouds > 0.5f && !bFaceted;
@@ -3119,9 +3199,9 @@ namespace
             bOk = Ex->BindExTexture(3, GFacetedNoiseVolume, &LinearWrap) == GR_OK;
         if (bOk)
         {
-            Ex->SetExPixelConstants(0, GRaymarchConstants, kRaymarchRegisterCount);
+            bOk = Ex->SetExPixelConstants(0, GRaymarchConstants, kRaymarchRegisterCount) == GR_OK;
             // Two texels of margin: the composite's bilinear / depth-aware taps at the edge.
-            bOk = DrawVolumeRect(DrawEx, Rect, LowWidth, LowHeight, 2);
+            if (bOk) bOk = DrawVolumeRect(DrawEx, Rect, LowWidth, LowHeight, 2);
         }
 
         // Pass 2: composite onto the back buffer, dst = dst * T + tonemap(inscatter)
@@ -3144,10 +3224,12 @@ namespace
             Pipe->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
             Pipe->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
             Pipe->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-            Ex->SetExPixelConstants(0, GCompositeConstants, kCompositeRegisterCount);
-            bOk = DrawVolumeRect(DrawEx, Rect, FullWidth, FullHeight, 1);
+            bOk = Ex->SetExPixelConstants(0, GCompositeConstants, kCompositeRegisterCount) == GR_OK;
+            if (bOk) bOk = DrawVolumeRect(DrawEx, Rect, FullWidth, FullHeight, 1);
         }
-        Ex->EndExPass();
+        if (Ex->EndExPass() != GR_OK) bOk = false;
+        LogVolumeOnce(bOk ? 256 : 512,bOk ? "raymarch and composite submitted successfully" :
+            "raymarch/composite bind, constants, draw or EndExPass failed",bOk);
         return bOk;
     }
 
@@ -3870,6 +3952,32 @@ void NebulaVolume::RegisterNebula(FNebulaEffect* Nebula, char const* File, bool 
     GNebulae.push_back(Entry);
 }
 
+bool NebulaVolume::SimplifyObjectsAt(float const* Position, bool PreviouslySimplified)
+{
+    if (!Position || !std::isfinite(Position[0]) || !std::isfinite(Position[1]) ||
+        !std::isfinite(Position[2])) return false;
+    Vector Point; Point.x=Position[0];Point.y=Position[1];Point.z=Position[2];
+    bool Inside=false;
+    for (auto const& Entry:GNebulae)
+    {
+        auto const* Nebula=Entry.Nebula;
+        if (Entry.RingOwner || !Nebula || !Nebula->FlagLoaded || !Nebula->Zone) continue;
+        double Immersion=Nebula->Zone->GetImmersion(Point);
+        if (!(Immersion>0.0)) continue;
+        // Any exclusion wins over overlapping nebulae, including its soft edge.
+        auto const* Manager=Nebula->ExclusionMgr;
+        int Count=Manager ? FNebulaVolumeExclusionAccess::Count(Manager) : 0;
+        for(int i=0;i<Count;++i) {
+            auto const* Exclusion=FNebulaVolumeExclusionAccess::At(Manager,i);
+            if(Exclusion && Exclusion->ZonePtr && Exclusion->ZonePtr->GetImmersion(Point)>0.0)
+                return false;
+        }
+        // Hysteresis at the outer boundary prevents toggling on adjacent frames.
+        Inside |= Immersion>(PreviouslySimplified ? 0.1 : 0.2);
+    }
+    return Inside;
+}
+
 bool NebulaVolume::ShadowsDisabledAt(float const* Position)
 {
     if(!Position || !std::isfinite(Position[0]) || !std::isfinite(Position[1]) ||
@@ -4049,6 +4157,7 @@ void NebulaVolume::OnProgramsReloaded()
 
 void NebulaVolume::Shutdown()
 {
+    GDiagnosticMask = 0;
     GFrameLightingCount = 0;
     IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
     if (Ex != nullptr)
@@ -4159,9 +4268,13 @@ namespace
         GAsteroidFadeBand = 0.0f;
         GAsteroidCubeSize = 0.0f;
         (void)Enclosure; // the controller's own immersion (+0x294) says the same, per nebula
-        if (Camera == nullptr || !bNebulaOption || !RenderEx::IsAvailable() || GbProgramFailed ||
-            GNebulae.empty() || !(GSettings.Enabled > 0.5f))
-            return;
+        if (Camera == nullptr || GNebulae.empty()) return;
+        if (!bNebulaOption || !(GSettings.Enabled > 0.5f))
+        { LogVolumeOnce(1,"disabled by game options or global Nebula enabled setting"); return; }
+        if (!RenderEx::IsAvailable())
+        { LogVolumeOnce(2,"RenderEx pipeline unavailable"); return; }
+        if (GbProgramFailed)
+        { LogVolumeOnce(4,"previous shader compile/GPU bind failed; see RP9 errors"); return; }
 
         // Candidates, nearest first, at most max_nebulae ([Nebula], global): every nebula the
         // camera is inside (immersion +0x294 > 0, FNebulaEffect::Update), and with exterior
@@ -4276,9 +4389,15 @@ namespace
         unsigned long Height = 0;
         // The render target follows the nearest nebula's resolution_scale. A render target lost
         // with the device (and not recreated) has no size.
-        if (!QueryCaps() || Ex->GetSceneDepth(&SceneDepth) != GR_OK ||
-            !EnsureResources(Ex, GEntries[0].Settings) ||
-            Ex->GetExTextureSize(GVolumeTarget, &Width, &Height) != GR_OK)
+        unsigned Failure=0;
+        if (!QueryCaps()) { Failure=8; LogVolumeOnce(Failure,"GPU capabilities rejected (details above)"); }
+        else if (Ex->GetSceneDepth(&SceneDepth) != GR_OK || !SceneDepth)
+        { Failure=16; LogVolumeOnce(Failure,"sampleable scene depth unavailable"); }
+        else if (!EnsureResources(Ex, GEntries[0].Settings))
+        { Failure=32; LogVolumeOnce(Failure,"shader, noise texture or render target preparation failed"); }
+        else if (Ex->GetExTextureSize(GVolumeTarget, &Width, &Height) != GR_OK || !Width || !Height)
+        { Failure=64; LogVolumeOnce(Failure,"volume target missing or zero-sized"); }
+        if (Failure)
         {
             GEntryCount = 0;
             return;

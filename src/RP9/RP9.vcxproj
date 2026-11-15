@@ -70,7 +70,7 @@
       <SubSystem>Windows</SubSystem>
       <!-- legacy_stdio_definitions.lib: DxErr.lib (VS2008-built) calls the pre-UCRT stdio entry
            points. -->
-      <AdditionalDependencies>dacom.lib;ddraw.lib;d3d9.lib;version.lib;$(Rp9DxSdkDir)Lib\x86\d3dx9.lib;$(Rp9DxSdkDir)Lib\x86\DxErr.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dacom.lib;ddraw.lib;version.lib;$(Rp9DxSdkDir)Lib\x86\d3dx9.lib;$(Rp9DxSdkDir)Lib\x86\DxErr.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

@@ -46,7 +46,8 @@ def main():
         print(f'PASS {name}',flush=True)
     names=['freelancer.exe','RP9.dll','fl_base_neural.addon32','D3D9.dll','dxgi.dll',
            'neural/host64/fl_base_neural_host.exe','neural/host64/nvngx_dlss.dll',
-           'neural/host64/nvngx_dlssnr.dll','neural/host64/renodx-dlss5.addon64','neural/host64/dxgi.dll']
+           'neural/host64/nvngx_dlssnr.dll','neural/host64/renodx-dlss5.addon64','neural/host64/dxgi.dll',
+           'neural/host64/ReShade.ini']
     (REPORT/'binaries.json').write_text(json.dumps({n:hashlib.sha256((BIN/n).read_bytes()).hexdigest() for n in names},indent=2))
 
 if __name__=='__main__':main()

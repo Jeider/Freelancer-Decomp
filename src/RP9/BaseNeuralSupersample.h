@@ -3,6 +3,8 @@
 #include <d3dx9.h>
 #include <wrl/client.h>
 #include <cmath>
+#include "RP9BuiltinShaders.h"
+#include "RP9ShaderCache.h"
 
 // Owns only the base scene targets. The camera, picking and UI keep native dimensions.
 class BaseNeuralSupersample
@@ -48,25 +50,10 @@ public:
             if(SUCCEEDED(hr))hr=texture->GetSurfaceLevel(0,&color);
             if(SUCCEEDED(hr))hr=d->CreateDepthStencilSurface(w,h,dd.Format,D3DMULTISAMPLE_NONE,0,TRUE,&depth,nullptr);
             // Exact area integration for a 1..2x footprint, in linear light.
-            static char const shader[]=R"hlsl(
-sampler2D Source:register(s0);
-float4 Size:register(c0); // source W,H; source/native X,Y
-float3 Linear(float3 c){return lerp(c/12.92,pow(max((c+.055)/1.055,0),2.4),step(.04045,c));}
-float3 Encoded(float3 c){return lerp(c*12.92,1.055*pow(max(c,0),1./2.4)-.055,step(.0031308,c));}
-float4 main(float2 pixel:VPOS):COLOR0 {
- float2 lo=floor(pixel)*Size.zw,hi=lo+Size.zw,first=floor(lo);
- float3 sum=0;float alpha=0;
- [unroll] for(int y=0;y<3;y++) [unroll] for(int x=0;x<3;x++) {
-  float2 p=first+float2(x,y);
-  float2 overlap=max(0,min(hi,p+1)-max(lo,p));float weight=overlap.x*overlap.y;
-  float4 c=tex2Dlod(Source,float4((p+.5)/Size.xy,0,0));
-  sum+=Linear(c.rgb)*weight;alpha+=c.a*weight;
- }
- float area=Size.z*Size.w;return float4(Encoded(sum/area),alpha/area);
-})hlsl";
-            Ptr<ID3DXBuffer> code,errors;
-            if(SUCCEEDED(hr))hr=D3DXCompileShader(shader,sizeof(shader)-1,nullptr,nullptr,"main","ps_3_0",D3DXSHADER_OPTIMIZATION_LEVEL3,&code,&errors,nullptr);
-            if(SUCCEEDED(hr))hr=d->CreatePixelShader(static_cast<DWORD*>(code->GetBufferPointer()),&resolve);
+            std::vector<unsigned char> code;
+            std::string messages;bool hit=false,stored=false;
+            if(SUCCEEDED(hr))hr=Rp9ShaderCache::Compile(Rp9Startup::SupersampleShader,nullptr,"main","ps_3_0",D3DXSHADER_OPTIMIZATION_LEVEL3,&code,&messages,&hit,&stored,true);
+            if(SUCCEEDED(hr))hr=d->CreatePixelShader(reinterpret_cast<const DWORD*>(code.data()),&resolve);
             if(FAILED(hr)){Reset();return hr;}width=w;height=h;
         }
         nativeW=desc.Width;nativeH=desc.Height;viewport=vp;d->GetScissorRect(&scissor);

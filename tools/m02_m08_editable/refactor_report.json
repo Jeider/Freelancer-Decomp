@@ -1,0 +1,665 @@
+{
+  "m02_bship_bar_offer": {
+    "class": "M02BshipBarOfferScene",
+    "removed_dialogue": [
+      "DX_m02_offer_0130_wilham",
+      "DX_m02_offer_0140_trent",
+      "DX_m02_offer_0150_wilham",
+      "DX_m02_offer_0160_trent",
+      "DX_m02_offer_0170_wilham",
+      "DX_m02_offer_0180_trent",
+      "DX_m02_offer_0190_wilham"
+    ],
+    "lines_before": 829,
+    "lines_after": 874
+  },
+  "m02_bship_bar_decision": {
+    "class": "M02BshipBarDecisionScene",
+    "removed_dialogue": [],
+    "lines_before": 27,
+    "lines_after": 49
+  },
+  "m02_bship_bar_accept": {
+    "class": "M02BshipBarAcceptScene",
+    "removed_dialogue": [
+      "DX_m02_offer_0200_trent"
+    ],
+    "lines_before": 263,
+    "lines_after": 281
+  },
+  "m02_wilham_vendor": {
+    "class": "M02WilhamVendorScene",
+    "removed_dialogue": [],
+    "lines_before": 24,
+    "lines_after": 45
+  },
+  "m02_jacobo_offer": {
+    "class": "M02JacoboOfferScene",
+    "removed_dialogue": [],
+    "lines_before": 627,
+    "lines_after": 633
+  },
+  "m02_jacobo_vendor": {
+    "class": "M02JacoboVendorScene",
+    "removed_dialogue": [],
+    "lines_before": 24,
+    "lines_after": 45
+  },
+  "m02_junkers": {
+    "class": "M02JunkersScene",
+    "removed_dialogue": [],
+    "lines_before": 34,
+    "lines_after": 52
+  },
+  "m02_explode_camera": {
+    "class": "M02ExplodeCameraScene",
+    "removed_dialogue": [],
+    "lines_before": 30,
+    "lines_after": 53
+  },
+  "m02_reichman": {
+    "class": "M02ReichmanScene",
+    "removed_dialogue": [],
+    "lines_before": 588,
+    "lines_after": 610
+  },
+  "m03_offer": {
+    "class": "M03OfferScene",
+    "removed_dialogue": [
+      "DX_m03_offer_0050_wilham",
+      "DX_m03_offer_0060_trent"
+    ],
+    "lines_before": 338,
+    "lines_after": 362
+  },
+  "m03_offer_decision": {
+    "class": "M03OfferDecisionScene",
+    "removed_dialogue": [],
+    "lines_before": 33,
+    "lines_after": 57
+  },
+  "m03_offer_accept": {
+    "class": "M03OfferAcceptScene",
+    "removed_dialogue": [],
+    "lines_before": 280,
+    "lines_after": 307
+  },
+  "m03_fleet_arrive": {
+    "class": "M03FleetArriveScene",
+    "removed_dialogue": [],
+    "lines_before": 25,
+    "lines_after": 44
+  },
+  "m03_kgb_death01": {
+    "class": "M03KgbDeath01Scene",
+    "removed_dialogue": [],
+    "lines_before": 23,
+    "lines_after": 42
+  },
+  "m03_kgb_death02": {
+    "class": "M03KgbDeath02Scene",
+    "removed_dialogue": [],
+    "lines_before": 23,
+    "lines_after": 42
+  },
+  "m03_reward": {
+    "class": "M03RewardScene",
+    "removed_dialogue": [],
+    "lines_before": 132,
+    "lines_after": 159
+  },
+  "m04_offer": {
+    "class": "M04OfferScene",
+    "removed_dialogue": [],
+    "lines_before": 263,
+    "lines_after": 289
+  },
+  "m04_offer_decision": {
+    "class": "M04OfferDecisionScene",
+    "removed_dialogue": [],
+    "lines_before": 29,
+    "lines_after": 50
+  },
+  "m04_offer_accept": {
+    "class": "M04OfferAcceptScene",
+    "removed_dialogue": [],
+    "lines_before": 100,
+    "lines_after": 131
+  },
+  "m04_officer_scene01": {
+    "class": "M04OfficerScene01Scene",
+    "removed_dialogue": [],
+    "lines_before": 31,
+    "lines_after": 59
+  },
+  "m04_officer_scene02": {
+    "class": "M04OfficerScene02Scene",
+    "removed_dialogue": [],
+    "lines_before": 24,
+    "lines_after": 43
+  },
+  "m04_friends_arrive_hassler": {
+    "class": "M04FriendsArriveHasslerScene",
+    "removed_dialogue": [],
+    "lines_before": 31,
+    "lines_after": 59
+  },
+  "m04_friends_arrive_alaric": {
+    "class": "M04FriendsArriveAlaricScene",
+    "removed_dialogue": [],
+    "lines_before": 33,
+    "lines_after": 63
+  },
+  "m04_reactor_fx": {
+    "class": "M04ReactorFxScene",
+    "removed_dialogue": [],
+    "lines_before": 21,
+    "lines_after": 39
+  },
+  "m04_jacobo_death": {
+    "class": "M04JacoboDeathScene",
+    "removed_dialogue": [],
+    "lines_before": 31,
+    "lines_after": 59
+  },
+  "m04_jumphole": {
+    "class": "M04JumpholeScene",
+    "removed_dialogue": [],
+    "lines_before": 26,
+    "lines_after": 47
+  },
+  "m04_hatcher": {
+    "class": "M04HatcherScene",
+    "removed_dialogue": [],
+    "lines_before": 425,
+    "lines_after": 463
+  },
+  "m04_final": {
+    "class": "M04FinalScene",
+    "removed_dialogue": [],
+    "lines_before": 301,
+    "lines_after": 307
+  },
+  "m05_offer": {
+    "class": "M05OfferScene",
+    "removed_dialogue": [],
+    "lines_before": 394,
+    "lines_after": 432
+  },
+  "m05_offer_decision": {
+    "class": "M05OfferDecisionScene",
+    "removed_dialogue": [],
+    "lines_before": 33,
+    "lines_after": 62
+  },
+  "m05_offer_accept": {
+    "class": "M05OfferAcceptScene",
+    "removed_dialogue": [],
+    "lines_before": 95,
+    "lines_after": 130
+  },
+  "m05_piratebar": {
+    "class": "M05PiratebarScene",
+    "removed_dialogue": [],
+    "lines_before": 426,
+    "lines_after": 436
+  },
+  "m05_detroit": {
+    "class": "M05DetroitScene",
+    "removed_dialogue": [],
+    "lines_before": 206,
+    "lines_after": 239
+  },
+  "m05_barman": {
+    "class": "M05BarmanScene",
+    "removed_dialogue": [],
+    "lines_before": 70,
+    "lines_after": 93
+  },
+  "m05_research_explode": {
+    "class": "M05ResearchExplodeScene",
+    "removed_dialogue": [],
+    "lines_before": 31,
+    "lines_after": 59
+  },
+  "m05_arrest_camera01": {
+    "class": "M05ArrestCamera01Scene",
+    "removed_dialogue": [],
+    "lines_before": 26,
+    "lines_after": 46
+  },
+  "m05_arrest_camera02": {
+    "class": "M05ArrestCamera02Scene",
+    "removed_dialogue": [],
+    "lines_before": 40,
+    "lines_after": 71
+  },
+  "m05_arrest_camera03": {
+    "class": "M05ArrestCamera03Scene",
+    "removed_dialogue": [],
+    "lines_before": 26,
+    "lines_after": 46
+  },
+  "m05_arrest_camera04": {
+    "class": "M05ArrestCamera04Scene",
+    "removed_dialogue": [],
+    "lines_before": 24,
+    "lines_after": 44
+  },
+  "m05_arrest_camera05": {
+    "class": "M05ArrestCamera05Scene",
+    "removed_dialogue": [],
+    "lines_before": 26,
+    "lines_after": 46
+  },
+  "m05_arrest_camera06": {
+    "class": "M05ArrestCamera06Scene",
+    "removed_dialogue": [],
+    "lines_before": 24,
+    "lines_after": 43
+  },
+  "m05_arrest_camera07": {
+    "class": "M05ArrestCamera07Scene",
+    "removed_dialogue": [],
+    "lines_before": 29,
+    "lines_after": 52
+  },
+  "m05_arrest_camera08": {
+    "class": "M05ArrestCamera08Scene",
+    "removed_dialogue": [],
+    "lines_before": 26,
+    "lines_after": 46
+  },
+  "m05_arrest_camera09": {
+    "class": "M05ArrestCamera09Scene",
+    "removed_dialogue": [],
+    "lines_before": 24,
+    "lines_after": 43
+  },
+  "m05_rheinlanders_camera": {
+    "class": "M05RheinlandersCameraScene",
+    "removed_dialogue": [],
+    "lines_before": 22,
+    "lines_after": 40
+  },
+  "m05_equip": {
+    "class": "M05EquipScene",
+    "removed_dialogue": [
+      "DX_m05_equip_0170_trent",
+      "DX_m05_equip_0180_hatcher",
+      "DX_m05_equip_0190_trent",
+      "DX_m05_equip_0200_hatcher",
+      "DX_m05_equip_0210_hatcher",
+      "DX_m05_equip_0220_hatcher",
+      "DX_m05_equip_0230_hatcher",
+      "DX_m05_equip_0240_trent",
+      "DX_m05_equip_0250_hatcher",
+      "DX_m05_equip_0260_trent",
+      "DX_m05_equip_0270_hatcher",
+      "DX_m05_equip_0280_hatcher",
+      "DX_m05_equip_0290_trent",
+      "DX_m05_equip_0300_mandrake",
+      "DX_m05_equip_0310_hatcher",
+      "DX_m05_equip_0320_hatcher",
+      "DX_m05_equip_0330_hatcher",
+      "DX_m05_equip_0340_hatcher",
+      "DX_m05_equip_0350_hatcher",
+      "DX_m05_equip_0360_trent",
+      "DX_m05_equip_0370_hatcher",
+      "DX_m05_equip_0380_trent",
+      "DX_m05_equip_0390_hatcher",
+      "DX_m05_equip_0400_hatcher",
+      "DX_m05_equip_0410_trent",
+      "DX_m05_equip_0420_hatcher",
+      "DX_m05_equip_0430_trent",
+      "DX_m05_equip_0440_hatcher",
+      "DX_m05_equip_0450_mandrake",
+      "DX_m05_equip_0460_hatcher",
+      "DX_m05_equip_0470_mandrake",
+      "DX_m05_equip_0480_trent",
+      "DX_m05_equip_0490_hatcher",
+      "DX_m05_equip_0500_trent",
+      "DX_m05_equip_0510_hatcher"
+    ],
+    "lines_before": 1364,
+    "lines_after": 1461
+  },
+  "m06_offer": {
+    "class": "M06OfferScene",
+    "removed_dialogue": [],
+    "lines_before": 440,
+    "lines_after": 477
+  },
+  "m06_offer_decision": {
+    "class": "M06OfferDecisionScene",
+    "removed_dialogue": [],
+    "lines_before": 33,
+    "lines_after": 55
+  },
+  "m06_offer_accept": {
+    "class": "M06OfferAcceptScene",
+    "removed_dialogue": [],
+    "lines_before": 74,
+    "lines_after": 101
+  },
+  "m06_vendor_hatcher": {
+    "class": "M06VendorHatcherScene",
+    "removed_dialogue": [],
+    "lines_before": 45,
+    "lines_after": 58
+  },
+  "m06_vendor_alaric": {
+    "class": "M06VendorAlaricScene",
+    "removed_dialogue": [],
+    "lines_before": 48,
+    "lines_after": 61
+  },
+  "m06_briefing": {
+    "class": "M06BriefingScene",
+    "removed_dialogue": [],
+    "lines_before": 914,
+    "lines_after": 1009
+  },
+  "m06_mount": {
+    "class": "M06MountScene",
+    "removed_dialogue": [],
+    "lines_before": 166,
+    "lines_after": 194
+  },
+  "m06_nomad_area_camera1": {
+    "class": "M06NomadAreaCamera1Scene",
+    "removed_dialogue": [],
+    "lines_before": 25,
+    "lines_after": 48
+  },
+  "m06_nomad_area_camera2": {
+    "class": "M06NomadAreaCamera2Scene",
+    "removed_dialogue": [],
+    "lines_before": 23,
+    "lines_after": 42
+  },
+  "m06_nomad_area_camera3": {
+    "class": "M06NomadAreaCamera3Scene",
+    "removed_dialogue": [],
+    "lines_before": 25,
+    "lines_after": 48
+  },
+  "m06_nomad_area_camera4": {
+    "class": "M06NomadAreaCamera4Scene",
+    "removed_dialogue": [],
+    "lines_before": 21,
+    "lines_after": 39
+  },
+  "m06_lab_land": {
+    "class": "M06LabLandScene",
+    "removed_dialogue": [],
+    "lines_before": 183,
+    "lines_after": 212
+  },
+  "m06_lab_room": {
+    "class": "M06LabRoomScene",
+    "removed_dialogue": [],
+    "lines_before": 208,
+    "lines_after": 253
+  },
+  "m06_lab_launch": {
+    "class": "M06LabLaunchScene",
+    "removed_dialogue": [],
+    "lines_before": 233,
+    "lines_after": 297
+  },
+  "m06_lab_explode_camera": {
+    "class": "M06LabExplodeCameraScene",
+    "removed_dialogue": [],
+    "lines_before": 21,
+    "lines_after": 39
+  },
+  "m06_torpedo_alert": {
+    "class": "M06TorpedoAlertScene",
+    "removed_dialogue": [],
+    "lines_before": 189,
+    "lines_after": 216
+  },
+  "m06_jumpin_camera1": {
+    "class": "M06JumpinCamera1Scene",
+    "removed_dialogue": [],
+    "lines_before": 21,
+    "lines_after": 39
+  },
+  "m06_jumpin_camera2": {
+    "class": "M06JumpinCamera2Scene",
+    "removed_dialogue": [],
+    "lines_before": 21,
+    "lines_after": 39
+  },
+  "m06_order_camera3": {
+    "class": "M06OrderCamera3Scene",
+    "removed_dialogue": [],
+    "lines_before": 25,
+    "lines_after": 47
+  },
+  "m06_order_camera4": {
+    "class": "M06OrderCamera4Scene",
+    "removed_dialogue": [],
+    "lines_before": 21,
+    "lines_after": 39
+  },
+  "m06_omicron_major": {
+    "class": "M06OmicronMajorScene",
+    "removed_dialogue": [],
+    "lines_before": 377,
+    "lines_after": 488
+  },
+  "m06_order_deck": {
+    "class": "M06OrderDeckScene",
+    "removed_dialogue": [],
+    "lines_before": 254,
+    "lines_after": 309
+  },
+  "m06_prison_new": {
+    "class": "M06PrisonNewScene",
+    "removed_dialogue": [],
+    "lines_before": 1378,
+    "lines_after": 1397
+  },
+  "m07_offer": {
+    "class": "M07OfferScene",
+    "removed_dialogue": [
+      "DX_m06_freeport_0060_delta1",
+      "DX_m06_freeport_0100_delta1"
+    ],
+    "lines_before": 462,
+    "lines_after": 529
+  },
+  "m07_offer_decision": {
+    "class": "M07OfferDecisionScene",
+    "removed_dialogue": [],
+    "lines_before": 51,
+    "lines_after": 78
+  },
+  "m07_offer_accept": {
+    "class": "M07OfferAcceptScene",
+    "removed_dialogue": [],
+    "lines_before": 109,
+    "lines_after": 159
+  },
+  "m07_tortuga_wp_camera": {
+    "class": "M07TortugaWpCameraScene",
+    "removed_dialogue": [],
+    "lines_before": 29,
+    "lines_after": 54
+  },
+  "m01b_armored_trap_camera": {
+    "class": "M01bArmoredTrapCameraScene",
+    "removed_dialogue": [],
+    "lines_before": 49,
+    "lines_after": 81
+  },
+  "m07_omega13": {
+    "class": "M07Omega13Scene",
+    "removed_dialogue": [],
+    "lines_before": 1181,
+    "lines_after": 1237
+  },
+  "m07_tau_arrival": {
+    "class": "M07TauArrivalScene",
+    "removed_dialogue": [],
+    "lines_before": 205,
+    "lines_after": 229
+  },
+  "m07_battleship": {
+    "class": "M07BattleshipScene",
+    "removed_dialogue": [
+      "DX_m07_battleship_0060_darcy"
+    ],
+    "lines_before": 416,
+    "lines_after": 461
+  },
+  "m07_check_artifact": {
+    "class": "M07CheckArtifactScene",
+    "removed_dialogue": [],
+    "lines_before": 436,
+    "lines_after": 519
+  },
+  "m07_reward": {
+    "class": "M07RewardScene",
+    "removed_dialogue": [
+      "DX_m07_reward_0030_darcy",
+      "DX_m07_reward_0040_trent"
+    ],
+    "lines_before": 547,
+    "lines_after": 621
+  },
+  "m07_gunners": {
+    "class": "M07GunnersScene",
+    "removed_dialogue": [],
+    "lines_before": 438,
+    "lines_after": 464
+  },
+  "m08_wales_init": {
+    "class": "M08WalesInitScene",
+    "removed_dialogue": [],
+    "lines_before": 49,
+    "lines_after": 78
+  },
+  "m08_liberty_enter_camera_01": {
+    "class": "M08LibertyEnterCamera01Scene",
+    "removed_dialogue": [],
+    "lines_before": 22,
+    "lines_after": 40
+  },
+  "m08_lair_enter_door_01": {
+    "class": "M08LairEnterDoor01Scene",
+    "removed_dialogue": [],
+    "lines_before": 30,
+    "lines_after": 53
+  },
+  "m08_core_camera_01": {
+    "class": "M08CoreCamera01Scene",
+    "removed_dialogue": [],
+    "lines_before": 24,
+    "lines_after": 43
+  },
+  "m08_core_camera_02": {
+    "class": "M08CoreCamera02Scene",
+    "removed_dialogue": [],
+    "lines_before": 22,
+    "lines_after": 40
+  },
+  "m08_core_camera_03": {
+    "class": "M08CoreCamera03Scene",
+    "removed_dialogue": [],
+    "lines_before": 22,
+    "lines_after": 40
+  },
+  "m08_core_camera_04": {
+    "class": "M08CoreCamera04Scene",
+    "removed_dialogue": [],
+    "lines_before": 22,
+    "lines_after": 40
+  },
+  "m08_core_camera_06": {
+    "class": "M08CoreCamera06Scene",
+    "removed_dialogue": [],
+    "lines_before": 22,
+    "lines_after": 40
+  },
+  "m08_core_camera_08": {
+    "class": "M08CoreCamera08Scene",
+    "removed_dialogue": [],
+    "lines_before": 30,
+    "lines_after": 53
+  },
+  "m08_core_camera_07": {
+    "class": "M08CoreCamera07Scene",
+    "removed_dialogue": [],
+    "lines_before": 22,
+    "lines_after": 40
+  },
+  "m08_core_camera_09": {
+    "class": "M08CoreCamera09Scene",
+    "removed_dialogue": [],
+    "lines_before": 33,
+    "lines_after": 57
+  },
+  "m08_outside_camera_01": {
+    "class": "M08OutsideCamera01Scene",
+    "removed_dialogue": [],
+    "lines_before": 22,
+    "lines_after": 40
+  },
+  "m08_outside_camera_02": {
+    "class": "M08OutsideCamera02Scene",
+    "removed_dialogue": [],
+    "lines_before": 29,
+    "lines_after": 52
+  },
+  "m08_lair_done_camera_04": {
+    "class": "M08LairDoneCamera04Scene",
+    "removed_dialogue": [],
+    "lines_before": 32,
+    "lines_after": 54
+  },
+  "m08_lair_done_camera_01": {
+    "class": "M08LairDoneCamera01Scene",
+    "removed_dialogue": [],
+    "lines_before": 24,
+    "lines_after": 43
+  },
+  "m08_lair_done_camera_02": {
+    "class": "M08LairDoneCamera02Scene",
+    "removed_dialogue": [],
+    "lines_before": 26,
+    "lines_after": 45
+  },
+  "m08_lair_done_camera_03": {
+    "class": "M08LairDoneCamera03Scene",
+    "removed_dialogue": [],
+    "lines_before": 24,
+    "lines_after": 43
+  },
+  "m08_osiris": {
+    "class": "M08OsirisScene",
+    "removed_dialogue": [],
+    "lines_before": 749,
+    "lines_after": 793
+  },
+  "m08_offer": {
+    "class": "M08OfferScene",
+    "removed_dialogue": [],
+    "lines_before": 783,
+    "lines_after": 838
+  },
+  "m08_offer_decision": {
+    "class": "M08OfferDecisionScene",
+    "removed_dialogue": [],
+    "lines_before": 53,
+    "lines_after": 80
+  },
+  "m08_offer_accept": {
+    "class": "M08OfferAcceptScene",
+    "removed_dialogue": [],
+    "lines_before": 190,
+    "lines_after": 237
+  }
+}

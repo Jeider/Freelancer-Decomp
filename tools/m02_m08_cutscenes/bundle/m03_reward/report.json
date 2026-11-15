@@ -1,0 +1,375 @@
+{
+  "name": "m03_reward",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_reward.thn",
+  "sha256": "cdd16c9f81faf5e3a67ea92f98c02aec7bd594c93fe33d9038a5a3a4d7522f61",
+  "uses": [
+    {
+      "mission": 3,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+      "mission_line": 1827,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m03\\team_msn.ini",
+      "line": 4,
+      "role": "action",
+      "thn": "scripts\\mod\\m03_reward.thn"
+    }
+  ],
+  "source_duration": 46.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 5,
+      "time": 9,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 9,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 1.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 3.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 6,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 9,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 12.3,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 3,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 6,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 10,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 12.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 18,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 10,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 12,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 12,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 22,
+      "time": 14,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 15,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 24,
+      "time": 15,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 25,
+      "time": 18.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 26,
+      "time": 24,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 27,
+      "time": 18,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 28,
+      "time": 29,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 29,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 30,
+      "time": 29,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 31,
+      "time": 32,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 32,
+      "time": 35,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 33,
+      "time": 37.25,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 32,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 35,
+      "time": 38,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 36,
+      "time": 38,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 37,
+      "time": 38,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 38,
+      "time": 42,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 39,
+      "time": 39,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 40,
+      "time": 43,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 41,
+      "time": 45.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 23,
+      "start": 15,
+      "index": 10,
+      "actor": "hassler",
+      "sound": "DX_m03_reward_0010_hassler",
+      "prefix": "m03_reward",
+      "character": "Char_hassler",
+      "script_actor": "Hassler",
+      "source_actor_class": "Hassler",
+      "window": 14,
+      "lip_events": [
+        24,
+        25,
+        26
+      ],
+      "source_gap": 0
+    },
+    {
+      "id": 29,
+      "start": 29,
+      "index": 20,
+      "actor": "trent",
+      "sound": "DX_m03_reward_0020_trent",
+      "prefix": "m03_reward",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 11,
+      "lip_events": [
+        30,
+        31,
+        32
+      ],
+      "source_gap": -2
+    },
+    {
+      "id": 36,
+      "start": 38,
+      "index": 30,
+      "actor": "hassler",
+      "sound": "DX_m03_reward_0030_hassler",
+      "prefix": "m03_reward",
+      "character": "Char_hassler",
+      "script_actor": "Hassler",
+      "source_actor_class": "Hassler",
+      "window": 4,
+      "lip_events": [
+        37
+      ],
+      "source_gap": 4.0
+    }
+  ],
+  "notes": [],
+  "clock": "relative",
+  "entity_names": {
+    "Scene_M03_last_deck_scene": "Scene_M03_last_deck_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "DX_m03_reward_0010_hassler": "DX_m03_reward_0010_hassler",
+    "DX_m03_reward_0020_trent": "DX_m03_reward_0020_trent",
+    "DX_m03_reward_0030_hassler": "DX_m03_reward_0030_hassler",
+    "Char_trent": "Char_trent",
+    "Char_hassler": "Char_hassler",
+    "Char_outcast": "Char_outcast",
+    "point_hassler": "automarker_point_hassler",
+    "head_trent": "automarker_head_trent",
+    "head_hassler": "automarker_head_hassler",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "automarker_cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "automarker_cam_start_pos2",
+    "cam_start_marker": "automarker_cam_start_focus",
+    "cam_start_marker_pos2": "automarker_cam_start_marker_pos2",
+    "cam_hassler": "cam_hassler",
+    "cam_hassler_marker": "automarker_cam_hassler_focus",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "automarker_cam_trent_focus"
+  },
+  "point_names": {
+    "Scene_M03_last_deck_scene": "Scene_M03_last_deck_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "DX_m03_reward_0010_hassler": "DX_m03_reward_0010_hassler",
+    "DX_m03_reward_0020_trent": "DX_m03_reward_0020_trent",
+    "DX_m03_reward_0030_hassler": "DX_m03_reward_0030_hassler",
+    "Char_trent": "Char_trent",
+    "Char_hassler": "Char_hassler",
+    "Char_outcast": "Char_outcast",
+    "point_hassler": "point_hassler",
+    "head_trent": "head_trent",
+    "head_hassler": "head_hassler",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "cam_start_pos2",
+    "cam_start_marker": "cam_start_focus",
+    "cam_start_marker_pos2": "cam_start_marker_pos2",
+    "cam_hassler": "cam_hassler",
+    "cam_hassler_marker": "cam_hassler_focus",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "cam_trent_focus"
+  }
+}

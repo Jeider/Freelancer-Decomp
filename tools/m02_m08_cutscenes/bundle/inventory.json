@@ -1,0 +1,2938 @@
+{
+  "scenes": {
+    "m02_bship_bar_offer": {
+      "name": "m02_bship_bar_offer",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_bship_bar_offer.thn",
+      "uses": [
+        {
+          "mission": 2,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "mission_line": 136,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\wilham_msn.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m02_bship_bar_offer.thn"
+        }
+      ],
+      "duration": 193.0,
+      "events": 299,
+      "types": {
+        "ATTACH_ENTITY": 54,
+        "START_IK": 9,
+        "SET_CAMERA": 15,
+        "START_SPATIAL_PROP_ANIM": 82,
+        "START_MOTION": 116,
+        "START_SOUND": 19,
+        "CONNECT_HARDPOINTS": 2,
+        "START_PSYS": 2
+      }
+    },
+    "m02_bship_bar_decision": {
+      "name": "m02_bship_bar_decision",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_bship_bar_decision.thn",
+      "uses": [
+        {
+          "mission": 2,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "mission_line": 136,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\wilham_msn.ini",
+          "line": 4,
+          "role": "decision",
+          "thn": "scripts\\mod\\m02_bship_bar_decision.thn"
+        }
+      ],
+      "duration": 2000.0,
+      "events": 3,
+      "types": {
+        "ATTACH_ENTITY": 1,
+        "START_MOTION": 2
+      }
+    },
+    "m02_bship_bar_accept": {
+      "name": "m02_bship_bar_accept",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_bship_bar_accept.thn",
+      "uses": [
+        {
+          "mission": 2,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "mission_line": 136,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\wilham_msn.ini",
+          "line": 5,
+          "role": "accept",
+          "thn": "scripts\\mod\\m02_bship_bar_accept.thn"
+        }
+      ],
+      "duration": 40.5,
+      "events": 81,
+      "types": {
+        "ATTACH_ENTITY": 13,
+        "SET_CAMERA": 5,
+        "START_SPATIAL_PROP_ANIM": 21,
+        "START_SOUND": 7,
+        "START_MOTION": 31,
+        "START_IK": 4
+      }
+    },
+    "m02_wilham_vendor": {
+      "name": "m02_wilham_vendor",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_wilham_vendor.thn",
+      "uses": [
+        {
+          "mission": 2,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "mission_line": 136,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\wilham_msn.ini",
+          "line": 18,
+          "role": "fidget",
+          "thn": "scripts\\mod\\m02_wilham_vendor.thn"
+        }
+      ],
+      "duration": 15.133,
+      "events": 2,
+      "types": {
+        "START_MOTION": 2
+      }
+    },
+    "m02_jacobo_offer": {
+      "name": "m02_jacobo_offer",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_jacobo_offer.thn",
+      "uses": [
+        {
+          "mission": 2,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "mission_line": 486,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m02\\jacobo_msn.ini",
+          "line": 3,
+          "role": "action",
+          "thn": "scripts\\mod\\m02_jacobo_offer.thn"
+        }
+      ],
+      "duration": 104.0,
+      "events": 218,
+      "types": {
+        "ATTACH_ENTITY": 27,
+        "START_MOTION": 78,
+        "SET_CAMERA": 14,
+        "START_SPATIAL_PROP_ANIM": 69,
+        "START_IK": 6,
+        "START_SOUND": 22,
+        "START_CAMERA_PROP_ANIM": 1,
+        "CONNECT_HARDPOINTS": 1
+      }
+    },
+    "m02_jacobo_vendor": {
+      "name": "m02_jacobo_vendor",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_jacobo_vendor.thn",
+      "uses": [
+        {
+          "mission": 2,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "mission_line": 486,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m02\\jacobo_msn.ini",
+          "line": 21,
+          "role": "fidget",
+          "thn": "scripts\\mod\\m02_jacobo_vendor.thn"
+        }
+      ],
+      "duration": 15.133,
+      "events": 2,
+      "types": {
+        "START_MOTION": 2
+      }
+    },
+    "m02_junkers": {
+      "name": "m02_junkers",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_junkers.thn",
+      "uses": [
+        {
+          "mission": 2,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "mission_line": 864,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "line": 864,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m02_junkers.thn"
+        }
+      ],
+      "duration": 33.5,
+      "events": 9,
+      "types": {
+        "SET_CAMERA": 2,
+        "ATTACH_ENTITY": 3,
+        "START_SPATIAL_PROP_ANIM": 4
+      }
+    },
+    "m02_explode_camera": {
+      "name": "m02_explode_camera",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_explode_camera.thn",
+      "uses": [
+        {
+          "mission": 2,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "mission_line": 1934,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "line": 1934,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m02_explode_camera.thn"
+        }
+      ],
+      "duration": 15.0,
+      "events": 6,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 4,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m02_reichman": {
+      "name": "m02_reichman",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_reichman.thn",
+      "uses": [
+        {
+          "mission": 2,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+          "mission_line": 2039,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m02\\reichman_msn.ini",
+          "line": 8,
+          "role": "action",
+          "thn": "scripts\\mod\\m02_reichman.thn"
+        }
+      ],
+      "duration": 86.0,
+      "events": 203,
+      "types": {
+        "START_SOUND": 16,
+        "START_AUDIO_PROP_ANIM": 3,
+        "START_MOTION": 54,
+        "SET_CAMERA": 11,
+        "ATTACH_ENTITY": 28,
+        "START_SPATIAL_PROP_ANIM": 76,
+        "START_IK": 15
+      }
+    },
+    "m03_offer": {
+      "name": "m03_offer",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_offer.thn",
+      "uses": [
+        {
+          "mission": 3,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "mission_line": 584,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\vendor_msn.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m03_offer.thn"
+        }
+      ],
+      "duration": 68.0,
+      "events": 127,
+      "types": {
+        "SET_CAMERA": 6,
+        "ATTACH_ENTITY": 8,
+        "START_IK": 7,
+        "START_SPATIAL_PROP_ANIM": 41,
+        "START_MOTION": 54,
+        "START_SOUND": 11
+      }
+    },
+    "m03_offer_decision": {
+      "name": "m03_offer_decision",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_offer_decision.thn",
+      "uses": [
+        {
+          "mission": 3,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "mission_line": 584,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\vendor_msn.ini",
+          "line": 5,
+          "role": "decision",
+          "thn": "scripts\\mod\\m03_offer_decision.thn"
+        }
+      ],
+      "duration": 1000.0,
+      "events": 5,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_MOTION": 3
+      }
+    },
+    "m03_offer_accept": {
+      "name": "m03_offer_accept",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_offer_accept.thn",
+      "uses": [
+        {
+          "mission": 3,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "mission_line": 584,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\vendor_msn.ini",
+          "line": 6,
+          "role": "accept",
+          "thn": "scripts\\mod\\m03_offer_accept.thn"
+        }
+      ],
+      "duration": 98.0,
+      "events": 115,
+      "types": {
+        "SET_CAMERA": 6,
+        "ATTACH_ENTITY": 7,
+        "START_IK": 8,
+        "START_MOTION": 48,
+        "START_SPATIAL_PROP_ANIM": 37,
+        "START_SOUND": 9
+      }
+    },
+    "m03_fleet_arrive": {
+      "name": "m03_fleet_arrive",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_fleet_arrive.thn",
+      "uses": [
+        {
+          "mission": 3,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "mission_line": 1269,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "line": 1269,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m03_fleet_arrive.thn"
+        }
+      ],
+      "duration": 6.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_SPATIAL_PROP_ANIM": 2
+      }
+    },
+    "m03_kgb_death01": {
+      "name": "m03_kgb_death01",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_kgb_death01.thn",
+      "uses": [
+        {
+          "mission": 3,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "mission_line": 1691,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "line": 1691,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m03_kgb_death01.thn"
+        }
+      ],
+      "duration": 10.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m03_kgb_death02": {
+      "name": "m03_kgb_death02",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_kgb_death02.thn",
+      "uses": [
+        {
+          "mission": 3,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "mission_line": 1701,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "line": 1701,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m03_kgb_death02.thn"
+        }
+      ],
+      "duration": 20.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m03_reward": {
+      "name": "m03_reward",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_reward.thn",
+      "uses": [
+        {
+          "mission": 3,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+          "mission_line": 1827,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m03\\team_msn.ini",
+          "line": 4,
+          "role": "action",
+          "thn": "scripts\\mod\\m03_reward.thn"
+        }
+      ],
+      "duration": 46.0,
+      "events": 42,
+      "types": {
+        "SET_CAMERA": 4,
+        "ATTACH_ENTITY": 4,
+        "START_SPATIAL_PROP_ANIM": 2,
+        "START_MOTION": 27,
+        "START_IK": 2,
+        "START_SOUND": 3
+      }
+    },
+    "m04_offer": {
+      "name": "m04_offer",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_offer.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 137,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\vendor_msn.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m04_offer.thn"
+        }
+      ],
+      "duration": 101.0,
+      "events": 88,
+      "types": {
+        "SET_CAMERA": 8,
+        "ATTACH_ENTITY": 6,
+        "START_SPATIAL_PROP_ANIM": 16,
+        "START_MOTION": 44,
+        "START_IK": 5,
+        "START_SOUND": 9
+      }
+    },
+    "m04_offer_decision": {
+      "name": "m04_offer_decision",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_offer_decision.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 137,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\vendor_msn.ini",
+          "line": 4,
+          "role": "decision",
+          "thn": "scripts\\mod\\m04_offer_decision.thn"
+        }
+      ],
+      "duration": 5555.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_MOTION": 2
+      }
+    },
+    "m04_offer_accept": {
+      "name": "m04_offer_accept",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_offer_accept.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 137,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\vendor_msn.ini",
+          "line": 5,
+          "role": "accept",
+          "thn": "scripts\\mod\\m04_offer_accept.thn"
+        }
+      ],
+      "duration": 19.5,
+      "events": 27,
+      "types": {
+        "SET_CAMERA": 4,
+        "ATTACH_ENTITY": 3,
+        "START_MOTION": 11,
+        "START_SOUND": 3,
+        "START_SPATIAL_PROP_ANIM": 4,
+        "START_IK": 2
+      }
+    },
+    "m04_officer_scene01": {
+      "name": "m04_officer_scene01",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_officer_scene01.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 334,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "line": 334,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m04_officer_scene01.thn"
+        }
+      ],
+      "duration": 255.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2,
+        "START_PATH_ANIMATION": 1
+      }
+    },
+    "m04_officer_scene02": {
+      "name": "m04_officer_scene02",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_officer_scene02.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 355,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "line": 355,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m04_officer_scene02.thn"
+        }
+      ],
+      "duration": 1500.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m04_friends_arrive_hassler": {
+      "name": "m04_friends_arrive_hassler",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_friends_arrive_hassler.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 570,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "line": 570,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m04_friends_arrive_hassler.thn"
+        }
+      ],
+      "duration": 25.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2,
+        "START_PATH_ANIMATION": 1
+      }
+    },
+    "m04_friends_arrive_alaric": {
+      "name": "m04_friends_arrive_alaric",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_friends_arrive_alaric.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 593,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "line": 593,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m04_friends_arrive_alaric.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 5,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 3,
+        "START_PATH_ANIMATION": 1
+      }
+    },
+    "m04_reactor_fx": {
+      "name": "m04_reactor_fx",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_reactor_fx.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 712,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "line": 712,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m04_reactor_fx.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m04_jacobo_death": {
+      "name": "m04_jacobo_death",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_jacobo_death.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 976,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "line": 976,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m04_jacobo_death.thn"
+        }
+      ],
+      "duration": 6.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2,
+        "START_PATH_ANIMATION": 1
+      }
+    },
+    "m04_jumphole": {
+      "name": "m04_jumphole",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_jumphole.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 1275,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "line": 1275,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m04_jumphole.thn"
+        }
+      ],
+      "duration": 8.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2
+      }
+    },
+    "m04_hatcher": {
+      "name": "m04_hatcher",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_hatcher.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 1458,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m04\\hatcher_bar_rtc.ini",
+          "line": 4,
+          "role": "action",
+          "thn": "scripts\\mod\\m04_hatcher.thn"
+        }
+      ],
+      "duration": 100.0,
+      "events": 158,
+      "types": {
+        "SET_CAMERA": 14,
+        "ATTACH_ENTITY": 12,
+        "START_MOTION": 55,
+        "START_IK": 11,
+        "START_SPATIAL_PROP_ANIM": 51,
+        "START_SOUND": 15
+      }
+    },
+    "m04_final": {
+      "name": "m04_final",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_final.thn",
+      "uses": [
+        {
+          "mission": 4,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+          "mission_line": 1467,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m04\\cityscape_rtc.ini",
+          "line": 3,
+          "role": "action",
+          "thn": "scripts\\mod\\m04_final.thn"
+        }
+      ],
+      "duration": 72.0,
+      "events": 109,
+      "types": {
+        "SET_CAMERA": 11,
+        "ATTACH_ENTITY": 14,
+        "START_SPATIAL_PROP_ANIM": 17,
+        "START_MOTION": 39,
+        "START_IK": 14,
+        "START_SOUND": 14
+      }
+    },
+    "m05_offer": {
+      "name": "m05_offer",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_offer.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 142,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\vendor_msn.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m05_offer.thn"
+        }
+      ],
+      "duration": 129.0,
+      "events": 129,
+      "types": {
+        "SET_CAMERA": 16,
+        "ATTACH_ENTITY": 9,
+        "START_IK": 5,
+        "START_SPATIAL_PROP_ANIM": 11,
+        "START_MOTION": 65,
+        "START_SOUND": 19,
+        "CONNECT_HARDPOINTS": 4
+      }
+    },
+    "m05_offer_decision": {
+      "name": "m05_offer_decision",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_offer_decision.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 142,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\vendor_msn.ini",
+          "line": 5,
+          "role": "decision",
+          "thn": "scripts\\mod\\m05_offer_decision.thn"
+        }
+      ],
+      "duration": 50000.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_MOTION": 2
+      }
+    },
+    "m05_offer_accept": {
+      "name": "m05_offer_accept",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_offer_accept.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 142,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\vendor_msn.ini",
+          "line": 6,
+          "role": "accept",
+          "thn": "scripts\\mod\\m05_offer_accept.thn"
+        }
+      ],
+      "duration": 24.0,
+      "events": 20,
+      "types": {
+        "SET_CAMERA": 2,
+        "ATTACH_ENTITY": 2,
+        "START_SOUND": 2,
+        "START_MOTION": 12,
+        "START_SPATIAL_PROP_ANIM": 2
+      }
+    },
+    "m05_piratebar": {
+      "name": "m05_piratebar",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_piratebar.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 272,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m05\\smuggler_msn.ini",
+          "line": 4,
+          "role": "action",
+          "thn": "scripts\\mod\\m05_piratebar.thn"
+        }
+      ],
+      "duration": 119.0,
+      "events": 146,
+      "types": {
+        "ATTACH_ENTITY": 10,
+        "START_PSYS": 2,
+        "START_MOTION": 79,
+        "CONNECT_HARDPOINTS": 2,
+        "START_SPATIAL_PROP_ANIM": 16,
+        "SET_CAMERA": 17,
+        "START_IK": 5,
+        "START_SOUND": 15
+      }
+    },
+    "m05_detroit": {
+      "name": "m05_detroit",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_detroit.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 646,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m05\\barman_msn.ini",
+          "line": 4,
+          "role": "action",
+          "thn": "scripts\\mod\\m05_detroit.thn"
+        }
+      ],
+      "duration": 68.0,
+      "events": 59,
+      "types": {
+        "SET_CAMERA": 9,
+        "ATTACH_ENTITY": 8,
+        "CONNECT_HARDPOINTS": 2,
+        "START_SPATIAL_PROP_ANIM": 5,
+        "START_IK": 1,
+        "START_MOTION": 25,
+        "START_SOUND": 9
+      }
+    },
+    "m05_barman": {
+      "name": "m05_barman",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_barman.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 646,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m05\\barman_msn.ini",
+          "line": 17,
+          "role": "fidget",
+          "thn": "scripts\\mod\\m05_barman.thn"
+        }
+      ],
+      "duration": 63.498,
+      "events": 15,
+      "types": {
+        "START_MOTION": 15
+      }
+    },
+    "m05_research_explode": {
+      "name": "m05_research_explode",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_research_explode.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1039,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1039,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_research_explode.thn"
+        }
+      ],
+      "duration": 10.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2,
+        "START_PATH_ANIMATION": 1
+      }
+    },
+    "m05_arrest_camera01": {
+      "name": "m05_arrest_camera01",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera01.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1230,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1230,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera01.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 3
+      }
+    },
+    "m05_arrest_camera02": {
+      "name": "m05_arrest_camera02",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera02.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1254,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1254,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera02.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 7,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 4,
+        "START_PATH_ANIMATION": 2
+      }
+    },
+    "m05_arrest_camera03": {
+      "name": "m05_arrest_camera03",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera03.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1274,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1274,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera03.thn"
+        },
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1338,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1338,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera03.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 3
+      }
+    },
+    "m05_arrest_camera04": {
+      "name": "m05_arrest_camera04",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera04.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1291,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1291,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera04.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2
+      }
+    },
+    "m05_arrest_camera05": {
+      "name": "m05_arrest_camera05",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera05.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1311,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1311,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera05.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 3
+      }
+    },
+    "m05_arrest_camera06": {
+      "name": "m05_arrest_camera06",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera06.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1320,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1320,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera06.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m05_arrest_camera07": {
+      "name": "m05_arrest_camera07",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera07.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1329,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1329,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera07.thn"
+        }
+      ],
+      "duration": 600.0,
+      "events": 6,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 4,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m05_arrest_camera08": {
+      "name": "m05_arrest_camera08",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera08.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1348,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1348,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera08.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 3
+      }
+    },
+    "m05_arrest_camera09": {
+      "name": "m05_arrest_camera09",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera09.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1388,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1388,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_arrest_camera09.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2
+      }
+    },
+    "m05_rheinlanders_camera": {
+      "name": "m05_rheinlanders_camera",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_rheinlanders_camera.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1437,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "line": 1437,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m05_rheinlanders_camera.thn"
+        }
+      ],
+      "duration": 300.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m05_equip": {
+      "name": "m05_equip",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_equip.thn",
+      "uses": [
+        {
+          "mission": 5,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+          "mission_line": 1666,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m05\\equip_rtc.ini",
+          "line": 4,
+          "role": "action",
+          "thn": "scripts\\mod\\m05_equip.thn"
+        }
+      ],
+      "duration": 320.0,
+      "events": 483,
+      "types": {
+        "SET_CAMERA": 54,
+        "ATTACH_ENTITY": 34,
+        "START_SPATIAL_PROP_ANIM": 110,
+        "START_MOTION": 209,
+        "CONNECT_HARDPOINTS": 1,
+        "START_IK": 7,
+        "START_SOUND": 61,
+        "START_AUDIO_PROP_ANIM": 7
+      }
+    },
+    "m06_offer": {
+      "name": "m06_offer",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_offer.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 346,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\vendor_msn.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m06_offer.thn"
+        }
+      ],
+      "duration": 135.5,
+      "events": 180,
+      "types": {
+        "SET_CAMERA": 10,
+        "ATTACH_ENTITY": 11,
+        "START_MOTION": 84,
+        "START_SPATIAL_PROP_ANIM": 53,
+        "START_SOUND": 14,
+        "START_IK": 8
+      }
+    },
+    "m06_offer_decision": {
+      "name": "m06_offer_decision",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_offer_decision.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 346,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\vendor_msn.ini",
+          "line": 4,
+          "role": "decision",
+          "thn": "scripts\\mod\\m06_offer_decision.thn"
+        }
+      ],
+      "duration": 5000.0,
+      "events": 5,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_MOTION": 3
+      }
+    },
+    "m06_offer_accept": {
+      "name": "m06_offer_accept",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_offer_accept.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 346,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\vendor_msn.ini",
+          "line": 5,
+          "role": "accept",
+          "thn": "scripts\\mod\\m06_offer_accept.thn"
+        }
+      ],
+      "duration": 16.0,
+      "events": 20,
+      "types": {
+        "ATTACH_ENTITY": 2,
+        "START_IK": 2,
+        "START_SPATIAL_PROP_ANIM": 4,
+        "START_MOTION": 8,
+        "SET_CAMERA": 2,
+        "START_SOUND": 2
+      }
+    },
+    "m06_vendor_hatcher": {
+      "name": "m06_vendor_hatcher",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_vendor_hatcher.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 346,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\vendor_msn.ini",
+          "line": 17,
+          "role": "fidget",
+          "thn": "scripts\\mod\\m06_vendor_hatcher.thn"
+        }
+      ],
+      "duration": 29.812,
+      "events": 9,
+      "types": {
+        "START_MOTION": 9
+      }
+    },
+    "m06_vendor_alaric": {
+      "name": "m06_vendor_alaric",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_vendor_alaric.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 346,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\vendor_msn.ini",
+          "line": 22,
+          "role": "fidget",
+          "thn": "scripts\\mod\\m06_vendor_alaric.thn"
+        }
+      ],
+      "duration": 61.464,
+      "events": 10,
+      "types": {
+        "START_MOTION": 10
+      }
+    },
+    "m06_briefing": {
+      "name": "m06_briefing",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_briefing.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 450,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\dread_briefing.ini",
+          "line": 4,
+          "role": "action",
+          "thn": "scripts\\mod\\m06_briefing.thn"
+        }
+      ],
+      "duration": 243.0,
+      "events": 297,
+      "types": {
+        "ATTACH_ENTITY": 10,
+        "SET_CAMERA": 17,
+        "START_SPATIAL_PROP_ANIM": 110,
+        "START_MOTION": 119,
+        "CONNECT_HARDPOINTS": 4,
+        "START_IK": 8,
+        "START_SOUND": 29
+      }
+    },
+    "m06_mount": {
+      "name": "m06_mount",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_mount.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 456,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\dread_mount.ini",
+          "line": 3,
+          "role": "action",
+          "thn": "scripts\\mod\\m06_mount.thn"
+        }
+      ],
+      "duration": 40.0,
+      "events": 52,
+      "types": {
+        "ATTACH_ENTITY": 5,
+        "SET_CAMERA": 7,
+        "START_SPATIAL_PROP_ANIM": 5,
+        "START_IK": 2,
+        "START_MOTION": 24,
+        "START_SOUND": 9
+      }
+    },
+    "m06_nomad_area_camera1": {
+      "name": "m06_nomad_area_camera1",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_nomad_area_camera1.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 1349,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "line": 1349,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m06_nomad_area_camera1.thn"
+        }
+      ],
+      "duration": 25.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "START_PATH_ANIMATION": 1
+      }
+    },
+    "m06_nomad_area_camera2": {
+      "name": "m06_nomad_area_camera2",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_nomad_area_camera2.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 1368,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "line": 1368,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m06_nomad_area_camera2.thn"
+        }
+      ],
+      "duration": 25.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m06_nomad_area_camera3": {
+      "name": "m06_nomad_area_camera3",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_nomad_area_camera3.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 1387,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "line": 1387,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m06_nomad_area_camera3.thn"
+        }
+      ],
+      "duration": 25.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "START_PATH_ANIMATION": 1
+      }
+    },
+    "m06_nomad_area_camera4": {
+      "name": "m06_nomad_area_camera4",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_nomad_area_camera4.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 1406,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "line": 1406,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m06_nomad_area_camera4.thn"
+        }
+      ],
+      "duration": 25.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m06_lab_land": {
+      "name": "m06_lab_land",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_lab_land.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 2835,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_rtc.ini",
+          "line": 3,
+          "role": "action",
+          "thn": "scripts\\mod\\m06_lab_land.thn"
+        }
+      ],
+      "duration": 40.0,
+      "events": 47,
+      "types": {
+        "CONNECT_HARDPOINTS": 1,
+        "ATTACH_ENTITY": 5,
+        "SET_CAMERA": 5,
+        "START_SPATIAL_PROP_ANIM": 9,
+        "START_PATH_ANIMATION": 1,
+        "START_MOTION": 16,
+        "START_SOUND": 7,
+        "START_AUDIO_PROP_ANIM": 3
+      }
+    },
+    "m06_lab_room": {
+      "name": "m06_lab_room",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_lab_room.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 2855,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_room_rtc.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m06_lab_room.thn"
+        }
+      ],
+      "duration": 36.0,
+      "events": 45,
+      "types": {
+        "CONNECT_HARDPOINTS": 3,
+        "SET_CAMERA": 4,
+        "ATTACH_ENTITY": 4,
+        "START_PATH_ANIMATION": 5,
+        "START_SPATIAL_PROP_ANIM": 5,
+        "START_MOTION": 9,
+        "START_IK": 2,
+        "START_PSYS": 1,
+        "START_SOUND": 12
+      }
+    },
+    "m06_lab_launch": {
+      "name": "m06_lab_launch",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_lab_launch.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 2862,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_launch_rtc.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m06_lab_launch.thn"
+        }
+      ],
+      "duration": 14.0,
+      "events": 34,
+      "types": {
+        "CONNECT_HARDPOINTS": 2,
+        "ATTACH_ENTITY": 4,
+        "START_PATH_ANIMATION": 10,
+        "START_MOTION": 9,
+        "START_SPATIAL_PROP_ANIM": 2,
+        "SET_CAMERA": 2,
+        "START_PSYS_PROP_ANIM": 1,
+        "START_PSYS": 1,
+        "START_SOUND": 3
+      }
+    },
+    "m06_lab_explode_camera": {
+      "name": "m06_lab_explode_camera",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_lab_explode_camera.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 2890,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "line": 2890,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m06_lab_explode_camera.thn"
+        }
+      ],
+      "duration": 11.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m06_torpedo_alert": {
+      "name": "m06_torpedo_alert",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_torpedo_alert.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 3047,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\dread_escape_deck.ini",
+          "line": 4,
+          "role": "action",
+          "thn": "scripts\\mod\\m06_torpedo_alert.thn"
+        }
+      ],
+      "duration": 39.5,
+      "events": 57,
+      "types": {
+        "ATTACH_ENTITY": 5,
+        "SET_CAMERA": 4,
+        "START_SPATIAL_PROP_ANIM": 5,
+        "START_MOTION": 33,
+        "START_IK": 2,
+        "START_SOUND": 5,
+        "START_AUDIO_PROP_ANIM": 3
+      }
+    },
+    "m06_jumpin_camera1": {
+      "name": "m06_jumpin_camera1",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_jumpin_camera1.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 3448,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "line": 3448,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m06_jumpin_camera1.thn"
+        }
+      ],
+      "duration": 10.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m06_jumpin_camera2": {
+      "name": "m06_jumpin_camera2",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_jumpin_camera2.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 3485,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "line": 3485,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m06_jumpin_camera2.thn"
+        }
+      ],
+      "duration": 10.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m06_order_camera3": {
+      "name": "m06_order_camera3",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_order_camera3.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 3503,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "line": 3503,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m06_order_camera3.thn"
+        }
+      ],
+      "duration": 20.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "START_PATH_ANIMATION": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m06_order_camera4": {
+      "name": "m06_order_camera4",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_order_camera4.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 3556,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "line": 3556,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m06_order_camera4.thn"
+        }
+      ],
+      "duration": 10.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m06_omicron_major": {
+      "name": "m06_omicron_major",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_omicron_major.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 3613,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\omicron_rtc.ini",
+          "line": 3,
+          "role": "action",
+          "thn": "scripts\\mod\\m06_omicron_major.thn"
+        }
+      ],
+      "duration": 60.0,
+      "events": 88,
+      "types": {
+        "SET_CAMERA": 1,
+        "CONNECT_HARDPOINTS": 1,
+        "ATTACH_ENTITY": 19,
+        "START_PSYS_PROP_ANIM": 13,
+        "START_PSYS": 17,
+        "START_MOTION": 8,
+        "START_PATH_ANIMATION": 17,
+        "START_SPATIAL_PROP_ANIM": 3,
+        "START_SOUND": 7,
+        "START_AUDIO_PROP_ANIM": 2
+      }
+    },
+    "m06_order_deck": {
+      "name": "m06_order_deck",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_order_deck.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 3632,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\cruiser_deck_rtc.ini",
+          "line": 3,
+          "role": "action",
+          "thn": "scripts\\mod\\m06_order_deck.thn"
+        }
+      ],
+      "duration": 50.0,
+      "events": 46,
+      "types": {
+        "ATTACH_ENTITY": 3,
+        "START_MOTION": 20,
+        "SET_CAMERA": 4,
+        "START_PATH_ANIMATION": 1,
+        "START_SPATIAL_PROP_ANIM": 11,
+        "START_IK": 3,
+        "START_SOUND": 3,
+        "START_AUDIO_PROP_ANIM": 1
+      }
+    },
+    "m06_prison_new": {
+      "name": "m06_prison_new",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_prison_new.thn",
+      "uses": [
+        {
+          "mission": 6,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+          "mission_line": 3638,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\prison_rtc.ini",
+          "line": 3,
+          "role": "action",
+          "thn": "scripts\\mod\\m06_prison_new.thn"
+        }
+      ],
+      "duration": 230.0,
+      "events": 440,
+      "types": {
+        "ATTACH_ENTITY": 24,
+        "CONNECT_HARDPOINTS": 6,
+        "START_SOUND": 69,
+        "START_AUDIO_PROP_ANIM": 23,
+        "SET_CAMERA": 24,
+        "START_SPATIAL_PROP_ANIM": 123,
+        "START_MOTION": 140,
+        "START_IK": 29,
+        "START_PSYS": 2
+      }
+    },
+    "m07_offer": {
+      "name": "m07_offer",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_offer.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 83,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\tobago_bar.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m07_offer.thn"
+        }
+      ],
+      "duration": 136.0,
+      "events": 146,
+      "types": {
+        "ATTACH_ENTITY": 11,
+        "START_SPATIAL_PROP_ANIM": 20,
+        "START_MOTION": 76,
+        "SET_CAMERA": 12,
+        "START_IK": 7,
+        "START_SOUND": 19,
+        "CONNECT_HARDPOINTS": 1
+      }
+    },
+    "m07_offer_decision": {
+      "name": "m07_offer_decision",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_offer_decision.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 83,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\tobago_bar.ini",
+          "line": 4,
+          "role": "decision",
+          "thn": "scripts\\mod\\m07_offer_decision.thn"
+        }
+      ],
+      "duration": 140.0,
+      "events": 6,
+      "types": {
+        "ATTACH_ENTITY": 1,
+        "START_SPATIAL_PROP_ANIM": 2,
+        "START_MOTION": 2,
+        "SET_CAMERA": 1
+      }
+    },
+    "m07_offer_accept": {
+      "name": "m07_offer_accept",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_offer_accept.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 83,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\tobago_bar.ini",
+          "line": 5,
+          "role": "accept",
+          "thn": "scripts\\mod\\m07_offer_accept.thn"
+        }
+      ],
+      "duration": 4.0,
+      "events": 10,
+      "types": {
+        "ATTACH_ENTITY": 1,
+        "START_SPATIAL_PROP_ANIM": 2,
+        "START_MOTION": 3,
+        "SET_CAMERA": 2,
+        "START_SOUND": 1,
+        "START_IK": 1
+      }
+    },
+    "m07_tortuga_wp_camera": {
+      "name": "m07_tortuga_wp_camera",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_tortuga_wp_camera.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 565,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "line": 565,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m07_tortuga_wp_camera.thn"
+        }
+      ],
+      "duration": 10000.0,
+      "events": 4,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_PATH_ANIMATION": 2
+      }
+    },
+    "m01b_armored_trap_camera": {
+      "name": "m01b_armored_trap_camera",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m01b_armored_trap_camera.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 1185,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "line": 1185,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m01b_armored_trap_camera.thn"
+        }
+      ],
+      "duration": 54.375,
+      "events": 8,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 6,
+        "START_PATH_ANIMATION": 1
+      }
+    },
+    "m07_omega13": {
+      "name": "m07_omega13",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_omega13.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 1208,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\omega13_rtc.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m07_omega13.thn"
+        }
+      ],
+      "duration": 68.0,
+      "events": 355,
+      "types": {
+        "START_SPATIAL_PROP_ANIM": 42,
+        "START_PSYS": 83,
+        "START_MOTION": 16,
+        "ATTACH_ENTITY": 48,
+        "CONNECT_HARDPOINTS": 6,
+        "START_PSYS_PROP_ANIM": 8,
+        "SET_CAMERA": 15,
+        "START_SOUND": 33,
+        "START_AUDIO_PROP_ANIM": 7,
+        "START_LIGHT_PROP_ANIM": 94,
+        "START_IK": 2,
+        "START_CAMERA_PROP_ANIM": 1
+      }
+    },
+    "m07_tau_arrival": {
+      "name": "m07_tau_arrival",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_tau_arrival.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 1226,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\avalon_rtc.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m07_tau_arrival.thn"
+        }
+      ],
+      "duration": 32.0,
+      "events": 44,
+      "types": {
+        "ATTACH_ENTITY": 4,
+        "SET_CAMERA": 4,
+        "START_MOTION": 7,
+        "START_SPATIAL_PROP_ANIM": 6,
+        "START_SOUND": 22,
+        "START_AUDIO_PROP_ANIM": 1
+      }
+    },
+    "m07_battleship": {
+      "name": "m07_battleship",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_battleship.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 1283,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\darcy_battleship_rtc.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m07_battleship.thn"
+        }
+      ],
+      "duration": 123.0,
+      "events": 129,
+      "types": {
+        "ATTACH_ENTITY": 8,
+        "SET_CAMERA": 12,
+        "START_MOTION": 46,
+        "START_SPATIAL_PROP_ANIM": 39,
+        "START_SOUND": 18,
+        "START_IK": 6
+      }
+    },
+    "m07_check_artifact": {
+      "name": "m07_check_artifact",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_check_artifact.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 1352,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\check_artifact_rtc.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m07_check_artifact.thn"
+        }
+      ],
+      "duration": 72.0,
+      "events": 89,
+      "types": {
+        "ATTACH_ENTITY": 9,
+        "START_SPATIAL_PROP_ANIM": 22,
+        "START_MOTION": 32,
+        "SET_CAMERA": 9,
+        "START_SOUND": 9,
+        "START_LIGHT_PROP_ANIM": 2,
+        "START_IK": 6
+      }
+    },
+    "m07_reward": {
+      "name": "m07_reward",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_reward.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 1449,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\reward_rtc.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m07_reward.thn"
+        }
+      ],
+      "duration": 61.5,
+      "events": 113,
+      "types": {
+        "ATTACH_ENTITY": 7,
+        "START_SPATIAL_PROP_ANIM": 16,
+        "START_MOTION": 38,
+        "START_IK": 6,
+        "SET_CAMERA": 7,
+        "START_LIGHT_PROP_ANIM": 3,
+        "START_SOUND": 30,
+        "START_AUDIO_PROP_ANIM": 6
+      }
+    },
+    "m07_gunners": {
+      "name": "m07_gunners",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_gunners.thn",
+      "uses": [
+        {
+          "mission": 7,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+          "mission_line": 286,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\cadiz.ini",
+          "line": 3,
+          "role": "action",
+          "thn": "scripts\\mod\\m07_gunners.thn"
+        }
+      ],
+      "duration": 68.0,
+      "events": 131,
+      "types": {
+        "ATTACH_ENTITY": 16,
+        "SET_CAMERA": 12,
+        "START_SPATIAL_PROP_ANIM": 24,
+        "START_MOTION": 45,
+        "CONNECT_HARDPOINTS": 5,
+        "START_IK": 3,
+        "START_SOUND": 13,
+        "START_CAMERA_PROP_ANIM": 3,
+        "START_PSYS_PROP_ANIM": 4,
+        "START_PSYS": 2,
+        "START_AUDIO_PROP_ANIM": 4
+      }
+    },
+    "m08_wales_init": {
+      "name": "m08_wales_init",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_wales_init.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 208,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 208,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_wales_init.thn"
+        }
+      ],
+      "duration": 42.187,
+      "events": 6,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 3,
+        "START_PATH_ANIMATION": 1,
+        "START_PSYS": 1
+      }
+    },
+    "m08_liberty_enter_camera_01": {
+      "name": "m08_liberty_enter_camera_01",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_liberty_enter_camera_01.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 431,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 431,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_liberty_enter_camera_01.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m08_lair_enter_door_01": {
+      "name": "m08_lair_enter_door_01",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_lair_enter_door_01.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 798,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 798,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_enter_door_01.thn"
+        }
+      ],
+      "duration": 60.0,
+      "events": 6,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 4,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m08_core_camera_01": {
+      "name": "m08_core_camera_01",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_01.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 950,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 950,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_01.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m08_core_camera_02": {
+      "name": "m08_core_camera_02",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_02.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 982,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 982,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_02.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1017,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1017,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_02.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1050,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1050,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_02.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1110,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1110,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_02.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1143,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1143,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_02.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1165,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1165,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_02.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m08_core_camera_03": {
+      "name": "m08_core_camera_03",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_03.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 999,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 999,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_03.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1039,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1039,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_03.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1132,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1132,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_03.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m08_core_camera_04": {
+      "name": "m08_core_camera_04",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_04.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1028,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1028,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_04.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1121,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1121,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_04.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m08_core_camera_06": {
+      "name": "m08_core_camera_06",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_06.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1061,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1061,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_06.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1099,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1099,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_06.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1154,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1154,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_06.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m08_core_camera_08": {
+      "name": "m08_core_camera_08",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_08.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1072,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1072,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_08.thn"
+        }
+      ],
+      "duration": 60.0,
+      "events": 6,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 4,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m08_core_camera_07": {
+      "name": "m08_core_camera_07",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_07.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1465,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1465,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_07.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m08_core_camera_09": {
+      "name": "m08_core_camera_09",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_09.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 1487,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 1487,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_core_camera_09.thn"
+        }
+      ],
+      "duration": 60.0,
+      "events": 7,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 4,
+        "START_SPATIAL_PROP_ANIM": 2
+      }
+    },
+    "m08_outside_camera_01": {
+      "name": "m08_outside_camera_01",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_outside_camera_01.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 3466,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 3466,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_outside_camera_01.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 2,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 1
+      }
+    },
+    "m08_outside_camera_02": {
+      "name": "m08_outside_camera_02",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_outside_camera_02.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 3733,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 3733,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_outside_camera_02.thn"
+        }
+      ],
+      "duration": 60.0,
+      "events": 6,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 4,
+        "START_SPATIAL_PROP_ANIM": 1
+      }
+    },
+    "m08_lair_done_camera_04": {
+      "name": "m08_lair_done_camera_04",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_lair_done_camera_04.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 3780,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 3780,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_04.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 6,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 3,
+        "START_SPATIAL_PROP_ANIM": 2
+      }
+    },
+    "m08_lair_done_camera_01": {
+      "name": "m08_lair_done_camera_01",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_lair_done_camera_01.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 3989,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 3989,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_01.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 3999,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 3999,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_01.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4071,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 4071,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_01.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4115,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 4115,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_01.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2
+      }
+    },
+    "m08_lair_done_camera_02": {
+      "name": "m08_lair_done_camera_02",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_lair_done_camera_02.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4038,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 4038,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_02.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2
+      }
+    },
+    "m08_lair_done_camera_03": {
+      "name": "m08_lair_done_camera_03",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_lair_done_camera_03.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4082,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 4082,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_03.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4093,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 4093,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_03.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4104,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 4104,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_03.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4130,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 4130,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_03.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4145,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 4145,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_03.thn"
+        },
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4173,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "line": 4173,
+          "role": "act_callthorn",
+          "thn": "scripts\\mod\\m08_lair_done_camera_03.thn"
+        }
+      ],
+      "duration": 30.0,
+      "events": 3,
+      "types": {
+        "SET_CAMERA": 1,
+        "ATTACH_ENTITY": 2
+      }
+    },
+    "m08_osiris": {
+      "name": "m08_osiris",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_osiris.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 4367,
+          "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m08\\king_battleship_rtc.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m08_osiris.thn"
+        }
+      ],
+      "duration": 226.0,
+      "events": 269,
+      "types": {
+        "ATTACH_ENTITY": 13,
+        "SET_CAMERA": 35,
+        "START_SPATIAL_PROP_ANIM": 75,
+        "START_MOTION": 95,
+        "START_IK": 10,
+        "START_SOUND": 40,
+        "CONNECT_HARDPOINTS": 1
+      }
+    },
+    "m08_offer": {
+      "name": "m08_offer",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_offer.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 126,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\queen_rtc.ini",
+          "line": 3,
+          "role": "offer",
+          "thn": "scripts\\mod\\m08_offer.thn"
+        }
+      ],
+      "duration": 230.0,
+      "events": 266,
+      "types": {
+        "ATTACH_ENTITY": 14,
+        "START_MOTION": 107,
+        "START_SPATIAL_PROP_ANIM": 47,
+        "SET_CAMERA": 39,
+        "START_SOUND": 46,
+        "START_IK": 13
+      }
+    },
+    "m08_offer_decision": {
+      "name": "m08_offer_decision",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_offer_decision.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 126,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\queen_rtc.ini",
+          "line": 4,
+          "role": "decision",
+          "thn": "scripts\\mod\\m08_offer_decision.thn"
+        }
+      ],
+      "duration": 267111111.0,
+      "events": 10,
+      "types": {
+        "ATTACH_ENTITY": 1,
+        "START_MOTION": 4,
+        "START_SPATIAL_PROP_ANIM": 4,
+        "SET_CAMERA": 1
+      }
+    },
+    "m08_offer_accept": {
+      "name": "m08_offer_accept",
+      "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_offer_accept.thn",
+      "uses": [
+        {
+          "mission": 8,
+          "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+          "mission_line": 126,
+          "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\queen_rtc.ini",
+          "line": 5,
+          "role": "accept",
+          "thn": "scripts\\mod\\m08_offer_accept.thn"
+        }
+      ],
+      "duration": 37.6,
+      "events": 64,
+      "types": {
+        "ATTACH_ENTITY": 14,
+        "START_MOTION": 15,
+        "START_SPATIAL_PROP_ANIM": 18,
+        "START_IK": 8,
+        "SET_CAMERA": 4,
+        "START_SOUND": 5
+      }
+    }
+  },
+  "excluded": [
+    {
+      "mission": 2,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+      "mission_line": 508,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m02\\roid_miner_force_exit.ini",
+      "line": 9,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_NULL.thn"
+    },
+    {
+      "mission": 2,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+      "mission_line": 2039,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m02\\reichman_msn.ini",
+      "line": 17,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 3,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+      "mission_line": 584,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\vendor_msn.ini",
+      "line": 18,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 3,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+      "mission_line": 584,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\vendor_msn.ini",
+      "line": 24,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 3,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+      "mission_line": 1827,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m03\\team_msn.ini",
+      "line": 11,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 4,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "mission_line": 137,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\vendor_msn.ini",
+      "line": 19,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 4,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "mission_line": 1458,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m04\\hatcher_bar_rtc.ini",
+      "line": 15,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 4,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "mission_line": 1467,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m04\\cityscape_rtc.ini",
+      "line": 11,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 5,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "mission_line": 142,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\vendor_msn.ini",
+      "line": 26,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 5,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "mission_line": 272,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m05\\smuggler_msn.ini",
+      "line": 17,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 5,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "mission_line": 1666,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m05\\equip_rtc.ini",
+      "line": 11,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_01.thn"
+    },
+    {
+      "mission": 5,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "mission_line": 1666,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m05\\equip_rtc.ini",
+      "line": 16,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_01.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 450,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\dread_briefing.ini",
+      "line": 13,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_null.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 450,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\dread_briefing.ini",
+      "line": 18,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_null.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 456,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\dread_mount.ini",
+      "line": 12,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_null.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 456,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\dread_mount.ini",
+      "line": 17,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_null.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 2835,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_rtc.ini",
+      "line": 13,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_01.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 2835,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_rtc.ini",
+      "line": 18,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_01.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 2850,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_moveto_rtc.ini",
+      "line": 9,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_NULL.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 2855,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_room_rtc.ini",
+      "line": 13,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_NULL.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 2862,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_launch_rtc.ini",
+      "line": 13,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_NULL.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 3047,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\dread_escape_deck.ini",
+      "line": 13,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_null.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 3613,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\omicron_rtc.ini",
+      "line": 12,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 3623,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\cruiser_deck_launch_rtc.ini",
+      "line": 9,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 3624,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\prison_launch_rtc.ini",
+      "line": 9,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 3625,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\omicron_launch_rtc.ini",
+      "line": 9,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 3632,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\cruiser_deck_rtc.ini",
+      "line": 10,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 3638,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\prison_rtc.ini",
+      "line": 11,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 77,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\tobago_deck_relocate.ini",
+      "line": 3,
+      "role": "action",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 77,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\tobago_deck_relocate.ini",
+      "line": 10,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 83,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\tobago_bar.ini",
+      "line": 18,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1208,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\omega13_rtc.ini",
+      "line": 12,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1218,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\omega13_launch_rtc.ini",
+      "line": 9,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1219,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\avalon_launch_rtc.ini",
+      "line": 10,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1226,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\avalon_rtc.ini",
+      "line": 11,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1283,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\darcy_battleship_rtc.ini",
+      "line": 11,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1352,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\check_artifact_rtc.ini",
+      "line": 12,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1361,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\jabba_launch_rtc.ini",
+      "line": 10,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1449,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\reward_rtc.ini",
+      "line": 12,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 286,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\cadiz.ini",
+      "line": 14,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_null.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 4367,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m08\\king_battleship_rtc.ini",
+      "line": 11,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 126,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\queen_rtc.ini",
+      "line": 16,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_female_null.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 188,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\prince_wales.ini",
+      "line": 3,
+      "role": "action",
+      "thn": "scripts\\generated\\m08_prince_wales{{ suffix }}.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 188,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\prince_wales.ini",
+      "line": 10,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 4466,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\sprague.ini",
+      "line": 3,
+      "role": "action",
+      "thn": "scripts\\generated\\m08_sprague{{ suffix }}.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 4466,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\sprague.ini",
+      "line": 11,
+      "role": "fidget",
+      "thn": "scripts\\extras\\fidget_stand_male_NULL.thn"
+    }
+  ]
+}

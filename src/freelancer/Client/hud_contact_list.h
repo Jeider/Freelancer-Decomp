@@ -89,6 +89,7 @@ public:
     explicit HUD_ContactList(INI_Reader& Reader);
     // FUN_004cf5d0 (scalar deleting FUN_004cf5b0; WinControl-face thunk LAB_004d4aa0)
     ~HUD_ContactList() override;
+    void SetTarget(IObjRW* Target) override;
 
     // HUDItem slot 6 FUN_004d0170 (RET 8) -- follow the target panel's mode: shown in modes 0
     // and 2; a mode change swaps the filter buttons for the formation title.

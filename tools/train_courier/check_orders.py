@@ -38,7 +38,7 @@ struct Point {
 };
 struct Config {
     Rules rules;std::vector<Point> points;std::vector<Route> routes;
-    std::map<std::string,std::string> commodityVoices;unsigned title=40,missionTitle=42,cargoName=43,pickup=3,pickupFrom=3,deliver=4,park=5,voice=1;
+    std::map<std::string,std::string> commodityVoices,commodityClass;unsigned title=40,missionTitle=42,cargoName=43,pickup=3,pickupFrom=3,deliver=4,park=5,voice=1;
     std::map<std::string,std::vector<unsigned>> descriptions;
 };
 unsigned mockSystem=1;Vector mockPosition;bool mockReady=true;unsigned marks=0;
@@ -66,7 +66,8 @@ struct CourierMission {
     bool arrivalSpoken=false;
     unsigned proseIds=0,lostPods=0;int quotedReward=0,lossCharge=0;float remaining=0,expectedSeconds=0;
     FmtStr Field_0x68;void describeOrder(){Field_0x68.value=state.reward;}
-    std::vector<std::string> goodsFor(Point const&) const;
+    std::vector<std::string> goodsFor(Point const&,unsigned) const;
+    std::string pickCommodity(std::vector<std::string> const&) const;
     std::set<std::string> hostile;
     Point pendingPoint;std::string pendingLabel;float markerDelay=0,uncoupledTime=0;
     struct {bool bActive=false;unsigned SystemId=0;int TargetIds=0;Vector Position;void Reset(){bActive=false;}} NnPath;
@@ -172,27 +173,23 @@ int main(){
         m.state.unlockedWagons=20;m.state.order=1;m.state.wagons=3;
         m.state.recentBases={"previous","origin"};assert(m.next());validate(m);
         assert(m.state.wagons==10 && m.state.unlockedWagons==20);
-        assert(m.source.base=="origin" && m.destination.base=="previous" && m.state.distance==9);
+        assert(m.source.base=="origin" && m.state.distance==10);
+        assert(m.destination.base=="planet" || m.destination.base=="megabase");
         // Equal-distance planets and megabases share the same candidate pool.
         m.hostile.insert("previous");assert(m.next());validate(m);
         assert(m.source.base=="origin" && m.state.distance==10);
         planets+=m.destination.base=="planet";megabases+=m.destination.base=="megabase";
     }
     assert(planets && megabases);
-    // History is a weight, never a veto. Both base types get the same 4:1
-    // preference when they are new, and the longer unseen route stays out.
+    // A used destination is skipped while another friendly base can take the cargo.
     for(auto const& recent:{"planet","megabase"}) {
-        unsigned fresh=0,repeated=0;
-        for(unsigned seed=0;seed<1024;++seed) {
+        for(unsigned seed=0;seed<32;++seed) {
             std::srand(seed);CourierMission m;m.config=rotation;m.source=rotation.points[0];
             m.state.unlockedWagons=10;m.state.wagons=10;
             m.state.recentBases={recent};m.hostile.insert("previous");
-            assert(m.choose() && m.state.distance==10);
-            assert(m.destination.base=="planet" || m.destination.base=="megabase");
-            if(m.destination.base==recent)++repeated;else ++fresh;
+            assert(m.choose() && m.state.distance==10 && m.destination.base!=recent);
         }
-        assert(repeated>0 && fresh>3*repeated && fresh<5*repeated);
-        std::printf("PASS: recent %s: unseen/repeat %u/%u; both remain eligible, longer unseen route excluded\n",recent,fresh,repeated);
+        std::printf("PASS: recent %s is not repeated while the other equal base is free\n",recent);
     }
     CourierMission nearbyFallback;nearbyFallback.config=rotation;nearbyFallback.source=rotation.points[0];
     nearbyFallback.source.commodities.clear();nearbyFallback.state.unlockedWagons=10;
@@ -215,6 +212,27 @@ int main(){
         assert(orderWagonLimit(s,rotation.rules)==std::max(2u,n/2));
         s.order=2;assert(orderWagonLimit(s,rotation.rules)==n);
     }
+    Config haul;
+    auto depot=[&](char const* name,unsigned system,std::vector<std::string> stock,std::vector<std::string> demand) {
+        Point p;p.base=p.nickname=name;p.systemId=system;p.commodities=stock;p.demand=demand;p.freightHub=true;
+        for(auto const& n:stock)p.prices[n]=100;
+        haul.points.push_back(p);
+    };
+    depot("here",1,{"water"},{"water"});
+    depot("next",2,{"rock","extra"},{"rock"});
+    depot("away",3,{},{"water","rock","extra"});
+    haul.commodityClass["water"]="basic";haul.commodityClass["rock"]="roid";haul.commodityClass["extra"]="water_extra";
+    haul.commodityVoices["water"]=haul.commodityVoices["rock"]=haul.commodityVoices["extra"]="voice";
+    haul.descriptions["water"]=haul.descriptions["rock"]=haul.descriptions["extra"]={1};
+    haul.routes={{"here","away",9,2},{"here","next",1,1},{"next","away",9,2}};
+    CourierMission waterOnly;waterOnly.config=haul;waterOnly.source=haul.points[0];waterOnly.state.unlockedWagons=10;waterOnly.state.wagons=10;
+    assert(!waterOnly.choose());
+    CourierMission fetch;fetch.config=haul;fetch.source=haul.points[0];fetch.state.unlockedWagons=10;
+    assert(fetch.next() && fetch.source.base=="next" && (fetch.commodity=="extra" || fetch.commodity=="rock"));
+    unsigned extra=0;
+    for(unsigned seed=0;seed<16;++seed){std::srand(seed);CourierMission m;m.config=haul;m.source=haul.points[1];m.state.unlockedWagons=10;m.state.wagons=10;assert(m.choose() && m.commodity=="extra");++extra;}
+    assert(extra==16);
+    std::printf("PASS: basic water stays inside a system pair; neighbor haul can fetch roid or water extra; water extra outranks roid\n");
     std::printf("PASS: nearest suitable route despite history; current depot first, neighbor fallback, local load reduction; equal-distance planet/megabase targets %u/%u; closer megabase feeder; short=half unlocked, long=full\n",planets,megabases);
 
     Config c=catalog();unsigned tested=0,refineries=0,fullLoads=0;
@@ -268,7 +286,7 @@ def main(data=None, required_bases=()):
     source=(ROOT/'src/Content/TrainCourier.cpp').read_text(encoding='utf-8')
     methods=[]
     for result,name in [('void','objective'),('void','objectObjective'),('void','updateObjectObjective'),
-                        ('std::vector<std::string>','goodsFor'),('bool','choose'),('bool','createPendingCargo'),('bool','next'),('void','advanceOrder'),('void','showOffer'),('void','onContinue')]:
+                        ('std::vector<std::string>','goodsFor'),('std::string','pickCommodity'),('bool','choose'),('bool','createPendingCargo'),('bool','next'),('void','advanceOrder'),('void','showOffer'),('void','onContinue')]:
         methods.append(function(source,result+' '+name+'(').replace(result+' '+name+'(',result+' CourierMission::'+name+'(',1))
     main=MAIN
     if required_bases:

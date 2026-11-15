@@ -1,0 +1,437 @@
+{
+  "name": "m08_offer_decision",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_offer_decision.thn",
+  "points": {
+    "Char_kaytlin": {
+      "pos": [
+        2,
+        0,
+        -3.05
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Char_brighton": {
+      "pos": [
+        1.6,
+        0,
+        -1.9
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    "Char_darcy": {
+      "pos": [
+        2.2,
+        0,
+        -1.2
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Char_trent": {
+      "pos": [
+        4,
+        0,
+        -2.5
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "cam_trent_far": {
+      "pos": [
+        0,
+        1.8,
+        -2
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent_far_focus": {
+      "pos": [
+        4,
+        0.7,
+        -2.3
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "cam_trent_far"
+  ],
+  "characters": [
+    "Char_kaytlin",
+    "Char_brighton",
+    "Char_darcy",
+    "Char_trent"
+  ],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "scene_m08_offer",
+      "type": "SCENE",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "entity_name": "Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "template_id": 0
+    },
+    {
+      "entity_name": "Char_kaytlin",
+      "type": "DEFORMABLE",
+      "template_name": "kaytlin",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          2,
+          0,
+          -3.05
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "actor": "Kaytlin",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_brighton",
+      "type": "DEFORMABLE",
+      "template_name": "brighton",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          1.6,
+          0,
+          -1.9
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "actor": "Brighton",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_darcy",
+      "type": "DEFORMABLE",
+      "template_name": "darcy",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          2.2,
+          0,
+          -1.2
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Darcy",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_trent",
+      "type": "DEFORMABLE",
+      "template_name": "trent",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          4,
+          0,
+          -2.5
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Player",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "cam_trent_far",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          0,
+          1.8,
+          -2
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 18,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_trent_far_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          4,
+          0.7,
+          -2.3
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "duration": 267111111.0
+}

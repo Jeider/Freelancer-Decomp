@@ -433,13 +433,12 @@ bool FEngineCharacterBody::Build(Costume const& Key)
     // holder pointer advanced for every index); FUN_004c9e20's body is inlined here.
     CostumeDescriptions const* const Descs = GetCostumeDescriptions();
     FMeshHolder* Holder = &Accessories[0];
-    for (int Index = 0; Index < static_cast<int>(Key.AccessoryCount); ++Index, ++Holder)
+    for (unsigned Index = 0; Index < Key.AccessoryCount && Index < 8; ++Index)
     {
-        if (static_cast<unsigned>(Index) > 4u)
-            break;
         accessory const* const Found = Descs->find_accessory(Key.AccessoryIds[Index]);
-        if (Found == nullptr)
+        if (Found == nullptr || _stricmp(Found->Mesh.c_str(), "null.3db") == 0)
             continue;
+        if (Holder == &Accessories[4]) break;
 
         FEngineCharacterAccessoryLink Link; // FUN_005a6900 + the three TString clears
         Link.Mesh = CStrOrEmpty(Found->Mesh);                              // FUN_004cec20
@@ -458,6 +457,7 @@ bool FEngineCharacterBody::Build(Costume const& Key)
             Material.Value = StringAlloc(First, true);
             ClientMeshHolderSetMaterials(Holder, Material.Value, nullptr);
         }
+        ++Holder;
     } // Link destroyed (FUN_004de730)
 
     // 0x0059b63e..0x0059b652: SETNZ on the deformable.
@@ -585,16 +585,15 @@ FEngineCharacterBody* FEngineCharacterCache::FindOrCreate(Costume const& Key)
     // 0x004c9c0c..0x004c9d3e: the accessories. The index test is `CMP i,4 / JA`, so a costume
     // with five or more accessories reaches index 4 -- one holder past the four the body has,
     // over AnimNames[0]. The costume tables retail ships never do (8 slots, the parser keeps
-    // what the ini lists); the port keeps the test as it is.
+    // what the ini lists). Skip null placeholders and cap real holders at four.
     CostumeDescriptions const* const Descs = GetCostumeDescriptions();
     FMeshHolder* Holder = &Body->Accessories[0];
-    for (int Index = 0; Index < static_cast<int>(Key.AccessoryCount); ++Index, ++Holder)
+    for (unsigned Index = 0; Index < Key.AccessoryCount && Index < 8; ++Index)
     {
-        if (static_cast<unsigned>(Index) > 4u)
-            break;
         accessory const* const Found = Descs->find_accessory(Key.AccessoryIds[Index]);
-        if (Found == nullptr)
+        if (Found == nullptr || _stricmp(Found->Mesh.c_str(), "null.3db") == 0)
             continue;
+        if (Holder == &Body->Accessories[4]) break;
 
         FEngineCharacterAccessoryLink Link;
         Link.Mesh = CStrOrEmpty(Found->Mesh);
@@ -613,6 +612,7 @@ FEngineCharacterBody* FEngineCharacterCache::FindOrCreate(Costume const& Key)
             Material.Value = StringAlloc(First, true);
             ClientMeshHolderSetMaterials(Holder, Material.Value, nullptr);
         }
+        ++Holder;
     }
 
     // 0x004c9d44..0x004c9d61: no deformable -> the body is thrown away (FUN_004ca530 + free).

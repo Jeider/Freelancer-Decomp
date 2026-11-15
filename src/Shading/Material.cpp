@@ -2460,7 +2460,7 @@ GENRESULT FMaterial::SubmitAlphaTest(void* Context, unsigned long PrimType, unsi
 
 GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, unsigned long Start, unsigned long Count, unsigned long Zero, unsigned long Field, unsigned long Flags)
 {
-    FRPRoomMaterialScope Room(Pipeline, InstanceName, TexCount > 0 && TexBlocks ? TexBlocks[0].Name : nullptr);
+    FRPRoomMaterialScope Room(Pipeline, InstanceName, TexCount > 0 && TexBlocks ? TexBlocks[0].Name : nullptr, TexCount > 1 && TexBlocks ? TexBlocks[1].Name : nullptr);
     // This authored crystal material is used by the large Tau31 ice CMPs. Select
     // by material identity, never by colour/texture size or the asteroid draw pass.
     // Older RP9 versions reject the new profile without changing their state.

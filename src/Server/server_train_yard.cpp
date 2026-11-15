@@ -154,6 +154,42 @@ unsigned spawn(CShip* loco,unsigned player) {
     return created ? created->get_id():0;
 }
 }
+static CShip* TrainSwitchShip(unsigned id) {
+    auto* object=Server_LookupLiveObject(id);
+    return object && object->Object && object->Object->ObjectClass==CObject::ClassShip
+        ? static_cast<CShip*>(object->Object) : nullptr;
+}
+bool TrainConsistParkForSystemSwitch(CShip* loco, unsigned& trailer, unsigned& owner, float& hitpoints) {
+    trailer=0; owner=0; hitpoints=0;
+    if(!loco) return false;
+    CObject* tailObject=CmnTrain::Trailer(loco);
+    if(!tailObject || tailObject->ObjectClass!=CObject::ClassShip) return false;
+    auto* tail=static_cast<CShip*>(tailObject);
+    if(!std::isfinite(tail->get_hit_pts()) || tail->get_hit_pts()<=0) return false;
+    unsigned id=tail->Id;
+    unsigned savedOwner=tail->OwnerPlayer;
+    float savedHitpoints=tail->get_hit_pts();
+    Vector position=tail->WorldPosition;
+    Matrix orientation=tail->Orientation;
+    if(!CmnTrain::Uncouple(loco)) return false;
+    unsigned transit=0;
+    if(pub::SpaceObj::Relocate(id, transit, position, orientation)!=0) {
+        CmnTrain::RestoreCoupling(loco, tail);
+        return false;
+    }
+    trailer=id; owner=savedOwner; hitpoints=savedHitpoints;
+    return true;
+}
+bool TrainConsistArriveAfterSystemSwitch(CShip* loco, unsigned trailer, unsigned owner, float hitpoints,
+    unsigned system, Vector const& position, Matrix const& orientation) {
+    auto* tail=TrainSwitchShip(trailer);
+    if(!loco || !tail || !system || !loco->BodyPtr) return false;
+    tail->SetOwnerPlayer(owner);
+    if(std::isfinite(hitpoints) && hitpoints>0) tail->set_hit_pts(hitpoints);
+    if(pub::SpaceObj::Relocate(trailer, system, position, orientation)!=0) return false;
+    tail=TrainSwitchShip(trailer);
+    return tail && CmnTrain::RestoreCoupling(loco, tail);
+}
 // Local SP bridge, called between simulation updates just like the existing
 // player action bridge. No transport RPC or multiplayer authorization surface.
 extern "C" __declspec(dllexport) int __cdecl TrainYardBridge(TrainYard::Packet* p) {
@@ -312,6 +348,13 @@ extern "C" __declspec(dllexport) int __cdecl TrainCourierBridge(TrainCourier::Pa
            solarSystem!=state.system || solarSystem!=currentSystem ||
            !solar->launch_pos(position,orientation,0))return 1;
         state.solar=p->launchSolar;p->result=1;
+    } else if(p->operation==Op::ParkedSolar) {
+        unsigned solarSystem=0;
+        auto* solar=parkedSolar(p->launchSolar);
+        if(!solar || !loco || pub::SpaceObj::GetSystem(p->launchSolar,solarSystem)!=0 ||
+           solarSystem!=currentSystem)return 1;
+        state.parked.emplace(p->launchSolar,Courier::Retired{solarSystem,solar->WorldPosition});
+        p->result=1;
     } else if(p->operation==Op::ClearTransfer) {state.transfer=false;p->result=1;}
     else if(p->operation==Op::Query) p->result=1;
     p->trailer=state.trailer;
@@ -404,6 +447,7 @@ void TrainCourierTick() {
 }
 
 void TrainCourierReset(unsigned player) {
+    PlayerShipTransferReset(player);
     // Loading/logout destroys the old world separately; forget its ID tombstones.
     for(auto it=couriers.begin();it!=couriers.end();) {
         if(!player || it->first==player) {

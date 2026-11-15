@@ -1,0 +1,174 @@
+{
+  "name": "m05_rheinlanders_camera",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_rheinlanders_camera.thn",
+  "points": {
+    "Shot06_Camera_1": {
+      "pos": [
+        -18945,
+        -39,
+        28469
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Shot06_Camera_1_focus": {
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "Shot06_Camera_1"
+  ],
+  "characters": [],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "Scene_Trailer_Cam5",
+      "type": "SCENE",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "entity_name": "Shot06_Camera_1",
+      "type": "CAMERA",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          -18945,
+          -39,
+          28469
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 35,
+        "hvaspect": 1.333333,
+        "nearplane": 0.1,
+        "farplane": 100000
+      }
+    },
+    {
+      "entity_name": "main_object",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "userprops": {
+        "main_object": "main_object"
+      }
+    },
+    {
+      "entity_name": "Shot06_Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "template_id": 0
+    }
+  ],
+  "duration": 300.0
+}

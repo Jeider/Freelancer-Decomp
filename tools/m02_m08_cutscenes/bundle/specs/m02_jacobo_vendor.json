@@ -1,0 +1,116 @@
+{
+  "name": "m02_jacobo_vendor",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_jacobo_vendor.thn",
+  "points": {
+    "Char_jacobo": {
+      "pos": [
+        4.455922,
+        0,
+        4.736958
+      ],
+      "orient": [
+        [
+          0.732979,
+          0,
+          -0.680251
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.680251,
+          0,
+          0.732979
+        ]
+      ]
+    }
+  },
+  "cameras": [],
+  "characters": [
+    "Char_jacobo"
+  ],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "Layer_Fidget_Male_Sit",
+      "type": "SCENE",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "entity_name": "the_char",
+      "type": "DEFORMABLE",
+      "template_name": "jacobo",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          4.455922,
+          0,
+          4.736958
+        ],
+        "orient": [
+          [
+            0.732979,
+            0,
+            -0.680251
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.680251,
+            0,
+            0.732979
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "category": "Character"
+      }
+    }
+  ],
+  "duration": 15.133
+}

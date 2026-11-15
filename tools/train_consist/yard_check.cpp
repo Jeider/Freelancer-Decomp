@@ -5,6 +5,7 @@
 #include "common_id.h"
 #include "common_csys.h"
 #include "train_yard_bridge.h"
+#include "check_contacts.h"
 static CShip* vehicle(char const* model,unsigned id,float mass) {
     auto* arch=new Archetype::Ship;arch->DaArchetype.Value=model;
     auto* object=static_cast<CShip*>(CObject::Alloc(CObject::ClassShip));
@@ -17,7 +18,18 @@ static CShip* vehicle(char const* model,unsigned id,float mass) {
     need(object->BodyPtr!=nullptr,"yard physical body");return object;
 }
 static V speed(CObject* o) {auto v=PhySys::GetVelocity(o);return {v.x,v.y,v.z};}
+struct NoseTestFilter:IVP_Collision_Filter {
+    IVP_Collision_Filter* original;
+    IVP_Real_Object* nose;
+    bool enabled;
+    int32_t check_objects_for_collision_detection(IVP_Real_Object* a,IVP_Real_Object* b) override {
+        if(!enabled && (a==nose || b==nose))return 0;
+        return original->check_objects_for_collision_detection(a,b);
+    }
+    void environment_will_be_deleted(IVP_Environment*) override {}
+};
 int main(int argc,char** argv) {
+    checkSoftContacts();
     setvbuf(stdout,nullptr,_IONBF,0);SetUnhandledExceptionFilter(fault);
     SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX);
     need(argc==2,"yard model directory");
@@ -323,6 +335,51 @@ int main(int argc,char** argv) {
     need(!CmnTrain::IsCoupling(replacement),"trailer destruction cancels an active approach");
     for(int i=0;i<16;++i){PhySys::Update(1,1.f/16);replacement->update_tree();}
     need(speed(replacement).length()<.01,"no stale approach controller after trailer destruction");
-    replacement->Release();PhySys::Shutdown(1);
+    replacement->Release();
+    // Isolate an actual nose/SUR impact from coupling forces. The production
+    // train above tests the joint controller; here unregister only that controller
+    // so its large artificial pose error cannot impersonate a collision impulse.
+    for(int enabled=0;enabled<2;++enabled) {
+        auto* h=vehicle("train_locomotive.cmp",1100+enabled*2,500);
+        auto* w=vehicle("train_wagons.cmp",1101+enabled*2,250);
+        PhySys::BeamR(w,{0,0,25.37048f+8},h->Orientation,false);
+        need(CmnTrain::Couple(h,w)==1,"nose fixture couples");
+        h->enable_collisions_r(true);w->enable_collisions_r(true);
+        IVP_Real_Object* nose=nullptr;
+        auto* core=h->BodyPtr->core;
+        for(int i=0;i<core->Objects.n_elems;++i)
+            if(core->Objects.elems[i]->client_data==nullptr && core->Objects.elems[i]->object_type==3)nose=core->Objects.elems[i];
+        need(nose && nose->core==core,"nose shares locomotive core");
+        need(std::abs(1/core->InvMass-500)<.01,"nose does not alter locomotive mass");
+        auto* filter=core->Environment->collision_filter;
+        need(filter->check_objects_for_collision_detection(nose,w->BodyPtr)==1,"nose hits own wagon");
+        need(filter->check_objects_for_collision_detection(h->BodyPtr,w->BodyPtr)==0,"ordinary hull still ignores own wagon");
+        need(filter->check_objects_for_collision_detection(nose,h->BodyPtr)==0,"nose ignores locomotive");
+        PhySys::Controller* joint=nullptr;
+        for(int i=0;i<core->Controllers.n_elems;++i) {
+            auto* c=core->Controllers.elems[i];
+            if((int)c->get_controller_priority()==50)joint=dynamic_cast<PhySys::Controller*>(c);
+        }
+        need(joint!=nullptr,"find coupling controller for isolated impact");
+        PhySys::Controller::UnRegister(joint);
+        PhySys::RayHit hit[8];
+        need(PhySys::FindRayIntersect(w,vgame(point(w,{4.5,35,21})),vgame(point(w,{4.5,-35,21})),hit,8)>0,"real wagon rail surface");
+        V noseCenter=point(h,anchor(h,"HpMount")+V{0,0,5});
+        V contact={hit[0].Point.x,hit[0].Point.y,hit[0].Point.z};
+        NoseTestFilter controlled;controlled.original=filter;controlled.nose=nose;controlled.enabled=enabled!=0;
+        core->Environment->collision_filter=&controlled;
+        PhySys::BeamR(w,vgame(point(w,{})+noseCenter-contact-V{0,6,0}),w->Orientation,false);
+        PhySys::AddToVelocity(h,{0,-10,0});
+        double response=0;
+        for(int i=0;i<12;++i) {
+            PhySys::Update(1,1.f/64);h->update_tree();w->update_tree();
+            response=(std::max)(response,speed(w).length());
+        }
+        printf("Nose enabled=%d: wagon impact response %.6f m/s\n",enabled,response);
+        need(enabled?response>.05:response<.001,"only nose contact transfers the impact");
+        core->Environment->collision_filter=filter;
+        h->Release();w->Release();
+    }
+    PhySys::Shutdown(1);
     std::puts("PASS: yard models, 40 pods, fixed parking under impulses and collisions, capture limits, towing, immediate parking on detach, recoupling, 20 cycles, locomotive destruction and cleanup");
 }

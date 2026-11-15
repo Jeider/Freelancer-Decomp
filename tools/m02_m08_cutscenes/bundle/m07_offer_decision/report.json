@@ -1,0 +1,82 @@
+{
+  "name": "m07_offer_decision",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_offer_decision.thn",
+  "sha256": "61ce32166d6394846bb0e61d1fd861be0e293a692037ff4e8aee6ae24b756cb2",
+  "uses": [
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 83,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\tobago_bar.ini",
+      "line": 4,
+      "role": "decision",
+      "thn": "scripts\\mod\\m07_offer_decision.thn"
+    }
+  ],
+  "source_duration": 140.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_m07_offer": "scene_m07_offer",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_bartender_Fixture": "Char_bartender_fixture",
+    "Char_trent_base": "Char_trent_base",
+    "Char_trent": "Char_trent",
+    "Char_barman": "Char_barman",
+    "head_barman_near": "automarker_head_barman_near",
+    "cam_trent_deal": "cam_trent_deal",
+    "cam_trent_deal_marker": "automarker_cam_trent_deal_focus"
+  },
+  "point_names": {
+    "scene_m07_offer": "scene_m07_offer",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_bartender_Fixture": "Char_bartender_fixture",
+    "Char_trent_base": "Char_trent_base",
+    "Char_trent": "Char_trent",
+    "Char_barman": "Char_barman",
+    "head_barman_near": "head_barman_near",
+    "cam_trent_deal": "cam_trent_deal",
+    "cam_trent_deal_marker": "cam_trent_deal_focus"
+  }
+}

@@ -1,0 +1,41 @@
+BASESIDE vector-authored icons
+=============================
+
+Seven room-navigation icons: cityscape, equipment_dealer, commod_trader, bar,
+deck, ship_dealer, planetscape. Original silhouettes are read from the model's
+embedded TGA, not inferred from cursor or atlas flips. Cargo reuses the approved
+six-container cursor geometry. Shapes live in Client/base_icon_art.h and use
+the same signed-distance rasterizer as cursors. White/grey artwork preserves
+the original material's blue/selected-yellow/hover/disabled tint.
+
+This set is baked to 512/256/128/64/32 TGA mip levels in the existing 3db files.
+It is vector-authored, not runtime vector tessellation or an automatic tracer.
+Mesh references, vertices, UVs, material names/flags and the navbar INI stay
+byte-identical. Thus room actions, hit boxes, spin and palette are unchanged.
+Seven full chains cost about 9.32 MiB uncompressed (roughly +7 MiB).
+No new client executable or shader is required.
+
+Build/stage: python tools/cursors/base_icons.py
+GPU check:   python tools/cursors/check_base_gpu.py
+Install:     python tools/cursors/base_icons.py --apply (game must be closed)
+Preview:     src/obj/base_icons/comparison_v8.png (original above, new below)
+Staging:     out/base_icons/stage/DATA
+Originals:   out/base_icons/originals/DATA
+Backups:     out/base_icons/backups/<timestamp>/DATA
+All DATA output including staging, originals, backups and failure rollback
+goes through Pythonlancer tools.data_folder.DataFolder.sync_data_file.
+
+Checks: all 35 mip payloads roundtrip TGA decoding without vertical/channel
+changes; every non-texture leaf remains byte-identical; seven shapes match
+CPU alpha compositing on hardware D3D9; 56 size/background renders. These are
+asset/render checks, not a playthrough of every room or mouse state.
+
+Further scope: flat HUD symbols, service icons, buttons and map markers are
+suitable for this approach, one family at a time with original references.
+Portraits, realistic item/ship previews and illustrated emblems should retain
+their image/3D representation rather than be simplified automatically.
+
+Equipment, cargo and ship now also supply the corresponding mouse cursor
+artwork through the shared icon_vector_raster.h and base_icon_art.h sources.
+After editing those shapes, run cursor CPU/GPU checks, rebuild the client and
+use tools/cursors/install.py as well as this asset installer to update both.

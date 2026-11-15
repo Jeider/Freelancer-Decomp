@@ -120,6 +120,23 @@ def repair_mesh(blob):
     return bytes(result), old_vertices, count
 
 
+def repair_parsed(groups, vertices):
+    """Same face-normal repair for a selected mesh/LOD during station baking."""
+    result=[];fixed=[];changed=0
+    for material,indices in groups:
+        assert len(indices)%3==0
+        begin=len(fixed)
+        for offset in range(0,len(indices),3):
+            face=[vertices[i] for i in indices[offset:offset+3]]
+            normal=face_normal(face)
+            for v in face:
+                new=v[:12]+struct.pack('<3f',*normal)+v[24:] if normal else v
+                assert new[:12]==v[:12] and new[24:]==v[24:]
+                changed+=new[12:24]!=v[12:24];fixed.append(new)
+        result.append((material,list(range(begin,len(fixed)))))
+    return (result,fixed),changed
+
+
 def repair(source, destination):
     if source.resolve() == destination.resolve():
         raise ValueError('Use a separate output file')

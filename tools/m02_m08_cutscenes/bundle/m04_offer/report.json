@@ -1,0 +1,817 @@
+{
+  "name": "m04_offer",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_offer.thn",
+  "sha256": "1f2d15b9617c5de6fbb6f61f1a1df86b073a71565ff42f5e3c4ab304d7fc0d3e",
+  "uses": [
+    {
+      "mission": 4,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "mission_line": 137,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\vendor_msn.ini",
+      "line": 3,
+      "role": "offer",
+      "thn": "scripts\\mod\\m04_offer.thn"
+    }
+  ],
+  "source_duration": 101.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 10,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 1.3,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 3.6,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 6,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 12,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 13.1,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 3,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 3,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 18,
+      "time": 15,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 15,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 15,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 15,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 22,
+      "time": 15,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 18.9,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 24,
+      "time": 21.2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 25,
+      "time": 27.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 26,
+      "time": 30,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 27,
+      "time": 30.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 28,
+      "time": 32,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 27,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 30,
+      "time": 35,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 31,
+      "time": 29.25,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 29,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 33,
+      "time": 30,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 30.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 35,
+      "time": 33,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 36,
+      "time": 29,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 37,
+      "time": 32,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 38,
+      "time": 32,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 39,
+      "time": 35,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 40,
+      "time": 37,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 41,
+      "time": 37.0011,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 42,
+      "time": 39,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 43,
+      "time": 37,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 44,
+      "time": 37,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 45,
+      "time": 37,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 46,
+      "time": 39.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 47,
+      "time": 45,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 48,
+      "time": 45,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 49,
+      "time": 45,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 50,
+      "time": 47,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 51,
+      "time": 49,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 52,
+      "time": 50,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 53,
+      "time": 50,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 54,
+      "time": 56,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 55,
+      "time": 56,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 56,
+      "time": 52,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 57,
+      "time": 52,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 58,
+      "time": 52,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 59,
+      "time": 57,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 60,
+      "time": 50,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 61,
+      "time": 52,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 62,
+      "time": 55,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 63,
+      "time": 59,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 64,
+      "time": 60,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 65,
+      "time": 60,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 66,
+      "time": 60,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 67,
+      "time": 60,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 68,
+      "time": 61,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 69,
+      "time": 61,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 70,
+      "time": 61,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 71,
+      "time": 63,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 72,
+      "time": 65,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 73,
+      "time": 68,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 74,
+      "time": 65,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 75,
+      "time": 72,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 76,
+      "time": 72,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 77,
+      "time": 82,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 78,
+      "time": 92,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 79,
+      "time": 97,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 80,
+      "time": 72,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 81,
+      "time": 77,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 82,
+      "time": 82,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 83,
+      "time": 87,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 84,
+      "time": 92,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 85,
+      "time": 96,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 86,
+      "time": 72,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 87,
+      "time": 98,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 37,
+      "start": 32,
+      "index": 10,
+      "actor": "jacobo",
+      "sound": "DX_m04_offer_0010_jacobo",
+      "prefix": "m04_offer",
+      "character": "Char_jacobo",
+      "script_actor": "Jacobo",
+      "source_actor_class": "Jacobo",
+      "window": 3,
+      "lip_events": [
+        38
+      ],
+      "source_gap": 2
+    },
+    {
+      "id": 44,
+      "start": 37,
+      "index": 20,
+      "actor": "jacobo",
+      "sound": "DX_m04_offer_0020_jacobo",
+      "prefix": "m04_offer",
+      "character": "Char_jacobo",
+      "script_actor": "Jacobo",
+      "source_actor_class": "Jacobo",
+      "window": 8.5,
+      "lip_events": [
+        45,
+        46
+      ],
+      "source_gap": -0.5
+    },
+    {
+      "id": 48,
+      "start": 45,
+      "index": 30,
+      "actor": "trent",
+      "sound": "DX_m04_offer_0030_trent",
+      "prefix": "m04_offer",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 8,
+      "lip_events": [
+        49,
+        50,
+        51
+      ],
+      "source_gap": -1
+    },
+    {
+      "id": 57,
+      "start": 52,
+      "index": 40,
+      "actor": "jacobo",
+      "sound": "DX_m04_offer_0040_jacobo",
+      "prefix": "m04_offer",
+      "character": "Char_jacobo",
+      "script_actor": "Jacobo",
+      "source_actor_class": "Jacobo",
+      "window": 10,
+      "lip_events": [
+        58,
+        59
+      ],
+      "source_gap": -1
+    },
+    {
+      "id": 69,
+      "start": 61,
+      "index": 50,
+      "actor": "trent",
+      "sound": "DX_m04_offer_0050_trent",
+      "prefix": "m04_offer",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 11,
+      "lip_events": [
+        70,
+        71,
+        72,
+        73
+      ],
+      "source_gap": 0
+    },
+    {
+      "id": 76,
+      "start": 72,
+      "index": 60,
+      "actor": "jacobo",
+      "sound": "DX_m04_offer_0060_jacobo",
+      "prefix": "m04_offer",
+      "character": "Char_jacobo",
+      "script_actor": "Jacobo",
+      "source_actor_class": "Jacobo",
+      "window": 10,
+      "lip_events": [
+        80,
+        81
+      ],
+      "source_gap": 0
+    },
+    {
+      "id": 77,
+      "start": 82,
+      "index": 62,
+      "actor": "jacobo",
+      "sound": "DX_m04_offer_0062_jacobo",
+      "prefix": "m04_offer",
+      "character": "Char_jacobo",
+      "script_actor": "Jacobo",
+      "source_actor_class": "Jacobo",
+      "window": 10,
+      "lip_events": [
+        82,
+        83
+      ],
+      "source_gap": 0
+    },
+    {
+      "id": 78,
+      "start": 92,
+      "index": 65,
+      "actor": "jacobo",
+      "sound": "DX_m04_offer_0065_jacobo",
+      "prefix": "m04_offer",
+      "character": "Char_jacobo",
+      "script_actor": "Jacobo",
+      "source_actor_class": "Jacobo",
+      "window": 9,
+      "lip_events": [
+        84,
+        85
+      ],
+      "source_gap": -4
+    },
+    {
+      "id": 79,
+      "start": 97,
+      "index": 67,
+      "actor": "jacobo",
+      "sound": "DX_m04_offer_0067_jacobo",
+      "prefix": "m04_offer",
+      "character": "Char_jacobo",
+      "script_actor": "Jacobo",
+      "source_actor_class": "Jacobo",
+      "window": 0,
+      "lip_events": [],
+      "source_gap": 4.0
+    }
+  ],
+  "notes": [
+    "No source facial allocation: DX_m04_offer_0067_jacobo at 97s; audio-only cue retained"
+  ],
+  "clock": "relative",
+  "entity_names": {
+    "Scene_M04_bar_scene": "Scene_M04_bar_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "DX_m04_offer_0010_jacobo": "DX_m04_offer_0010_jacobo",
+    "DX_m04_offer_0020_jacobo": "DX_m04_offer_0020_jacobo",
+    "DX_m04_offer_0030_trent": "DX_m04_offer_0030_trent",
+    "DX_m04_offer_0040_jacobo": "DX_m04_offer_0040_jacobo",
+    "DX_m04_offer_0050_trent": "DX_m04_offer_0050_trent",
+    "DX_m04_offer_0060_jacobo": "DX_m04_offer_0060_jacobo",
+    "DX_m04_offer_0062_jacobo": "DX_m04_offer_0062_jacobo",
+    "DX_m04_offer_0065_jacobo": "DX_m04_offer_0065_jacobo",
+    "DX_m04_offer_0067_jacobo": "DX_m04_offer_0067_jacobo",
+    "DX_m04_offer_0070_trent": "DX_m04_offer_0070_trent",
+    "DX_m04_offer_0080_jacobo": "DX_m04_offer_0080_jacobo",
+    "DX_m04_offer_0090_trent": "DX_m04_offer_0090_trent",
+    "Char_trent": "Char_trent",
+    "Char_trooper1": "Char_trooper1",
+    "Char_trooper2": "Char_trooper2",
+    "Char_jacobo": "Char_jacobo",
+    "point_trent_search": "automarker_point_trent_search",
+    "point_trent_search_almost_done": "automarker_point_trent_search_almost_done",
+    "point_trent_sitting_to_jacobo": "automarker_point_trent_sitting_to_jacobo",
+    "point_trent_sit_around_jacobo": "automarker_point_trent_sit_around_jacobo",
+    "point_jacobo_before_sit": "automarker_point_jacobo_before_sit",
+    "point_jacobo_sitting": "automarker_point_jacobo_sitting",
+    "trent_head_ik": "automarker_trent_head_ik",
+    "trent_eye_ik": "automarker_trent_eye_ik",
+    "jacobo_head_ik": "automarker_jacobo_head_ik",
+    "jacobo_eye_ik": "automarker_jacobo_eye_ik",
+    "head_trent_search": "automarker_head_trent_search",
+    "head_trent_sitting": "automarker_head_trent_sitting",
+    "head_trent_sit": "automarker_head_trent_sit",
+    "jacobo_front_stand": "automarker_jacobo_front_stand",
+    "head_jacobo_sit": "automarker_head_jacobo_sit",
+    "head_jacobo_standing": "automarker_head_jacobo_standing",
+    "head_jacobo_standing_go_out": "automarker_head_jacobo_standing_go_out",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "automarker_cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "automarker_cam_start_pos2",
+    "cam_start_marker": "automarker_cam_start_focus",
+    "cam_start_marker_pos2": "automarker_cam_start_marker_pos2",
+    "cam_start_marker_pos3": "automarker_cam_start_marker_pos3",
+    "cam_search": "cam_search",
+    "cam_search_pos2": "automarker_cam_search_pos2",
+    "cam_search_marker": "automarker_cam_search_focus",
+    "cam_search_marker_pos2": "automarker_cam_search_marker_pos2",
+    "cam_jacobo_appear": "cam_jacobo_appear",
+    "cam_jacobo_appear_pos2": "automarker_cam_jacobo_appear_pos2",
+    "cam_jacobo_appear_marker": "automarker_cam_jacobo_appear_focus",
+    "cam_jacobo_sitting": "cam_jacobo_sitting",
+    "cam_jacobo_sitting_marker": "automarker_cam_jacobo_sitting_focus",
+    "cam_trent_sitting": "cam_trent_sitting",
+    "cam_trent_sitting_marker": "automarker_cam_trent_sitting_focus"
+  },
+  "point_names": {
+    "Scene_M04_bar_scene": "Scene_M04_bar_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "DX_m04_offer_0010_jacobo": "DX_m04_offer_0010_jacobo",
+    "DX_m04_offer_0020_jacobo": "DX_m04_offer_0020_jacobo",
+    "DX_m04_offer_0030_trent": "DX_m04_offer_0030_trent",
+    "DX_m04_offer_0040_jacobo": "DX_m04_offer_0040_jacobo",
+    "DX_m04_offer_0050_trent": "DX_m04_offer_0050_trent",
+    "DX_m04_offer_0060_jacobo": "DX_m04_offer_0060_jacobo",
+    "DX_m04_offer_0062_jacobo": "DX_m04_offer_0062_jacobo",
+    "DX_m04_offer_0065_jacobo": "DX_m04_offer_0065_jacobo",
+    "DX_m04_offer_0067_jacobo": "DX_m04_offer_0067_jacobo",
+    "DX_m04_offer_0070_trent": "DX_m04_offer_0070_trent",
+    "DX_m04_offer_0080_jacobo": "DX_m04_offer_0080_jacobo",
+    "DX_m04_offer_0090_trent": "DX_m04_offer_0090_trent",
+    "Char_trent": "Char_trent",
+    "Char_trooper1": "Char_trooper1",
+    "Char_trooper2": "Char_trooper2",
+    "Char_jacobo": "Char_jacobo",
+    "point_trent_search": "point_trent_search",
+    "point_trent_search_almost_done": "point_trent_search_almost_done",
+    "point_trent_sitting_to_jacobo": "point_trent_sitting_to_jacobo",
+    "point_trent_sit_around_jacobo": "point_trent_sit_around_jacobo",
+    "point_jacobo_before_sit": "point_jacobo_before_sit",
+    "point_jacobo_sitting": "point_jacobo_sitting",
+    "trent_head_ik": "trent_head_ik",
+    "trent_eye_ik": "trent_eye_ik",
+    "jacobo_head_ik": "jacobo_head_ik",
+    "jacobo_eye_ik": "jacobo_eye_ik",
+    "head_trent_search": "head_trent_search",
+    "head_trent_sitting": "head_trent_sitting",
+    "head_trent_sit": "head_trent_sit",
+    "jacobo_front_stand": "jacobo_front_stand",
+    "head_jacobo_sit": "head_jacobo_sit",
+    "head_jacobo_standing": "head_jacobo_standing",
+    "head_jacobo_standing_go_out": "head_jacobo_standing_go_out",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "cam_start_pos2",
+    "cam_start_marker": "cam_start_focus",
+    "cam_start_marker_pos2": "cam_start_marker_pos2",
+    "cam_start_marker_pos3": "cam_start_marker_pos3",
+    "cam_search": "cam_search",
+    "cam_search_pos2": "cam_search_pos2",
+    "cam_search_marker": "cam_search_focus",
+    "cam_search_marker_pos2": "cam_search_marker_pos2",
+    "cam_jacobo_appear": "cam_jacobo_appear",
+    "cam_jacobo_appear_pos2": "cam_jacobo_appear_pos2",
+    "cam_jacobo_appear_marker": "cam_jacobo_appear_focus",
+    "cam_jacobo_sitting": "cam_jacobo_sitting",
+    "cam_jacobo_sitting_marker": "cam_jacobo_sitting_focus",
+    "cam_trent_sitting": "cam_trent_sitting",
+    "cam_trent_sitting_marker": "cam_trent_sitting_focus"
+  }
+}

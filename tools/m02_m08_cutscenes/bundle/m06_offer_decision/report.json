@@ -1,0 +1,72 @@
+{
+  "name": "m06_offer_decision",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_offer_decision.thn",
+  "sha256": "bd760d66f90e4861388ad3675c3bb28f0f9930748134596a6eefdff9c6d5d84f",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 346,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\vendor_msn.ini",
+      "line": 4,
+      "role": "decision",
+      "thn": "scripts\\mod\\m06_offer_decision.thn"
+    }
+  ],
+  "source_duration": 5000.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_m06_offer": "Scene_m06_offer",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_trent": "Char_trent",
+    "Char_alaric": "Char_alaric",
+    "Char_hatcher": "Char_hatcher",
+    "cam_scene": "cam_scene",
+    "cam_scene_marker": "automarker_cam_scene_focus"
+  },
+  "point_names": {
+    "Scene_m06_offer": "Scene_m06_offer",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_trent": "Char_trent",
+    "Char_alaric": "Char_alaric",
+    "Char_hatcher": "Char_hatcher",
+    "cam_scene": "cam_scene",
+    "cam_scene_marker": "cam_scene_focus"
+  }
+}

@@ -11,6 +11,7 @@
 #include "black_hole_visual.h"
 #include "tradelane_visual_style.h"
 #include "space_camera.h"
+#include "common_visible_draw.h"
 #include "player_behavior.h"
 #include "nebula_volume.h"
 #include "effect_type_info.h"
@@ -341,6 +342,7 @@ void ShipWarpVisualDraw(FSpaceCamera* Camera,FClientShipGameobj* TunnelShip)
         for(int R=0;R<3;++R) Centre[R]=View[R*3]*Pos.X+View[R*3+1]*Pos.Y+View[R*3+2]*Pos.Z+View[9+R];
         // Conservative sphere encloses all capped trails, including a turn.
         if(Camera->ClassifySphere(Centre,S.Radius*10)==1) return;
+        if(Eye && VisibleDraw::FullyHidden(Eye[0],Eye[1],Eye[2],Pos.X,Pos.Y,Pos.Z,S.Radius*10)) return;
         float Level=IsHot?(std::min)(G_Hot.Level,1.f):S.Clock.Intensity;
         float Gain=Level*Visibility(S,Camera,Centre,TunnelShip!=nullptr);
         if(Gain<.001f) return;

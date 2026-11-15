@@ -52,6 +52,7 @@
 #include "player_spawn.h"       // GetPlayerConnectionId (DAT_00673344)
 #include "space_letterbox.h"
 #include "space_scene_obj_draw.h" // SpaceCameraRenderSlot78 (FUN_0051b250)
+#include "render_ex.h"
 #include "win3d_immediate.h"    // Win3DSetViewport (FUN_00422610), Win3DSetPipelineClearColor
 #include "win3d.h"          // Win3DBroadcast (FUN_0059df40)
 #include "win3d_render.h"       // Win3DApplyCamera (FUN_00422950)
@@ -1346,6 +1347,9 @@ int FGameCamera::HandleCommand74(void* Command)
 void FGameCamera::DrawScene(unsigned LayerFlags, unsigned Param2)
 {
     SpaceObjDrawPass((FSpaceCamera*)this, LayerFlags, Param2);
+#ifdef FREELANCER_RP9
+    RenderEx::AfterSpaceScene();
+#endif
 }
 
 void FGameCamera::ScaleEnvironmentEffects()

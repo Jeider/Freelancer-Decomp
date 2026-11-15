@@ -1,0 +1,116 @@
+{
+  "name": "m06_vendor_hatcher",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_vendor_hatcher.thn",
+  "points": {
+    "Char_hatcher": {
+      "pos": [
+        -4.196033,
+        0,
+        3.027963
+      ],
+      "orient": [
+        [
+          -0.754409,
+          0,
+          0.656405
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.656405,
+          0,
+          -0.754409
+        ]
+      ]
+    }
+  },
+  "cameras": [],
+  "characters": [
+    "Char_hatcher"
+  ],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "Scene_Untitled_5",
+      "type": "SCENE",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "entity_name": "char_hatcher",
+      "type": "DEFORMABLE",
+      "template_name": "hatcher",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          -4.196033,
+          0,
+          3.027963
+        ],
+        "orient": [
+          [
+            -0.754409,
+            0,
+            0.656405
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.656405,
+            0,
+            -0.754409
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "category": "Character"
+      }
+    }
+  ],
+  "duration": 29.812
+}

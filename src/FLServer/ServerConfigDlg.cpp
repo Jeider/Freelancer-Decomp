@@ -15,6 +15,7 @@
 #include "RichEditText.h"
 #include "msvcrt_compat.h"      // MsvcrtAtoi
 #include "server_playerdb.h"    // Players
+#include "server_campaign_config.h"
 
 namespace
 {
@@ -36,6 +37,7 @@ namespace
 		bool bInternetAccessible;      // 1 byte
 		int MaxPlayers;                // 4 bytes
 		bool bAllowPvp;                // 1 byte, version 3 only
+		bool bCampaignServer = false; // tagged extension, not part of retail's prefix
 	};
 
 	const char* const ConfigFileName = "FLServer.cfg";
@@ -67,6 +69,18 @@ BOOL CServerConfigDlg::OnInitDialog()
 	PasswordEdit = GetDlgItem(1008);
 	LegalNotice = GetDlgItem(1070);
 
+	// Use the spare row below Options and above NOTE. Create
+	// the control here so installed/localized ServerResources.dll stays intact.
+	RECT campaignRect = {267, 77, 405, 99};
+	::MapDialogRect(m_hWnd, &campaignRect);
+	CampaignCheck = ::CreateWindowExW(0, L"BUTTON",
+		L"\u0421\u0435\u0440\u0432\u0435\u0440 \u0434\u043b\u044f \u0441\u044e\u0436\u0435\u0442\u043d\u043e\u0439 \u043a\u0430\u043c\u043f\u0430\u043d\u0438\u0438",
+		WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX | BS_MULTILINE,
+		campaignRect.left, campaignRect.top, campaignRect.right-campaignRect.left,
+		campaignRect.bottom-campaignRect.top, m_hWnd, reinterpret_cast<HMENU>(1090),
+		AfxGetInstanceHandle(), nullptr);
+	::SendMessage(CampaignCheck, WM_SETFONT, ::SendMessage(m_hWnd, WM_GETFONT, 0, 0), TRUE);
+
 	::SendMessage(MaxPlayersEdit->m_hWnd, EM_LIMITTEXT, 3, 0);
 	::SendMessage(ServerNameEdit->m_hWnd, EM_EXLIMITTEXT, 0, 0x20);
 	::SendMessage(DescriptionEdit->m_hWnd, EM_EXLIMITTEXT, 0, 0x80);
@@ -97,6 +111,7 @@ BOOL CServerConfigDlg::OnInitDialog()
 			{
 				fread(&Config.bAllowPvp, 1, 1, File);
 			}
+			Config.bCampaignServer = CampaignServerConfig::Read(File);
 		}
 		fclose(File);
 	}
@@ -106,6 +121,7 @@ BOOL CServerConfigDlg::OnInitDialog()
 	::SendMessage(AllowNewPlayersCheck->m_hWnd, BM_SETCHECK, (BYTE)Config.bAllowNewPlayers, 0);
 	::SendMessage(InternetCheck->m_hWnd, BM_SETCHECK, (BYTE)Config.bInternetAccessible, 0);
 	::SendMessage(PvpCheck->m_hWnd, BM_SETCHECK, (BYTE)Config.bAllowPvp, 0);
+	::SendMessage(CampaignCheck, BM_SETCHECK, Config.bCampaignServer ? BST_CHECKED : BST_UNCHECKED, 0);
 	SetRichEditText(ServerNameEdit->m_hWnd, Config.ServerName);
 	SetRichEditText(DescriptionEdit->m_hWnd, Config.Description);
 	SetRichEditText(PasswordEdit->m_hWnd, Config.Password);
@@ -142,6 +158,7 @@ void CServerConfigDlg::OnOK()
 	Config.bAllowNewPlayers = ::SendMessage(AllowNewPlayersCheck->m_hWnd, BM_GETCHECK, 0, 0) != 0;
 	Config.bInternetAccessible = ::SendMessage(InternetCheck->m_hWnd, BM_GETCHECK, 0, 0) != 0;
 	Config.bAllowPvp = ::SendMessage(PvpCheck->m_hWnd, BM_GETCHECK, 0, 0) != 0;
+	Config.bCampaignServer = ::SendMessage(CampaignCheck, BM_GETCHECK, 0, 0) == BST_CHECKED;
 
 	if (Config.MaxPlayers < 1 || Config.MaxPlayers > 0x80)
 	{
@@ -164,6 +181,7 @@ void CServerConfigDlg::OnOK()
 	Control.bListServerReporting = Config.bInternetAccessible;
 	Control.ServerPassword.assign(Config.Password, wcslen(Config.Password));
 	Control.SetAllowPvp(Config.bAllowPvp);                  // SStartupInfo byte, .text:00402390
+	Control.bCampaignServer = Config.bCampaignServer;
 
 	Players.BuildLocalUserDir();
 	char Path[0x400] = "";
@@ -179,6 +197,7 @@ void CServerConfigDlg::OnOK()
 		fwrite(&Config.bInternetAccessible, 1, 1, File);
 		fwrite(&Config.MaxPlayers, 4, 1, File);
 		fwrite(&Config.bAllowPvp, 1, 1, File);
+		CampaignServerConfig::Write(File, Config.bCampaignServer);
 		fclose(File);
 	}
 	CDialog::OnOK();

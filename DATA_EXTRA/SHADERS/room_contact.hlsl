@@ -29,8 +29,8 @@ float4 PSMain(float2 U:TEXCOORD0):COLOR0 {
   float2 Pixel=S*ImageSize.zw;
   float Sd=tex2D(Depth,S).r;float3 Delta=Position(S,Sd)-P;float Len=length(Delta);
   float Valid=all(Pixel>=Viewport.xy+.5) && all(Pixel<Viewport.xy+Viewport.zw-.5) && Sd<Control.y-1e-6;
-  float Facing=saturate((dot(N,Delta)/max(Len,1e-5)-.12)*2);
-  Occlusion+=Valid*Facing*saturate(1-Len/Radius)*smoothstep(.005,.025,Len);
+  float Facing=saturate((dot(N,Delta)/max(Len,1e-5)-.22)*1.4);
+  Occlusion+=Valid*Facing*saturate(1-Len/Radius)*smoothstep(.02,.07,Len);
  }
  // Default .32 caps darkening at 32%, even in dense contacts. Broader
  // normalization softens sparse sampling around small tabletop objects.

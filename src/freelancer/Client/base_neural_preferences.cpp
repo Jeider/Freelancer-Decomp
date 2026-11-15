@@ -46,6 +46,10 @@ void BaseNeural::PreviewStrength(int percent) { State().preview=ClampPercent(per
 void BaseNeural::CommitStrength(int percent) { State().saved=State().preview=ClampPercent(percent); }
 bool BaseNeural::Enabled(){return State().previewEnabled;}
 bool BaseNeural::ConfiguredEnabled(){return State().savedEnabled;}
+// RP9 queries this before loading any optional graphics DLL. Export an undecorated
+// name on x86; no export exists in clients built without DLSS support.
+#pragma comment(linker, "/EXPORT:FlBaseNeuralRuntimeEnabled=_FlBaseNeuralRuntimeEnabled")
+extern "C" bool __cdecl FlBaseNeuralRuntimeEnabled(){return BaseNeural::ConfiguredEnabled();}
 void BaseNeural::PreviewEnabled(bool value){State().previewEnabled=value;}
 void BaseNeural::CommitEnabled(bool value){State().savedEnabled=State().previewEnabled=value;}
 void BaseNeural::CancelStrengthPreview() { State().preview=State().saved;State().previewEnabled=State().savedEnabled; }

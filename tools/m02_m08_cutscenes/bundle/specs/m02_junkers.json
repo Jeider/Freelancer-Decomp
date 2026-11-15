@@ -1,0 +1,700 @@
+{
+  "name": "m02_junkers",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_junkers.thn",
+  "points": {
+    "Camera_1": {
+      "pos": [
+        28550,
+        60,
+        42050
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "mark_cam_pos1": {
+      "pos": [
+        28550,
+        60,
+        42050
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "mark_cam_pos2": {
+      "pos": [
+        28550,
+        60,
+        42050
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "mark_cam_pos3": {
+      "pos": [
+        28530,
+        50,
+        42020
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Camera_1_focus": {
+      "pos": [
+        28530,
+        60,
+        42000
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "mark_obj_pos2": {
+      "pos": [
+        28580,
+        40,
+        42013
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "mark_obj_pos3": {
+      "pos": [
+        28595,
+        35,
+        42045
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Camera_2": {
+      "pos": [
+        28550,
+        45,
+        42040
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "mark_cam2_pos2": {
+      "pos": [
+        28550,
+        50,
+        42040
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Camera_2_focus": {
+      "pos": [
+        28595,
+        30,
+        42045
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "mark_obj2_pos2": {
+      "pos": [
+        28595,
+        30,
+        42035
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "Camera_1",
+    "Camera_2"
+  ],
+  "characters": [],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "Scene_m02_junkers",
+      "type": "SCENE",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "entity_name": "Shot06_Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "template_id": 0
+    },
+    {
+      "entity_name": "cam_dbg",
+      "type": "CAMERA",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28550,
+          60,
+          42050
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 45,
+        "hvaspect": 1.333333,
+        "nearplane": 0.1,
+        "farplane": 100000
+      }
+    },
+    {
+      "entity_name": "Camera_1",
+      "type": "CAMERA",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28550,
+          60,
+          42050
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 45,
+        "hvaspect": 1.333333,
+        "nearplane": 0.1,
+        "farplane": 100000
+      }
+    },
+    {
+      "entity_name": "mark_cam_pos1",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28550,
+          60,
+          42050
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "mark_cam_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28550,
+          60,
+          42050
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "mark_cam_pos3",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28530,
+          50,
+          42020
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "mark_obj",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28530,
+          60,
+          42000
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "mark_obj_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28580,
+          40,
+          42013
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "mark_obj_pos3",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28595,
+          35,
+          42045
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "Camera_2",
+      "type": "CAMERA",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28550,
+          45,
+          42040
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 45,
+        "hvaspect": 1.333333,
+        "nearplane": 0.1,
+        "farplane": 100000
+      }
+    },
+    {
+      "entity_name": "mark_cam2_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28550,
+          50,
+          42040
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "mark_obj2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28595,
+          30,
+          42045
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "mark_obj2_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          28595,
+          30,
+          42035
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "duration": 33.5
+}

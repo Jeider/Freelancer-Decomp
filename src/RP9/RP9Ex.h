@@ -117,6 +117,12 @@ struct FRp9ExState
     unsigned long RoomFrame = 0;
     std::map<std::string, RoomProfile> RoomProfiles;
     RoomProfile* RoomCurrent = nullptr;
+    std::string RoomBase;
+    std::string RoomDetail;
+    float RoomFinish = 0;
+    RoomProfile PropFallback;
+    bool bRoomFinishLog = false;
+    std::set<std::string> RoomFinishLogged;
     struct ShipNormalMap { IDirect3DTexture9* Texture=nullptr; };
     std::map<std::string, ShipNormalMap> ShipNormalMaps;
     std::map<std::string, ShipNormalMap*> ShipNormalProfiles;
@@ -152,6 +158,7 @@ struct FRp9ExState
     std::set<std::string> RoomLoggedMaps;
     float RoomBones[64][16] = {};
     bool bRoomShadowDrawing = false, bRoomShadowFailed = false;
+    bool bRoomShadowCharacter = false;
     unsigned RoomShadowDraws = 0;
     IDirect3DTexture9* RoomShadowMap = nullptr;
     IDirect3DSurface9* RoomShadowDepth = nullptr;
@@ -341,6 +348,7 @@ struct FRp9ExState
     std::uint32_t SurfaceShaderWrites = 0, SurfacePsWrites = 0, SurfaceSamplerWrites = 0;
     IDirect3DVertexShader9* SurfaceBoundVs = nullptr;
     IDirect3DPixelShader9* SurfaceBoundPs = nullptr;
+    std::map<std::string, IDirect3DPixelShader9*> SurfaceQualityPs;
     float SurfacePsMirror[107 * 4] = {};
     bool SurfacePsMirrorValid[107] = {};
     IDirect3DBaseTexture9* SurfaceSamplerTexture[7] = {};
@@ -366,6 +374,7 @@ struct FRp9ExState
     bool bShadowReceiver = false;
     bool bShadowReceiverIsShip = false;
     bool bShadowReceiverIsPlayer = false;
+    bool bNativeNebulaObject = false;
     bool bShadowAdaptiveQuality = true;
     float ShadowStaticQualityDistance = 500.0f;
     float ShadowShipQualityDistance = 150.0f;
@@ -478,4 +487,11 @@ struct FRp9ExState
     std::map<unsigned long,IDirect3DVertexDeclaration9*> SurfaceInstanceDecls;
     std::map<std::string,FRp9SurfaceInstanceGroup> SurfaceInstanceGroups;
     unsigned SurfaceInstanceQueued=0;
+    bool bRoomPolish = false;
+    bool bRoomBar = false;
+    bool bRoomProp = false;
+    bool bRoomBrick = false;
+    bool bRoomBrickDraw = false;
+    bool bRoomMasonry = false;
+    bool bRoomBretonRelief = false;
 };

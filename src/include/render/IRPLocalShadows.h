@@ -20,6 +20,8 @@ struct IRPLocalShadows : IDAComponent
     // full filter budget. Static receivers also sample near maps locally, with
     // cheaper filtering; NPC hulls and distant surfaces use the shared far map.
     // Existing callers passing 0/1 retain their meaning and vtable layout.
+    // Bit 8 forces native object materials during flight through dense nebulae.
+    // Cleared by the ordinary end-of-object SetLocalShadowReceiver(0).
     virtual GENRESULT DACOM_API SetLocalShadowReceiver(unsigned long Enabled) = 0;
     virtual GENRESULT DACOM_API AddLocalShadowPlanet(const float* Center3, float Radius) = 0;
     // Far-cascade static cache: 0 opens a rebuild pass (caller must End),

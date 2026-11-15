@@ -1,7 +1,33 @@
 // Included after RP9RoomMaterials.inl. Shares the native draw and shader-cache helpers.
+// Temporary bounded capture for the real DFM character route (CPU-skinned XYZ
+// differs from the synthetic indexed-palette test). Character passes only,
+// twice per second, capped at 4096 lines; starts afresh in a new process.
+static bool GCaptureCharacterShadow=false;
+static void RoomShadowRouteLog(const char* Stage,unsigned Fvf,unsigned Blend,unsigned Skin,
+                               unsigned Unsupported,const float* World,const float* View)
+{
+    static unsigned Lines=0;
+    if(!GCaptureCharacterShadow || Lines>=4096)return;
+    char Path[MAX_PATH]={};
+    if(!GetEnvironmentVariableA("LOCALAPPDATA",Path,MAX_PATH))return;
+    strcat_s(Path,"\\Freelancer-Decomp");CreateDirectoryA(Path,nullptr);
+    strcat_s(Path,"\\Diagnostics");CreateDirectoryA(Path,nullptr);
+    strcat_s(Path,"\\room_shadow_routes.txt");
+    if(FILE* File=std::fopen(Path,Lines ? "a":"w")) {
+        std::fprintf(File,"%u %s fvf=%lx blend=%u skin=%u unsupported=%u world=(%.4g,%.4g,%.4g) view=(%.4g,%.4g,%.4g)\n",
+            Lines,Stage,(unsigned long)Fvf,Blend,Skin,Unsupported,World[12],World[13],World[14],View[12],View[13],View[14]);
+        std::fclose(File);++Lines;
+    }
+}
 GENRESULT DACOM_API FDirectX9::BeginRoomShadow(const float* CameraView12, const float* Center, float Radius,
                                             unsigned long Character)
 {
+    // Keep complete character passes, sampled twice per second. Ships must
+    // never exhaust the log before the user enters a room or walk mode.
+    static ULONGLONG LastCharacterCapture=0;
+    ULONGLONG Now=GetTickCount64();
+    GCaptureCharacterShadow=Character && (!LastCharacterCapture || Now-LastCharacterCapture>=500);
+    if(GCaptureCharacterShadow)LastCharacterCapture=Now;
     auto* E=Ex_;
     if(!E || !Device_ || !E->bRoomFrame || E->bRoomShadowFailed || E->bShadowDrawing || E->bInPass ||
        !CameraView12 || !Center || !std::isfinite(Radius) || Radius<=0 || Radius>10000 || !E->SceneDepth.Texture) return GR_GENERIC;
@@ -25,8 +51,9 @@ GENRESULT DACOM_API FDirectX9::BeginRoomShadow(const float* CameraView12, const 
         if(!Ok){E->bRoomShadowFailed=true;return GR_GENERIC;}
     }
     HRESULT Hr=S_OK;
-    if(!E->RoomShadowMap)Hr=Device_->CreateTexture(1024,1024,1,D3DUSAGE_RENDERTARGET,D3DFMT_R32F,D3DPOOL_DEFAULT,&E->RoomShadowMap,nullptr);
-    if(SUCCEEDED(Hr) && !E->RoomShadowDepth)Hr=Device_->CreateDepthStencilSurface(1024,1024,D3DFMT_D24X8,D3DMULTISAMPLE_NONE,0,TRUE,&E->RoomShadowDepth,nullptr);
+    static const unsigned Size=(unsigned)ReadShadowSetting("room_shadow_resolution",1024,128,1024);
+    if(!E->RoomShadowMap)Hr=Device_->CreateTexture(Size,Size,1,D3DUSAGE_RENDERTARGET,D3DFMT_R32F,D3DPOOL_DEFAULT,&E->RoomShadowMap,nullptr);
+    if(SUCCEEDED(Hr) && !E->RoomShadowDepth)Hr=Device_->CreateDepthStencilSurface(Size,Size,D3DFMT_D24X8,D3DMULTISAMPLE_NONE,0,TRUE,&E->RoomShadowDepth,nullptr);
     if(FAILED(Hr)){E->bRoomShadowFailed=true;return GR_GENERIC;}
     ExFlushSurfaceInstances();ExSurfaceEnd();ExSurfaceRelease();FlushDrawState(Device_);
     E->ShadowSavedRenderStates=RenderStates_;E->ShadowSavedDeviceStates=DeviceStates_;
@@ -51,14 +78,16 @@ GENRESULT DACOM_API FDirectX9::BeginRoomShadow(const float* CameraView12, const 
     M[0]=1/Half;M[4]=TiltX/Half;M[9]=1/Half;M[5]=TiltZ/Half;M[6]=-1/(2*Radius);
     M[12]=-(Center[0]+TiltX*Center[1])/Half;M[13]=-(Center[2]+TiltZ*Center[1])/Half;
     M[14]=(Center[1]+Radius)/(2*Radius);M[15]=1;
+    RoomShadowRouteLog(Character?"begin-character":"begin-object",0,0,0,0,M,E->RoomShadowCamera);
     E->bRoomShadowDrawing=E->bShadowDrawing=true;E->RoomShadowDraws=0;E->bRoomPaletteUnsupported=false;
+    E->bRoomShadowCharacter=Character!=0;
     Rp9SetTexture(Device_,15,nullptr);
     IDirect3DSurface9* Target=nullptr;Hr=E->RoomShadowMap->GetSurfaceLevel(0,&Target);
     if(SUCCEEDED(Hr))Hr=Device_->SetDepthStencilSurface(nullptr);
     if(SUCCEEDED(Hr))Hr=Device_->SetRenderTarget(0,Target);
     if(Target)Target->Release();
     if(SUCCEEDED(Hr))Hr=Device_->SetDepthStencilSurface(E->RoomShadowDepth);
-    D3DVIEWPORT9 V={0,0,1024,1024,0,1};if(SUCCEEDED(Hr))Hr=Device_->SetViewport(&V);
+    D3DVIEWPORT9 V={0,0,Size,Size,0,1};if(SUCCEEDED(Hr))Hr=Device_->SetViewport(&V);
     if(SUCCEEDED(Hr))Hr=Device_->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xffffffff,1,0);
     if(FAILED(Hr)){EndRoomShadow();return GR_GENERIC;}
     return GR_OK;
@@ -70,19 +99,36 @@ bool FDirectX9::ExRoomShadowDrawBegin()
     unsigned Fvf=StreamCache_.Fvf ? StreamCache_.Fvf : StreamCache_.VertexBuffer ? StreamCache_.VertexBuffer->Fvf : 0;
     bool Skin=(Fvf&D3DFVF_POSITION_MASK)==D3DFVF_XYZB4 && (Fvf&D3DFVF_LASTBETA_UBYTE4) &&
         RenderStates_.GetPending(D3DRS_INDEXEDVERTEXBLENDENABLE) && RenderStates_.GetPending(D3DRS_VERTEXBLEND)==D3DVBF_3WEIGHTS;
+    RoomShadowRouteLog("submit",Fvf,RenderStates_.GetPending(D3DRS_ALPHABLENDENABLE),Skin,E->bRoomPaletteUnsupported,
+        Transforms_.World.Values,Transforms_.View.Values);
     if((!Skin && (Fvf&D3DFVF_POSITION_MASK)!=D3DFVF_XYZ) || (Skin && E->bRoomPaletteUnsupported) ||
-       RenderStates_.GetPending(D3DRS_ALPHABLENDENABLE)) return false;
+       (RenderStates_.GetPending(D3DRS_ALPHABLENDENABLE) && !E->bRoomShadowCharacter)) {
+        RoomShadowRouteLog("reject-format-palette-or-blend",Fvf,RenderStates_.GetPending(D3DRS_ALPHABLENDENABLE),Skin,
+            E->bRoomPaletteUnsupported,Transforms_.World.Values,Transforms_.View.Values);
+        return false;
+    }
     float Alpha[4]={0,0,1,0};
+    // DFM bodies use alpha blending even for their solid clothing/skin.
+    // Cast their covered texels, instead of rejecting the whole body. Ordinary
+    // transparent room objects retain the exclusion above.
+    if(E->bRoomShadowCharacter && RenderStates_.GetPending(D3DRS_ALPHABLENDENABLE)) {
+        Alpha[0]=1;Alpha[1]=.5f;
+        Alpha[2]=E->bSurfaceMaterialValid ? E->SurfaceMaterial.Diffuse.a:1;
+    }
     if(RenderStates_.GetPending(D3DRS_ALPHATESTENABLE))
     {
         unsigned Func=RenderStates_.GetPending(D3DRS_ALPHAFUNC);
-        if(Func!=D3DCMP_GREATER && Func!=D3DCMP_GREATEREQUAL)return false;
+        if(Func!=D3DCMP_GREATER && Func!=D3DCMP_GREATEREQUAL){
+            RoomShadowRouteLog("reject-alpha-function",Fvf,Func,Skin,0,Transforms_.World.Values,Transforms_.View.Values);return false;
+        }
         Alpha[0]=1;Alpha[1]=RenderStates_.GetPending(D3DRS_ALPHAREF)/255.f;
         Alpha[2]=E->bSurfaceMaterialValid ? E->SurfaceMaterial.Diffuse.a:1;
     }
     auto Tss=[&](unsigned T,unsigned Default){auto& V=DeviceStates_.TextureStates[0][T];return V.bValid ? V.Value:Default;};
     float Mode[4]={(float)Tss(D3DTSS_TEXCOORDINDEX,0),(float)Tss(D3DTSS_TEXTURETRANSFORMFLAGS,0),0,0};
-    if(Alpha[0] && (Mode[0]>2 || (Mode[1]!=0 && Mode[1]!=D3DTTFF_COUNT2)))return false;
+    if(Alpha[0] && (Mode[0]>2 || (Mode[1]!=0 && Mode[1]!=D3DTTFF_COUNT2))){
+        RoomShadowRouteLog("reject-alpha-uv",Fvf,(unsigned)Mode[0],Skin,(unsigned)Mode[1],Transforms_.World.Values,Transforms_.View.Values);return false;
+    }
     Rp9SetRenderState(Device_,D3DRS_ZENABLE,TRUE);Rp9SetRenderState(Device_,D3DRS_ZWRITEENABLE,TRUE);
     Rp9SetRenderState(Device_,D3DRS_ZFUNC,D3DCMP_LESSEQUAL);Rp9SetRenderState(Device_,D3DRS_ALPHABLENDENABLE,FALSE);
     Rp9SetRenderState(Device_,D3DRS_ALPHATESTENABLE,FALSE);Rp9SetRenderState(Device_,D3DRS_CULLMODE,D3DCULL_NONE);
@@ -110,6 +156,8 @@ bool FDirectX9::ExRoomShadowDrawBegin()
     }
     if(SUCCEEDED(Hr))Hr=Rp9SetPixelConstants(Device_,0,Alpha,1);
     if(SUCCEEDED(Hr))++E->RoomShadowDraws;
+    RoomShadowRouteLog(SUCCEEDED(Hr)?"accepted":"shader-error",Fvf,0,Skin,E->bRoomPaletteUnsupported,
+        Transforms_.World.Values,Transforms_.View.Values);
     return SUCCEEDED(Hr);
 }
 
@@ -133,7 +181,8 @@ GENRESULT DACOM_API FDirectX9::EndRoomShadow()
             auto& V=E->ShadowSavedViewport;
             Params[32]=1.f/Desc.Width;Params[33]=1.f/Desc.Height;Params[34]=(float)Desc.Width;Params[35]=(float)Desc.Height;
             Params[36]=(float)V.X;Params[37]=(float)V.Y;Params[38]=(float)V.Width;Params[39]=(float)V.Height;
-            Params[40]=V.MinZ;Params[41]=V.MaxZ;Params[42]=1.f/1024;Params[43]=.45f;
+            D3DSURFACE_DESC MapDesc={};E->RoomShadowMap->GetLevelDesc(0,&MapDesc);
+            Params[40]=V.MinZ;Params[41]=V.MaxZ;Params[42]=1.f/MapDesc.Width;Params[43]=.45f;
             struct Vertex{float X,Y,Z,W,U,V;};float X=(float)V.X,Y=(float)V.Y,W=(float)V.Width,H=(float)V.Height;
             Vertex Q[]={{X-.5f,Y-.5f,0,1,X*Params[32],Y*Params[33]},
                 {X+W-.5f,Y-.5f,0,1,(X+W)*Params[32],Y*Params[33]},
@@ -152,7 +201,7 @@ GENRESULT DACOM_API FDirectX9::EndRoomShadow()
             Rp9SetRenderState(Device_,D3DRS_FILLMODE,D3DFILL_SOLID);
             for(unsigned S : {14u,15u})
             {
-                Rp9SetSamplerState(Device_,S,D3DSAMP_MINFILTER,D3DTEXF_POINT);Rp9SetSamplerState(Device_,S,D3DSAMP_MAGFILTER,D3DTEXF_POINT);
+                Rp9SetSamplerState(Device_,S,D3DSAMP_MINFILTER,D3DTEXF_LINEAR);Rp9SetSamplerState(Device_,S,D3DSAMP_MAGFILTER,D3DTEXF_LINEAR);
                 Rp9SetSamplerState(Device_,S,D3DSAMP_MIPFILTER,D3DTEXF_NONE);Rp9SetSamplerState(Device_,S,D3DSAMP_SRGBTEXTURE,FALSE);
                 Rp9SetSamplerState(Device_,S,D3DSAMP_ADDRESSU,D3DTADDRESS_CLAMP);Rp9SetSamplerState(Device_,S,D3DSAMP_ADDRESSV,D3DTADDRESS_CLAMP);
             }

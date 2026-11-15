@@ -41,6 +41,7 @@
 #include "player_spawn.h"           // GetPlayerCharacterId / GetPlayerConnectionId
 #include "render/IMaterial.h"
 #include "render/IRPRockNormals.h"
+#include "render/IRPLocalShadows.h"
 #include "render/IRenderPipeline.h"
 #include "render/mesh_iface.h"      // IMesh
 #include "render/rendcomp.h"        // IRenderableMesh, IRenderer2
@@ -1171,8 +1172,13 @@ void CliDynamicAsteroidDraw(FCliDynamicAsteroid* This, FSpaceCamera* Cam,
     struct RockGroupScope
     {
         IRPRockNormals* Rock = nullptr;
-        ~RockGroupScope() { if (Rock) { Rock->SetRockNormalScope(RPRockOff, 0); Rock->Release(); } }
+        IRPLocalShadows* Surface = nullptr;
+        ~RockGroupScope() {
+            if(Surface) {Surface->SetLocalShadowReceiver(0);Surface->Release();}
+            if (Rock) { Rock->SetRockNormalScope(RPRockOff, 0); Rock->Release(); }
+        }
     } rockScope;
+    DALib::Pipeline->QueryInterface(Iids::RPLocalShadows,reinterpret_cast<void**>(&rockScope.Surface));
     {
         // Class and size of a group never change: work them out once.
         static std::unordered_map<const FCliDynamicAsteroid*, std::pair<unsigned, float>> Known;
@@ -1251,6 +1257,13 @@ void CliDynamicAsteroidDraw(FCliDynamicAsteroid* This, FSpaceCamera* Cam,
         // 0x005263c1..0x005263d2: FCOMP 0.005, TEST AH,0x41 / JNP -- below or equal skips.
         if (Go->Alpha <= kVisibleAlpha)
             continue;
+
+#ifdef FREELANCER_RP9
+        // Dynamic rocks bypass DrainBucket: select the material per rock here.
+        // Keep every mesh visible; only the distant enhanced shading is omitted.
+        if(rockScope.Surface)
+            rockScope.Surface->SetLocalShadowReceiver(SpaceNativeNebulaObject(Go,Cam) ? 256u : 0u);
+#endif
 
         // 0x005263d8..0x005263fd: the field's ambient pass once per frame (FUN_00522700 with
         // 100.0f).

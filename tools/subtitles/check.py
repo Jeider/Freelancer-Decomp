@@ -7,13 +7,37 @@ root = Path(__file__).resolve().parents[2]
 out = root / 'src/obj/subtitle_check'
 out.mkdir(parents=True, exist_ok=True)
 test = out / 'check.cpp'
-test.write_text(r'''
+native = (root/'src/freelancer/Client/native_subtitles.cpp').read_text(encoding='utf-8')
+start = native.index('namespace {\n    bool& CutscenePreference()')
+preferences = native[start:native.index('\nvoid Start(', start)]
+assert '!AreaEnabled(play.entry->area)' in native
+code = r'''
 #include "subtitle_data.h"
+#include "native_subtitles.h"
+#include <windows.h>
+#include <cstdio>
+#include <cstring>
+bool GetUserDataPath(char* path){return GetCurrentDirectoryA(MAX_PATH,path)!=0;}
+// PREFERENCE_IMPLEMENTATION
 #include <cassert>
 #include <fstream>
 #include <iostream>
 using namespace NativeSubtitles;
 int wmain(int argc, wchar_t** argv) {
+    if(argc==2 && std::wstring(argv[1])==L"--saved-off") {
+        assert(!CutsceneEnabled());
+        assert(!AreaEnabled(L"Cinematic"));
+        assert(AreaEnabled(L"Ingame") && AreaEnabled(L"Ingame_NN") && AreaEnabled(L"Ingame_BG") && AreaEnabled(L"News"));
+        return 0;
+    }
+    DeleteFileA("PerfOptions.ini");
+    assert(CutsceneEnabled() && AreaEnabled(L"Cinematic"));
+    SetCutsceneEnabled(false);
+    assert(!AreaEnabled(L"Cinematic") && AreaEnabled(L"Ingame"));
+    SetCutsceneEnabled(true);assert(AreaEnabled(L"Cinematic"));
+    SetCutsceneEnabled(false);
+    FILE* prefs=nullptr;fopen_s(&prefs,"PerfOptions.ini","w");assert(prefs);
+    WritePreferences(prefs);fclose(prefs);
     assert(AudioKey(L"D:\\game\\DATA\\AUDIO\\Echo.utf|0xAbC") == L"echo.utf|0x00000abc");
     assert(AudioKey(L"AUDIO\\MOD\\m01\\line.wav") == L"mod/m01/line.wav");
     Entry entry; entry.parts={{.05,5.48,L"first"},{5.85,9.49,L"second"}};
@@ -48,7 +72,9 @@ int wmain(int argc, wchar_t** argv) {
     }
     std::cout<<"PASS: keys, UTF IDs, intervals, entities, invalid XML, DTD rejection and atomic load\n";
 }
-''', encoding='utf-8')
+'''
+code=code.replace('// PREFERENCE_IMPLEMENTATION','namespace NativeSubtitles {\n'+preferences+'\n}')
+test.write_text(code,encoding='utf-8')
 vc = Path('C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231')
 sdk = Path('C:/Program Files (x86)/Windows Kits/10')
 version = '10.0.26100.0'
@@ -58,5 +84,6 @@ env['LIB'] = ';'.join(map(str, [vc/'lib/x86']+[sdk/'Lib'/version/x/'x86' for x i
 subprocess.run([str(vc/'bin/Hostx64/x86/cl.exe'), '/nologo','/std:c++17','/EHsc','/W4','/WX',
                 '/I'+str(root/'src/freelancer/Client'), str(test),
                 str(root/'src/freelancer/Client/subtitle_data.cpp'),'/Fecheck.exe','/link','ole32.lib'],cwd=out,env=env,check=True)
-subprocess.run([str(out/'check.exe'), 'D:/games/FL_MOD/BUILDS/RU_NORMAL/EXE/subtitles.xml',
-                'D:/work/Freelancer English Subtitles/EXE/subtitles.xml'],cwd=out,check=True)
+subprocess.run([str(out/'check.exe'), 'D:/games/FL_MOD/BUILDS/RU_NORMAL/EXE/subtitles.xml'],cwd=out,check=True)
+subprocess.run([str(out/'check.exe'),'--saved-off'],cwd=out,check=True)
+print('PASS: default on, cutscene-only filtering, re-enable, persisted off after restart')

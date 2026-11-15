@@ -1,0 +1,84 @@
+{
+  "name": "m06_vendor_hatcher",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_vendor_hatcher.thn",
+  "sha256": "d110c6de51b8eb238484ea234a33cb31dc87da8aec0a466500e6d6364cdf42c9",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 346,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\vendor_msn.ini",
+      "line": 17,
+      "role": "fidget",
+      "thn": "scripts\\mod\\m06_vendor_hatcher.thn"
+    }
+  ],
+  "source_duration": 29.812,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 7,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 8,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 10.333,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 15.333,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 20.333,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 22.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 24.833,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_Untitled_5": "Scene_Untitled_5",
+    "char_hatcher": "Char_hatcher"
+  },
+  "point_names": {
+    "Scene_Untitled_5": "Scene_Untitled_5",
+    "char_hatcher": "Char_hatcher"
+  }
+}

@@ -17,6 +17,11 @@
 #include "UniverseChatDlg.h"
 #include "ServerNewsDlg.h"
 #include "ServerConfigDlg.h"
+
+extern "C" int __cdecl FreelancerCampaignServerEnabled()
+{
+	return GApp != nullptr && GApp->ServerControl.bCampaignServer ? 1 : 0;
+}
 #include "FLServerCmdLine.h"    // CFLServerCommandLineInfo (ParseParam .text:00413880)
 #include "Motd.h"               // GMotd
 #include "ResourceStrings.h"    // AddResourceDll, LoadIdsString

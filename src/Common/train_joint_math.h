@@ -81,7 +81,20 @@ inline void dampWagon(Body& body,double dt,double lateralRate,double brakeRate,d
     body.velocity=(body.velocity-forward*along)*std::exp(-lateralRate*dt)+forward*slowed;
     body.omega=body.omega*std::exp(-angularRate*dt);
 }
-inline void solve(Body* bodies, Joint* joints,int count,double dt,bool powered=true) {
+struct Contact {
+    int a=0,b=0;
+    V ra,rb,normal;
+    double target=0,inverseEffectiveMass=0,impulse=0,maxImpulse=0;
+};
+inline void solveContact(Body* bodies,Contact& c) {
+    auto& a=bodies[c.a];auto& b=bodies[c.b];
+    const double speed=(b.pointVelocity(c.rb)-a.pointVelocity(c.ra)).dot(c.normal);
+    const double next=clamp(c.impulse+(c.target-speed)*c.inverseEffectiveMass,0,c.maxImpulse);
+    const V p=c.normal*(next-c.impulse);c.impulse=next;
+    a.impulse(c.ra,-p);b.impulse(c.rb,p);
+}
+inline void solve(Body* bodies, Joint* joints,int count,double dt,bool powered=true,
+                  Contact* contacts=nullptr,int contactCount=0) {
     if(!(dt>0 && dt<=.2) || count<1 || count>20)return;
     for(int j=0;j<count;++j)for(double& v:joints[j].accumulatedAngular)v=0;
     // Long chains need impulses to converge across their full length. Cache all
@@ -198,6 +211,7 @@ inline void solve(Body* bodies, Joint* joints,int count,double dt,bool powered=t
             a.omega=a.omega-r.angularA*lambda;b.omega=b.omega+r.angularB*lambda;
         }
       }
+      for(int c=0;c<contactCount;++c)solveContact(bodies,contacts[c]);
       if(powered)bodies[0].omega=guideOmega;
     }
 }

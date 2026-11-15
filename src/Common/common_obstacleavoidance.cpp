@@ -34,6 +34,8 @@
 
 using namespace CmnAiSteer;
 
+#include "solar_avoidance.inl"
+
 namespace
 {
     // DAT_063fc9a0 / DAT_063fca14. A 25-dword table in uninitialised .data (all zero) that
@@ -1201,6 +1203,27 @@ int PathfindManager::ClassifyObstaclePhase()
                 continue;
             bool const bCandidateClose = (Type & 7u) != 0;
 
+            // A hollow solar's overall capsule fills its tunnels and ring holes.
+            // Recompute a local wall contact every tick; caching by object id
+            // would make the contact stale as a ship moves inside the structure.
+            ObstacleAvoidance::Slot LocalWallSlot{};
+            Vector WallPoint{};
+            float const WallClearance = (std::max)(35.f, This->Field_1FC * .5f + 35.f);
+            SolarSweep const WallTest = RefineSolarSweep(Candidate, ShipXform->Translation,
+                ShipXform->Translation, WallClearance, WallPoint);
+            if (WallTest == SolarSweep::Clear)
+                continue;
+            bool const bLocalWall = WallTest == SolarSweep::Blocked;
+            if (bLocalWall)
+            {
+                LocalWallSlot.Point = WallPoint;
+                // Retail's ray/capsule solver normalizes the capsule axis.
+                // A one-metre axis keeps its math finite while approximating a sphere.
+                LocalWallSlot.Point.y -= .5f;
+                LocalWallSlot.Direction = Vector{0.f, 1.f, 0.f};
+                LocalWallSlot.Timer = WallClearance;
+            }
+
             unsigned const CandidateId = Candidate->get_id();
             ObstacleAvoidance::Slot* SlotPtr = nullptr;
             for (int Cached = 0; Cached < 8; ++Cached)
@@ -1221,7 +1244,9 @@ int PathfindManager::ClassifyObstaclePhase()
 
             // 062dcbd8-062dcbfa: Slot.Timer FCOMP 100.0f (TEST AH,0x5 + JNP: less skips) and
             // FCOMP 20000.0f (TEST AH,0x41 + JZ: greater skips); NaN passes both.
-            if (SlotPtr->Timer < 100.0f || SlotPtr->Timer > 20000.0f)
+            if (bLocalWall)
+                SlotPtr = &LocalWallSlot;
+            if (!bLocalWall && (SlotPtr->Timer < 100.0f || SlotPtr->Timer > 20000.0f))
                 continue;
 
             // 062dcc00-062dcc5f: Margin (S+0x18) = Timer * 0.15f on the FPU, replaced by the floor
@@ -1233,8 +1258,9 @@ int PathfindManager::ClassifyObstaclePhase()
 
             // 062dcc5f-062dcc80: Timer = (Margin + Timer) + Field_1FC * 0.5 on the FPU (the FST
             // in between does not round the running sum).
-            SlotPtr->Timer = (float)(((double)(Margin) + SlotPtr->Timer) +
-                                                (double)(This->Field_1FC) * 0.5);
+            if (!bLocalWall)
+                SlotPtr->Timer = (float)(((double)(Margin) + SlotPtr->Timer) +
+                                                    (double)(This->Field_1FC) * 0.5);
 
             // 062dcc83-062dcd7b: FUN_062e1410(ship position, slot); on a hit the slot midpoint
             // D*0.5f + P (float ops) against WorkingTarget, (x*x + z*z) + y*y unrounded, the
@@ -1783,6 +1809,27 @@ IObjInspect* FindClosestObstacleToAvoid(SystemManagerTimerTable* Self,
         RefreshAiTargetFlags(Candidate);
         if ((Candidate.CachedFlags & TypeMask) == 0)
             continue;
+
+        // Large static shells must be tested against their walls before the
+        // centre-ahead and whole-radius gates: a ship can already be inside.
+        if (CandidateObj->get_id() != ExcludeId && CandidateObj != Scanner &&
+            (Candidate.CachedFlags & kAvoidScanTypeMask) != 0)
+        {
+            Vector const SweepEnd = Add(OwnerXform.Translation, Scale(Heading, (float)Reach));
+            Vector Wall{};
+            SolarSweep const Narrow = RefineSolarSweep(CandidateObj, OwnerXform.Translation,
+                SweepEnd, (std::max)(20.f, OwnerRadiusScaled + 20.f), Wall);
+            if (Narrow != SolarSweep::Unsupported)
+            {
+                if (Narrow == SolarSweep::Blocked)
+                {
+                    Vector const Delta = Sub(Wall, OwnerXform.Translation);
+                    float const Distance = std::sqrt(Delta.x*Delta.x + Delta.y*Delta.y + Delta.z*Delta.z);
+                    if (Distance < BestDistance) { BestDistance = Distance; Result = CandidateObj; }
+                }
+                continue;
+            }
+        }
 
         Candidate.RefreshPos(); // 062e7d43
 

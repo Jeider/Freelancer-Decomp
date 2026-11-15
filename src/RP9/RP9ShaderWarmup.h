@@ -1,6 +1,8 @@
 #pragma once
 #include <d3dx9.h>
 #include <vector>
+#include "RP9BuiltinShaders.h"
+#include "RP9ShaderCache.h"
 
 namespace Rp9Warmup {
 template<class T> struct Ref {
@@ -29,7 +31,8 @@ inline HRESULT Draw(IDirect3DDevice9* d, bool inScene, std::vector<Pair> const& 
     Ref<IDirect3DVertexDeclaration9> decl;
     Ref<IDirect3DVertexShader9> fullscreen;
     Ref<IDirect3DQuery9> fence;
-    Ref<ID3DXBuffer> code;
+    std::vector<unsigned char> code;
+    std::string messages;bool hit=false,stored=false;
     D3DCAPS9 caps={}; d->GetDeviceCaps(&caps);
     unsigned const targets=(caps.NumSimultaneousRTs<4 ? caps.NumSimultaneousRTs : 4);
     HRESULT hr=d->CreateStateBlock(D3DSBT_ALL,&state.p);
@@ -70,9 +73,9 @@ inline HRESULT Draw(IDirect3DDevice9* d, bool inScene, std::vector<Pair> const& 
         {0,36,D3DDECLTYPE_FLOAT2,0,D3DDECLUSAGE_TEXCOORD,1},
         {0,44,D3DDECLTYPE_FLOAT2,0,D3DDECLUSAGE_TEXCOORD,2},D3DDECL_END()};
     if(FAILED(hr=d->CreateVertexDeclaration(elements,&decl.p)))return hr;
-    char const source[]="struct O{float4 p:POSITION;float4 c:COLOR0;float4 t0:TEXCOORD0;float4 t1:TEXCOORD1;float4 t2:TEXCOORD2;float4 t3:TEXCOORD3;float4 t4:TEXCOORD4;float4 t5:TEXCOORD5;float4 t6:TEXCOORD6;float4 t7:TEXCOORD7;}; O main(float3 p:POSITION,float2 uv:TEXCOORD0){O o;o.p=float4(p,1);o.c=1;o.t0=float4(uv,1,1);o.t1=o.t2=o.t3=o.t4=o.t5=o.t6=o.t7=o.t0;return o;}";
-    if(FAILED(hr=D3DXCompileShader(source,sizeof(source)-1,nullptr,nullptr,"main","vs_3_0",0,&code.p,nullptr,nullptr)))return hr;
-    if(FAILED(hr=d->CreateVertexShader(static_cast<DWORD*>(code.p->GetBufferPointer()),&fullscreen.p)))return hr;
+
+    if(FAILED(hr=Rp9ShaderCache::Compile(Rp9Startup::DriverWarmupShader,nullptr,"main","vs_3_0",0,&code,&messages,&hit,&stored,true)))return hr;
+    if(FAILED(hr=d->CreateVertexShader(reinterpret_cast<const DWORD*>(code.data()),&fullscreen.p)))return hr;
     if(FAILED(hr=d->CreateQuery(D3DQUERYTYPE_EVENT,&fence.p)))return hr;
     touched=true;
     for(unsigned i=1;i<targets;++i)d->SetRenderTarget(i,nullptr);

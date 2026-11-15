@@ -1,0 +1,26 @@
+{
+  "content.py": {
+    "old": "5e2c26801a60825d93d6d690d8e3bd9036388d1037de1c321351ae21f3dacb9d",
+    "new": "5ba4a03b5f97da2bac366bbcae2eee3496b8937872a98268818365e2ac62c9cd"
+  },
+  "light.lua": {
+    "old": "1e3e9981326faf241b00b800cf529544539bc274027f152ec509333b4768d545",
+    "new": "a930a4481b23d34b4fafcab0b108b29878e32f6e459645498317076c0b4e8996"
+  },
+  "path_anim.lua": {
+    "old": "d7faed5a20da7d40dbe610acd4d5f2c3a4d31d2f144947a56de55e589d867cd0",
+    "new": "306719bf155bc3e3bd2ed0f74deae9f8cac75cdcece511ab8c0dfb65571dc11b"
+  },
+  "m01_bizmark.py": {
+    "old": "67e8e2aeba1860a2c83c25401ab0eca1a28e7b369596635a42ad185e1b756100",
+    "new": "b930dc8ccd646b208a77b286622b4f7444e53c8e5fb9f6292b399461128986ad"
+  },
+  "m01_bizmark.blend": {
+    "old": null,
+    "new": "945d7d6718b8598e5b1108dbccc62d440e9b7e0601863456dca7a34c57ec39bc"
+  },
+  "m01_bizmark.json": {
+    "old": "8847b53ad70bdd30b4fdc767e19d2527d126e55f9afe4553744d8d74c56bb267",
+    "new": "55f953d6eb30ab47c8da156b071e128ba68e24b296ade81b535c0e29f8e96960"
+  }
+}

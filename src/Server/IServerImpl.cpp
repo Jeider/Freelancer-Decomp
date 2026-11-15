@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "server_action_stats.h"
+#include "campaign_server.h"
 #include "base_interior_profiles.h"
 #include "equipment_slots.h"
 #include "../include/common_server.h"
@@ -73,6 +74,7 @@ extern "C" int __cdecl Server_ControllerSetHeartbeat(unsigned int Flid, float In
 extern "C" int __cdecl Server_ControllerSetTimer(unsigned int Flid, unsigned int Param1,
                                                  unsigned int Param2, float Timeout);
 // IServerImpl::SubmitChat's body (retail FLChatServer.cpp), src/Server/server_chat.cpp.
+#include "server_base_presence.h"
 void Server_SubmitChat(CHAT_ID Sender, unsigned long Size, const void* Data, CHAT_ID Target, int SystemId);
 
 // IClient is the real 126-slot RPC client interface (src/include/rpc_iclient.h).
@@ -273,6 +275,8 @@ bool IServerImpl::Startup(const SStartupInfo& info) {
         if (bConfigOk) {
             Server_ReadWorldIni(info.IniPath);
             Server_LoadInitialDlls(info.IniPath);   // .text:06d44c2c PUSH EDI (param_1+0x104)
+            if (!SinglePlayer() && CampaignServer::Enabled())
+                Server_ControllerCreate("Content.dll", "CampaignLauncher", nullptr, 2);
             RefreshLoadingProgress();
             // .text:06d44c37 .. .text:06d44c41 -- MP only: FUN_06d44ca0.
             if (!SinglePlayer())
@@ -529,6 +533,7 @@ void IServerImpl::Connect(const char* server_name, unsigned short* port) {}
     // flags as well; retail only tests the masked ids, and those flags are gone.
     // `type` is accepted and ignored, as in retail.
 void IServerImpl::DisConnect(unsigned int session_id, EFLConnection type) {
+    Server_BasePresenceForget(session_id);
 #ifdef FREELANCER_EQUIPMENT_SLOTS
     PendingEquipmentHull.erase(session_id);
 #endif
@@ -620,6 +625,7 @@ void IServerImpl::CharacterInfoReq(unsigned int session_id, bool full_info) {
     }
 
 void IServerImpl::CharacterSelect(const CHARACTER_ID& char_id, unsigned int session_id) {
+    Server_BasePresenceForget(session_id);
 #ifdef FREELANCER_EQUIPMENT_SLOTS
     PendingEquipmentHull.erase(session_id);
 #endif
@@ -1096,6 +1102,7 @@ void IServerImpl::LocationExit(unsigned int location_id, unsigned int session_id
             return;
         }
         unsigned int RoomEvent[2] = { location_id, session_id };
+        Server_BasePresenceForget(session_id);
         Server_ControllerDispatch(0, pub::Controller::EMessage::LocationExit, RoomEvent);
         GetBaseDB()->exit_location(session_id, location_id);   // FUN_06d143e0
         Players[session_id].current_location = 0;
@@ -1301,6 +1308,12 @@ void IServerImpl::SystemSwitchOutComplete(unsigned int ship_id, unsigned int ses
                     return;
                 unsigned int ConsoleMsg25[3] = {ship_id, 0u, Sys->SystemInfo->NicknameId};
                 Server_ControllerDispatch(0, pub::Controller::EMessage::Msg0x25, ConsoleMsg25);
+                unsigned consist = 0, consistOwner = 0;
+                float consistHp = 0;
+                CShip* const loco = Obj->Object != nullptr && Obj->Object->ObjectClass == CObject::ClassShip
+                    ? static_cast<CShip*>(Obj->Object) : nullptr;
+                if (loco != nullptr)
+                    TrainConsistParkForSystemSwitch(loco, consist, consistOwner, consistHp);
                 PhySys::CreateParms ConsoleParms = {};
                 ConsoleParms.Mass = 1.0f;
                 ConsoleParms.LinearDamping = PhySys::DEFAULT_LINEAR_DAMPING;
@@ -1314,6 +1327,9 @@ void IServerImpl::SystemSwitchOutComplete(unsigned int ship_id, unsigned int ses
                 ConsoleDest->add_player(session_id);
                 ConsoleDest->add_ship(Obj, &ConsoleParms, ConsolePos, ConsoleOrient);
                 ConsoleDest->arrive_ship(Obj, nullptr, ConsolePos, ConsoleOrient);
+                if (consist != 0 && loco != nullptr)
+                    TrainConsistArriveAfterSystemSwitch(loco, consist, consistOwner, consistHp,
+                        ConsoleSystem, ConsolePos, ConsoleOrient);
                 p->system_id = ConsoleSystem;
                 unsigned int ConsoleMsg3b[7];
                 ConsoleMsg3b[0] = ConsoleDest->SystemInfo->NicknameId;
@@ -3140,6 +3156,11 @@ static void Server_LoadInitialDlls(const char* IniPath) {
                                 break;
                             }
                         }
+                        // Campaign startup is owned by the host checkbox, never
+                        // by a second login launcher in Initial MP DLLs.
+                        if (!SinglePlayer() &&
+                            (!_stricmp(InterfaceName, "StoryLauncher") || !_stricmp(InterfaceName, "CampaignLauncher")))
+                            continue;
                         Server_ControllerCreate(DllName, InterfaceName, nullptr, Priority);
                     }
                 } while (Reader.read_value());
@@ -4081,6 +4102,18 @@ static unsigned int StarSystem_Update(StarSystem* Sys, float Dt)
                     // their wrappers.
                     GameObject* const Obj = FSystemDockEntry::WatchedObject(Node->Entry.Object);
                     GameObject* const DockTarget = FSystemDockEntry::WatchedObject(Node->Entry.Target);
+
+#ifdef FREELANCER_RPG_WORLD
+                    // The private SP client has negotiated this path. Consume
+                    // only an authorized courier docking before any LAND event,
+                    // player removal, BaseEnter or system shutdown can occur.
+                    if (SinglePlayer() && Obj && Obj->is_player() &&
+                        PlayerShipTransferDock(Obj->csimple()->OwnerPlayer,
+                            DockTarget ? DockTarget->get_id() : 0, Node->Entry.BaseId)) {
+                        Node = Node->Next;
+                        continue;
+                    }
+#endif
 
                     // .text:06d0c20e .. .text:06d0c248 -- the target's id, but
                     // only when its CEqObj has no DockingBaseId (+0x160). The

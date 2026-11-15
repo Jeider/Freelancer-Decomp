@@ -107,6 +107,9 @@ public:
     // FUN_06f47850 (caller SpaceSupport msg 0x3b 06f5df3d): bInCombat = 0, CalmSince = -1.0,
     // HostileContactCount = 0.
     void ResetHostileState();
+    // Same-system possession change: keep the content object/hostile contacts
+    // alive so GCS and mission references continue to describe this player.
+    bool RebindShip(unsigned int ShipId, unsigned int ShipArch);
     // FUN_06f47840 (caller TU29 06ef5646 / 06ef566c / 06ef56b8): CalmSince.
     double GetCalmSince() const;
     // FUN_06f47870 (caller TU29 06ef562a): HostileContactCount.

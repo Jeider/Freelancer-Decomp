@@ -5,6 +5,8 @@
 // Author: Giperion.
 
 #include "ivp_core.h"
+#include "ivp_finite_guard.h"
+#include "dacom.h"
 #include "ivp_real_object.h"
 #include "ivp_environment.h"
 #include "ivp_simulation_unit.h"
@@ -1557,21 +1559,13 @@ void IVP_Core::apply_impulse_at_point(const Vector* LeverArmOS, const Vector* Po
 // "flush pending impulses" step run once per core per PSI.
 void IVP_Core::commit_speed_changes()
 {
-    RotSpeed.x += RotSpeedChange.x;
-    RotSpeed.y += RotSpeedChange.y;
-    RotSpeed.z += RotSpeedChange.z;
-
-    Speed.x += SpeedChange.x;
-    Speed.y += SpeedChange.y;
-    Speed.z += SpeedChange.z;
-
-    RotSpeedChange.x = 0.0f;
-    RotSpeedChange.y = 0.0f;
-    RotSpeedChange.z = 0.0f;
-
-    SpeedChange.x = 0.0f;
-    SpeedChange.y = 0.0f;
-    SpeedChange.z = 0.0f;
+    const bool BadRotation = IvpFinite::Accumulate(RotSpeed, RotSpeedChange);
+    const bool BadSpeed = IvpFinite::Accumulate(Speed, SpeedChange);
+    if (BadRotation || BadSpeed)
+    {
+        static unsigned Reports = 0;
+        if (Reports++ < 16) FDUMP(0x100001, "PHYS_FINITE rejected impulse core=%p linear=%d angular=%d\n", this, BadSpeed, BadRotation);
+    }
 }
 
 // FUN_06346960 (.text:06346960-0634697d, 8 insns, 2026-10-08 claude-code:cmn-phy2):

@@ -1,0 +1,116 @@
+{
+  "name": "m06_vendor_alaric",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_vendor_alaric.thn",
+  "points": {
+    "Char_alaric": {
+      "pos": [
+        -2.896033,
+        0,
+        4.627963
+      ],
+      "orient": [
+        [
+          0.754409,
+          0,
+          -0.656405
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.656405,
+          0,
+          0.754409
+        ]
+      ]
+    }
+  },
+  "cameras": [],
+  "characters": [
+    "Char_alaric"
+  ],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "Layer_Fidget_Male_Sit_02",
+      "type": "SCENE",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "entity_name": "char_alaric",
+      "type": "DEFORMABLE",
+      "template_name": "Alaric",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -2.896033,
+          0,
+          4.627963
+        ],
+        "orient": [
+          [
+            0.754409,
+            0,
+            -0.656405
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.656405,
+            0,
+            0.754409
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "category": "Character"
+      }
+    }
+  ],
+  "duration": 61.464
+}

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "common_physys.h"
+#include "../IVP/ivp_physics/ivp_finite_guard.h"
 
 #include "common_archetype.h"
 #include "common_cobject.h"
@@ -665,6 +666,15 @@ namespace
 // .text:06284e50..06284f64.
 void __cdecl PhySys::BeamR(CObject* Object, Vector const& Pos, Matrix const& Orient, bool bFlag)
 {
+    bool Valid = IvpFinite::Vector3(Pos);
+    for (int r = 0; r < 3; ++r)
+        for (int c = 0; c < 3; ++c) Valid = Valid && IvpFinite::Scalar(Orient.E[r][c]);
+    if (!Valid)
+    {
+        static unsigned Reports = 0;
+        if (Reports++ < 16) FDUMP(0x100001, "PHYS_FINITE rejected teleport pose object=%p\n", Object);
+        return;
+    }
     // .text:06284e66..06284e90: the new transform (Orient by REP MOVSD 9, Pos by three dwords).
     FTransform NewXform;
     NewXform.Rotation = (FMatrix const&)Orient;   // Matrix and FMatrix: the same nine floats

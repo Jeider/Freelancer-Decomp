@@ -22,6 +22,7 @@
 #include "Populators.h"
 #include "RandomEncounters.h"   // FRandEncTLParams, CreateRandEncParamsByType (TU31 FUN_06efb8e0)
 #include "RefHandle.h"          // TRefHandle (FUN_06f28e10)
+#include "common_archetype.h"
 #include "common_ini.h"
 #include "common_server.h"
 #include "server_cobject.h"     // pub::SpaceObj::Destroy, DESTROY_NORMAL
@@ -65,7 +66,7 @@ void FSystemInfo::LoadFromReader(INI_Reader* Reader, bool bLoadEncounters)
     }
 
     LocalFaction = 0;
-    // 06f74b59-06f74b78: the Trade_Lane_Ring objects of the system, keyed by nickname.
+    // 06f74b59-06f74b78: trade lane ring objects, keyed by object nickname.
     std::map<unsigned int, FTradeLaneRingInfo> Rings;
 
     if (bLoadEncounters)
@@ -199,13 +200,21 @@ void FSystemInfo::LoadFromReader(INI_Reader* Reader, bool bLoadEncounters)
                 }
                 else if (Reader->is_value("archetype"))
                 {
-                    // 06f7504b-06f750ab (DACOM stricmp): any other archetype ends the
-                    // section's value loop.
-                    if (_stricmp("Trade_Lane_Ring", Reader->get_value_string(0)) == 0)
-                        bRing = true;
-                    else if (_stricmp("jumpgate", Reader->get_value_string(0)) == 0)
+                    // Retail matched the literal "Trade_Lane_Ring" here. Random
+                    // missions also read unloaded systems, so resolve the solar
+                    // definition, not a live SpaceObj. Match the same type bit as
+                    // RebuildTradeLanes, regardless of the model or archetype name.
+                    char const* ArchetypeName = Reader->get_value_string(0);
+                    Archetype::Solar const* Solar = ArchetypeName && ArchetypeName[0]
+                        ? Archetype::GetSolar(CreateID(ArchetypeName)) : nullptr;
+                    bRing = Solar && (Solar->ObjectType & 0x80u) != 0;
+                    bJumpGate = false;
+                    bJumpHole = false;
+                    if (bRing)
+                        continue;
+                    else if (ArchetypeName && _stricmp("jumpgate", ArchetypeName) == 0)
                         bJumpGate = true;
-                    else if (_stricmp("jumphole", Reader->get_value_string(0)) == 0)
+                    else if (ArchetypeName && _stricmp("jumphole", ArchetypeName) == 0)
                         bJumpHole = true;
                     else
                         break;

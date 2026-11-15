@@ -1,0 +1,1116 @@
+{
+  "name": "m03_reward",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_reward.thn",
+  "points": {
+    "Char_trent": {
+      "pos": [
+        6.5,
+        0,
+        8
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    "Char_hassler": {
+      "pos": [
+        11.5,
+        0,
+        8
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    "Char_outcast": {
+      "pos": [
+        13,
+        0,
+        8
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "point_hassler": {
+      "pos": [
+        8.05,
+        0,
+        8
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "head_trent": {
+      "pos": [
+        6.5,
+        1.65,
+        8
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    "head_hassler": {
+      "pos": [
+        8.05,
+        1.65,
+        8
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    "cam_start": {
+      "pos": [
+        12,
+        4,
+        15
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start_pos2": {
+      "pos": [
+        9,
+        2.5,
+        13
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start_focus": {
+      "pos": [
+        10,
+        1,
+        6
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start_marker_pos2": {
+      "pos": [
+        7,
+        0.5,
+        5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_hassler": {
+      "pos": [
+        6.5,
+        1.8,
+        8.45
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_hassler_focus": {
+      "pos": [
+        8.05,
+        1.65,
+        7.85
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent": {
+      "pos": [
+        8,
+        1.8,
+        8.6
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent_focus": {
+      "pos": [
+        6.5,
+        1.65,
+        7.95
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "cam_start",
+    "cam_hassler",
+    "cam_trent"
+  ],
+  "characters": [
+    "Char_trent",
+    "Char_hassler",
+    "Char_outcast"
+  ],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "Scene_M03_last_deck_scene",
+      "type": "SCENE",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "entity_name": "Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0
+    },
+    {
+      "entity_name": "offscreen",
+      "type": "MARKER",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          0,
+          -10000,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "DX_m03_reward_0010_hassler",
+      "template_name": "DX_m03_reward_0010_hassler",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m03_reward_0020_trent",
+      "template_name": "DX_m03_reward_0020_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m03_reward_0030_hassler",
+      "template_name": "DX_m03_reward_0030_hassler",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "Char_trent",
+      "type": "DEFORMABLE",
+      "template_name": "trent",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          6.5,
+          0,
+          8
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "actor": "Player",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_hassler",
+      "type": "DEFORMABLE",
+      "template_name": "hassler",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          11.5,
+          0,
+          8
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "actor": "hassler",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_outcast",
+      "type": "DEFORMABLE",
+      "template_name": "m03_deck_informer",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          13,
+          0,
+          8
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "point_hassler",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          8.05,
+          0,
+          8
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "head_trent",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          6.5,
+          1.65,
+          8
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "head_hassler",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          8.05,
+          1.65,
+          8
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_dbg",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          10,
+          5,
+          15
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 35,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_dbg_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          8,
+          1,
+          5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_start",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          12,
+          4,
+          15
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 35,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_start_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          9,
+          2.5,
+          13
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_start_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          10,
+          1,
+          6
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_start_marker_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          7,
+          0.5,
+          5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_hassler",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          6.5,
+          1.8,
+          8.45
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 15,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_hassler_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          8.05,
+          1.65,
+          7.85
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_trent",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          8,
+          1.8,
+          8.6
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 15,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_trent_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          6.5,
+          1.65,
+          7.95
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "duration": 46.0
+}

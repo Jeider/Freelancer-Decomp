@@ -2,6 +2,7 @@
 #include "subtitle_data.h"
 #include "voice_profiles.h"
 #include "port_config.h"
+#include "common_misc.h"
 #include "dacom.h"
 #include "font_imp.h"
 #include "font_string.h"
@@ -51,12 +52,15 @@ namespace
         if (*configured) candidates.push_back(exe / Wide(configured));
         else
         {
-            candidates.push_back(exe / L"subtitles.xml");
             auto lang = Wide(PortLanguage());
             auto difficulty = Wide(PortDifficulty());
             if (lang.empty()) lang = L"en";
             if (difficulty.empty()) difficulty = L"normal";
+            candidates.push_back(exe / (L"subtitles_" + lang + L".xml"));
+            candidates.push_back(exe / L"subtitles.xml");
+            candidates.push_back(exe / L".." / L"BUILDS" / (lang + L"_" + difficulty) / L"EXE" / (L"subtitles_" + lang + L".xml"));
             candidates.push_back(exe / L".." / L"BUILDS" / (lang + L"_" + difficulty) / L"EXE/subtitles.xml");
+            candidates.push_back(exe / L"../EXE" / (L"subtitles_" + lang + L".xml"));
             candidates.push_back(exe / L"../EXE/subtitles.xml");
         }
         for (auto const& candidate : candidates)
@@ -80,6 +84,26 @@ namespace
         if (area == L"Ingame_BG") return 1;
         return 0;
     }
+}
+
+namespace {
+    bool& CutscenePreference() {
+        static bool enabled=[] {
+            char directory[MAX_PATH]={},path[MAX_PATH]={};
+            if (!GetUserDataPath(directory)) return true;
+            _snprintf_s(path,sizeof(path),_TRUNCATE,"%s\\PerfOptions.ini",directory);
+            return GetPrivateProfileIntA("Subtitles","cutscenes",1,path)!=0;
+        }();
+        return enabled;
+    }
+}
+bool CutsceneEnabled() { return CutscenePreference(); }
+void SetCutsceneEnabled(bool enabled) { CutscenePreference()=enabled; }
+void WritePreferences(FILE* file) {
+    if(file) std::fprintf(file,"\n[Subtitles]\ncutscenes = %d\n",CutsceneEnabled()?1:0);
+}
+bool AreaEnabled(std::wstring const& area) {
+    return area!=L"Cinematic" || CutsceneEnabled();
 }
 
 void Start(void* source, Archetype::ISound* arch)
@@ -117,7 +141,7 @@ void Draw()
     for (auto const& pair : Playing)
     {
         auto const& play = pair.second;
-        if (!play.started) continue;
+        if (!play.started || !AreaEnabled(play.entry->area)) continue;
         auto current = play.entry->At(play.time);
         if (current.empty()) continue;
         if (!chosen || Priority(play.entry->area) > Priority(chosen->entry->area) ||

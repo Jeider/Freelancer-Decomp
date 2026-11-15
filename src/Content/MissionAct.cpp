@@ -11,6 +11,7 @@
 // of its own: TU21's one set (06eb7360-06eb7540) is MissionScript.cpp's ContentStaticIds.h copy.
 // The set at 06ed3d90-06ed3f70 (DAT_06fcf058..DAT_06fcf01c) heads TU22 (BaseDB.cpp).
 #include "ContentInternal.h"
+#include "LocalTriggers.h"
 #include "Gcs.h"                // FormatTString64 (FUN_06eec2b0), PickVoiceLine (FUN_06eeb010)
 #include "ContentPlayerState.h"
 #include "DockQueues.h"         // RelocateShip, CollectFormationMembers, FormFormation (TU53)
@@ -594,7 +595,7 @@ bool ActSetOffer::Execute()
     ResetMadLib(Mission->Field_0x68, OfferId);
     if (Mission->Field_0x68.MadLibId != 1 && Mission->Field_0x68.MadLibId != 0)
         pub::Player::DisplayMissionMessage(Mission->PlayerId, Mission->Field_0x68,
-                                           static_cast<MissionMessageType>(8), true);
+                                           static_cast<MissionMessageType>(8), !LocalTriggersExecuting(Mission));
     Mission->RenumberAllObjectives();
     return true;
 }
@@ -1036,7 +1037,7 @@ void ActSetNnObj::Parse(INI_Reader& Reader)
 // +0x10), FUN_06f1b260(&+0x0c, 1), FUN_06f1b610 (renumber and resend).
 bool ActSetNnObj::Execute()
 {
-    Mission->NnPath.Reset();
+    if (!LocalTriggersExecuting(Mission)) Mission->NnPath.Reset();
     Mission->HideAllObjectives();
     Mission->SetObjectiveState(&ObjectiveId, State);
     Mission->SetObjectiveVisible(&ObjectiveId, true);
@@ -1121,7 +1122,7 @@ bool ActNnIds::Execute()
     Text.begin_mad_lib(static_cast<unsigned int>(TextId));
     Text.end_mad_lib();
     pub::Player::DisplayMissionMessage(Mission->PlayerId, Text,
-                                       static_cast<MissionMessageType>(MessageType), true);
+                                       static_cast<MissionMessageType>(MessageType), !LocalTriggersExecuting(Mission));
     return true;
 }
 
@@ -3968,7 +3969,11 @@ void ActSetShipAndLoadout::Parse(INI_Reader& Reader)
 // LAB_06ec9a70: pub::Player::SetShipAndLoadout(mission player, +0x64, +0x54). AL 1.
 bool ActSetShipAndLoadout::Execute()
 {
-    pub::Player::SetShipAndLoadout(Mission->PlayerId, ShipArchId, Loadout);
+    int const result = pub::Player::SetShipAndLoadout(Mission->PlayerId, ShipArchId, Loadout);
+    if (LocalTriggersExecuting(Mission))
+        FDUMP(result == 0 ? 0x100003 : 0x100002,
+              "LocalTriggers: personal ship assignment player=%u ship=%u result=%d",
+              Mission->PlayerId, ShipArchId, result);
     return true;
 }
 

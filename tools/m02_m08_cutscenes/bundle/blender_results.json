@@ -1,0 +1,507 @@
+{
+  "m01b_armored_trap_camera": {
+    "objects": 13,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m02_bship_bar_accept": {
+    "objects": 35,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m02_bship_bar_decision": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m02_bship_bar_offer": {
+    "objects": 79,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m02_explode_camera": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m02_jacobo_offer": {
+    "objects": 61,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m02_jacobo_vendor": {
+    "objects": 1,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m02_junkers": {
+    "objects": 11,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m02_reichman": {
+    "objects": 72,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m02_wilham_vendor": {
+    "objects": 1,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m03_fleet_arrive": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m03_kgb_death01": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m03_kgb_death02": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m03_offer": {
+    "objects": 40,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m03_offer_accept": {
+    "objects": 50,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m03_offer_decision": {
+    "objects": 5,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m03_reward": {
+    "objects": 14,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_final": {
+    "objects": 38,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_friends_arrive_alaric": {
+    "objects": 6,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_friends_arrive_hassler": {
+    "objects": 6,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_hatcher": {
+    "objects": 50,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_jacobo_death": {
+    "objects": 6,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_jumphole": {
+    "objects": 5,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_offer": {
+    "objects": 37,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_offer_accept": {
+    "objects": 23,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_offer_decision": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_officer_scene01": {
+    "objects": 7,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_officer_scene02": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m04_reactor_fx": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_arrest_camera01": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_arrest_camera02": {
+    "objects": 8,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_arrest_camera03": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_arrest_camera04": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_arrest_camera05": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_arrest_camera06": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_arrest_camera07": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_arrest_camera08": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_arrest_camera09": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_barman": {
+    "objects": 1,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_detroit": {
+    "objects": 29,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_equip": {
+    "objects": 149,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_offer": {
+    "objects": 39,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_offer_accept": {
+    "objects": 37,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_offer_decision": {
+    "objects": 6,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_piratebar": {
+    "objects": 38,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_research_explode": {
+    "objects": 6,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m05_rheinlanders_camera": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_briefing": {
+    "objects": 75,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_jumpin_camera1": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_jumpin_camera2": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_lab_explode_camera": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_lab_land": {
+    "objects": 26,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_lab_launch": {
+    "objects": 32,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_lab_room": {
+    "objects": 27,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_mount": {
+    "objects": 17,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_nomad_area_camera1": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_nomad_area_camera2": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_nomad_area_camera3": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_nomad_area_camera4": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_offer": {
+    "objects": 43,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_offer_accept": {
+    "objects": 22,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_offer_decision": {
+    "objects": 5,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_omicron_major": {
+    "objects": 52,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_order_camera3": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_order_camera4": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_order_deck": {
+    "objects": 30,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_prison_new": {
+    "objects": 135,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_torpedo_alert": {
+    "objects": 23,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_vendor_alaric": {
+    "objects": 1,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m06_vendor_hatcher": {
+    "objects": 1,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_battleship": {
+    "objects": 47,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_check_artifact": {
+    "objects": 68,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_gunners": {
+    "objects": 53,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_offer": {
+    "objects": 45,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_offer_accept": {
+    "objects": 8,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_offer_decision": {
+    "objects": 7,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_omega13": {
+    "objects": 115,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_reward": {
+    "objects": 64,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_tau_arrival": {
+    "objects": 22,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m07_tortuga_wp_camera": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_core_camera_01": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_core_camera_02": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_core_camera_03": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_core_camera_04": {
+    "objects": 2,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_core_camera_06": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_core_camera_07": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_core_camera_08": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_core_camera_09": {
+    "objects": 5,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_lair_done_camera_01": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_lair_done_camera_02": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_lair_done_camera_03": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_lair_done_camera_04": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_lair_enter_door_01": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_liberty_enter_camera_01": {
+    "objects": 3,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_offer": {
+    "objects": 75,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_offer_accept": {
+    "objects": 71,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_offer_decision": {
+    "objects": 6,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_osiris": {
+    "objects": 76,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_outside_camera_01": {
+    "objects": 4,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_outside_camera_02": {
+    "objects": 5,
+    "max_position_error": 0,
+    "reopened": true
+  },
+  "m08_wales_init": {
+    "objects": 7,
+    "max_position_error": 0,
+    "reopened": true
+  }
+}

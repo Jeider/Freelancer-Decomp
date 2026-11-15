@@ -8,6 +8,7 @@
 #include "cutscene_skip.h"
 #include "rpg_dialog.h"
 #include "rpg_dialog_protocol.h"
+#include "personal_story_offer.h"
 
 #include "DALib.h"
 #include "character_info.h"
@@ -1207,7 +1208,7 @@ void FGfScriptSequence::ShowOfferDialog(unsigned char bHasAcceptBranch,
         Type = 2;
         Text = DialogTextB;
     }
-    else if (OfferType == 3)
+    else if (OfferType == 3 || OfferType == PersonalStoryOfferType)
     {
         Type = 0;
         Text = DialogTextA;

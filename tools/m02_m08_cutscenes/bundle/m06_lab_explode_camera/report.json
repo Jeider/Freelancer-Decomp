@@ -1,0 +1,46 @@
+{
+  "name": "m06_lab_explode_camera",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_lab_explode_camera.thn",
+  "sha256": "056dd372cb0f0d785e1f9d37f2883dffd6628a5a37308fdc06be188dd681bec0",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 2890,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "line": 2890,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m06_lab_explode_camera.thn"
+    }
+  ],
+  "source_duration": 11.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_nomad_area_camera3": "scene_nomad_area_camera3",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Shot06_Camera_0": "Shot06_Camera_0",
+    "Marker_Lab": "automarker_Shot06_Camera_0_focus"
+  },
+  "point_names": {
+    "scene_nomad_area_camera3": "scene_nomad_area_camera3",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Shot06_Camera_0": "Shot06_Camera_0",
+    "Marker_Lab": "Shot06_Camera_0_focus"
+  }
+}

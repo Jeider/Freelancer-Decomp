@@ -74,6 +74,8 @@ IDLL* CreateSpacePop(char const* Name, unsigned int ControllerId, void const* Pa
 IDLL* CreateBasePop(char const* Name, unsigned int ControllerId, void const* Parms);
 IDLL* CreateStoryLauncher(char const* Name, unsigned int ControllerId, void const* Parms);
 IDLL* CreateStory(char const* Name, unsigned int ControllerId, void const* Parms);
+IDLL* CreateCampaignStory(char const* Name, unsigned int ControllerId, void const* Parms);
+IDLL* CreateCampaignLauncher(char const* Name, unsigned int ControllerId, void const* Parms);
 IDLL* CreateDestroyMission(char const* Name, unsigned int ControllerId, void const* Parms);
 // StoryMissions.cpp: one class per CreateInstance name (FUN_06eeec50 table).
 IDLL* CreateGenericMission(char const* Name, unsigned int ControllerId, void const* Parms);

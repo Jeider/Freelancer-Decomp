@@ -37,10 +37,12 @@ FSymGetLineFromAddr64 GSymGetLineFromAddr64 = nullptr;
 PFUNCTION_TABLE_ACCESS_ROUTINE64 GSymFunctionTableAccess64 = nullptr;
 PGET_MODULE_BASE_ROUTINE64 GSymGetModuleBase64 = nullptr;
 // The hang watchdog: the main thread, its frame counter and the stall limit.
+#ifndef FREELANCER_PRODUCTION
 HANDLE GMainThread = nullptr;
 DWORD GMainThreadId = 0;
 volatile LONG GHeartbeats = 0;
 int GHangSeconds = 30;
+#endif
 
 // "Common.dll+2a101" for an address inside a module.
 void ModuleOffset(DWORD64 Address, char* Out, size_t Size)
@@ -104,7 +106,9 @@ void PruneOld()
         DeleteFileA((Base.substr(0, Base.size() - 4) + ".txt").c_str());
     }
 }
+#ifndef FREELANCER_PRODUCTION
 void StartWatchdog();
+#endif
 } // namespace
 
 void Initialize()
@@ -148,7 +152,9 @@ void Initialize()
         GbEnabled = false;
         return;
     }
+#ifndef FREELANCER_PRODUCTION
     StartWatchdog();
+#endif
 }
 
 namespace
@@ -262,8 +268,11 @@ bool Write(EXCEPTION_POINTERS* Info)
 
 void Heartbeat()
 {
+#ifndef FREELANCER_PRODUCTION
     InterlockedIncrement(&GHeartbeats);
+#endif
 }
+#ifndef FREELANCER_PRODUCTION
 namespace
 {
 // Suspends the main thread, takes its registers and writes the pair as for a crash.
@@ -330,4 +339,5 @@ void StartWatchdog()
         CloseHandle(Thread);
 }
 } // namespace
+#endif // FREELANCER_PRODUCTION
 } // namespace PortCrashDump

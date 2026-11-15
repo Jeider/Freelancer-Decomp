@@ -11,6 +11,7 @@
 #include "ContentStaticIds.h"
 
 #include "ContentPlayerState.h"
+#include "RandomMissionDB.h"
 #include "BaseDB.h"
 #include "ContentInternal.h"      // GetContentGameTime
 #include "SystemInfo.h"
@@ -122,6 +123,28 @@ FContentPlayerShip::FContentPlayerShip(FContentPlayerShipParams const* Params)
 // base (FUN_06eb7230) -- member and base dtors in the port.
 FContentPlayerShip::~FContentPlayerShip()
 {
+}
+
+bool FContentPlayerShip::RebindShip(unsigned int ShipId, unsigned int ShipArch)
+{
+    unsigned int system = 0;
+    if (!ShipId || !ShipArch || !System || pub::SpaceObj::GetSystem(ShipId, system) != 0 ||
+        system != System->SystemId) return false;
+    SpaceObjId = ShipId;
+    ShipArchId = ShipArch;
+    // The player object is stable; only its physical ship and class change.
+    ClassIds.clear();
+    GetShipMissionProperties(ShipArch, &ClassIds);
+    unsigned int type = 0;
+    pub::SpaceObj::GetType(ShipId, type);
+    unsigned int classId = (type & 0x10000) ? CreateID("fighter") :
+                          (type & 0x20000) ? CreateID("freighter") : 0;
+    if (classId && std::find(ClassIds.begin(), ClassIds.end(), classId) == ClassIds.end())
+        ClassIds.push_back(classId);
+    TargetId = 0;
+    Damage.clear();
+    TradeLaneEntryRing = TradeLaneEndRing = 0;
+    return true;
 }
 
 // FUN_06f47430 (06f47430-06f47580).

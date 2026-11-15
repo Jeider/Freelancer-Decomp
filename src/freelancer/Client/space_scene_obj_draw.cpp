@@ -26,6 +26,7 @@
 #include "common_cobject.h"
 #include "common_iface.h"
 #include "common_misc.h"
+#include "common_visible_draw.h"
 #include "common_universe.h"
 #include "effect_base.h"
 #include "effect_vertex_batch.h"
@@ -1669,7 +1670,18 @@ namespace
                         SuppressedVisual->Flags7C &= static_cast<unsigned char>(~1u);
                     }
                     else
-                        TypedEffect->BuildGeometry(Cam);
+                    {
+                        FVector EffectPos;
+                        float const EffectRadius = TypedEffect->GetWorldPos(&EffectPos);
+                        float const* const Eye = AsCamera(Cam)->GetPosition();
+                        if (Eye && EffectRadius > 0.f && std::isfinite(EffectRadius) &&
+                            VisibleDraw::FullyHidden(Eye[0], Eye[1], Eye[2],
+                                EffectPos.X, EffectPos.Y, EffectPos.Z, EffectRadius))
+                        {
+                        }
+                        else
+                            TypedEffect->BuildGeometry(Cam);
+                    }
                 }
             }
 
@@ -1805,6 +1817,7 @@ namespace
     // The scene owns this interface only through its opaque mesh drain. The user
     // explicitly approved experimental game-frame integration after GPU validation.
     IRPLocalShadows* G_LocalShadows = nullptr;
+    bool G_SimplifyNebulaObjects = false;
     IRPWeaponGlints* G_WeaponGlints = nullptr;
     bool G_CockpitGlintBoundsValid=false;
     float G_CockpitGlintCenter[3]={},G_CockpitGlintRadius=0;
@@ -1987,6 +2000,20 @@ namespace
         return Go && Go->ManagerKind == 1 && !IsPlayerShipId(Go->get_id());
     }
 
+    bool NativeNebulaObject(FClientGameobj* Go, ICamera* Camera)
+    {
+        if(!G_SimplifyNebulaObjects || !Go) return false;
+        if(Go->ManagerKind==1 && IsPlayerShipId(Go->get_id())) return false;
+        Vector Center;float Radius=std::fmax(0.0f,Go->Slot178(Center));
+        float const* Eye=Camera->GetPosition();
+        double X=double(Center.x)-Eye[0],Y=double(Center.y)-Eye[1],Z=double(Center.z)-Eye[2];
+        // Preserve the old close-range material tiers. Distance is to the hull,
+        // not the centre, so large nearby ships do not lose their detail early.
+        float Range=Go->ManagerKind==2 ?
+            float(PortConfigInt("Render","surface_static_full_distance",4000)) : 500.f;
+        return std::sqrt(X*X+Y*Y+Z*Z)-Radius>std::fmax(0.f,Range);
+    }
+
     // -1 no shadow, else the SetLocalShadowReceiver tier (0 full, 1 moderate, 2 simple).
     int NpcShipShadowTier(float SurfaceDistance)
     {
@@ -2091,6 +2118,28 @@ namespace
     // planet_eclipses caster.
     bool PlanetEclipseShipShadow(FClientGameobj* Go, float* Out);
 
+    void CollectVisibleOccluders()
+    {
+        VisibleDraw::Reset();
+        int Kind = 2;
+        for (FClientGameobj* Go = ClientObjDb_GetKindHead(&Kind); Go; Go = Go->ListNext)
+        {
+            if (!Go->Object) continue;
+            unsigned Type = 0;
+            Go->get_type(Type);
+            // Station and asteroid extents are mostly empty. Using them as cones
+            // hides their own parts and anything beside them. Only a moon or planet
+            // has a filled sphere.
+            if ((Type & 3u) == 0) continue;
+            auto* Arch = static_cast<Archetype::Solar*>(Go->Object->get_archetype());
+            if (!Arch || !(Arch->SolarRadius >= 200.f) || !std::isfinite(Arch->SolarRadius))
+                continue;
+            Vector Center = Go->get_position();
+            if (!std::isfinite(Center.x)) continue;
+            VisibleDraw::AddOccluder(Center.x, Center.y, Center.z, Arch->SolarRadius);
+        }
+    }
+
     IRPLocalShadows* BuildLocalShadows(FSpaceCamera* Cam)
     {
         RuntimeHitchScope Hitch("render_phase", "local shadow maps");
@@ -2100,7 +2149,7 @@ namespace
         if(DALib::Pipeline->QueryInterface(Iids::RPLocalShadows,reinterpret_cast<void**>(&Shadows))<0 || !Shadows)
             return nullptr;
         ICamera* Camera=AsCamera(Cam);
-        if(NebulaVolume::ShadowsDisabledAt(Camera->GetPosition()))
+        if(!G_SimplifyNebulaObjects && NebulaVolume::ShadowsDisabledAt(Camera->GetPosition()))
         {
             // Begin resets receivers, ready masks and planet eclipse inputs before
             // validating its pointers. Null inputs stop before any GPU map work.
@@ -2133,6 +2182,7 @@ namespace
         for(FClientGameobj* Go=ClientObjDb_GetKindHead(&Kind);Go;Go=Go->ListNext)
         {
             if(!Go->Object) continue;
+            if(NativeNebulaObject(Go,Camera)) continue;
             if(Kind==9)
             {
                 auto* Rock=static_cast<FCliDynamicAsteroidGameobj*>(Go);
@@ -2181,6 +2231,13 @@ namespace
             if((Kind!=9 && !LocalShadowEligible(Go)) || Distance>Reach || Go->get_index()==-1) continue;
             const bool Npc=Kind==1 && IsNpcShip(Go);
             if(Npc && NpcShipShadowTier((float)std::fmax(0.0,Distance-Radius))<0) continue;
+            float const* View=Camera->GetViewTransform();
+            float Delta[3]={Center.x-Eye[0],Center.y-Eye[1],Center.z-Eye[2]};
+            float ViewPoint[3]={
+                View[0]*Delta[0]+View[1]*Delta[1]+View[2]*Delta[2],
+                View[3]*Delta[0]+View[4]*Delta[1]+View[5]*Delta[2],
+                View[6]*Delta[0]+View[7]*Delta[1]+View[8]*Delta[2]};
+            if(Camera->ClassifySphere(ViewPoint,Radius)==1) continue;
             double Along=X*Ray[0]+Y*Ray[1]+Z*Ray[2];
             float Perpendicular=(float)std::sqrt(std::fmax(0.0,Distance*Distance-Along*Along));
             Casters.push_back({Go,(float)std::fmax(0.0,Distance-Radius),Perpendicular,Radius,Npc});
@@ -2538,7 +2595,7 @@ namespace
                 if(Go && Arch)
                 {
                     const bool Player=Go->ManagerKind==1 && IsPlayerShipId(Go->get_id());
-                    if(ShipNormalEligible(Type,Player,Arch->DaArchetype.Value))
+                    if(!NativeNebulaObject(Go,AsCamera(Cam)) && ShipNormalEligible(Type,Player,Arch->DaArchetype.Value))
                     {
                         auto* EqArch=dynamic_cast<Archetype::EqObj*>(Arch);
                         const bool Dockable=EqArch && !EqArch->DockingSpheres.empty();
@@ -2637,13 +2694,16 @@ namespace
                     else if(DistanceSquared>Full*Full) Receiver|=8u;
                     if(Instances) Receiver|=4u;
                 }
+                if(NativeNebulaObject(Go,AsCamera(Cam)) ||
+                    (G_SimplifyNebulaObjects && dynamic_cast<FZItemAsteroidField*>(Nodes[I])))
+                    Receiver=256u;
                 SurfaceScope->SetLocalShadowReceiver(Receiver);
             }
 #endif
 #ifdef FREELANCER_RP9
             if(G_WeaponGlints)
             {
-                if(LocalShadowEligible(Go))
+                if(LocalShadowEligible(Go) && !NativeNebulaObject(Go,AsCamera(Cam)))
                 {
                     Vector Center;float Radius=Go->Slot178(Center);
                     G_WeaponGlints->SetWeaponGlintReceiverBounds(&Center.x,Radius);
@@ -3494,6 +3554,10 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     FGameCamera* const Gc = reinterpret_cast<FGameCamera*>(Cam);
     ICamera* const Camera = AsCamera(Cam);
     IRenderPipeline* const Pipe = DALib::Pipeline;
+#ifdef FREELANCER_RP9
+    G_SimplifyNebulaObjects=GetGameOption(kGameOptNebula)!=0 &&
+        NebulaVolume::SimplifyObjectsAt(Camera->GetPosition(),G_SimplifyNebulaObjects);
+#endif
 
     // 0x0051c210..0x0051c22f: the player's IObjRW (FUN_0054baf0); its +0x158 state 2 or 3 takes
     // the jump arm. The state is read without a class test.
@@ -3760,6 +3824,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     SortBuckets();
     Pipe->SetRenderState(D3DRS_CULLMODE, 2);
 #ifdef FREELANCER_RP9
+    CollectVisibleOccluders();
     G_LocalShadows=BuildLocalShadows(Cam);
     G_WeaponGlints=BuildWeaponGlints(Cam);
 #endif
@@ -4068,6 +4133,11 @@ void SpaceSetCockpitGlintBounds(const float* Center,float Radius)
         for(unsigned I=0;I<3;++I) if(!std::isfinite(Center[I])) {G_CockpitGlintBoundsValid=false;return;}
         std::memcpy(G_CockpitGlintCenter,Center,12);G_CockpitGlintRadius=Radius;
     }
+}
+
+bool SpaceNativeNebulaObject(FClientGameobj* Object,FSpaceCamera* Camera)
+{
+    return NativeNebulaObject(Object,AsCamera(Camera));
 }
 #endif
 

@@ -25,7 +25,7 @@ namespace
     };
     GradePreferences& GradeState(){static GradePreferences value;return value;}
 }
-int ColorGrade::DefaultPreset(){return ValidGrade(PortConfigInt("ColorGrade","preset",0));}
+int ColorGrade::DefaultPreset(){return 0;}
 int ColorGrade::Preset(){return GradeState().preview;}
 int ColorGrade::ConfiguredPreset(){return GradeState().saved;}
 void ColorGrade::Preview(int value){GradeState().preview=ValidGrade(value);}

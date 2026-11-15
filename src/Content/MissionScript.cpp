@@ -241,6 +241,8 @@ namespace
     };
 }
 
+#include "LocalTriggers.inl"
+
 // FUN_06ebb850 (thiscall on the trigger, RET 4). Every value of the rest of the [Trigger]
 // section: a Cnd_* key replaces +0x04 (the previous condition is not deleted), is parsed,
 // pushes its message ids into +0x18 and gets the trigger id (+0x2c) at +0x08; an Act_* key is
@@ -309,6 +311,7 @@ void LoadTrigger(FTrigger* Trigger, INI_Reader* Reader)
 // FUN_06eb84c0 [Trigger] branch (06eb8527-06eb86f0), after is_header("Trigger").
 void LoadMissionTriggerSection(FMissionScript* Script, INI_Reader* Reader)
 {
+    if (LocalTriggers::Capture(Script, Reader)) return;
     // 06eb8527: the local ID_String, cleared.
     unsigned int TriggerId = 0;
     while (Reader->read_value())
@@ -368,8 +371,14 @@ void DeleteTriggerContents(FTrigger* Trigger)
 void ActivateMissionTrigger(FMissionScript* Script, unsigned int const* TriggerId)
 {
     FTriggerMap::iterator Found = Script->TriggerMap.find(*TriggerId);
-    if (Found == Script->TriggerMap.end())
+    if (Found == Script->TriggerMap.end()) {
+        if (LocalTriggersBridgeActivation(Script, *TriggerId)) return;
+        auto local = LocalTriggers::Runtimes.find(Script);
+        if (local != LocalTriggers::Runtimes.end() &&
+            (local->second.executing || local->second.definitions.count(*TriggerId)))
+            FDUMP(0x100002, "LocalTriggers: activation %u rejected: target is missing or belongs to another scope", *TriggerId);
         return;
+    }
 
     // 06eb82ea-06eb8313: the whole active list is walked (no early exit); any node whose
     // key equals the id means the trigger is already active.
@@ -662,6 +671,7 @@ FMissionScript::FMissionScript(unsigned int const* InControllerId,
 // the TU38 base FUN_06f0ed00).
 FMissionScript::~FMissionScript()
 {
+    LocalTriggers::Destroy(this);
     // 06eb7d58-06eb7dbc: the active list, then every trigger's condition and actions.
     ActiveTriggers.clear();
     FTriggerMap::iterator TriggerIt = TriggerMap.begin();
@@ -1021,6 +1031,15 @@ void FMissionScript::LoadMission(INI_Reader* Reader)
 // is ending, then always vtbl[+0x78].
 void FMissionScript::HandleMissionMessage(EMessage MessageId, void const* MessageParms)
 {
+    auto local = LocalTriggers::Runtimes.find(this);
+    if (local != LocalTriggers::Runtimes.end()) {
+        if (local->second.executing) return;
+        LocalTriggers::Dispatch(this, MessageId, MessageParms);
+        // Personal banks survive a guest logout. Campaign leader migration is
+        // managed separately; do not erase every trigger on any player's exit.
+        if (MessageId == EMessage::PlayerLogout) return;
+        if (local->second.started && LocalTriggers::Identity(PlayerId) != local->second.owner) return;
+    }
     // 06eb8f5a-06eb8f68: nothing at all without a live player state.
     if (FindContentPlayerState(PlayerId) == nullptr)
         return;
@@ -1178,6 +1197,7 @@ void FMissionScript::HandleMissionMessage(EMessage MessageId, void const* Messag
         break;
     case EMessage::MissionResponse:
         // 06eb919a-06eb91b9.
+        if (local != LocalTriggers::Runtimes.end() && local->second.m01a) break;
         if (Parms[3] == PlayerId && Parms[0] == ControllerId)
             OnOfferResponse(MessageParms);
         break;
@@ -1496,6 +1516,17 @@ void FMissionScript::OnOfferResponse(void const* MessageParms)
     ID_String NoVnpc;
     NoVnpc.clear();
     PlayerState->JoinMissionAsGroup(ControllerId, 0, &NoVnpc, true, Field_0x2c4);
+}
+
+void LocalTriggersAcceptedMission(FMissionScript* mission)
+{
+    // Shared acceptance effects happen once. Personal rewards and messages have
+    // already run in the respondent's bank; do not rejoin their whole group.
+    if (mission->StoryEvents != nullptr)
+        mission->StoryEvents->OnMissionEvent(1, static_cast<unsigned>(mission->CampaignSlotSucceed), mission->ControllerId);
+    SpacePopSetAttackClamp(1);
+    SpacePopSetEncounterEnabled(0);
+    GMissionScanClamp = 1;
 }
 
 // FUN_06eba720 (06eba720-06eba859).

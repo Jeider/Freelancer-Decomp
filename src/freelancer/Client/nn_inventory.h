@@ -458,3 +458,6 @@ void NnInventoryOpenDealer(int TradeMode, FNnInventoryResultFn ResultFn, void* R
 // market sells (market category 3; the first one when Index is out of range; nothing when the
 // market sells none). Caller: NavBarOpenDealer FUN_004421a0 (0x004421f0).
 void NnInventoryOpenShipDealer(int Index, FNnInventoryResultFn ResultFn, void* ResultArg);
+
+// Shared native cargo fill mask, used by inventory and ship parking.
+void DrawInventoryCargoRemainder(WinControl* full,WinControl* empty,float right,float halfX,float halfY);

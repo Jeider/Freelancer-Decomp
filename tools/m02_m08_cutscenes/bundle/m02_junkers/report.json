@@ -1,0 +1,108 @@
+{
+  "name": "m02_junkers",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_junkers.thn",
+  "sha256": "10dc9d0c7f519289f7f01cde53ec43e8c40bddfeffd521b05533683e91231c96",
+  "uses": [
+    {
+      "mission": 2,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+      "mission_line": 864,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+      "line": 864,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m02_junkers.thn"
+    }
+  ],
+  "source_duration": 33.5,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 16,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 16,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 16,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_m02_junkers": "Scene_m02_junkers",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "cam_dbg": "cam_dbg",
+    "Camera_1": "Camera_1",
+    "mark_cam_pos1": "automarker_mark_cam_pos1",
+    "mark_cam_pos2": "automarker_mark_cam_pos2",
+    "mark_cam_pos3": "automarker_mark_cam_pos3",
+    "mark_obj": "automarker_Camera_1_focus",
+    "mark_obj_pos2": "automarker_mark_obj_pos2",
+    "mark_obj_pos3": "automarker_mark_obj_pos3",
+    "Camera_2": "Camera_2",
+    "mark_cam2_pos2": "automarker_mark_cam2_pos2",
+    "mark_obj2": "automarker_Camera_2_focus",
+    "mark_obj2_pos2": "automarker_mark_obj2_pos2"
+  },
+  "point_names": {
+    "Scene_m02_junkers": "Scene_m02_junkers",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "cam_dbg": "cam_dbg",
+    "Camera_1": "Camera_1",
+    "mark_cam_pos1": "mark_cam_pos1",
+    "mark_cam_pos2": "mark_cam_pos2",
+    "mark_cam_pos3": "mark_cam_pos3",
+    "mark_obj": "Camera_1_focus",
+    "mark_obj_pos2": "mark_obj_pos2",
+    "mark_obj_pos3": "mark_obj_pos3",
+    "Camera_2": "Camera_2",
+    "mark_cam2_pos2": "mark_cam2_pos2",
+    "mark_obj2": "Camera_2_focus",
+    "mark_obj2_pos2": "mark_obj2_pos2"
+  }
+}

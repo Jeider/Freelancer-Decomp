@@ -17,6 +17,14 @@ REPO = Path(__file__).resolve().parents[2]
 GAME = Path('D:/games/FL_MOD')
 STAGE = REPO / 'src/obj/hud_saved_tooltips/install'
 ROWS = [
+    ('GraphicsAllOff', 'Выкл всё', 'All off'),
+    ('GraphicsStandard', 'Стандартное', 'Standard'),
+    ('GraphicsAdditional', 'Дополнительно', 'Additional'),
+    ('GraphicsImageTab', 'Улучшенная графика', 'Enhanced graphics'),
+    ('GraphicsDisplayTab', 'Стандартная графика', 'Standard graphics'),
+    ('GraphicsInteriors', 'Качество интерьеров', 'Interior quality'),
+    ('GraphicsWeaponLights', 'Свет от оружия', 'Weapon lights'),
+    ('GraphicsAnomalies', 'Качество аномалий', 'Anomaly quality'),
     ('TargetWindow', 'Показать/скрыть окно цели', 'Show/hide target window'),
     ('TargetLock', 'Зафиксировать состояние окна цели', 'Lock target window open/closed state'),
     ('TargetUnlock', 'Разрешить автоматическое открытие и скрытие окна цели', 'Enable automatic target window opening and hiding'),
@@ -69,9 +77,9 @@ ROWS = [
     ('SettingsSaveFailed', 'Не удалось сохранить настройки', 'Could not save settings'),
     ('Unavailable', 'Недоступно', 'Unavailable'),
     ('GraphicsShadows', 'Тени', 'Shadows'),
-    ('GraphicsSurfaceRelief', 'Рельеф поверхностей', 'Surface relief'),
-    ('GraphicsHighlights', 'Блики', 'Highlights'),
-    ('GraphicsReflections', 'Отражения', 'Reflections'),
+    ('GraphicsSurfaceRelief', 'Рельеф в космосе', 'Space surface relief'),
+    ('GraphicsHighlights', 'Блики в космосе', 'Space highlights'),
+    ('GraphicsReflections', 'Отражения в космосе', 'Space reflections'),
     ('GraphicsAnisotropy', 'Анизотропная фильтрация', 'Anisotropic filtering'),
     ('GraphicsAntialiasing', 'Сглаживание', 'Antialiasing'),
     ('GraphicsNebulae', 'Объёмные туманности', 'Volumetric nebulae'),
@@ -93,6 +101,14 @@ ROWS = [
     ('ColorGradeHint', 'Цвет и DLSS — сразу; прочие настройки — после перезапуска', 'Color and DLSS apply immediately; other settings require a restart'),
     ('NeuralEnabled', 'Включить DLSS 5', 'Enable DLSS 5'),
 ]
+
+PREVIOUS = {
+    'GraphicsSurfaceRelief': ('Рельеф поверхностей', 'Surface relief'),
+    'GraphicsHighlights': ('Блики', 'Highlights'),
+    'GraphicsReflections': ('Отражения', 'Reflections'),
+    'GraphicsImageTab': ('Изображение', 'Image'),
+    'GraphicsDisplayTab': ('Детализация', 'Detail'),
+}
 
 k = c.WinDLL('kernel32', use_last_error=True)
 ptr = c.c_void_p
@@ -169,10 +185,9 @@ def encode_block(strings):
     return result
 
 def row_ids():
-    # 238270..238290 belongs to courier missions; UI additions use a separate block.
-    result=list(range(238200,238269))+list(range(238400,238406))
-    assert len(result)==len(ROWS)
-    return result
+    header=(REPO/'src/freelancer/Client/hud_interface_ids.h').read_text(encoding='utf-8')
+    ids=dict(re.findall(r'constexpr int (\w+) = (\d+);',header))
+    return [int(ids[name]) for name, _, _ in ROWS]
 
 
 def stage_dll(relative, column):
@@ -188,7 +203,8 @@ def stage_dll(relative, column):
         keys = [key for key in before if key[0] == 6 and key[1] == block] or [(6, block, 1033)]
         for key in keys:
             strings = blocks.setdefault(key, decode_block(before.get(key, b'\0' * 32)))
-            assert strings[slot] in ('', row[column]), f'IDS collision: {i} {strings[slot]!r}'
+            previous = PREVIOUS.get(row[0], ('', ''))[column-1]
+            assert strings[slot] in ('', row[column], previous), f'IDS collision: {i} {strings[slot]!r}'
             strings[slot] = row[column]
     shutil.copy2(original, output)
     handle = check(begin(str(output), False))
@@ -218,6 +234,7 @@ def stage_dll(relative, column):
 def main():
     relative = 'Assets/Pythonlancer/text/static.py'
     original = (GAME / relative).read_text(encoding='utf-8')
+    source = original
     tree = ast.parse(original)
     ids = {node.args[0].value: node for node in ast.walk(tree)
            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'Static'
@@ -232,7 +249,10 @@ def main():
             value = ids[i].args[1]
             assert (isinstance(value, ast.Call) and isinstance(value.func, ast.Name) and
                     value.func.id == 'MS' and len(value.args) == 2 and
-                    tuple(arg.value for arg in value.args) == (ru, en)), f'Pythonlancer text mismatch: {i}'
+                    tuple(arg.value for arg in value.args) in ((ru, en), PREVIOUS.get(name))), f'Pythonlancer text mismatch: {i}'
+            old = ast.get_source_segment(source, value)
+            if tuple(arg.value for arg in value.args) != (ru, en):
+                original = original.replace(old, f'MS({ru!r}, {en!r})', 1)
         else:
             block += f'    Static({i}, MS({ru!r}, {en!r})),  # {name}\n'
     patched = (original.replace('STATIC_NAMES = [\n', 'STATIC_NAMES = [\n' + block + '\n', 1)

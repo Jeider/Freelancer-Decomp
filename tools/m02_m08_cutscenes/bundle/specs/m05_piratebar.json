@@ -1,0 +1,3008 @@
+{
+  "name": "m05_piratebar",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_piratebar.thn",
+  "points": {
+    "vfx_rtc_sydsmoke_3": {
+      "pos": [
+        33.314056,
+        -10.78776,
+        -15.659348
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "vfx_rtc_cigaretteglow_4": {
+      "pos": [
+        33.547447,
+        -11.667683,
+        -16.023821
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "prop_cigarette_2": {
+      "pos": [
+        0,
+        -100,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "prop_pda": {
+      "pos": [
+        0,
+        -100,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Char_smith": {
+      "pos": [
+        5.5,
+        0,
+        -0.95
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    },
+    "Char_trent": {
+      "pos": [
+        5.25,
+        0,
+        -5
+      ],
+      "orient": [
+        [
+          -0.9659258,
+          0,
+          -0.258819
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.258819,
+          0,
+          -0.9659258
+        ]
+      ]
+    },
+    "point_trent_stand": {
+      "pos": [
+        4,
+        -1,
+        0.5
+      ],
+      "orient": [
+        [
+          0.9063079,
+          0,
+          0.4226181
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.4226181,
+          0,
+          0.9063079
+        ]
+      ]
+    },
+    "point_trent_sit_side": {
+      "pos": [
+        5.5,
+        0,
+        1
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "point_trent_sit_front": {
+      "pos": [
+        5.5,
+        0,
+        1
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "trent_head_ik": {
+      "pos": [
+        5.5,
+        1.2,
+        -0.95
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "trent_eye_ik": {
+      "pos": [
+        5.5,
+        1.2,
+        -0.95
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "smith_head_ik": {
+      "pos": [
+        4,
+        1.65,
+        0.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "smith_eye_ik": {
+      "pos": [
+        5.5,
+        1.2,
+        1
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "head_smith": {
+      "pos": [
+        5.5,
+        1.2,
+        -0.95
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "head_smith_front": {
+      "pos": [
+        5.5,
+        1.2,
+        1
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "head_smith_front_btm": {
+      "pos": [
+        5.5,
+        0.7,
+        1
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "head_trent_stand": {
+      "pos": [
+        4,
+        1.65,
+        0.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "head_trent_sit": {
+      "pos": [
+        5.5,
+        1.22,
+        0.9
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "out_window_center": {
+      "pos": [
+        7,
+        1.65,
+        -0.8
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start": {
+      "pos": [
+        2.75,
+        2,
+        2
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start_pos2": {
+      "pos": [
+        2.75,
+        2,
+        2.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start_focus": {
+      "pos": [
+        5,
+        0.75,
+        -3
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start_marker_pos2": {
+      "pos": [
+        5.5,
+        0.75,
+        -2
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent_stand": {
+      "pos": [
+        4.5,
+        1.25,
+        -1.25
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent_stand_focus": {
+      "pos": [
+        4,
+        1.47,
+        0.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent_stand_marker_pos2": {
+      "pos": [
+        4.15,
+        1.45,
+        0.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_smith": {
+      "pos": [
+        4.5,
+        1,
+        1
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_smith_focus": {
+      "pos": [
+        5.6,
+        1.15,
+        -0.95
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_smith_far": {
+      "pos": [
+        4.5,
+        1.15,
+        1
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_smith_far_focus": {
+      "pos": [
+        5.6,
+        1.05,
+        -0.95
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent": {
+      "pos": [
+        4.2,
+        1.15,
+        -1
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent_focus": {
+      "pos": [
+        5.4,
+        1.05,
+        0.7
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trough": {
+      "pos": [
+        4.2,
+        1.2,
+        1.7
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trough_pos2": {
+      "pos": [
+        4.2,
+        1.2,
+        1.4
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trough_focus": {
+      "pos": [
+        5.5,
+        1,
+        0.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trough_marker_pos2": {
+      "pos": [
+        5.5,
+        1,
+        0.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent_sidetalk": {
+      "pos": [
+        4.4,
+        1.35,
+        -0.7
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent_sidetalk_focus": {
+      "pos": [
+        5.4,
+        1.12,
+        0.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "cam_start",
+    "cam_trent_stand",
+    "cam_smith",
+    "cam_smith_far",
+    "cam_trent",
+    "cam_trough",
+    "cam_trent_sidetalk"
+  ],
+  "characters": [
+    "Char_smith",
+    "Char_trent"
+  ],
+  "character_markers": [
+    "point_trent_sit_side"
+  ],
+  "entities": [
+    {
+      "entity_name": "Scene_M05_piratebar",
+      "type": "SCENE",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "entity_name": "Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0
+    },
+    {
+      "entity_name": "offscreen",
+      "type": "MARKER",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          0,
+          -10000,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "vfx_rtc_sydsmoke_3",
+      "type": "PSYS",
+      "template_name": "rtc_sydsmoke",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          33.314056,
+          -10.78776,
+          -15.659348
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "psysprops": {
+        "sparam": 0
+      }
+    },
+    {
+      "entity_name": "vfx_rtc_cigaretteglow_4",
+      "type": "PSYS",
+      "template_name": "rtc_cigaretteglow",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          33.547447,
+          -11.667683,
+          -16.023821
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "psysprops": {
+        "sparam": 0
+      }
+    },
+    {
+      "entity_name": "prop_cigarette_2",
+      "type": "COMPOUND",
+      "template_name": "cigarette_2",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          0,
+          -100,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "prop_pda",
+      "type": "COMPOUND",
+      "template_name": "pda",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          0,
+          -100,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0010_trent",
+      "template_name": "DX_m05_piratebar_0010_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0020_smith",
+      "template_name": "DX_m05_piratebar_0020_smith",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0030_trent",
+      "template_name": "DX_m05_piratebar_0030_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0040_trent",
+      "template_name": "DX_m05_piratebar_0040_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0050_trent",
+      "template_name": "DX_m05_piratebar_0050_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0055_trent",
+      "template_name": "DX_m05_piratebar_0055_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0060_smith",
+      "template_name": "DX_m05_piratebar_0060_smith",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0070_trent",
+      "template_name": "DX_m05_piratebar_0070_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0080_smith",
+      "template_name": "DX_m05_piratebar_0080_smith",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0090_trent",
+      "template_name": "DX_m05_piratebar_0090_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0100_smith",
+      "template_name": "DX_m05_piratebar_0100_smith",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0110_trent",
+      "template_name": "DX_m05_piratebar_0110_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0120_smith",
+      "template_name": "DX_m05_piratebar_0120_smith",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0130_trent",
+      "template_name": "DX_m05_piratebar_0130_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m05_piratebar_0140_smith",
+      "template_name": "DX_m05_piratebar_0140_smith",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "Char_smith",
+      "type": "DEFORMABLE",
+      "template_name": "m05_smith",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          5.5,
+          0,
+          -0.95
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "actor": "m05_smith",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_trent",
+      "type": "DEFORMABLE",
+      "template_name": "trent",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          5.25,
+          0,
+          -5
+        ],
+        "orient": [
+          [
+            -0.9659258,
+            0,
+            -0.258819
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.258819,
+            0,
+            -0.9659258
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Player",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "point_trent_stand",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          4,
+          -1,
+          0.5
+        ],
+        "orient": [
+          [
+            0.9063079,
+            0,
+            0.4226181
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.4226181,
+            0,
+            0.9063079
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "point_trent_sit_side",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          0,
+          1
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "point_trent_sit_front",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          0,
+          1
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "trent_head_ik",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          1.2,
+          -0.95
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "trent_eye_ik",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          1.2,
+          -0.95
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "smith_head_ik",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          4,
+          1.65,
+          0.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "smith_eye_ik",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          1.2,
+          1
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "head_smith",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          1.2,
+          -0.95
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "head_smith_front",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          1.2,
+          1
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "head_smith_front_btm",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          0.7,
+          1
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "head_trent_stand",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          4,
+          1.65,
+          0.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "head_trent_sit",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          1.22,
+          0.9
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "out_window_center",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          7,
+          1.65,
+          -0.8
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_dbg",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          2,
+          2,
+          4
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 20,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_dbg_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          6,
+          0.5,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_start",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          2.75,
+          2,
+          2
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 20,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_start_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          2.75,
+          2,
+          2.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_start_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5,
+          0.75,
+          -3
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_start_marker_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          0.75,
+          -2
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_trent_stand",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          4.5,
+          1.25,
+          -1.25
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 20,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_trent_stand_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          4,
+          1.47,
+          0.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_trent_stand_marker_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          4.15,
+          1.45,
+          0.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_smith",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          4.5,
+          1,
+          1
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 18,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_smith_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.6,
+          1.15,
+          -0.95
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_smith_far",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          4.5,
+          1.15,
+          1
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 20,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_smith_far_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.6,
+          1.05,
+          -0.95
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_trent",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          4.2,
+          1.15,
+          -1
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 18,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_trent_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.4,
+          1.05,
+          0.7
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_trough",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          4.2,
+          1.2,
+          1.7
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 30,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_trough_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          4.2,
+          1.2,
+          1.4
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_trough_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          1,
+          0.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_trough_marker_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.5,
+          1,
+          0.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_trent_sidetalk",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          4.4,
+          1.35,
+          -0.7
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 18,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_trent_sidetalk_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          5.4,
+          1.12,
+          0.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "duration": 119.0
+}

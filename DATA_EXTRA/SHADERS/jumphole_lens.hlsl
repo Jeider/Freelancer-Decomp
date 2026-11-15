@@ -152,10 +152,13 @@ float4 PSLens(Interp In,float2 Pixel:VPOS):COLOR0
 float4 IntegrateCloud(float3 Ray,float2 Range,uniform bool Ingress)
 {
     if(Range.y<=Range.x || State.w<=0) return 0;
-    float Step=(Range.y-Range.x)/64;
+    // Zero keeps compatibility with older clients which did not supply Target.w.
+    int Steps=Target.w>0 ? (int)clamp(Target.w,8,64) : 64;
+    float Step=(Range.y-Range.x)/Steps;
     float3 Light=0;float Transmission=1;
     [loop] for(int I=0;I<64;++I)
     {
+        if(I>=Steps) break;
         float3 P=Eye.xyz+Ray*(Range.x+(I+.5)*Step);
         float4 F=Cloud(P);
         float4 Funnel=Vortex(P,F);

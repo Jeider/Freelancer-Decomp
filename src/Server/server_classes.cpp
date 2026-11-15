@@ -32,6 +32,7 @@
 #include "../include/x86math.h" // I3DMathEngine
 #include "../include/common_universe.h"
 #include "../include/common_reputation.h"
+#include "../include/graphics_settings.h"
 #include "../include/server_sysdb.h"
 #include "../include/server_gameobject.h" // GameObject's +0x154..+0x160 slots (StarSystem::remove_player/unload)
 #include "../include/common_server_asteroid.h"
@@ -2877,6 +2878,7 @@ void __cdecl PlayerData_BuildCharacterSet(PlayerData& Slot, CCharacterSet& Out) 
         Info->Rank = Saved.Rank;                                        // .text:06d49de8 <- +0x2bc
         CharacterInfoCopyCostume(Info->BaseCostume, Saved.BaseCostume); // .text:06d49dee <- +0x32c
         CharacterInfoCopyCostume(Info->ComCostume, Saved.ComCostume);   // .text:06d49e3a <- +0x2d4
+        PlayerCostume_ApplyOverride(Info->BaseCostume, Info->ComCostume);
 
         // .text:06d49e81 .. .text:06d49f1c -- sorted insert. Walk the list with
         // the traverse idiom; the first node the new record goes before ends
@@ -6288,6 +6290,8 @@ bool StarSystem::activate_object(GameObject* Obj, bool bOn, unsigned int Index)
         return false;
     if (Result != ObjActivateChanged)
         return true;
+
+    ActivatePhysicalTradeLane(Obj, bOn, Index);
 
     // .text:06d0d8f2 .. 06d0d91a -- cobject() (vt +0x150) under the (& 0x303)
     // test: a solar is announced to every player, anything else only where seen.

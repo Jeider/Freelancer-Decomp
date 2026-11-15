@@ -1,0 +1,517 @@
+{
+  "name": "m05_arrest_camera02",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera02.thn",
+  "points": {
+    "Shot06_Camera_1": {
+      "pos": [
+        -10,
+        7.5,
+        30
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Shot06_Camera_1_focus": {
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "CamPos_Marker_2": {
+      "pos": [
+        -10,
+        7.5,
+        30
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "main_object": {
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Camera_1": {
+      "pos": [
+        -12.360987,
+        56.686152,
+        22.040443
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Path_1": {
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Path_mrk": {
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Path_mrk_static": {
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "Shot06_Camera_1",
+    "Camera_1"
+  ],
+  "characters": [],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "Scene_Trailer_Cam2",
+      "type": "SCENE",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "entity_name": "Shot06_Camera_1",
+      "type": "CAMERA",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          -10,
+          7.5,
+          30
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 35,
+        "hvaspect": 1.333333,
+        "nearplane": 0.1,
+        "farplane": 100000
+      }
+    },
+    {
+      "entity_name": "Look_At_Marker_1",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "CamPos_Marker_2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          -10,
+          7.5,
+          30
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "main_object",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "userprops": {
+        "main_object": "main_object"
+      }
+    },
+    {
+      "entity_name": "Shot06_Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "template_id": 0
+    },
+    {
+      "entity_name": "Camera_1",
+      "type": "CAMERA",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          -12.360987,
+          56.686152,
+          22.040443
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 45,
+        "hvaspect": 1.333333,
+        "nearplane": 0.1,
+        "farplane": 100000
+      }
+    },
+    {
+      "entity_name": "Path_1",
+      "type": "MOTION_PATH",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "pathprops": {
+        "path_type": "CV_CROrientationSplinePath",
+        "path_data": "OPEN, {-25,5,-5}, {1,0,0,0}, {-25,50,200}, {1,0,0,0}, "
+      }
+    },
+    {
+      "entity_name": "Path_mrk",
+      "type": "MOTION_PATH",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "pathprops": {
+        "path_type": "CV_CROrientationSplinePath",
+        "path_data": "OPEN, {0, 0, 0}, {1,0,0,0}, {0,0,-50}, {1,0,0,0}, "
+      }
+    },
+    {
+      "entity_name": "Path_mrk_static",
+      "type": "MOTION_PATH",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "pathprops": {
+        "path_type": "CV_CROrientationSplinePath",
+        "path_data": "OPEN, {0, 0.1, 0}, {1,0,0,0}, {0,0,0}, {1,0,0,0}, "
+      }
+    }
+  ],
+  "duration": 300.0
+}

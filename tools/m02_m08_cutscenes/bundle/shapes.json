@@ -1,0 +1,1704 @@
+{
+  "events": {
+    "SET_CAMERA": {
+      "[]": [
+        0,
+        "SET_CAMERA",
+        [
+          "Monitor_1",
+          "Cam_1"
+        ]
+      ]
+    },
+    "ATTACH_ENTITY": {
+      "['duration', 'flags', 'front', 'offset', 'target_part', 'target_type', 'up']": [
+        0,
+        "ATTACH_ENTITY",
+        [
+          "no_cloakeffect04_1",
+          "or_osiris_3"
+        ],
+        {
+          "flags": "POSITION+ORIENTATION",
+          "target_type": "HARDPOINT",
+          "target_part": "hpcloak01",
+          "front": "NEG_Z_AXIS",
+          "up": "Y_AXIS",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "duration": 51.5
+        }
+      ],
+      "['duration', 'flags', 'front', 'target_part', 'target_type', 'up']": [
+        0,
+        "ATTACH_ENTITY",
+        [
+          "cam_stealth",
+          "cam_stealth_marker"
+        ],
+        {
+          "duration": 150,
+          "up": "Y_AXIS",
+          "front": "NEG_Z_AXIS",
+          "target_part": "",
+          "target_type": "ROOT",
+          "flags": "LOOK_AT"
+        }
+      ]
+    },
+    "START_PATH_ANIMATION": {
+      "['duration', 'flags', 'front', 'offset', 'param_curve', 'pcurve_period', 'start_percent', 'stop_percent', 'up']": [
+        0,
+        "START_PATH_ANIMATION",
+        [
+          "Cam_1",
+          "Path_Cam"
+        ],
+        {
+          "pcurve_period": -1000,
+          "param_curve": {
+            "points": [
+              [
+                0,
+                0,
+                0,
+                0.5
+              ],
+              [
+                1,
+                1,
+                0,
+                0
+              ]
+            ],
+            "CLSID": "FreeFormPCurve"
+          },
+          "flags": "POSITION+ORIENTATION",
+          "front": "NEG_Z_AXIS",
+          "up": "Y_AXIS",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "stop_percent": 1,
+          "start_percent": 0.3,
+          "duration": 36.875
+        }
+      ]
+    },
+    "START_SPATIAL_PROP_ANIM": {
+      "['duration', 'spatialprops', 'target_part', 'target_type']": [
+        209,
+        "START_SPATIAL_PROP_ANIM",
+        [
+          "Char_trent",
+          "point_trent_sit"
+        ],
+        {
+          "duration": 0,
+          "target_part": "",
+          "target_type": "ROOT",
+          "spatialprops": {
+            "pos": [
+              0,
+              0,
+              0
+            ],
+            "q_orient": [
+              1,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "['duration', 'param_curve', 'pcurve_period', 'spatialprops', 'target_part', 'target_type']": [
+        219,
+        "START_SPATIAL_PROP_ANIM",
+        [
+          "hatcher_eye_ik",
+          "head_king"
+        ],
+        {
+          "duration": 1.5,
+          "target_part": "",
+          "target_type": "ROOT",
+          "spatialprops": {
+            "pos": [
+              0,
+              0,
+              0
+            ],
+            "q_orient": [
+              1,
+              0,
+              0,
+              0
+            ]
+          },
+          "param_curve": {
+            "CLSID": "FreeFormPCurve",
+            "points": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          "pcurve_period": -1000
+        }
+      ],
+      "['duration', 'param_curve', 'pcurve_period', 'spatialprops', 'target_type']": [
+        0,
+        "START_SPATIAL_PROP_ANIM",
+        [
+          "CoreMarker"
+        ],
+        {
+          "duration": 60,
+          "target_type": "ROOT",
+          "spatialprops": {
+            "axisrot": [
+              360,
+              "Y_AXIS"
+            ]
+          },
+          "param_curve": {
+            "CLSID": "FreeFormPCurve",
+            "points": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          "pcurve_period": -1000
+        }
+      ],
+      "['duration', 'spatialprops', 'target_type']": [
+        180.005,
+        "START_SPATIAL_PROP_ANIM",
+        [
+          "Char_rifleman"
+        ],
+        {
+          "duration": 0,
+          "target_type": "ROOT",
+          "spatialprops": {
+            "axisrot": [
+              -25,
+              "Y_AXIS"
+            ]
+          }
+        }
+      ]
+    },
+    "START_SOUND": {
+      "['duration']": [
+        223.5,
+        "START_SOUND",
+        [
+          "DX_m08_osiris_0380_hatcher"
+        ],
+        {
+          "duration": 15
+        }
+      ],
+      "['duration', 'flags']": [
+        0,
+        "START_SOUND",
+        [
+          "music_main"
+        ],
+        {
+          "duration": 60,
+          "flags": "LOOP"
+        }
+      ],
+      "['duration', 'start_time']": [
+        154,
+        "START_SOUND",
+        [
+          "snd_close_door_clothesbox"
+        ],
+        {
+          "start_time": 500,
+          "duration": 5
+        }
+      ]
+    },
+    "START_MOTION": {
+      "['animation', 'duration', 'heading', 'start_time', 'time_scale', 'trans_time', 'weight']": [
+        223.5,
+        "START_MOTION",
+        [
+          "Char_hatcher"
+        ],
+        {
+          "animation": "Sc_dx_s070x_2701_Jacobi",
+          "duration": 5,
+          "start_time": 3,
+          "time_scale": 1,
+          "trans_time": 0.25,
+          "weight": 1,
+          "heading": -1
+        }
+      ],
+      "['animation', 'duration', 'heading', 'time_scale', 'weight']": [
+        180.3,
+        "START_MOTION",
+        [
+          "Char_rifleman"
+        ],
+        {
+          "animation": "Sc_SPCBODY_s051x_ku_guard01_XB_STND_000LV_05",
+          "duration": 6,
+          "time_scale": 1,
+          "weight": 1,
+          "heading": -1
+        }
+      ],
+      "['animation', 'duration', 'heading', 'time_scale', 'trans_time', 'weight']": [
+        85.5,
+        "START_MOTION",
+        [
+          "Char_trent"
+        ],
+        {
+          "animation": "Sc_MLBODY_CHRB_GESTR_RGHT_000LV_XA_03",
+          "duration": 4,
+          "time_scale": 0.15,
+          "trans_time": 0.5,
+          "weight": 1,
+          "heading": -1
+        }
+      ],
+      "['animation', 'duration', 'heading', 'start_time', 'time_scale', 'weight']": [
+        223.5,
+        "START_MOTION",
+        [
+          "Char_hatcher"
+        ],
+        {
+          "animation": "Sc_FMBODY_STND_SALUT_000LV_XA_03",
+          "duration": 10,
+          "time_scale": 1,
+          "start_time": 1.5,
+          "weight": 1,
+          "heading": -1
+        }
+      ],
+      "['animation', 'duration', 'event_flags', 'heading', 'time_scale', 'trans_time', 'weight']": [
+        35.8,
+        "START_MOTION",
+        [
+          "Char_darcy"
+        ],
+        {
+          "animation": "Sc_FMBODY_CHRB_CONV_LHND_CASL_000LV_xa_03",
+          "duration": 3,
+          "time_scale": 0.4,
+          "weight": 1,
+          "trans_time": 1,
+          "heading": -1,
+          "event_flags": 2
+        }
+      ],
+      "['animation', 'duration', 'event_flags', 'heading', 'time_scale', 'weight']": [
+        209.1,
+        "START_MOTION",
+        [
+          "Char_trent"
+        ],
+        {
+          "animation": "Sc_MLBODY_CHRB_IDLE_000LV_XA_05",
+          "duration": 100,
+          "time_scale": 0.6,
+          "weight": 1,
+          "heading": -1,
+          "event_flags": 2
+        }
+      ],
+      "['animation', 'duration', 'event_flags', 'heading', 'start_time', 'time_scale', 'weight']": [
+        14,
+        "START_MOTION",
+        [
+          "Char_major"
+        ],
+        {
+          "animation": "Sc_MLBODY_STND_CROSS_ARMS_000LV_A_11",
+          "duration": 50,
+          "start_time": 1,
+          "time_scale": 0.2,
+          "weight": 1,
+          "heading": -1,
+          "event_flags": 2
+        }
+      ],
+      "['animation', 'duration', 'event_flags', 'heading', 'start_time', 'time_scale', 'trans_time', 'weight']": [
+        123,
+        "START_MOTION",
+        [
+          "Char_hatcher"
+        ],
+        {
+          "animation": "Sc_FMBODY_STND_CONV_HNDS_EMPH_000LV_XB_03",
+          "duration": 5,
+          "time_scale": 0.8,
+          "start_time": 0,
+          "trans_time": 1,
+          "weight": 1,
+          "heading": -1,
+          "event_flags": 2
+        }
+      ],
+      "['animation', 'duration', 'event_flags', 'heading', 'trans_time', 'weight']": [
+        14,
+        "START_MOTION",
+        [
+          "Char_hatcher"
+        ],
+        {
+          "animation": "Sc_FMBODY_STND_FSTHIPB_HOLD_000LV_XA_01",
+          "duration": 46,
+          "trans_time": 0.5,
+          "weight": 1,
+          "heading": -1,
+          "event_flags": 2
+        }
+      ],
+      "['animation', 'duration', 'heading', 'start_time', 'trans_time', 'weight']": [
+        41.5,
+        "START_MOTION",
+        [
+          "Char_hatcher"
+        ],
+        {
+          "animation": "Sc_dx_s069x_2201_Jacobi",
+          "duration": 2.5,
+          "start_time": 0.3,
+          "trans_time": 0.25,
+          "weight": 1,
+          "heading": -1
+        }
+      ],
+      "['animation', 'duration', 'start_time', 'time_scale', 'trans_scale', 'weight']": [
+        225,
+        "START_MOTION",
+        [
+          "doors"
+        ],
+        {
+          "animation": "Sc_cv_prison_cell",
+          "duration": 3.332,
+          "start_time": 3.332,
+          "time_scale": 1,
+          "weight": 1,
+          "trans_scale": 1
+        }
+      ],
+      "['animation', 'duration', 'time_scale', 'trans_scale', 'weight']": [
+        208,
+        "START_MOTION",
+        [
+          "doors"
+        ],
+        {
+          "animation": "Sc_cv_prison_cell",
+          "duration": 3.332,
+          "time_scale": 1,
+          "weight": 1,
+          "trans_scale": 1
+        }
+      ],
+      "['animation', 'duration', 'heading', 'start_time', 'weight']": [
+        63.6,
+        "START_MOTION",
+        [
+          "Char_darcy"
+        ],
+        {
+          "animation": "Sc_FMHAND_HNEUT_HOLDD_RGHT_000LV_00",
+          "duration": 0.1,
+          "start_time": 0.8,
+          "weight": 1,
+          "heading": -1
+        }
+      ],
+      "['animation', 'duration', 'heading', 'weight']": [
+        32,
+        "START_MOTION",
+        [
+          "Char_hammer"
+        ],
+        {
+          "animation": "Sc_MLBODY_CHRB_STNDCR_TRNS_090LV_XA_05",
+          "duration": 15,
+          "weight": 1,
+          "heading": -1
+        }
+      ]
+    },
+    "START_IK": {
+      "['count_to_root', 'damping', 'duration', 'end_effector', 'event_flags', 'front', 'move_to', 'point_at', 'target_part', 'target_type', 'transition_duration', 'up']": [
+        58,
+        "START_IK",
+        [
+          "Char_major",
+          "major_eye_ik"
+        ],
+        {
+          "duration": 555,
+          "end_effector": "Eye IK Left",
+          "target_part": "",
+          "target_type": "ROOT",
+          "count_to_root": 1,
+          "damping": 1,
+          "up": "NEG_Y_AXIS",
+          "front": "Z_AXIS",
+          "point_at": 1,
+          "move_to": 0,
+          "transition_duration": 1,
+          "event_flags": 128
+        }
+      ]
+    },
+    "CONNECT_HARDPOINTS": {
+      "['duration', 'hardpoint', 'parent_hardpoint']": [
+        85.5,
+        "CONNECT_HARDPOINTS",
+        [
+          "prop_tome",
+          "Char_trent"
+        ],
+        {
+          "duration": 20,
+          "hardpoint": "rhand_connect_tome",
+          "parent_hardpoint": "hprightconnect"
+        }
+      ]
+    },
+    "START_PSYS": {
+      "['duration']": [
+        35,
+        "START_PSYS",
+        [
+          "no_cloakeffect04_1"
+        ],
+        {
+          "duration": 6
+        }
+      ]
+    },
+    "START_CAMERA_PROP_ANIM": {
+      "['cameraprops', 'duration', 'param_curve', 'pcurve_period']": [
+        50,
+        "START_CAMERA_PROP_ANIM",
+        [
+          "cam_trent_missilewatch"
+        ],
+        {
+          "duration": 3,
+          "cameraprops": {
+            "fovh": 4
+          },
+          "param_curve": {
+            "CLSID": "FreeFormPCurve",
+            "points": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          "pcurve_period": -1000
+        }
+      ]
+    },
+    "START_AUDIO_PROP_ANIM": {
+      "['audioprops', 'duration']": [
+        20,
+        "START_AUDIO_PROP_ANIM",
+        [
+          "music_main"
+        ],
+        {
+          "duration": 5,
+          "audioprops": {
+            "attenuation": -15
+          }
+        }
+      ]
+    },
+    "START_PSYS_PROP_ANIM": {
+      "['duration', 'psysprops']": [
+        12,
+        "START_PSYS_PROP_ANIM",
+        [
+          "fx_rockford_engine02"
+        ],
+        {
+          "duration": 2,
+          "psysprops": {
+            "sparam": 0.2
+          }
+        }
+      ],
+      "['duration', 'param_curve', 'pcurve_period', 'psysprops']": [
+        57.5,
+        "START_PSYS_PROP_ANIM",
+        [
+          "fadenegative_variable_1"
+        ],
+        {
+          "duration": 0.507,
+          "psysprops": {
+            "sparam": 0
+          },
+          "param_curve": {
+            "CLSID": "FreeFormPCurve",
+            "points": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          "pcurve_period": -1000
+        }
+      ]
+    },
+    "START_LIGHT_PROP_ANIM": {
+      "['duration', 'lightprops']": [
+        18,
+        "START_LIGHT_PROP_ANIM",
+        [
+          "LIGHT_trentchars_jabbaside"
+        ],
+        {
+          "duration": 2,
+          "lightprops": {
+            "diffuse": [
+              1,
+              1,
+              1
+            ],
+            "ambient": [
+              0.3,
+              0.4,
+              0.55
+            ]
+          }
+        }
+      ],
+      "['duration', 'lightprops', 'param_curve', 'pcurve_period']": [
+        20,
+        "START_LIGHT_PROP_ANIM",
+        [
+          "Light_shield_damage"
+        ],
+        {
+          "duration": 0.5,
+          "lightprops": {
+            "diffuse": [
+              0,
+              0,
+              0
+            ],
+            "ambient": [
+              0,
+              0,
+              0
+            ]
+          },
+          "param_curve": {
+            "CLSID": "FreeFormPCurve",
+            "points": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          "pcurve_period": -1000
+        }
+      ]
+    }
+  },
+  "entities": {
+    "SCENE": {
+      "['ambient', 'entity_name', 'front', 'spatialprops', 'template_id', 'template_name', 'type', 'up']": {
+        "entity_name": "Scene_Trailer_Cam2",
+        "type": "SCENE",
+        "template_name": "",
+        "template_id": 0,
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "up": "Y_AXIS",
+        "front": "Z_AXIS",
+        "ambient": [
+          128,
+          128,
+          128
+        ]
+      },
+      "['ambient', 'entity_name', 'front', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'up', 'usr_flg']": {
+        "ambient": [
+          128,
+          128,
+          128
+        ],
+        "front": "Z_AXIS",
+        "up": "Y_AXIS",
+        "spatialprops": {
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        "usr_flg": 0,
+        "srt_grp": 0,
+        "lt_grp": 0,
+        "template_name": "",
+        "type": "SCENE",
+        "entity_name": "Scene_Untitled_2"
+      }
+    },
+    "MONITOR": {
+      "['entity_name', 'template_id', 'template_name', 'type']": {
+        "entity_name": "Shot06_Monitor_1",
+        "type": "MONITOR",
+        "template_name": "",
+        "template_id": 0
+      },
+      "['entity_name', 'lt_grp', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "usr_flg": 0,
+        "srt_grp": 0,
+        "lt_grp": 0,
+        "template_name": "",
+        "type": "MONITOR",
+        "entity_name": "Monitor_1"
+      }
+    },
+    "MARKER": {
+      "['entity_name', 'spatialprops', 'template_id', 'template_name', 'type', 'userprops']": {
+        "entity_name": "main_object",
+        "type": "MARKER",
+        "template_name": "",
+        "template_id": 0,
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "userprops": {
+          "main_object": "main_object"
+        }
+      },
+      "['entity_name', 'spatialprops', 'template_id', 'template_name', 'type']": {
+        "entity_name": "main_object",
+        "type": "MARKER",
+        "template_name": "",
+        "template_id": 0,
+        "spatialprops": {
+          "pos": [
+            0,
+            400,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        }
+      },
+      "['entity_name', 'flags', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "entity_name": "cam_final_pos",
+        "type": "MARKER",
+        "template_name": "",
+        "lt_grp": 0,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "flags": "HIDDEN",
+        "spatialprops": {
+          "pos": [
+            -60,
+            60,
+            -650
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        }
+      },
+      "['entity_name', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "entity_name": "point_king_talk_front",
+        "type": "MARKER",
+        "template_name": "",
+        "lt_grp": 0,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "spatialprops": {
+          "pos": [
+            0.3,
+            0,
+            -9
+          ],
+          "orient": [
+            [
+              -1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              -1
+            ]
+          ]
+        }
+      },
+      "['entity_name', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'userprops', 'usr_flg']": {
+        "userprops": {
+          "main_object": "main_object"
+        },
+        "spatialprops": {
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        "usr_flg": 0,
+        "srt_grp": 0,
+        "lt_grp": 0,
+        "template_name": "",
+        "type": "MARKER",
+        "entity_name": "Mk_main_object"
+      }
+    },
+    "CAMERA": {
+      "['cameraprops', 'entity_name', 'spatialprops', 'template_id', 'template_name', 'type']": {
+        "entity_name": "Camera_1",
+        "type": "CAMERA",
+        "template_name": "",
+        "template_id": 0,
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "cameraprops": {
+          "fovh": 45,
+          "hvaspect": 1.333333,
+          "nearplane": 0.1,
+          "farplane": 100000
+        }
+      },
+      "['cameraprops', 'entity_name', 'flags', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "entity_name": "cam",
+        "type": "CAMERA",
+        "template_name": "",
+        "lt_grp": 0,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "flags": "HIDDEN",
+        "spatialprops": {
+          "pos": [
+            1600,
+            1553,
+            647
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "cameraprops": {
+          "fovh": 25,
+          "hvaspect": 1.85,
+          "nearplane": 0.2,
+          "farplane": 5000
+        }
+      },
+      "['cameraprops', 'entity_name', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "cameraprops": {
+          "farplane": 15000.00293,
+          "nearplane": 0.2,
+          "hvaspect": 1.85,
+          "fovh": 35
+        },
+        "spatialprops": {
+          "orient": [
+            [
+              -0.809928,
+              0,
+              0.586529
+            ],
+            [
+              0.091592,
+              0.987732,
+              0.126478
+            ],
+            [
+              -0.579333,
+              0.156159,
+              -0.799992
+            ]
+          ],
+          "pos": [
+            -49.92804,
+            26.338858,
+            -214.082718
+          ]
+        },
+        "usr_flg": 0,
+        "srt_grp": 0,
+        "lt_grp": 0,
+        "template_name": "",
+        "type": "CAMERA",
+        "entity_name": "Cam_1b"
+      }
+    },
+    "MOTION_PATH": {
+      "['entity_name', 'pathprops', 'spatialprops', 'template_id', 'template_name', 'type']": {
+        "entity_name": "Path_Marker",
+        "type": "MOTION_PATH",
+        "template_name": "",
+        "template_id": 0,
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "pathprops": {
+          "path_type": "CV_CROrientationSplinePath",
+          "path_data": "OPEN, {19020, -1980, 5000}, {1,0,0,0}, {19090, -2000, 5000}, {1,0,0,0}"
+        }
+      },
+      "['entity_name', 'lt_grp', 'pathprops', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "pathprops": {
+          "path_data": "OPEN, {-85.689896,26.338867,101.477631}, {-0.307891,0.015419,0.950106,0.047581}, {-75.231155,31.868593,62.621788}, {-0.305912,0.019128,0.950123,0.057602}, {-65.390533,36.809349,23.529247}, {-0.304080,0.022608,0.950015,0.067054}, {-56.867748,40.504162,-15.973808}, {-0.302676,0.025474,0.949801,0.074942}, {-49.715878,42.909122,-55.843277}, {-0.301718,0.027729,0.949522,0.081279}, {-43.547993,44.389893,-95.960167}, {-0.301084,0.029545,0.949207,0.086500}, {-40.453144,43.032909,-136.380844}, {-0.301477,0.030008,0.948903,0.088280}, {-41.421852,37.994816,-176.514038}, {-0.303212,0.028698,0.948642,0.085543}, {-49.928040,26.338858,-214.082718}, {-0.307332,0.024144,0.948374,0.074506}, {-73.942848,0.366351,-253.139297}, {-0.316392,0.012752,0.947423,0.046070}, {-102.190987,-28.920418,-286.865631}, {-0.326223,-0.000393,0.945202,0.013069}, {-132.423294,-59.708736,-317.592621}, {-0.336074,-0.014343,0.941468,-0.022048}, {-164.066742,-91.523491,-345.785767}, {-0.345703,-0.028837,0.936068,-0.058614}, {-196.153152,-123.662025,-373.198639}, {-0.354844,-0.043465,0.929012,-0.095562}, {-228.828278,-156.213287,-399.405029}, {-0.363480,-0.058256,0.920222,-0.132969}, {-262.074219,-189.160294,-424.398407}, {-0.371615,-0.073278,0.909553,-0.171013}, {-295.579102,-222.283508,-448.809387}, {-0.378998,-0.088060,0.897296,-0.208487}, ",
+          "path_type": "CV_CROrientationSplinePath"
+        },
+        "spatialprops": {
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        "usr_flg": 0,
+        "srt_grp": 0,
+        "lt_grp": 0,
+        "template_name": "",
+        "type": "MOTION_PATH",
+        "entity_name": "Path_Cam"
+      }
+    },
+    "COMPOUND": {
+      "['entity_name', 'flags', 'spatialprops', 'template_id', 'template_name', 'type', 'userprops']": {
+        "userprops": {
+          "category": "Spaceship"
+        },
+        "spatialprops": {
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+        "template_id": 0,
+        "template_name": "rh_cruiser",
+        "type": "COMPOUND",
+        "entity_name": "rh_cruiser_1"
+      },
+      "['entity_name', 'flags', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'userprops', 'usr_flg']": {
+        "userprops": {
+          "category": "Spaceship"
+        },
+        "spatialprops": {
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        "flags": "LIT_DYNAMIC",
+        "usr_flg": 0,
+        "srt_grp": 0,
+        "lt_grp": 0,
+        "template_name": "or_osiris",
+        "type": "COMPOUND",
+        "entity_name": "or_osiris_3"
+      }
+    },
+    "SOUND": {
+      "['audioprops', 'entity_name', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'userprops', 'usr_flg']": {
+        "entity_name": "DX_m08_osiris_0380_hatcher",
+        "template_name": "DX_m08_osiris_0380_hatcher",
+        "type": "SOUND",
+        "lt_grp": 0,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "audioprops": {
+          "attenuation": 0,
+          "pan": 0,
+          "dmin": 50,
+          "dmax": 1000,
+          "ain": 360,
+          "aout": 360,
+          "atout": 0,
+          "rmix": 0
+        },
+        "userprops": {
+          "category": "Audio"
+        }
+      },
+      "['audioprops', 'entity_name', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "entity_name": "alarm",
+        "template_name": "rtc_klaxon_loop_3",
+        "type": "SOUND",
+        "lt_grp": 0,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "audioprops": {
+          "attenuation": -10,
+          "pan": 0,
+          "dmin": 50,
+          "dmax": 250,
+          "ain": 360,
+          "aout": 360,
+          "atout": 0,
+          "rmix": 0
+        }
+      },
+      "['audioprops', 'entity_name', 'flags', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'userprops', 'usr_flg']": {
+        "entity_name": "missile_travel2",
+        "type": "SOUND",
+        "template_name": "engine_thruster",
+        "lt_grp": 0,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "flags": "SPATIAL",
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "audioprops": {
+          "attenuation": -15,
+          "pan": 0,
+          "dmin": 0.5,
+          "dmax": 1,
+          "ain": 360,
+          "aout": 360,
+          "atout": 0,
+          "rmix": 0
+        },
+        "userprops": {
+          "category": "Audio"
+        }
+      }
+    },
+    "DEFORMABLE": {
+      "['compoundprops', 'entity_name', 'flags', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'userprops', 'usr_flg']": {
+        "entity_name": "Char_rifleman",
+        "type": "DEFORMABLE",
+        "template_name": "m8_asf_rifleman",
+        "lt_grp": 0,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "flags": "LIT_DYNAMIC",
+        "spatialprops": {
+          "pos": [
+            1.5,
+            0,
+            -7
+          ],
+          "orient": [
+            [
+              0,
+              0,
+              -1
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "compoundprops": {
+          "floor_height": 0
+        },
+        "userprops": {
+          "Actor": "Gunner2",
+          "category": "Character"
+        }
+      },
+      "['ambient', 'compoundprops', 'entity_name', 'flags', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'userprops', 'usr_flg']": {
+        "entity_name": "Char_Trent",
+        "type": "DEFORMABLE",
+        "template_name": "trent",
+        "lt_grp": 0,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+        "spatialprops": {
+          "pos": [
+            -1,
+            0,
+            35
+          ],
+          "orient": [
+            [
+              0.9848077,
+              0,
+              -0.1736482
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0.1736482,
+              0,
+              0.9848077
+            ]
+          ]
+        },
+        "compoundprops": {
+          "floor_height": 0
+        },
+        "userprops": {
+          "actor": "trent",
+          "category": "Character"
+        },
+        "ambient": [
+          128,
+          128,
+          128
+        ]
+      }
+    },
+    "PSYS": {
+      "['entity_name', 'flags', 'lt_grp', 'psysprops', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "psysprops": {
+          "sparam": 0
+        },
+        "spatialprops": {
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+        "usr_flg": 0,
+        "srt_grp": 0,
+        "lt_grp": 0,
+        "template_name": "no_cloakeffect04",
+        "type": "PSYS",
+        "entity_name": "no_cloakeffect04_1"
+      }
+    },
+    "LIGHT": {
+      "['entity_name', 'lightprops', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "entity_name": "LIGHT_trent_inner_objs",
+        "type": "LIGHT",
+        "template_name": "",
+        "lt_grp": 6,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "spatialprops": {
+          "pos": [
+            0,
+            1,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "lightprops": {
+          "on": "Y",
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "diffuse": [
+            1,
+            1,
+            1
+          ],
+          "specular": [
+            0,
+            0,
+            0
+          ],
+          "ambient": [
+            0.2,
+            0.2,
+            0.2
+          ],
+          "direction": [
+            0,
+            -0.3,
+            -1
+          ],
+          "range": 150555,
+          "cutoff": 30,
+          "type": "L_DIRECT",
+          "theta": 26.999985,
+          "atten": [
+            1,
+            0,
+            0.003
+          ]
+        }
+      },
+      "['entity_name', 'flags', 'lightprops', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "entity_name": "Light_ROOM_backside_nomad_light",
+        "type": "LIGHT",
+        "template_name": "",
+        "lt_grp": 0,
+        "srt_grp": 0,
+        "usr_flg": 0,
+        "flags": "HIDDEN",
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "lightprops": {
+          "on": "N",
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "diffuse": [
+            0.6,
+            0.5,
+            0.9
+          ],
+          "specular": [
+            1,
+            1,
+            1
+          ],
+          "ambient": [
+            0.6,
+            0.1,
+            0.8
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "range": 2000,
+          "cutoff": 90,
+          "type": "L_DIRECT",
+          "theta": 90,
+          "atten": [
+            1,
+            0,
+            4e-06
+          ]
+        }
+      }
+    },
+    "5": {
+      "['entity_name', 'lightprops', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'usr_flg']": {
+        "entity_name": "ambi_LtG11_Puffs_Amb",
+        "lt_grp": 11,
+        "lightprops": {
+          "on": 1,
+          "cutoff": 98.999977,
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "range": 2000,
+          "ambient": [
+            0.5,
+            0.5,
+            0.55
+          ],
+          "specular": [
+            0,
+            0,
+            0
+          ],
+          "type": 3,
+          "diffuse": [
+            0,
+            0,
+            0
+          ],
+          "atten": [
+            1,
+            0,
+            0
+          ],
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "theta": 90
+        },
+        "template_name": "",
+        "spatialprops": {
+          "pos": [
+            2.675188,
+            0,
+            0.158034
+          ],
+          "orient": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ]
+        },
+        "type": 5,
+        "usr_flg": 0,
+        "srt_grp": 0
+      }
+    },
+    "1": {
+      "['entity_name', 'flags', 'lt_grp', 'spatialprops', 'srt_grp', 'template_name', 'type', 'userprops', 'usr_flg']": {
+        "entity_name": "ambi_skydome_clouds_snow",
+        "lt_grp": 23,
+        "flags": 4,
+        "userprops": {
+          "category": "Prop",
+          "NoFog": "Y"
+        },
+        "template_name": "exclusion_barrier_m7",
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "orient": [
+            [
+              0.1,
+              0,
+              0
+            ],
+            [
+              0,
+              0.1,
+              0
+            ],
+            [
+              0,
+              0,
+              0.1
+            ]
+          ]
+        },
+        "type": 1,
+        "usr_flg": 2,
+        "srt_grp": -100
+      }
+    }
+  }
+}

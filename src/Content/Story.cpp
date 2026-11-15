@@ -11,6 +11,7 @@
 // DestroyMission (TU27) lives in DestroyMission.cpp.
 
 #include "ContentInternal.h"
+#include "campaign_server.h"
 #include "ContentStaticIds.h" // TU15 static IDs 06ea5c10..06ea5df0
 #include "ContentPlayerState.h"
 #include "common_ini.h"
@@ -62,7 +63,7 @@ namespace
     {
     public:
         FStory(unsigned int const* InControllerId,
-               pub::Controller::FStoryCreateParms const* Parms);
+               pub::Controller::FStoryCreateParms const* Parms, bool Campaign = false);
         ~FStory() override;
 
         void HandleMessage(pub::Controller::EMessage MessageId, void const* MessageParms) override;
@@ -85,11 +86,14 @@ namespace
         float DeltaWorth;
         bool bShipBought;
         char MissionName[0x20];
+        bool bCampaign = false;
+        bool bCampaignStarted = false;
+        std::wstring CampaignOwner;
     };
 
     // FUN_06ea5e10 (RET 8): (&ControllerId, CreateParms*).
     FStory::FStory(unsigned int const* InControllerId,
-                   pub::Controller::FStoryCreateParms const* Parms)
+                   pub::Controller::FStoryCreateParms const* Parms, bool Campaign)
         : ControllerId(*InControllerId)
     {
         GStoryRankThresholds[5] = 3500.0f;
@@ -107,6 +111,8 @@ namespace
         GStoryRankThresholds[42] = 0.0f;
 
         PlayerId = Parms->PlayerId;
+        bCampaign = Campaign;
+        if (bCampaign) pub::Player::GetName(PlayerId, CampaignOwner);
         MissionNum = 0;
         FContentPlayerState* PlayerState = FindContentPlayerState(PlayerId);
         if (PlayerState != nullptr)
@@ -116,7 +122,7 @@ namespace
         bShipBought = false;
         strncpy(MissionName, "No_Mission", 0x20);
         pub::Player::SetMoneyNeededToNextRank(PlayerId, 0);
-        pub::Controller::SetHeartbeatInterval(ControllerId, 5.0f);
+        pub::Controller::SetHeartbeatInterval(ControllerId, bCampaign ? 0.25f : 5.0f);
     }
 
     // FUN_06ea5f60 / FUN_06ea5f80: vptr resets only, no members to release.
@@ -170,6 +176,10 @@ namespace
         CreateParms.StoryEvents = this;
         GStoryMissionController = pub::Controller::Create(
             "Content.dll", MissionName, &CreateParms, pub::Controller::ABOVE_NORMAL);
+        if (bCampaign && !GStoryMissionController) {
+            FDUMP(0x100002, "CampaignServer: mission creation failed; campaign remains stopped");
+            return;
+        }
         pub::Controller::_SendMessage(GStoryMissionController, pub::Controller::EMessage::MissionStart, nullptr);
     }
 
@@ -418,6 +428,39 @@ namespace
     // LAB_06ea6120 (vtable 06fb4274 slot 0, RET 8).
     void FStory::HandleMessage(pub::Controller::EMessage MessageId, void const* MessageParms)
     {
+        if (bCampaign) {
+            if (!CampaignServer::Enabled() || pub::SinglePlayer()) return;
+            // Shared story must never be replaced from a guest's character save.
+            if (MessageId == pub::Controller::EMessage::PlayerLoad ||
+                MessageId == pub::Controller::EMessage::PlayerSave) return;
+            std::wstring owner;
+            if (pub::Player::GetName(PlayerId, owner) != 0 || owner != CampaignOwner ||
+                FindContentPlayerState(PlayerId) == nullptr) return;
+            if (MessageId == pub::Controller::EMessage::Heartbeat ||
+                MessageId == pub::Controller::EMessage::BaseEnter) {
+                if (!bCampaignStarted) {
+                    bCampaignStarted = true;
+                    StartMission(1, "Mission_01a");
+                    if (GStoryMissionController)
+                        FDUMP(0x100003, "CampaignServer: shared campaign started player=%u mission=%u",
+                              PlayerId, GStoryMissionController);
+                }
+                if (GStoryMissionController && _stricmp(MissionName, "No_Mission")) {
+                    for (auto const& item : GetContentPlayerStates()) {
+                        auto* player = item.second.get();
+                        if (player && player->GetLiveMission() == 0 &&
+                            (player->GetBaseRecord() || player->ShipObject))
+                        {
+                            player->JoinMission(&GStoryMissionController, PlayerId, true, 0);
+                            if (MessageId == pub::Controller::EMessage::BaseEnter &&
+                                static_cast<unsigned const*>(MessageParms)[1] == item.first)
+                                pub::Controller::_SendMessage(GStoryMissionController, MessageId, MessageParms);
+                        }
+                    }
+                }
+                return;
+            }
+        }
         switch (MessageId)
         {
         case pub::Controller::EMessage::PlayerWorthChanged:
@@ -454,7 +497,15 @@ namespace
 
 IDLL* CreateStory(char const* /*Name*/, unsigned int ControllerId, void const* Parms)
 {
+    if (!pub::SinglePlayer()) return nullptr;
     // FUN_06eeec50: operator new(0x3c), then FUN_06ea5e10(&ControllerId, Parms).
     return new (std::nothrow) FStory(
         &ControllerId, static_cast<pub::Controller::FStoryCreateParms const*>(Parms));
+}
+
+IDLL* CreateCampaignStory(char const*, unsigned int ControllerId, void const* Parms)
+{
+    if (!CampaignServer::Enabled() || pub::SinglePlayer() || !Parms) return nullptr;
+    return new (std::nothrow) FStory(&ControllerId,
+        static_cast<pub::Controller::FStoryCreateParms const*>(Parms), true);
 }

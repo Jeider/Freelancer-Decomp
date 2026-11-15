@@ -1,0 +1,659 @@
+{
+  "m02_bship_bar_offer": {
+    "location": "rh_biz_03_base, bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_rh_biz_03_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\RH\\battleship_bar_mil.ini",
+    "set_script": "Scripts\\Bases\\rh_04_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_battleship_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m02_bship_bar_decision": {
+    "location": "rh_biz_03_base, bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_rh_biz_03_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\RH\\battleship_bar_mil.ini",
+    "set_script": "Scripts\\Bases\\rh_04_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_battleship_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m02_bship_bar_accept": {
+    "location": "rh_biz_03_base, bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_rh_biz_03_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\RH\\battleship_bar_mil.ini",
+    "set_script": "Scripts\\Bases\\rh_04_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_battleship_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m02_wilham_vendor": {
+    "location": "rh_biz_03_base, bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_rh_biz_03_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\RH\\battleship_bar_mil.ini",
+    "set_script": "Scripts\\Bases\\rh_04_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_battleship_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m02_jacobo_offer": {
+    "location": "om15_66_base, Deck",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_om15_66_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\GENERATED_ROOMS\\Deck_om15_66_base.ini",
+    "set_script": "Scripts\\Bases\\rh_08_Bar_hardpoint_R6.thn",
+    "models": [
+      "bases/Rheinland/rh_depot_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m02_jacobo_vendor": {
+    "location": "om15_66_base, Deck",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_om15_66_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\GENERATED_ROOMS\\Deck_om15_66_base.ini",
+    "set_script": "Scripts\\Bases\\rh_08_Bar_hardpoint_R6.thn",
+    "models": [
+      "bases/Rheinland/rh_depot_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m02_junkers": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m02_explode_camera": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m02_reichman": {
+    "location": "rh_biz_03_base, Deck2",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_rh_biz_03_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\RH_BIZMARK\\Room\\rh_biz_03_deck2.ini",
+    "set_script": "Scripts\\Bases\\rh_04_Deck_HardPoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_battleship_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m03_offer": {
+    "location": "sig8_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_sig8_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\RH\\station_bar_mil.ini",
+    "set_script": "scripts\\bases\\rh_06_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_bremen_station_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m03_offer_decision": {
+    "location": "sig8_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_sig8_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\RH\\station_bar_mil.ini",
+    "set_script": "scripts\\bases\\rh_06_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_bremen_station_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m03_offer_accept": {
+    "location": "sig8_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_sig8_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\RH\\station_bar_mil.ini",
+    "set_script": "scripts\\bases\\rh_06_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_bremen_station_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m03_fleet_arrive": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m03_kgb_death01": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m03_kgb_death02": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m03_reward": {
+    "location": "rh_mnh_03_base, Deck2",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_rh_mnh_03_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\RH_MUNCHEN\\ROOM\\rh_mnh_03_deck2.ini",
+    "set_script": "Scripts\\Bases\\rh_07_Deck_hardpoint_01_msn3.thn",
+    "models": [
+      "bases/Rheinland/rh_outpost_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m04_offer": {
+    "location": "rh_mnh_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\RH_MUNCHEN\\rh_mnh_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\RH_MUNCHEN\\Room\\Rh_mnh_01_Bar.ini",
+    "set_script": "Scripts\\Bases\\Pl_06_bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_depot_deck.cmp",
+      "bases/rheinland/rh_holstein_waterscape.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m04_offer_decision": {
+    "location": "rh_mnh_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\RH_MUNCHEN\\rh_mnh_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\RH_MUNCHEN\\Room\\Rh_mnh_01_Bar.ini",
+    "set_script": "Scripts\\Bases\\Pl_06_bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_depot_deck.cmp",
+      "bases/rheinland/rh_holstein_waterscape.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m04_offer_accept": {
+    "location": "rh_mnh_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\RH_MUNCHEN\\rh_mnh_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\RH_MUNCHEN\\Room\\Rh_mnh_01_Bar.ini",
+    "set_script": "Scripts\\Bases\\Pl_06_bar_hardpoint_01.thn",
+    "models": [
+      "bases/Rheinland/rh_depot_deck.cmp",
+      "bases/rheinland/rh_holstein_waterscape.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m04_officer_scene01": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m04_officer_scene02": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m04_friends_arrive_hassler": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m04_friends_arrive_alaric": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m04_reactor_fx": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m04_jacobo_death": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m04_jumphole": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m04_hatcher": {
+    "location": "li_for_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_FORBES\\li_for_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\li_forbes\\ROOM\\li_for_01_bar.ini",
+    "set_script": "Scripts\\Bases\\Li_03_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_columbia_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m04_final": {
+    "location": "li_for_01_base, Cityscape",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_FORBES\\li_for_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\li_forbes\\ROOM\\li_for_01_cityscape.ini",
+    "set_script": "Scripts\\Bases\\Li_03_cityscape_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_03_columbia_cityscape.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m05_offer": {
+    "location": "li_for_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_FORBES\\li_for_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\li_forbes\\ROOM\\li_for_01_bar.ini",
+    "set_script": "Scripts\\Bases\\Li_03_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_columbia_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m05_offer_decision": {
+    "location": "li_for_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_FORBES\\li_for_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\li_forbes\\ROOM\\li_for_01_bar.ini",
+    "set_script": "Scripts\\Bases\\Li_03_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_columbia_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m05_offer_accept": {
+    "location": "li_for_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_FORBES\\li_for_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\li_forbes\\ROOM\\li_for_01_bar.ini",
+    "set_script": "Scripts\\Bases\\Li_03_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_columbia_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m05_piratebar": {
+    "location": "li_for_08_Base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_li_for_08_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\LI\\outpost_ship_bar_mil.ini",
+    "set_script": "scripts\\bases\\li_09_Bar_hardpoint_R6.thn",
+    "models": [
+      "bases/liberty/li_depot_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m05_detroit": {
+    "location": "li_for_05_Base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_li_for_05_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\LI\\battleship_bar_mil.ini",
+    "set_script": "Scripts\\Bases\\Li_05_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_battleship_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m05_barman": {
+    "location": "li_for_05_Base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_li_for_05_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\LI\\battleship_bar_mil.ini",
+    "set_script": "Scripts\\Bases\\Li_05_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_battleship_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m05_research_explode": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_arrest_camera01": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_arrest_camera02": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_arrest_camera03": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_arrest_camera04": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_arrest_camera05": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_arrest_camera06": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_arrest_camera07": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_arrest_camera08": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_arrest_camera09": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_rheinlanders_camera": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m05_equip": {
+    "location": "li_for_01_base, Equipment2",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_FORBES\\li_for_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\li_forbes\\ROOM\\li_for_01_equipment2.ini",
+    "set_script": "scripts\\bases\\Li_02_equipment_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_manhattan_equip.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_offer": {
+    "location": "li_mnh_02_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_MANHATTAN\\li_mnh_02_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\Li_MANHATTAN\\ROOM\\li_mnh_03_Bar.ini",
+    "set_script": "Scripts\\Bases\\Pl_01_bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_depot_deck.cmp",
+      "bases/liberty/li_pittsburgh_planetscape.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_offer_decision": {
+    "location": "li_mnh_02_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_MANHATTAN\\li_mnh_02_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\Li_MANHATTAN\\ROOM\\li_mnh_03_Bar.ini",
+    "set_script": "Scripts\\Bases\\Pl_01_bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_depot_deck.cmp",
+      "bases/liberty/li_pittsburgh_planetscape.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_offer_accept": {
+    "location": "li_mnh_02_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_MANHATTAN\\li_mnh_02_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\Li_MANHATTAN\\ROOM\\li_mnh_03_Bar.ini",
+    "set_script": "Scripts\\Bases\\Pl_01_bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_depot_deck.cmp",
+      "bases/liberty/li_pittsburgh_planetscape.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_vendor_hatcher": {
+    "location": "li_mnh_02_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_MANHATTAN\\li_mnh_02_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\Li_MANHATTAN\\ROOM\\li_mnh_03_Bar.ini",
+    "set_script": "Scripts\\Bases\\Pl_01_bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_depot_deck.cmp",
+      "bases/liberty/li_pittsburgh_planetscape.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_vendor_alaric": {
+    "location": "li_mnh_02_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\LI_MANHATTAN\\li_mnh_02_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\Li_MANHATTAN\\ROOM\\li_mnh_03_Bar.ini",
+    "set_script": "Scripts\\Bases\\Pl_01_bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_depot_deck.cmp",
+      "bases/liberty/li_pittsburgh_planetscape.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_briefing": {
+    "location": "sphere_01_base, Deck3",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_sphere_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SPECIAL\\SPHERE\\ROOM\\dread_mnh_deck.ini",
+    "set_script": "Scripts\\Bases\\Li_05_Deck_HardPoint_01.thn",
+    "models": [
+      "bases/liberty/li_battleship_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_mount": {
+    "location": "sphere_01_base, Deck2",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_sphere_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SPECIAL\\SPHERE\\ROOM\\dread_mnh_deck.ini",
+    "set_script": "Scripts\\Bases\\Li_05_Deck_HardPoint_01.thn",
+    "models": [
+      "bases/liberty/li_battleship_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_nomad_area_camera1": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m06_nomad_area_camera2": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m06_nomad_area_camera3": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m06_nomad_area_camera4": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m06_lab_land": {
+    "location": "sphere_99_base, Deck",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SPECIAL\\SPHERE\\sphere_99_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Special\\SPHERE\\ROOM\\lab_deck.ini",
+    "set_script": "scripts\\mod\\m06_lab_ambient.thn",
+    "models": [
+      "bases/Rheinland/rh_outpost_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_lab_room": {
+    "location": "sphere_99_base, Trader",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SPECIAL\\SPHERE\\sphere_99_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Special\\SPHERE\\ROOM\\lab_room.ini",
+    "set_script": "scripts\\mod\\m06_lab_room_ambient.thn",
+    "models": [
+      "bases/generic/cv_lab.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_lab_launch": {
+    "location": "sphere_99_base, Deck",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SPECIAL\\SPHERE\\sphere_99_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Special\\SPHERE\\ROOM\\lab_deck.ini",
+    "set_script": "scripts\\mod\\m06_lab_ambient.thn",
+    "models": [
+      "bases/Rheinland/rh_outpost_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_lab_explode_camera": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m06_torpedo_alert": {
+    "location": "sphere_01_base, Deck2",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_sphere_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SPECIAL\\SPHERE\\ROOM\\dread_mnh_deck.ini",
+    "set_script": "Scripts\\Bases\\Li_05_Deck_HardPoint_01.thn",
+    "models": [
+      "bases/liberty/li_battleship_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_jumpin_camera1": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m06_jumpin_camera2": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m06_order_camera3": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m06_order_camera4": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m06_omicron_major": {
+    "location": "sphere_cruiser_base, Deck",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SPECIAL\\SPHERE\\sphere_cruiser_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Special\\SPHERE\\ROOM\\omicron_space.ini",
+    "set_script": "scripts\\bases\\ambi_nebula_puffs_norm.thn",
+    "models": [],
+    "status": "matching OBJ not exported"
+  },
+  "m06_order_deck": {
+    "location": "sphere_cruiser_base, Equipment",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SPECIAL\\SPHERE\\sphere_cruiser_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Special\\SPHERE\\ROOM\\cruiser_deck.ini",
+    "set_script": "Scripts\\mod\\m06_cruiser_deck_harpoint.thn",
+    "models": [
+      "bases/liberty/li_outpost_deck.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m06_prison_new": {
+    "location": "sphere_cruiser_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SPECIAL\\SPHERE\\sphere_cruiser_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Special\\SPHERE\\ROOM\\cruiser_prison.ini",
+    "set_script": "scripts\\mod\\m06_prison_ambient.thn",
+    "models": [
+      "bases/generic/cv_prison_cell.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m07_offer": {
+    "location": "co_cad_03_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\CO_CADIZ\\co_cad_03_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Room\\Co\\outpost_bar.ini",
+    "set_script": "scripts\\bases\\cv_01_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/generic/cv_space_base_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m07_offer_decision": {
+    "location": "co_cad_03_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\CO_CADIZ\\co_cad_03_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Room\\Co\\outpost_bar.ini",
+    "set_script": "scripts\\bases\\cv_01_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/generic/cv_space_base_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m07_offer_accept": {
+    "location": "co_cad_03_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\CO_CADIZ\\co_cad_03_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Room\\Co\\outpost_bar.ini",
+    "set_script": "scripts\\bases\\cv_01_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/generic/cv_space_base_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m07_tortuga_wp_camera": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m01b_armored_trap_camera": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m07_omega13": {
+    "location": "br_avl_m7_base, Deck",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\BR_AVALON\\br_avl_m7_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\SYSTEMS_MOD\\BR_AVALON\\Room\\m7_omega13_deck.ini",
+    "set_script": "Scripts\\dev_workaround.thn",
+    "models": [],
+    "status": "matching OBJ not exported"
+  },
+  "m07_tau_arrival": {
+    "location": "br_avl_m7_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\BR_AVALON\\br_avl_m7_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\SYSTEMS_MOD\\BR_AVALON\\Room\\m7_tau23_bar.ini",
+    "set_script": "Scripts\\dev_workaround.thn",
+    "models": [],
+    "status": "matching OBJ not exported"
+  },
+  "m07_battleship": {
+    "location": "br_avl_99_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_br_avl_99_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\BR\\battleship_bar_mil.ini",
+    "set_script": "Scripts\\Bases\\br_04_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/Bretonia/br_battleship_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m07_check_artifact": {
+    "location": "br_avl_01_base, Trader2",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\BR_AVALON\\br_avl_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\BR_AVALON\\ROOM\\br_avl_01_trader2.ini",
+    "set_script": "Scripts\\Bases\\Br_02_Trader_hardpoint_01.thn",
+    "models": [
+      "bases/bretonia/br_cambridge_trader.cmp"
+    ],
+    "room_mesh": "E:\\FL\\room\\br_cambridge_trader.obj",
+    "status": "matched"
+  },
+  "m07_reward": {
+    "location": "br_avl_01_base, Trader2",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\BR_AVALON\\br_avl_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\BR_AVALON\\ROOM\\br_avl_01_trader2.ini",
+    "set_script": "Scripts\\Bases\\Br_02_Trader_hardpoint_01.thn",
+    "models": [
+      "bases/bretonia/br_cambridge_trader.cmp"
+    ],
+    "room_mesh": "E:\\FL\\room\\br_cambridge_trader.obj",
+    "status": "matched"
+  },
+  "m07_gunners": {
+    "location": "co_cad_01_base, Bar2",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\CO_CADIZ\\co_cad_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\CO_CADIZ\\ROOMS\\co_cad_01_bar2.ini",
+    "set_script": "Scripts\\Bases\\bw_02_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/pirate/hi_havana_Bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m08_wales_init": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_liberty_enter_camera_01": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_lair_enter_door_01": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_core_camera_01": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_core_camera_02": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_core_camera_03": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_core_camera_04": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_core_camera_06": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_core_camera_08": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_core_camera_07": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_core_camera_09": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_outside_camera_01": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_outside_camera_02": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_lair_done_camera_04": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_lair_done_camera_01": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_lair_done_camera_02": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_lair_done_camera_03": {
+    "status": "space/action scene or relocation without room geometry"
+  },
+  "m08_osiris": {
+    "location": "sig42_99_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\GENERATED_INTERIORS\\gen_sig42_99_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\UNIVERSE\\ROOM\\LI\\station_bar.ini",
+    "set_script": "Scripts\\Bases\\li_06_bar_hardpoint_01.thn",
+    "models": [
+      "bases/liberty/li_rockefeller_station_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m08_offer": {
+    "location": "br_avl_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\BR_AVALON\\br_avl_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\BR_AVALON\\ROOM\\br_avl_01_bar.ini",
+    "set_script": "Scripts\\Bases\\Br_01_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/bretonia/br_avalon_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m08_offer_decision": {
+    "location": "br_avl_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\BR_AVALON\\br_avl_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\BR_AVALON\\ROOM\\br_avl_01_bar.ini",
+    "set_script": "Scripts\\Bases\\Br_01_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/bretonia/br_avalon_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  },
+  "m08_offer_accept": {
+    "location": "br_avl_01_base, Bar",
+    "base_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\SYSTEMS_MOD\\BR_AVALON\\br_avl_01_base.ini",
+    "room_file": "D:\\Games\\FL_MOD\\DATA\\Universe\\Systems_MOD\\BR_AVALON\\ROOM\\br_avl_01_bar.ini",
+    "set_script": "Scripts\\Bases\\Br_01_Bar_hardpoint_01.thn",
+    "models": [
+      "bases/bretonia/br_avalon_bar.cmp"
+    ],
+    "status": "matching OBJ not exported"
+  }
+}

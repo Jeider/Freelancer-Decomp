@@ -1372,7 +1372,26 @@ void DrawClientLocation()
     BaseNeural::BeginScene();
 #endif
 #ifdef FREELANCER_RP9
-    RenderEx::RoomMaterialFrame(true);
+    char BaseNick[64] = {};
+    if (G_LocationCurrentBase != 0)
+    {
+        using GetBaseNickFn = unsigned int(__cdecl*)(char*, unsigned int, unsigned int const&);
+        auto GetBaseNick = reinterpret_cast<GetBaseNickFn>(GetProcAddress(
+            GetModuleHandleA("Server.dll"), "?GetBaseNickname@pub@@YAIPADIABI@Z"));
+        if (GetBaseNick != nullptr)
+            GetBaseNick(BaseNick, sizeof(BaseNick), G_LocationCurrentBase);
+    }
+    char Packed[512] = {};
+    unsigned PackedN = 0;
+    for (char const* S = BaseNick; *S && PackedN + 1 < sizeof(Packed); ++S)
+        Packed[PackedN++] = *S;
+    Packed[PackedN++] = '|';
+    char const* RoomFile = G_LocationCurrentRoomEntry && G_LocationCurrentRoomEntry->Room
+        ? G_LocationCurrentRoomEntry->Room->File : nullptr;
+    for (char const* S = RoomFile; S && *S && PackedN + 1 < sizeof(Packed); ++S)
+        Packed[PackedN++] = *S;
+    Packed[PackedN] = 0;
+    RenderEx::RoomMaterialFrame(true, Packed);
 #endif
     RoomControlDraw(Runtime);
 #ifdef FREELANCER_RP9

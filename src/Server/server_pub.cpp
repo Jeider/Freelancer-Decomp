@@ -995,6 +995,15 @@ static void Server_WriteCostume(ISave& Save, char const* Prefix, Costume const& 
         sprintf_s(Key, Parts[I].Format, Prefix);
         Save.WriteString(Key, PartName);
     }
+    // The reader already accepts repeated accessory/com_accessory keys. Retail
+    // omitted these when saving, losing hats and communication helmets on load.
+    char AccessoryKey[128];
+    sprintf_s(AccessoryKey, "%saccessory", Prefix);
+    for (unsigned I = 0; I < Cost.AccessoryCount && I < 8; ++I) {
+        accessory const* Item = Descriptions->find_accessory(Cost.AccessoryIds[I]);
+        if (Item && Item->get_name() && Item->get_name()[0])
+            Save.WriteString(AccessoryKey, Item->get_name());
+    }
 }
 
 // ---------------------------------------------------------------------------

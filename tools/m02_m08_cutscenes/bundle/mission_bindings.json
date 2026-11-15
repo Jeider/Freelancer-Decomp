@@ -1,0 +1,100 @@
+{
+  "m02_offer": {
+    "THORN_CLASS": "m02_bship_bar_offer",
+    "THORN_ACCEPT_CLASS": "m02_bship_bar_accept",
+    "THORN_DECISION_CLASS": "m02_bship_bar_decision"
+  },
+  "m02_miner": {
+    "THORN_CLASS": "m02_jacobo_offer"
+  },
+  "m02_done": {
+    "THORN_CLASS": "m02_reichman"
+  },
+  "m03_offer": {
+    "THORN_CLASS": "m03_offer",
+    "THORN_ACCEPT_CLASS": "m03_offer_accept",
+    "THORN_DECISION_CLASS": "m03_offer_decision"
+  },
+  "m03_reward": {
+    "THORN_CLASS": "m03_reward"
+  },
+  "m04_offer": {
+    "THORN_CLASS": "m04_offer",
+    "THORN_ACCEPT_CLASS": "m04_offer_accept",
+    "THORN_DECISION_CLASS": "m04_offer_decision"
+  },
+  "m04_reward": {
+    "THORN_CLASS": "m04_hatcher"
+  },
+  "m04_final": {
+    "THORN_CLASS": "m04_final"
+  },
+  "m05_offer": {
+    "THORN_CLASS": "m05_offer",
+    "THORN_ACCEPT_CLASS": "m05_offer_accept",
+    "THORN_DECISION_CLASS": "m05_offer_decision"
+  },
+  "m05_piratebar": {
+    "THORN_CLASS": "m05_piratebar"
+  },
+  "m05_detroit": {
+    "THORN_CLASS": "m05_detroit"
+  },
+  "m05_equip": {
+    "THORN_CLASS": "m05_equip"
+  },
+  "m06_offer": {
+    "THORN_CLASS": "m06_offer",
+    "THORN_ACCEPT_CLASS": "m06_offer_accept",
+    "THORN_DECISION_CLASS": "m06_offer_decision"
+  },
+  "m06_briefing": {
+    "THORN_CLASS": "m06_briefing"
+  },
+  "m06_mount": {
+    "THORN_CLASS": "m06_mount"
+  },
+  "m06_lab_land": {
+    "THORN_CLASS": "m06_lab_land"
+  },
+  "m06_lab_room": {
+    "THORN_CLASS": "m06_lab_room"
+  },
+  "m06_torpedo_alert": {
+    "THORN_CLASS": "m06_torpedo_alert"
+  },
+  "m06_order_deck": {
+    "THORN_CLASS": "m06_order_deck"
+  },
+  "m06_order_prison": {
+    "THORN_CLASS": "m06_prison_new"
+  },
+  "m07_offer": {
+    "THORN_CLASS": "m07_offer",
+    "THORN_ACCEPT_CLASS": "m07_offer_accept",
+    "THORN_DECISION_CLASS": "m07_offer_decision"
+  },
+  "m07_omega13": {
+    "THORN_CLASS": "m07_omega13"
+  },
+  "m07_battleship": {
+    "THORN_CLASS": "m07_battleship"
+  },
+  "m07_check_artifact": {
+    "THORN_CLASS": "m07_check_artifact"
+  },
+  "m07_reward": {
+    "THORN_CLASS": "m07_reward"
+  },
+  "m07_cadiz": {
+    "THORN_CLASS": "m07_gunners"
+  },
+  "m08_osiris": {
+    "THORN_CLASS": "m08_osiris"
+  },
+  "m08_offer": {
+    "THORN_CLASS": "m08_offer",
+    "THORN_ACCEPT_CLASS": "m08_offer_accept",
+    "THORN_DECISION_CLASS": "m08_offer_decision"
+  }
+}

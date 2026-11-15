@@ -135,6 +135,11 @@ namespace
     // The inlined part test: Owner->part_to_inst(Ledge's part id) != -1.
     bool PhySys_LedgeIsAttached(CObject const* Owner, IVP_Compact_Ledge const* Ledge)
     {
+        // Inner hulls carry a ledgetree offset in the +4 union, not a part id.
+        // Keep them so IVP can descend into their children; the actual terminal
+        // ledges are still checked against PartMap after that descent.
+        if ((Ledge->SizeAndFlags & 3u) != 0)
+            return true;
         return Owner->part_to_inst((unsigned)Ledge->ClientData) != -1;
     }
 

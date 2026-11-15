@@ -1,0 +1,62 @@
+{
+  "name": "m07_tortuga_wp_camera",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_tortuga_wp_camera.thn",
+  "sha256": "f78aecdd999842525cfa7c1c641c0e6e0404dfa7f106268c88c8515c70e16264",
+  "uses": [
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 565,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "line": 565,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m07_tortuga_wp_camera.thn"
+    }
+  ],
+  "source_duration": 10000.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_Trailer_Cam5": "Scene_Trailer_Cam5",
+    "Shot06_Camera_0": "Shot06_Camera_0",
+    "marker": "automarker_Shot06_Camera_0_focus",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Path_Camera": "Path_Camera",
+    "Path_Marker": "Path_Marker"
+  },
+  "point_names": {
+    "Scene_Trailer_Cam5": "Scene_Trailer_Cam5",
+    "Shot06_Camera_0": "Shot06_Camera_0",
+    "marker": "Shot06_Camera_0_focus",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Path_Camera": "Path_Camera",
+    "Path_Marker": "Path_Marker"
+  }
+}

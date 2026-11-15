@@ -1,0 +1,120 @@
+{
+  "name": "m05_barman",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_barman.thn",
+  "sha256": "08f547c2ddc0adc845bc3aeebe4af1f9942daadeb4c5ac144eed2fca9d6da6ea",
+  "uses": [
+    {
+      "mission": 5,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "mission_line": 646,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m05\\barman_msn.ini",
+      "line": 17,
+      "role": "fidget",
+      "thn": "scripts\\mod\\m05_barman.thn"
+    }
+  ],
+  "source_duration": 63.498,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 8.833,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 13.833,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 15.866,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 22.965,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 27.965,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 30.965,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 33.965,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 36.931,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 45.597,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 47.863,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 52.863,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 55.029,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 61.229,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Layer_li_bartender_fidget": "Layer_li_bartender_fidget",
+    "Char_li_bartender": "Char_li_bartender"
+  },
+  "point_names": {
+    "Layer_li_bartender_fidget": "Layer_li_bartender_fidget",
+    "Char_li_bartender": "Char_li_bartender"
+  }
+}

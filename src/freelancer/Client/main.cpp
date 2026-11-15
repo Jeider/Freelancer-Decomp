@@ -14,11 +14,11 @@
 #include "flplusplus.h"        // port-only flplusplus start-up
 #ifdef FREELANCER_LANGUAGE
 #include "port_config.h" // port-only language switch
-#include "port_crash_dump.h" // port-only crash dumps
 #endif
 #endif
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 #include "client_frame_tick.h"
+#include "port_crash_dump.h" // port-only crash dumps, also in production
 #include "client_ime_focus.h" // ReleaseClientIMEFocus (FUN_005641d0)
 #include "client_state.h"
 #include "intro_connect.h"
@@ -92,6 +92,7 @@ namespace
 
     // FUN_005a5390 (.text:005a5390-005a54dd): run "dxdiag.exe <temp>\dxdiag.txt", wait up to 60 s
     // and, unless it timed out, append the report path to G_CrashReportFiles.
+#ifndef FREELANCER_PRODUCTION
     void AppendDxDiagReport()
     {
         STARTUPINFOA StartupInfo;
@@ -312,6 +313,24 @@ namespace
         PortCrashDump::Initialize(); // port-only
         SetUnhandledExceptionFilter(ClientCrashFilter);
     }
+#else
+    // Keep crash evidence in shipping builds, without the watchdog or legacy reporter.
+    LONG WINAPI ProductionCrashFilter(EXCEPTION_POINTERS* Info)
+    {
+        const DWORD Code = Info->ExceptionRecord->ExceptionCode;
+        if (Code == EXCEPTION_BREAKPOINT || Code == EXCEPTION_SINGLE_STEP)
+            return EXCEPTION_CONTINUE_SEARCH;
+        if (PortCrashDump::Write(Info))
+            TerminateProcess(GetCurrentProcess(), Code);
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+
+    void InstallClientCrashFilter(const wchar_t*)
+    {
+        PortCrashDump::Initialize();
+        SetUnhandledExceptionFilter(ProductionCrashFilter);
+    }
+#endif
 
     // DAT_005b08a0 -- installed into DALib::FatalErrorFn by WinMain (0x005b30e8). Ghidra left it
     // as data; disassembled from the PE bytes. Loads caption 0xd1 and the message Id from the

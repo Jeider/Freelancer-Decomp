@@ -2307,6 +2307,18 @@ static void NnInventoryDrawBarQuad(WinControl const* Bar, float X, float HalfX, 
     Win3DEnd();                             // FUN_00421690
 }
 
+void DrawInventoryCargoRemainder(WinControl* Bar,WinControl* Empty,float Right,float HalfX,float HalfY)
+{
+    IRenderPipeline* const Pipe = DALib::Pipeline;
+    Pipe->SetRenderState(D3DRS_ZENABLE, 1);
+    Pipe->SetRenderState(D3DRS_ZFUNC, 8);
+    Pipe->SetRenderState(D3DRS_ZWRITEENABLE, 1);
+    NnInventoryDrawBarQuad(Bar, Right, HalfX, HalfY);
+    Pipe->SetRenderState(D3DRS_ZFUNC, 4);
+    DALib::Renderer->RenderInstance(Win3DGetCamera(), Empty->MeshHolder.EngineInstance, 1.0f, 0,
+                           nullptr, nullptr);
+}
+
 void NnInventory::Draw()
 {
     // FUN_00479700 (slot 13).
@@ -2466,16 +2478,7 @@ void NnInventory::Draw()
                                nullptr); // IRenderer2 +0x1c, &DAT_0067dbf8
     }
 
-    // 00479b97..00479cf9: the quad from the left end to Right in the frame of whichever bar ESI
-    // holds (the selected one when the first quad was drawn, else the full one), then the empty
-    // bar's mesh.
-    Pipe->SetRenderState(D3DRS_ZENABLE, 1);
-    Pipe->SetRenderState(D3DRS_ZFUNC, 8);
-    Pipe->SetRenderState(D3DRS_ZWRITEENABLE, 1);
-    NnInventoryDrawBarQuad(Bar, Right, HalfX, HalfY);
-    Pipe->SetRenderState(D3DRS_ZFUNC, 4);
-    DALib::Renderer->RenderInstance(Win3DGetCamera(), Field4cc->MeshHolder.EngineInstance, 1.0f, 0,
-                           nullptr, nullptr);
+    DrawInventoryCargoRemainder(Bar,Field4cc,Right,HalfX,HalfY);
 }
 
 // The byte several NN_Inventory methods compute before FUN_004c6a50 (e.g. 0x0047e112..0x0047e135,

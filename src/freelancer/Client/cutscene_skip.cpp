@@ -33,9 +33,8 @@ namespace
             if (!sequence || !sequence->bLetterbox || sequence->bLoop || !sequence->bPlaying || !sequence->bActive ||
                 sequence->bStopped || sequence->bSkip || !sequence->Entries || sequence->Current < 0 ||
                 sequence->Current >= sequence->Count) continue;
-            // Retail +0x15 permits a one-key skip. Only bypass a disabled
-            // native skip for single-player story scenes, with confirmation.
-            if (!SinglePlayer() && !sequence->Field_0x15) continue;
+            // Locked cinematics use confirmation in SP and MP. Only the local
+            // sequence is skipped; native completion still notifies the server.
             auto const& entry = sequence->Entries[sequence->Current];
             // These are interactive mission-offer/info entries, not footage. The
             // native skip loop also stops before them; never choose an answer here.

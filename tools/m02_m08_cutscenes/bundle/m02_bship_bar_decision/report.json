@@ -1,0 +1,58 @@
+{
+  "name": "m02_bship_bar_decision",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m02_bship_bar_decision.thn",
+  "sha256": "6cc064f074752c30a797dbbf58910af10f1436fee87e2a458733528eff93affb",
+  "uses": [
+    {
+      "mission": 2,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\m02.ini",
+      "mission_line": 136,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m02\\wilham_msn.ini",
+      "line": 4,
+      "role": "decision",
+      "thn": "scripts\\mod\\m02_bship_bar_decision.thn"
+    }
+  ],
+  "source_duration": 2000.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_M02_bar_scene": "Scene_M02_bar_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_trent": "Char_trent",
+    "Char_wilham": "Char_wilham",
+    "cam_start": "cam_start",
+    "cam_start_point": "automarker_cam_start_focus"
+  },
+  "point_names": {
+    "Scene_M02_bar_scene": "Scene_M02_bar_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_trent": "Char_trent",
+    "Char_wilham": "Char_wilham",
+    "cam_start": "cam_start",
+    "cam_start_point": "cam_start_focus"
+  }
+}

@@ -24,4 +24,5 @@ r.check_returncode()
 with (OUT/'yard_check.log').open('wb') as log:r=subprocess.run([str(OUT/'yard_check.exe'),str(ASSETS)],cwd=OUT,env=env,stdout=log,stderr=subprocess.STDOUT)
 print((OUT/'yard_check.log').read_text(errors='replace'));r.check_returncode()
 checked=[OUT/'Common.dll',Path(__file__),Path(__file__).with_name('yard_check.cpp'),ASSETS/'yard_guns.ini',ASSETS/'yard_flags.ini',GAME/'DATA/EQUIPMENT/ORIGINAL/weapon_equip.ini']+[ASSETS/(n+'.'+e) for n in ['train_locomotive','train_wagons'] for e in ['cmp','sur']]
+checked += [Path(__file__).with_name('check_contacts.h'), ROOT/'src/Common/train_contact_math.h', ROOT/'src/Common/train_joint_math.h']
 (ASSETS/'checked.json').write_text(json.dumps({str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in checked},indent=2))

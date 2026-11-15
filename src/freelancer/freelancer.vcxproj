@@ -656,6 +656,8 @@
     <ClCompile Include="Client\server_filter_dialog.cpp" />
     <ClCompile Include="Client\intro_page_util.cpp" />
     <ClCompile Include="Client\page_character_create.cpp" />
+    <ClCompile Include="Client\page_customization.cpp" />
+    <ClCompile Include="Client\preferences_customization.cpp" />
     <ClCompile Include="Client\page_character_select.cpp" />
     <ClCompile Include="Client\page_character_select_single.cpp" />
     <ClCompile Include="Client\startup_config.cpp" />

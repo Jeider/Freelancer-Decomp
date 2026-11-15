@@ -673,6 +673,9 @@ public:
     void ExNomadEnergyEnd();
     GENRESULT DACOM_API SetRoomMaterialFrame(unsigned long Enabled) override;
     GENRESULT DACOM_API SetRoomMaterial(const char* Name, const char* Texture) override;
+    GENRESULT DACOM_API SetRoomDetail(const char* Detail) override;
+    GENRESULT DACOM_API SetRoomProp(unsigned long Prop) override;
+    GENRESULT DACOM_API SetRoomBase(const char* Nickname) override;
     bool ExRoomMaterialBegin();
     void ExRoomMaterialRelease();
     GENRESULT DACOM_API ApplyRoomContactShadows() override;

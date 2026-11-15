@@ -29,7 +29,7 @@ struct FNebulaEffect{Manager* ExclusionMgr=nullptr;::Zone* Zone=nullptr;int Flag
 struct FNebulaVolumeExclusionAccess{
  static int Count(Manager const* m){return (int)m->Zones.size();}
  static Exclusion const* At(Manager const* m,int i){return m->Zones[i];}};
-struct FNebulaVolumeSettings{float Enabled=1;};
+struct FNebulaVolumeSettings{float Enabled=1,RenderInExclusion=0;};
 // Current production SettingsFor applies the user's graphics quality last.
 // It must never re-enable an explicitly disabled/excluded instance.
 void ApplyUserQuality(FNebulaVolumeSettings& s){s.Enabled=1;}
@@ -58,6 +58,35 @@ struct INI_Reader{
 '''
 tests=r'''
 int main(){
+ float skip[4]={0,0,0,6400.f*6400.f};
+ assert(std::fabs(ExclusionMarchScale(13200,6000,skip)-6000.f/13200.f)<0.00001f);
+ assert(ExclusionMarchScale(13200,0,skip)==1);
+ assert(ExclusionMarchScale(4000,6000,skip)==1);
+ float previous=0;
+ for(int d=0;d<=6500;d+=10){
+   skip[0]=(float)d;float s=ExclusionMarchScale(13200,6000,skip);
+   assert(s>=previous && s<=1 && s>=6000.f/13200.f-0.00001f);previous=s;
+ }
+ skip[0]=6400;assert(ExclusionMarchScale(13200,6000,skip)==1);
+ skip[0]=6399;assert(ExclusionMarchScale(13200,6000,skip)>0.9999f);
+ skip[3]=0;assert(ExclusionMarchScale(13200,6000,skip)==1);
+ puts("PASS exclusion march budget: capped core, smooth monotonic restoration, boundary, disabled and smaller normal cap");
+ skip[0]=6000;skip[3]=6400.f*6400.f;
+ assert(ExclusionSkipWeight(skip,0)==1);
+ const float weight=ExclusionSkipWeight(skip,0.2f);
+ assert(weight>0 && weight<1);
+ // Intersect both near and far wall rays before and after scaling about camera.
+ for(float dx:{-1.f,0.f,1.f}){
+   const float b=dx*skip[0];
+   const float before=b+std::sqrt(b*b-(skip[0]*skip[0]-skip[3]));
+   float faded[4]={skip[0],skip[1],skip[2],skip[3]};FadeExclusionSkip(faded,weight);
+   const float fb=dx*faded[0];
+   const float after=fb+std::sqrt(fb*fb-(faded[0]*faded[0]-faded[3]));
+   assert(std::fabs(after-before*weight)<0.01f);
+ }
+ skip[0]=6400;assert(ExclusionSkipWeight(skip,0.2f)==0);
+ FadeExclusionSkip(skip,0);assert(skip[0]==0 && skip[3]==0);
+ puts("PASS continuous skip exit distance on inward, outward and tangent rays; no skip at core boundary");
  FNebulaEffect a,b;NebulaVolume::RegisterNebula(&a,"shared.ini",false);NebulaVolume::RegisterNebula(&b,"shared.ini");
  FNebulaOverride forced;strcpy_s(forced.File,"shared.ini");forced.Settings.Enabled=1;GOverrides.push_back(forced);
  FNebulaOverride style;strcpy_s(style.File,"edge");style.Settings.Enabled=1;GStyles.push_back(style);
@@ -87,6 +116,16 @@ int main(){
  GNebulae[0].CameraExcluded=CameraInsideNebulaExclusion(&a,far);assert(SettingsFor(&a).Enabled==1);
  NebulaVolume::RegisterNebula(&a,"shared.ini",false);assert(SettingsFor(&a).Enabled==0);
  puts("PASS entering/leaving exclusion, independent overlapping nebula and instance reload/reset");
+ GOverrides[0].Settings.RenderInExclusion=1;
+ NebulaVolume::RegisterNebula(&a,"shared.ini");
+ for(bool excluded:{true,false,true,false}){
+   GNebulae[0].CameraExcluded=excluded;assert(SettingsFor(&a).Enabled==1);
+ }
+ NebulaVolume::RegisterNebula(&a,"shared.ini",false);assert(SettingsFor(&a).Enabled==0);
+ GOverrides[0].Settings.RenderInExclusion=0;
+ NebulaVolume::RegisterNebula(&a,"shared.ini");GNebulae[0].CameraExcluded=true;
+ assert(SettingsFor(&a).Enabled==0);
+ puts("PASS opted-in volume stays active across exclusion; explicit permission and default exclusion remain enforced");
  assert(ReadNebulaShadows("test.ini"));
  IniSections={{"Fog",{{"shadows",false}}}};assert(ReadNebulaShadows("test.ini"));
  IniSections={{"NebulaLight",{{"shadows",false}}}};assert(!ReadNebulaShadows("test.ini"));
@@ -100,11 +139,23 @@ int main(){
  float bad[3]={std::numeric_limits<float>::quiet_NaN(),0,0};assert(!Off(bad));
  IniSections={{"NebulaLight",{{"shadows",true}}}};NebulaVolume::RegisterNebula(&a,"shared.ini");assert(!Off(center));
  puts("PASS nebula.ini shadow permission, defaults, entry/exit, volume-off and exclusion independence, reload and invalid positions");
+ GOverrides.clear();GStyles.clear();GSettings.RenderInExclusion=1;
+ for(auto* nebula:{&a,&b}){
+   NebulaVolume::RegisterNebula(nebula,"global.ini");
+ }
+ for(auto& registered:GNebulae)registered.CameraExcluded=true;
+ assert(SettingsFor(&a).Enabled==1 && SettingsFor(&b).Enabled==1);
+ NebulaVolume::RegisterNebula(&a,"global.ini",false);assert(SettingsFor(&a).Enabled==0);
+ FNebulaOverride legacy;strcpy_s(legacy.File,"global.ini");legacy.Settings.RenderInExclusion=0;
+ GOverrides.push_back(legacy);assert(SettingsFor(&b).Enabled==0);
+ puts("PASS global continuous exclusions inherited by independent instances; explicit opt-out still works");
 }
 '''
 code=prefix+block('struct FRegisteredNebula',True)+'std::vector<FRegisteredNebula> GNebulae;\n'
 code+=block('FNebulaVolumeSettings SettingsFor(')+block('bool ReadNebulaShadows(')+block('void NebulaVolume::RegisterNebula(')
-code+=block('bool CameraInsideNebulaExclusion(')+block('bool NebulaVolume::ShadowsDisabledAt(')+tests
+code+=block('bool CameraInsideNebulaExclusion(')+block('bool NebulaVolume::ShadowsDisabledAt(')
+code+=block('float ExclusionSkipWeight(')+block('float ExclusionMarchScale(')
+code+=block('void FadeExclusionSkip(')+tests
 cpp=out/'check.cpp';cpp.write_text(code)
 vc=sorted(Path('C:/Program Files/Microsoft Visual Studio').glob('*/Community/VC/Tools/MSVC/*'))[-1]
 sdk=Path('C:/Program Files (x86)/Windows Kits/10');version=sorted(p.name for p in (sdk/'Include').iterdir() if (p/'um/Windows.h').exists())[-1]

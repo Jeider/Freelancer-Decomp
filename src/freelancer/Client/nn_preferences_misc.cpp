@@ -31,6 +31,10 @@ namespace
     {
         wchar_t text[256] = {};
         GetIdsStringWWithRawFallback(id, text, 256);
+        for(auto& c:text) {
+            if((c>=L'a'&&c<=L'z') || (c>=L'\u0430'&&c<=L'\u044f')) c-=32;
+            else if(c==L'\u0451') c=L'\u0401';
+        }
         return text;
     }
     bool Available(NnPreferences const& page, FPrefMiscRow const& row)
@@ -170,6 +174,7 @@ bool NnPreferences::CreateMiscPage(float columnX, float columnY, float step)
     if (!MiscButton || !MiscText) return false;
     MiscButton->SetMontageMode(1);
     MiscText->SetProperty(0x24,1,0);
+    MiscText->SetText(IdText(PreferenceIds::Interface).c_str());
     for (auto const& option : MiscOptions)
     {
         FPrefMiscRow row; row.Option = option;

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "ui_win_deform.h"
+#include "win3d_renderables.h"
 
 #include "globals.h"          // GetClientFrameTimeCapped (FUN_0042d680)
 #include "hud_element_list.h" // HudMatrixRotationY / RotateRows12 / RotateRows01 (FUN_004c8b40..)
@@ -213,6 +214,10 @@ void UiWinDeform::Draw()
     // 0x0059be80..0x0059be88: the body only with a deformable.
     if (Body.Deformable != nullptr)
     {
+        Win3DFlushBeforeOverlayDraw();
+        D3DRENDERSTATETYPE const States[]={D3DRS_ZENABLE,D3DRS_ZWRITEENABLE,D3DRS_ZFUNC,D3DRS_CULLMODE};
+        int Saved[4]={};
+        for(int i=0;i<4;++i) DALib::Pipeline->GetRenderState(States[i],&Saved[i]);
         // 0x0059be8e..0x0059bea3: four zero LOD ids.
         int Zeros[4] = {0, 0, 0, 0};
         // [ESP+0x14]: Draw's out-parameter; retail does not initialize it.
@@ -222,6 +227,11 @@ void UiWinDeform::Draw()
         // (FUN_00422610, UIWin.cpp line 0x29f).
         Win3DApplyCamera(AsCamera(&Camera));
         Win3DSetViewport(AsCamera(&Camera), kUiWinCpp, 0x29f);
+        // UI panels disable depth testing. The preview needs a clean depth buffer
+        // inside its own viewport so body, head and helmet occlude one another.
+        ClearWin3DBuffers(kWin3DClearDepth);
+        DALib::Pipeline->SetRenderState(D3DRS_ZENABLE,1);
+        DALib::Pipeline->SetRenderState(D3DRS_ZWRITEENABLE,1);
 
         // 0x0059bebc..0x0059bee3: IRenderPipeline slot 60 (+0xf0) SetRenderState(0x16, 2) and
         // SetRenderState(0x17, 4).
@@ -232,6 +242,7 @@ void UiWinDeform::Draw()
         // Draw(inst, &Camera, Zeros, 0, &OutLod, 0).
         DALib::Deform->SetLod(Body.Deformable, 0.0f, Zeros);
         DALib::Deform->Draw(Body.Deformable, &Camera, Zeros, nullptr, &OutLod, 0);
+        for(int i=0;i<4;++i) DALib::Pipeline->SetRenderState(States[i],Saved[i]);
 
         // 0x0059bf28..0x0059bf41: the scene camera back (FUN_00422950, FUN_00422610 line 0x2ad).
         Win3DApplyCamera(AsCamera(Win3DGetCamera()));
@@ -282,6 +293,13 @@ void UiWinDeform::SetCostume(char const* Name)
     if (Body.Deformable == nullptr)
         return;
     PoseBody();
+}
+
+bool UiWinDeform::SetCostume(Costume const& Value)
+{
+    if (!Body.Build(Value)) return false;
+    PoseBody();
+    return true;
 }
 
 void UiWinDeform::PoseBody()

@@ -12,6 +12,12 @@
 
 namespace Rp9ShaderCache
 {
+    // Every caller, including startup and tools, must use the same compiler policy.
+    inline DWORD FlagsForSource(const std::string& Source)
+    {
+        return Source.find("RP9_SKIP_OPTIMIZATION") != std::string::npos
+            ? D3DXSHADER_SKIPOPTIMIZATION : 0;
+    }
     class Hash
     {
         HCRYPTPROV Provider=0;
@@ -155,7 +161,7 @@ namespace Rp9ShaderCache
 
     inline HRESULT Compile(const std::string& Source,ID3DXInclude* Include,const std::string& Entry,
                            const char* Profile,DWORD Flags,std::vector<unsigned char>* Out,
-                           std::string* Messages,bool* Hit,bool* Stored)
+                           std::string* Messages,bool* Hit,bool* Stored, bool RequireStored=false)
     {
         *Hit=false;*Stored=false;Messages->clear();
         ID3DXBuffer *Expanded=nullptr,*Errors=nullptr;
@@ -184,6 +190,15 @@ namespace Rp9ShaderCache
             auto* Bytes=(unsigned char*)Code->GetBufferPointer();
             Out->assign(Bytes,Bytes+Code->GetBufferSize());
             if(!CacheKey.empty()) *Stored=Store(CacheKey,*Out);
+            if(RequireStored)
+            {
+                std::vector<unsigned char> Verified;
+                if(!*Stored || !Load(CacheKey,&Verified) || Verified!=*Out)
+                {
+                    Messages->append("\nShader cache write/read verification failed. Check cache directory permissions and free space.\n");
+                    Hr=E_FAIL;
+                }
+            }
         }
         else if(SUCCEEDED(Hr)) Hr=E_FAIL;
         if(Code) Code->Release();return Hr;

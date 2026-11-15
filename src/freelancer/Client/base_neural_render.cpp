@@ -4,6 +4,7 @@
 #include "render/IRPBaseNeural.h"
 #include "dalib.h"
 #include "port_config.h"
+#include "graphics_settings.h"
 #include "room_camera.h"
 #include "gf_script.h"
 #include <cmath>
@@ -22,7 +23,7 @@ namespace
     bool Supersampling = false;
 }
 
-BaseNeural::FrameScope::FrameScope() { Allowed = true; }
+BaseNeural::FrameScope::FrameScope() { Allowed = GraphicsSettings::Get(GraphicsSettings::Interiors)>0; }
 BaseNeural::FrameScope::~FrameScope() { EndScene(); Allowed = false; }
 
 void BaseNeural::BeginScene()

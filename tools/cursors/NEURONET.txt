@@ -1,0 +1,35 @@
+Top-right NeuroNet icons
+=======================
+
+Sources: src/freelancer/Client/nn_icon_art.h, shared icon_vector_raster.h.
+Eight shapes: map, inventory, mission star, player status, help, chat,
+group request (raised hand) and the three-ship group invitation variant.
+The client creates five buttons in single player, seven in multiplayer.
+
+Build/stage: python tools/cursors/nn_icons.py
+GPU checks:  python tools/cursors/check_nn_gpu.py
+Install:     python tools/cursors/nn_icons.py --apply
+
+Updates eight embedded 3db textures at 512/256/128/64/32/16 and only the seven
+matching tiles in existing Montage32/Montage64 mip levels. Existing atlas
+dimensions and all pixels outside these cells are preserved. Geometry,
+materials, UVs, button mapping, actions, hit boxes and animations are unchanged.
+No client rebuild is required. Shared atlas dimensions/memory do not increase;
+eight embedded texture chains add approximately 10.6 MiB uncompressed if all
+are loaded. Single-player does not create the chat/group buttons.
+
+The original individual textures are upright in PIL. Montage tiles are flipped
+vertically relative to those images: preserve this explicitly when encoding.
+check_nn_gpu.py uploads actual staged atlas data in the engine TGA decode order
+and compares seven original inset UV rectangles against upright vector renders.
+It also checks all eight shapes against CPU alpha compositing and renders 64
+size/background combinations. This does not replace an in-game visual review.
+
+All DATA writes, staging, backups and failure rollback use tools.data_folder.
+Installer checks game closed, staged hashes and unchanged live source files.
+buttonmontage.ini is staged unchanged only as a hash guard; it is not rewritten.
+
+Preview: src/obj/nn_icons/comparison.png
+Rows: original model / original montage oriented upright / new artwork.
+Originals: out/nn_icons/originals/DATA
+Backups: out/nn_icons/backups/<timestamp>/DATA

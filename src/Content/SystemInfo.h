@@ -188,7 +188,7 @@ struct FSystemJump
     unsigned int GotoObject;    // +0x18 "goto" value 1 (pub::GetNicknameId)
 };
 
-// A Trade_Lane_Ring [Object], value of the loader's local map keyed by the ring nickname
+// A TRADELANE_RING-type [Object], value of the loader's local map keyed by its nickname
 // (retail 0x4c bytes); consumed by FUN_06f76b10.
 struct FTradeLaneRingInfo
 {

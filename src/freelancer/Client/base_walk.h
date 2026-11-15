@@ -14,6 +14,8 @@ struct FCharacterObject;
 void BaseWalkTick(float DeltaSeconds);
 void BaseWalkAfterWorldUpdate();
 void BaseWalkLeaveBase();
+bool BaseWalkReceivePresence(unsigned sender, unsigned size, void const* data);
+void BaseWalkDrawNames();
 void BaseWalkRoomDestroyed(FRoomRuntime* Room);
 void BaseWalkCharacterChanged(FCharacterObject* Character, bool bDestroying);
 void BaseWalkCharacterScriptStarting(FCharacterObject* Character);

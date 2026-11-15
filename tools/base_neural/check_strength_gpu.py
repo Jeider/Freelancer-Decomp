@@ -9,6 +9,12 @@ ROOT=Path(__file__).resolve().parents[2]
 BIN=ROOT/'out/base_neural/on/bin'
 OUT=ROOT/'out/base_neural/checks/strength'
 OUT.mkdir(parents=True,exist_ok=True)
+runtime_names=('neural/host64/renodx-dlss5.addon64','neural/host64/ReShade.ini',
+               'neural/host64/nvngx_dlss.dll','neural/host64/nvngx_dlssnr.dll',
+               'neural/host64/fl_base_neural_host.exe','neural/host64/dxgi.dll')
+def runtime_hashes():
+    return {n:hashlib.sha256((BIN/n).read_bytes()).hexdigest() for n in runtime_names}
+runtime=runtime_hashes()
 flow=subprocess.run([str(BIN/'probe_flow.exe')],cwd=BIN,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=60)
 (OUT/'flow.txt').write_bytes(flow.stdout)
 print(flow.stdout.decode(errors='replace'),flush=True)
@@ -22,5 +28,7 @@ for src,name in [(BIN/'ReShade.log','adapter.log'),(BIN/'neural/host64/ReShade.l
     shutil.copy2(src,OUT/name)
 assert 'inline feature 18 evaluation succeeded' in (OUT/'neural.log').read_text(errors='replace')
 assert all(f'PASS strength {x}%' in result.stdout.decode() for x in (0,50,100))
-(OUT/'verified.json').write_text(json.dumps({'addon_sha256':hashlib.sha256((BIN/'fl_base_neural.addon32').read_bytes()).hexdigest()},indent=2))
+assert runtime==runtime_hashes(),'Runtime/profile changed during strength verification; rerun after migration'
+(OUT/'verified.json').write_text(json.dumps({'addon_sha256':hashlib.sha256((BIN/'fl_base_neural.addon32').read_bytes()).hexdigest(),
+                                           'runtime':runtime},indent=2))
 print('PASS actual NR, live blend endpoints, zero-strength original pixels and untouched game UI')

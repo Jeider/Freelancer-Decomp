@@ -43,6 +43,7 @@ namespace Archetype
     namespace
     {
         std::map<Solar const*, bool> RadarWireframeSettings;
+        std::map<Solar const*, float> DockingRequestRanges;
         std::map<Ship const*, bool> ExtraManeuverSettings;
         // FUN_062fbb90 (item 1955) + listing PTR_s_berth_063eca00 -- 8-entry name/value table
         // consulted by EqObj::read's "docking_sphere" case (value index 0). No match -> Type=0
@@ -914,12 +915,24 @@ namespace Archetype
     Solar::~Solar()
     {
         RadarWireframeSettings.erase(this);
+        DockingRequestRanges.erase(this);
         SolarAnimation::ForgetDefinition(this);
         // Retail 0626d230 is `JMP EqObj::~EqObj`: Solar's own members are all scalars.
     }
 
     bool Solar::read(INI_Reader& Reader)
     {
+        if (Reader.is_value("docking_request_range"))
+        {
+            float const Range = Reader.get_value_float(0);
+            unsigned Bits;
+            memcpy(&Bits, &Range, sizeof(Bits));
+            if ((Bits & 0x7f800000u) != 0x7f800000u && Range >= 1000.0f && Range <= 9000.0f)
+                DockingRequestRanges[this] = Range;
+            else
+                DockingRequestRanges.erase(this);
+            return true;
+        }
         if (Reader.is_value("radar_wireframe"))
         {
             SetRadarWireframe(Reader.get_value_bool(0));
@@ -1011,12 +1024,19 @@ namespace Archetype
 #endif
         Root::redefine(Other);
         Solar const* Donor = (Solar const*)&Other;
+        DockingRequestRanges[this] = Donor->GetDockingRequestRange();
         SetRadarWireframe(Donor->GetRadarWireframe());
         bRadarMining = Donor->bRadarMining;
         bRadarHidden = Donor->bRadarHidden;
         bRadarValuable = Donor->bRadarValuable;
         if (Donor->Toughness != Toughness)
             Toughness = Donor->Toughness;
+    }
+
+    float Solar::GetDockingRequestRange() const
+    {
+        auto const Found = DockingRequestRanges.find(this);
+        return Found == DockingRequestRanges.end() ? 1000.0f : Found->second;
     }
 
     bool Solar::GetRadarWireframe() const

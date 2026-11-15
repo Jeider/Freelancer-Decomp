@@ -1,0 +1,4937 @@
+{
+  "name": "m07_reward",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_reward.thn",
+  "points": {
+    "offscreen_back": {
+      "pos": [
+        0,
+        -10000,
+        -10000000
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "LIGHT_barocameras_left": {
+      "pos": [
+        0,
+        1,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "LIGHT_barocameras_trentlook": {
+      "pos": [
+        0,
+        1,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "LIGHT_trentchars_jabbaside": {
+      "pos": [
+        0,
+        1,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "LIGHT_darcy_and_girlfriend": {
+      "pos": [
+        0,
+        1,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Prop_server01": {
+      "pos": [
+        -2.5,
+        0,
+        0.5
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "Prop_server03": {
+      "pos": [
+        -2.5,
+        0,
+        3.8
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "Prop_server04": {
+      "pos": [
+        2.7,
+        0,
+        0.5
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    "Prop_server05": {
+      "pos": [
+        2.7,
+        0,
+        4.2
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    "Prop_barocamera01": {
+      "pos": [
+        2.8,
+        0,
+        2.4
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Prop_barocamera03": {
+      "pos": [
+        -2.5,
+        0,
+        2
+      ],
+      "orient": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    },
+    "Prop_barocamera05": {
+      "pos": [
+        5.7,
+        0,
+        -9
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "Prop_alien05": {
+      "pos": [
+        5.6,
+        1,
+        -9.1
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "Prop_barocamera06": {
+      "pos": [
+        4.1,
+        0,
+        -10.6
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "Prop_alien06": {
+      "pos": [
+        3.9,
+        0.32,
+        -10.5
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "Prop_barocamera07": {
+      "pos": [
+        2.5,
+        0,
+        -12.2
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "Prop_alien07": {
+      "pos": [
+        2.4,
+        -0.1,
+        -12.2
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "Prop_barocamera08": {
+      "pos": [
+        -5.7,
+        0,
+        -9
+      ],
+      "orient": [
+        [
+          -0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ]
+      ]
+    },
+    "Prop_alien08": {
+      "pos": [
+        -5.7,
+        0.95,
+        -9
+      ],
+      "orient": [
+        [
+          -0.7071068,
+          0,
+          0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.7071068,
+          0,
+          -0.7071068
+        ]
+      ]
+    },
+    "Prop_barocamera09": {
+      "pos": [
+        -4.1,
+        0,
+        -10.6
+      ],
+      "orient": [
+        [
+          -0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ]
+      ]
+    },
+    "Prop_alien09": {
+      "pos": [
+        -4.1,
+        0,
+        -10.6
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "Prop_barocamera10": {
+      "pos": [
+        -2.5,
+        0,
+        -12.2
+      ],
+      "orient": [
+        [
+          -0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ]
+      ]
+    },
+    "Char_monkeyking": {
+      "pos": [
+        -2.4,
+        0,
+        -12
+      ],
+      "orient": [
+        [
+          -0.7071068,
+          0,
+          0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.7071068,
+          0,
+          -0.7071068
+        ]
+      ]
+    },
+    "Prop_alien01": {
+      "pos": [
+        2.8,
+        1.3,
+        2.32
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "point_alien01_init": {
+      "pos": [
+        1.5,
+        1.3,
+        2.32
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "point_alien01_top": {
+      "pos": [
+        1.5,
+        1.55,
+        2.32
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "Char_worm": {
+      "pos": [
+        -2.65,
+        0,
+        2.1
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    "point_worm_init": {
+      "pos": [
+        -1.65,
+        0,
+        2.1
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    "LIGHT_barocamera_inside01": {
+      "pos": [
+        0,
+        10,
+        0
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "LIGHT_barocamera_inside02": {
+      "pos": [
+        0,
+        10,
+        0
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "LIGHT_barocamera_objects": {
+      "pos": [
+        0,
+        1,
+        0
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "LIGHT_barocamera_objects02": {
+      "pos": [
+        0,
+        15,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "LIGHT_barocamera_inside_samus": {
+      "pos": [
+        0,
+        10,
+        0
+      ],
+      "orient": [
+        [
+          -0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ]
+      ]
+    },
+    "LIGHT_barocamera_inside_jarjar": {
+      "pos": [
+        0,
+        10,
+        0
+      ],
+      "orient": [
+        [
+          -0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ]
+      ]
+    },
+    "LIGHT_barocamera_inside_olaf": {
+      "pos": [
+        0,
+        10,
+        0
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "LIGHT_barocamera_inside_elon": {
+      "pos": [
+        0,
+        10,
+        0
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "LIGHT_barocamera_inside_monkeyking": {
+      "pos": [
+        0,
+        10,
+        0
+      ],
+      "orient": [
+        [
+          -0.7071068,
+          0,
+          0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.7071068,
+          0,
+          -0.7071068
+        ]
+      ]
+    },
+    "Char_trent": {
+      "pos": [
+        1,
+        0,
+        3.8
+      ],
+      "orient": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "Char_jabba": {
+      "pos": [
+        -1,
+        0,
+        -3
+      ],
+      "orient": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    },
+    "Char_darcy": {
+      "pos": [
+        2,
+        0,
+        -7.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Char_assistant": {
+      "pos": [
+        2,
+        0,
+        -8.5
+      ],
+      "orient": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    },
+    "Char_gunner": {
+      "pos": [
+        -1,
+        0,
+        -5
+      ],
+      "orient": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    },
+    "Char_doorkeeper": {
+      "pos": [
+        -1.8,
+        0,
+        -0.5
+      ],
+      "orient": [
+        [
+          -0.7071068,
+          0,
+          0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.7071068,
+          0,
+          -0.7071068
+        ]
+      ]
+    },
+    "Char_leader": {
+      "pos": [
+        -1.8,
+        0,
+        -8.5
+      ],
+      "orient": [
+        [
+          0.7071068,
+          0,
+          -0.7071068
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.7071068,
+          0,
+          0.7071068
+        ]
+      ]
+    },
+    "cam_start": {
+      "pos": [
+        1,
+        2.5,
+        5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start_pos2": {
+      "pos": [
+        1.5,
+        1.7,
+        5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start_focus": {
+      "pos": [
+        -2,
+        1.3,
+        3
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_start_marker_pos2": {
+      "pos": [
+        -0.5,
+        1.3,
+        2
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_meeting": {
+      "pos": [
+        0.5,
+        4,
+        -12
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_meeting_pos2": {
+      "pos": [
+        0.5,
+        3.8,
+        -12
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_meeting_focus": {
+      "pos": [
+        1.5,
+        0.5,
+        -5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy": {
+      "pos": [
+        2.4,
+        1.7,
+        -5.8
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_focus": {
+      "pos": [
+        1.9,
+        1.5,
+        -7.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_top": {
+      "pos": [
+        2.3,
+        2,
+        -5.3
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_top_pos2": {
+      "pos": [
+        2.6,
+        2,
+        -5.3
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_top_focus": {
+      "pos": [
+        1.9,
+        1.2,
+        -8
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_top_marker_pos2": {
+      "pos": [
+        1.8,
+        1.2,
+        -8
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_official": {
+      "pos": [
+        3.5,
+        0.6,
+        -4
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_official_pos2": {
+      "pos": [
+        3.6,
+        0.6,
+        -4.3
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_official_focus": {
+      "pos": [
+        1.4,
+        1.6,
+        -8
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_darcy_official_marker_pos2": {
+      "pos": [
+        1.4,
+        1.6,
+        -7.9
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent": {
+      "pos": [
+        2.4,
+        1.568,
+        -6.5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_trent_focus": {
+      "pos": [
+        1.8,
+        1.65,
+        -5.3
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "cam_start",
+    "cam_darcy_meeting",
+    "cam_darcy",
+    "cam_darcy_top",
+    "cam_darcy_official",
+    "cam_trent"
+  ],
+  "characters": [
+    "Char_monkeyking",
+    "Char_worm",
+    "Char_trent",
+    "Char_jabba",
+    "Char_darcy",
+    "Char_assistant",
+    "Char_gunner",
+    "Char_doorkeeper",
+    "Char_leader"
+  ],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "scene_m07_reward",
+      "type": "SCENE",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "entity_name": "Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "template_id": 0
+    },
+    {
+      "entity_name": "offscreen",
+      "type": "MARKER",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          -10000000,
+          -10000,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "offscreen_back",
+      "type": "MARKER",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          0,
+          -10000,
+          -10000000
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "DX_m07_reward_0010_darcy",
+      "template_name": "DX_m07_reward_0010_darcy",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m07_reward_0020_darcy",
+      "template_name": "DX_m07_reward_0020_darcy",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m07_reward_0030_darcy",
+      "template_name": "DX_m07_reward_0030_darcy",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m07_reward_0040_trent",
+      "template_name": "DX_m07_reward_0040_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m07_reward_0050_darcy",
+      "template_name": "DX_m07_reward_0050_darcy",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "DX_m07_reward_0060_trent",
+      "template_name": "DX_m07_reward_0060_trent",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": 0,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 1000,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio"
+      }
+    },
+    {
+      "entity_name": "step1",
+      "template_name": "fs_fl_stone01",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": -100,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 300,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio",
+        "Priority": "Story_Sound_1"
+      }
+    },
+    {
+      "entity_name": "step2",
+      "template_name": "fs_fl_stone02",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": -100,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 300,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio",
+        "Priority": "Story_Sound_1"
+      }
+    },
+    {
+      "entity_name": "step3",
+      "template_name": "fs_fl_stone03",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": -100,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 300,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio",
+        "Priority": "Story_Sound_1"
+      }
+    },
+    {
+      "entity_name": "step4",
+      "template_name": "fs_fl_stone04",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": -100,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 300,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio",
+        "Priority": "Story_Sound_1"
+      }
+    },
+    {
+      "entity_name": "step1_cmdr",
+      "template_name": "fs_fl_stone02",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": -20,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 300,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio",
+        "Priority": "Story_Sound_1"
+      }
+    },
+    {
+      "entity_name": "step2_cmdr",
+      "template_name": "fs_fl_stone03",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": -20,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 300,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio",
+        "Priority": "Story_Sound_1"
+      }
+    },
+    {
+      "entity_name": "step3_cmdr",
+      "template_name": "fs_fl_stone04",
+      "type": "SOUND",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "audioprops": {
+        "attenuation": -20,
+        "pan": 0,
+        "dmin": 50,
+        "dmax": 300,
+        "ain": 360,
+        "aout": 360,
+        "atout": 0,
+        "rmix": 0
+      },
+      "userprops": {
+        "category": "Audio",
+        "Priority": "Story_Sound_1"
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocameras_left",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 55,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          1,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.6,
+          0.6,
+          0.8
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.2,
+          0.4,
+          0.1
+        ],
+        "direction": [
+          -1,
+          0,
+          0
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocameras_trentlook",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 56,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          1,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.6,
+          0.6,
+          0.8
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.2,
+          0.4,
+          0.1
+        ],
+        "direction": [
+          -1,
+          0,
+          0
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_trentchars_jabbaside",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 56,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          1,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "N",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.2,
+          0.2,
+          0.2
+        ],
+        "direction": [
+          1,
+          0,
+          0
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_darcy_and_girlfriend",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 60,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          1,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          1,
+          1,
+          1
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.3,
+          0.4,
+          0.55
+        ],
+        "direction": [
+          1,
+          0,
+          0
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "Prop_server01",
+      "type": "COMPOUND",
+      "template_name": "m7_server",
+      "lt_grp": 6,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -2.5,
+          0,
+          0.5
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_server03",
+      "type": "COMPOUND",
+      "template_name": "m7_server",
+      "lt_grp": 6,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -2.5,
+          0,
+          3.8
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_server04",
+      "type": "COMPOUND",
+      "template_name": "m7_server",
+      "lt_grp": 6,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          2.7,
+          0,
+          0.5
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_server05",
+      "type": "COMPOUND",
+      "template_name": "m7_server",
+      "lt_grp": 6,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          2.7,
+          0,
+          4.2
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_barocamera01",
+      "type": "COMPOUND",
+      "template_name": "m7_barocamera",
+      "lt_grp": 6,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          2.8,
+          0,
+          2.4
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_barocamera03",
+      "type": "COMPOUND",
+      "template_name": "m7_barocamera",
+      "lt_grp": 6,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -2.5,
+          0,
+          2
+        ],
+        "orient": [
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_barocamera05",
+      "type": "COMPOUND",
+      "template_name": "m7_barocamera",
+      "lt_grp": 7,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          5.7,
+          0,
+          -9
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_alien05",
+      "type": "COMPOUND",
+      "template_name": "m7_olaf",
+      "lt_grp": 52,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          5.6,
+          1,
+          -9.1
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_barocamera06",
+      "type": "COMPOUND",
+      "template_name": "m7_barocamera_tall",
+      "lt_grp": 7,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          4.1,
+          0,
+          -10.6
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_alien06",
+      "type": "COMPOUND",
+      "template_name": "m7_jarjar",
+      "lt_grp": 51,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          3.9,
+          0.32,
+          -10.5
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_barocamera07",
+      "type": "COMPOUND",
+      "template_name": "m7_barocamera_tall",
+      "lt_grp": 7,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          2.5,
+          0,
+          -12.2
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_alien07",
+      "type": "COMPOUND",
+      "template_name": "m7_samus",
+      "lt_grp": 50,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          2.4,
+          -0.1,
+          -12.2
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_barocamera08",
+      "type": "COMPOUND",
+      "template_name": "m7_barocamera",
+      "lt_grp": 7,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -5.7,
+          0,
+          -9
+        ],
+        "orient": [
+          [
+            -0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_alien08",
+      "type": "COMPOUND",
+      "template_name": "m7_mole",
+      "lt_grp": 55,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -5.7,
+          0.95,
+          -9
+        ],
+        "orient": [
+          [
+            -0.7071068,
+            0,
+            0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.7071068,
+            0,
+            -0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_barocamera09",
+      "type": "COMPOUND",
+      "template_name": "m7_barocamera_tall",
+      "lt_grp": 7,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -4.1,
+          0,
+          -10.6
+        ],
+        "orient": [
+          [
+            -0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_alien09",
+      "type": "COMPOUND",
+      "template_name": "m7_elon",
+      "lt_grp": 53,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -4.1,
+          0,
+          -10.6
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Prop_barocamera10",
+      "type": "COMPOUND",
+      "template_name": "m7_barocamera_tall",
+      "lt_grp": 7,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -2.5,
+          0,
+          -12.2
+        ],
+        "orient": [
+          [
+            -0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "Char_monkeyking",
+      "type": "DEFORMABLE",
+      "template_name": "m07_monkeyking",
+      "lt_grp": 54,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -2.4,
+          0,
+          -12
+        ],
+        "orient": [
+          [
+            -0.7071068,
+            0,
+            0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.7071068,
+            0,
+            -0.7071068
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Prop_alien01",
+      "type": "COMPOUND",
+      "template_name": "m7_facehugger",
+      "lt_grp": 15,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          2.8,
+          1.3,
+          2.32
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "userprops": {
+        "category": "Prop"
+      }
+    },
+    {
+      "entity_name": "point_alien01_init",
+      "type": "MARKER",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          1.5,
+          1.3,
+          2.32
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "point_alien01_top",
+      "type": "MARKER",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          1.5,
+          1.55,
+          2.32
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "Char_worm",
+      "type": "DEFORMABLE",
+      "template_name": "worm",
+      "lt_grp": 5,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -2.65,
+          0,
+          2.1
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 1.2
+      },
+      "userprops": {
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "point_worm_init",
+      "type": "MARKER",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          -1.65,
+          0,
+          2.1
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocamera_inside01",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 5,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          10,
+          0
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.9,
+          1,
+          0
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          1,
+          0.5,
+          0.25
+        ],
+        "direction": [
+          0,
+          -0.8,
+          -0.2
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocamera_inside02",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 15,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          10,
+          0
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.4,
+          0.5,
+          0
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.5,
+          0.25,
+          0
+        ],
+        "direction": [
+          0,
+          0,
+          1
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocamera_objects",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 6,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          1,
+          0
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.2,
+          0.2,
+          0.5
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.3,
+          0.3,
+          0.2
+        ],
+        "direction": [
+          0.2,
+          0,
+          -0.5
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocamera_objects02",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 7,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          15,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.5,
+          0.5,
+          0.9
+        ],
+        "specular": [
+          0,
+          1,
+          0
+        ],
+        "ambient": [
+          0.9,
+          0.3,
+          0
+        ],
+        "direction": [
+          0.2,
+          0,
+          -0.5
+        ],
+        "range": 5000,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocamera_inside_samus",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 50,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          10,
+          0
+        ],
+        "orient": [
+          [
+            -0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.9,
+          1,
+          0
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.8,
+          0.5,
+          0.5
+        ],
+        "direction": [
+          -0.5,
+          -0.5,
+          0
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocamera_inside_jarjar",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 51,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          10,
+          0
+        ],
+        "orient": [
+          [
+            -0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.9,
+          1,
+          0
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.8,
+          0.2,
+          0.1
+        ],
+        "direction": [
+          1,
+          0,
+          0
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocamera_inside_olaf",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 52,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          10,
+          0
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.9,
+          1,
+          0
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.5,
+          0.5,
+          0.25
+        ],
+        "direction": [
+          0,
+          -0.5,
+          -0.5
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocamera_inside_elon",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 53,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          10,
+          0
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.6,
+          0.6,
+          0
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.7,
+          0.5,
+          0.2
+        ],
+        "direction": [
+          -1,
+          0,
+          0
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "LIGHT_barocamera_inside_monkeyking",
+      "type": "LIGHT",
+      "template_name": "",
+      "lt_grp": 54,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          10,
+          0
+        ],
+        "orient": [
+          [
+            -0.7071068,
+            0,
+            0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.7071068,
+            0,
+            -0.7071068
+          ]
+        ]
+      },
+      "lightprops": {
+        "on": "Y",
+        "color": [
+          255,
+          255,
+          255
+        ],
+        "diffuse": [
+          0.9,
+          1,
+          0
+        ],
+        "specular": [
+          0,
+          0,
+          0
+        ],
+        "ambient": [
+          0.2,
+          0.3,
+          0.6
+        ],
+        "direction": [
+          -1,
+          0,
+          0
+        ],
+        "range": 150555,
+        "cutoff": 30,
+        "type": "L_DIRECT",
+        "theta": 26.999985,
+        "atten": [
+          1,
+          0,
+          0.003
+        ]
+      }
+    },
+    {
+      "entity_name": "Char_trent",
+      "type": "DEFORMABLE",
+      "template_name": "trent",
+      "lt_grp": 56,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          1,
+          0,
+          3.8
+        ],
+        "orient": [
+          [
+            0,
+            0,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Player",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_jabba",
+      "type": "DEFORMABLE",
+      "template_name": "jabba",
+      "lt_grp": 55,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -1,
+          0,
+          -3
+        ],
+        "orient": [
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Jabba",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_darcy",
+      "type": "DEFORMABLE",
+      "template_name": "darcy",
+      "lt_grp": 60,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          2,
+          0,
+          -7.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Darcy",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_assistant",
+      "type": "DEFORMABLE",
+      "template_name": "m07_female_br_officer",
+      "lt_grp": 60,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          2,
+          0,
+          -8.5
+        ],
+        "orient": [
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Assistant",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_gunner",
+      "type": "DEFORMABLE",
+      "template_name": "m07_male_br_officer_gunner",
+      "lt_grp": 55,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          -1,
+          0,
+          -5
+        ],
+        "orient": [
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Gunner",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_doorkeeper",
+      "type": "DEFORMABLE",
+      "template_name": "m07_male_br_officer_marksman",
+      "lt_grp": 55,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -1.8,
+          0,
+          -0.5
+        ],
+        "orient": [
+          [
+            -0.7071068,
+            0,
+            0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.7071068,
+            0,
+            -0.7071068
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Doorkeeper",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_leader",
+      "type": "DEFORMABLE",
+      "template_name": "m07_male_br_officer",
+      "lt_grp": 3,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC+LIT_AMBIENT",
+      "spatialprops": {
+        "pos": [
+          -1.8,
+          0,
+          -8.5
+        ],
+        "orient": [
+          [
+            0.7071068,
+            0,
+            -0.7071068
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.7071068,
+            0,
+            0.7071068
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "Actor": "Policeleader",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "cam_start",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          1,
+          2.5,
+          5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 20,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_start_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          1.5,
+          1.7,
+          5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_start_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          -2,
+          1.3,
+          3
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_start_marker_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          -0.5,
+          1.3,
+          2
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_darcy_meeting",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          0.5,
+          4,
+          -12
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 20,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_darcy_meeting_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0.5,
+          3.8,
+          -12
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_darcy_meeting_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          1.5,
+          0.5,
+          -5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_darcy",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          2.4,
+          1.7,
+          -5.8
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 15,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_darcy_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          1.9,
+          1.5,
+          -7.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_darcy_top",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          2.3,
+          2,
+          -5.3
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 18,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_darcy_top_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          2.6,
+          2,
+          -5.3
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_darcy_top_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          1.9,
+          1.2,
+          -8
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_darcy_top_marker_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          1.8,
+          1.2,
+          -8
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_darcy_official",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          3.5,
+          0.6,
+          -4
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 13,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_darcy_official_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          3.6,
+          0.6,
+          -4.3
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_darcy_official_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          1.4,
+          1.6,
+          -8
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_darcy_official_marker_pos2",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          1.4,
+          1.6,
+          -7.9
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_trent",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          2.4,
+          1.568,
+          -6.5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 18,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_trent_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          1.8,
+          1.65,
+          -5.3
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "cam_dbg",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          0,
+          7,
+          9
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 35,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_dbg_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          1,
+          -1
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "duration": 61.5,
+  "room_mesh": "E:\\FL\\room\\br_cambridge_trader.obj"
+}

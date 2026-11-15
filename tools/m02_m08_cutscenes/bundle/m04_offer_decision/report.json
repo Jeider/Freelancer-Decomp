@@ -1,0 +1,64 @@
+{
+  "name": "m04_offer_decision",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_offer_decision.thn",
+  "sha256": "abbeca45873a51ee191273fb5e9f2741a2283b4e9fda6ee424b61323081f3aa5",
+  "uses": [
+    {
+      "mission": 4,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "mission_line": 137,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\vendor_msn.ini",
+      "line": 4,
+      "role": "decision",
+      "thn": "scripts\\mod\\m04_offer_decision.thn"
+    }
+  ],
+  "source_duration": 5555.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_M04_bar_scene": "Scene_M04_bar_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_trent": "Char_trent",
+    "Char_jacobo": "Char_jacobo",
+    "cam_table": "cam_table",
+    "cam_table_marker": "automarker_cam_table_focus"
+  },
+  "point_names": {
+    "Scene_M04_bar_scene": "Scene_M04_bar_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_trent": "Char_trent",
+    "Char_jacobo": "Char_jacobo",
+    "cam_table": "cam_table",
+    "cam_table_marker": "cam_table_focus"
+  }
+}

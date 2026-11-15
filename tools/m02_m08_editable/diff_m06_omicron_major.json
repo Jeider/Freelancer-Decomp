@@ -1,0 +1,3406 @@
+{
+  "before": [
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "Camera_1",
+        "automarker_Camera_1_focus"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "",
+        "target_type": "ROOT",
+        "flags": "LOOK_AT"
+      }
+    ],
+    [
+      0,
+      "SET_CAMERA",
+      [
+        "Monitor_1",
+        "Camera_1"
+      ]
+    ],
+    [
+      0,
+      "CONNECT_HARDPOINTS",
+      [
+        "PlayerShip",
+        "Player_connecter"
+      ],
+      {
+        "duration": 60,
+        "hardpoint": "HpTop",
+        "parent_hardpoint": "HpConnect"
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "Player_connecter",
+        "automarker_Player_Marker"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "",
+        "target_type": "ROOT",
+        "flags": "POSITION+ORIENTATION+ENTITY_RELATIVE"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "PlayerShipEngines_2"
+      ],
+      {
+        "duration": 0.1,
+        "psysprops": {
+          "sparam": 0.5
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "PlayerShipEngines_2"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "PlayerShipEngines_2",
+        "PlayerShip"
+      ],
+      {
+        "duration": 30,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpEngine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_player_trapped"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_player_trapped",
+        "PlayerShip"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_engine1"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_engine1",
+        "li_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_trapped1"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_trapped1",
+        "li_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_engine2"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_engine2",
+        "li_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_trapped2"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_trapped2",
+        "li_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_engine3"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_engine3",
+        "li_elite03"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_trapped3"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_trapped3",
+        "li_elite03"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_engine4"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_engine4",
+        "li_elite04"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_trapped4"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_trapped4",
+        "li_elite04"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine1a"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine1a",
+        "or_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1a"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine1b"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine1b",
+        "or_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine02",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1b"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine1c"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine1c",
+        "or_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine03",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1c"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine2a"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine2a",
+        "or_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2a"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine2b"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine2b",
+        "or_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine02",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2b"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine2c"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine2c",
+        "or_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine03",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2c"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "li_elite01"
+      ],
+      {
+        "animation": "Sc_force extend",
+        "duration": 30,
+        "time_scale": 1,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "li_elite02"
+      ],
+      {
+        "animation": "Sc_force extend",
+        "duration": 30,
+        "time_scale": 1,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "li_elite03"
+      ],
+      {
+        "animation": "Sc_force extend",
+        "duration": 30,
+        "time_scale": 1,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "li_elite04"
+      ],
+      {
+        "animation": "Sc_force extend",
+        "duration": 30,
+        "time_scale": 1,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "or_elite01"
+      ],
+      {
+        "animation": "Sc_launch extend",
+        "duration": 30,
+        "time_scale": 1000,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "or_elite02"
+      ],
+      {
+        "animation": "Sc_launch extend",
+        "duration": 30,
+        "time_scale": 1000,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_start_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      0,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_start_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "gf_rtc_shipcushion_1"
+      ],
+      {
+        "duration": 300
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "gf_rtc_shipcushion_1",
+        "lapa"
+      ],
+      {
+        "duration": 600,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpFx01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_SOUND",
+      [
+        "music_main"
+      ],
+      {
+        "duration": 60,
+        "start_time": 0,
+        "flags": "LOOP"
+      }
+    ],
+    [
+      0,
+      "START_SOUND",
+      [
+        "rumble_player"
+      ],
+      {
+        "duration": 60,
+        "start_time": 0,
+        "flags": "LOOP"
+      }
+    ],
+    [
+      0,
+      "START_AUDIO_PROP_ANIM",
+      [
+        "music_main"
+      ],
+      {
+        "duration": 5,
+        "audioprops": {
+          "attenuation": 0
+        }
+      }
+    ],
+    [
+      5,
+      "START_PATH_ANIMATION",
+      [
+        "or_elite01",
+        "Path_Order01_Position"
+      ],
+      {
+        "duration": 5,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      5,
+      "START_SPATIAL_PROP_ANIM",
+      [
+        "or_elite01"
+      ],
+      {
+        "duration": 4.9,
+        "target_type": "ROOT",
+        "spatialprops": {
+          "axisrot": [
+            135,
+            "Y_AXIS"
+          ]
+        }
+      }
+    ],
+    [
+      6,
+      "START_PATH_ANIMATION",
+      [
+        "or_elite02",
+        "Path_Order02_Position"
+      ],
+      {
+        "duration": 5,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      6,
+      "START_SPATIAL_PROP_ANIM",
+      [
+        "or_elite02"
+      ],
+      {
+        "duration": 4.85,
+        "target_type": "ROOT",
+        "spatialprops": {
+          "axisrot": [
+            50,
+            "Y_AXIS"
+          ]
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1a"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1b"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1c"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2a"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2b"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2c"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "BIGSHIP",
+        "Path_GOTO_PL"
+      ],
+      {
+        "duration": 15,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_bigship_arrive_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_bigship_arrive_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_bigship_arrive_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_bigship_arrive_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      15,
+      "START_SOUND",
+      [
+        "rumble_osiris"
+      ],
+      {
+        "duration": 45,
+        "start_time": 0,
+        "flags": "LOOP"
+      }
+    ],
+    [
+      22,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_baydoor_path"
+      ],
+      {
+        "duration": 20,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      22,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_baydoor_path"
+      ],
+      {
+        "duration": 12,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      27,
+      "START_SPATIAL_PROP_ANIM",
+      [
+        "lapa",
+        "automarker_Marker_Lapa"
+      ],
+      {
+        "duration": 0.001,
+        "target_part": "",
+        "target_type": "ROOT",
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "q_orient": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    ],
+    [
+      28,
+      "START_MOTION",
+      [
+        "BIGSHIP"
+      ],
+      {
+        "animation": "Sc_open baydoor",
+        "duration": 15,
+        "time_scale": 1,
+        "start_time": 0,
+        "weight": 1,
+        "heading": -1
+      }
+    ],
+    [
+      28,
+      "START_SOUND",
+      [
+        "open_baydoor"
+      ],
+      {
+        "duration": 15,
+        "start_time": 0
+      }
+    ],
+    [
+      34,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_baydoor_down_path"
+      ],
+      {
+        "duration": 8,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      36,
+      "START_PATH_ANIMATION",
+      [
+        "lapa",
+        "lapa_down"
+      ],
+      {
+        "duration": 8,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      36,
+      "START_SOUND",
+      [
+        "extend_lapa"
+      ],
+      {
+        "duration": 15,
+        "start_time": 0
+      }
+    ],
+    [
+      42,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_getting_path"
+      ],
+      {
+        "duration": 15,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      44,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_getting_path"
+      ],
+      {
+        "duration": 15,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      44,
+      "START_PATH_ANIMATION",
+      [
+        "lapa",
+        "lapa_up"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      44,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Player_Marker",
+        "player_up"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      44,
+      "START_SOUND",
+      [
+        "move_lapa_back"
+      ],
+      {
+        "duration": 15,
+        "start_time": 0
+      }
+    ],
+    [
+      50,
+      "START_AUDIO_PROP_ANIM",
+      [
+        "music_main"
+      ],
+      {
+        "duration": 10,
+        "audioprops": {
+          "attenuation": -25
+        }
+      }
+    ],
+    [
+      52,
+      "START_MOTION",
+      [
+        "BIGSHIP"
+      ],
+      {
+        "animation": "Sc_close baydoor",
+        "duration": 15,
+        "time_scale": -1,
+        "start_time": 0,
+        "weight": 1,
+        "heading": -1
+      }
+    ],
+    [
+      52,
+      "START_SOUND",
+      [
+        "close_baydoor"
+      ],
+      {
+        "duration": 15,
+        "start_time": 0
+      }
+    ]
+  ],
+  "after": [
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "Camera_1",
+        "automarker_Camera_1_focus"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "",
+        "target_type": "ROOT",
+        "flags": "LOOK_AT"
+      }
+    ],
+    [
+      0,
+      "SET_CAMERA",
+      [
+        "Monitor_1",
+        "Camera_1"
+      ]
+    ],
+    [
+      0,
+      "CONNECT_HARDPOINTS",
+      [
+        "PlayerShip",
+        "Player_connecter"
+      ],
+      {
+        "duration": 60,
+        "hardpoint": "HpTop",
+        "parent_hardpoint": "HpConnect"
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "Player_connecter",
+        "automarker_Player_Marker"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "",
+        "target_type": "ROOT",
+        "flags": "POSITION+ORIENTATION+ENTITY_RELATIVE"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "PlayerShipEngines_2"
+      ],
+      {
+        "duration": 0.1,
+        "psysprops": {
+          "sparam": 0.5
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "PlayerShipEngines_2"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "PlayerShipEngines_2",
+        "PlayerShip"
+      ],
+      {
+        "duration": 30,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpEngine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_player_trapped"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_player_trapped",
+        "PlayerShip"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_engine1"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_engine1",
+        "li_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_trapped1"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_trapped1",
+        "li_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_engine2"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_engine2",
+        "li_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_trapped2"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_trapped2",
+        "li_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_engine3"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_engine3",
+        "li_elite03"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_trapped3"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_trapped3",
+        "li_elite03"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_engine4"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_engine4",
+        "li_elite04"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_li_trapped4"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_li_trapped4",
+        "li_elite04"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpRoot",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine1a"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine1a",
+        "or_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1a"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine1b"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine1b",
+        "or_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine02",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1b"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine1c"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine1c",
+        "or_elite01"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine03",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1c"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine2a"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine2a",
+        "or_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2a"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine2b"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine2b",
+        "or_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine02",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2b"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "fx_or_engine2c"
+      ],
+      {
+        "duration": 60
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "fx_or_engine2c",
+        "or_elite02"
+      ],
+      {
+        "duration": 60,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "hpengine03",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2c"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0.8
+        }
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "li_elite01"
+      ],
+      {
+        "animation": "Sc_force extend",
+        "duration": 30,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "li_elite02"
+      ],
+      {
+        "animation": "Sc_force extend",
+        "duration": 30,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "li_elite03"
+      ],
+      {
+        "animation": "Sc_force extend",
+        "duration": 30,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "li_elite04"
+      ],
+      {
+        "animation": "Sc_force extend",
+        "duration": 30,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "or_elite01"
+      ],
+      {
+        "animation": "Sc_launch extend",
+        "duration": 30,
+        "time_scale": 1000,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_MOTION",
+      [
+        "or_elite02"
+      ],
+      {
+        "animation": "Sc_launch extend",
+        "duration": 30,
+        "time_scale": 1000,
+        "weight": 1,
+        "trans_scale": 1
+      }
+    ],
+    [
+      0,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_start_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      0,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_start_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      0,
+      "START_PSYS",
+      [
+        "gf_rtc_shipcushion_1"
+      ],
+      {
+        "duration": 300
+      }
+    ],
+    [
+      0,
+      "ATTACH_ENTITY",
+      [
+        "gf_rtc_shipcushion_1",
+        "lapa"
+      ],
+      {
+        "duration": 600,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "target_part": "HpFx01",
+        "target_type": "HARDPOINT",
+        "flags": "POSITION+ORIENTATION"
+      }
+    ],
+    [
+      0,
+      "START_SOUND",
+      [
+        "music_main"
+      ],
+      {
+        "duration": 60,
+        "start_time": 0,
+        "flags": "LOOP"
+      }
+    ],
+    [
+      0,
+      "START_SOUND",
+      [
+        "rumble_player"
+      ],
+      {
+        "duration": 60,
+        "start_time": 0,
+        "flags": "LOOP"
+      }
+    ],
+    [
+      0,
+      "START_AUDIO_PROP_ANIM",
+      [
+        "music_main"
+      ],
+      {
+        "duration": 5,
+        "audioprops": {
+          "attenuation": 0
+        }
+      }
+    ],
+    [
+      5,
+      "START_PATH_ANIMATION",
+      [
+        "or_elite01",
+        "Path_Order01_Position"
+      ],
+      {
+        "duration": 5,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      5,
+      "START_SPATIAL_PROP_ANIM",
+      [
+        "or_elite01"
+      ],
+      {
+        "duration": 4.9,
+        "target_type": "ROOT",
+        "spatialprops": {
+          "axisrot": [
+            135,
+            "Y_AXIS"
+          ]
+        }
+      }
+    ],
+    [
+      6,
+      "START_PATH_ANIMATION",
+      [
+        "or_elite02",
+        "Path_Order02_Position"
+      ],
+      {
+        "duration": 5,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      6,
+      "START_SPATIAL_PROP_ANIM",
+      [
+        "or_elite02"
+      ],
+      {
+        "duration": 4.85,
+        "target_type": "ROOT",
+        "spatialprops": {
+          "axisrot": [
+            50,
+            "Y_AXIS"
+          ]
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1a"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1b"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine1c"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2a"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2b"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      10,
+      "START_PSYS_PROP_ANIM",
+      [
+        "fx_or_engine2c"
+      ],
+      {
+        "duration": 0.5,
+        "psysprops": {
+          "sparam": 0
+        }
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "BIGSHIP",
+        "Path_GOTO_PL"
+      ],
+      {
+        "duration": 15,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_bigship_arrive_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_bigship_arrive_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_bigship_arrive_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      12,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_bigship_arrive_path"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      15,
+      "START_SOUND",
+      [
+        "rumble_osiris"
+      ],
+      {
+        "duration": 45,
+        "start_time": 0,
+        "flags": "LOOP"
+      }
+    ],
+    [
+      22,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_baydoor_path"
+      ],
+      {
+        "duration": 20,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      22,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_baydoor_path"
+      ],
+      {
+        "duration": 12,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      27,
+      "START_SPATIAL_PROP_ANIM",
+      [
+        "lapa",
+        "automarker_Marker_Lapa"
+      ],
+      {
+        "duration": 0.001,
+        "target_part": "",
+        "target_type": "ROOT",
+        "spatialprops": {
+          "pos": [
+            0,
+            0,
+            0
+          ],
+          "q_orient": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    ],
+    [
+      28,
+      "START_MOTION",
+      [
+        "BIGSHIP"
+      ],
+      {
+        "animation": "Sc_open baydoor",
+        "duration": 15,
+        "time_scale": 1,
+        "start_time": 0,
+        "weight": 1,
+        "heading": -1
+      }
+    ],
+    [
+      28,
+      "START_SOUND",
+      [
+        "open_baydoor"
+      ],
+      {
+        "duration": 15,
+        "start_time": 0
+      }
+    ],
+    [
+      34,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_baydoor_down_path"
+      ],
+      {
+        "duration": 8,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      36,
+      "START_PATH_ANIMATION",
+      [
+        "lapa",
+        "lapa_down"
+      ],
+      {
+        "duration": 8,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      36,
+      "START_SOUND",
+      [
+        "extend_lapa"
+      ],
+      {
+        "duration": 15,
+        "start_time": 0
+      }
+    ],
+    [
+      42,
+      "START_PATH_ANIMATION",
+      [
+        "Camera_1",
+        "camera_getting_path"
+      ],
+      {
+        "duration": 15,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      44,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Camera_1_focus",
+        "marker_getting_path"
+      ],
+      {
+        "duration": 15,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      44,
+      "START_PATH_ANIMATION",
+      [
+        "lapa",
+        "lapa_up"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      44,
+      "START_PATH_ANIMATION",
+      [
+        "automarker_Player_Marker",
+        "player_up"
+      ],
+      {
+        "duration": 10,
+        "start_percent": 0,
+        "stop_percent": 1,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "up": "Y_AXIS",
+        "front": "NEG_Z_AXIS",
+        "flags": "POSITION",
+        "param_curve": {
+          "CLSID": "FreeFormPCurve",
+          "points": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0,
+              0
+            ]
+          ]
+        },
+        "pcurve_period": -1000
+      }
+    ],
+    [
+      44,
+      "START_SOUND",
+      [
+        "move_lapa_back"
+      ],
+      {
+        "duration": 15,
+        "start_time": 0
+      }
+    ],
+    [
+      50,
+      "START_AUDIO_PROP_ANIM",
+      [
+        "music_main"
+      ],
+      {
+        "duration": 10,
+        "audioprops": {
+          "attenuation": -25
+        }
+      }
+    ],
+    [
+      52,
+      "START_MOTION",
+      [
+        "BIGSHIP"
+      ],
+      {
+        "animation": "Sc_close baydoor",
+        "duration": 15,
+        "time_scale": -1,
+        "start_time": 0,
+        "weight": 1,
+        "heading": -1
+      }
+    ],
+    [
+      52,
+      "START_SOUND",
+      [
+        "close_baydoor"
+      ],
+      {
+        "duration": 15,
+        "start_time": 0
+      }
+    ]
+  ]
+}

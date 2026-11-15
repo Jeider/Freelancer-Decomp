@@ -1,0 +1,608 @@
+{
+  "m02_bship_bar_offer": {
+    "ok": true,
+    "actions": 172,
+    "entities": 112,
+    "commented_lines": 7
+  },
+  "m02_bship_bar_decision": {
+    "ok": true,
+    "actions": 3,
+    "entities": 13,
+    "commented_lines": 0
+  },
+  "m02_bship_bar_accept": {
+    "ok": true,
+    "actions": 56,
+    "entities": 48,
+    "commented_lines": 1
+  },
+  "m02_wilham_vendor": {
+    "ok": true,
+    "actions": 2,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m02_jacobo_offer": {
+    "ok": true,
+    "actions": 165,
+    "entities": 92,
+    "commented_lines": 0
+  },
+  "m02_jacobo_vendor": {
+    "ok": true,
+    "actions": 2,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m02_junkers": {
+    "ok": true,
+    "actions": 8,
+    "entities": 15,
+    "commented_lines": 0
+  },
+  "m02_explode_camera": {
+    "ok": true,
+    "actions": 6,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m02_reichman": {
+    "ok": true,
+    "actions": 152,
+    "entities": 103,
+    "commented_lines": 0
+  },
+  "m03_offer": {
+    "ok": true,
+    "actions": 107,
+    "entities": 58,
+    "commented_lines": 2
+  },
+  "m03_offer_decision": {
+    "ok": true,
+    "actions": 5,
+    "entities": 17,
+    "commented_lines": 0
+  },
+  "m03_offer_accept": {
+    "ok": true,
+    "actions": 89,
+    "entities": 67,
+    "commented_lines": 0
+  },
+  "m03_fleet_arrive": {
+    "ok": true,
+    "actions": 4,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m03_kgb_death01": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m03_kgb_death02": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m03_reward": {
+    "ok": true,
+    "actions": 34,
+    "entities": 28,
+    "commented_lines": 0
+  },
+  "m04_offer": {
+    "ok": true,
+    "actions": 69,
+    "entities": 59,
+    "commented_lines": 0
+  },
+  "m04_offer_decision": {
+    "ok": true,
+    "actions": 4,
+    "entities": 13,
+    "commented_lines": 0
+  },
+  "m04_offer_accept": {
+    "ok": true,
+    "actions": 20,
+    "entities": 42,
+    "commented_lines": 0
+  },
+  "m04_officer_scene01": {
+    "ok": true,
+    "actions": 4,
+    "entities": 12,
+    "commented_lines": 0
+  },
+  "m04_officer_scene02": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m04_friends_arrive_hassler": {
+    "ok": true,
+    "actions": 4,
+    "entities": 11,
+    "commented_lines": 0
+  },
+  "m04_friends_arrive_alaric": {
+    "ok": true,
+    "actions": 5,
+    "entities": 11,
+    "commented_lines": 0
+  },
+  "m04_reactor_fx": {
+    "ok": true,
+    "actions": 2,
+    "entities": 5,
+    "commented_lines": 0
+  },
+  "m04_jacobo_death": {
+    "ok": true,
+    "actions": 4,
+    "entities": 11,
+    "commented_lines": 0
+  },
+  "m04_jumphole": {
+    "ok": true,
+    "actions": 3,
+    "entities": 9,
+    "commented_lines": 0
+  },
+  "m04_hatcher": {
+    "ok": true,
+    "actions": 131,
+    "entities": 74,
+    "commented_lines": 0
+  },
+  "m04_final": {
+    "ok": true,
+    "actions": 92,
+    "entities": 56,
+    "commented_lines": 0
+  },
+  "m05_offer": {
+    "ok": true,
+    "actions": 98,
+    "entities": 61,
+    "commented_lines": 0
+  },
+  "m05_offer_decision": {
+    "ok": true,
+    "actions": 4,
+    "entities": 17,
+    "commented_lines": 0
+  },
+  "m05_offer_accept": {
+    "ok": true,
+    "actions": 17,
+    "entities": 57,
+    "commented_lines": 0
+  },
+  "m05_piratebar": {
+    "ok": true,
+    "actions": 121,
+    "entities": 57,
+    "commented_lines": 0
+  },
+  "m05_detroit": {
+    "ok": true,
+    "actions": 47,
+    "entities": 49,
+    "commented_lines": 0
+  },
+  "m05_barman": {
+    "ok": true,
+    "actions": 15,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m05_research_explode": {
+    "ok": true,
+    "actions": 4,
+    "entities": 11,
+    "commented_lines": 0
+  },
+  "m05_arrest_camera01": {
+    "ok": true,
+    "actions": 4,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m05_arrest_camera02": {
+    "ok": true,
+    "actions": 7,
+    "entities": 15,
+    "commented_lines": 0
+  },
+  "m05_arrest_camera03": {
+    "ok": true,
+    "actions": 4,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m05_arrest_camera04": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m05_arrest_camera05": {
+    "ok": true,
+    "actions": 4,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m05_arrest_camera06": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m05_arrest_camera07": {
+    "ok": true,
+    "actions": 6,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m05_arrest_camera08": {
+    "ok": true,
+    "actions": 4,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m05_arrest_camera09": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m05_rheinlanders_camera": {
+    "ok": true,
+    "actions": 2,
+    "entities": 5,
+    "commented_lines": 0
+  },
+  "m05_equip": {
+    "ok": true,
+    "actions": 359,
+    "entities": 214,
+    "commented_lines": 35
+  },
+  "m06_offer": {
+    "ok": true,
+    "actions": 135,
+    "entities": 63,
+    "commented_lines": 0
+  },
+  "m06_offer_decision": {
+    "ok": true,
+    "actions": 5,
+    "entities": 17,
+    "commented_lines": 0
+  },
+  "m06_offer_accept": {
+    "ok": true,
+    "actions": 16,
+    "entities": 37,
+    "commented_lines": 0
+  },
+  "m06_vendor_hatcher": {
+    "ok": true,
+    "actions": 9,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m06_vendor_alaric": {
+    "ok": true,
+    "actions": 10,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m06_briefing": {
+    "ok": true,
+    "actions": 233,
+    "entities": 110,
+    "commented_lines": 0
+  },
+  "m06_mount": {
+    "ok": true,
+    "actions": 41,
+    "entities": 29,
+    "commented_lines": 0
+  },
+  "m06_nomad_area_camera1": {
+    "ok": true,
+    "actions": 2,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m06_nomad_area_camera2": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m06_nomad_area_camera3": {
+    "ok": true,
+    "actions": 2,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m06_nomad_area_camera4": {
+    "ok": true,
+    "actions": 2,
+    "entities": 5,
+    "commented_lines": 0
+  },
+  "m06_lab_land": {
+    "ok": true,
+    "actions": 43,
+    "entities": 51,
+    "commented_lines": 0
+  },
+  "m06_lab_room": {
+    "ok": true,
+    "actions": 44,
+    "entities": 59,
+    "commented_lines": 0
+  },
+  "m06_lab_launch": {
+    "ok": true,
+    "actions": 34,
+    "entities": 67,
+    "commented_lines": 0
+  },
+  "m06_lab_explode_camera": {
+    "ok": true,
+    "actions": 2,
+    "entities": 5,
+    "commented_lines": 0
+  },
+  "m06_torpedo_alert": {
+    "ok": true,
+    "actions": 48,
+    "entities": 45,
+    "commented_lines": 0
+  },
+  "m06_jumpin_camera1": {
+    "ok": true,
+    "actions": 2,
+    "entities": 5,
+    "commented_lines": 0
+  },
+  "m06_jumpin_camera2": {
+    "ok": true,
+    "actions": 2,
+    "entities": 5,
+    "commented_lines": 0
+  },
+  "m06_order_camera3": {
+    "ok": true,
+    "actions": 3,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m06_order_camera4": {
+    "ok": true,
+    "actions": 2,
+    "entities": 5,
+    "commented_lines": 0
+  },
+  "m06_omicron_major": {
+    "ok": true,
+    "actions": 88,
+    "entities": 107,
+    "commented_lines": 0
+  },
+  "m06_order_deck": {
+    "ok": true,
+    "actions": 41,
+    "entities": 77,
+    "commented_lines": 0
+  },
+  "m06_prison_new": {
+    "ok": true,
+    "actions": 405,
+    "entities": 221,
+    "commented_lines": 0
+  },
+  "m07_offer": {
+    "ok": true,
+    "actions": 114,
+    "entities": 83,
+    "commented_lines": 2
+  },
+  "m07_offer_decision": {
+    "ok": true,
+    "actions": 6,
+    "entities": 22,
+    "commented_lines": 0
+  },
+  "m07_offer_accept": {
+    "ok": true,
+    "actions": 9,
+    "entities": 43,
+    "commented_lines": 0
+  },
+  "m07_tortuga_wp_camera": {
+    "ok": true,
+    "actions": 4,
+    "entities": 9,
+    "commented_lines": 0
+  },
+  "m01b_armored_trap_camera": {
+    "ok": true,
+    "actions": 8,
+    "entities": 20,
+    "commented_lines": 0
+  },
+  "m07_omega13": {
+    "ok": true,
+    "actions": 351,
+    "entities": 219,
+    "commented_lines": 0
+  },
+  "m07_tau_arrival": {
+    "ok": true,
+    "actions": 41,
+    "entities": 47,
+    "commented_lines": 0
+  },
+  "m07_battleship": {
+    "ok": true,
+    "actions": 107,
+    "entities": 72,
+    "commented_lines": 1
+  },
+  "m07_check_artifact": {
+    "ok": true,
+    "actions": 74,
+    "entities": 122,
+    "commented_lines": 0
+  },
+  "m07_reward": {
+    "ok": true,
+    "actions": 101,
+    "entities": 137,
+    "commented_lines": 2
+  },
+  "m07_gunners": {
+    "ok": true,
+    "actions": 122,
+    "entities": 104,
+    "commented_lines": 0
+  },
+  "m08_wales_init": {
+    "ok": true,
+    "actions": 6,
+    "entities": 15,
+    "commented_lines": 0
+  },
+  "m08_liberty_enter_camera_01": {
+    "ok": true,
+    "actions": 2,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m08_lair_enter_door_01": {
+    "ok": true,
+    "actions": 6,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m08_core_camera_01": {
+    "ok": true,
+    "actions": 3,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m08_core_camera_02": {
+    "ok": true,
+    "actions": 2,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m08_core_camera_03": {
+    "ok": true,
+    "actions": 2,
+    "entities": 5,
+    "commented_lines": 0
+  },
+  "m08_core_camera_04": {
+    "ok": true,
+    "actions": 2,
+    "entities": 5,
+    "commented_lines": 0
+  },
+  "m08_core_camera_06": {
+    "ok": true,
+    "actions": 2,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m08_core_camera_08": {
+    "ok": true,
+    "actions": 6,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m08_core_camera_07": {
+    "ok": true,
+    "actions": 2,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m08_core_camera_09": {
+    "ok": true,
+    "actions": 7,
+    "entities": 8,
+    "commented_lines": 0
+  },
+  "m08_outside_camera_01": {
+    "ok": true,
+    "actions": 2,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m08_outside_camera_02": {
+    "ok": true,
+    "actions": 6,
+    "entities": 8,
+    "commented_lines": 0
+  },
+  "m08_lair_done_camera_04": {
+    "ok": true,
+    "actions": 6,
+    "entities": 7,
+    "commented_lines": 0
+  },
+  "m08_lair_done_camera_01": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m08_lair_done_camera_02": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m08_lair_done_camera_03": {
+    "ok": true,
+    "actions": 3,
+    "entities": 6,
+    "commented_lines": 0
+  },
+  "m08_osiris": {
+    "ok": true,
+    "actions": 203,
+    "entities": 110,
+    "commented_lines": 0
+  },
+  "m08_offer": {
+    "ok": true,
+    "actions": 202,
+    "entities": 117,
+    "commented_lines": 0
+  },
+  "m08_offer_decision": {
+    "ok": true,
+    "actions": 10,
+    "entities": 21,
+    "commented_lines": 0
+  },
+  "m08_offer_accept": {
+    "ok": true,
+    "actions": 54,
+    "entities": 108,
+    "commented_lines": 0
+  }
+}

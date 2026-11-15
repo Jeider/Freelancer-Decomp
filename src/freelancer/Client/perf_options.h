@@ -54,6 +54,7 @@ FPerfOption* GetPerfOptionAt(unsigned Index);
 
 // FUN_005b3510 — the seven shared floats at DAT_0067ed10 that some applies write into.
 float GetPerfOptionSlot(int Index);
+void SetPerfRoomScope(bool enabled);
 
 // FUN_005b40f0 — apply every option whose Value drifted from Applied.
 void ApplyChangedPerfOptions();

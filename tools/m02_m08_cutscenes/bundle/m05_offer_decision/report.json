@@ -1,0 +1,68 @@
+{
+  "name": "m05_offer_decision",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_offer_decision.thn",
+  "sha256": "2129dbcc8e2645cdcbcbdf1d63b121bdcb08d1fb02ed904ebe03bfc632af5327",
+  "uses": [
+    {
+      "mission": 5,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "mission_line": 142,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\vendor_msn.ini",
+      "line": 5,
+      "role": "decision",
+      "thn": "scripts\\mod\\m05_offer_decision.thn"
+    }
+  ],
+  "source_duration": 50000.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_M05_new_offer_scene_decision": "Scene_M05_new_offer_scene_decision",
+    "ambi_LtG00_Tbl_rTable4/01": "ambi_LtG00_Tbl_rTable4/01",
+    "ambi_LtG00_Bar_Ovrhd01A": "ambi_LtG00_Bar_Ovrhd01A",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_hatcher": "Char_hatcher",
+    "Char_trent": "Char_trent",
+    "cam_table": "cam_table",
+    "cam_table_marker": "automarker_cam_table_focus"
+  },
+  "point_names": {
+    "Scene_M05_new_offer_scene_decision": "Scene_M05_new_offer_scene_decision",
+    "ambi_LtG00_Tbl_rTable4/01": "ambi_LtG00_Tbl_rTable4/01",
+    "ambi_LtG00_Bar_Ovrhd01A": "ambi_LtG00_Bar_Ovrhd01A",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_hatcher": "Char_hatcher",
+    "Char_trent": "Char_trent",
+    "cam_table": "cam_table",
+    "cam_table_marker": "cam_table_focus"
+  }
+}

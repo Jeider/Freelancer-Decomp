@@ -1,0 +1,54 @@
+{
+  "name": "m03_kgb_death01",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_kgb_death01.thn",
+  "sha256": "6437776ac15bf17e9e52ae527c990dd402960cee3fc2a77535525cbd7a058a64",
+  "uses": [
+    {
+      "mission": 3,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+      "mission_line": 1691,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+      "line": 1691,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m03_kgb_death01.thn"
+    }
+  ],
+  "source_duration": 10.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_m03_kgb01": "scene_m03_kgb01",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_marker": "automarker_cam_focus",
+    "cam_marker_pos2": "automarker_cam_marker_pos2"
+  },
+  "point_names": {
+    "scene_m03_kgb01": "scene_m03_kgb01",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_marker": "cam_focus",
+    "cam_marker_pos2": "cam_marker_pos2"
+  }
+}

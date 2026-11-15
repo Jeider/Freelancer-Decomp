@@ -1074,21 +1074,21 @@ namespace
                     const float Left = (float)((double)CenterX - Hx);
                     Writer.U = 0.0f;
                     Writer.V = 0.0f;
-                    ShadowWriterEmit(&Writer, (float)((double)Left + Zy), Radius,
+                    ShadowWriterEmit(&Writer, (float)((double)Left + Zy), Radius+0.12f,
                         (float)(((double)Zx + Hy) + CenterZ));
                     Writer.U = 0.0f;
                     Writer.V = 1.0f;
-                    ShadowWriterEmit(&Writer, (float)((double)Left - Zy), Radius,
+                    ShadowWriterEmit(&Writer, (float)((double)Left - Zy), Radius+0.12f,
                         (float)(((double)Hy + CenterZ) - Zx));
                     const double Back = (double)CenterZ - Hy;
                     const float BackStored = (float)Back;
                     Writer.U = 1.0f;
                     Writer.V = 1.0f;
-                    ShadowWriterEmit(&Writer, (float)(((double)Hx + CenterX) - Zy), Radius,
+                    ShadowWriterEmit(&Writer, (float)(((double)Hx + CenterX) - Zy), Radius+0.12f,
                         (float)(Back - Zx));
                     Writer.U = 1.0f;
                     Writer.V = 0.0f;
-                    ShadowWriterEmit(&Writer, (float)(((double)Zy + Hx) + CenterX), Radius,
+                    ShadowWriterEmit(&Writer, (float)(((double)Zy + Hx) + CenterX), Radius+0.12f,
                         (float)((double)BackStored + Zx));
                 }
                 Interfaces.Manager->UnlockVertexMemory(&LockOut);

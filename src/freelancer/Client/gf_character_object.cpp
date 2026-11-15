@@ -5,8 +5,10 @@
 // Author: Giperion.
 
 #include "gf_character_object.h"
+#include "graphics_settings.h"
 #ifdef FREELANCER_RPG_WORLD
 #include "rpg_dialog_protocol.h"
+#include "personal_story_offer.h"
 #endif
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
@@ -437,6 +439,10 @@ void FCharacterObject::Load(FCharacterDesc const& Desc)
     // (+0x1c == 1) shares the one body.
     RefreshLoadingProgress();
     Props = Desc.Props;
+    if (Props.CharType == 1 && (Props.SessionId == 0 || Props.SessionId == GetPlayerConnectionId())) {
+        Costume UnusedComm = Props.Cost;
+        PlayerCostume_ApplyOverride(Props.Cost, UnusedComm);
+    }
     Placement = Desc.Placement;
     PlacementIndex = Desc.PlacementIndex;
     bSharedDeform = (Props.CharType == 1) ? 1 : 0;
@@ -809,6 +815,15 @@ void FCharacterObject::PickLods(ICamera* Camera)
         LodIds[Written] = -1;
 }
 
+void FCharacterObject::DrawShadowGeometry(ICamera* Camera)
+{
+    if(!Camera || !DALib::Deform || !Lod.Instance || Lod.Instance==kNoInstance) return;
+    PickLods(Camera);
+    DALib::Deform->SetLod(Lod.Instance,0.f,LodIds);
+    int DrawnLod=0;
+    DALib::Deform->Draw(Lod.Instance,Camera,LodIds,nullptr,&DrawnLod,0);
+}
+
 void FCharacterObject::DrawOpaque(ICamera* Camera)
 {
     // LAB_00445150. 0x00445156..0x00445188: OBJECTS and CHARACTERS on, LIKE_PETAL off.
@@ -1032,7 +1047,7 @@ void FCharacterObject::Slot10(unsigned long /*Cookie*/, int const* /*Point*/)
                     Cursor = "talk_bribe";
                 else if (Kind == 2)
                     Cursor = "talk_rumor";
-                else if (Kind == 3)
+                else if (Kind == 3 || Kind == PersonalStoryOfferType)
                     Cursor = "talk_mission";
                 else if (Kind == 4)
                     Cursor = "talk_info";

@@ -48,6 +48,16 @@ static void* HeaderBlockFromWatched(Watchable const* Watched)
 // use the authored front approach for this one entrance (NPCs and autopilot).
 // No per-object fields or ABI changes. Missing/collapsed hardpoints retain the
 // original omnidirectional path instead of feeding undefined transforms to AI.
+static float DockingRequestRange(DockBehavior const& Dock)
+{
+    auto const* Obj = ObjRwFromWatchable(const_cast<Watchable*>(Dock.Watcher324.target()));
+    auto const* Body = Obj ? Obj->cobject() : nullptr;
+    auto const* Arch = Body ? Body->get_archetype() : nullptr;
+    if (Arch && Arch->get_class_type() == Archetype::AClassSolar)
+        return static_cast<Archetype::Solar const*>(Arch)->GetDockingRequestRange();
+    return 1000.0f;
+}
+
 static bool FrontJumpHoleApproach(DockBehavior const& Dock)
 {
     if ((Dock.StateFlags32c & 0x800) == 0)
@@ -757,6 +767,11 @@ int DockBehavior::CheckClearanceProgress()
     if (Candidate == nullptr)
         return 2;
 
+    // Station cores use the same base/dock_with relation as planets. Evaluate
+    // the actual port, so F3 is enabled and its health/speed checks remain intact.
+    if (IObjRW* Dock = static_cast<SystemManager*>(Field24)->Timers.FindObjectDockingAtBase(Candidate))
+        Candidate = Dock;
+
     unsigned int Type = 0;   // retail leaves [ESP+0x10] unset; get_type always writes it
     Candidate->get_type(Type);                                       // +0x88 (062c3638)
     if ((Type & 0x600de0) != 0)                                      // 062c3642
@@ -823,7 +838,7 @@ void DockBehavior::SubmitGotoDirective(Vector const& ReferencePoint)
 
     // A zero direction: send the pilot a goto directive instead.
     pub::AI::DirectiveGotoOp Op;                                     // 062c558b
-    Op.Field_50 = 1000.0f;                       // 062c5590 .data:DAT_063ebdb4 (0x447a0000)
+    Op.Field_50 = DockingRequestRange(*this);
     Op.Field_58 = 1;                                                 // 062c55a1
     // 062c5599-062c55c2: the ProxWatcher450 object (target - 8) -> get_id, else 0.
     void* const ProxObj = HeaderBlockFromWatched(ProxWatcher450.Watcher.target());
@@ -958,7 +973,7 @@ void DockBehavior::EnterState(int NewState)
 
         pub::AI::DirectiveGotoOp Op;
         // 062c3dad: .data:DAT_063ebdb4 == 0x447a0000 == 1000.0f.
-        Op.Field_50 = 1000.0f;
+        Op.Field_50 = DockingRequestRange(*this);
         Op.Field_58 = 1;                              // 062c3dc3, BL
 
         // 062c3dbf-062c3de8: the ProxWatcher450 handle, "-8 header", slot 0x20.
@@ -1790,7 +1805,7 @@ bool DockBehavior::CheckCanProceed()
 
     // The range test (LAB_062c4569 and 062c4710-062c4746).
     IObjRW* const Watched = ObjRwFromWatchable(const_cast<Watchable*>(Watcher324.target()));
-    float const Range = static_cast<float>(1000.0 * 1.05);           // FLD f DAT_063ebdb4, FMUL double
+    float const Range = static_cast<float>(DockingRequestRange(*this) * 1.05);
     return IsWithinInterceptRangeOfIface(&Sys->SelfTarget, Watched, Range);
 }
 

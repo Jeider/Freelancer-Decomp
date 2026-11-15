@@ -82,4 +82,12 @@ namespace PreferenceIds
     constexpr int ColorGradeCool = 238403;
     constexpr int ColorGradeHint = 238404;
     constexpr int NeuralEnabled = 238405;
+    constexpr int GraphicsImageTab = 238406;
+    constexpr int GraphicsDisplayTab = 238407;
+    constexpr int GraphicsWeaponLights = 238408;
+    constexpr int GraphicsAnomalies = 238409;
+    constexpr int GraphicsInteriors = 238410;
+    constexpr int GraphicsStandard = 238411;
+    constexpr int GraphicsAdditional = 238412;
+    constexpr int GraphicsAllOff = 238413;
 }

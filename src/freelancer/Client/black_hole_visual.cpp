@@ -6,6 +6,7 @@
 #include "common_cobject.h"
 #include "gf_thorn_psys.h"
 #include "space_camera.h"
+#include "common_visible_draw.h"
 #include "game_options.h"
 #include "port_config.h"
 #include "render_ex.h"
@@ -46,6 +47,13 @@ namespace
     bool G_RingTried = false;
     IRPSceneCapture* G_Capture = nullptr;
     bool G_Failed = false;
+    unsigned G_DiagnosticMask = 0;
+    void LogUnavailable(unsigned Bit, char const* Reason)
+    {
+        if (G_DiagnosticMask & Bit) return;
+        G_DiagnosticMask |= Bit;
+        FDUMP(0x100002,"Black hole unavailable: %s.\n",Reason);
+    }
     int G_DebugMode = 0; // console "bh": bits that switch parts of the shader off
 
     unsigned StateId(FState const& State)
@@ -80,7 +88,9 @@ namespace
     }
     bool Eligible(FClientGameobj* Host)
     {
-        if (!Host || PortConfigInt("Render","black_hole_visual",1)==0 || Host->ManagerKind!=2) return false;
+        if (!Host || Host->ManagerKind!=2) return false;
+        if (PortConfigInt("Render","black_hole_visual",1)==0)
+        { LogUnavailable(1,"disabled by black_hole_visual setting"); return false; }
         CObject const* Obj = Host->cobject();
         if (!Obj || !Obj->Archetype) return false;
         unsigned const Id = Obj->Archetype->get_id();
@@ -103,7 +113,9 @@ namespace
     // NeedDepth is false for base rooms, where the scene depth may not exist yet at spawn.
     bool Ready(bool NeedDepth = true)
     {
-        if (G_Failed || !RenderEx::IsAvailable()) return false;
+        if (G_Failed) return false;
+        if (!RenderEx::IsAvailable())
+        { LogUnavailable(2,"RenderEx pipeline is unavailable"); return false; }
         auto* Ex = RenderEx::GetPipelineEx();
         if (NeedDepth)
         {
@@ -111,26 +123,39 @@ namespace
             unsigned long W = 0, H = 0;
             // Do not claim the original particles until all essential GPU facilities exist.
             if (Ex->GetSceneDepth(&Depth) != GR_OK || !Depth ||
-                Ex->GetExTextureSize(Depth, &W, &H) != GR_OK || !W || !H) return false;
+                Ex->GetExTextureSize(Depth, &W, &H) != GR_OK || !W || !H)
+            { LogUnavailable(4,"sampleable scene depth is missing or has zero size"); return false; }
         }
         if (G_Program && G_Noise && G_Copy && G_Capture) return true;
         FRPExRenderTargetDesc Desc = {0,0,1.0f,RPExFormatA8R8G8B8};
-        bool Ok = DALib::Pipeline->QueryInterface(Iids::RPSceneCapture,
-            reinterpret_cast<void**>(&G_Capture)) == GR_OK && G_Capture;
-        if (Ok) Ok = Ex->CreateExProgram(RenderEx::GetExtraData(), "SHADERS\\black_hole.hlsl",
-                                         "VSMain", "PSMain", &G_Program) == GR_OK;
+        char const* Stage = "scene capture interface";
+        GENRESULT Hr = DALib::Pipeline->QueryInterface(Iids::RPSceneCapture,
+            reinterpret_cast<void**>(&G_Capture));
+        bool Ok = Hr == GR_OK && G_Capture;
+        if (Ok) {
+            Stage = "black_hole VSMain/PSMain compile or GPU creation";
+            Hr = Ex->CreateExProgram(RenderEx::GetExtraData(), "SHADERS\\black_hole.hlsl",
+                                         "VSMain", "PSMain", &G_Program);
+            Ok = Hr == GR_OK;
+        }
         if (Ok)
         {
             std::vector<std::uint32_t> Noise(TradeLaneNoiseSize*TradeLaneNoiseSize*TradeLaneNoiseSize);
             BuildTradeLaneNoise(Noise.data());
-            Ok = Ex->CreateExVolumeTexture(TradeLaneNoiseSize,TradeLaneNoiseSize,TradeLaneNoiseSize,
-                                           RPExFormatA8R8G8B8,Noise.data(),&G_Noise) == GR_OK;
+            Stage = "3D noise texture";
+            Hr = Ex->CreateExVolumeTexture(TradeLaneNoiseSize,TradeLaneNoiseSize,TradeLaneNoiseSize,
+                                           RPExFormatA8R8G8B8,Noise.data(),&G_Noise);
+            Ok = Hr == GR_OK;
         }
-        if (Ok) Ok = Ex->CreateExRenderTarget(&Desc,&G_Copy) == GR_OK;
+        if (Ok) {
+            Stage = "scene color render target";
+            Hr = Ex->CreateExRenderTarget(&Desc,&G_Copy);
+            Ok = Hr == GR_OK;
+        }
         if (!Ok)
         {
             ReleaseResources(); G_Failed = true;
-            FDUMP(0x100002,"Black hole renderer unavailable; retaining attached ALE effects.\n");
+            FDUMP(0x100002,"Black hole renderer failed at %s (hr=0x%08lx); retaining attached ALE effects.\n",Stage,(unsigned long)Hr);
         }
         return Ok;
     }
@@ -337,6 +362,7 @@ static void DrawHole(ICamera* Camera,FState& State)
     JumpHoleWorldToView(Camera->GetViewTransform(), Centre, ViewCentre);
     if (Camera->ClassifySphere(ViewCentre,Rb*Rh)==1) return;
     float const* Eye=Camera->GetPosition();
+    if (Eye && VisibleDraw::FullyHidden(Eye[0], Eye[1], Eye[2], Centre[0], Centre[1], Centre[2], Rb*Rh)) return;
     double DistanceSq=0;
     for(int I=0;I<3;++I) { double const D=double(Eye[I])-Centre[I]; DistanceSq+=D*D; }
     if (std::sqrt(DistanceSq)<1.05*Rh) return;
@@ -564,7 +590,9 @@ static void DrawHole(ICamera* Camera,FState& State)
 void BlackHoleVisualDraw(FSpaceCamera* Camera)
 {
 #ifdef FREELANCER_RP9
-    if(!Camera || !GetGameOption(kGameOptEffectsGroup)) return;
+    if(!Camera) return;
+    if(!GetGameOption(kGameOptEffectsGroup))
+    { LogUnavailable(8,"effects disabled in game options"); return; }
     std::vector<FState*> Ordered;
     for(auto& Pair:G_States) if(Pair.second.Claimed) Ordered.push_back(&Pair.second);
     if(Ordered.empty()) return;
@@ -643,6 +671,6 @@ void BlackHoleVisualSetDebug(int Mode)
 void BlackHoleVisualRenderShutdown()
 {
 #ifdef FREELANCER_RP9
-    ReleaseResources(); G_Failed=false; G_States.clear(); G_Thorn.clear();
+    ReleaseResources(); G_Failed=false; G_DiagnosticMask=0; G_States.clear(); G_Thorn.clear();
 #endif
 }

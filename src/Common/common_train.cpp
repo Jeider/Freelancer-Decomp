@@ -1,5 +1,6 @@
 #include "common_train.h"
 #include "train_joint_math.h"
+#include "train_contact_math.h"
 #include "common_physys_internal.h"
 #include "common_archetype.h"
 #include "common_csys.h"
@@ -19,6 +20,10 @@ namespace {
 using namespace TrainJoint;
 using namespace CmnPhySys;
 struct Train;
+std::map<IVP_Real_Object*,Train*>& noses() {
+    static auto* value=new std::map<IVP_Real_Object*,Train*>;
+    return *value;
+}
 void releaseSeparated();
 std::unordered_map<EngineObject const*,Train*>& registry() {
     static auto* value=new std::unordered_map<EngineObject const*,Train*>;
@@ -99,6 +104,35 @@ struct Train final:PhySys::Controller {
     std::vector<CObject*> objects;
     std::vector<Joint> joints;
     std::vector<Body> bodies;
+    std::vector<Contact> contacts;
+    IVP_Real_Object* nose=nullptr;
+    ~Train() override {
+        if(nose) {
+            nose->enable_collision_detection(false);
+            noses().erase(nose);
+            // No CObject ownership: deleting this shape must not remove the
+            // locomotive from MovingObjects or recursively dismantle the train.
+            delete nose;
+        }
+    }
+    void buildNose() {
+        if(objects.size()<2 || IsTrailer(objects[0]))return;
+        V front;
+        if(!anchor(objects[0],"HpMount",front))return;
+        // HpMount is the authored front tip. A 5 m sphere reaches that tip but
+        // occupies only the short nose section, never the rear coupling.
+        constexpr float radius=5;
+        front.z+=radius;
+        Body head=read(objects[0]);
+        IVP_RealObjectConstructionTemplate spec;
+        spec.set_short_name("trnose");spec.MassInput=.001f;
+        spec.Material=G_PhySysMaterial;
+        nose=PhySys_FindSystem(objects[0]->PhysicsSystemId).CreateBallBody(
+            game(head.position+head.originOffset+head.rotation.mul(front)),objects[0]->Orientation,radius,&spec);
+        noses()[nose]=this;
+        IVP_Merge_Object_Into_Core(objects[0]->BodyPtr,nose,-1);
+        nose->enable_collision_detection(true);
+    }
     bool initial=true;
     bool parked=false;
     std::map<CObject*,std::array<char,8>> collisionGroups;
@@ -349,7 +383,8 @@ struct Train final:PhySys::Controller {
             bodies[0].endPose=true;
             bodies[0].velocity={};bodies[0].omega={};
         }
-        solve(bodies.data(),joints.data(),(int)joints.size(),event->delta_time,!IsTrailer(objects[0]));
+        trainContacts(bodies.data(),(int)joints.size(),event->delta_time,!IsTrailer(objects[0]),contacts);
+        solve(bodies.data(),joints.data(),(int)joints.size(),event->delta_time,!IsTrailer(objects[0]),contacts.data(),(int)contacts.size());
         for(size_t i=0;i<objects.size();++i) {
             if(i==0 && objects[0]->GolemController)continue;
             velocity(objects[i],bodies[i].velocity,bodies[i].omega,true);
@@ -409,6 +444,7 @@ Train* create(std::vector<CObject*> const& objects,bool inherit,
     }
     for(CObject* o:objects)registry()[o]=t.get();
     t->coupleCollisions(true);
+    t->buildNose();
     if(IsTrailer(objects[0]))t->parking(true);
     else {
         for(size_t i=0;i+1<objects.size();++i)t->Cores.Add(objects[i]->BodyPtr->core);
@@ -457,6 +493,19 @@ void split(Train* t) {
     erase(t,false);create(a,false,&groups);
     if(auto* tail=create(b,false,&groups))tail->releaseHead=a[0];
 }
+}
+int NoseCollision(IVP_Real_Object* a,IVP_Real_Object* b) {
+    auto found=noses().find(a);
+    if(found==noses().end()) {found=noses().find(b);std::swap(a,b);}
+    if(found==noses().end())return -1;
+    if(a->core==b->core || noses().find(b)!=noses().end())return 0;
+    // Core identity also covers cargo welded onto a wagon. The normal hull
+    // already handles external ships/stations, so never duplicate those hits.
+    for(size_t i=1;i<found->second->objects.size();++i) {
+        auto* object=found->second->objects[i];
+        if(object->BodyPtr && object->BodyPtr->core==b->core)return 1;
+    }
+    return 0;
 }
 bool IsLocomotive(CObject const* o) {return ship(o) && _stricmp(model(o),"train_locomotive.cmp")==0;}
 bool IsTrailer(CObject const* o) {return ship(o) && trailerModel(model(o));}

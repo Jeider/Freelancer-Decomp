@@ -21,6 +21,7 @@ struct Entry {
     SolarAnimationCommand Command;
     float Duration = 0;
     ProximityDoor::State Door;
+    std::set<unsigned> RingUsers;
     bool Initialized = false, Invalid = false, Manual = false, Scripted = false;
     bool Finished() const { return Command.Reverse ? Command.Time <= 0 : Command.Time >= Duration; }
 };
@@ -80,6 +81,10 @@ void UpdateSolarAnimations(StarSystem& sys, float dt)
         live.insert(id);
         auto& e = manager.Objects[id];
         if (e.Object != obj) { e = Entry{}; e.Object = obj; }
+        for (auto user = e.RingUsers.begin(); user != e.RingUsers.end(); ) {
+            auto* ship = Server_LookupGameObject(*user);
+            if (!ship || ship->is_destroyed()) user = e.RingUsers.erase(user); else ++user;
+        }
         if (!e.Initialized) {
             e.Initialized = true;
             if (automatic) {
@@ -160,3 +165,5 @@ void SendSolarAnimations(StarSystem& sys, unsigned player)
     }
 }
 void ForgetSolarAnimations(StarSystem& sys) { Managers.erase(&sys); }
+
+#include "server_tradelane_physics.inl"

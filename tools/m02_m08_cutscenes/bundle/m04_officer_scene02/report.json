@@ -1,0 +1,54 @@
+{
+  "name": "m04_officer_scene02",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_officer_scene02.thn",
+  "sha256": "871597affaa9590af4344902e6eeed299c3827c622cf0eee98b76dac67eff265",
+  "uses": [
+    {
+      "mission": 4,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "mission_line": 355,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "line": 355,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m04_officer_scene02.thn"
+    }
+  ],
+  "source_duration": 1500.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_intro1": "scene_intro1",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_path": "automarker_cam_path",
+    "main_object": "automarker_cam_focus"
+  },
+  "point_names": {
+    "scene_intro1": "scene_intro1",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_path": "cam_path",
+    "main_object": "cam_focus"
+  }
+}

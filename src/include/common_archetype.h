@@ -742,6 +742,7 @@ namespace Archetype
         // Port metadata stored outside the retail object layout.
         bool GetRadarWireframe() const;
         void SetRadarWireframe(bool Enabled);
+        float GetDockingRequestRange() const;
         float SolarRadius;        // +0x98 default 500
         int Toughness;            // +0x9C
         CacheString OpenAnim;     // +0xA0

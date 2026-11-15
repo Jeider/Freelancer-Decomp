@@ -1035,6 +1035,18 @@ bool InitSpaceState(SpaceApp* State, int Param)
 
 int UpdateSpaceState(SpaceApp* State, float DeltaSeconds)
 {
+    if (!ShouldSkipLocalServerTick() && UpdatePlayerShipTransfer()) {
+        PlayerAutoTurrets::Reset();
+        State->bDockingPending = State->bDockingActive = 0;
+        // There is no BaseExit to undo the docking camera's input/letterbox
+        // state on this path. Restore it explicitly for success and cancel.
+        SetLetterboxTarget(0.0f, 3.0f);
+        SetClientMouseCursorDrawFlag(1);
+        InitPlayerCockpitSlice(false);
+        InstallSpaceCamera(nullptr, false);
+        ResetCameraShakeAmount();
+        SwitchSpaceCameraMode("player", nullptr);
+    }
     FlightTelemetry::BeginFrame(DeltaSeconds, ShouldSkipLocalServerTick());
     PlayerActionCounters::BeginFrame(DeltaSeconds, ShouldSkipLocalServerTick());
     PlayerAutoTurrets::Reconcile();

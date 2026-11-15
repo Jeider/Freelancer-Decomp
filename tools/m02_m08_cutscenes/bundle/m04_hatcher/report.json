@@ -1,0 +1,1368 @@
+{
+  "name": "m04_hatcher",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_hatcher.thn",
+  "sha256": "a4fb5c58a12bb65407ff1a55442172476bc21330486a9d0f349dfe0c58c2284c",
+  "uses": [
+    {
+      "mission": 4,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "mission_line": 1458,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m04\\hatcher_bar_rtc.ini",
+      "line": 4,
+      "role": "action",
+      "thn": "scripts\\mod\\m04_hatcher.thn"
+    }
+  ],
+  "source_duration": 100.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 8,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 9,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 10,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 8,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 8,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 8,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 18,
+      "time": 9.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 13,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 10,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 15,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 22,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 6.91,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 24,
+      "time": 9.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 25,
+      "time": 9.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 26,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 27,
+      "time": 6.91,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 28,
+      "time": 10,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 17,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 30,
+      "time": 16,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 31,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 16,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 33,
+      "time": 22,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 35,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 36,
+      "time": 14,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 37,
+      "time": 14,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 38,
+      "time": 22,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 39,
+      "time": 22,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 40,
+      "time": 22,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 41,
+      "time": 22,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 42,
+      "time": 22,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 43,
+      "time": 25.25,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 44,
+      "time": 26.25,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 45,
+      "time": 22,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 46,
+      "time": 25.25,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 47,
+      "time": 26.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 48,
+      "time": 22,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 49,
+      "time": 22,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 50,
+      "time": 22,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 51,
+      "time": 22,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 52,
+      "time": 24.5,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 53,
+      "time": 24.5,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 54,
+      "time": 26.5,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 55,
+      "time": 26.5,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 56,
+      "time": 23,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 57,
+      "time": 23,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 58,
+      "time": 24,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 59,
+      "time": 24,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 60,
+      "time": 30,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 61,
+      "time": 30,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 62,
+      "time": 24,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 63,
+      "time": 24,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 64,
+      "time": 25,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 65,
+      "time": 24.8,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 66,
+      "time": 27.8,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 67,
+      "time": 27.8,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 68,
+      "time": 31,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 69,
+      "time": 31,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 70,
+      "time": 26.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 71,
+      "time": 26.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 72,
+      "time": 26.7,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 73,
+      "time": 26.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 74,
+      "time": 28,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 75,
+      "time": 28,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 76,
+      "time": 29.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 77,
+      "time": 32,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 78,
+      "time": 32,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 79,
+      "time": 32,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 80,
+      "time": 32,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 81,
+      "time": 32,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 82,
+      "time": 32,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 83,
+      "time": 35.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 84,
+      "time": 35.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 85,
+      "time": 40,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 86,
+      "time": 40,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 87,
+      "time": 44,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 88,
+      "time": 45.8,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 89,
+      "time": 36,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 90,
+      "time": 35.8,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 91,
+      "time": 36.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 92,
+      "time": 39,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 93,
+      "time": 38.8,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 94,
+      "time": 40.4,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 95,
+      "time": 44,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 96,
+      "time": 44,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 97,
+      "time": 47.2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 98,
+      "time": 48.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 99,
+      "time": 48.6,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 100,
+      "time": 48.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 101,
+      "time": 52.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 102,
+      "time": 59.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 103,
+      "time": 60,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 104,
+      "time": 60,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 105,
+      "time": 63,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 106,
+      "time": 63,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 107,
+      "time": 50.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 108,
+      "time": 50.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 109,
+      "time": 51,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 110,
+      "time": 51,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 111,
+      "time": 53,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 112,
+      "time": 56.6,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 113,
+      "time": 60,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 114,
+      "time": 65,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 115,
+      "time": 65,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 116,
+      "time": 67.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 117,
+      "time": 67.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 118,
+      "time": 65,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 119,
+      "time": 65,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 120,
+      "time": 65,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 121,
+      "time": 67,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 122,
+      "time": 67,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 123,
+      "time": 67,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 124,
+      "time": 70,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 125,
+      "time": 73,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 126,
+      "time": 73,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 127,
+      "time": 73,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 128,
+      "time": 74,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 129,
+      "time": 74,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 130,
+      "time": 74,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 131,
+      "time": 74,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 132,
+      "time": 76.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 133,
+      "time": 80,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 134,
+      "time": 80,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 135,
+      "time": 80,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 136,
+      "time": 83,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 137,
+      "time": 86,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 138,
+      "time": 88.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 139,
+      "time": 88.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 140,
+      "time": 88.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 141,
+      "time": 88.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 142,
+      "time": 88.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 143,
+      "time": 91,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 144,
+      "time": 91.25,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 145,
+      "time": 91.25,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 146,
+      "time": 93,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 147,
+      "time": 93,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 148,
+      "time": 91,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 149,
+      "time": 95.001,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 150,
+      "time": 95.001,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 151,
+      "time": 95,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 152,
+      "time": 94,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 153,
+      "time": 94,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 154,
+      "time": 95,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 155,
+      "time": 95,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 156,
+      "time": 97,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 157,
+      "time": 95.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 64,
+      "start": 25,
+      "index": 10,
+      "actor": "hatcher",
+      "sound": "DX_m04_reward_0010_hatcher",
+      "prefix": "m04_reward",
+      "character": "Char_hatcher",
+      "script_actor": "Hatcher",
+      "source_actor_class": "Hatcher",
+      "window": 2.8000000000000007,
+      "lip_events": [
+        65
+      ],
+      "source_gap": -1.1
+    },
+    {
+      "id": 72,
+      "start": 26.7,
+      "index": 20,
+      "actor": "trent",
+      "sound": "DX_m04_reward_0020_trent",
+      "prefix": "m04_reward",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 5.800000000000001,
+      "lip_events": [
+        73
+      ],
+      "source_gap": -4.5
+    },
+    {
+      "id": 74,
+      "start": 28,
+      "index": 30,
+      "actor": "alaric",
+      "sound": "DX_m04_reward_0030_alaric",
+      "prefix": "m04_reward",
+      "character": "Char_alaric",
+      "script_actor": "Alaric",
+      "source_actor_class": "Alaric",
+      "window": 7.5,
+      "lip_events": [
+        75,
+        76
+      ],
+      "source_gap": -3.5
+    },
+    {
+      "id": 81,
+      "start": 32,
+      "index": 40,
+      "actor": "hatcher",
+      "sound": "DX_m04_reward_0040_hatcher",
+      "prefix": "m04_reward",
+      "character": "Char_hatcher",
+      "script_actor": "Hatcher",
+      "source_actor_class": "Hatcher",
+      "window": 6,
+      "lip_events": [
+        82
+      ],
+      "source_gap": -2
+    },
+    {
+      "id": 89,
+      "start": 36,
+      "index": 45,
+      "actor": "hatcher",
+      "sound": "DX_m04_reward_0045_hatcher",
+      "prefix": "m04_reward",
+      "character": "Char_hatcher",
+      "script_actor": "Hatcher",
+      "source_actor_class": "Hatcher",
+      "window": 6.5,
+      "lip_events": [
+        90,
+        91
+      ],
+      "source_gap": -3.5
+    },
+    {
+      "id": 92,
+      "start": 39,
+      "index": 50,
+      "actor": "hatcher",
+      "sound": "DX_m04_reward_0050_hatcher",
+      "prefix": "m04_reward",
+      "character": "Char_hatcher",
+      "script_actor": "Hatcher",
+      "source_actor_class": "Hatcher",
+      "window": 6.399999999999999,
+      "lip_events": [
+        93,
+        94
+      ],
+      "source_gap": -1.4
+    },
+    {
+      "id": 95,
+      "start": 44,
+      "index": 55,
+      "actor": "hatcher",
+      "sound": "DX_m04_reward_0055_hatcher",
+      "prefix": "m04_reward",
+      "character": "Char_hatcher",
+      "script_actor": "Hatcher",
+      "source_actor_class": "Hatcher",
+      "window": 3.1000000000000014,
+      "lip_events": [
+        96
+      ],
+      "source_gap": 1.5
+    },
+    {
+      "id": 99,
+      "start": 48.6,
+      "index": 60,
+      "actor": "trent",
+      "sound": "DX_m04_reward_0060_trent",
+      "prefix": "m04_reward",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 5.899999999999999,
+      "lip_events": [
+        100
+      ],
+      "source_gap": -3.5
+    },
+    {
+      "id": 109,
+      "start": 51,
+      "index": 70,
+      "actor": "hatcher",
+      "sound": "DX_m04_reward_0070_hatcher",
+      "prefix": "m04_reward",
+      "character": "Char_hatcher",
+      "script_actor": "Hatcher",
+      "source_actor_class": "Hatcher",
+      "window": 12.600000000000001,
+      "lip_events": [
+        110,
+        111,
+        112,
+        113
+      ],
+      "source_gap": 1.4
+    },
+    {
+      "id": 119,
+      "start": 65,
+      "index": 80,
+      "actor": "alaric",
+      "sound": "DX_m04_reward_0080_alaric",
+      "prefix": "m04_reward",
+      "character": "Char_alaric",
+      "script_actor": "Alaric",
+      "source_actor_class": "Alaric",
+      "window": 6,
+      "lip_events": [
+        120
+      ],
+      "source_gap": -4
+    },
+    {
+      "id": 122,
+      "start": 67,
+      "index": 90,
+      "actor": "trent",
+      "sound": "DX_m04_reward_0090_trent",
+      "prefix": "m04_reward",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 10,
+      "lip_events": [
+        123,
+        124,
+        125
+      ],
+      "source_gap": -3
+    },
+    {
+      "id": 130,
+      "start": 74,
+      "index": 100,
+      "actor": "hatcher",
+      "sound": "DX_m04_reward_0100_hatcher",
+      "prefix": "m04_reward",
+      "character": "Char_hatcher",
+      "script_actor": "Hatcher",
+      "source_actor_class": "Hatcher",
+      "window": 8.5,
+      "lip_events": [
+        131,
+        132
+      ],
+      "source_gap": -2.5
+    },
+    {
+      "id": 134,
+      "start": 80,
+      "index": 110,
+      "actor": "trent",
+      "sound": "DX_m04_reward_0110_trent",
+      "prefix": "m04_reward",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 10,
+      "lip_events": [
+        135,
+        136,
+        137
+      ],
+      "source_gap": -1.5
+    },
+    {
+      "id": 141,
+      "start": 88.5,
+      "index": 120,
+      "actor": "hatcher",
+      "sound": "DX_m04_reward_0120_hatcher",
+      "prefix": "m04_reward",
+      "character": "Char_hatcher",
+      "script_actor": "Hatcher",
+      "source_actor_class": "Hatcher",
+      "window": 6.0,
+      "lip_events": [
+        142
+      ],
+      "source_gap": -3.25
+    },
+    {
+      "id": 144,
+      "start": 91.25,
+      "index": 130,
+      "actor": "trent",
+      "sound": "DX_m04_reward_0130_trent",
+      "prefix": "m04_reward",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 1.75,
+      "lip_events": [
+        145
+      ],
+      "source_gap": 7.0
+    }
+  ],
+  "notes": [
+    "Unvoiced facial event 25 retained with generic facial animation, source duration 6"
+  ],
+  "clock": "relative",
+  "entity_names": {
+    "Scene_M04_hatcher_meeting_scene": "Scene_M04_hatcher_meeting_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "ambi_LtG00_Bar_Ovrhd01A": "ambi_LtG00_Bar_Ovrhd01A",
+    "ambi_LtG00_Bar_Ovrhd01B": "ambi_LtG00_Bar_Ovrhd01B",
+    "DX_m04_reward_0010_hatcher": "DX_m04_reward_0010_hatcher",
+    "DX_m04_reward_0020_trent": "DX_m04_reward_0020_trent",
+    "DX_m04_reward_0030_alaric": "DX_m04_reward_0030_alaric",
+    "DX_m04_reward_0040_hatcher": "DX_m04_reward_0040_hatcher",
+    "DX_m04_reward_0045_hatcher": "DX_m04_reward_0045_hatcher",
+    "DX_m04_reward_0050_hatcher": "DX_m04_reward_0050_hatcher",
+    "DX_m04_reward_0055_hatcher": "DX_m04_reward_0055_hatcher",
+    "DX_m04_reward_0060_trent": "DX_m04_reward_0060_trent",
+    "DX_m04_reward_0070_hatcher": "DX_m04_reward_0070_hatcher",
+    "DX_m04_reward_0080_alaric": "DX_m04_reward_0080_alaric",
+    "DX_m04_reward_0090_trent": "DX_m04_reward_0090_trent",
+    "DX_m04_reward_0100_hatcher": "DX_m04_reward_0100_hatcher",
+    "DX_m04_reward_0110_trent": "DX_m04_reward_0110_trent",
+    "DX_m04_reward_0120_hatcher": "DX_m04_reward_0120_hatcher",
+    "DX_m04_reward_0130_trent": "DX_m04_reward_0130_trent",
+    "Char_bartender_Fixture": "Char_bartender_fixture",
+    "Char_hatcher": "Char_hatcher",
+    "Char_trent": "Char_trent",
+    "Char_alaric": "Char_alaric",
+    "hatcher_head_ik": "automarker_hatcher_head_ik",
+    "hatcher_eye_ik": "automarker_hatcher_eye_ik",
+    "trent_head_ik": "automarker_trent_head_ik",
+    "trent_eye_ik": "automarker_trent_eye_ik",
+    "alaric_head_ik": "automarker_alaric_head_ik",
+    "alaric_eye_ik": "automarker_alaric_eye_ik",
+    "point_trent_wayforward": "automarker_point_trent_wayforward",
+    "point_alaric_wayforward": "automarker_point_alaric_wayforward",
+    "marker_bar_exitpoint": "automarker_marker_bar_exitpoint",
+    "marker_hatcher_sitpoint": "automarker_marker_hatcher_sitpoint",
+    "head_trent_front_exitpoint": "automarker_head_trent_front_exitpoint",
+    "head_alaric_front_exitpoint": "automarker_head_alaric_front_exitpoint",
+    "head_hatcher_table_front": "automarker_head_hatcher_table_front",
+    "head_hatcher": "automarker_head_hatcher",
+    "head_hatcher_front": "automarker_head_hatcher_front",
+    "head_trent": "automarker_head_trent",
+    "head_trent_near": "automarker_head_trent_near",
+    "head_alaric": "automarker_head_alaric",
+    "head_alaric_near": "automarker_head_alaric_near",
+    "wlkg_trent": "automarker_wlkg_trent",
+    "wlkg_alaric": "automarker_wlkg_alaric",
+    "wlkg_alaric_front_near": "automarker_wlkg_alaric_front_near",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "automarker_cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "automarker_cam_start_pos2",
+    "cam_start_marker": "automarker_cam_start_focus",
+    "cam_start_marker_pos2": "automarker_cam_start_marker_pos2",
+    "cam_hatcher_firstlook": "cam_hatcher_firstlook",
+    "cam_hatcher_firstlook_pos2": "automarker_cam_hatcher_firstlook_pos2",
+    "cam_hatcher_firstlook_marker": "automarker_cam_hatcher_firstlook_focus",
+    "cam_hatcher_people_arrive": "cam_hatcher_people_arrive",
+    "cam_hatcher_people_arrive_pos2": "automarker_cam_hatcher_people_arrive_pos2",
+    "cam_hatcher_people_arrive_marker": "automarker_cam_hatcher_people_arrive_focus",
+    "cam_hatcher_near": "cam_hatcher_near",
+    "cam_hatcher_near_marker": "automarker_cam_hatcher_near_focus",
+    "cam_trent_near": "cam_trent_near",
+    "cam_trent_near_marker": "automarker_cam_trent_near_focus",
+    "cam_alaric": "cam_alaric",
+    "cam_alaric_marker": "automarker_cam_alaric_focus",
+    "cam_alaric_marker_pos2": "automarker_cam_alaric_marker_pos2",
+    "cam_alaric_near": "cam_alaric_near",
+    "cam_alaric_near_marker": "automarker_cam_alaric_near_focus",
+    "cam_alaric_near_marker_pos2": "automarker_cam_alaric_near_marker_pos2",
+    "cam_hatcher_final": "cam_hatcher_final",
+    "cam_hatcher_final_marker": "automarker_cam_hatcher_final_focus"
+  },
+  "point_names": {
+    "Scene_M04_hatcher_meeting_scene": "Scene_M04_hatcher_meeting_scene",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "ambi_LtG00_Bar_Ovrhd01A": "ambi_LtG00_Bar_Ovrhd01A",
+    "ambi_LtG00_Bar_Ovrhd01B": "ambi_LtG00_Bar_Ovrhd01B",
+    "DX_m04_reward_0010_hatcher": "DX_m04_reward_0010_hatcher",
+    "DX_m04_reward_0020_trent": "DX_m04_reward_0020_trent",
+    "DX_m04_reward_0030_alaric": "DX_m04_reward_0030_alaric",
+    "DX_m04_reward_0040_hatcher": "DX_m04_reward_0040_hatcher",
+    "DX_m04_reward_0045_hatcher": "DX_m04_reward_0045_hatcher",
+    "DX_m04_reward_0050_hatcher": "DX_m04_reward_0050_hatcher",
+    "DX_m04_reward_0055_hatcher": "DX_m04_reward_0055_hatcher",
+    "DX_m04_reward_0060_trent": "DX_m04_reward_0060_trent",
+    "DX_m04_reward_0070_hatcher": "DX_m04_reward_0070_hatcher",
+    "DX_m04_reward_0080_alaric": "DX_m04_reward_0080_alaric",
+    "DX_m04_reward_0090_trent": "DX_m04_reward_0090_trent",
+    "DX_m04_reward_0100_hatcher": "DX_m04_reward_0100_hatcher",
+    "DX_m04_reward_0110_trent": "DX_m04_reward_0110_trent",
+    "DX_m04_reward_0120_hatcher": "DX_m04_reward_0120_hatcher",
+    "DX_m04_reward_0130_trent": "DX_m04_reward_0130_trent",
+    "Char_bartender_Fixture": "Char_bartender_fixture",
+    "Char_hatcher": "Char_hatcher",
+    "Char_trent": "Char_trent",
+    "Char_alaric": "Char_alaric",
+    "hatcher_head_ik": "hatcher_head_ik",
+    "hatcher_eye_ik": "hatcher_eye_ik",
+    "trent_head_ik": "trent_head_ik",
+    "trent_eye_ik": "trent_eye_ik",
+    "alaric_head_ik": "alaric_head_ik",
+    "alaric_eye_ik": "alaric_eye_ik",
+    "point_trent_wayforward": "point_trent_wayforward",
+    "point_alaric_wayforward": "point_alaric_wayforward",
+    "marker_bar_exitpoint": "marker_bar_exitpoint",
+    "marker_hatcher_sitpoint": "marker_hatcher_sitpoint",
+    "head_trent_front_exitpoint": "head_trent_front_exitpoint",
+    "head_alaric_front_exitpoint": "head_alaric_front_exitpoint",
+    "head_hatcher_table_front": "head_hatcher_table_front",
+    "head_hatcher": "head_hatcher",
+    "head_hatcher_front": "head_hatcher_front",
+    "head_trent": "head_trent",
+    "head_trent_near": "head_trent_near",
+    "head_alaric": "head_alaric",
+    "head_alaric_near": "head_alaric_near",
+    "wlkg_trent": "wlkg_trent",
+    "wlkg_alaric": "wlkg_alaric",
+    "wlkg_alaric_front_near": "wlkg_alaric_front_near",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "cam_start_pos2",
+    "cam_start_marker": "cam_start_focus",
+    "cam_start_marker_pos2": "cam_start_marker_pos2",
+    "cam_hatcher_firstlook": "cam_hatcher_firstlook",
+    "cam_hatcher_firstlook_pos2": "cam_hatcher_firstlook_pos2",
+    "cam_hatcher_firstlook_marker": "cam_hatcher_firstlook_focus",
+    "cam_hatcher_people_arrive": "cam_hatcher_people_arrive",
+    "cam_hatcher_people_arrive_pos2": "cam_hatcher_people_arrive_pos2",
+    "cam_hatcher_people_arrive_marker": "cam_hatcher_people_arrive_focus",
+    "cam_hatcher_near": "cam_hatcher_near",
+    "cam_hatcher_near_marker": "cam_hatcher_near_focus",
+    "cam_trent_near": "cam_trent_near",
+    "cam_trent_near_marker": "cam_trent_near_focus",
+    "cam_alaric": "cam_alaric",
+    "cam_alaric_marker": "cam_alaric_focus",
+    "cam_alaric_marker_pos2": "cam_alaric_marker_pos2",
+    "cam_alaric_near": "cam_alaric_near",
+    "cam_alaric_near_marker": "cam_alaric_near_focus",
+    "cam_alaric_near_marker_pos2": "cam_alaric_near_marker_pos2",
+    "cam_hatcher_final": "cam_hatcher_final",
+    "cam_hatcher_final_marker": "cam_hatcher_final_focus"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "m08_core_camera_06",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_06.thn",
+  "sha256": "9c96ea8b2e01404b3fab7bba674fa02b998f2661621841684d1d0f909723efab",
+  "uses": [
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 1061,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 1061,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_core_camera_06.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 1099,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 1099,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_core_camera_06.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 1154,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 1154,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_core_camera_06.thn"
+    }
+  ],
+  "source_duration": 30.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_core_cam2": "scene_core_cam2",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_marker": "automarker_cam_focus",
+    "main_object": "automarker_main_object"
+  },
+  "point_names": {
+    "scene_core_cam2": "scene_core_cam2",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_marker": "cam_focus",
+    "main_object": "main_object"
+  }
+}

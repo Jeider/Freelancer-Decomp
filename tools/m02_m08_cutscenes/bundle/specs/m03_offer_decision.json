@@ -1,0 +1,374 @@
+{
+  "name": "m03_offer_decision",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_offer_decision.thn",
+  "points": {
+    "Char_trent": {
+      "pos": [
+        -2.619713,
+        0,
+        -4.7
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Char_hassler": {
+      "pos": [
+        -3.119713,
+        0,
+        -5.68459
+      ],
+      "orient": [
+        [
+          -0.834228,
+          0,
+          0.55142
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.55142,
+          0,
+          -0.834228
+        ]
+      ]
+    },
+    "Char_wilham": {
+      "pos": [
+        -2.24972,
+        0,
+        -5.726345
+      ],
+      "orient": [
+        [
+          -0.707695,
+          0,
+          -0.706518
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.706518,
+          0,
+          -0.707695
+        ]
+      ]
+    },
+    "cam_decision": {
+      "pos": [
+        -4.2,
+        2.5,
+        -2
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_decision_focus": {
+      "pos": [
+        -3.1,
+        1.6,
+        -4.75
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "cam_decision"
+  ],
+  "characters": [
+    "Char_trent",
+    "Char_hassler",
+    "Char_wilham"
+  ],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "Scene_M03_bar_scene_decision",
+      "type": "SCENE",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "entity_name": "Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0
+    },
+    {
+      "entity_name": "Char_trent",
+      "type": "DEFORMABLE",
+      "template_name": "trent",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          -2.619713,
+          0,
+          -4.7
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "actor": "Player",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_hassler",
+      "type": "DEFORMABLE",
+      "template_name": "hassler",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          -3.119713,
+          0,
+          -5.68459
+        ],
+        "orient": [
+          [
+            -0.834228,
+            0,
+            0.55142
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.55142,
+            0,
+            -0.834228
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "category": "Character",
+        "actor": "hassler"
+      }
+    },
+    {
+      "entity_name": "Char_wilham",
+      "type": "DEFORMABLE",
+      "template_name": "wilham",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          -2.24972,
+          0,
+          -5.726345
+        ],
+        "orient": [
+          [
+            -0.707695,
+            0,
+            -0.706518
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.706518,
+            0,
+            -0.707695
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "category": "Character",
+        "actor": "wilham"
+      }
+    },
+    {
+      "entity_name": "cam_decision",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          -4.2,
+          2.5,
+          -2
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 35,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_decision_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          -3.1,
+          1.6,
+          -4.75
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "duration": 1000.0
+}

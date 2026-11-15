@@ -1,0 +1,407 @@
+{
+  "source": "D:\\Games\\FL_MOD\\DATA\\SCRIPTS\\MOD\\m01_berlin_bar.thn",
+  "sha256": "ff51b3465d6ca3212abaf3c0bd6d38fb2893a571d4da7a573d8e73942c18b5f4",
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "debug camera excluded"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 4,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 4,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 4,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 4,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 18,
+      "time": 4.01,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 4.01,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 4.02,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 6.2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 22,
+      "time": 4.02,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 5.5,
+      "type": "START_SOUND",
+      "status": "facial() dialogue audio"
+    },
+    {
+      "index": 24,
+      "time": 5.5,
+      "type": "START_MOTION",
+      "status": "facial() replacement; allocated window retained"
+    },
+    {
+      "index": 25,
+      "time": 6.5,
+      "type": "START_MOTION",
+      "status": "facial() replacement; allocated window retained"
+    },
+    {
+      "index": 26,
+      "time": 0,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 27,
+      "time": 7,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 28,
+      "time": 10,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 10.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 30,
+      "time": 0,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 31,
+      "time": 5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 11.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 33,
+      "time": 1,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 1,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 35,
+      "time": 8,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 36,
+      "time": 2,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 37,
+      "time": 12,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 38,
+      "time": 12,
+      "type": "START_SOUND",
+      "status": "facial() dialogue audio"
+    },
+    {
+      "index": 39,
+      "time": 12,
+      "type": "START_MOTION",
+      "status": "facial() replacement; allocated window retained"
+    },
+    {
+      "index": 40,
+      "time": 14.5,
+      "type": "START_MOTION",
+      "status": "facial() replacement; allocated window retained"
+    },
+    {
+      "index": 41,
+      "time": 12,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 42,
+      "time": 13,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 43,
+      "time": 15,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 44,
+      "time": 18,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 45,
+      "time": 17.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 46,
+      "time": 19.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 47,
+      "time": 18,
+      "type": "START_SOUND",
+      "status": "facial() dialogue audio"
+    },
+    {
+      "index": 48,
+      "time": 18,
+      "type": "START_MOTION",
+      "status": "facial() replacement; allocated window retained"
+    },
+    {
+      "index": 49,
+      "time": 17,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 50,
+      "time": 18,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 51,
+      "time": 18,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 52,
+      "time": 18,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 53,
+      "time": 19,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 54,
+      "time": 20,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 55,
+      "time": 22,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 56,
+      "time": 22,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 57,
+      "time": 22,
+      "type": "START_SOUND",
+      "status": "facial() dialogue audio"
+    },
+    {
+      "index": 58,
+      "time": 22,
+      "type": "START_MOTION",
+      "status": "facial() replacement; allocated window retained"
+    },
+    {
+      "index": 59,
+      "time": 22,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 60,
+      "time": 24.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "index": 10,
+      "actor": "alaric",
+      "start": 5.5,
+      "window": 6.0,
+      "gap": 0.5,
+      "source_gap": 0.5
+    },
+    {
+      "index": 20,
+      "actor": "adelmar",
+      "start": 12,
+      "window": 5.5,
+      "gap": 0.5,
+      "source_gap": 0.5
+    },
+    {
+      "index": 30,
+      "actor": "trent",
+      "start": 18,
+      "window": 6,
+      "gap": 0,
+      "source_gap": -2
+    },
+    {
+      "index": 40,
+      "actor": "luc",
+      "start": 22,
+      "window": 6,
+      "gap": -0.5,
+      "source_gap": -0.5
+    }
+  ],
+  "duration": 27.5
+}

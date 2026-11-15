@@ -42,11 +42,12 @@ struct State {
     unsigned deliveriesAtSize=0;
     std::string source, destination;
     std::vector<std::string> recentBases;
+    std::vector<std::string> recentRoutes;
     bool pickedUp=false, retired=false, paid=false, popup=false;
     int reward=0;
     bool valid(Rules const& rules) const {
         return static_cast<unsigned>(stage)<=static_cast<unsigned>(Stage::Offer) &&
-            wagons>=2 && wagons<=unlockedWagons && unlockedWagons<=rules.maxWagons && deliveriesAtSize<=2 && recentBases.size()<=4 && distance>=1 && reward>=0 &&
+            wagons>=2 && wagons<=unlockedWagons && unlockedWagons<=rules.maxWagons && deliveriesAtSize<=2 && recentBases.size()<=64 && recentRoutes.size()<=64 && distance>=1 && reward>=0 &&
             (!paid || retired) && (!retired || pickedUp) && (!popup || paid || stage==Stage::Offer);
     }
 };
@@ -58,7 +59,35 @@ inline void rememberBase(State& state,std::string const& base) {
     auto& recent=state.recentBases;
     recent.erase(std::remove(recent.begin(),recent.end(),base),recent.end());
     recent.push_back(base);
-    if(recent.size()>4)recent.erase(recent.begin());
+    if(recent.size()>64)recent.erase(recent.begin());
+}
+inline void rememberRoute(State& state,std::string const& source,std::string const& destination) {
+    if(source.empty() || destination.empty())return;
+    auto key=source+"|"+destination;
+    auto& recent=state.recentRoutes;
+    recent.erase(std::remove(recent.begin(),recent.end(),key),recent.end());
+    recent.push_back(key);
+    if(recent.size()>64)recent.erase(recent.begin());
+}
+inline bool routeSeen(State const& state,std::string const& source,std::string const& destination) {
+    if(std::find(state.recentRoutes.begin(),state.recentRoutes.end(),source+"|"+destination)!=state.recentRoutes.end())
+        return true;
+    return std::find(state.recentBases.begin(),state.recentBases.end(),destination)!=state.recentBases.end();
+}
+inline bool localCargo(std::string const& kind) {return kind=="basic" || kind=="default";}
+inline bool longCargo(std::string const& kind) {
+    return kind=="luxury" || kind=="water_extra" || kind=="product" || kind=="alloy" || kind=="roid";
+}
+inline unsigned cargoRank(std::string const& kind) {
+    if(kind=="luxury" || kind=="water_extra")return 0;
+    if(kind=="product")return 1;
+    if(kind=="alloy")return 2;
+    if(kind=="roid")return 3;
+    return 4;
+}
+inline bool cargoFitsHaul(std::string const& kind,unsigned jumps) {
+    if(kind.empty())return true;
+    return jumps<=1 || !localCargo(kind);
 }
 inline unsigned revisitPenalty(State const& state,std::string const& base) {
     auto it=std::find(state.recentBases.begin(),state.recentBases.end(),base);

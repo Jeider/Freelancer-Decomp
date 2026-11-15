@@ -1,0 +1,90 @@
+{
+  "name": "m06_vendor_alaric",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_vendor_alaric.thn",
+  "sha256": "de3b09b4445becf816c308ff7b1796d355a0dea559a0656e91b3f9f3c4c0565b",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 346,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\vendor_msn.ini",
+      "line": 22,
+      "role": "fidget",
+      "thn": "scripts\\mod\\m06_vendor_alaric.thn"
+    }
+  ],
+  "source_duration": 61.464,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 7.9,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 11.9,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 19.8,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 26.466,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 33.699,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 36.299,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 40.332,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 47.565,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 54.231,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Layer_Fidget_Male_Sit_02": "Layer_Fidget_Male_Sit_02",
+    "char_alaric": "Char_alaric"
+  },
+  "point_names": {
+    "Layer_Fidget_Male_Sit_02": "Layer_Fidget_Male_Sit_02",
+    "char_alaric": "Char_alaric"
+  }
+}

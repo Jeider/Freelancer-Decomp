@@ -17,6 +17,7 @@
 #include "common_fuses.h"   // PetalInterfaceDatabase::get_category
 #include "common_goods.h"   // ThornGetUser*, ThornGetRenderType, RoomData, SetpointProperties
 #include "common_misc.h"    // malloc_strcpy
+#include "graphics_settings.h"
 #include "common_newchar.h" // RtcSlider::is_enabled
 #include "dacom.h"
 #include "gf_character_object.h"
@@ -777,6 +778,10 @@ FCharacterObject* FGfScript::ResolveCharacter(FThornEntitySnap const* Snap, char
         // (+0x34); the properties destroyed (EH state -1 then ~CharacterProperties).
         CharacterProperties Props;
         GetCostumeDescriptions()->get_costume(Snap->TemplateName, Props.Cost);
+        if (Snap->TemplateName && _stricmp(Snap->TemplateName, "trent") == 0) {
+            Costume UnusedComm = Props.Cost;
+            PlayerCostume_ApplyOverride(Props.Cost, UnusedComm);
+        }
         Csys CharacterFrame;
         CharacterFrame.Pos.x = Snap->Pos[0];
         CharacterFrame.Pos.y = Snap->Pos[1];

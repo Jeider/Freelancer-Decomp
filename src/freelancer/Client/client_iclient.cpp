@@ -13,6 +13,7 @@
 // Every slot's retail body is quoted by address.
 
 #include "freelancer_client.h"
+#include "base_walk.h"
 
 #include "best_path.h"                // objective map slots 71 / 72 / 73 (DAT_0067294c)
 #include "character_select_equip.h"   // player-state setters (FUN_004c3e20 ..)
@@ -708,5 +709,8 @@ void IClientImpl::SendServerPlayerListRemove(unsigned int /*ClientId*/, unsigned
 void IClientImpl::SendCommonChatMsg(CHAT_ID /*TargetId*/, CHAT_ID SenderId, unsigned long Size,
                                     const void* Data)
 {
+#ifdef FREELANCER_WALK_MODE
+    if (BaseWalkReceivePresence(SenderId.Id, static_cast<unsigned>(Size), Data)) return;
+#endif
     ChatDispatchIncoming(SenderId, Data, static_cast<unsigned>(Size));
 }

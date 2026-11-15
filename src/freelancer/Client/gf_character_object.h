@@ -101,6 +101,9 @@ struct FCharacterObject : FRoomObject
     void Update(double DeltaSeconds) override;      // 5  LAB_004449d0
     void* GetEngineInstance() override;             // 6  LAB_00444970
     void DrawOpaque(ICamera* Camera) override;      // 7  LAB_00445150
+    // Render all deformable body parts without advancing animation/LOD time or
+    // submitting the legacy blob shadow a second time.
+    void DrawShadowGeometry(ICamera* Camera);
     void Slot10(unsigned long Cookie, int const* Point) override; // 10 FUN_00445a90 (enter)
     void Slot11(unsigned long Cookie, int const* Point) override; // 11 FUN_00445be0 (leave)
     void Slot12(unsigned long Cookie, int const* Point) override; // 12 FUN_00445c10 (click)

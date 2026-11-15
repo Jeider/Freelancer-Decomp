@@ -6,6 +6,7 @@ import json
 import shutil
 import urllib.request
 import zipfile
+from renodx_runtime import CACHED, verify
 
 ROOT = Path(__file__).resolve().parents[2]
 REFERENCE = ROOT / 'out/base_neural/reference'
@@ -49,6 +50,8 @@ def main():
     for name in ['dxgi.dll', 'nvngx_dlss.dll',
                  'nvngx_dlssnr.dll', 'renodx-dlss5.addon64', 'ReShade.ini']:
         files[host / name] = args.reference / 'host64' / name
+    # Never silently downgrade to the old reference installation's RenoDX.
+    files[host / 'renodx-dlss5.addon64'] = verify(CACHED)
     # Previous staging used the generic extension; never load two NR add-ons.
     (host / 'renodx-dlss5.addon').unlink(missing_ok=True)
     # Check the complete source set before making a partial package.
@@ -79,11 +82,13 @@ def main():
         shutil.copy2(license_file, notices / 'DLSS5-Feeder-MIT.txt')
     ngx_license=REFERENCE/'ngx/LICENSE.txt'
     if ngx_license.exists():shutil.copy2(ngx_license,notices/'NGX-LICENSE.txt')
-    (out / 'neural/dependencies.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     # User-selected full-scene maximum profile; preserve it when restaging dependencies.
     from max_profile import apply_configs
     for relative,data in apply_configs(out).items():
         (out/relative).write_bytes(data)
+    for row in manifest:
+        row['sha256'] = digest(out / row['path'])
+    (out / 'neural/dependencies.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     print(f'Staged optional runtime at {out}; game untouched')
 
 if __name__ == '__main__':

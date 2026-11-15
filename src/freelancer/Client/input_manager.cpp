@@ -28,6 +28,9 @@
 #include "hud_vulnerable.h"
 #include "texture_shapes.h"
 #include "win3d_immediate.h"
+#ifdef FREELANCER_RP9
+#include "cursor_vector_cache.h"
+#endif
 
 #include "DALib.h"
 #include "common_ini.h"
@@ -767,6 +770,19 @@ namespace
         if (Shape == nullptr)
             return;
 
+        float Quad[8];
+        if (!CursorComputeQuad(G_CurrentCursor, Quad, G_CursorX, G_CursorY))
+            return;
+        void* VectorTexture = nullptr;
+#ifdef FREELANCER_RP9
+        if (CursorVectorCache::Enabled() && Shape->PixelW == 256 && Shape->PixelH == 256)
+        {
+            float const Dx = Quad[2] - Quad[0], Dy = Quad[3] - Quad[1];
+            VectorTexture = CursorVectorCache::Get(
+                CursorVectorCache::Find(G_CurrentCursor->ShapeName.Data), sqrtf(Dx * Dx + Dy * Dy));
+        }
+#endif
+
         Win3DSetOrtho2D(); // FUN_004225e0
 
         FRenderStateSave ZEnable;
@@ -776,10 +792,23 @@ namespace
         FRenderStateSave AlphaTest;
         RenderStateSaveAndSet(&AlphaTest, kRsAlphaTestEnable, 0);
 
-        Win3DBindTexture(TexShapeGetGpuHandle(Shape, 0)); // FUN_00425640 / FUN_004220a0
+        Win3DBindTexture(VectorTexture ? VectorTexture : TexShapeGetGpuHandle(Shape, 0));
         unsigned char FilterToken = 0;                    // the ECX both filter calls get
         Win3DSetTextureFilterLinear(&FilterToken);         // FUN_004223d0
-        Win3DSetTextureFilterPoint();                      // FUN_00422410
+        int SavedMinFilter = 0, SavedMagFilter = 0, SavedMipFilter = 0;
+        if (!VectorTexture)
+            Win3DSetTextureFilterPoint();                  // original atlas fallback
+        else
+        {
+            // The legacy helpers actually write D3D8 ADDRESSU/V (13/14).
+            // Explicit sampler filters are 16/17/18, forwarded by RP9 to D3D9.
+            DALib::Pipeline->GetTextureStageState(0, 16, &SavedMagFilter);
+            DALib::Pipeline->GetTextureStageState(0, 17, &SavedMinFilter);
+            DALib::Pipeline->GetTextureStageState(0, 18, &SavedMipFilter);
+            DALib::Pipeline->SetTextureStageState(0, 16, 2); // LINEAR
+            DALib::Pipeline->SetTextureStageState(0, 17, 2);
+            DALib::Pipeline->SetTextureStageState(0, 18, 0); // one cache level
+        }
         Win3DColor4ubv(G_CurrentCursor->Color);            // FUN_00421ba0
 
         // 0x0041f47c..0x0041f4c2: the blend switch on +0x50 (table 0x0041f700).
@@ -819,19 +848,31 @@ namespace
         RenderStateSaveAndSet(&AlphaBlend, kRsAlphaBlendEnable,
                               G_CurrentCursor->Blend != 0 ? 1 : 0);
 
-        float Quad[8];
-        if (CursorComputeQuad(G_CurrentCursor, Quad, G_CursorX, G_CursorY))
+        // Vector images are standalone, top-down textures. The old atlas UVs
+        // remain untouched for unrecognised shapes, disabled mode or failures.
         {
+            float const U0 = VectorTexture ? 0.0f : Shape->U0;
+            float const V0 = VectorTexture ? 0.0f : Shape->V0;
+            float const U1 = VectorTexture ? 1.0f : Shape->U1;
+            float const V1 = VectorTexture ? 1.0f : Shape->V1;
             Win3DBegin(kWin3DQuads);
-            Win3DTexCoord2f(Shape->U0, Shape->V0);
+            Win3DTexCoord2f(U0, V0);
             Win3DVertex3f(Quad[0], Quad[1], 0.0f);
-            Win3DTexCoord2f(Shape->U1, Shape->V0);
+            Win3DTexCoord2f(U1, V0);
             Win3DVertex3f(Quad[2], Quad[3], 0.0f);
-            Win3DTexCoord2f(Shape->U1, Shape->V1);
+            Win3DTexCoord2f(U1, V1);
             Win3DVertex3f(Quad[4], Quad[5], 0.0f);
-            Win3DTexCoord2f(Shape->U0, Shape->V1);
+            Win3DTexCoord2f(U0, V1);
             Win3DVertex3f(Quad[6], Quad[7], 0.0f);
             Win3DEnd();
+        }
+
+        if (VectorTexture)
+        {
+            DALib::Pipeline->SetTextureStageState(0, 16, SavedMagFilter);
+            DALib::Pipeline->SetTextureStageState(0, 17, SavedMinFilter);
+            DALib::Pipeline->SetTextureStageState(0, 18, SavedMipFilter);
+            Win3DSetTextureFilterPoint(); // keep the cursor pass's original postcondition
         }
 
         RenderStateRestore(&AlphaBlend);
@@ -1143,12 +1184,35 @@ void MouseInitCursors()
     // FUN_0041e5c0.
     G_MouseShapeDB.Load("mouse.ini", DALib::Data); // FUN_00425b30
     LoadCursors("mouse.ini", DALib::Data);         // FUN_0041df30
+#ifdef FREELANCER_RP9
+    // Warm each definition during startup, before the first interactive frame.
+    // Shared fire/neutral colour variants reuse the same untinted cache entry.
+    if (CursorVectorCache::Enabled())
+    {
+        for (unsigned I = 0; I < G_CursorCount; ++I)
+        {
+            FMouseCursor* const Cursor = G_Cursors[I];
+            CursorAnimate(Cursor, &G_MouseShapeDB, 0.0f);
+            float Quad[8];
+            if (Cursor->Shape && Cursor->Shape->PixelW == 256 && Cursor->Shape->PixelH == 256 &&
+                CursorComputeQuad(Cursor, Quad, 0, 0))
+            {
+                float const Dx = Quad[2] - Quad[0], Dy = Quad[3] - Quad[1];
+                CursorVectorCache::Get(CursorVectorCache::Find(Cursor->ShapeName.Data),
+                    sqrtf(Dx * Dx + Dy * Dy));
+            }
+        }
+    }
+#endif
     G_bCursorsReady = true;
     MouseSetCursor("DEFAULT", false);
 }
 
 void MouseShutdown()
 {
+#ifdef FREELANCER_RP9
+    CursorVectorCache::Clear();
+#endif
     CockpitFreeLook::Reset();
     // FUN_0041e610. The device ensure runs first, so a session that never created the device
     // creates it here only to release it.

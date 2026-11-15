@@ -1,0 +1,544 @@
+{
+  "name": "m06_mount",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_mount.thn",
+  "sha256": "19c2c8423693545d65df71cefa0cba2cbe3124abfbab848096127bf31d8bf8d7",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 456,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\dread_mount.ini",
+      "line": 3,
+      "role": "action",
+      "thn": "scripts\\mod\\m06_mount.thn"
+    }
+  ],
+  "source_duration": 40.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 9,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 2,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 6,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 8.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 9,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 8,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 2,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 17,
+      "time": 2,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 18,
+      "time": 6,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 19,
+      "time": 6,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 20,
+      "time": 7,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 21,
+      "time": 7,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 22,
+      "time": 10.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 10.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 24,
+      "time": 10.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 25,
+      "time": 13,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 26,
+      "time": 13,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 27,
+      "time": 13,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 28,
+      "time": 16,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 16,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 30,
+      "time": 16,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 31,
+      "time": 16,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 18.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 33,
+      "time": 21.3,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 21.3,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 35,
+      "time": 21.3,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 36,
+      "time": 21.3,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 37,
+      "time": 25.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 38,
+      "time": 25.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 39,
+      "time": 25.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 40,
+      "time": 29.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 41,
+      "time": 33.2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 42,
+      "time": 25.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 43,
+      "time": 27.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 44,
+      "time": 31.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 45,
+      "time": 34,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 46,
+      "time": 34,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 47,
+      "time": 34,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 48,
+      "time": 34,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 49,
+      "time": 35,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 50,
+      "time": 36,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 51,
+      "time": 34,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 16,
+      "start": 2,
+      "index": 10,
+      "actor": "trent",
+      "sound": "DX_m06_mount_0010_trent",
+      "prefix": "m06_mount",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15,
+      "lip_events": [
+        17
+      ],
+      "source_gap": -11
+    },
+    {
+      "id": 18,
+      "start": 6,
+      "index": 20,
+      "actor": "alaric",
+      "sound": "DX_m06_mount_0020_alaric",
+      "prefix": "m06_mount",
+      "character": "Char_alaric",
+      "script_actor": "Alaric",
+      "source_actor_class": "Alaric",
+      "window": 12,
+      "lip_events": [
+        19
+      ],
+      "source_gap": -11
+    },
+    {
+      "id": 20,
+      "start": 7,
+      "index": 30,
+      "actor": "trent",
+      "sound": "DX_m06_mount_0030_trent",
+      "prefix": "m06_mount",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15,
+      "lip_events": [
+        21
+      ],
+      "source_gap": -11.5
+    },
+    {
+      "id": 23,
+      "start": 10.5,
+      "index": 40,
+      "actor": "alaric",
+      "sound": "DX_m06_mount_0040_alaric",
+      "prefix": "m06_mount",
+      "character": "Char_alaric",
+      "script_actor": "Alaric",
+      "source_actor_class": "Alaric",
+      "window": 12.0,
+      "lip_events": [
+        24
+      ],
+      "source_gap": -9.5
+    },
+    {
+      "id": 26,
+      "start": 13,
+      "index": 50,
+      "actor": "trent",
+      "sound": "DX_m06_mount_0050_trent",
+      "prefix": "m06_mount",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15,
+      "lip_events": [
+        27
+      ],
+      "source_gap": -12
+    },
+    {
+      "id": 29,
+      "start": 16,
+      "index": 60,
+      "actor": "alaric",
+      "sound": "DX_m06_mount_0060_alaric",
+      "prefix": "m06_mount",
+      "character": "Char_alaric",
+      "script_actor": "Alaric",
+      "source_actor_class": "Alaric",
+      "window": 12,
+      "lip_events": [
+        30
+      ],
+      "source_gap": -6.7
+    },
+    {
+      "id": 34,
+      "start": 21.3,
+      "index": 70,
+      "actor": "trent",
+      "sound": "DX_m06_mount_0070_trent",
+      "prefix": "m06_mount",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 14.999999999999996,
+      "lip_events": [
+        35
+      ],
+      "source_gap": -10.8
+    },
+    {
+      "id": 38,
+      "start": 25.5,
+      "index": 80,
+      "actor": "alaric",
+      "sound": "DX_m06_mount_0080_alaric",
+      "prefix": "m06_mount",
+      "character": "Char_alaric",
+      "script_actor": "Alaric",
+      "source_actor_class": "Alaric",
+      "window": 16.0,
+      "lip_events": [
+        39,
+        40
+      ],
+      "source_gap": -7.5
+    },
+    {
+      "id": 46,
+      "start": 34,
+      "index": 90,
+      "actor": "trent",
+      "sound": "DX_m06_mount_0090_trent",
+      "prefix": "m06_mount",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15,
+      "lip_events": [
+        47
+      ],
+      "source_gap": -9.0
+    }
+  ],
+  "notes": [],
+  "clock": "relative",
+  "entity_names": {
+    "Scene_m06_dread_mount": "Scene_m06_dread_mount",
+    "Monitor_1": "Monitor_1",
+    "DX_m06_mount_0010_trent": "DX_m06_mount_0010_trent",
+    "DX_m06_mount_0020_alaric": "DX_m06_mount_0020_alaric",
+    "DX_m06_mount_0030_trent": "DX_m06_mount_0030_trent",
+    "DX_m06_mount_0040_alaric": "DX_m06_mount_0040_alaric",
+    "DX_m06_mount_0050_trent": "DX_m06_mount_0050_trent",
+    "DX_m06_mount_0060_alaric": "DX_m06_mount_0060_alaric",
+    "DX_m06_mount_0070_trent": "DX_m06_mount_0070_trent",
+    "DX_m06_mount_0080_alaric": "DX_m06_mount_0080_alaric",
+    "DX_m06_mount_0090_trent": "DX_m06_mount_0090_trent",
+    "Char_trent": "Char_trent",
+    "Char_alaric": "Char_alaric",
+    "trent_head_ik": "automarker_trent_head_ik",
+    "trent_eye_ik": "automarker_trent_eye_ik",
+    "head_alaric": "automarker_head_alaric",
+    "head_alaric_out": "automarker_head_alaric_out",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "automarker_cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "automarker_cam_start_pos2",
+    "cam_start_marker": "automarker_cam_start_focus",
+    "cam_start_marker_pos2": "automarker_cam_start_marker_pos2",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "automarker_cam_trent_focus",
+    "cam_alaric": "cam_alaric",
+    "cam_alaric_marker": "automarker_cam_alaric_focus",
+    "cam_final": "cam_final",
+    "cam_final_pos2": "automarker_cam_final_pos2",
+    "cam_final_marker": "automarker_cam_final_focus"
+  },
+  "point_names": {
+    "Scene_m06_dread_mount": "Scene_m06_dread_mount",
+    "Monitor_1": "Monitor_1",
+    "DX_m06_mount_0010_trent": "DX_m06_mount_0010_trent",
+    "DX_m06_mount_0020_alaric": "DX_m06_mount_0020_alaric",
+    "DX_m06_mount_0030_trent": "DX_m06_mount_0030_trent",
+    "DX_m06_mount_0040_alaric": "DX_m06_mount_0040_alaric",
+    "DX_m06_mount_0050_trent": "DX_m06_mount_0050_trent",
+    "DX_m06_mount_0060_alaric": "DX_m06_mount_0060_alaric",
+    "DX_m06_mount_0070_trent": "DX_m06_mount_0070_trent",
+    "DX_m06_mount_0080_alaric": "DX_m06_mount_0080_alaric",
+    "DX_m06_mount_0090_trent": "DX_m06_mount_0090_trent",
+    "Char_trent": "Char_trent",
+    "Char_alaric": "Char_alaric",
+    "trent_head_ik": "trent_head_ik",
+    "trent_eye_ik": "trent_eye_ik",
+    "head_alaric": "head_alaric",
+    "head_alaric_out": "head_alaric_out",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "cam_start_pos2",
+    "cam_start_marker": "cam_start_focus",
+    "cam_start_marker_pos2": "cam_start_marker_pos2",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "cam_trent_focus",
+    "cam_alaric": "cam_alaric",
+    "cam_alaric_marker": "cam_alaric_focus",
+    "cam_final": "cam_final",
+    "cam_final_pos2": "cam_final_pos2",
+    "cam_final_marker": "cam_final_focus"
+  }
+}

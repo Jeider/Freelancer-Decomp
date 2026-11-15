@@ -1,0 +1,31 @@
+Graphics menu: weapon lights and anomaly quality
+
+Two appended preference indices preserve all existing saved indices:
+weapon_lights (0/1) and anomalies (1..3). Stored in PerfOptions.ini [Graphics].
+Legacy anomalies=0 is migrated to 1. Integrated-GPU startup profiles also use 1.
+Changes use the existing Apply/Cancel/Defaults/restart-required workflow.
+Weapon lights migrates its initial value from port.ini [Render] weapon_lights.
+
+Anomalies is separate from Nebulae. Current consumers: black holes (space and
+intro) and jump holes (cloud and ingress). There is no Off choice. The new anomaly
+renderer is enabled even if old port.ini black_hole_visual/jumphole_visual is 0.
+
+Quality caps, never increasing an authored lower setting:
+Low:    black_hole_resolution <= .25, black_hole_steps <= 64, jumphole_steps <= 24
+Medium: black_hole_resolution <= .5,  black_hole_steps <= 112, jumphole_steps <= 40
+High:   authored values (default jumphole_steps=64)
+
+Nebula density/quality and anomaly size/visibility are not changed by each other's
+quality setting. Weapon lighting is distinct from surface glints/highlights and
+the muzzle particle effect. New anomaly renderers should join this policy.
+
+Validation: Common and client built; preference migration, staged UI changes,
+Apply/Cancel/Defaults, fresh-process persistence, independent render gates and
+quality caps passed tools/graphics_settings/check.py. PSLens/PSGlow/PSIngress
+compiled as ps_3_0. New IDS strings staged with unrelated resources preserved.
+No live in-game visual or integrated-GPU performance check performed.
+
+Installed with SHA256 verification. Backup:
+D:/Games/FL_MOD/BACKUP/codex_graphics_settings_20261113_123631_112
+
+GPU-based startup profiles and automatic runtime quality remain future work.

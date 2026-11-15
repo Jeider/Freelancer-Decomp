@@ -31,6 +31,9 @@
 #include "ship_cache.h"
 #include "common_universe.h"
 #include "ids_strings.h"
+#include "tooltip_hover.h"
+#include "cargo_bar_control.h"
+#include "DALib.h"
 #include "port_config.h"
 
 #include <stdio.h>
@@ -133,11 +136,10 @@ void CachedEquipment(int Index, EquipDescList& Out) {
         Desc.set_count(Row.Count > 0 ? Row.Count : 1);
         Desc.set_status(Row.Health);
         Desc.set_equipped(Row.bEquipped);
-        if (Row.Hardpoint[0] != 0 && strcmp(Row.Hardpoint, "-") != 0) {
-            CacheString Hp;
-            Hp.Value = StringAlloc(Row.Hardpoint, false);
-            Desc.set_hardpoint(Hp);
-        }
+        // Preserve the server's empty internal hardpoint; only explicit BAY is cargo.
+        CacheString Hp;
+        Hp.Value = StringAlloc(strcmp(Row.Hardpoint,"-")==0 ? "" : Row.Hardpoint,false);
+        Desc.set_hardpoint(Hp);
         Out.Items.push_back(Desc);
     }
 }
@@ -290,7 +292,7 @@ void NnShipPark::BindGear() {
         Hide(GearTabButtons[Tab], 0);
     Hide(static_cast<WinControl*>(GearScrollHost), 0);
     Hide(CargoFull, 0);
-    Hide(CargoEmpty, 0);
+    Hide(CargoEmpty, 1);
     Hide(CargoLabel, 1);
     int Matched = 0;
     int Shown = 0;
@@ -342,16 +344,9 @@ void NnShipPark::BindGear() {
     CargoHold = Ship != nullptr ? Ship->HoldSize : 0.0f;
     if (CargoUsed < 0.0f)
         CargoUsed = 0.0f;
-    if (CargoHold > 0.0f && CargoUsed > CargoHold)
-        CargoUsed = CargoHold;
-    Hide(CargoEmpty, Hull == 0 ? 1 : 0);
+    Hide(CargoEmpty, 1); // Drawn explicitly with the inventory depth mask.
     Hide(CargoLabel, 1);
-    float Fill = CargoHold > 0.0f ? CargoUsed / CargoHold : 0.0f;
-    if (Fill < 0.0f)
-        Fill = 0.0f;
-    if (Fill > 1.0f)
-        Fill = 1.0f;
-    Hide(CargoFull, Hull == 0 || Fill <= 0.0f ? 1 : 0);
+    Hide(CargoFull, Hull == 0 ? 1 : 0); // Keep the hover target even for an empty hold.
 }
 
 void NnShipPark::ShowShip(unsigned Archetype) {
@@ -739,14 +734,14 @@ bool NnShipPark::Create(Win3D* NewParent, void* Data) {
         }
         {
             float const BarPos[3] = {0.38f - 0.64f, -0.528f + 0.33f, -1.288f};
-            float const BarHalf[3] = {0.16f, 0.04f, 0.0f};
+            float const BarHalf[3] = {0.06f, 0.014f, 0.0f};
             float const Zero[3] = {0.0f, 0.0f, 0.0f};
             CargoEmpty = CreateStaticControl("ShipParkCargoEmpty",
                                              "Interface\\NeuroNet\\Inventory\\cargoempty.3db", BarPos,
-                                             nullptr, BarHalf, 0, 0, 0, 1, 0, 1, 1, 0x50, 0, 0, Zero);
+                                             nullptr, BarHalf, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, Zero);
             CargoFull = CreateStaticControl("ShipParkCargoFull",
                                             "Interface\\NeuroNet\\Inventory\\cargofull.3db", BarPos,
-                                            nullptr, BarHalf, 0, 0, 0, 1, 0, 1, 1, 0x50, 0, 0, Zero);
+                                            nullptr, BarHalf, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, Zero);
             if (CargoEmpty != nullptr)
                 CargoEmpty->Flags = static_cast<unsigned char>(CargoEmpty->Flags & 0xf7);
             if (CargoFull != nullptr) {
@@ -908,14 +903,14 @@ void NnShipPark::Draw() {
         WireControlsJoinColumn(RightFrames, VisibleCount());
         WireControlsJoinColumn(RightIconFrames, VisibleCount());
     }
-    float Fill = CargoHold > 0.0f ? CargoUsed / CargoHold : 0.0f;
-    if (Fill < 0.0f)
-        Fill = 0.0f;
-    if (Fill > 1.0f)
-        Fill = 1.0f;
-    NnStaticControlSetClip(static_cast<NnStaticControl*>(CargoFull), Fill);
     WinControl::Draw();
-    NnStaticControlSetClip(nullptr, 1.0f);
+    if(CargoFull && CargoEmpty && (CargoFull->Flags & kWin3DVisible)) {
+        float fill=CargoHold>0 ? CargoUsed/CargoHold : 0;
+        if(fill<0)fill=0;
+        if(fill>1)fill=1;
+        float const halfX=CargoFull->HalfExtents[0],halfY=CargoFull->HalfExtents[1];
+        DrawInventoryCargoRemainder(CargoFull,CargoEmpty,halfX*(2*fill-1),halfX,halfY);
+    }
     if (ShipView == nullptr)
         return;
     float Ray[3];
@@ -947,6 +942,20 @@ intptr_t NnShipPark::SetProperty(int Msg, uintptr_t A, uintptr_t B) {
             return 1;
         }
         return 0;
+    }
+    if(Msg==0x4f && Sender==CargoFull && CargoFull) {
+        wchar_t format[255]={},caption[255]={};
+        GetIdsStringWWithRawFallback(0x49b,format,255);
+        swprintf(caption,255,format,int(double(CargoHold)-CargoUsed),int(CargoHold));
+        FToolTipHoverInfo info;
+        ToolTipHoverInit(&info);
+        ToolTipHoverSetCaption(&info,caption);
+        info.Ids=info.IdsAlt=0x43b;
+        float const* transform=DALib::Engine->GetInstanceTransform(CargoFull->MeshHolder.EngineInstance);
+        for(int i=0;i<3;++i) {info.WorldPos[i]=transform[9+i];info.HalfExtents[i]=CargoFull->HalfExtents[i];}
+        info.bLive=1;
+        NnToolTipFeedHover(&info);
+        return 1;
     }
     if (Msg == 0x4e) {
         Leave();

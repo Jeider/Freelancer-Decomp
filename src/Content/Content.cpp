@@ -114,6 +114,8 @@ namespace
         { "BasePop", &CreateBasePop },
         { "StoryLauncher", &CreateStoryLauncher },
         { "Story", &CreateStory },
+        { "CampaignLauncher", &CreateCampaignLauncher },
+        { "CampaignStory", &CreateCampaignStory },
         { "Mission_01a", &CreateMission01a },
         { "Mission_01b", &CreateMission01b },
         { "Mission_02", &CreateMission02 },
@@ -134,7 +136,7 @@ namespace
     };
 
     int const G_FactoryCount = sizeof(G_Factories) / sizeof(G_Factories[0]);
-    static_assert(G_FactoryCount == 25, "retail 23 names plus port missions");
+    static_assert(G_FactoryCount == 27, "retail 23 names plus port missions and campaign startup");
 }
 
 IDLL* __cdecl CreateInstance(unsigned int ControllerId, char const* Name, void const* Parms)

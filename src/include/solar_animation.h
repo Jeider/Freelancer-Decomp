@@ -17,6 +17,12 @@ static_assert(sizeof(SolarAnimationCommand) == 112, "animation wire extension");
 
 namespace SolarAnimation
 {
+struct RingConfig
+{
+    bool Physical = false;
+    char Left[96]{}, Right[96]{};
+};
+COMMON_API bool GetRingConfig(Archetype::Root const*, RingConfig&);
 struct Config
 {
     bool Enabled = false;

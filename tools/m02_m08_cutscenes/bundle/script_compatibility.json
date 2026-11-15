@@ -1,0 +1,915 @@
+{
+  "m02_bship_bar_offer": {
+    "missing_current_lines": [
+      {
+        "source": "DX_m02_offer_0130_wilham",
+        "index": 130
+      },
+      {
+        "source": "DX_m02_offer_0140_trent",
+        "index": 140
+      },
+      {
+        "source": "DX_m02_offer_0150_wilham",
+        "index": 150
+      },
+      {
+        "source": "DX_m02_offer_0160_trent",
+        "index": 160
+      },
+      {
+        "source": "DX_m02_offer_0170_wilham",
+        "index": 170
+      },
+      {
+        "source": "DX_m02_offer_0180_trent",
+        "index": 180
+      },
+      {
+        "source": "DX_m02_offer_0190_wilham",
+        "index": 190
+      }
+    ],
+    "actor_mismatches": [
+      {
+        "source": "DX_m02_offer_0070_trent",
+        "source_actor": "Trent",
+        "script_actor": "Wilham"
+      },
+      {
+        "source": "DX_m02_offer_0080_wilham",
+        "source_actor": "Wilham",
+        "script_actor": "Trent"
+      },
+      {
+        "source": "DX_m02_offer_0090_trent",
+        "source_actor": "Trent",
+        "script_actor": "Wilham"
+      },
+      {
+        "source": "DX_m02_offer_0110_trent",
+        "source_actor": "Trent",
+        "script_actor": "Wilham"
+      },
+      {
+        "source": "DX_m02_offer_0120_wilham",
+        "source_actor": "Wilham",
+        "script_actor": "Trent"
+      }
+    ],
+    "notes": [
+      "Actor mismatch in current script: m02_offer index 70: source trent, current Wilham; source staging retained",
+      "Actor mismatch in current script: m02_offer index 80: source wilham, current Trent; source staging retained",
+      "Actor mismatch in current script: m02_offer index 90: source trent, current Wilham; source staging retained",
+      "Actor mismatch in current script: m02_offer index 110: source trent, current Wilham; source staging retained",
+      "Actor mismatch in current script: m02_offer index 120: source wilham, current Trent; source staging retained",
+      "Legacy dialogue absent in current script: m02_offer index 130",
+      "Legacy dialogue absent in current script: m02_offer index 140",
+      "Legacy dialogue absent in current script: m02_offer index 150",
+      "Legacy dialogue absent in current script: m02_offer index 160",
+      "Legacy dialogue absent in current script: m02_offer index 170",
+      "Legacy dialogue absent in current script: m02_offer index 180",
+      "Legacy dialogue absent in current script: m02_offer index 190"
+    ]
+  },
+  "m02_bship_bar_decision": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m02_bship_bar_accept": {
+    "missing_current_lines": [
+      {
+        "source": "DX_m02_offer_0200_trent",
+        "index": 200
+      }
+    ],
+    "actor_mismatches": [],
+    "notes": [
+      "Legacy dialogue absent in current script: m02_offer index 200"
+    ]
+  },
+  "m02_wilham_vendor": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m02_jacobo_offer": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "Unvoiced facial event 34 retained with generic facial animation, source duration 10"
+    ]
+  },
+  "m02_jacobo_vendor": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m02_junkers": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m02_explode_camera": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m02_reichman": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m03_offer": {
+    "missing_current_lines": [
+      {
+        "source": "DX_m03_offer_0050_wilham",
+        "index": 50
+      },
+      {
+        "source": "DX_m03_offer_0060_trent",
+        "index": 60
+      }
+    ],
+    "actor_mismatches": [],
+    "notes": [
+      "Legacy dialogue absent in current script: m03_offer index 50",
+      "Legacy dialogue absent in current script: m03_offer index 60"
+    ]
+  },
+  "m03_offer_decision": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m03_offer_accept": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m03_fleet_arrive": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m03_kgb_death01": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m03_kgb_death02": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m03_reward": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_offer": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "No source facial allocation: DX_m04_offer_0067_jacobo at 97s; audio-only cue retained"
+    ]
+  },
+  "m04_offer_decision": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_offer_accept": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_officer_scene01": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_officer_scene02": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_friends_arrive_hassler": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_friends_arrive_alaric": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_reactor_fx": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_jacobo_death": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_jumphole": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m04_hatcher": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "Unvoiced facial event 25 retained with generic facial animation, source duration 6"
+    ]
+  },
+  "m04_final": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "No source facial allocation: DX_m04_final_0010_alaric at 0.5s; audio-only cue retained",
+      "No source facial allocation: DX_m04_final_0020_trent at 4.5s; audio-only cue retained",
+      "No source facial allocation: DX_m04_final_0130_alaric at 62s; audio-only cue retained"
+    ]
+  },
+  "m05_offer": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_offer_decision": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_offer_accept": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_piratebar": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_detroit": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_barman": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_research_explode": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_arrest_camera01": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_arrest_camera02": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_arrest_camera03": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_arrest_camera04": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_arrest_camera05": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_arrest_camera06": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_arrest_camera07": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_arrest_camera08": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_arrest_camera09": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_rheinlanders_camera": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m05_equip": {
+    "missing_current_lines": [
+      {
+        "source": "DX_m05_equip_0170_trent",
+        "index": 170
+      },
+      {
+        "source": "DX_m05_equip_0180_hatcher",
+        "index": 180
+      },
+      {
+        "source": "DX_m05_equip_0190_trent",
+        "index": 190
+      },
+      {
+        "source": "DX_m05_equip_0200_hatcher",
+        "index": 200
+      },
+      {
+        "source": "DX_m05_equip_0210_hatcher",
+        "index": 210
+      },
+      {
+        "source": "DX_m05_equip_0220_hatcher",
+        "index": 220
+      },
+      {
+        "source": "DX_m05_equip_0230_hatcher",
+        "index": 230
+      },
+      {
+        "source": "DX_m05_equip_0240_trent",
+        "index": 240
+      },
+      {
+        "source": "DX_m05_equip_0250_hatcher",
+        "index": 250
+      },
+      {
+        "source": "DX_m05_equip_0260_trent",
+        "index": 260
+      },
+      {
+        "source": "DX_m05_equip_0270_hatcher",
+        "index": 270
+      },
+      {
+        "source": "DX_m05_equip_0280_hatcher",
+        "index": 280
+      },
+      {
+        "source": "DX_m05_equip_0290_trent",
+        "index": 290
+      },
+      {
+        "source": "DX_m05_equip_0300_mandrake",
+        "index": 300
+      },
+      {
+        "source": "DX_m05_equip_0310_hatcher",
+        "index": 310
+      },
+      {
+        "source": "DX_m05_equip_0320_hatcher",
+        "index": 320
+      },
+      {
+        "source": "DX_m05_equip_0330_hatcher",
+        "index": 330
+      },
+      {
+        "source": "DX_m05_equip_0340_hatcher",
+        "index": 340
+      },
+      {
+        "source": "DX_m05_equip_0350_hatcher",
+        "index": 350
+      },
+      {
+        "source": "DX_m05_equip_0360_trent",
+        "index": 360
+      },
+      {
+        "source": "DX_m05_equip_0370_hatcher",
+        "index": 370
+      },
+      {
+        "source": "DX_m05_equip_0380_trent",
+        "index": 380
+      },
+      {
+        "source": "DX_m05_equip_0390_hatcher",
+        "index": 390
+      },
+      {
+        "source": "DX_m05_equip_0400_hatcher",
+        "index": 400
+      },
+      {
+        "source": "DX_m05_equip_0410_trent",
+        "index": 410
+      },
+      {
+        "source": "DX_m05_equip_0420_hatcher",
+        "index": 420
+      },
+      {
+        "source": "DX_m05_equip_0430_trent",
+        "index": 430
+      },
+      {
+        "source": "DX_m05_equip_0440_hatcher",
+        "index": 440
+      },
+      {
+        "source": "DX_m05_equip_0450_mandrake",
+        "index": 450
+      },
+      {
+        "source": "DX_m05_equip_0460_hatcher",
+        "index": 460
+      },
+      {
+        "source": "DX_m05_equip_0470_mandrake",
+        "index": 470
+      },
+      {
+        "source": "DX_m05_equip_0480_trent",
+        "index": 480
+      },
+      {
+        "source": "DX_m05_equip_0490_hatcher",
+        "index": 490
+      },
+      {
+        "source": "DX_m05_equip_0500_trent",
+        "index": 500
+      },
+      {
+        "source": "DX_m05_equip_0510_hatcher",
+        "index": 510
+      }
+    ],
+    "actor_mismatches": [
+      {
+        "source": "DX_m05_equip_0010_hatcher",
+        "source_actor": "Hatcher",
+        "script_actor": "Mandrake"
+      },
+      {
+        "source": "DX_m05_equip_0020_mandrake",
+        "source_actor": "Mandrake",
+        "script_actor": "Hatcher"
+      },
+      {
+        "source": "DX_m05_equip_0030_hatcher",
+        "source_actor": "Hatcher",
+        "script_actor": "Mandrake"
+      },
+      {
+        "source": "DX_m05_equip_0040_mandrake",
+        "source_actor": "Mandrake",
+        "script_actor": "Hatcher"
+      },
+      {
+        "source": "DX_m05_equip_0050_hatcher",
+        "source_actor": "Hatcher",
+        "script_actor": "Mandrake"
+      },
+      {
+        "source": "DX_m05_equip_0060_mandrake",
+        "source_actor": "Mandrake",
+        "script_actor": "Hatcher"
+      },
+      {
+        "source": "DX_m05_equip_0070_hatcher",
+        "source_actor": "Hatcher",
+        "script_actor": "Mandrake"
+      },
+      {
+        "source": "DX_m05_equip_0080_mandrake",
+        "source_actor": "Mandrake",
+        "script_actor": "Hatcher"
+      },
+      {
+        "source": "DX_m05_equip_0090_hatcher",
+        "source_actor": "Hatcher",
+        "script_actor": "Mandrake"
+      },
+      {
+        "source": "DX_m05_equip_0110_mandrake",
+        "source_actor": "Mandrake",
+        "script_actor": "Hatcher"
+      },
+      {
+        "source": "DX_m05_equip_0150_mandrake",
+        "source_actor": "Mandrake",
+        "script_actor": "Hatcher"
+      },
+      {
+        "source": "DX_m05_equip_0160_hatcher",
+        "source_actor": "Hatcher",
+        "script_actor": "Trent"
+      }
+    ],
+    "notes": [
+      "Actor mismatch in current script: m05_equip index 10: source hatcher, current Mandrake; source staging retained",
+      "Actor mismatch in current script: m05_equip index 20: source mandrake, current Hatcher; source staging retained",
+      "Actor mismatch in current script: m05_equip index 30: source hatcher, current Mandrake; source staging retained",
+      "Actor mismatch in current script: m05_equip index 40: source mandrake, current Hatcher; source staging retained",
+      "Actor mismatch in current script: m05_equip index 50: source hatcher, current Mandrake; source staging retained",
+      "Actor mismatch in current script: m05_equip index 60: source mandrake, current Hatcher; source staging retained",
+      "Actor mismatch in current script: m05_equip index 70: source hatcher, current Mandrake; source staging retained",
+      "Actor mismatch in current script: m05_equip index 80: source mandrake, current Hatcher; source staging retained",
+      "Actor mismatch in current script: m05_equip index 90: source hatcher, current Mandrake; source staging retained",
+      "Actor mismatch in current script: m05_equip index 110: source mandrake, current Hatcher; source staging retained",
+      "Actor mismatch in current script: m05_equip index 150: source mandrake, current Hatcher; source staging retained",
+      "Actor mismatch in current script: m05_equip index 160: source hatcher, current Trent; source staging retained",
+      "Legacy dialogue absent in current script: m05_equip index 170",
+      "Legacy dialogue absent in current script: m05_equip index 180",
+      "Legacy dialogue absent in current script: m05_equip index 190",
+      "Legacy dialogue absent in current script: m05_equip index 200",
+      "Legacy dialogue absent in current script: m05_equip index 210",
+      "Legacy dialogue absent in current script: m05_equip index 220",
+      "Legacy dialogue absent in current script: m05_equip index 230",
+      "Legacy dialogue absent in current script: m05_equip index 240",
+      "Legacy dialogue absent in current script: m05_equip index 250",
+      "Legacy dialogue absent in current script: m05_equip index 260",
+      "Legacy dialogue absent in current script: m05_equip index 270",
+      "Legacy dialogue absent in current script: m05_equip index 280",
+      "Legacy dialogue absent in current script: m05_equip index 290",
+      "Legacy dialogue absent in current script: m05_equip index 300",
+      "Legacy dialogue absent in current script: m05_equip index 310",
+      "Legacy dialogue absent in current script: m05_equip index 320",
+      "Legacy dialogue absent in current script: m05_equip index 330",
+      "Legacy dialogue absent in current script: m05_equip index 340",
+      "Legacy dialogue absent in current script: m05_equip index 350",
+      "Legacy dialogue absent in current script: m05_equip index 360",
+      "Legacy dialogue absent in current script: m05_equip index 370",
+      "Legacy dialogue absent in current script: m05_equip index 380",
+      "Legacy dialogue absent in current script: m05_equip index 390",
+      "Legacy dialogue absent in current script: m05_equip index 400",
+      "Legacy dialogue absent in current script: m05_equip index 410",
+      "Legacy dialogue absent in current script: m05_equip index 420",
+      "Legacy dialogue absent in current script: m05_equip index 430",
+      "Legacy dialogue absent in current script: m05_equip index 440",
+      "Legacy dialogue absent in current script: m05_equip index 450",
+      "Legacy dialogue absent in current script: m05_equip index 460",
+      "Legacy dialogue absent in current script: m05_equip index 470",
+      "Legacy dialogue absent in current script: m05_equip index 480",
+      "Legacy dialogue absent in current script: m05_equip index 490",
+      "Legacy dialogue absent in current script: m05_equip index 500",
+      "Legacy dialogue absent in current script: m05_equip index 510"
+    ]
+  },
+  "m06_offer": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_offer_decision": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_offer_accept": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_vendor_hatcher": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_vendor_alaric": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_briefing": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "No source facial allocation: DX_m06_briefing_0150_hatcher at 110.5s; audio-only cue retained"
+    ]
+  },
+  "m06_mount": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_nomad_area_camera1": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_nomad_area_camera2": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_nomad_area_camera3": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_nomad_area_camera4": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_lab_land": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_lab_room": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "No source facial allocation: DX_m06_lab_room_0020_alaric at 31s; audio-only cue retained"
+    ]
+  },
+  "m06_lab_launch": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_lab_explode_camera": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_torpedo_alert": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "Unvoiced facial event 16 retained with generic facial animation, source duration 10"
+    ]
+  },
+  "m06_jumpin_camera1": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_jumpin_camera2": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_order_camera3": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_order_camera4": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_omicron_major": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m06_order_deck": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "No source facial allocation: DX_m06_order_deck_0010_orderpilot at 35s; audio-only cue retained"
+    ]
+  },
+  "m06_prison_new": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "No source facial allocation: DX_m06_order_prison_0070_delta3 at 107s; audio-only cue retained",
+      "Unvoiced facial event 266 retained with generic facial animation, source duration 15",
+      "Unvoiced facial event 267 retained with generic facial animation, source duration 15"
+    ]
+  },
+  "m07_offer": {
+    "missing_current_lines": [
+      {
+        "source": "DX_m06_freeport_0060_delta1",
+        "index": 60
+      },
+      {
+        "source": "DX_m06_freeport_0100_delta1",
+        "index": 100
+      }
+    ],
+    "actor_mismatches": [],
+    "notes": [
+      "Legacy dialogue absent in current script: m06_freeport index 60",
+      "Legacy dialogue absent in current script: m06_freeport index 100"
+    ]
+  },
+  "m07_offer_decision": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m07_offer_accept": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m07_tortuga_wp_camera": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m01b_armored_trap_camera": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m07_omega13": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "No source facial allocation: DX_m07_omega13_0015_trent at 1s; audio-only cue retained",
+      "No source facial allocation: DX_m07_omega13_0020_rockford at 4s; audio-only cue retained",
+      "No source facial allocation: DX_m07_omega13_0035_trent at 7.5s; audio-only cue retained",
+      "No source facial allocation: DX_m07_omega13_0040_rockford at 12s; audio-only cue retained",
+      "No source facial allocation: DX_m07_omega13_0060_rockford at 23s; audio-only cue retained"
+    ]
+  },
+  "m07_tau_arrival": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m07_battleship": {
+    "missing_current_lines": [
+      {
+        "source": "DX_m07_battleship_0060_darcy",
+        "index": 60
+      }
+    ],
+    "actor_mismatches": [],
+    "notes": [
+      "Legacy dialogue absent in current script: m07_battleship index 60",
+      "Alternate placement Char_trent_runner shares actor Char_trent",
+      "No source facial allocation: DX_m07_battleship_0010_trent at 2.5s; audio-only cue retained",
+      "Unvoiced facial event 15 retained with generic facial animation, source duration 6"
+    ]
+  },
+  "m07_check_artifact": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m07_reward": {
+    "missing_current_lines": [
+      {
+        "source": "DX_m07_reward_0030_darcy",
+        "index": 30
+      },
+      {
+        "source": "DX_m07_reward_0040_trent",
+        "index": 40
+      }
+    ],
+    "actor_mismatches": [],
+    "notes": [
+      "Legacy dialogue absent in current script: m07_reward index 30",
+      "Legacy dialogue absent in current script: m07_reward index 40",
+      "Unvoiced facial event 38 retained with generic facial animation, source duration 25"
+    ]
+  },
+  "m07_gunners": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "No source facial allocation: DX_m07_cadiz_0065_rockford at 64s; audio-only cue retained",
+      "Unvoiced facial event 107 retained with generic facial animation, source duration 2"
+    ]
+  },
+  "m08_wales_init": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_liberty_enter_camera_01": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_lair_enter_door_01": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_core_camera_01": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_core_camera_02": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_core_camera_03": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_core_camera_04": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_core_camera_06": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_core_camera_08": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_core_camera_07": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_core_camera_09": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_outside_camera_01": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_outside_camera_02": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_lair_done_camera_04": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_lair_done_camera_01": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_lair_done_camera_02": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_lair_done_camera_03": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_osiris": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "Unvoiced facial event 169 retained with generic facial animation, source duration 0.1"
+    ]
+  },
+  "m08_offer": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": [
+      "No source facial allocation: DX_m08_offer_0215_kaitlyn at 97s; audio-only cue retained",
+      "No source facial allocation: DX_m08_offer_0430_kaitlyn at 214.4s; audio-only cue retained"
+    ]
+  },
+  "m08_offer_decision": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  },
+  "m08_offer_accept": {
+    "missing_current_lines": [],
+    "actor_mismatches": [],
+    "notes": []
+  }
+}

@@ -1,4 +1,12 @@
 <Project>
+  <PropertyGroup Condition="'$(FreelancerProduction)'=='1'">
+    <FreelancerEnableTickProfile>0</FreelancerEnableTickProfile>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(FreelancerProduction)'=='1'">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_PRODUCTION=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <!-- Public rendering interfaces use DX8 types; keep this SDK after the Windows SDK. -->
   <PropertyGroup>
     <IncludePath>$(IncludePath);$(Dx8SdkDir)\include</IncludePath>

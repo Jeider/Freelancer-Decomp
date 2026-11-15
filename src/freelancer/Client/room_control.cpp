@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "room_control.h"
+#include "misc_util.h"
 #include "base_interior_profiles.h"
 #ifdef FREELANCER_RP9
 #include "render_ex.h"
@@ -57,6 +58,7 @@
 #include "engine/engbase.h"
 #include "render/IFLAppearance.h"
 #include "render/IRenderPipeline.h"
+#include "common_visible_draw.h"
 #include "render/rendcomp.h"
 #include "render/shading.h"
 
@@ -2601,7 +2603,6 @@ void RoomControlDrawShadow(FRoomRuntime* Room, unsigned long A, unsigned long B,
 {
 #ifdef FREELANCER_RP9
     if(G_RoomSilhouettePass || G_RoomSilhouetteInstances.count(A))return;
-    if (GraphicsSettings::Get(GraphicsSettings::Shadows)==0) return;
 #endif
     // FUN_0044b370. 0x0044b389..0x0044b3be: the SHADOWS option (0x2b), "shadow_glare" and the
     // room's shadow light (RoomData +0xe4).
@@ -2637,6 +2638,8 @@ void RoomControlLightObject(FRoomRuntime* Room, FRoomObject* Object)
 
 void RoomControlDraw(FRoomRuntime* Runtime)
 {
+    VisibleDraw::Reset();
+
 #ifdef FREELANCER_RP9
     G_RoomSilhouetteInstances.clear();
 #endif
@@ -2709,15 +2712,23 @@ void RoomControlDraw(FRoomRuntime* Runtime)
     // Contact shading uses opaque depth; glass, flares, effects and UI follow it.
     RenderEx::RoomContactShadows();
 
-    // Only room ships use the silhouette map. Characters retain their native
-    // blob in DrawOpaque and must never enter G_RoomSilhouetteInstances.
+    // Characters must use the deformable draw: RenderInstance alone does not
+    // submit the skinned body. Keep native blobs only if the silhouette fails.
     if(GetGameOption(kGameOptShadows)!=0)
     for(FRoomObject* Object : DeferredCharacters)
     {
-        if(dynamic_cast<FCharacterObject*>(Object))continue;
+        auto* Character=dynamic_cast<FCharacterObject*>(Object);
         float Center[3]={},Radius=0;
         void* Instance=Object->GetEngineInstance();
         if(!Instance || Instance==kRoomObjectNoInstance)continue;
+        if(Character)
+        {
+            if(GetGameOption(kGameOptObjectsGroup)==0 || GetGameOption(kGameOptCharacters)==0 ||
+               GetGameOption(kGameOptLikePetal)!=0 || !DALib::Deform)continue;
+            DALib::Deform->GetBoundSphere(Character->Lod.Instance,&Radius,Center);
+            if(!MiscUtilSphereInView(Runtime->Camera,Center,Radius))continue;
+        }
+        else
         {
             if(auto* Ship=dynamic_cast<FObjectShip*>(Object))
                 if(!Ship->bShadow || GetGameOption(kGameOptObjectsGroup)==0 || GetGameOption(kGameOptShips)==0 ||
@@ -2740,14 +2751,15 @@ void RoomControlDraw(FRoomRuntime* Runtime)
             }
             for(unsigned Axis=0;Axis<3;++Axis){Center[Axis]=(Low[Axis]+High[Axis])*.5f;Radius=(std::max)(Radius,(High[Axis]-Low[Axis])*.5f);}
         }
-        if(!RenderEx::BeginRoomShadow(Runtime->Camera->GetViewTransform(),Center,Radius,false))continue;
+        if(!RenderEx::BeginRoomShadow(Runtime->Camera->GetViewTransform(),Center,Radius,Character!=nullptr))continue;
         G_RoomSilhouettePass=true;
         // Submit shadow geometry immediately, without consuming the pending
         // room transparency or adding shadow-view records to its queue.
         // Disabling bin 1 preserves its records; RP9 rejects blended casters.
         if(DALib::MaterialBatcher)DALib::MaterialBatcher->SetBinOrder(1,-1);
         RoomBatcherTagObject(Runtime,Object);
-        RoomControlDrawObject(Runtime,Object);
+        if(Character)Character->DrawShadowGeometry(Runtime->Camera);
+        else RoomControlDrawObject(Runtime,Object);
         RoomBatcherUntagObject();
         if(DALib::MaterialBatcher)
         {

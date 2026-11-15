@@ -1,0 +1,175 @@
+{
+  "name": "m06_nomad_area_camera1",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_nomad_area_camera1.thn",
+  "points": {
+    "Path_1": {
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "Shot06_Camera_0": {
+      "pos": [
+        -16828,
+        -3599,
+        28921
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "Shot06_Camera_0"
+  ],
+  "characters": [],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "scene_nomad_area_camera1",
+      "type": "SCENE",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "entity_name": "Shot06_Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "template_id": 0
+    },
+    {
+      "entity_name": "Path_1",
+      "type": "MOTION_PATH",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "pathprops": {
+        "path_type": "CV_CROrientationSplinePath",
+        "path_data": "OPEN, {-16000, -100, -26000}, {0.5,0,-0.5,0}, {-11400, 300, -25850}, {0.4,0,-0.6,0},"
+      }
+    },
+    {
+      "entity_name": "Shot06_Camera_0",
+      "type": "CAMERA",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          -16828,
+          -3599,
+          28921
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 35,
+        "hvaspect": 1.333333,
+        "nearplane": 0.1,
+        "farplane": 100000
+      }
+    }
+  ],
+  "duration": 25.0
+}

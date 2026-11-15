@@ -22,6 +22,7 @@ public:
 	enum { IDD = 0x84 };
 
 	explicit CServerConfigDlg(CWnd* Parent = nullptr);
+	HWND CampaignCheck = nullptr;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* DX);   // .text:00407040

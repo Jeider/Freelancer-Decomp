@@ -1,0 +1,70 @@
+{
+  "name": "m03_offer_decision",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m03_offer_decision.thn",
+  "sha256": "4043d5def04891445acbdfca4105f885fd471166cc8a100a7ab7a899dd114dca",
+  "uses": [
+    {
+      "mission": 3,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\m03.ini",
+      "mission_line": 584,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m03\\vendor_msn.ini",
+      "line": 5,
+      "role": "decision",
+      "thn": "scripts\\mod\\m03_offer_decision.thn"
+    }
+  ],
+  "source_duration": 1000.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_M03_bar_scene_decision": "Scene_M03_bar_scene_decision",
+    "Monitor_1": "Monitor_1",
+    "Char_trent": "Char_trent",
+    "Char_hassler": "Char_hassler",
+    "Char_wilham": "Char_wilham",
+    "cam_decision": "cam_decision",
+    "cam_decision_marker": "automarker_cam_decision_focus"
+  },
+  "point_names": {
+    "Scene_M03_bar_scene_decision": "Scene_M03_bar_scene_decision",
+    "Monitor_1": "Monitor_1",
+    "Char_trent": "Char_trent",
+    "Char_hassler": "Char_hassler",
+    "Char_wilham": "Char_wilham",
+    "cam_decision": "cam_decision",
+    "cam_decision_marker": "cam_decision_focus"
+  }
+}

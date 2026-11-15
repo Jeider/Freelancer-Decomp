@@ -79,6 +79,7 @@ public:
     void Update() override;
     // slot 13 FUN_0043e6c0
     void Draw() override;
+    bool CanDrawToolbar() const;
     // slot 29 LAB_0043efd0 (RET 4) -- the [NavBar] section of IniValues written to File.
     void Slot29(FILE* File) override;
     // slot 42 LAB_0043ee80 (RET 0xc) -- only Msg 0x26 (a button clicked, A = the control).

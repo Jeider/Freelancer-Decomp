@@ -1,0 +1,899 @@
+{
+  "ru": {
+    "voices": [
+      {
+        "index": 10,
+        "start": 7,
+        "duration": 4.152
+      },
+      {
+        "index": 20,
+        "start": 11.152000000000001,
+        "duration": 2.352
+      },
+      {
+        "index": 70,
+        "start": 15.504000000000001,
+        "duration": 12.048
+      },
+      {
+        "index": 80,
+        "start": 28.052,
+        "duration": 1.44
+      },
+      {
+        "index": 90,
+        "start": 33.492000000000004,
+        "duration": 1.848
+      },
+      {
+        "index": 100,
+        "start": 35.34,
+        "duration": 6.216
+      },
+      {
+        "index": 110,
+        "start": 41.556000000000004,
+        "duration": 9.216
+      },
+      {
+        "index": 120,
+        "start": 50.772000000000006,
+        "duration": 5.688
+      },
+      {
+        "index": 125,
+        "start": 56.46000000000001,
+        "duration": 3.456
+      },
+      {
+        "index": 130,
+        "start": 59.91600000000001,
+        "duration": 15.936
+      },
+      {
+        "index": 140,
+        "start": 75.852,
+        "duration": 6.336
+      },
+      {
+        "index": 150,
+        "start": 82.188,
+        "duration": 1.608
+      },
+      {
+        "index": 160,
+        "start": 83.796,
+        "duration": 1.152
+      }
+    ],
+    "ik": [
+      {
+        "start": 0,
+        "end": 15,
+        "effective_end": 13.504000000000001,
+        "char": "Char_trent",
+        "effector": "Body_Head",
+        "target": "Char_adelmar",
+        "line": 58,
+        "source_id": 17
+      },
+      {
+        "start": 0,
+        "end": 150,
+        "effective_end": 150,
+        "char": "Char_adelmar",
+        "effector": "Body_Head",
+        "target": "automarker_adelmar_head_ik",
+        "line": 72,
+        "source_id": 30
+      },
+      {
+        "start": 0,
+        "end": 150,
+        "effective_end": 150,
+        "char": "Char_adelmar",
+        "effector": "Eye IK Left",
+        "target": "automarker_adelmar_eye_ik",
+        "line": 74,
+        "source_id": 31
+      },
+      {
+        "start": 0,
+        "end": 46,
+        "effective_end": 46,
+        "char": "Char_luc",
+        "effector": "Body_Head",
+        "target": "automarker_luc_head_ik",
+        "line": 76,
+        "source_id": 32
+      },
+      {
+        "start": 0,
+        "end": 150,
+        "effective_end": 150,
+        "char": "Char_luc",
+        "effector": "Eye IK Left",
+        "target": "automarker_luc_eye_ik",
+        "line": 78,
+        "source_id": 33
+      },
+      {
+        "start": 13.504000000000001,
+        "end": 38.504000000000005,
+        "effective_end": 32.492000000000004,
+        "char": "Char_alaric",
+        "effector": "Body_Head",
+        "target": "automarker_alaric_head_ik",
+        "line": 333,
+        "source_id": null
+      },
+      {
+        "start": 13.504000000000001,
+        "end": 38.504000000000005,
+        "effective_end": 32.492000000000004,
+        "char": "Char_alaric",
+        "effector": "Eye IK Left",
+        "target": "automarker_alaric_eye_ik",
+        "line": 334,
+        "source_id": null
+      },
+      {
+        "start": 13.504000000000001,
+        "end": 38.504000000000005,
+        "effective_end": 32.492000000000004,
+        "char": "Char_trent",
+        "effector": "Body_Head",
+        "target": "automarker_trent_head_ik",
+        "line": 335,
+        "source_id": null
+      },
+      {
+        "start": 13.504000000000001,
+        "end": 38.504000000000005,
+        "effective_end": 32.492000000000004,
+        "char": "Char_trent",
+        "effector": "Eye IK Left",
+        "target": "automarker_trent_eye_ik",
+        "line": 336,
+        "source_id": null
+      },
+      {
+        "start": 32.492000000000004,
+        "end": 39.492000000000004,
+        "effective_end": 39.492000000000004,
+        "char": "Char_trent",
+        "effector": "Body_Head",
+        "target": "automarker_trent_head_ik",
+        "line": 465,
+        "source_id": 199
+      },
+      {
+        "start": 32.492000000000004,
+        "end": 42.492000000000004,
+        "effective_end": 42.492000000000004,
+        "char": "Char_trent",
+        "effector": "Eye IK Left",
+        "target": "automarker_trent_eye_ik",
+        "line": 467,
+        "source_id": 200
+      },
+      {
+        "start": 32.492000000000004,
+        "end": 177.49200000000002,
+        "effective_end": 177.49200000000002,
+        "char": "Char_alaric",
+        "effector": "Body_Head",
+        "target": "automarker_alaric_head_ik",
+        "line": 469,
+        "source_id": 203
+      },
+      {
+        "start": 32.492000000000004,
+        "end": 177.49200000000002,
+        "effective_end": 177.49200000000002,
+        "char": "Char_alaric",
+        "effector": "Eye IK Left",
+        "target": "automarker_alaric_eye_ik",
+        "line": 471,
+        "source_id": 204
+      },
+      {
+        "start": 45.556000000000004,
+        "end": 90.05600000000001,
+        "effective_end": 90.05600000000001,
+        "char": "Char_trent",
+        "effector": "Body_Head",
+        "target": "automarker_trent_head_ik",
+        "line": 545,
+        "source_id": 201
+      },
+      {
+        "start": 45.556000000000004,
+        "end": 90.05600000000001,
+        "effective_end": 90.05600000000001,
+        "char": "Char_trent",
+        "effector": "Eye IK Left",
+        "target": "automarker_trent_eye_ik",
+        "line": 547,
+        "source_id": 202
+      }
+    ],
+    "uncovered_moves": [
+      {
+        "start": 30.052,
+        "end": 34.052,
+        "marker": "automarker_alaric_head_ik",
+        "to": "automarker_alaric_front",
+        "source_id": 181,
+        "line": 435,
+        "bindings": [
+          {
+            "start": 13.504000000000001,
+            "end": 38.504000000000005,
+            "effective_end": 32.492000000000004,
+            "char": "Char_alaric",
+            "effector": "Body_Head",
+            "target": "automarker_alaric_head_ik",
+            "line": 333,
+            "source_id": null
+          },
+          {
+            "start": 32.492000000000004,
+            "end": 177.49200000000002,
+            "effective_end": 177.49200000000002,
+            "char": "Char_alaric",
+            "effector": "Body_Head",
+            "target": "automarker_alaric_head_ik",
+            "line": 469,
+            "source_id": 203
+          }
+        ]
+      }
+    ],
+    "inversions": [
+      {
+        "marker": "automarker_alaric_eye_ik",
+        "first": 180,
+        "later": 179,
+        "source_times": [
+          61,
+          60
+        ],
+        "actual_times": [
+          28.052,
+          28.504
+        ],
+        "lines": [
+          422,
+          408
+        ]
+      }
+    ],
+    "spill": [
+      {
+        "source_id": 168,
+        "line": 398,
+        "from_line": 70,
+        "start": 28.504,
+        "next_line": 80,
+        "next_start": 28.052
+      },
+      {
+        "source_id": 169,
+        "line": 400,
+        "from_line": 70,
+        "start": 28.504,
+        "next_line": 80,
+        "next_start": 28.052
+      },
+      {
+        "source_id": 172,
+        "line": 402,
+        "from_line": 70,
+        "start": 28.504,
+        "next_line": 80,
+        "next_start": 28.052
+      },
+      {
+        "source_id": 173,
+        "line": 404,
+        "from_line": 70,
+        "start": 28.504,
+        "next_line": 80,
+        "next_start": 28.052
+      },
+      {
+        "source_id": 178,
+        "line": 406,
+        "from_line": 70,
+        "start": 28.504,
+        "next_line": 80,
+        "next_start": 28.052
+      },
+      {
+        "source_id": 179,
+        "line": 408,
+        "from_line": 70,
+        "start": 28.504,
+        "next_line": 80,
+        "next_start": 28.052
+      },
+      {
+        "source_id": 261,
+        "line": 586,
+        "from_line": 120,
+        "start": 56.772000000000006,
+        "next_line": 125,
+        "next_start": 56.46000000000001
+      },
+      {
+        "source_id": 262,
+        "line": 588,
+        "from_line": 120,
+        "start": 56.772000000000006,
+        "next_line": 125,
+        "next_start": 56.46000000000001
+      },
+      {
+        "source_id": 321,
+        "line": 667,
+        "from_line": 140,
+        "start": 82.352,
+        "next_line": 150,
+        "next_start": 82.188
+      }
+    ],
+    "turns": [
+      {
+        "start": 79.852,
+        "duration": 5,
+        "char": "Char_alaric",
+        "anim": "Sc_MLBODY_STND_TURN_315LV_XA_02",
+        "line": 659,
+        "source_id": 313
+      },
+      {
+        "start": 83.796,
+        "duration": 15,
+        "char": "Char_alaric",
+        "anim": "Sc_MLBODY_STND_WALK_TRNS_270LV_XA_02",
+        "line": 685,
+        "source_id": 329
+      },
+      {
+        "start": 84.94800000000001,
+        "duration": 15,
+        "char": "Char_trent",
+        "anim": "Sc_MLBODY_STND_TURN_180LV_XA_04",
+        "line": 708,
+        "source_id": 333
+      },
+      {
+        "start": 88.94800000000001,
+        "duration": 15,
+        "char": "Char_trent",
+        "anim": "Sc_MLBODY_STND_LOOK_AROU_000LV_XA_09",
+        "line": 711,
+        "source_id": 334
+      }
+    ],
+    "duration": 92.44800000000001
+  },
+  "en": {
+    "voices": [
+      {
+        "index": 10,
+        "start": 7,
+        "duration": 4.2410625
+      },
+      {
+        "index": 20,
+        "start": 11.2410625,
+        "duration": 0.8303958333333333
+      },
+      {
+        "index": 70,
+        "start": 14.071458333333334,
+        "duration": 7.4269375
+      },
+      {
+        "index": 80,
+        "start": 21.998395833333333,
+        "duration": 0.8583125
+      },
+      {
+        "index": 90,
+        "start": 26.856708333333334,
+        "duration": 1.8523125
+      },
+      {
+        "index": 100,
+        "start": 28.709020833333334,
+        "duration": 4.834604166666667
+      },
+      {
+        "index": 110,
+        "start": 33.543625,
+        "duration": 6.2004375
+      },
+      {
+        "index": 120,
+        "start": 39.7440625,
+        "duration": 4.5945625
+      },
+      {
+        "index": 125,
+        "start": 44.338625,
+        "duration": 2.1365625
+      },
+      {
+        "index": 130,
+        "start": 46.475187500000004,
+        "duration": 13.4209375
+      },
+      {
+        "index": 140,
+        "start": 59.896125000000005,
+        "duration": 4.616479166666666
+      },
+      {
+        "index": 150,
+        "start": 64.51260416666668,
+        "duration": 1.8716041666666667
+      },
+      {
+        "index": 160,
+        "start": 66.38420833333335,
+        "duration": 0.6187291666666667
+      }
+    ],
+    "ik": [
+      {
+        "start": 0,
+        "end": 15,
+        "effective_end": 12.071458333333334,
+        "char": "Char_trent",
+        "effector": "Body_Head",
+        "target": "Char_adelmar",
+        "line": 58,
+        "source_id": 17
+      },
+      {
+        "start": 0,
+        "end": 150,
+        "effective_end": 150,
+        "char": "Char_adelmar",
+        "effector": "Body_Head",
+        "target": "automarker_adelmar_head_ik",
+        "line": 72,
+        "source_id": 30
+      },
+      {
+        "start": 0,
+        "end": 150,
+        "effective_end": 150,
+        "char": "Char_adelmar",
+        "effector": "Eye IK Left",
+        "target": "automarker_adelmar_eye_ik",
+        "line": 74,
+        "source_id": 31
+      },
+      {
+        "start": 0,
+        "end": 46,
+        "effective_end": 46,
+        "char": "Char_luc",
+        "effector": "Body_Head",
+        "target": "automarker_luc_head_ik",
+        "line": 76,
+        "source_id": 32
+      },
+      {
+        "start": 0,
+        "end": 150,
+        "effective_end": 150,
+        "char": "Char_luc",
+        "effector": "Eye IK Left",
+        "target": "automarker_luc_eye_ik",
+        "line": 78,
+        "source_id": 33
+      },
+      {
+        "start": 12.071458333333334,
+        "end": 37.07145833333333,
+        "effective_end": 25.856708333333334,
+        "char": "Char_alaric",
+        "effector": "Body_Head",
+        "target": "automarker_alaric_head_ik",
+        "line": 333,
+        "source_id": null
+      },
+      {
+        "start": 12.071458333333334,
+        "end": 37.07145833333333,
+        "effective_end": 25.856708333333334,
+        "char": "Char_alaric",
+        "effector": "Eye IK Left",
+        "target": "automarker_alaric_eye_ik",
+        "line": 334,
+        "source_id": null
+      },
+      {
+        "start": 12.071458333333334,
+        "end": 37.07145833333333,
+        "effective_end": 25.856708333333334,
+        "char": "Char_trent",
+        "effector": "Body_Head",
+        "target": "automarker_trent_head_ik",
+        "line": 335,
+        "source_id": null
+      },
+      {
+        "start": 12.071458333333334,
+        "end": 37.07145833333333,
+        "effective_end": 25.856708333333334,
+        "char": "Char_trent",
+        "effector": "Eye IK Left",
+        "target": "automarker_trent_eye_ik",
+        "line": 336,
+        "source_id": null
+      },
+      {
+        "start": 25.856708333333334,
+        "end": 32.85670833333333,
+        "effective_end": 32.85670833333333,
+        "char": "Char_trent",
+        "effector": "Body_Head",
+        "target": "automarker_trent_head_ik",
+        "line": 465,
+        "source_id": 199
+      },
+      {
+        "start": 25.856708333333334,
+        "end": 35.85670833333333,
+        "effective_end": 35.85670833333333,
+        "char": "Char_trent",
+        "effector": "Eye IK Left",
+        "target": "automarker_trent_eye_ik",
+        "line": 467,
+        "source_id": 200
+      },
+      {
+        "start": 25.856708333333334,
+        "end": 170.85670833333333,
+        "effective_end": 170.85670833333333,
+        "char": "Char_alaric",
+        "effector": "Body_Head",
+        "target": "automarker_alaric_head_ik",
+        "line": 469,
+        "source_id": 203
+      },
+      {
+        "start": 25.856708333333334,
+        "end": 170.85670833333333,
+        "effective_end": 170.85670833333333,
+        "char": "Char_alaric",
+        "effector": "Eye IK Left",
+        "target": "automarker_alaric_eye_ik",
+        "line": 471,
+        "source_id": 204
+      },
+      {
+        "start": 37.543625,
+        "end": 82.04362499999999,
+        "effective_end": 82.04362499999999,
+        "char": "Char_trent",
+        "effector": "Body_Head",
+        "target": "automarker_trent_head_ik",
+        "line": 545,
+        "source_id": 201
+      },
+      {
+        "start": 37.543625,
+        "end": 82.04362499999999,
+        "effective_end": 82.04362499999999,
+        "char": "Char_trent",
+        "effector": "Eye IK Left",
+        "target": "automarker_trent_eye_ik",
+        "line": 547,
+        "source_id": 202
+      }
+    ],
+    "uncovered_moves": [
+      {
+        "start": 23.998395833333333,
+        "end": 27.998395833333333,
+        "marker": "automarker_alaric_head_ik",
+        "to": "automarker_alaric_front",
+        "source_id": 181,
+        "line": 435,
+        "bindings": [
+          {
+            "start": 12.071458333333334,
+            "end": 37.07145833333333,
+            "effective_end": 25.856708333333334,
+            "char": "Char_alaric",
+            "effector": "Body_Head",
+            "target": "automarker_alaric_head_ik",
+            "line": 333,
+            "source_id": null
+          },
+          {
+            "start": 25.856708333333334,
+            "end": 170.85670833333333,
+            "effective_end": 170.85670833333333,
+            "char": "Char_alaric",
+            "effector": "Body_Head",
+            "target": "automarker_alaric_head_ik",
+            "line": 469,
+            "source_id": 203
+          }
+        ]
+      }
+    ],
+    "inversions": [
+      {
+        "marker": "automarker_alaric_eye_ik",
+        "first": 180,
+        "later": 179,
+        "source_times": [
+          61,
+          60
+        ],
+        "actual_times": [
+          21.998395833333333,
+          27.071458333333332
+        ],
+        "lines": [
+          422,
+          408
+        ]
+      },
+      {
+        "marker": "automarker_trent_head_ik",
+        "first": 174,
+        "later": 172,
+        "source_times": [
+          63,
+          60
+        ],
+        "actual_times": [
+          23.998395833333333,
+          27.071458333333332
+        ],
+        "lines": [
+          431,
+          402
+        ]
+      },
+      {
+        "marker": "automarker_trent_eye_ik",
+        "first": 175,
+        "later": 173,
+        "source_times": [
+          63,
+          60
+        ],
+        "actual_times": [
+          23.998395833333333,
+          27.071458333333332
+        ],
+        "lines": [
+          433,
+          404
+        ]
+      },
+      {
+        "marker": "automarker_alaric_head_ik",
+        "first": 181,
+        "later": 178,
+        "source_times": [
+          63,
+          60
+        ],
+        "actual_times": [
+          23.998395833333333,
+          27.071458333333332
+        ],
+        "lines": [
+          435,
+          406
+        ]
+      },
+      {
+        "marker": "automarker_alaric_eye_ik",
+        "first": 182,
+        "later": 179,
+        "source_times": [
+          63,
+          60
+        ],
+        "actual_times": [
+          23.998395833333333,
+          27.071458333333332
+        ],
+        "lines": [
+          437,
+          408
+        ]
+      },
+      {
+        "marker": "automarker_alaric_head_ik",
+        "first": 214,
+        "later": 178,
+        "source_times": [
+          70,
+          60
+        ],
+        "actual_times": [
+          25.856708333333334,
+          27.071458333333332
+        ],
+        "lines": [
+          483,
+          406
+        ]
+      },
+      {
+        "marker": "automarker_alaric_eye_ik",
+        "first": 215,
+        "later": 179,
+        "source_times": [
+          70,
+          60
+        ],
+        "actual_times": [
+          25.856708333333334,
+          27.071458333333332
+        ],
+        "lines": [
+          485,
+          408
+        ]
+      },
+      {
+        "marker": "automarker_trent_eye_ik",
+        "first": 322,
+        "later": 303,
+        "source_times": [
+          124.5,
+          122.5
+        ],
+        "actual_times": [
+          64.51260416666668,
+          64.89612500000001
+        ],
+        "lines": [
+          675,
+          662
+        ]
+      }
+    ],
+    "spill": [
+      {
+        "source_id": 168,
+        "line": 398,
+        "from_line": 70,
+        "start": 27.071458333333332,
+        "next_line": 80,
+        "next_start": 21.998395833333333
+      },
+      {
+        "source_id": 169,
+        "line": 400,
+        "from_line": 70,
+        "start": 27.071458333333332,
+        "next_line": 80,
+        "next_start": 21.998395833333333
+      },
+      {
+        "source_id": 172,
+        "line": 402,
+        "from_line": 70,
+        "start": 27.071458333333332,
+        "next_line": 80,
+        "next_start": 21.998395833333333
+      },
+      {
+        "source_id": 173,
+        "line": 404,
+        "from_line": 70,
+        "start": 27.071458333333332,
+        "next_line": 80,
+        "next_start": 21.998395833333333
+      },
+      {
+        "source_id": 178,
+        "line": 406,
+        "from_line": 70,
+        "start": 27.071458333333332,
+        "next_line": 80,
+        "next_start": 21.998395833333333
+      },
+      {
+        "source_id": 179,
+        "line": 408,
+        "from_line": 70,
+        "start": 27.071458333333332,
+        "next_line": 80,
+        "next_start": 21.998395833333333
+      },
+      {
+        "source_id": 258,
+        "line": 552,
+        "from_line": 110,
+        "start": 40.543625,
+        "next_line": 120,
+        "next_start": 39.7440625
+      },
+      {
+        "source_id": 261,
+        "line": 586,
+        "from_line": 120,
+        "start": 45.7440625,
+        "next_line": 125,
+        "next_start": 44.338625
+      },
+      {
+        "source_id": 262,
+        "line": 588,
+        "from_line": 120,
+        "start": 45.7440625,
+        "next_line": 125,
+        "next_start": 44.338625
+      },
+      {
+        "source_id": 303,
+        "line": 662,
+        "from_line": 140,
+        "start": 64.89612500000001,
+        "next_line": 150,
+        "next_start": 64.51260416666668
+      },
+      {
+        "source_id": 321,
+        "line": 667,
+        "from_line": 140,
+        "start": 66.39612500000001,
+        "next_line": 150,
+        "next_start": 64.51260416666668
+      }
+    ],
+    "turns": [
+      {
+        "start": 63.896125000000005,
+        "duration": 5,
+        "char": "Char_alaric",
+        "anim": "Sc_MLBODY_STND_TURN_315LV_XA_02",
+        "line": 659,
+        "source_id": 313
+      },
+      {
+        "start": 66.38420833333335,
+        "duration": 15,
+        "char": "Char_alaric",
+        "anim": "Sc_MLBODY_STND_WALK_TRNS_270LV_XA_02",
+        "line": 685,
+        "source_id": 329
+      },
+      {
+        "start": 67.00293750000002,
+        "duration": 15,
+        "char": "Char_trent",
+        "anim": "Sc_MLBODY_STND_TURN_180LV_XA_04",
+        "line": 708,
+        "source_id": 333
+      },
+      {
+        "start": 71.00293750000002,
+        "duration": 15,
+        "char": "Char_trent",
+        "anim": "Sc_MLBODY_STND_LOOK_AROU_000LV_XA_09",
+        "line": 711,
+        "source_id": 334
+      }
+    ],
+    "duration": 74.50293750000002
+  }
+}

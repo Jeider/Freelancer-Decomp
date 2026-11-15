@@ -92,7 +92,7 @@ const FCockpitMeshHolder& GetCockpitMeshHolder()
     return GCockpitMeshHolder;
 }
 
-bool InitPlayerCockpitSlice()
+bool InitPlayerCockpitSlice(bool LoadHud)
 {
     // 0x0054acc7: the player's IObjRW -- the watcher at DAT_00679744 minus eight, or null.
     void* const Watched = GetPlayerShipWatcher();
@@ -125,7 +125,7 @@ bool InitPlayerCockpitSlice()
     SpaceCameraLoadCockpit(FullPath);
 
     // 0x0054ad62: FUN_004c73d0.
-    LoadHudElementsFromIni();
+    if (LoadHud) LoadHudElementsFromIni();
 
     // 0x0054ad67.. (+0xbaa, RefreshLoadingProgress, FUN_00549bc0(this, 0, 0)) continue in the
     // space init itself (space_state.cpp InitSpaceState).

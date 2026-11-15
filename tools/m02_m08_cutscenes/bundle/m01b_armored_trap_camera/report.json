@@ -1,0 +1,104 @@
+{
+  "name": "m01b_armored_trap_camera",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m01b_armored_trap_camera.thn",
+  "sha256": "c16eb4ba3ad0541723f2e2db50920f6f708b9802f5274ba5cff2ec7c6b237e3b",
+  "uses": [
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1185,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "line": 1185,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m01b_armored_trap_camera.thn"
+    }
+  ],
+  "source_duration": 54.375,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 0.75,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_Untitled_2": "Scene_Untitled_2",
+    "Shot01_Monitor_1": "Shot01_Monitor_1",
+    "aa_main_object": "automarker_Path_Camera_1_focus",
+    "CnB_Camera_00": "CnB_Camera_00",
+    "CnB_Camera_01": "CnB_Camera_01",
+    "aa_depot_Path": "aa_depot_Path",
+    "Marker_1": "automarker_Marker_1",
+    "Marker_2": "automarker_Marker_2",
+    "Path_Camera_1": "Path_Camera_1",
+    "rh_cruiser_1": "rh_cruiser_1",
+    "Point_Marker_1": "automarker_Point_Marker_1",
+    "Point_Marker_1_copy_1": "automarker_Point_Marker_1_copy_1",
+    "Point_Marker_1_copy_2": "automarker_Point_Marker_1_copy_2",
+    "Point_Marker_1_copy_3": "automarker_Point_Marker_1_copy_3",
+    "Point_Marker_1_copy_4": "automarker_Point_Marker_1_copy_4"
+  },
+  "point_names": {
+    "Scene_Untitled_2": "Scene_Untitled_2",
+    "Shot01_Monitor_1": "Shot01_Monitor_1",
+    "aa_main_object": "Path_Camera_1_focus",
+    "CnB_Camera_00": "CnB_Camera_00",
+    "CnB_Camera_01": "CnB_Camera_01",
+    "aa_depot_Path": "aa_depot_Path",
+    "Marker_1": "Marker_1",
+    "Marker_2": "Marker_2",
+    "Path_Camera_1": "Path_Camera_1",
+    "rh_cruiser_1": "rh_cruiser_1",
+    "Point_Marker_1": "Point_Marker_1",
+    "Point_Marker_1_copy_1": "Point_Marker_1_copy_1",
+    "Point_Marker_1_copy_2": "Point_Marker_1_copy_2",
+    "Point_Marker_1_copy_3": "Point_Marker_1_copy_3",
+    "Point_Marker_1_copy_4": "Point_Marker_1_copy_4"
+  }
+}

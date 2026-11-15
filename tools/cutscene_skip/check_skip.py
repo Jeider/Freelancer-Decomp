@@ -111,13 +111,14 @@ int main(){
     assert(!CutsceneSkipHandleKey(WM_SYSKEYDOWN,VK_RETURN,0));
     for(int kind:{1,4,5,7,-1}){entries[1].Kind=kind;assert(!down(VK_ESCAPE));}
     entries[1].Kind=0;
-    single=false;assert(!down(VK_ESCAPE));single=true;
+    single=false;arm();assert(!scene.bSkip);assert(down(VK_RETURN));release(VK_RETURN);
+    assert(scene.bSkip);scene.bSkip=0;single=true;
     scene.bLoop=1;assert(!down(VK_ESCAPE));scene.bLoop=0;
     scene.bLetterbox=0;assert(!down(VK_ESCAPE));scene.bLetterbox=1;
     auto other=scene;other.Priority=10;G_GfScriptManager.Sequences.push_back(&other);
     arm();assert(down(VK_RETURN));release(VK_RETURN);assert(other.bSkip&&!scene.bSkip);
     other.bSkip=0;arm();G_GfScriptManager.Sequences.pop_back();assert(!down(VK_RETURN));
-    puts("PASS: lifecycle cancellation, focus/pause/modal states, priorities, multiplayer/traffic exclusion");
+    puts("PASS: lifecycle cancellation, focus/pause/modal states, priorities, confirmed multiplayer skip, traffic exclusion");
     // Use the original skip-permission flag, not names, priorities or scene kinds.
     for(bool multiplayer:{false,true}){
         for(auto& entry:entries)entry.Kind=0;

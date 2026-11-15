@@ -1,0 +1,81 @@
+{
+  "name": "m08_lair_done_camera_01",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_lair_done_camera_01.thn",
+  "sha256": "cb1f17a9dbf973d44301a4bbd2b6e5dc878f9bd79ceee1987ae06484b4f1f6a1",
+  "uses": [
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 3989,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 3989,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_lair_done_camera_01.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 3999,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 3999,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_lair_done_camera_01.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 4071,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 4071,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_lair_done_camera_01.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 4115,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 4115,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_lair_done_camera_01.thn"
+    }
+  ],
+  "source_duration": 30.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_core_cam4": "scene_core_cam4",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_root": "automarker_cam_root",
+    "main_object": "automarker_cam_focus"
+  },
+  "point_names": {
+    "scene_core_cam4": "scene_core_cam4",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_root": "cam_root",
+    "main_object": "cam_focus"
+  }
+}

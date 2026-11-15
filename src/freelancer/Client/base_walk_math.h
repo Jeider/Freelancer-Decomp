@@ -30,9 +30,6 @@ struct FBaseWalkMouseLook
         PreviousButtons = Buttons;
         if (!bAvailable)
             return EBaseWalkLookMode::None;
-        // RMB takes priority, including when both buttons are held.
-        if ((Buttons & 2u) != 0)
-            return EBaseWalkLookMode::Steer;
         return bLeft && !bLeftBlocked ? EBaseWalkLookMode::Orbit : EBaseWalkLookMode::None;
     }
 };

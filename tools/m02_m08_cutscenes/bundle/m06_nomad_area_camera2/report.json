@@ -1,0 +1,54 @@
+{
+  "name": "m06_nomad_area_camera2",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_nomad_area_camera2.thn",
+  "sha256": "84f65d3648ba709d548b685ab36a37607594144304459c649562ddda8566342c",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 1368,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "line": 1368,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m06_nomad_area_camera2.thn"
+    }
+  ],
+  "source_duration": 25.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_nomad_area_camera4": "scene_nomad_area_camera4",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Shot06_Camera_0": "Shot06_Camera_0",
+    "Shot06_Camera_0_Position2": "automarker_Shot06_Camera_0_Position2",
+    "Marker_Nomad_Kernel": "automarker_Shot06_Camera_0_focus"
+  },
+  "point_names": {
+    "scene_nomad_area_camera4": "scene_nomad_area_camera4",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Shot06_Camera_0": "Shot06_Camera_0",
+    "Shot06_Camera_0_Position2": "Shot06_Camera_0_Position2",
+    "Marker_Nomad_Kernel": "Shot06_Camera_0_focus"
+  }
+}

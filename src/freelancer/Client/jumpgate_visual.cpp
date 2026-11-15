@@ -12,6 +12,7 @@
 #include "gate_tunnel.h"
 #include "space_env_fx.h"
 #include "space_camera.h"
+#include "common_visible_draw.h"
 #include "nebula_volume.h"
 #include "game_options.h"
 #include "port_config.h"
@@ -147,8 +148,10 @@ namespace
         float Centre[3] = {World.Translation.x,World.Translation.y,World.Translation.z};
         float ViewCentre[3];
         JumpHoleWorldToView(Camera->GetViewTransform(),Centre,ViewCentre);
-        if (Camera->ClassifySphere(ViewCentre,State.Donut[3]>0?750.f:650.f) == 1) return;
+        float const GateRadius = State.Donut[3]>0?750.f:650.f;
+        if (Camera->ClassifySphere(ViewCentre,GateRadius) == 1) return;
         float const* Eye = Camera->GetPosition();
+        if (Eye && VisibleDraw::FullyHidden(Eye[0], Eye[1], Eye[2], Centre[0], Centre[1], Centre[2], GateRadius)) return;
         float Rotation[9], LocalEye[3] = {};
         double DistSq = 0;
         for (int R=0; R<3; ++R) {

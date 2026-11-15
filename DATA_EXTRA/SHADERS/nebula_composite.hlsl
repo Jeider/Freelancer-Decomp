@@ -43,6 +43,14 @@ float4 VisibilityFade : register(c18); // start/inverse width in metres, exterio
 float4 FadeZoneCentre : register(c19); // xyz centre, w bound radius squared in zone space
 float4 FadeZoneRow[3] : register(c20);
 float4 SimpleFogColour : register(c23); // fog colour; w = close ice sky behind existing scatter
+float4 ExclusionCoreHaze : register(c24); // rgb interior colour, w extinction / metre
+float4 ExclusionCoreSphere : register(c25); // camera-relative faded skip centre, radius squared
+
+float4 ApplyExclusionCoreHaze(float4 Value, float Distance)
+{
+    float T = exp(-max(Distance, 0.0) * ExclusionCoreHaze.w);
+    return float4(ExclusionCoreHaze.rgb * (1.0 - T) + Value.rgb * T, Value.a * T);
+}
 
 FFullscreenVertex VSMain(float3 Position : POSITION, float2 TexCoord : TEXCOORD0)
 {
@@ -80,7 +88,7 @@ float4 FinishVolume(float4 Value, float2 Uv)
 {
     // Never brighten the fog on a depth-writing object. Background shells do not need this
     // correction; they render before the solar sprites, planets and local nebulae.
-    if ((StarWeight.w > 0.0 || VisibilityFade.y > 0.0) && Upsample.w < 0.5)
+    if ((StarWeight.w > 0.0 || VisibilityFade.y > 0.0 || ExclusionCoreHaze.w > 0.0) && Upsample.w < 0.5)
     {
         float2 ViewUv = (Uv - ViewRect.xy) / ViewRect.zw;
         float2 ViewXY = float2(ViewUv.x * 2.0 - 1.0, 1.0 - ViewUv.y * 2.0) * ProjInv.xy;
@@ -127,6 +135,14 @@ float4 FinishVolume(float4 Value, float2 Uv)
         W *= Along > 0.0 ? 1.0 : 0.0;
         W *= StarDistance.xyz < SceneT ? 1.0 : 0.0;
         Value.a = lerp(Value.a, max(Value.a, StarWeight.w), max(max(W.x, W.y), W.z));
+        }
+        if (ExclusionCoreHaze.w > 0.0 && ExclusionCoreSphere.w > 0.0)
+        {
+            // Fill only the skipped interval, bounded by full-resolution scene depth.
+            // This has no noise/shadow samples and fades with the existing skip sphere.
+            float B = dot(Dir, ExclusionCoreSphere.xyz);
+            float D = B * B - dot(ExclusionCoreSphere.xyz, ExclusionCoreSphere.xyz) + ExclusionCoreSphere.w;
+            Value = ApplyExclusionCoreHaze(Value, min(SceneT, B + sqrt(max(D, 0.0))));
         }
     }
     return float4(RPExTonemap(Value.rgb * Tonemap.x, Tonemap.y, Tonemap.z), Value.a);

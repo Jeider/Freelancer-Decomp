@@ -13,6 +13,8 @@
 #include <algorithm>
 
 namespace {
+std::map<Archetype::Root const*, SolarAnimation::RingConfig>& RingDefinitions()
+{ static std::map<Archetype::Root const*, SolarAnimation::RingConfig> data; return data; }
 std::map<Archetype::Root const*, SolarAnimation::Config>& Definitions()
 { static std::map<Archetype::Root const*, SolarAnimation::Config> data; return data; }
 struct Playback { int Handle = -1; unsigned Serial = 0; };
@@ -30,6 +32,20 @@ void Release(Playback& p)
 }
 bool SolarAnimation::Read(Archetype::Root const* arch, INI_Reader& r)
 {
+    bool left = r.is_value("left_ring_anim"), right = r.is_value("right_ring_anim");
+    if (left || right || r.is_value("physical_ring_anim")) {
+        auto& c = RingDefinitions()[arch];
+        if (left || right) {
+            char const* name = r.get_value_string();
+            char* dest = left ? c.Left : c.Right;
+            if (name && strlen(name) < sizeof(c.Left)) strcpy_s(dest, sizeof(c.Left), name);
+            else dest[0] = 0;
+            // Let the existing client-companion settings follow their old route.
+            return false;
+        }
+        c.Physical = r.get_value_bool(0);
+        return true;
+    }
     bool enabled = r.is_value("proximity_door");
     bool radius = r.is_value("door_scan_radius"), release = r.is_value("door_release_radius");
     bool delay = r.is_value("door_close_delay");
@@ -55,10 +71,19 @@ bool SolarAnimation::Read(Archetype::Root const* arch, INI_Reader& r)
 void SolarAnimation::Copy(Archetype::Root const* to, Archetype::Root const* from)
 {
     if (to == from) return;
+    auto ring = RingDefinitions().find(from);
+    if (ring == RingDefinitions().end()) RingDefinitions().erase(to); else RingDefinitions()[to] = ring->second;
     auto it = Definitions().find(from);
     if (it == Definitions().end()) Definitions().erase(to); else Definitions()[to] = it->second;
 }
-void SolarAnimation::ForgetDefinition(Archetype::Root const* arch) { Definitions().erase(arch); }
+void SolarAnimation::ForgetDefinition(Archetype::Root const* arch) { Definitions().erase(arch); RingDefinitions().erase(arch); }
+bool SolarAnimation::GetRingConfig(Archetype::Root const* arch, RingConfig& c)
+{
+    auto it = RingDefinitions().find(arch);
+    if (it == RingDefinitions().end()) return false;
+    c = it->second;
+    return c.Physical && c.Left[0] && c.Right[0];
+}
 bool SolarAnimation::GetConfig(Archetype::Root const* arch, Config& c)
 {
     auto it = Definitions().find(arch);

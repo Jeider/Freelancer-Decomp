@@ -8,6 +8,7 @@
 #include "hud_tilt.h"
 #include "graphics_settings.h"
 #include "color_grade_preferences.h"
+#include "native_subtitles.h"
 #ifdef FREELANCER_DLSS5
 #include "base_neural_preferences.h"
 #endif
@@ -51,6 +52,7 @@ namespace
     // DAT_0067ed10..DAT_0067ed28 — seven floats read back through FUN_005b3510(index).
     int const kPerfSlotCount = 7;
     float G_Slots[kPerfSlotCount] = {};
+    bool G_PerfRoomScope = false;
 
     bool G_bSkipMachineWarnings = false;    // DAT_0067a439
 
@@ -194,7 +196,6 @@ namespace
 
     void ApplyUseEnvironmentMaps(float Value)  // LAB_005b4700 - DAT_0067ed10
     {
-        Value=PortGraphicsRenderValue("environment_maps",Value);
         // v > 0 and a pipeline: ask device ability 8; a non-zero answer keeps the raw value
         // in slot 0, every other path stores 0 (005b473a). The HRESULT is not examined.
         unsigned long Ability = 0;
@@ -460,8 +461,9 @@ FPerfOption* GetPerfOptionAt(unsigned Index)
 float GetPerfOptionSlot(int Index)
 {
     // FUN_005b3510: FLD [EAX*4 + DAT_0067ed10], no bounds check.
-    return G_Slots[Index];
+    return Index==0 && !G_PerfRoomScope ? PortGraphicsRenderValue("environment_maps",G_Slots[Index]) : G_Slots[Index];
 }
+void SetPerfRoomScope(bool enabled) { G_PerfRoomScope=enabled; }
 
 void ApplyChangedPerfOptions()
 {
@@ -639,7 +641,13 @@ void SavePerfOptions(char const* FileName)
     char IniPath[MAX_PATH];
     _makepath(IniPath, nullptr, UserPath, FileName, nullptr);
 
+    (void)NativeSubtitles::CutsceneEnabled(); // Read before truncating PerfOptions.ini.
     (void)ColorGrade::ConfiguredPreset(); // Load before truncating the preferences file.
+    // Launcher and the customization window share this section. Preserve it
+    // verbatim when graphics/display preferences rewrite the rest of the file.
+    char CostumeSection[32768] = {};
+    if (GetPrivateProfileSectionA("Costume", CostumeSection, sizeof(CostumeSection), IniPath)
+        >= sizeof(CostumeSection)-2) return;
     FILE* File = fopen(IniPath, "w");
     if (File == nullptr)
         return;
@@ -667,9 +675,16 @@ void SavePerfOptions(char const* FileName)
     fprintf(File,"\n[Graphics]\n");
     for (int i=0;i<GraphicsSettings::Count;++i)
         fprintf(File,"%s = %d\n",GraphicsSettings::Key(i),GraphicsSettings::Get(i,true));
+    GraphicsSettings::WriteAutoProfile(File);
 #ifdef FREELANCER_DLSS5
     BaseNeural::WritePreferences(File);
 #endif
     ColorGrade::WritePreferences(File);
+    NativeSubtitles::WritePreferences(File);
+    if (CostumeSection[0]) {
+        fprintf(File, "\n[Costume]\n");
+        for (char const* Entry = CostumeSection; *Entry; Entry += strlen(Entry)+1)
+            fprintf(File, "%s\n", Entry);
+    }
     fclose(File);
 }

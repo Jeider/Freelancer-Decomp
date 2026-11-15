@@ -1,0 +1,74 @@
+{
+  "name": "m08_core_camera_08",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_08.thn",
+  "sha256": "630d45cd2c1be0db03996d22323e40adfef04cd8c682a93c3da42a5b1734d187",
+  "uses": [
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 1072,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 1072,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_core_camera_08.thn"
+    }
+  ],
+  "source_duration": 60.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_Trailer_Cam2": "Scene_Trailer_Cam2",
+    "CoreMarker": "automarker_CoreMarker",
+    "CameraMarker": "automarker_CameraMarker",
+    "main_object": "automarker_Camera_1_focus",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Camera_1": "Camera_1"
+  },
+  "point_names": {
+    "Scene_Trailer_Cam2": "Scene_Trailer_Cam2",
+    "CoreMarker": "CoreMarker",
+    "CameraMarker": "CameraMarker",
+    "main_object": "Camera_1_focus",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Camera_1": "Camera_1"
+  }
+}

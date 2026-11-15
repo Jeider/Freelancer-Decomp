@@ -1,0 +1,1582 @@
+import re
+from story import math
+from story.cutscenes import anim
+from story.cutscenes.anim import Male, Female
+from story.actors import ACTOR_TRENT, ACTOR_JUNI, ACTOR_MALE, ACTOR_FEMALE
+
+
+ENTITY_TEMPLATE_FOLDER = 'cutscenes/entity/'
+EVENT_TEMPLATE_FOLDER = 'cutscenes/event/'
+
+OFFSCREEN = 'offscreen'
+
+TARGET_ROOT = 'ROOT'
+TARGET_PART = 'PART'
+TARGET_HARDPOINT = 'HARDPOINT'
+
+TARGET_TYPES = [TARGET_ROOT, TARGET_PART, TARGET_HARDPOINT]
+
+LIT_DYNAMIC = 'LIT_DYNAMIC'
+LIT_AMBIENT = 'LIT_AMBIENT'
+
+L_DIRECT = 'L_DIRECT'
+L_POINT = 'L_POINT'
+L_SPOT = 'L_SPOT'
+LIGHT_TYPES = [L_DIRECT, L_POINT, L_SPOT]
+
+POSITION = 'POSITION'
+ORIENTATION = 'ORIENTATION'
+REFERENCE = 'REFERENCE'
+ENTITY_RELATIVE = 'ENTITY_RELATIVE'
+
+BODY_HEAD = 'Body_Head'
+EYE_IK = 'Eye IK Left'
+
+MAIN = 'main'
+BG = 'bg'
+DEFAULT_GROUP = 'default_group'
+BG_GROUP = 'bg_group'
+
+SRT_BACKGROUND = -100
+USR_BACKGROUND = 1
+
+PLAYER_ENGINES = 'PlayerShipEngines'
+
+IDLE = 'idle'
+IDLE_SIT = 'idle_sit'
+IDLE_SIT_TABLE = 'idle_sit_table'
+
+MALE_ANIMS = {
+    IDLE: Male.Sc_MLBODY_STND_IDLE_000LV_xa_04,
+    IDLE_SIT: Male.Sc_MLBODY_CHRB_IDLE_000LV_XA_05,
+    IDLE_SIT_TABLE: Male.Sc_MLBODY_CHRF_IDLE_000LV_XA_06,
+}
+
+FEMALE_ANIMS = {
+    IDLE: Female.Sc_FMBODY_STND_IDLE_000LV_xa_05,
+    IDLE_SIT: Female.Sc_FMBODY_CHRB_IDLE_000LV_XA_06,
+    IDLE_SIT_TABLE: Female.Sc_FMBODY_CHRF_IDLE_000LV_XA_05,
+}
+
+X_AXIS = 'X_AXIS'
+Y_AXIS = 'Y_AXIS'
+Z_AXIS = 'Z_AXIS'
+
+NEG_X_AXIS = 'NEG_X_AXIS'
+NEG_Y_AXIS = 'NEG_Y_AXIS'
+NEG_Z_AXIS = 'NEG_Z_AXIS'
+
+HEAD_SIT_FEMALE = 1.25  # 1.1 ??
+HEAD_SIT_MALE = 1.25
+HEAD_STAND_FEMALE = 1.55
+HEAD_STAND_MALE = 1.65
+
+SOURCE_BLENDER = 'blender'
+SOURCE_PYTHONLANCER = 'pythonlancer'
+
+BACKGROUND_MUSIC = 'backgroundmusic'
+BACKGROUND_AMBIENT = 'backgroundambient'
+
+FX_FADE_NEGATIVE = 'rtc_fadenegative_variable'
+
+ANIM_CLASS_PER_ACTOR_TYPE = {
+    ACTOR_MALE: anim.Male,
+    ACTOR_TRENT: anim.Trent,
+    ACTOR_FEMALE: anim.Female,
+    ACTOR_JUNI: anim.Juni,
+}
+
+
+class Point:
+    def __init__(self, name, position, source, orientation=None, rotate=None):  # , orientation, rotate
+        self.name = name
+        self.source = source
+        if self.source == SOURCE_BLENDER:
+            self.position = [position[0], position[2], -position[1]]
+        else:
+            self.position = position
+
+        # quaternion
+        self.orientation = (
+            math.convert_quat_from_blender_to_fl(orientation)
+            if orientation is not None
+            else None
+        )
+        self.rotate = rotate if rotate else [0, 0, 0]
+
+    def rotate_is_empty(self):
+        return self.rotate[0] == 0 and self.rotate[1] == 0 and self.rotate[2] == 0
+
+    @property
+    def pos(self):
+        return '{0:.2f}, {1:.2f}, {2:.2f}'.format(*self.position)
+
+    @property
+    def orient(self):
+        raise NotImplementedError
+        # return '{0:.2f}, {1:.2f}, {2:.2f}, {3:.2f}'.format(*math.euler_to_quat(*self.rotate))
+
+    @property
+    def orient_from_quat(self):
+        if self.orientation is None:
+            raise Exception(f'Point {self.name} have no orientation data')
+        return '{0:.2f}, {1:.2f}, {2:.2f}, {3:.2f}'.format(*self.orientation)
+
+    @property
+    def matrix(self):
+        if self.rotate_is_empty() and self.orientation is not None:
+            return self.matrix_from_quat
+
+        mx = math.euler_to_matrix(*self.rotate)
+        return '''
+            {{ {0:.7f},{1:.7f},{2:.7f} }},
+            {{ {3:.7f},{4:.7f},{5:.7f} }},
+            {{ {6:.7f},{7:.7f},{8:.7f} }}
+        '''.format(
+            mx[0][0], mx[0][1], mx[0][2],
+            mx[1][0], mx[1][1], mx[1][2],
+            mx[2][0], mx[2][1], mx[2][2],
+        )
+
+    @property
+    def matrix_from_quat(self):
+        if self.orientation is None:
+            raise Exception(f'Point {self.name} have no orientation data')
+        mx = math.quat_to_matrix(self.orientation)
+        return '''
+            {{ {0:.7f},{1:.7f},{2:.7f} }},
+            {{ {3:.7f},{4:.7f},{5:.7f} }},
+            {{ {6:.7f},{7:.7f},{8:.7f} }}
+        '''.format(
+            mx[0][0], mx[0][1], mx[0][2],
+            mx[1][0], mx[1][1], mx[1][2],
+            mx[2][0], mx[2][1], mx[2][2],
+        )
+
+
+class Group:
+    def __init__(self, root, name, group_type=DEFAULT_GROUP, time=0):
+        self.root = root
+        self.name = name
+        self.time = time
+        self.group_type = group_type
+
+    def add_event(self, event, time_append=0, time_delay=0):
+        time = self.time + time_delay
+        self.root.add_event(time, event)
+        self.time += time_append
+
+    def get_time(self):
+        return self.time
+
+    def get_name(self):
+        return self.name
+
+    def append_time(self, time):
+        self.time += time
+
+    def is_default(self):
+        return self.group_type == DEFAULT_GROUP
+
+    def get_type(self):
+        return self.group_type
+
+
+### EVENTS
+
+
+class Event:
+    TEMPLATE = None
+
+    def __init__(self, root, group=MAIN, time_append=0, time_delay=0):
+        self.root = root
+        self.group = self.root.get_group(group)
+        self.group.add_event(self, time_append, time_delay)
+
+    def get_params(self):
+        raise NotImplementedError
+
+    def get_template(self):
+        if not self.TEMPLATE:
+            raise Exception(f'Event item {self} have no template')
+        return EVENT_TEMPLATE_FOLDER + f'{self.TEMPLATE}.lua'
+
+    def get_thorn(self, time):
+        params = self.get_params()
+        params['time'] = time
+        return self.root.tpl_manager.get_result(self.get_template(), params)
+
+
+class StaticEvent(Event):
+    CONTENT = None
+
+    def get_template(self):
+        raise NotImplementedError
+
+    def get_thorn(self, time):
+        if not self.CONTENT:
+            raise Exception(f'Static entity {self} have no content')
+        return self.CONTENT
+
+
+class LookAtEvent(Event):
+    TEMPLATE = 'look_at'
+
+    def __init__(self, point, focus, duration, target_part='', target_type=TARGET_ROOT, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.point = point
+        self.focus = focus
+        self.duration = duration
+        self.target_part = target_part
+        self.target_type = target_type
+        if self.target_type not in TARGET_TYPES:
+            raise Exception(f'LookAt for {self.point} has invalid target_type')
+        if self.target_type != TARGET_ROOT and self.target_part == '':
+            raise Exception(f'LookAt for {self.point} requires defined target_part')
+
+    def get_params(self):
+        return {
+            'point': self.point,
+            'focus': self.focus,
+            'duration': self.duration,
+            'target_part': self.target_part,
+            'target_type': self.target_type,
+        }
+
+
+class SetCameraEvent(Event):
+    TEMPLATE = 'set_camera'
+
+    def __init__(self, camera_name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.camera_name = camera_name
+
+    def get_params(self):
+        return {
+            'name': self.camera_name,
+        }
+
+
+class SoundEvent(Event):
+    TEMPLATE = 'sound'
+
+    def __init__(self, sound_name, duration=20, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sound_name = sound_name
+        self.duration = duration
+
+    def get_params(self):
+        return {
+            'sound': self.sound_name,
+            'duration': self.duration,
+        }
+
+
+class MoveEvent(Event):
+    TEMPLATE = 'move_linear'
+    ADJUST_POS = 'pos = {0, 0, 0}'
+    ADJUST_ORIENT = 'q_orient = {1, 0, 0, 0}'
+    ADJUST_ORIENT_TEMPLATE = 'q_orient = {{ {quat} }}'
+
+    def __init__(self, object_name, target_name, duration, smooth=True,
+                 adjust_pos=True, adjust_orient=True,
+                 rotate_y=0, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = object_name
+        self.target_name = target_name
+        self.duration = duration
+        self.smooth = smooth
+        self.adjust_orient = adjust_orient
+        self.adjust_pos = adjust_pos
+        self.rotate = (0, rotate_y, 0)
+
+    def set_duration(self, duration):
+        self.duration = duration
+
+    def get_move_rules(self):
+        rules = []
+        if self.adjust_pos:
+            rules.append(self.ADJUST_POS)
+
+        if self.adjust_orient:
+            rules.append(
+                self.ADJUST_ORIENT_TEMPLATE.format(
+                    quat='{0:.2f}, {1:.2f}, {2:.2f}, {3:.2f}'.format(*math.euler_to_quat(*self.rotate)))
+            )
+        if len(rules) == 0:
+            raise Exception(f'MoveEvent for {self.object_name} have no move rules: it should adjust pos or/and orient')
+
+        return ', '.join(rules)
+
+    def get_params(self):
+        return {
+            'object_name': self.object_name,
+            'target_name': self.target_name,
+            'duration': self.duration,
+            'smooth': self.smooth,
+            'move_rules': self.get_move_rules(),
+        }
+
+
+class MoveFastEvent(MoveEvent):
+    """shortcut with zero duration"""
+    def __init__(self, *args, **kwargs):
+        kwargs['smooth'] = False
+        kwargs['duration'] = 0
+        kwargs['adjust_pos'] = True
+        super().__init__(*args, **kwargs)
+
+
+class MoveOffscreenEvent(MoveEvent):
+    """shortcut for offscreen"""
+    def __init__(self, *args, **kwargs):
+        kwargs['smooth'] = False
+        kwargs['duration'] = 0
+        kwargs['target_name'] = OFFSCREEN
+        kwargs['adjust_pos'] = True
+        super().__init__(*args, **kwargs)
+
+
+class RotateAxisEvent(Event):
+    TEMPLATE = 'rotate_axis'
+
+    def __init__(self, object_name, angle, duration, smooth=True, axis=Y_AXIS, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = object_name
+        self.angle = angle
+        self.duration = duration
+        self.smooth = smooth
+        self.axis = axis
+
+    def get_params(self):
+        return {
+            'object_name': self.object_name,
+            'angle': self.angle,
+            'duration': self.duration,
+            'smooth': self.smooth,
+            'axis': self.axis,
+        }
+
+
+class IkEvent(Event):
+    TEMPLATE = 'ik'
+
+    def __init__(self, char_name, target_name, duration, end_effector, transition_duration=1,
+                 target_part='', up=NEG_Y_AXIS, front=Z_AXIS, target_type=TARGET_ROOT, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.char_name = char_name
+        self.target_name = target_name
+        self.duration = duration
+        self.end_effector = end_effector
+        self.transition_duration = transition_duration
+        self.target_part = target_part
+        self.target_type = target_type
+        self.up = up
+        self.front = front
+
+        if self.target_type not in TARGET_TYPES:
+            raise Exception(f'IK for {self.char_name} has invalid target_type')
+
+        if self.target_type != TARGET_ROOT and self.target_part == '':
+            raise Exception(f'IK for {self.char_name} requires defined target_part')
+
+    def get_duration(self):
+        return self.duration
+
+    def set_duration(self, duration):
+        self.duration = duration
+
+    def get_params(self):
+        return {
+            'char_name': self.char_name,
+            'target_name': self.target_name,
+            'duration': self.duration,
+            'transition_duration': self.transition_duration,
+            'end_effector': self.end_effector,
+            'target_part': self.target_part,
+            'target_type': self.target_type,
+            'up': self.up,
+            'front': self.front,
+        }
+
+
+class NeckIkEvent(IkEvent):
+    """shortcut for generic neck ik"""
+    def __init__(self, *args, **kwargs):
+        kwargs['end_effector'] = BODY_HEAD
+        super().__init__(*args, **kwargs)
+
+
+class Char2CharNeckIkEvent(NeckIkEvent):
+    """shortcut for simple next char neck ik"""
+    def __init__(self, *args, **kwargs):
+        kwargs['target_part'] = BODY_HEAD
+        kwargs['target_type'] = TARGET_PART
+        super().__init__(*args, **kwargs)
+
+
+class EyeIkEvent(IkEvent):
+    """shortcut for generic neck ik"""
+    def __init__(self, *args, **kwargs):
+        kwargs['end_effector'] = EYE_IK
+        super().__init__(*args, **kwargs)
+
+
+class FloorHeightEvent(Event):
+    TEMPLATE = 'floor_height'
+
+    def __init__(self, char_name, floor_height, duration=0.001, smooth=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.char_name = char_name
+        self.floor_height = floor_height
+        self.duration = duration
+        self.smooth = smooth
+
+    def make_immediately(self):
+        self.duration = 0
+        self.smooth = False
+
+    def get_params(self):
+        return {
+            'char': self.char_name,
+            'floor_height': self.floor_height,
+            'duration': self.duration,
+            'smooth': self.smooth,
+        }
+
+
+class MotionEvent(Event):
+    TEMPLATE = 'motion'
+
+    def __init__(self, object_name, anim, duration, time_scale=1, start_time=0,
+                 loop=False, trans_time=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = object_name
+        self.anim = anim
+        self.duration = duration
+        self.time_scale = time_scale
+        self.start_time = start_time
+        self.loop = loop
+        self.trans_time = trans_time
+
+    def get_params(self):
+        return {
+            'object_name': self.object_name,
+            'anim': self.anim,
+            'duration': self.duration,
+            'time_scale': self.time_scale,
+            'start_time': self.start_time,
+            'loop': self.loop,
+            'trans_time': self.trans_time,
+        }
+
+
+class CompoundAnim(Event):
+    TEMPLATE = 'compound_anim'
+
+    def __init__(self, object_name, anim, duration, time_scale=1, start_time=0,
+                 loop=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = object_name
+        self.anim = anim
+        self.duration = duration
+        self.time_scale = time_scale
+        self.start_time = start_time
+        self.loop = loop
+
+    def get_params(self):
+        return {
+            'object_name': self.object_name,
+            'anim': self.anim,
+            'duration': self.duration,
+            'time_scale': self.time_scale,
+            'start_time': self.start_time,
+            'loop': self.loop,
+        }
+
+
+class FacialEvent(Event):
+    TEMPLATE = 'facial'
+
+    def __init__(self, object_name, motion, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = object_name
+        self.motion = motion
+
+    def get_params(self):
+        return {
+            'object_name': self.object_name,
+            'motion': self.motion,
+        }
+
+
+class LightAnimEvent(Event):
+    TEMPLATE = 'light_anim'
+
+    def __init__(self, object_name, duration, smooth=False,
+                 diffuse=None, ambient=None, on=None, lt_range=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = object_name
+        self.duration = duration
+        self.smooth = smooth
+        self.diffuse = diffuse
+        self.ambient = ambient
+        self.on = on
+        self.lt_range = lt_range
+
+    def get_actions(self):
+        actions = []
+
+        if self.diffuse is not None:
+            if len(self.diffuse) != 3:
+                raise Exception(f'Light anim for {self.object_name} have wrong diffuse')
+
+            actions.append(f' diffuse = {{ {self.diffuse[0]}, {self.diffuse[1]}, {self.diffuse[2]} }}')
+
+        if self.ambient is not None:
+            if len(self.ambient) != 3:
+                raise Exception(f'Light anim for {self.object_name} have wrong ambient')
+
+            actions.append(f' ambient = {{ {self.ambient[0]}, {self.ambient[1]}, {self.ambient[2]} }}')
+
+        if self.on is not None:
+            actions.append(f'on = {"Y" if self.on else "N"}')
+
+        if self.lt_range is not None:
+            actions.append(f'range = {self.lt_range}')
+
+        if len(actions) == 0:
+            raise Exception(f'Light anim for {self.object_name} has no any action')
+
+        return ', '.join(actions)
+
+    def get_params(self):
+        return {
+            'name': self.object_name,
+            'duration': self.duration,
+            'smooth': self.smooth,
+            'light_changes': self.get_actions(),
+        }
+
+
+class CameraAnimEvent(Event):
+    TEMPLATE = 'camera_prop_anim'
+
+    def __init__(self, camera_name, duration, fov, smooth=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.camera_name = camera_name
+        self.duration = duration
+        self.smooth = smooth
+        self.fov = fov
+
+    def get_params(self):
+        return {
+            'name': self.camera_name,
+            'duration': self.duration,
+            'smooth': self.smooth,
+            'fov': self.fov,
+        }
+
+
+class StartAlchemyEvent(Event):
+    TEMPLATE = 'start_alchemy'
+
+    def __init__(self, object_name, duration, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = object_name
+        self.duration = duration
+
+    def get_params(self):
+        return {
+            'name': self.object_name,
+            'duration': self.duration,
+        }
+
+
+class AlchemyAnimEvent(Event):
+    TEMPLATE = 'alchemy_anim'
+
+    def __init__(self, object_name, duration, sparam, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_name = object_name
+        self.duration = duration
+        self.sparam = sparam
+
+    def get_params(self):
+        return {
+            'name': self.object_name,
+            'duration': self.duration,
+            'sparam': self.sparam,
+        }
+
+
+class ConnectHardpointEvent(Event):
+    TEMPLATE = 'connect_hardpoint'
+
+    def __init__(self, target_name, parent_name, duration,
+                 target_hardpoint, parent_hardpoint, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.target_name = target_name
+        self.parent_name = parent_name
+        self.duration = duration
+        self.target_hardpoint = target_hardpoint
+        self.parent_hardpoint = parent_hardpoint
+
+    def get_params(self):
+        return {
+            'target_name': self.target_name,
+            'parent_name': self.parent_name,
+            'duration': self.duration,
+            'target_hardpoint': self.target_hardpoint,
+            'parent_hardpoint': self.parent_hardpoint,
+        }
+
+    def set_duration(self, duration):
+        self.duration = duration
+
+
+class AttachEvent(Event):
+    TEMPLATE = 'attach'
+
+    def __init__(self, target_name, parent_name, duration,
+                 target_part, target_type,
+                 adjust_pos=True, adjust_orient=False, entity_relative=False,
+                 offset_x=0, offset_y=0, offset_z=0,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.target_name = target_name
+        self.parent_name = parent_name
+        self.duration = duration
+        self.target_part = target_part
+        self.target_type = target_type
+        self.adjust_pos = adjust_pos
+        self.adjust_orient = adjust_orient
+        self.entity_relative = entity_relative
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+        self.offset_z = offset_z
+
+        if self.target_type not in TARGET_TYPES:
+            raise Exception(f'Attach event for {self.parent_name} has invalid target_type')
+
+        if self.target_type != TARGET_ROOT and self.target_part == '':
+            raise Exception(f'Attach event for {self.parent_name} requires defined target_part')
+
+    def get_flags(self):
+        flags = []
+        if self.adjust_pos:
+            flags.append(POSITION)
+        if self.adjust_orient:
+            flags.append(ORIENTATION)
+        if self.entity_relative:
+            flags.append(ENTITY_RELATIVE)
+        return ' + '.join(flags)
+
+    def get_params(self):
+        return {
+            'target_name': self.target_name,
+            'parent_name': self.parent_name,
+            'duration': self.duration,
+            'target_part': self.target_part,
+            'target_type': self.target_type,
+            'flags': self.get_flags(),
+            'offset_x': self.offset_x,
+            'offset_y': self.offset_y,
+            'offset_z': self.offset_z,
+        }
+
+    def set_duration(self, duration):
+        self.duration = duration
+
+
+class StartSoundEvent(Event):
+    TEMPLATE = 'start_sound'
+
+    def __init__(self, sound_name, duration, loop=False, start_time=0, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sound_name = sound_name
+        self.duration = duration
+        self.loop = loop
+        self.start_time = start_time
+
+    def get_params(self):
+        return {
+            'sound': self.sound_name,
+            'duration': self.duration,
+            'loop': self.loop,
+            'start_time': self.start_time,
+        }
+
+    def set_duration(self, duration):
+        self.duration = duration
+
+
+class AudioAnimEvent(Event):
+    TEMPLATE = 'audio_anim'
+
+    def __init__(self, sound_name, duration, attenuation, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sound_name = sound_name
+        self.duration = duration
+        self.attenuation = attenuation
+
+    def get_params(self):
+        return {
+            'sound': self.sound_name,
+            'duration': self.duration,
+            'attenuation': self.attenuation,
+        }
+
+
+class PathAnimationEvent(Event):
+    TEMPLATE = 'path_anim'
+
+    def __init__(self, target_name, path, duration, smooth=False,
+                 adjust_pos=True, adjust_orient=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.target_name = target_name
+        self.path = path
+        self.duration = duration
+        self.smooth = smooth
+        self.adjust_pos = adjust_pos
+        self.adjust_orient = adjust_orient
+
+    def get_flags(self):
+        flags = []
+        if self.adjust_pos:
+            flags.append(POSITION)
+        if self.adjust_orient:
+            flags.append(ORIENTATION)
+        return ' + '.join(flags)
+
+    def get_params(self):
+        return {
+            'target_name': self.target_name,
+            'path_name': self.path.name,
+            'duration': self.duration,
+            'smooth': self.smooth,
+            'flags': self.get_flags(),
+        }
+
+
+### ENTITIES
+
+
+class Entity:
+    TEMPLATE_ROOT = ENTITY_TEMPLATE_FOLDER
+    TEMPLATE = None
+
+    def __init__(self, root, name):
+        self.root = root
+        self.name = name
+        self.root.add_entity(self)
+
+    def get_params(self):
+        raise NotImplementedError
+
+    def get_template(self):
+        if not self.TEMPLATE:
+            raise Exception(f'Entity item {self} have no template')
+        return ENTITY_TEMPLATE_FOLDER + f'{self.TEMPLATE}.lua'
+
+    def get_thorn(self):
+        return self.root.tpl_manager.get_result(self.get_template(), self.get_params())
+
+
+class StaticEntity(Entity):
+    CONTENT = None
+
+    def get_template(self):
+        raise NotImplementedError
+
+    def get_thorn(self):
+        if not self.CONTENT:
+            raise Exception(f'Static entity {self} have no content')
+        return self.CONTENT
+
+
+class Marker(Entity):
+    TEMPLATE = 'marker'
+
+    def __init__(self, point_name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.point_name = point_name
+        self.point = self.root.get_point(self.point_name)
+
+    def get_params(self):
+        return {
+            'name': self.name,
+            'point': self.point,
+        }
+
+
+class Compound(Entity):
+    FORCE_POS = None
+    FORCE_MATRIX = None
+    SRT_GRP = 0
+    USR_FLG = 0
+
+    def __init__(self, light_group, init_point, rotate_y=0,
+                 use_ambient=False, matrix_scale=1, rotate_from_quat=False,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.light_group = light_group
+        self.init_point = init_point
+        self.point = self.root.get_point(self.init_point)
+        self.rotate_from_quat = rotate_from_quat
+        self.rotate_y = rotate_y
+        self.use_ambient = use_ambient
+        self.matrix_scale = matrix_scale
+        if self.rotate_from_quat is True and self.rotate_y != 0:
+            raise Exception('Cannot use rotate_y and rotate_from_quat at the same time')
+
+    def get_init_matrix(self):
+        if self.FORCE_MATRIX:
+            mx = self.FORCE_MATRIX
+        elif self.rotate_from_quat is True:
+            return self.point.matrix_from_quat
+        else:
+            rotate = (
+                [0, self.rotate_y, 0]
+                if self.rotate_y != 0
+                else self.point.rotate
+            )
+            mx = math.euler_to_matrix(*rotate)
+
+        return '''
+            {{ {0:.7f},{1:.7f},{2:.7f} }}, 
+            {{ {3:.7f},{4:.7f},{5:.7f} }},
+            {{ {6:.7f},{7:.7f},{8:.7f} }}
+        '''.format(
+            mx[0][0]*self.matrix_scale, mx[0][1]*self.matrix_scale, mx[0][2]*self.matrix_scale,
+            mx[1][0]*self.matrix_scale, mx[1][1]*self.matrix_scale, mx[1][2]*self.matrix_scale,
+            mx[2][0]*self.matrix_scale, mx[2][1]*self.matrix_scale, mx[2][2]*self.matrix_scale,
+        )
+
+    def get_flags(self):
+        flags = [LIT_DYNAMIC]
+        if self.use_ambient:
+            flags.append(LIT_AMBIENT)
+        return ' + '.join(flags)
+
+    def get_compound_template_name(self):
+        raise NotImplementedError
+
+    def get_params(self):
+        return {
+            'name': self.name,
+            'template_name': self.get_compound_template_name(),
+            'light_group': self.light_group,
+            'init_pos': '{0}, {1}, {2}'.format(*self.FORCE_POS) if self.FORCE_POS else self.point.pos,
+            'init_matrix': self.get_init_matrix(),
+            'light_flags': self.get_flags(),
+            'srt_grp': self.SRT_GRP,
+            'usr_flg': self.USR_FLG,
+        }
+
+    def anim(self, group, anim, duration=10, **kwargs):
+        return CompoundAnim(root=self.root, group=group,
+                            object_name=self.name, anim=anim,
+                            duration=duration,
+                            **kwargs)
+
+
+class Prop(Compound):
+    COMPOUND_TEMPLATE_NAME = None
+    TEMPLATE = 'prop'
+
+    def get_compound_template_name(self):
+        return self.COMPOUND_TEMPLATE_NAME
+
+
+class BackgroundProp(Prop):
+    COMPOUND_TEMPLATE_NAME = None
+    TEMPLATE = 'prop'
+    SRT_GRP = SRT_BACKGROUND
+    USR_FLG = USR_BACKGROUND
+
+
+class Solar(Prop):
+    COMPOUND_TEMPLATE_NAME = None
+    TEMPLATE = 'solar'
+
+
+class Equipment(Prop):
+    COMPOUND_TEMPLATE_NAME = None
+    TEMPLATE = 'equip'
+
+
+class Ship(Prop):
+    COMPOUND_TEMPLATE_NAME = None
+    TEMPLATE = 'ship'
+
+    def __init__(self, loadout=None, have_lights=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.loadout = loadout
+        self.have_lights = have_lights
+
+    def get_params(self):
+        params = super().get_params()
+        params['loadout'] = self.loadout
+        params['have_lights'] = self.have_lights
+        return params
+
+
+class PlayerShip(Ship):
+    COMPOUND_TEMPLATE_NAME = 'PlayerShip'
+
+
+class Glass(Prop):
+    COMPOUND_TEMPLATE_NAME = 'glass'
+
+
+class BottleWine(Prop):
+    COMPOUND_TEMPLATE_NAME = 'bottle_wine_3'
+
+
+class Character(Compound):
+    TEMPLATE = 'character'
+
+    def __init__(self, actor, floor_height=0, extra_ik_markers=None,
+                 ik_start_point=None, camera=None, anim_sequence=None,
+                 facial_indexes=1, *args, **kwargs):
+        self.actor = actor
+        name = f'Char_{self.actor.NAME}'
+        super().__init__(name=name, *args, **kwargs)
+        self.floor_height = floor_height
+        self.animations = FEMALE_ANIMS if self.actor.is_female() or self.actor.is_juni() else MALE_ANIMS
+        self.camera = camera
+        self.sequence_len = 0
+        self.sequence_step = 0
+        self.anim_sequence = anim_sequence
+        if self.anim_sequence is not None:
+            self.sequence_len = len(self.anim_sequence)
+
+        self.facial_indexes = facial_indexes
+
+        self.head_ik_name = self.get_ik_marker('head')
+        self.eye_ik_name = self.get_ik_marker('eye')
+        self.ik_start_point = ik_start_point
+        self.extra_ik_markers = extra_ik_markers if extra_ik_markers else []
+        self.init_char_points()
+
+    def get_name(self):
+        return self.name
+
+    def set_camera(self, camera):
+        self.camera = camera
+
+    def get_camera(self):
+        if not self.camera:
+            raise Exception(f'Character {self.name} have no assigned camera')
+        return self.camera
+
+    def inc_sequence_step(self):
+        self.sequence_step += 1
+        if self.sequence_step > self.sequence_len-1:
+            self.sequence_step = 0
+
+    def get_current_sequence(self):
+        if self.anim_sequence:
+            seq = self.anim_sequence[self.sequence_step]
+            self.inc_sequence_step()
+            return seq
+        return []
+
+    def get_ik_marker(self, ik_name):
+        return f'char_ik_{self.name}_{ik_name}_ik'
+
+    def init_char_points(self):
+        ik_position = [0, 0, 0]
+        if self.ik_start_point:
+            raise NotImplementedError
+            # ik_position = self.root.get_point(self.ik_start_point).position
+
+        temp_ik_point_name = f'ikpoint_{self.name}'
+        self.root.add_point(
+            name=temp_ik_point_name,
+            position=ik_position,
+            source=SOURCE_PYTHONLANCER,
+        )
+
+        Marker(
+            root=self.root,
+            name=self.head_ik_name,
+            point_name=temp_ik_point_name
+        )
+
+        Marker(
+            root=self.root,
+            name=self.eye_ik_name,
+            point_name=temp_ik_point_name
+        )
+
+        for ik_name in self.extra_ik_markers:
+            Marker(
+                root=self.root,
+                name=self.get_ik_marker(ik_name),
+                point_name=temp_ik_point_name
+            )
+
+    def move_head_ik(self, group, target_name, immediately=False, **kwargs):
+        event_class = MoveFastEvent if immediately else MoveEvent
+        event_class(root=self.root, group=group,
+                    object_name=self.head_ik_name, target_name=target_name,
+                    **kwargs)
+
+    def move_eye_ik(self, group, target_name, immediately=False, **kwargs):
+        event_class = MoveFastEvent if immediately else MoveEvent
+        event_class(root=self.root, group=group,
+                   object_name=self.eye_ik_name, target_name=target_name,
+                   **kwargs)
+
+    def move_ik(self, group, ik_marker, target_name, immediately=False, **kwargs):
+        event_class = MoveFastEvent if immediately else MoveEvent
+        event_class(root=self.root, group=group,
+                   object_name=self.get_ik_marker(ik_marker), target_name=target_name,
+                   **kwargs)
+
+    def start_head_ik(self, group, **kwargs):
+        return NeckIkEvent(root=self.root, group=group, char_name=self.name,
+                           target_name=self.head_ik_name,
+                           **kwargs)
+
+    def start_eye_ik(self, group, **kwargs):
+        return EyeIkEvent(root=self.root, group=group, char_name=self.name,
+                          target_name=self.eye_ik_name,
+                          **kwargs)
+
+    def start_ik(self, group, ik_marker, **kwargs):
+        return IkEvent(root=self.root, group=group, char_name=self.name,
+                       target_name=self.get_ik_marker(ik_marker),
+                       **kwargs)
+
+
+    def get_char_marker(self, point_name, y_offset):
+        original_pos = self.root.get_point(point_name).position
+        marker_name = f'charpoint_{point_name}'
+        temp_point_name = f'init_{marker_name}'
+        self.root.add_point(
+            name=temp_point_name,
+            position=[original_pos[0], y_offset, original_pos[2]],
+            source=SOURCE_PYTHONLANCER,
+        )
+        Marker(
+            root=self.root,
+            name=marker_name,
+            point_name=temp_point_name
+        )
+        return marker_name
+
+    def get_stand_marker(self, point_name, floor_height=0):
+        y_offset = HEAD_STAND_FEMALE if self.actor.is_female() else HEAD_STAND_MALE
+        return self.get_char_marker(point_name, y_offset+floor_height)
+
+    def get_sit_marker(self, point_name, floor_height=0):
+        y_offset = HEAD_SIT_FEMALE if self.actor.is_female() else HEAD_SIT_MALE
+        return self.get_char_marker(point_name, y_offset+floor_height)
+
+    def get_compound_template_name(self):
+        if not self.actor.CUTSCENE_APPEARANCE or self.actor.CUTSCENE_APPEARANCE == '':
+            raise Exception(f'Actor {self.actor} have no cutscene appearance')
+        return self.actor.CUTSCENE_APPEARANCE
+
+    def get_params(self):
+        params = super().get_params()
+        params['actor'] = self.actor.get_game_actor()
+        params['floor_height'] = self.floor_height
+        return params
+
+    def motion(self, group, anim, duration=10, repeat=1, **kwargs):
+        if self.actor.is_male() and 'fmbody' in anim.lower():
+            raise Exception(f'{anim} has wrong gender for {self.name}')
+        if self.actor.is_female() and 'mlbody' in anim.lower():
+            raise Exception(f'{anim} has wrong gender for {self.name}')
+
+        if repeat > 1 and kwargs.get('loop'):
+            raise Exception('cannot repeat loop motion event')
+
+        for i in range(1, repeat+1):
+            MotionEvent(root=self.root, group=group,
+                        object_name=self.name, anim=anim,
+                        duration=duration,
+                        **kwargs)
+
+    def main_anim(self, anim, group, duration=10, loop=True, **kwargs):
+        animation = self.animations[anim]
+        MotionEvent(root=self.root, group=group,
+                    object_name=self.name, anim=animation,
+                    duration=duration, loop=loop,
+                    **kwargs)
+
+    def idle(self, group, duration=10, **kwargs):
+        self.main_anim(IDLE, group=group, duration=duration, **kwargs)
+
+    def idle_sit(self, group, duration=10, **kwargs):
+        self.main_anim(IDLE_SIT, group=group, duration=duration, **kwargs)
+
+    def idle_sit_table(self, group, duration=10, **kwargs):
+        self.main_anim(IDLE_SIT_TABLE, group=group, duration=duration, **kwargs)
+
+    def facial(self, group, index, append=True, extra_delay=0.3,
+               auto_lip=False, auto_lip_anim_index=1,
+               auto_anim_force=None, auto_anim_force_seconds=None):
+        sound = self.root.lookup_single_sound(index)
+        if self.actor != sound.line.actor:
+            raise Exception(f'Sound {index} is belong to actor {sound.line.actor}. Cannot run by {self.actor}')
+
+        sound_duration = sound.get_duration(self.root.russian)
+
+        if auto_lip:
+            if auto_anim_force is not None:
+                if auto_anim_force_seconds is None:
+                    raise Exception('{self} have no force seconds config')
+                facial_anim = auto_anim_force
+                facial_duration = auto_anim_force_seconds
+
+            else:
+
+                anim_class: type[anim.CharAnim] = ANIM_CLASS_PER_ACTOR_TYPE[self.actor.TYPE]
+
+                if auto_lip_anim_index == 2:
+                    facial_anim = anim_class.GENERIC_ANIM2
+                    facial_duration = anim_class.GENERIC_ANIM2_SECONDS
+                else:
+                    facial_anim = anim_class.GENERIC_ANIM
+                    facial_duration = anim_class.GENERIC_ANIM_SECONDS
+
+            anim_props = {
+                'animation': f"'{facial_anim}'",
+                'duration': facial_duration,
+                'time_scale': 1,
+                'trans_time': 0.25,
+                'weight': 1,
+                'heading': -1,
+            }
+
+            lip_group = f'motion_{index}'
+            self.root.clone_group(lip_group, original=group)
+
+            lip_delay = 0
+
+            left_duration = sound_duration
+
+            while left_duration > facial_duration:
+                anim_props['duration'] = f'{left_duration+1:.2f}'
+
+                merged_props = f"{{ {','.join([f'{x}={y}' for x, y in anim_props.items()])} }}"
+
+                FacialEvent(root=self.root, group=lip_group, object_name=self.name, motion=merged_props, time_delay=lip_delay)
+
+                left_duration = left_duration - facial_duration
+                lip_delay += facial_duration
+
+            if left_duration > 0:
+                anim_props['duration'] = f'{left_duration+1:.2f}'
+                anim_props['start_time'] = f'{abs(facial_duration - left_duration):.2f}'
+
+                merged_props = f"{{ {','.join([f'{x}={y}' for x, y in anim_props.items()])} }}"
+
+                FacialEvent(root=self.root, group=lip_group, object_name=self.name, motion=merged_props, time_delay=lip_delay)
+
+
+
+            # '{{animation="Sc_dx_s037a_0301_trent", duration=10, start_time=1.3, time_scale=1, trans_time=0.25,  weight=1, heading=-1}}'
+
+
+
+
+
+
+        else:
+            meta = self.root.lookup_sound_meta(sound)
+            if len(meta) == 0:
+                raise Exception(f'Empty meta for sound {index} !')
+
+            lip_group = f'motion_{index}'
+            self.root.clone_group(lip_group, original=group)
+
+            for lip in meta:
+                FacialEvent(root=self.root, group=lip_group,
+                            object_name=self.name, motion=lip.get_props(),
+                            time_delay=lip.get_delay())
+
+        SoundEvent(root=self.root, group=group, sound_name=sound.get_nickname(),
+                   time_append=sound_duration+extra_delay if append else 0)
+
+
+class Camera(Marker):
+
+    def __init__(self, name, fov, farplane=5000, *args, **kwargs):
+        point_name = name
+        super().__init__(name=name, point_name=name, *args, **kwargs)
+        self.fov = fov
+        self.farplane = farplane
+
+    def get_params(self):
+        return {
+            'name': self.name,
+            'point': self.point,
+            'fov': self.fov,
+            'farplane': self.farplane,
+        }
+
+    def set(self, group, **kwargs):
+        SetCameraEvent(root=self.root, group=group, camera_name=self.name, **kwargs)
+
+    def change_fov(self, group, fov, **kwargs):
+        CameraAnimEvent(root=self.root, group=group, camera_name=self.name, fov=fov, **kwargs)
+
+    def move_cam(self, group, index, duration, time_delay=0, time_append=0, smooth=True):
+        target = f'{self.name}{index}'
+        target_obj = self.root.get_automarker(target)
+        return MoveEvent(root=self.root, group=group,
+                         object_name=self.name, target_name=target_obj.name,
+                         duration=duration, smooth=smooth,
+                         time_delay=time_delay, time_append=time_append)
+
+
+class StaticCamera(Camera):
+    TEMPLATE = 'camera_static'
+
+
+class LookAtCamera(Camera):
+    TEMPLATE = 'camera'
+
+    def __init__(self, look_duration=1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.focus_name = f'{self.name}_focus'
+        self.focus = self.root.get_automarker(self.focus_name)
+        self.look_at = LookAtEvent(
+            root=self.root, group=BG,
+            point=self.point, focus=self.focus,
+            duration=look_duration,
+        )
+
+    def move_focus(self, group, index, duration, time_delay=0, time_append=0, smooth=True):
+        target = f'{self.focus_name}{index}'
+        target_obj = self.root.get_automarker(target)
+        return MoveEvent(root=self.root, group=group,
+                         object_name=self.focus.name, target_name=target_obj.name,
+                         duration=duration, smooth=smooth,
+                         time_delay=time_delay, time_append=time_append)
+
+
+class Sound(Entity):
+    TEMPLATE = 'sound'
+    FLAGS = None
+
+    def __init__(self, sound, attenuation, priority='Story_Sound_1', dmin=50, dmax=300,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sound = sound
+        self.attenuation = attenuation
+        self.priority = priority
+        self.dmin = dmin
+        self.dmax = dmax
+
+    def get_params(self):
+        return {
+            'name': self.name,
+            'sound': self.sound,
+            'attenuation': self.attenuation,
+            'priority': self.priority,
+            'dmin': self.dmin,
+            'dmax': self.dmax,
+            'flags': self.FLAGS,
+        }
+
+    def start(self, group, duration, loop=False, start_time=0, **kwargs):
+        return StartSoundEvent(root=self.root, group=group, sound_name=self.name,
+                               start_time=start_time,
+                               duration=duration, loop=loop, **kwargs)
+
+    def change_attenuation(self, group, duration, attenuation, **kwargs):
+        AudioAnimEvent(root=self.root, group=group, sound_name=self.name,
+                       duration=duration, attenuation=attenuation, **kwargs)
+
+
+class SpatialSound(Sound):
+    FLAGS = 'SPATIAL'
+
+
+class Music(Sound):
+    pass
+
+
+class Light(Entity):
+    TEMPLATE = 'light'
+
+    def __init__(self, light_group, diffuse, ambient, direction, point_name=None, is_reference=False,
+                 extra_name='LIGHT_', light_type=L_DIRECT, on=True,
+                 range=2000, cutoff=90, theta=90, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.point_name = point_name if point_name else self.root.DEFAULT_POINT_NAME
+        self.point = self.root.get_point(self.point_name)
+        self.light_group = light_group
+        self.diffuse = diffuse
+        self.ambient = ambient
+        self.direction = direction
+        self.light_type = light_type
+        self.on = on
+        self.range = range
+        self.cutoff = cutoff
+        self.theta = theta
+        self.is_reference = is_reference
+        self.extra_name = extra_name
+        if self.light_type not in LIGHT_TYPES:
+            raise Exception(f'Light {self.name} has invalid type {self.light_type}')
+        if len(self.diffuse) != 3:
+            raise Exception(f'Diffuse of light {self.name} should have 3 points')
+        if len(self.ambient) != 3:
+            raise Exception(f'Ambient of light {self.name} should have 3 points')
+        if len(self.direction) != 3:
+            raise Exception(f'Direction of light {self.name} should have 3 points')
+
+    def get_light_name(self):
+        return f'{self.extra_name}{self.name}'
+
+    def get_index(self):
+        return self.light_group
+
+    def get_params(self):
+        return {
+            'name': self.get_light_name(),
+            'point': self.point,
+            'light_group': self.light_group,
+            'light_type': self.light_type,
+            'on': self.on,
+            'range': self.range,
+            'cutoff': self.cutoff,
+            'theta': self.theta,
+            'is_reference': self.is_reference,
+            'diffuse': ', '.join([str(i) for i in self.diffuse]),
+            'ambient': ', '.join([str(i) for i in self.ambient]),
+            'direction': ', '.join([str(i) for i in self.direction]),
+        }
+
+    def turn_on(self, group, **kwargs):
+        LightAnimEvent(root=self.root, group=group, object_name=self.get_light_name(), on=True, duration=0, smooth=False, **kwargs)
+
+    def turn_off(self, group, **kwargs):
+        LightAnimEvent(root=self.root, group=group, object_name=self.get_light_name(), on=False, duration=0, smooth=False, **kwargs)
+
+    def set_diffuse(self, group, diffuse, duration, smooth=False, **kwargs):
+        LightAnimEvent(root=self.root, group=group, object_name=self.get_light_name(), diffuse=diffuse,
+                       duration=duration, smooth=smooth, **kwargs)
+
+    def set_ambient(self, group, ambient, duration, smooth=False, **kwargs):
+        LightAnimEvent(root=self.root, group=group, object_name=self.get_light_name(), ambient=ambient,
+                       duration=duration, smooth=smooth, **kwargs)
+
+    def set_range(self, group, range, duration, smooth=False, **kwargs):
+        LightAnimEvent(root=self.root, group=group, object_name=self.get_light_name(), lt_range=range,
+                       duration=duration, smooth=smooth, **kwargs)
+
+    def animate_diffuse(self, group, sequence_name, start_diffuse, end_diffuse,
+                        duration, start_gap, end_gap, repeat, smooth=False):
+        event_group = f'ambient_anim_{sequence_name}'
+        self.root.clone_group(event_group, original=group)
+        first = True
+        for i in range(1, repeat+1):
+            gap = start_gap if first else end_gap
+            self.set_diffuse(group=event_group, diffuse=end_diffuse if first else start_diffuse,
+                             duration=duration, smooth=smooth, time_append=duration+gap)
+            first = not first
+
+    # possible not working???
+    def animate_ambient(self, group, sequence_name, start_ambient, end_ambient,
+                        duration, gap, repeat, smooth=False):
+        event_group = f'ambient_anim_{sequence_name}'
+        self.root.clone_group(event_group, original=group)
+        first = True
+        for i in range(1, repeat+1):
+            self.set_ambient(group=event_group, ambient=end_ambient if first else start_ambient,
+                             duration=duration, smooth=smooth, time_append=duration+gap)
+            first = not first
+
+    def animate_range(self, group, sequence_name, start_range, end_range,
+                        duration, gap, repeat, smooth=False):
+        event_group = f'range_anim_{sequence_name}'
+        self.root.clone_group(event_group, original=group)
+        first = True
+        for i in range(1, repeat+1):
+            self.set_range(group=event_group, range=end_range if first else start_range,
+                           duration=duration, smooth=smooth, time_append=duration+gap)
+            first = not first
+
+
+class Alchemy(Entity):
+    TEMPLATE = 'alchemy'
+
+    def __init__(self, particles, point_name=None, sparam=0, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.point_name = point_name if point_name else self.root.DEFAULT_POINT_NAME
+        self.point = self.root.get_point(self.point_name)
+        self.particles = particles
+        self.sparam = sparam
+
+    def get_params(self):
+        return {
+            'name': self.name,
+            'particles': self.particles,
+            'point': self.point,
+            'sparam': self.sparam,
+        }
+
+    def start(self, group, duration, **kwargs):
+        return StartAlchemyEvent(root=self.root, group=group, object_name=self.name, duration=duration, **kwargs)
+
+    def set_sparam(self, group, duration, sparam, **kwargs):
+        if sparam < 0 or sparam > 1:
+            raise Exception(f'sparam for {self.name} have invalid range: {sparam}')
+        return AlchemyAnimEvent(root=self.root, group=group, object_name=self.name,
+                                duration=duration, sparam=sparam, **kwargs)
+
+
+class MotionPath(Entity):
+    TEMPLATE = 'motion_path'
+
+    def __init__(self, path_data, point_name=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.point_name = point_name if point_name else self.root.DEFAULT_POINT_NAME
+        self.point = self.root.get_point(self.point_name)
+        self.path_data = self.validate_path_data(path_data)
+
+    def validate_path_data(self, path_data):
+        path_clean = re.sub(r"\s+", "", path_data, flags=re.UNICODE)
+        path_items = path_clean[1:-1].split('},{')
+        current_iter = 1
+        i = 1
+
+        results = []
+
+        for pack in path_items:
+            result = []
+            try:
+                items = pack.split(',')
+            except Exception as e:
+                raise Exception(f'Path pack #{i} of path {self.name} could not be parsed, reason: {e}')
+
+            iter_len = len(items)
+            if current_iter == 1:
+                if iter_len != 3:
+                    raise Exception(f'Path pack #{i} of path {self.name} have len {iter_len}, but should be 3, because it is position')
+            else:
+                if iter_len != 4:
+                    raise Exception(f'Path pack #{i} of path {self.name} have len {iter_len}, but should be 4, because it is orientation')
+
+            j = 1
+            for item in items:
+                try:
+                    result.append(f"{float(item):f}")
+                except ValueError:
+                    raise Exception(f'Path pack #{i} of path {self.name}. Item {j} in this pack is not float')
+                j += 1
+
+            if current_iter == 1:
+                current_iter = 2
+            else:
+                current_iter = 1
+
+            results.append(result)
+            i += 1
+
+        if iter == 1:
+            raise Exception(f'Path {self.name} have invalid pair of path animation: ended on pos, not orient')
+
+        return results
+
+    def extract_path_data(self):
+        packs = []
+        for data_pack in self.path_data:
+            packs.append(f"{{ {','.join(data_pack)} }}")
+        return ",".join(packs)
+
+    def get_params(self):
+        return {
+            'name': self.name,
+            'path_data': self.extract_path_data(),
+            'init_pos': self.point.pos,
+            'init_matrix': self.point.matrix,
+            'point': self.point,
+        }
+
+    def anim(self, group, duration, target_name, adjust_pos=True, adjust_orient=False, *args, **kwargs):
+        return PathAnimationEvent(root=self.root, group=group, duration=duration,
+                                  target_name=target_name, path=self,
+                                  adjust_pos=adjust_pos, adjust_orient=adjust_orient, *args, **kwargs)
+
+
+# Old-format Facial clips are listed in db/facial_anims.json. Autoplay replaces
+# them: parse the old events, comment them, and keep hand lipsync in audio_meta.json
+# (python single.py meta) for lines that must not use auto facial.
+class Autoplay:
+    def __init__(self, root, group, start_index=0, finish_index=9999, head_ik_per_index=None):
+        self.root = root
+        self.group_name = group
+        self.start_index = start_index
+        self.finish_index = finish_index
+
+        self.head_ik_per_index: dict[int, list[IkDelay]] = head_ik_per_index or {}
+
+        self.make_actions()
+
+    def get_character(self, name):
+        return self.root.entities[f'Char_{name}']
+
+    def make_actions(self):
+        sounds = self.root.lookup_multiple_sounds(self.start_index, self.finish_index)
+
+        facial_index_memory = {}
+
+        for sound in sounds:
+            character = self.get_character(sound.line.actor.NAME)
+
+            camera = character.get_camera()
+            camera.set(group=self.group_name)
+
+            motion_seq = character.get_current_sequence()
+            for motion in motion_seq:
+                duration = 10
+                if override_duration := motion.pop('override_duration', 0):
+                    duration = override_duration
+                character.motion(group=MAIN, duration=duration, **motion)
+
+            if sound.line.index in self.head_ik_per_index:
+                for head_ik_delay in self.head_ik_per_index[sound.line.index]:
+                    head_ik_delay.actor.move_head_ik(
+                        group=self.group_name, target_name=head_ik_delay.target_name,
+                        duration=head_ik_delay.duration, time_delay=head_ik_delay.time_delay)
+
+            facial_index = 1
+
+            if character.facial_indexes > 1:
+                char_name = character.get_name()
+                current_index = facial_index_memory.get(char_name, 0)
+                next_index = current_index + 1
+                if next_index > character.facial_indexes:
+                    next_index = 1
+
+                facial_index_memory[char_name] = next_index
+                facial_index = next_index
+
+            character.facial(group=self.group_name, index=sound.line.index, auto_lip=True,
+                             auto_lip_anim_index=facial_index)
+
+
+
+
+        # cam_trent.set(group=MAIN)
+        #
+        # trent.motion(group=MAIN, duration=5, anim=Male.Sc_MLBODY_STND_FSTHIPB_HSEC_RLEASE_000LV_XA_01)
+        #
+        # trent.facial(group=MAIN, index=50)
+
+
+class IkDelay:
+    def __init__(self, actor, target_name, duration=1.2, time_delay=0):
+        self.actor = actor
+        self.target_name = target_name
+        self.duration = duration
+        self.time_delay = time_delay

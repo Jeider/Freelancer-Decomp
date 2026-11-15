@@ -13,6 +13,7 @@
 // them with the D3D8 -> D3D9 translation table.
 #include "RP9.h"
 #include "RP9UserGraphics.h"
+#include "RP9D3DLoader.h"
 #include "RP9Ex.h"
 #include "RP9DeviceCallCache.h"
 #include "RP9LightCompatibility.h"
@@ -75,7 +76,6 @@ static bool ParserEnumLine(IProfileParser* Parser, void* Section, int Index, cha
 
 #pragma comment(lib, "dacom.lib")
 #pragma comment(lib, "ddraw.lib")
-#pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "version.lib")
 
 // D3DX9 (DirectX SDK June 2010, runtime d3dx9_43.dll) and DxErr. The D3D9 shim (RP9.h ->
@@ -3091,7 +3091,7 @@ GENRESULT DACOM_API FDirectX9::Startup(const char* SectionName)
 {
     ICOManager* Dacom = DACOM_Acquire();
     // RP8: Direct3DCreate8(0x78). D3D9 takes its own SDK version.
-    D3d_ = Direct3DCreate9(D3D_SDK_VERSION);
+    D3d_ = Rp9D3DLoader::Create(D3D_SDK_VERSION);
     if (D3d_ == nullptr)
     {
         // 06d05dd3: FUN_06d2b920 (vsprintf into a static buffer) of the text, WARNING 0x5ce.
@@ -3783,6 +3783,22 @@ GENRESULT DACOM_API FDirectX9::ClearBuffers(unsigned long Flags, const void* Rec
     const HRESULT Hr = Device_->Clear(Count, (const D3DRECT*)(Rects), D3dFlags,
                                       Color, Z, Stencil);
     if (FAILED(Hr))
+    {
+        static unsigned Reports = 0;
+        if (Reports++ < 4)
+        {
+            IDirect3DSurface9 *Target=nullptr,*Depth=nullptr;
+            D3DSURFACE_DESC T={},D={};D3DVIEWPORT9 V={};
+            Device_->GetRenderTarget(0,&Target);Device_->GetDepthStencilSurface(&Depth);
+            if(Target) {Target->GetDesc(&T);Target->Release();}
+            if(Depth) {Depth->GetDesc(&D);Depth->Release();}
+            Device_->GetViewport(&V);
+            FDUMP(0x100003,"RP9 clear diagnostics: flags=%lx Z=%g bits=%08x rects=%lu target=%ux%u fmt=%u ms=%u depth=%ux%u fmt=%u ms=%u viewport=%lu,%lu %lux%lu range=%g..%g\n",
+                D3dFlags,double(Z),ZBits,Count,T.Width,T.Height,unsigned(T.Format),unsigned(T.MultiSampleType),
+                D.Width,D.Height,unsigned(D.Format),unsigned(D.MultiSampleType),V.X,V.Y,V.Width,V.Height,double(V.MinZ),double(V.MaxZ));
+        }
+    }
+    if (FAILED(Hr))
         FdumpHr("clear: %s", Hr, 2435);
     return (GENRESULT)(Hr);
 }
@@ -3896,7 +3912,7 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitive(unsigned long Prim, unsigned
         return (GENRESULT)(Hr);
     FlushDrawState(Device);
     // ExShadowDrawBegin is a no-op returning true outside an opened shadow map.
-    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    if (!ExShadowDrawBegin()) return GR_OK; // No draw: keep the bound stream for subsequent material passes.
     const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
     const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
     const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
@@ -5422,7 +5438,7 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitive(unsigned long Prim, unsigned int Fv
 
     StreamCache_.SelectVertexStream(nullptr, Fvf);
     FlushDrawState(Device_);
-    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    if (!ExShadowDrawBegin()) return GR_OK; // No draw: keep the bound stream for subsequent material passes.
     const unsigned int PrimCount = PrimCountFromVerts(Prim, Count);
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
     const bool bRing = ExRingBegin(); // port-only planet rings (RP9Ex.cpp)
@@ -5476,7 +5492,7 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveUp(unsigned long Prim, unsign
 
     StreamCache_.SelectVertexStream(nullptr, Fvf);
     FlushDrawState(Device_);
-    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    if (!ExShadowDrawBegin()) return GR_OK; // No draw: keep the bound stream for subsequent material passes.
     const unsigned int Stride = VertexStrideFromFvf(Fvf);
     const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
     const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
@@ -5525,7 +5541,7 @@ GENRESULT DACOM_API FDirectX9::DrawPrimitiveVb(unsigned long Prim, void* Vb, uns
 
     StreamCache_.SelectVertexStream((FRp9Vb*)Vb, 0);
     FlushDrawState(Device_);
-    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    if (!ExShadowDrawBegin()) return GR_OK; // No draw: keep the bound stream for subsequent material passes.
     const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
     const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
     const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)
@@ -5595,7 +5611,7 @@ GENRESULT DACOM_API FDirectX9::DrawIndexedPrimitiveVb(unsigned long Prim, void* 
     StreamCache_.SelectIndices(&ScratchIb_, BaseVertex);
     FlushDrawState(Device_);
     // The compiled and GPU-tested hook is a no-op outside a shadow-map pass.
-    if (!ExShadowDrawBegin()) { StreamCache_.Reset(); return GR_OK; }
+    if (!ExShadowDrawBegin()) return GR_OK; // No draw: keep the bound stream for subsequent material passes.
     const bool bPlanet = ExPlanetSurfaceBegin(); // port-only planet surface (RP9Ex.cpp)
     const bool bAtmosphere = !bPlanet && ExAtmosphereBegin(); // port-only planet atmosphere (RP9Ex.cpp)
     const bool bSoft = !bPlanet && !bAtmosphere && ExSoftBegin(); // port-only soft particles (RP9Ex.cpp)

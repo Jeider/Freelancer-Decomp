@@ -65,6 +65,7 @@ public:
     // (CostumeDescriptions::find_costume / get_costume), then posed; a failed build FDUMPs a
     // notice (UIWin.cpp line 0x210). Caller: PageCharacterCreate (0x00561387).
     void SetCostume(char const* Name);
+    bool SetCostume(Costume const& Value);
 
     std::string Field_0x7c;       // +0x07c
     FEngineCharacterBody Body;    // +0x08c

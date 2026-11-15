@@ -15,14 +15,27 @@ DWORD Expected(DWORD pixel,int preset){
  if(!preset)return pixel;
  float c[3]={float((pixel>>16)&255)/255,float((pixel>>8)&255)/255,float(pixel&255)/255};
  float luma=.2126f*c[0]+.7152f*c[1]+.0722f*c[2];
- float tint[3]={};if(preset==2){tint[0]=.018f;tint[1]=.004f;tint[2]=-.014f;}
- if(preset==3){tint[0]=-.012f;tint[1]=.003f;tint[2]=.018f;}
+ float exposure,contrast,balance[3];
+ if(preset==1){
+  float y=luma+(luma-.5f)*.65f*(4*luma*(1-luma));
+  for(int i=0;i<3;i++) c[i]=Clamp(y+(c[i]-luma));
+  DWORD result=pixel&0xff000000;
+  for(int i=0;i<3;i++) result|=DWORD(lround(255*c[i]))<<(16-i*8);
+  return result;
+ }else if(preset==2){
+  exposure=.94f;contrast=.58f;
+  for(int i=0;i<3;i++) c[i]=Clamp(luma+(c[i]-luma)*1.32f);
+  float w=Clamp(luma*2.4f),teal[3]={.74f,.95f,1.175f},gold[3]={1.21f,1.025f,.71f};
+  for(int i=0;i<3;i++) balance[i]=teal[i]+(gold[i]-teal[i])*w;
+ }else{
+  exposure=.97f;contrast=.52f;
+  for(int i=0;i<3;i++) c[i]=luma+(c[i]-luma)*.56f;
+  balance[0]=.75f;balance[1]=.86f;balance[2]=1.24f;
+ }
+ for(int i=0;i<3;i++){float v=c[i]*exposure; c[i]=v+contrast*(v*v*(3-2*v)-v); c[i]=Clamp(c[i]*balance[i]);}
  DWORD result=pixel&0xff000000;
- for(int i=0;i<3;i++){
-  float v=Clamp(luma+(c[i]-luma)*(preset==1?1.06f:.98f));
-  v+=(preset==1?.12f:.16f)*v*(1-v)*(2*v-1);
-  v+=4*luma*(1-luma)*tint[i];result|=DWORD(lround(255*Clamp(v)))<<(16-i*8);
- }return result;
+ for(int i=0;i<3;i++) result|=DWORD(lround(255*c[i]))<<(16-i*8);
+ return result;
 }
 int main(){
  constexpr int W=128,H=64;
@@ -48,7 +61,8 @@ int main(){
  d->SetRenderState(D3DRS_SRGBWRITEENABLE,FALSE);d->SetTexture(0,scene.Get());d->SetSamplerState(0,D3DSAMP_SRGBTEXTURE,FALSE);
  d->SetSamplerState(0,D3DSAMP_MINFILTER,D3DTEXF_POINT);d->SetSamplerState(0,D3DSAMP_MAGFILTER,D3DTEXF_POINT);
  for(int preset=0;preset<4;preset++){
-  float constants[4]={float(preset),0,0,0};d->SetPixelShader(ps.Get());d->SetPixelShaderConstantF(1,constants,1);
+   float texel[4]={},constants[4]={float(preset),0,0,0};d->SetPixelShader(ps.Get());
+   d->SetPixelShaderConstantF(0,texel,1);d->SetPixelShaderConstantF(1,constants,1);
   Check(d->BeginScene());Check(d->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,quad,sizeof(V)));Check(d->EndScene());
   Check(d->GetRenderTargetData(target.Get(),read.Get()));Check(read->LockRect(&locked,nullptr,D3DLOCK_READONLY));unsigned changed=0;
   for(int y=0;y<H;y++)for(int x=0;x<W;x++){

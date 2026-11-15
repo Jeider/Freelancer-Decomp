@@ -1,0 +1,342 @@
+{
+  "name": "m04_offer_decision",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_offer_decision.thn",
+  "points": {
+    "Char_trent": {
+      "pos": [
+        -2.75,
+        -1,
+        3.05
+      ],
+      "orient": [
+        [
+          -0.680251,
+          0,
+          -0.732979
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.732979,
+          0,
+          -0.680251
+        ]
+      ]
+    },
+    "Char_jacobo": {
+      "pos": [
+        -4.35,
+        -1,
+        4.45
+      ],
+      "orient": [
+        [
+          0.680251,
+          0,
+          0.732979
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.732979,
+          0,
+          0.680251
+        ]
+      ]
+    },
+    "cam_table": {
+      "pos": [
+        -3,
+        4,
+        -2
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "cam_table_focus": {
+      "pos": [
+        -5,
+        0.2,
+        5
+      ],
+      "orient": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "cameras": [
+    "cam_table"
+  ],
+  "characters": [
+    "Char_trent",
+    "Char_jacobo"
+  ],
+  "character_markers": [],
+  "entities": [
+    {
+      "entity_name": "Scene_M04_bar_scene",
+      "type": "SCENE",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "spatialprops": {
+        "pos": [
+          0,
+          0,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "up": "Y_AXIS",
+      "front": "Z_AXIS",
+      "ambient": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "entity_name": "Monitor_1",
+      "type": "MONITOR",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0
+    },
+    {
+      "entity_name": "offscreen",
+      "type": "MARKER",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          0,
+          -10000,
+          0
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "entity_name": "Char_trent",
+      "type": "DEFORMABLE",
+      "template_name": "trent",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          -2.75,
+          -1,
+          3.05
+        ],
+        "orient": [
+          [
+            -0.680251,
+            0,
+            -0.732979
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.732979,
+            0,
+            -0.680251
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "actor": "Player",
+        "category": "Character"
+      }
+    },
+    {
+      "entity_name": "Char_jacobo",
+      "type": "DEFORMABLE",
+      "template_name": "jacobo",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "LIT_DYNAMIC",
+      "spatialprops": {
+        "pos": [
+          -4.35,
+          -1,
+          4.45
+        ],
+        "orient": [
+          [
+            0.680251,
+            0,
+            0.732979
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -0.732979,
+            0,
+            0.680251
+          ]
+        ]
+      },
+      "compoundprops": {
+        "floor_height": 0
+      },
+      "userprops": {
+        "category": "Character",
+        "actor": "jacobo"
+      }
+    },
+    {
+      "entity_name": "cam_table",
+      "type": "CAMERA",
+      "template_name": "",
+      "lt_grp": 0,
+      "srt_grp": 0,
+      "usr_flg": 0,
+      "flags": "HIDDEN",
+      "spatialprops": {
+        "pos": [
+          -3,
+          4,
+          -2
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cameraprops": {
+        "fovh": 20,
+        "hvaspect": 1.85,
+        "nearplane": 0.2,
+        "farplane": 5000
+      }
+    },
+    {
+      "entity_name": "cam_table_marker",
+      "type": "MARKER",
+      "template_name": "",
+      "template_id": 0,
+      "spatialprops": {
+        "pos": [
+          -5,
+          0.2,
+          5
+        ],
+        "orient": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    }
+  ],
+  "duration": 5555.0
+}

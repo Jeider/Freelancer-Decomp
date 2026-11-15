@@ -1,5 +1,7 @@
 <Project>
   <PropertyGroup>
+    <!-- Explicit shipping mode; Release alone remains suitable for development. -->
+    <FreelancerProduction Condition="'$(FreelancerProduction)'==''">0</FreelancerProduction>
     <!-- Default for projects without the shared diagnostics property sheet. -->
     <FreelancerEnableTickProfile Condition="'$(FreelancerEnableTickProfile)'==''">0</FreelancerEnableTickProfile>
     <!-- Port-only "Beta 2" on-screen label, FREELANCER_BETA_LABEL; off by default. -->

@@ -1,0 +1,413 @@
+{
+  "name": "m06_order_deck",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_order_deck.thn",
+  "sha256": "a84e8a9265b13111ca636c11bda61c8673d71375476bf6717d5e4908c7639e2c",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 3632,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\cruiser_deck_rtc.ini",
+      "line": 3,
+      "role": "action",
+      "thn": "scripts\\mod\\m06_order_deck.thn"
+    }
+  ],
+  "source_duration": 50.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 22.9,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 23,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 18,
+      "time": 28,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 29,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 28,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 33,
+      "type": "SET_CAMERA",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 22,
+      "time": 32,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 33,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 24,
+      "time": 35,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 25,
+      "time": 35,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 26,
+      "time": 33,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 27,
+      "time": 33,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 28,
+      "time": 32,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 32,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 30,
+      "time": 35,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 31,
+      "time": 35,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 39.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 33,
+      "time": 39.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 43,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 35,
+      "time": 43,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 36,
+      "time": 46,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 37,
+      "time": 46,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 38,
+      "time": 39,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 39,
+      "time": 39,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 40,
+      "time": 40.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 41,
+      "time": 43,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 42,
+      "time": 46.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 43,
+      "time": 47,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 44,
+      "time": 0,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 45,
+      "time": 33,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 25,
+      "start": 35,
+      "index": 10,
+      "actor": "orderpilot",
+      "sound": "DX_m06_order_deck_0010_orderpilot",
+      "prefix": "m06_order_deck",
+      "character": null,
+      "script_actor": "OrderPilot",
+      "source_actor_class": "OrderPilot",
+      "window": 0,
+      "lip_events": [],
+      "source_gap": 4
+    },
+    {
+      "id": 38,
+      "start": 39,
+      "index": 20,
+      "actor": "syd",
+      "sound": "DX_m06_order_deck_0020_syd",
+      "prefix": "m06_order_deck",
+      "character": "Char_syd",
+      "script_actor": "Ceed",
+      "source_actor_class": "Ceed",
+      "window": 19,
+      "lip_events": [
+        39,
+        40,
+        41
+      ],
+      "source_gap": -8.0
+    }
+  ],
+  "notes": [
+    "No source facial allocation: DX_m06_order_deck_0010_orderpilot at 35s; audio-only cue retained"
+  ],
+  "clock": "relative",
+  "entity_names": {
+    "Scene_m06_convoy_in": "Scene_m06_convoy_in",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "music_main": "music_main",
+    "DX_m06_order_deck_0010_orderpilot": "DX_m06_order_deck_0010_orderpilot",
+    "DX_m06_order_deck_0020_syd": "DX_m06_order_deck_0020_syd",
+    "PlayerShip": "PlayerShip",
+    "prisoners_ship02": "prisoners_ship02",
+    "prisoners_ship03": "prisoners_ship03",
+    "test_vehicle": "test_vehicle",
+    "Char_trent": "Char_trent",
+    "Char_prisoner1": "Char_prisoner1",
+    "Char_prisoner2": "Char_prisoner2",
+    "Char_prisoner3": "Char_prisoner3",
+    "Char_prisoner4": "Char_prisoner4",
+    "Char_commander": "Char_commander",
+    "point_commander_start": "automarker_point_commander_start",
+    "point_commander_around_syd": "automarker_point_commander_around_syd",
+    "Char_gunner01": "Char_gunner01",
+    "Char_gunner02": "Char_gunner02",
+    "Char_gunner03": "Char_gunner03",
+    "Char_gunner04": "Char_gunner04",
+    "Char_syd": "Char_syd",
+    "Char_syd_guard": "Char_syd_guard",
+    "trent_lookpoint_commander": "automarker_trent_lookpoint_commander",
+    "lookpoint_syd_forward": "automarker_lookpoint_syd_forward",
+    "lookpoint_syd_at_commander": "automarker_lookpoint_syd_at_commander",
+    "syd_head_ik": "automarker_syd_head_ik",
+    "syd_eye_ik": "automarker_syd_eye_ik",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "automarker_cam_dbg_marker",
+    "cam_entry": "cam_entry",
+    "Path_cam_entry": "Path_cam_entry",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "automarker_cam_trent_focus",
+    "cam_syd": "cam_syd",
+    "cam_syd_pos2": "automarker_cam_syd_pos2",
+    "cam_syd_marker": "automarker_cam_syd_focus"
+  },
+  "point_names": {
+    "Scene_m06_convoy_in": "Scene_m06_convoy_in",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "music_main": "music_main",
+    "DX_m06_order_deck_0010_orderpilot": "DX_m06_order_deck_0010_orderpilot",
+    "DX_m06_order_deck_0020_syd": "DX_m06_order_deck_0020_syd",
+    "PlayerShip": "PlayerShip",
+    "prisoners_ship02": "prisoners_ship02",
+    "prisoners_ship03": "prisoners_ship03",
+    "test_vehicle": "test_vehicle",
+    "Char_trent": "Char_trent",
+    "Char_prisoner1": "Char_prisoner1",
+    "Char_prisoner2": "Char_prisoner2",
+    "Char_prisoner3": "Char_prisoner3",
+    "Char_prisoner4": "Char_prisoner4",
+    "Char_commander": "Char_commander",
+    "point_commander_start": "point_commander_start",
+    "point_commander_around_syd": "point_commander_around_syd",
+    "Char_gunner01": "Char_gunner01",
+    "Char_gunner02": "Char_gunner02",
+    "Char_gunner03": "Char_gunner03",
+    "Char_gunner04": "Char_gunner04",
+    "Char_syd": "Char_syd",
+    "Char_syd_guard": "Char_syd_guard",
+    "trent_lookpoint_commander": "trent_lookpoint_commander",
+    "lookpoint_syd_forward": "lookpoint_syd_forward",
+    "lookpoint_syd_at_commander": "lookpoint_syd_at_commander",
+    "syd_head_ik": "syd_head_ik",
+    "syd_eye_ik": "syd_eye_ik",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "cam_dbg_marker",
+    "cam_entry": "cam_entry",
+    "Path_cam_entry": "Path_cam_entry",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "cam_trent_focus",
+    "cam_syd": "cam_syd",
+    "cam_syd_pos2": "cam_syd_pos2",
+    "cam_syd_marker": "cam_syd_focus"
+  }
+}

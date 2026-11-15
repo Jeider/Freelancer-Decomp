@@ -394,6 +394,7 @@ void HudTargetableObjects::SetTarget(IObjRW* Target)
     // LAB_004ead20.
     HUDItem::SetTarget(Target);   // FUN_004c81a0
     Scanner = nullptr;
+    ScanEntries = nullptr;
 
     Watchable const* const Watched = HUDItem::Target.target();
     IObjRW* const ObjRW = ObjRwFromWatchable(const_cast<Watchable*>(Watched));
@@ -416,8 +417,10 @@ void HudTargetableObjects::SetTarget(IObjRW* Target)
     // 0x004ead74..0x004ead8f: retail runs FindFirst on `EAX + 0xe4` without testing EAX, so a
     // watched object that is not a ship reaches CEquipManager::FindFirst with this = 0xe4. The
     // only broadcaster (FUN_004c7330 from 0x0051cbea) hands every HUD item the player's ship.
+    if (!Ship) return;
     CEquip const* const Equip = Ship->EquipManager.FindFirst(EquipTypeScanner);
     Scanner = CEScanner::cast(const_cast<CEquip*>(Equip));
+    ScanEntries = Scanner ? &Scanner->Scans : nullptr;
 }
 
 bool HudTargetableObjects::Create(Win3D* NewParent, void* Data)

@@ -41,6 +41,7 @@ namespace NebulaVolume
     // Source nebula INI [NebulaLight] shadows=false: suppress scene local shadows
     // anywhere inside that zone, independently of volume/exclusion rendering.
     bool ShadowsDisabledAt(float const* Position);
+    bool SimplifyObjectsAt(float const* Position, bool PreviouslySimplified);
 
     // Optional [Volumetric] file= in a planet-ring INI. This companion is rendered only
     // by RP9: it never enters the retail field-controller list and leaves ring puffs alone.

@@ -7,6 +7,7 @@
 #include "common_goods.h"
 #include "player_behavior.h"
 #include "space_camera.h"
+#include "common_visible_draw.h"
 #include "game_options.h"
 #include "port_config.h"
 #include "nebula_volume.h"
@@ -107,7 +108,10 @@ void EngineHeatVisualDraw(FSpaceCamera* Camera)
         auto Right=Rotate(M,{R[0][0],R[1][0],R[2][0]}),Up=Rotate(M,{R[0][1],R[1][1],R[2][1]}),Back=Rotate(M,{R[0][2],R[1][2],R[2][2]});
         auto Mid=Add(Origin,Mul(Unit(Back,{0,0,1}),Width*.15f+Length*.5f));float ViewMid[3]={};
         for(int Row=0;Row<3;++Row)ViewMid[Row]=View[Row*3]*Mid.X+View[Row*3+1]*Mid.Y+View[Row*3+2]*Mid.Z+View[9+Row];
-        if(Camera->ClassifySphere(ViewMid,std::sqrt(Length*Length*.25f+Width*Width))==1)continue;
+        float const HeatRadius=std::sqrt(Length*Length*.25f+Width*Width);
+        if(Camera->ClassifySphere(ViewMid,HeatRadius)==1)continue;
+        float const* const HeatEye=Camera->GetPosition();
+        if(HeatEye && VisibleDraw::FullyHidden(HeatEye[0],HeatEye[1],HeatEye[2],Mid.X,Mid.Y,Mid.Z,HeatRadius))continue;
         BuildEngineHeatVolume(G_Vertices,Origin,Right,Up,Back,Width,Length,std::fmod(Nozzle.Index*.173f+.13f,1.f));
     }
     if(G_Vertices.empty()||!Ready())return;

@@ -1,3 +1,4 @@
+#include "common_visible_draw.h"
 #include "cloak_visual.h"
 #ifdef FREELANCER_RP9
 #include "cloak_geometry.h"
@@ -135,6 +136,7 @@ void CloakVisualDraw(FSpaceCamera* camera)
         float delta[]={pos.x-eye[0],pos.y-eye[1],pos.z-eye[2]};
         for(int r=0;r<3;++r)vc[r]=view[r*3]*delta[0]+view[r*3+1]*delta[1]+view[r*3+2]*delta[2];
         std::memcpy(classify,vc,sizeof(vc));if(camera->ClassifySphere(classify,radius*1.08f)==1)continue;
+        if(VisibleDraw::FullyHidden(eye[0],eye[1],eye[2],sphere.x,sphere.y,sphere.z,radius))continue;
         vc[2]=-vc[2];
         float visibility=1-Clamp((candidate.Distance-3000)/2000,0,1);
         if(GetGameOption(kGameOptNebula))visibility*=NebulaVolume::EffectVisibility(eye,&pos.x);

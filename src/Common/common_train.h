@@ -3,8 +3,11 @@
 struct CObject;
 struct EngineObject;
 struct Vector;
+class IVP_Real_Object;
 namespace PhySys {struct CreateParms;}
 namespace CmnTrain {
+// -1: ordinary filtering, 0/1: dedicated nose sensor pair decision.
+int NoseCollision(IVP_Real_Object* a, IVP_Real_Object* b);
 // Separate yard vehicles: a locomotive and a train of unpowered wagons.
 COMMON_API bool IsLocomotive(CObject const* object);
 COMMON_API bool IsTrailer(CObject const* object);

@@ -18,6 +18,7 @@
 #include "space_scene_obj_draw.h"
 #include "jump_effect.h"
 #include "space_camera.h"
+#include "common_visible_draw.h"
 #include "game_options.h"
 #include "port_config.h"
 #include "player_behavior.h"
@@ -414,6 +415,7 @@ static void DrawHole(FSpaceCamera* Camera,FState& State)
     // The remaining funnel fits the original volume proxy.
     if (Camera->ClassifySphere(ViewCentre,920.0f)==1) return;
     float const* Eye=Camera->GetPosition();
+    if (Eye && VisibleDraw::FullyHidden(Eye[0], Eye[1], Eye[2], Centre[0], Centre[1], Centre[2], 920.0f)) return;
     double DistanceSq=0;
     for(int I=0;I<3;++I) { double const D=double(Eye[I])-Centre[I]; DistanceSq+=D*D; }
     float const Distance=static_cast<float>(std::sqrt(DistanceSq));
@@ -459,6 +461,7 @@ static void DrawHole(FSpaceCamera* Camera,FState& State)
         State.Phase.ActivationEnvelope(),State.Phase.ActivationAge/JumpHoleActivationDuration,
         State.Approach*.90f,State.Approach*.65f};
     std::copy(State.Palette,State.Palette+4,P+28);
+    P[7]=float(PortConfigInt("Render","jumphole_steps",64));
     for(int I=0;I<4;++I) V[48+I]=P[I];
     if (G_Capture->CaptureSceneColor(G_Copy)!=GR_OK) { LogDrawFailure(State,"capture"); return; }
     FRPExSamplerState Linear={RPExFilterLinear,RPExMipNone,RPExAddressClamp,RPExAddressClamp,RPExAddressClamp};
@@ -577,6 +580,7 @@ bool JumpHoleVisualDrawIngress(FSpaceCamera* Camera,FJumpShipEffect const* Effec
         std::tan(Camera->GetHalfFovXDeg()*.01745329252f),
         std::tan(Camera->GetFovYDeg()*.01745329252f),0,0};
     std::copy(G_TransitPalette,G_TransitPalette+4,P+28);
+    P[7]=float(PortConfigInt("Render","jumphole_steps",64));
     if (G_Capture->CaptureSceneColor(G_Copy)!=GR_OK) { LogTransitFailure("ingress capture"); return false; }
     FRPExSamplerState Linear={RPExFilterLinear,RPExMipNone,RPExAddressClamp,RPExAddressClamp,RPExAddressClamp};
     FRPExSamplerState Point={RPExFilterPoint,RPExMipNone,RPExAddressClamp,RPExAddressClamp,RPExAddressClamp};

@@ -101,6 +101,15 @@ float4 WeaponGlintControl : register(c77); // count, strength, inverse radius sq
 struct WeaponGlint {float4 Position;float4 Colour;};
 WeaponGlint WeaponGlints[8] : register(c78);
 float4 MaterialStyle : register(c94); // cockpit, glass, glass strength, cockpit finish
+// Compile separate quality programs: excluded lobes and texture reads disappear.
+#ifndef SURFACE_RELIEF_QUALITY
+#define SURFACE_RELIEF_QUALITY 3
+#endif
+#ifndef SURFACE_HIGHLIGHT_QUALITY
+#define SURFACE_HIGHLIGHT_QUALITY 3
+#endif
+float ReliefQuality() { return SURFACE_RELIEF_QUALITY; }
+float HighlightQuality() { return SURFACE_HIGHLIGHT_QUALITY; }
 float4 CockpitRelief : register(c106); // x: cockpit relief; y/z/w: user disables highlights/reflections/relief (zero preserves legacy callers)
 // x far-map texel size; y shadow reach of casters stored with a negative depth (NPC ships);
 // z simple receiver (one bilinear comparison instead of PCSS); w the far static map is valid.
@@ -405,6 +414,7 @@ float4 PSNomad(SurfacePixel In)
 #if !defined(SURFACE_NOMAD_LIGHT) && !defined(SURFACE_BEAST)
     // Bounded parallax occlusion in the original UV chart, with explicit gradients.
     // Silhouette/collision geometry is untouched. No discard or shader-depth output.
+    [branch] if(ReliefQuality()>2.5 && IceStyle.y>0) {
     float relief=lerp(.035,.075,Skin)*IceStyle.y*valid*breathing;
     float2 shift=float2(dot(V,tangent),dot(V,bitangent))/max(abs(dot(V,N)),.3)*relief;
     float2 stepUv=shift/12;
@@ -418,7 +428,11 @@ float4 PSNomad(SurfacePixel In)
     float before=1-NomadHeight(previous,gradX,gradY)-(layer-1.0/12);
     float after=height-layer;
     uv=lerp(uv,previous,saturate(-after/max(before-after,.0001)));
+    }
 #endif
+    float2 slope=0;
+    float4 reliefMap=float4(.5,.5,1,0);
+    [branch] if(ReliefQuality()>0 && IceStyle.y>0) {
 #ifdef SURFACE_BEAST
     // Four-neighbour bump, as on Dyson bricks, with BEAST atlas-border protection.
     // One colour pass, no depth march or displaced UVs.
@@ -433,28 +447,30 @@ float4 PSNomad(SurfacePixel In)
     float n =BeastHeight(uv+float2(0,-step),ux,uy,lo,hi);
     float s =BeastHeight(uv+float2(0,step),ux,uy,lo,hi);
     float e =BeastHeight(uv+float2(step,0),ux,uy,lo,hi);
-    float2 slope=float2(w-e,n-s)*.50*strength;
+    slope=float2(w-e,n-s)*.50*strength;
     slope=clamp(slope,-.4,.4);
-    float4 reliefMap=float4(.5,.5,1,0);
+    reliefMap=float4(.5,.5,1,0);
 #elif defined(SURFACE_NOMAD_LIGHT)
     // Single-layer asteroid-style bump from the authored Dyson bricks.
     // Four neighbours plus diffuse; preserve sampler addressing and original UVs.
     float footprint=max(length(ux/max(DysonTexel.xy,1.e-8)),length(uy/max(DysonTexel.xy,1.e-8)));
     float fade=(1-smoothstep(1.5,6,footprint))*valid;
     float2 stepUv=DysonTexel.xy*2;
-    float2 slope=float2(
+    slope=float2(
         DysonHeight(uv-float2(stepUv.x,0),ux,uy)-DysonHeight(uv+float2(stepUv.x,0),ux,uy),
         DysonHeight(uv-float2(0,stepUv.y),ux,uy)-DysonHeight(uv+float2(0,stepUv.y),ux,uy))*.65*IceStyle.y*fade;
     slope=clamp(slope,-.55,.55);
-    float4 reliefMap=float4(.5,.5,1,0);
+    reliefMap=float4(.5,.5,1,0);
 #else
-    float4 reliefMap=tex2Dgrad(IceLayers,uv,gradX,gradY);
+    reliefMap=tex2Dgrad(IceLayers,uv,gradX,gradY);
     const float2 texel=float2(.002,0);
-    float2 authoredSlope=float2(
+    float2 authoredSlope=0;
+    [branch] if(ReliefQuality()>1.5) authoredSlope=float2(
         dot(tex2Dgrad(DiffuseMap,uv-texel,ux,uy).rgb-tex2Dgrad(DiffuseMap,uv+texel,ux,uy).rgb,float3(.299,.587,.114)),
         dot(tex2Dgrad(DiffuseMap,uv-texel.yx,ux,uy).rgb-tex2Dgrad(DiffuseMap,uv+texel.yx,ux,uy).rgb,float3(.299,.587,.114)));
-    float2 slope=((reliefMap.rg*2-1)*lerp(.28,.7,Skin)+authoredSlope*3.5)*IceStyle.y*valid*breathing;
+    slope=((reliefMap.rg*2-1)*lerp(.28,.7,Skin)+authoredSlope*3.5)*IceStyle.y*valid*breathing;
 #endif
+    }
     float3 mapped=SafeNormal(float3(slope,sqrt(max(.08,1-dot(slope,slope)))));
     N=SafeNormal(tangent*mapped.x+bitangent*mapped.y+N*mapped.z);
     float4 texelColour=tex2Dgrad(DiffuseMap,uv,ux,uy);
@@ -509,7 +525,13 @@ float4 PSNomad(SurfacePixel In)
         if(sun && dot(SafeNormal(light.DirectionRange.xyz),ShadowSunRay.xyz)>.98) attenuation*=visibility;
         float nl=saturate(dot(N,L)),wrap=Skin?saturate((dot(N,L)+.16)/1.16):nl;
         colour+=albedo.rgb*light.DiffuseFalloff.rgb*wrap*attenuation*cavities;
+        [branch] if(HighlightQuality()<=0 || nl<=0 || attenuation<=0) continue;
         float3 H=SafeNormal(L+V);
+        [branch] if(HighlightQuality()<1.5) {
+            float nh=saturate(dot(N,H));float h2=nh*nh,h4=h2*h2,h8=h4*h4;
+            shine+=light.SpecularOuter.rgb*h8*h8*.12*nl*attenuation;
+            continue;
+        }
         float nh=saturate(dot(N,H)),vh=saturate(dot(V,H));
 #if defined(SURFACE_BEAST) || defined(SURFACE_NOMAD_LIGHT)
         // A soft, inexpensive mineral highlight; no layered organic/GGX coat.
@@ -517,7 +539,8 @@ float4 PSNomad(SurfacePixel In)
 #else
         float spec=GgxDistribution(nh,a2)*nl/(4*max(nl,.12)*NoV+.15);
         float3 fresnel=Fresnel(vh,Skin?.055:.035);
-        float coat=Skin?pow(nh,96)*1.1:pow(nh,24)*.12;
+        float coat=0;
+        [branch] if(HighlightQuality()>2.5) coat=Skin?pow(nh,96)*1.1:pow(nh,24)*.12;
         shine+=light.SpecularOuter.rgb*(spec*fresnel+coat)*attenuation;
 #endif
     }
@@ -627,7 +650,7 @@ float2 RockParallax(SurfacePixel In,float3 N,float3 V)
     float MetresPerUv=max(min(length(Tu),length(Tv))*InvDet,1.e-4);
     float3 T=Tu-N*dot(Tu,N);
     float Near=1.0-smoothstep(RockStyle.y*0.35,RockStyle.y*1.1,Dist);
-    [branch] if(Near<=0.02 || abs(Det)<1.e-30 || dot(T,T)<1.e-4*dot(Tu,Tu) || RockStyle.x==0.0 || RockStyle3.x<=0.0) return In.Uv;
+    [branch] if(ReliefQuality()<2.5 || Near<=0.02 || abs(Det)<1.e-30 || dot(T,T)<1.e-4*dot(Tu,Tu) || RockStyle.x==0.0 || RockStyle3.x<=0.0) return In.Uv;
     T=normalize(T);
     float3 B=normalize(cross(N,T))*Sign;
     // Depth in metres, from the object's size, as far as the UV chart can show it.
@@ -736,7 +759,7 @@ float3 RockReliefNormal(SurfacePixel In,float3 N,float4 Texel,float2 Ux,float2 U
     // mountain-sized rock. Per axis, with no correction for how the chart is stretched: a squeezed axis
     // (a steep face) must not be amplified into noise. Only near: it needs two more reads.
     float2 Macro=0;
-    [branch] if(wMacro>0.002)
+    [branch] if(wMacro>0.002 && RockStyle2.x!=0 && ReliefQuality()>1.5)
     {
         float E=1.0/384.0;
         float Lu=dot(tex2Dgrad(DiffuseMap,In.Uv+float2(E,0),Ux,Uy).rgb,RockLuma)-L0;
@@ -887,9 +910,11 @@ float4 PSMain(SurfacePixel In) : COLOR0
         float3 Interior=lerp(Deep,float3(0.48,0.76,0.86),IceCracks*(1.0-Frost*0.7));
         Albedo.rgb=lerp(Interior,float3(0.57,0.67,0.70)*(0.80+0.20*Grain),Frost)*Base.rgb;
         // Fine surface cleavage, separate from the three submerged crack layers.
+        [branch] if(ReliefQuality()>0) {
         float Hx=tex2Dgrad(IceLayers,Uv+float2(1.0/512.0,0),Gx,Gy).r-Skin.r;
         float Hy=tex2Dgrad(IceLayers,Uv+float2(0,1.0/512.0),Gx,Gy).r-Skin.r;
         N=SafeNormal(N-(It*Hx+Ib*Hy)*lerp(1.3,0.28,Frost)*(1.0-saturate(CockpitRelief.w)));
+        }
         NoV=max(dot(N,V),1.e-4);
     }
     float3 FinishStyle=SurfaceFinish.w>0.5 ? SurfaceFinish.xyz : float3(1.35,0.9,0.8);
@@ -908,12 +933,15 @@ float4 PSMain(SurfacePixel In) : COLOR0
     // or time-varying noise: the highlight stays attached to each hull panel.
     float3 DpX=ddx(In.ViewPosition),DpY=ddy(In.ViewPosition);
     float2 DuX=ddx(In.Uv),DuY=ddy(In.Uv);
-    float3 Tangent=DpX*DuY.y-DpY*DuX.y;
+    float3 Tangent=0,Bitangent=0;
+    [branch] if(HighlightQuality()>2.5 && Reflective) {
+    Tangent=DpX*DuY.y-DpY*DuX.y;
     Tangent-=N*dot(N,Tangent);
     if(dot(Tangent,Tangent)<1.e-12)
         Tangent=cross(abs(N.y)<0.9 ? float3(0,1,0) : float3(1,0,0),N);
     Tangent=SafeNormal(Tangent);
-    float3 Bitangent=SafeNormal(cross(N,Tangent));
+    Bitangent=SafeNormal(cross(N,Tangent));
+    }
     float K = (Roughness + 1.0) * (Roughness + 1.0) * 0.125;
 #endif
     float3 DiffuseLighting = Albedo.rgb * MaterialAmbient.rgb;
@@ -968,7 +996,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
         DiffuseLighting += Attenuation * NoL * Albedo.rgb * Light.DiffuseFalloff.rgb;
         // Medium-distance finish: one Blinn lobe with fixed integer powers.
         // No GGX, derivatives, tangent basis, coat, shadow taps or extra textures.
-        if(BaseOps.w>=0 && Surface.z>0)
+        if(HighlightQuality()>0 && BaseOps.w>=0 && Surface.z>0)
         {
             float NoH=saturate(dot(N,SafeNormal(V+L)));
             float H2=NoH*NoH,H4=H2*H2,H8=H4*H4,H16=H8*H8;
@@ -978,6 +1006,15 @@ float4 PSMain(SurfacePixel In) : COLOR0
             Highlights+=Attenuation*NoL*Gloss*Gain*Light.SpecularOuter.rgb;
         }
 #else
+        [branch] if(HighlightQuality()<1.5) {
+            DiffuseLighting += Attenuation * NoL * Albedo.rgb * Light.DiffuseFalloff.rgb;
+            [branch] if(HighlightQuality()>0) {
+                float nh=saturate(dot(N,SafeNormal(V+L)));
+                float h2=nh*nh,h4=h2*h2,h8=h4*h4,h16=h8*h8;
+                Highlights+=Attenuation*NoL*lerp(h16,h16*h16*h16*h16,1-Roughness)*Light.SpecularOuter.rgb;
+            }
+            continue;
+        }
         float3 H = SafeNormal(V + L);
         float NoH = saturate(dot(N, H));
         float3 F = Fresnel(dot(V, H), MaterialSpecular.rgb);
@@ -986,19 +1023,23 @@ float4 PSMain(SurfacePixel In) : COLOR0
         float3 Spec = D * G * F / max(4.0 * NoV * NoL, 1.0e-4);
         // Broad finish plus a tighter gloss lobe: hull curvature remains readable
         // when the narrow solar highlight is outside the visible facets.
+        float3 Finish=0;
+        float FinishG=0;
+        [branch] if(HighlightQuality()>2.5) {
         float FinishRoughness = max(Roughness, 0.48);
         float FinishK = (FinishRoughness + 1.0) * (FinishRoughness + 1.0) * 0.125;
-        float FinishG = (NoV / (NoV * (1.0 - FinishK) + FinishK)) *
+        FinishG = (NoV / (NoV * (1.0 - FinishK) + FinishK)) *
                         (NoL / (NoL * (1.0 - FinishK) + FinishK));
-        float3 Finish = GgxDistribution(NoH, pow(FinishRoughness, 4.0)) * FinishG *
+        Finish = GgxDistribution(NoH, pow(FinishRoughness, 4.0)) * FinishG *
             Fresnel(dot(V, H), float3(0.10, 0.10, 0.10)) / max(4.0 * NoV * NoL, 1.0e-4);
+        }
         DiffuseLighting += Attenuation * NoL * Albedo.rgb * (1.0 - F) * Light.DiffuseFalloff.rgb;
 #ifdef SURFACE_ROCK
         Highlights += Attenuation * NoL * (Spec * 1.25 + Finish * (0.75 * RockStyle2.w)) * Light.SpecularOuter.rgb;
 #else
         Highlights += Attenuation * NoL * (Spec * 1.25 + Finish * 0.75) * Light.SpecularOuter.rgb;
 #endif
-        if(Reflective)
+        [branch] if(Reflective && HighlightQuality()>2.5)
         {
             // A smooth top coat supplies the bright moving accent, while an
             // elongated satin lobe makes front-facing flat panels read as metal.

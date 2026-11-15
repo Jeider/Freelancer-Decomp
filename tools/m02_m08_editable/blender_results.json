@@ -1,0 +1,608 @@
+{
+  "m02_bship_bar_offer": {
+    "objects": 79,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 19
+  },
+  "m02_bship_bar_decision": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m02_bship_bar_accept": {
+    "objects": 35,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 6
+  },
+  "m02_wilham_vendor": {
+    "objects": 1,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m02_jacobo_offer": {
+    "objects": 61,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 13
+  },
+  "m02_jacobo_vendor": {
+    "objects": 1,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m02_junkers": {
+    "objects": 11,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m02_explode_camera": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m02_reichman": {
+    "objects": 72,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 14
+  },
+  "m03_offer": {
+    "objects": 40,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 11
+  },
+  "m03_offer_decision": {
+    "objects": 5,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m03_offer_accept": {
+    "objects": 50,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 8
+  },
+  "m03_fleet_arrive": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m03_kgb_death01": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m03_kgb_death02": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m03_reward": {
+    "objects": 14,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 3
+  },
+  "m04_offer": {
+    "objects": 37,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 9
+  },
+  "m04_offer_decision": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m04_offer_accept": {
+    "objects": 23,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 3
+  },
+  "m04_officer_scene01": {
+    "objects": 7,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m04_officer_scene02": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m04_friends_arrive_hassler": {
+    "objects": 6,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m04_friends_arrive_alaric": {
+    "objects": 6,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m04_reactor_fx": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m04_jacobo_death": {
+    "objects": 6,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m04_jumphole": {
+    "objects": 5,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m04_hatcher": {
+    "objects": 50,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 15
+  },
+  "m04_final": {
+    "objects": 38,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 14
+  },
+  "m05_offer": {
+    "objects": 39,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 19
+  },
+  "m05_offer_decision": {
+    "objects": 6,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_offer_accept": {
+    "objects": 37,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 2
+  },
+  "m05_piratebar": {
+    "objects": 38,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 15
+  },
+  "m05_detroit": {
+    "objects": 29,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 9
+  },
+  "m05_barman": {
+    "objects": 1,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_research_explode": {
+    "objects": 6,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_arrest_camera01": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_arrest_camera02": {
+    "objects": 8,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_arrest_camera03": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_arrest_camera04": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_arrest_camera05": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_arrest_camera06": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_arrest_camera07": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_arrest_camera08": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_arrest_camera09": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_rheinlanders_camera": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m05_equip": {
+    "objects": 149,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 51
+  },
+  "m06_offer": {
+    "objects": 43,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 14
+  },
+  "m06_offer_decision": {
+    "objects": 5,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_offer_accept": {
+    "objects": 22,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 2
+  },
+  "m06_vendor_hatcher": {
+    "objects": 1,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_vendor_alaric": {
+    "objects": 1,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_briefing": {
+    "objects": 75,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 29
+  },
+  "m06_mount": {
+    "objects": 17,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 9
+  },
+  "m06_nomad_area_camera1": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_nomad_area_camera2": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_nomad_area_camera3": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_nomad_area_camera4": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_lab_land": {
+    "objects": 26,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 4
+  },
+  "m06_lab_room": {
+    "objects": 27,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 2
+  },
+  "m06_lab_launch": {
+    "objects": 32,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_lab_explode_camera": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_torpedo_alert": {
+    "objects": 23,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 4
+  },
+  "m06_jumpin_camera1": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_jumpin_camera2": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_order_camera3": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_order_camera4": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_omicron_major": {
+    "objects": 52,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m06_order_deck": {
+    "objects": 30,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 2
+  },
+  "m06_prison_new": {
+    "objects": 135,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 21
+  },
+  "m07_offer": {
+    "objects": 45,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 19
+  },
+  "m07_offer_decision": {
+    "objects": 7,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m07_offer_accept": {
+    "objects": 8,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 1
+  },
+  "m07_tortuga_wp_camera": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m01b_armored_trap_camera": {
+    "objects": 13,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m07_omega13": {
+    "objects": 115,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 7
+  },
+  "m07_tau_arrival": {
+    "objects": 22,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 1
+  },
+  "m07_battleship": {
+    "objects": 47,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 18
+  },
+  "m07_check_artifact": {
+    "objects": 68,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 9
+  },
+  "m07_reward": {
+    "objects": 64,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 6
+  },
+  "m07_gunners": {
+    "objects": 53,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 7
+  },
+  "m08_wales_init": {
+    "objects": 7,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_liberty_enter_camera_01": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_lair_enter_door_01": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_core_camera_01": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_core_camera_02": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_core_camera_03": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_core_camera_04": {
+    "objects": 2,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_core_camera_06": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_core_camera_08": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_core_camera_07": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_core_camera_09": {
+    "objects": 5,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_outside_camera_01": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_outside_camera_02": {
+    "objects": 5,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_lair_done_camera_04": {
+    "objects": 4,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_lair_done_camera_01": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_lair_done_camera_02": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_lair_done_camera_03": {
+    "objects": 3,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_osiris": {
+    "objects": 76,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 40
+  },
+  "m08_offer": {
+    "objects": 75,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 46
+  },
+  "m08_offer_decision": {
+    "objects": 6,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 0
+  },
+  "m08_offer_accept": {
+    "objects": 71,
+    "points_unchanged": true,
+    "collections": 7,
+    "markers": 5
+  }
+}

@@ -9,6 +9,20 @@
 
 #include "base_walk.h"
 #include "base_walk_math.h"
+#include "base_presence.h"
+#include "base_emotes.h"
+#include "login_mgr.h"
+#include "player_spawn.h"
+#include "graphics_settings.h"
+#include "common_server.h"
+#include "font_atlas.h"
+#include "font_imp.h"
+#include "font_string.h"
+#include "win3d_immediate.h"
+#include "win3d_renderables.h"
+#include <map>
+#include <memory>
+#include <algorithm>
 
 #include "DALib.h"
 #include "character_info.h"
@@ -42,13 +56,23 @@
 
 namespace
 {
+    DWORD GEmoteStart = 0;
+    unsigned GEmoteSerial = 0;
+    float GEmoteDuration = 0;
+    float GEmoteFloorY = 0, GEmoteSavedFloorHeight = 0;
+    bool GEmoteRestoreFloorHeight = false;
+    int GEmoteHover = -1;
+    unsigned GEmoteButtons = 0;
+    bool GEmoteClick = false;
     struct FBaseWalkController
     {
         bool bEnabled = false;
         bool bLooking = false;
+        bool bMouseSteer = false;
+        bool bSpaceDown = false;
         bool bConsumeLookEvents = false;
         bool bWaitingForRelease = false;
-        bool bKeys[5] = {};
+        bool bKeys[7] = {};
         bool bSavedNoUpdate = false;
         bool bOwnPlayer = false;
         unsigned char SavedCursorFlag = 1;
@@ -108,6 +132,8 @@ namespace
             SetClientMouseCursorDrawFlag(G_BaseWalk.SavedCursorFlag);
             G_BaseWalk.bLooking = false;
         }
+        G_BaseWalk.bMouseSteer = false;
+        G_BaseWalk.bSpaceDown = false;
         G_BaseWalk.bConsumeLookEvents = false;
         G_BaseWalk.InterfaceFade.Tick(0.0f, false);
         std::memset(G_BaseWalk.bKeys, 0, sizeof(G_BaseWalk.bKeys));
@@ -115,10 +141,16 @@ namespace
 
     void StopMotion()
     {
+        if (G_BaseWalk.MotionKind >= 3)
+            G_BaseWalk.Pose.Position[1] = GEmoteFloorY;
         if (G_BaseWalk.Player != nullptr && G_BaseWalk.MotionHandle != -1)
         {
             DALib::Deform->DestroyHandle(G_BaseWalk.Deformable, G_BaseWalk.MotionHandle);
             G_BaseWalk.Player->RemoveMotionHandle(G_BaseWalk.MotionHandle);
+        }
+        if (GEmoteRestoreFloorHeight && G_BaseWalk.Deformable) {
+            DALib::Deform->SetHeight(G_BaseWalk.Deformable, GEmoteSavedFloorHeight);
+            GEmoteRestoreFloorHeight = false;
         }
         if (G_BaseWalk.MotionId != 0)
             GetCharacterInfoDb()->ReleaseScript(G_BaseWalk.MotionId);
@@ -182,6 +214,9 @@ namespace
 
     void ApplyPose()
     {
+        // Emotes use authored root translation. Sample their resulting position
+        // after the room animation tick instead of pinning the root every frame.
+        if (G_BaseWalk.MotionKind >= 3) return;
         float Orientation[9];
         G_BaseWalk.Pose.CharacterOrientation(Orientation);
         DALib::Deform->SetPosePos(G_BaseWalk.Deformable, G_BaseWalk.Pose.Position);
@@ -192,21 +227,37 @@ namespace
         G_BaseWalk.Player->bPoseDirty = 1;
     }
 
+    void PrepareEmoteHeight(void* script, char const* name)
+    {
+        // Despite its historical name, this API returns the clip's RootHeight,
+        // not its duration. Deformable adds floor_height to it in Play().
+        float rootHeight = 0;
+        if (DALib::Anim->GetNamedDurationOut(script, name, &rootHeight) && std::isfinite(rootHeight)) {
+            DALib::Deform->GetOffset(G_BaseWalk.Deformable, &GEmoteSavedFloorHeight);
+            GEmoteRestoreFloorHeight = true;
+            DALib::Deform->SetHeight(G_BaseWalk.Deformable, GEmoteFloorY - rootHeight);
+        }
+    }
+
+    void HoldEmoteLastFrame(unsigned kind, int handle, float elapsed, float duration)
+    {
+        if (!BaseEmotes::HoldsLastFrame(kind) || handle == -1 || elapsed < duration) return;
+        // -1 selects each channel's own final key, including shorter tracks.
+        // ApplyChannels retains the pose without advancing/restarting playback.
+        DALib::Anim->StopChannels(static_cast<unsigned long>(handle), AsOpaqueDword(-1.f));
+        DALib::Anim->ApplyChannels(static_cast<unsigned long>(handle));
+    }
+
     void SetMotion(int Kind)
     {
         if (Kind == G_BaseWalk.MotionKind)
             return;
         StopMotion();
-        char const* const Names[3] = {
-            "Sc_MLBODY_STND_IDLE_000LV_xa_04",
-            "Sc_MLBODY_WLKG_000LV_XA_01",
-            "Sc_MLBODY_RNNG_CYCL_000LV_XD_00"};
         // These locomotion clips have matching end poses, unlike the stand-to-move
         // transitions. Match their stride cadence to the controller's world speed.
-        float const Rates[3] = {1.0f, 1.525f, 0.9556f};
         FCharacterInfoDb* const Db = GetCharacterInfoDb();
         std::map<unsigned, FCharacterScript>::const_iterator const It =
-            Db->Scripts.find(CreateID(Names[Kind]));
+            Db->Scripts.find(CreateID(BaseEmotes::Name(Kind)));
         if (It == Db->Scripts.end())
             return;
         // Animation playback uses the resource's original spelling, unlike CreateID lookup.
@@ -218,17 +269,23 @@ namespace
             return;
         }
         G_BaseWalk.MotionId = CreateID(Name);
+        if (Kind >= 3) {
+            GEmoteFloorY = G_BaseWalk.Pose.Position[1];
+            PrepareEmoteHeight(Script, Name);
+            GEmoteStart = GetTickCount(); ++GEmoteSerial;
+            GEmoteDuration = DALib::Anim->GetNamedDuration(Script, Name);
+        }
         // IAnimation2 playback flags: 2 loops; no XYZ root loop accumulation.
         DALib::Deform->Play(G_BaseWalk.Deformable, &G_BaseWalk.MotionHandle, Script,
                              const_cast<char*>(Name), AsOpaqueDword(0.0f), AsOpaqueDword(0.15f),
-                             AsOpaqueDword(Rates[Kind]), AsOpaqueDword(1.0f), AsOpaqueDword(2UL),
+                             AsOpaqueDword(BaseEmotes::Rate(Kind)), AsOpaqueDword(1.0f), AsOpaqueDword(Kind >= 3 ? 0UL : 2UL),
                              AsOpaqueDword(G_BaseWalk.Pose.Yaw + 3.14159265359f), nullptr);
         if (G_BaseWalk.MotionHandle != -1)
             G_BaseWalk.Player->AddMotionHandle(G_BaseWalk.MotionHandle);
         G_BaseWalk.MotionKind = Kind;
     }
 
-    FCharacterObject* CreateWalkPlayer(FRoomRuntime* Room)
+    FCharacterObject* CreateWalkPlayer(FRoomRuntime* Room, Costume const* CostumeOverride = nullptr)
     {
         RoomData* const Data = GetRoomRuntimeRoomData(Room);
         CharPlaceInfo* Spawn = nullptr;
@@ -249,6 +306,9 @@ namespace
             return nullptr;
         CharacterProperties Props;
         GetCostumeDescriptions()->get_costume("trent", Props.Cost);
+        if (CostumeOverride && CostumeOverride->PartIds[1]) Props.Cost = *CostumeOverride;
+        Costume UnusedComm = Props.Cost;
+        PlayerCostume_ApplyOverride(Props.Cost, UnusedComm);
         // A private body keeps this optional avatar independent of scripted/shared PCs.
         return CreateCharacterObject(Props, Spawn, -1, Room, 0, Spawn->Frame);
     }
@@ -276,7 +336,7 @@ namespace
         G_BaseWalk.SavedScript = Player->OwnScriptName != nullptr ? Player->OwnScriptName : "";
         G_BaseWalk.bSavedNoUpdate = Player->bNoUpdate != 0;
         std::memcpy(G_BaseWalk.Pose.Position, G_BaseWalk.SavedPosition, sizeof(G_BaseWalk.SavedPosition));
-        G_BaseWalk.Pose.Yaw = std::atan2(G_BaseWalk.SavedOrientation[2], G_BaseWalk.SavedOrientation[8]);
+        G_BaseWalk.Pose.Yaw = std::atan2(-G_BaseWalk.SavedOrientation[2], -G_BaseWalk.SavedOrientation[8]);
         G_BaseWalk.Pose.CameraYaw = G_BaseWalk.Pose.Yaw;
         G_BaseWalk.Pose.Pitch = 0.18f;
         Player->SetOwnScript(nullptr, 0);
@@ -298,7 +358,7 @@ namespace
             ToolTipHoverInit(&Info);
             Info.Ids = G_BaseWalk.bEnabled ? -100002 : -100001;
             ToolTipHoverSetCaption(&Info,
-                G_BaseWalk.bEnabled ? L"Walk mode: ON" : L"Walk mode: OFF");
+                G_BaseWalk.bEnabled ? L"Walk mode: ON (Space toggles mouse)" : L"Walk mode: OFF");
             for (int Index = 0; Index < 3; ++Index)
             {
                 Info.WorldPos[Index] = Position[Index] + Offset[Index];
@@ -313,6 +373,26 @@ namespace
     {
     public:
         FBaseWalkButton* Button = nullptr;
+
+        bool CanShow() const
+        {
+            auto* found = Win3DFindByName("NavBar");
+            auto* bar = found ? static_cast<NavBar*>(found->AsWinControl()) : nullptr;
+            if (!bar || !bar->CanDrawToolbar() || G_bNnScreenUp ||
+                G_ModalCaptureCount || IsClientServerTickPaused()) return false;
+            for (auto const& item : bar->Buttons) if (item.bRoomSwitch && item.Control) {
+                for (auto* node = static_cast<Win3D*>(item.Control); node; node = node->GetParent())
+                    if (!(node->Flags & 2)) return false;
+                return true;
+            }
+            return false;
+        }
+
+        void Draw() override
+        {
+            // Draw is also called while simulation ticks are paused by F1.
+            if (CanShow()) WinControl::Draw();
+        }
 
         bool Create(Win3D* NewParent, void* Data) override
         {
@@ -332,14 +412,14 @@ namespace
                 return false;
             }
             Button->SetName("BaseWalkToggle");
-            Button->Init("Interface\\NeuroNet\\Icons\\nn_playerstatus.3db", nullptr,
+            Button->Init("Interface\\HUD\\HUD_contactotherplayers.3db", nullptr,
                 "ui_select_item", nullptr, Position, nullptr, Extents, 0, 0, 0, 1, -1, 0, 0);
-            if (Button->MontageTile == nullptr)
-                return false;
-            // Keep the shared atlas tile unchanged; only this button has a compact size.
-            Button->IconTile = *Button->MontageTile;
-            Button->IconTile.Scale = FBaseWalkIconLayout::IconScale;
-            Button->MontageTile = &Button->IconTile;
+            if (Button->MontageTile != nullptr)
+            {
+                Button->IconTile = *Button->MontageTile;
+                Button->IconTile.Scale = FBaseWalkIconLayout::IconScale;
+                Button->MontageTile = &Button->IconTile;
+            }
             RefreshSelection();
             return true;
         }
@@ -400,6 +480,7 @@ namespace
         {
             if (Message == 0x26 && A == reinterpret_cast<uintptr_t>(Button))
             {
+                if (!CanShow()) return 1;
                 ReleasePlayer(true);
                 G_BaseWalk.bEnabled = !G_BaseWalk.bEnabled;
                 G_BaseWalk.bWaitingForRelease = false;
@@ -413,8 +494,11 @@ namespace
     FBaseWalkPanel* G_BaseWalkPanel = nullptr;
 }
 
+#include "base_presence_client.inl"
+
 void BaseWalkTick(float DeltaSeconds)
 {
+    BasePresenceTick(DeltaSeconds);
     if (!IsBase())
         return;
     G_BaseWalk.InterfaceFade.Tick(DeltaSeconds, G_BaseWalk.bLooking);
@@ -430,7 +514,7 @@ void BaseWalkTick(float DeltaSeconds)
     if (G_BaseWalkPanel != nullptr)
     {
         bool const bPlaced = G_BaseWalkPanel->UpdatePlacement();
-        G_BaseWalkPanel->SetHiddenWithChildren(!bPlaced || G_ModalCaptureCount != 0 ||
+        G_BaseWalkPanel->SetHiddenWithChildren(!bPlaced || !G_BaseWalkPanel->CanShow() || G_ModalCaptureCount != 0 ||
             GetLetterboxAmount() != 0.0f ||
             (GetClientMouseCursorDrawFlag() == 0 && !BaseWalkShouldDrawInterface()));
     }
@@ -472,18 +556,31 @@ void BaseWalkTick(float DeltaSeconds)
     float const Strafe = static_cast<float>(G_BaseWalk.bKeys[3]) -
                            static_cast<float>(G_BaseWalk.bKeys[2]);
     bool const bMoving = G_BaseWalk.Pose.Step(Forward, Strafe, G_BaseWalk.bKeys[4], DeltaSeconds);
-    SetMotion(bMoving ? (G_BaseWalk.bKeys[4] ? 2 : 1) : 0);
+    float const Lift = static_cast<float>(G_BaseWalk.bKeys[5]) - static_cast<float>(G_BaseWalk.bKeys[6]);
+    if (G_BaseWalk.MotionKind >= 3 && (bMoving || Lift != 0)) StopMotion();
+    if (Lift != 0.0f && DeltaSeconds > 0.0f)
+        G_BaseWalk.Pose.Position[1] += Lift * 1.4f * DeltaSeconds;
+    if (bMoving || Lift != 0 || G_BaseWalk.MotionKind < 3 ||
+        BaseEmotes::Finished(G_BaseWalk.MotionKind, (GetTickCount() - GEmoteStart) * .001f, GEmoteDuration))
+        SetMotion(bMoving ? (G_BaseWalk.bKeys[4] ? 2 : 1) : 0);
+    HoldEmoteLastFrame(G_BaseWalk.MotionKind, G_BaseWalk.MotionHandle,
+                      (GetTickCount() - GEmoteStart) * .001f, GEmoteDuration);
     ApplyPose();
 }
 
 void BaseWalkAfterWorldUpdate()
 {
+    BasePresenceApply();
     if (G_BaseWalk.Player == nullptr)
         return;
     if (!WorldAvailable(G_BaseWalk.Room, G_BaseWalk.Player))
     {
         SuspendPlayer(true);
         return;
+    }
+    if (G_BaseWalk.MotionKind >= 3) {
+        float const* position = DALib::Engine->GetInstancePosition(G_BaseWalk.Player->GetEngineInstance());
+        if (position) std::memcpy(G_BaseWalk.Pose.Position, position, sizeof(G_BaseWalk.Pose.Position));
     }
     ApplyPose();
     // Refresh world matrices after overriding the animated root, before drawing/hotspot picks.
@@ -512,6 +609,10 @@ bool BaseWalkHandleKey(unsigned Message, unsigned Key)
                 G_BaseWalk.bKeys[Index] = false;
         if (Key == VK_SHIFT)
             G_BaseWalk.bKeys[4] = false;
+        if (Key == VK_UP)
+            G_BaseWalk.bKeys[5] = false;
+        if (Key == VK_DOWN)
+            G_BaseWalk.bKeys[6] = false;
     }
     if (G_BaseWalk.Player == nullptr || !InputAvailable())
         return false;
@@ -531,11 +632,31 @@ bool BaseWalkHandleKey(unsigned Message, unsigned Key)
         G_BaseWalk.bKeys[4] = bDown;
         return true;
     }
+    if (Key == VK_UP || Key == VK_DOWN)
+    {
+        G_BaseWalk.bKeys[Key == VK_UP ? 5 : 6] = bDown;
+        return true;
+    }
+    if (Key == VK_SPACE)
+    {
+        if (bDown)
+        {
+            if (!G_BaseWalk.bSpaceDown)
+                G_BaseWalk.bMouseSteer = !G_BaseWalk.bMouseSteer;
+            G_BaseWalk.bSpaceDown = true;
+        }
+        else
+            G_BaseWalk.bSpaceDown = false;
+        if (!G_BaseWalk.bMouseSteer)
+            ReleaseLook();
+        return true;
+    }
     return false;
 }
 
 bool BaseWalkConsumeMouseEvent(FMouseEvent const& Event)
 {
+    if (GEmoteClick && Event.ButtonIndex == 0) return true;
     if (G_BaseWalk.bLooking || G_BaseWalk.bConsumeLookEvents)
         return true;
     if (G_BaseWalk.bEnabled && Event.ButtonIndex == 0 && Event.bMove == 0 &&
@@ -551,6 +672,21 @@ bool BaseWalkMouseFrame(bool bRead, int DeltaX, int DeltaY, int CursorX, int Cur
 {
     bool const bWasLooking = G_BaseWalk.bLooking;
     unsigned const Buttons = bRead ? GetClientMouseButtons() : 0;
+    GEmoteHover = -1;
+    if (G_BaseWalk.bEnabled && G_BaseWalk.Player && InputAvailable() &&
+        RoomAvailable(G_BaseWalk.Room) && !bWasLooking && GetClientMouseCursorDrawFlag() != 0) {
+        int top = static_cast<int>(G_RenderSurfaceHeight) - 160;
+        if (CursorX >= 16 && CursorX < 246 && CursorY >= top && CursorY < top + 140)
+            GEmoteHover = (CursorY - top) / 28;
+    }
+    bool pressed = (Buttons & 1u) && !(GEmoteButtons & 1u);
+    GEmoteButtons = Buttons;
+    if (pressed) GEmoteClick = GEmoteHover >= 0;
+    if (GEmoteClick) {
+        if (pressed) { StopMotion(); SetMotion(GEmoteHover + 3); }
+        if (!(Buttons & 1u)) GEmoteClick = false;
+        return true;
+    }
     if (G_BaseWalk.bWaitingForRelease && (Buttons & 3u) == 0 &&
         InputAvailable())
         G_BaseWalk.bWaitingForRelease = false;
@@ -567,7 +703,9 @@ bool BaseWalkMouseFrame(bool bRead, int DeltaX, int DeltaY, int CursorX, int Cur
         FHotspot* Hotspot = nullptr;
         bInteractiveTarget = Win3DPick(Ray) != nullptr || FindHotspotAt(Point, &Hotspot);
     }
-    EBaseWalkLookMode const Mode = G_BaseWalk.MouseLook.Update(Buttons, bAvailable, bInteractiveTarget);
+    EBaseWalkLookMode Mode = G_BaseWalk.MouseLook.Update(Buttons, bAvailable, bInteractiveTarget);
+    if (G_BaseWalk.bMouseSteer && bAvailable)
+        Mode = EBaseWalkLookMode::Steer;
     G_BaseWalk.bConsumeLookEvents = bWasLooking || Mode != EBaseWalkLookMode::None;
     if (Mode != EBaseWalkLookMode::None)
     {
@@ -665,12 +803,14 @@ void BaseWalkCharacterScriptStarting(FCharacterObject* Character)
 
 void BaseWalkRoomDestroyed(FRoomRuntime* Room)
 {
+    BasePresenceRoomDestroyed(Room);
     if (Room == G_BaseWalk.Room)
         ReleasePlayer(false);
 }
 
 void BaseWalkLeaveBase()
 {
+    BasePresenceClear();
     ReleasePlayer(false);
     G_BaseWalk.bEnabled = false;
     G_BaseWalk.bWaitingForRelease = false;

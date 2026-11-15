@@ -1,0 +1,304 @@
+{
+  "name": "m06_lab_launch",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_lab_launch.thn",
+  "sha256": "e274fbdf387f07d28e8be6f2e7910eb30a999eed63bf450edad1a83339930d42",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 2862,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_launch_rtc.ini",
+      "line": 3,
+      "role": "offer",
+      "thn": "scripts\\mod\\m06_lab_launch.thn"
+    }
+  ],
+  "source_duration": 14.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0.6,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 1.2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 1.8,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 2.4,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 3,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 3.6,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 4.2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 4.8,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 10,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 10,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 13,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 5,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 18,
+      "time": 5,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 10,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 22,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 24,
+      "time": 5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 25,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 26,
+      "time": 5,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 27,
+      "time": 5,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 28,
+      "time": 5,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 30,
+      "time": 5,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 31,
+      "time": 0,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 33,
+      "time": 11,
+      "type": "START_SOUND",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_m06_lab_launch": "Scene_m06_lab_launch",
+    "prop_crystal": "prop_crystal",
+    "prop_tome": "prop_tome",
+    "the_cart2": "the_cart2",
+    "the_cart3": "the_cart3",
+    "the_cart4": "the_cart4",
+    "crateB1": "crateB1",
+    "crateB2": "crateB2",
+    "crateC1": "crateC1",
+    "crateC2": "crateC2",
+    "crateA1": "crateA1",
+    "crateA2": "crateA2",
+    "Monitor_1": "Monitor_1",
+    "Camera_X": "Camera_X",
+    "Mrk_CameraDev": "automarker_Mrk_CameraDev",
+    "Mrk_OffScreen": "automarker_Mrk_OffScreen",
+    "alaric_ship": "alaric_ship",
+    "PlayerShip": "PlayerShip",
+    "Char_Trent": "Char_trent",
+    "Path_CameraLaunch": "Path_CameraLaunch",
+    "Path_PlayerShipStart": "Path_PlayerShipStart",
+    "Path_PlayerShip": "Path_PlayerShip",
+    "Path_PlayerShipFlyOut": "Path_PlayerShipFlyOut",
+    "Path_AlaricShip": "Path_AlaricShip",
+    "Path_AlaricShipOrient": "Path_AlaricShipOrient",
+    "Path_AlaricShipFlyAway": "Path_AlaricShipFlyAway",
+    "Camera_Running": "Camera_Running",
+    "Mrk_CameraRunning": "automarker_Camera_Running_focus",
+    "Path_CameraRunning": "Path_CameraRunning",
+    "Path_MrkCameraRunning": "Path_MrkCameraRunning",
+    "Camera_Launch": "Camera_Launch",
+    "Mrk_CameraLaunch": "automarker_Camera_Launch_focus",
+    "Path_MrkCameraLaunch": "Path_MrkCameraLaunch",
+    "PlayerShipEngines_2": "PlayerShipEngines_2",
+    "music_main": "music_main",
+    "start_sound": "start_sound",
+    "launch_sound": "launch_sound"
+  },
+  "point_names": {
+    "Scene_m06_lab_launch": "Scene_m06_lab_launch",
+    "prop_crystal": "prop_crystal",
+    "prop_tome": "prop_tome",
+    "the_cart2": "the_cart2",
+    "the_cart3": "the_cart3",
+    "the_cart4": "the_cart4",
+    "crateB1": "crateB1",
+    "crateB2": "crateB2",
+    "crateC1": "crateC1",
+    "crateC2": "crateC2",
+    "crateA1": "crateA1",
+    "crateA2": "crateA2",
+    "Monitor_1": "Monitor_1",
+    "Camera_X": "Camera_X",
+    "Mrk_CameraDev": "Mrk_CameraDev",
+    "Mrk_OffScreen": "Mrk_OffScreen",
+    "alaric_ship": "alaric_ship",
+    "PlayerShip": "PlayerShip",
+    "Char_Trent": "Char_trent",
+    "Path_CameraLaunch": "Path_CameraLaunch",
+    "Path_PlayerShipStart": "Path_PlayerShipStart",
+    "Path_PlayerShip": "Path_PlayerShip",
+    "Path_PlayerShipFlyOut": "Path_PlayerShipFlyOut",
+    "Path_AlaricShip": "Path_AlaricShip",
+    "Path_AlaricShipOrient": "Path_AlaricShipOrient",
+    "Path_AlaricShipFlyAway": "Path_AlaricShipFlyAway",
+    "Camera_Running": "Camera_Running",
+    "Mrk_CameraRunning": "Camera_Running_focus",
+    "Path_CameraRunning": "Path_CameraRunning",
+    "Path_MrkCameraRunning": "Path_MrkCameraRunning",
+    "Camera_Launch": "Camera_Launch",
+    "Mrk_CameraLaunch": "Camera_Launch_focus",
+    "Path_MrkCameraLaunch": "Path_MrkCameraLaunch",
+    "PlayerShipEngines_2": "PlayerShipEngines_2",
+    "music_main": "music_main",
+    "start_sound": "start_sound",
+    "launch_sound": "launch_sound"
+  }
+}

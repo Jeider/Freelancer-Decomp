@@ -1,4 +1,5 @@
 #include "tradelane_ring_anim.h"
+#include "solar_animation.h"
 
 #include "client_gameobj.h"
 #include "common_animdb.h"
@@ -83,6 +84,9 @@ bool TradeLaneRingAnimConfigured(FClientGameobj* Solar, unsigned Side)
 
 void TradeLaneRingAnimStart(FClientGameobj* Solar, unsigned Side)
 {
+    SolarAnimation::RingConfig Physical;
+    if (Solar && Solar->GetObject() &&
+        SolarAnimation::GetRingConfig(Solar->GetObject()->Archetype, Physical)) return;
     char const* ScriptName = Name(Solar, Side);
     if (!ScriptName[0]) return;
     auto& Pair = Playing[Solar];

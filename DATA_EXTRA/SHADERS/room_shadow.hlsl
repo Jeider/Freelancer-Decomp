@@ -42,8 +42,9 @@ float4 ApplyPS(float2 U:TEXCOORD0):COLOR0 {
   float2 Q=S+float2(X,Y)*Control.z*1.5;
   float Z=tex2D(Shadow,Q).r, Gap=P.z-Z;
   float K=(X==0 ? 2:1)*(Y==0 ? 2:1);
-  float Valid=all(Q>=0) && all(Q<=1) && Z<.9999 && Gap>.0015;
-  Blocked+=K*Valid*(1-smoothstep(.5,2.0,Gap)); Weight+=K;
+  // Wider, softer compare. The old 0.0015 edge pops as the showroom camera creeps.
+  float Valid=all(Q>=0) && all(Q<=1) && Z<.9999 && Gap>.012;
+  Blocked+=K*Valid*(1-smoothstep(1.2,4.0,Gap)); Weight+=K;
  }
  return 1-Control.w*Blocked/Weight;
 }

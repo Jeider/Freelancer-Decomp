@@ -209,6 +209,7 @@
     <ClCompile Include="common_ceqobj.cpp" />
     <ClCompile Include="common_cship.cpp" />
     <ClCompile Include="common_train.cpp" />
+    <ClCompile Include="common_visible_draw.cpp" />
     <ClCompile Include="common_gravity.cpp" />
     <ClCompile Include="solar_animation.cpp" />
     <ClCompile Include="common_asteroid_avoidance.cpp" />

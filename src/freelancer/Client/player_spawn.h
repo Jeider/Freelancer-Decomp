@@ -12,6 +12,7 @@
 // registration FUN_00540c30(Go, 1) and the BaseWatcher DAT_00679744 on it.
 
 #include "common_ini.h" // Vector
+#include "common_cobject.h" // CShip::CreateParms for in-space preparation
 
 class FClientShipGameobj;
 
@@ -99,3 +100,10 @@ unsigned char* GetPlayerCreateShipAnsweredByte();
 unsigned char* GetPlayerLaunchAcknowledgedByte();
 
 FClientShipGameobj* SpawnPlayerShip();                   // FUN_0054b520
+
+// These SP-only operations do not call PlayerLaunch, change SpaceApp, or enter
+// a system. The caller owns a prepared object until it is bound or discarded.
+FClientShipGameobj* PreparePlayerShipInSpace(unsigned ArchetypeId, CShip::CreateParms const& Parms);
+bool BindPreparedPlayerShip(FClientShipGameobj* Ship);
+void DiscardPreparedPlayerShip(FClientShipGameobj* Ship);
+bool UpdatePlayerShipTransfer();

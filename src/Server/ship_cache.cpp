@@ -667,3 +667,5 @@ SERVER_API int __cdecl PlayerShipCache_EquipAt(unsigned PlayerId, int Index, int
 }
 
 } // extern "C"
+
+#include "player_ship_transfer.inl"

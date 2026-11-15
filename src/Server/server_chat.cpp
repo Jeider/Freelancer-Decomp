@@ -41,6 +41,7 @@
 
 // Retail .data:DAT_06d8fb18, defined in IServerImpl.cpp.
 extern IChatClient* g_pChatClientInterface;
+#include "base_presence.inl"
 
 // FUN_06d1b1b0's port, defined in server_classes.cpp (shared with the cheat report).
 void Server_RdlAppend(RenderDisplayList& Rdl, const RDLNode& Node);
@@ -561,6 +562,11 @@ static bool __cdecl ChatCommand_Group(FChatCommandContext* Ctx, std::vector<std:
 // ---------------------------------------------------------------------------
 void Server_SubmitChat(CHAT_ID Sender, unsigned long Size, const void* Data, CHAT_ID Target, int SystemId)
 {
+    if (Target.Id == BasePresence::Channel) {
+        // The RPC layer replaces Sender with the authenticated client id.
+        if ((Sender.Id & 0xffff0000u) == 0) RouteBasePresence(Sender.Id, Size, Data);
+        return;
+    }
     // 1. .text:06d191be .. 06d19328 -- eight push_backs through FUN_06d1b2d0, once.
     if (!GChatCommandsBuilt) {
         // Retail .rdata strings (06d6898c .. 06d6888c), read from the PE:

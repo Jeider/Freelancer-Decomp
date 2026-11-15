@@ -45,7 +45,9 @@ solar = (GAME/'DATA/SOLAR/solararch.ini').read_bytes()
 loadout = (GAME/'DATA/SOLAR/loadouts.ini').read_bytes()
 assert patch_solar(patch_solar(solar)) == patch_solar(solar)
 assert patch_loadout(patch_loadout(loadout)) == patch_loadout(loadout)
-assert len(patch_loadout(loadout)) < len(loadout) or b'equip = legal_tradelane_animation' not in loadout
+main_loadout = next(b for b in re.split(rb'(?m)^\[', patch_loadout(loadout))
+                    if re.search(rb'(?mi)^nickname\s*=\s*trade_lane_ring_main\s*$', b))
+assert not re.search(rb'(?mi)^equip\s*=\s*legal_tradelane_animation\s*$', main_loadout)
 print('PASS: geometry/LODs/hardpoints/old scripts unchanged; correct side joints; 181 frames, smooth one-turn motion; idempotent INI edits')
 
 stub = r'''
@@ -61,6 +63,7 @@ template<class T> void* AsOpaqueDword(T x){return reinterpret_cast<void*>(static
 #define FDUMP(...) ((void)0)
 struct INI_Reader{std::string key,value;bool is_value(char const* s){return key==s;}char const* get_value_string(){return value.c_str();}};
 struct Arch{void* Companion=nullptr;int get_script_index(){return 7;}};
+namespace SolarAnimation {struct RingConfig{};bool physical=false;bool GetRingConfig(Arch*,RingConfig&){return physical;}}
 struct CObject{Arch* Archetype;int EngineInstanceId=123;};
 struct FClientGameobj{CObject* obj;CObject* GetObject(){return obj;}};
 namespace AnimDB{std::set<int> active;void Add(int h){assert(active.insert(h).second);}void Rem(int h){active.erase(h);}}
@@ -83,11 +86,15 @@ code = stub + source + r'''
 int main(){
  int companion, inherited; Arch a{&companion};CObject o{&a};FClientGameobj solar{&o};
  TradeLaneRingAnimStart(&solar,0);assert(engine.count==0); // opt-in
+ SolarAnimation::physical=true;TradeLaneRingAnimStart(&solar,0);assert(engine.count==0);
+ SolarAnimation::physical=false;
  INI_Reader left{"left_ring_anim","left"},right{"right_ring_anim","right"},other{"other",""};
  assert(TradeLaneRingAnimRead(&companion,left));assert(TradeLaneRingAnimRead(&companion,right));
  assert(!TradeLaneRingAnimRead(&companion,other));
  TradeLaneRingAnimCopy(&inherited,&companion);TradeLaneRingAnimForgetConfig(&companion);
  a.Companion=&inherited;assert(TradeLaneRingAnimConfigured(&solar,0)&&TradeLaneRingAnimConfigured(&solar,1));
+ SolarAnimation::physical=true;TradeLaneRingAnimStart(&solar,0);assert(engine.count==0);
+ SolarAnimation::physical=false;
  TradeLaneRingAnimStart(&solar,0);assert(engine.count==1&&engine.last=="left");
  for(int i=0;i<100;++i){engine.records.at(1).t=5.99f;TradeLaneRingAnimTick();TradeLaneRingAnimStart(&solar,i%2);}
  assert(engine.count==1&&engine.destroyed==0); // no retrigger from either side, no queued request

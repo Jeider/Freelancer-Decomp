@@ -148,7 +148,9 @@ IObjRW* dockingObject(IObjRW* target) {
     if(!target) return nullptr;
     unsigned type=typeOf(target);
     if((type&0x8c0)!=0 || ((type&0x120)!=0 && target->has_dock_hardpoints())) return target;
-    if((type&3)==0) return nullptr;
+    auto const* body=target->cobject();
+    auto const* arch=body?body->get_archetype():nullptr;
+    if(!arch || arch->get_class_type()!=Archetype::AClassSolar) return nullptr;
     unsigned base=0; target->get_base(base);
     if(!base) return nullptr;
     uintptr_t iter[3]={0,0,0xfdff};

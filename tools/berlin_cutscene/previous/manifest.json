@@ -1,0 +1,14 @@
+{
+  "m01_berlin.py": {
+    "old": "58ac24a9e606080151f748f294d49a439a2f6027a2e2ac757e1ab2325416b2cd",
+    "new": "9138c69b41314ea38c4aeedc8f629bd282bf38314dd93bfa3c7520544643b587"
+  },
+  "m01_berlin.blend": {
+    "old": "3dcd93d39f34367a06b5d42b2c682247f6d47155cca65ba6b22f8f355223ef54",
+    "new": "88a77ce2ff8295eea23cadf79ccd43e71c28fd7fa21e46999dcb81e9d997f755"
+  },
+  "m01_berlin.json": {
+    "old": "c8728f09a299e939e129879459ec5dff020738de2732e2775e7cc0f112d6fc5e",
+    "new": "d5be4cb77ee5ea63d56065b6789de72fe9f530cda025cdb727a558ab96f3cd9b"
+  }
+}

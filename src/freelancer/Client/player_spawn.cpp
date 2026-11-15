@@ -5,7 +5,10 @@
 // Author: Giperion.
 
 #include "player_spawn.h"
+#include "player_ship_transfer.h"
 #include "player_route.h"
+#include "hud_element_list.h"
+#include "hud_contact_list.h"
 #ifdef FREELANCER_ADOXA
 #include "port_plugins.h" // port-only adoxa patches (DisableLevelCameraToggle)
 #endif
@@ -37,8 +40,8 @@
 #include "space_camera.h"
 #include "space_scene_load.h"
 #include "star_sys.h"
-#ifdef FREELANCER_FLSHARP
 #include "common_iface.h"       // IBehaviorManager +0xf9, GetBehaviorManager
+#ifdef FREELANCER_FLSHARP
 #include "common_systemmanager.h" // ThrustManager::bAutoLevel
 #include "hud_status_core.h"    // HudStatusSetAutoLevelState
 #include "player_behavior.h"    // GetPlayerObjRW
@@ -379,6 +382,142 @@ void SetPlayerLaunchAcknowledged(bool bAcknowledged)
 bool IsPlayerLaunchAcknowledged()
 {
     return G_bPlayerLaunchAcknowledged != 0;
+}
+
+FClientShipGameobj* PreparePlayerShipInSpace(unsigned ArchetypeId, CShip::CreateParms const& Parms)
+{
+    // Never expose this path to an MP client. Its physical object belongs to
+    // the remote server and cannot be transferred through the local SP bridge.
+    if (!SinglePlayer() || !GetPlayerShipObject() || !Parms.Id ||
+        Parms.OwnerPlayer != GetPlayerConnectionId() || Parms.ObjDb != GetClientObjDb() ||
+        CObject::Find(Parms.Id, CObject::ClassShip)) return nullptr;
+    Archetype::Ship* Arch = Archetype::GetShip(ArchetypeId);
+    if (!Arch) return nullptr;
+    auto* Go = new FClientShipGameobj();
+    Arch->load();
+    Go->create(Arch);
+    Arch->Release();
+    auto* Ship = static_cast<CShip*>(Go->Object);
+    if (!Ship) { delete Go; return nullptr; }
+    Ship->init(Parms);
+    Ship->get_archetype()->Companion->Load(1);
+    Archetype::LoadMountedEquipmentCompanions(&Parms.Equipment, 1);
+    Archetype::HookUpInstanceTreeMaterials(Go->get_index());
+    Go->Slot170();
+    ClientObjDb_RegisterGameobj(Go, true);
+    Ship->enable_collisions_r(false);
+    return Go;
+}
+
+bool BindPreparedPlayerShip(FClientShipGameobj* Go)
+{
+    if (!SinglePlayer() || !Go || !Go->Object ||
+        Go->Object->ObjectClass != CObject::ClassShip ||
+        static_cast<CShip*>(Go->Object)->OwnerPlayer != GetPlayerConnectionId() ||
+        ClientObjDb_FindObject(Go->get_id(), 1) != Go) return false;
+    G_PlayerCharacterId = Go->get_id();
+    G_PlayerShipCharMirror = G_PlayerCharacterId;
+    G_PlayerShipWatcher.set(static_cast<Watchable const*>(static_cast<IObjRW*>(Go)));
+    return true;
+}
+
+void DiscardPreparedPlayerShip(FClientShipGameobj* Go)
+{
+    if (!SinglePlayer() || !Go || IsPlayerShipId(Go->get_id())) return;
+    ClientObjDb_Unregister(Go);
+    delete Go;
+}
+
+bool UpdatePlayerShipTransfer()
+{
+#ifdef FREELANCER_RPG_WORLD
+    if (!SinglePlayer() || !GetPlayerShipObject()) return false;
+    // Courier boarding uses the in-space protocol on normal SP launches.
+    // MP never negotiates this private local-server capability.
+    auto server = GetModuleHandleA("Server.dll");
+    auto bridge = server ? reinterpret_cast<PlayerShipTransfer::Bridge>(
+        GetProcAddress(server, "PlayerShipTransferBridge")) : nullptr;
+    if (!bridge) return false;
+    using namespace PlayerShipTransfer;
+    Packet p; p.player = GetPlayerConnectionId();
+    if (!bridge(&p) || (p.result != 1 && p.result != -2)) return false;
+    auto* previous = static_cast<FClientShipGameobj*>(ClientObjDb_FindObject(GetPlayerShipId(), 1));
+    auto cancel = [&]() {
+        if (p.generation) { p.operation = Operation::Cancel; bridge(&p); }
+        auto* old = static_cast<CShip*>(GetPlayerShipObject());
+        if (old) {
+            if (auto* manager = old->get_behavior_interface()) manager->cancel_behavior(CancelAll);
+            old->set_control_exclusion(0u);
+            static_cast<IServer*>(GetLocalServerInterface())->SPRequestInvincibility(
+                old->Id, false, INVINCIBILITY_REASON_2, GetPlayerConnectionId());
+        }
+        PlayerRoute::Cancel(true);
+    };
+    if (p.result == -2) { cancel(); return true; }
+    p.operation = Operation::Prepare;
+    if (!previous || !bridge(&p) || p.result != 1) { cancel(); return true; }
+    auto* arch = Archetype::GetShip(p.ship.ShipArchetype);
+    if (!arch) { cancel(); return true; }
+    CShip::CreateParms parms{};
+    parms.Id = p.target; parms.OwnerPlayer = p.player; parms.ObjDb = GetClientObjDb();
+    parms.Pos = p.position; parms.Orient = p.orientation;
+    parms.VibeId = static_cast<unsigned>(GetPlayerSpawnSystemIdRetail());
+    unsigned rank = 0;
+    Reputation::Vibe::GetRank(GetPlayerSpawnSystemIdRetail(), rank);
+    parms.Rank = rank;
+    parms.VoiceId = GetPlayerSpawnScratchScalarRetail();
+    auto costume = GetPlayerRepVibeScratchRetail();
+    for (int i = 0; i != 4; ++i) parms.SpaceCostume.PartIds[i] = costume[i];
+    parms.SpaceCostume.AccessoryCount = GetPlayerRepVibeScratchCountRetail();
+    for (int i = 0; i < parms.SpaceCostume.AccessoryCount; ++i)
+        parms.SpaceCostume.AccessoryIds[i] = GetPlayerRepVibeScratchTailRetail()[i];
+    parms.HitPts = p.ship.RelativeHealth * arch->HitPts;
+    parms.Equipment = EquipDescVector(p.ship.Equipment);
+    parms.ArchGroupDescs = p.ship.Groups;
+    auto* prepared = PreparePlayerShipInSpace(p.ship.ShipArchetype, parms);
+    if (!prepared) { cancel(); return true; }
+    bool committed = false;
+    for (int attempt = 0; attempt < (p.returning ? 6 : 1); ++attempt) {
+        if (p.returning) {
+            auto* raw = static_cast<CShip*>(prepared->Object);
+            float spacing = raw->get_radius() + previous->Object->get_radius() + 20.f;
+            int axis = attempt / 2;
+            if (attempt & 1) spacing = -spacing;
+            Vector position = p.position;
+            position.x += p.orientation.E[0][axis] * spacing;
+            position.y += p.orientation.E[1][axis] * spacing;
+            position.z += p.orientation.E[2][axis] * spacing;
+            raw->beam_object(position, p.orientation, false);
+        }
+        p.operation = Operation::Commit;
+        if (bridge(&p) && p.result == 1) { committed = true; break; }
+    }
+    if (!committed) {
+        DiscardPreparedPlayerShip(prepared); cancel(); return true;
+    }
+    // Everything below runs synchronously before the next simulation step.
+    PlayerRoute::Cancel(false);
+    BindPreparedPlayerShip(prepared);
+    SetPlayerShipArchetypeIdRetail(p.ship.ShipArchetype);
+    SyncPlayerEquipDescListRetail(p.ship.Equipment);
+    SyncPlayerCollisionGroupListRetail(p.ship.Groups);
+    SetPlayerHealthScaleRetail(p.ship.RelativeHealth);
+    // Rebind equipment caches while the old ship is still alive. Camera/HUD
+    // resources stay loaded, but their ship-owned pointers must change now.
+    HudElementListSetTarget(static_cast<IObjRW*>(prepared));
+    G_bHudContactListRefreshRequested = 1;
+    p.operation = Operation::Finish;
+    if (!bridge(&p) || p.result != 1) {
+        FDUMP(0x100001, "ShipTransfer: finish failed generation=%llu", p.generation);
+        return true;
+    }
+    ClientObjDb_Unregister(previous);
+    delete previous;
+    FDUMP(0x100001, "ShipTransfer: committed source=%u target=%u system=%u", p.source, p.target, p.system);
+    return true;
+#else
+    return false;
+#endif
 }
 
 FClientShipGameobj* SpawnPlayerShip()

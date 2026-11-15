@@ -645,7 +645,7 @@ void NavBar::NotifyServiceWindows()
     NotifyServiceWindow("NN_MissionVendor");
 }
 
-void NavBar::Draw()
+bool NavBar::CanDrawToolbar() const
 {
     // FUN_0043e6c0: WinControl::Draw (FUN_005a0760) only while the cursor shows, no fade runs
     // and the HUD does not block picking.
@@ -655,15 +655,21 @@ void NavBar::Draw()
 #else
     if (GetClientMouseCursorDrawFlag() == 0)
 #endif
-        return;
+        return false;
     if (bFadingOut != 0 || bFadingIn != 0)
-        return;
+        return false;
 #ifdef FREELANCER_WALK_MODE
     if (HudIsMousePickBlocked() && !bWalkFade)
 #else
     if (HudIsMousePickBlocked())
 #endif
-        return;
+        return false;
+    return true;
+}
+
+void NavBar::Draw()
+{
+    if (!CanDrawToolbar()) return;
     WinControl::Draw();
 }
 

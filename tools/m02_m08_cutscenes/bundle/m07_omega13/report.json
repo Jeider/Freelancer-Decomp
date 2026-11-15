@@ -1,0 +1,2565 @@
+{
+  "name": "m07_omega13",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_omega13.thn",
+  "sha256": "b14e8058d4d447eaacb63bc0a51cfaa2f69c5f727177df73d55b8ff9a5e36425",
+  "uses": [
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 1208,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m07\\omega13_rtc.ini",
+      "line": 3,
+      "role": "offer",
+      "thn": "scripts\\mod\\m07_omega13.thn"
+    }
+  ],
+  "source_duration": 68.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 8,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 9,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 10,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 11,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 14,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 15,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 16,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 17,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 18,
+      "time": 0,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 0,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 0,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 22,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 24,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 25,
+      "time": 0,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 26,
+      "time": 0,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 27,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 28,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 0.01,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 30,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 31,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 33,
+      "time": 0.1,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 35,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 36,
+      "time": 5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 37,
+      "time": 5,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 38,
+      "time": 5,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 39,
+      "time": 1,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 40,
+      "time": 4,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 41,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 42,
+      "time": 0,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 43,
+      "time": 7,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 44,
+      "time": 7,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 45,
+      "time": 7.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 46,
+      "time": 7.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 47,
+      "time": 10,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 48,
+      "time": 10,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 49,
+      "time": 7.7,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 50,
+      "time": 8.4,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 51,
+      "time": 9.1,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 52,
+      "time": 9.8,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 53,
+      "time": 7.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 54,
+      "time": 8,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 55,
+      "time": 9,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 56,
+      "time": 10,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 57,
+      "time": 10,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 58,
+      "time": 10,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 59,
+      "time": 12,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 60,
+      "time": 8,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 61,
+      "time": 8,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 62,
+      "time": 12,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 63,
+      "time": 12,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 64,
+      "time": 9.1,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 65,
+      "time": 9.15,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 66,
+      "time": 9.2,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 67,
+      "time": 9.2,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 68,
+      "time": 10,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 69,
+      "time": 13.5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 70,
+      "time": 12,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 71,
+      "time": 12,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 72,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 73,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 74,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 75,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 76,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 77,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 78,
+      "time": 14,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 79,
+      "time": 14,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 80,
+      "time": 14,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 81,
+      "time": 14.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 82,
+      "time": 14.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 83,
+      "time": 14.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 84,
+      "time": 15,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 85,
+      "time": 15.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 86,
+      "time": 15.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 87,
+      "time": 15.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 88,
+      "time": 16,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 89,
+      "time": 16.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 90,
+      "time": 16.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 91,
+      "time": 16.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 92,
+      "time": 17,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 93,
+      "time": 17.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 94,
+      "time": 17.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 95,
+      "time": 17.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 96,
+      "time": 18,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 97,
+      "time": 18.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 98,
+      "time": 18.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 99,
+      "time": 18.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 100,
+      "time": 19,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 101,
+      "time": 19.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 102,
+      "time": 19.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 103,
+      "time": 19.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 104,
+      "time": 14,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 105,
+      "time": 14.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 106,
+      "time": 14.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 107,
+      "time": 14.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 108,
+      "time": 15,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 109,
+      "time": 15.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 110,
+      "time": 15.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 111,
+      "time": 15.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 112,
+      "time": 16,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 113,
+      "time": 16.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 114,
+      "time": 16.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 115,
+      "time": 16.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 116,
+      "time": 17,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 117,
+      "time": 17.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 118,
+      "time": 17.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 119,
+      "time": 17.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 120,
+      "time": 18,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 121,
+      "time": 18.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 122,
+      "time": 18.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 123,
+      "time": 18.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 124,
+      "time": 19,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 125,
+      "time": 19.25,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 126,
+      "time": 19.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 127,
+      "time": 19.75,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 128,
+      "time": 14,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 129,
+      "time": 14,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 130,
+      "time": 14,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 131,
+      "time": 14.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 132,
+      "time": 14.2,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 133,
+      "time": 14.3,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 134,
+      "time": 14.4,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 135,
+      "time": 14.5,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 136,
+      "time": 14.6,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 137,
+      "time": 14.7,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 138,
+      "time": 14.8,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 139,
+      "time": 14.9,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 140,
+      "time": 15,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 141,
+      "time": 15.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 142,
+      "time": 15.2,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 143,
+      "time": 15.3,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 144,
+      "time": 15.4,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 145,
+      "time": 15.5,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 146,
+      "time": 15.6,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 147,
+      "time": 15.7,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 148,
+      "time": 15.8,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 149,
+      "time": 15.9,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 150,
+      "time": 16,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 151,
+      "time": 16.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 152,
+      "time": 16.2,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 153,
+      "time": 16.3,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 154,
+      "time": 16.4,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 155,
+      "time": 16.5,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 156,
+      "time": 16.6,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 157,
+      "time": 16.7,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 158,
+      "time": 16.8,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 159,
+      "time": 16.9,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 160,
+      "time": 17,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 161,
+      "time": 17.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 162,
+      "time": 17.2,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 163,
+      "time": 14,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 164,
+      "time": 14.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 165,
+      "time": 14.2,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 166,
+      "time": 14.3,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 167,
+      "time": 14.4,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 168,
+      "time": 14.5,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 169,
+      "time": 14.6,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 170,
+      "time": 14.7,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 171,
+      "time": 14.8,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 172,
+      "time": 14.9,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 173,
+      "time": 15,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 174,
+      "time": 15.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 175,
+      "time": 15.2,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 176,
+      "time": 15.3,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 177,
+      "time": 15.4,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 178,
+      "time": 15.5,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 179,
+      "time": 15.6,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 180,
+      "time": 15.7,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 181,
+      "time": 15.8,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 182,
+      "time": 15.9,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 183,
+      "time": 16,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 184,
+      "time": 16.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 185,
+      "time": 16.2,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 186,
+      "time": 16.3,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 187,
+      "time": 16.4,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 188,
+      "time": 16.5,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 189,
+      "time": 16.6,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 190,
+      "time": 16.7,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 191,
+      "time": 16.8,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 192,
+      "time": 16.9,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 193,
+      "time": 17,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 194,
+      "time": 17.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 195,
+      "time": 17.2,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 196,
+      "time": 10,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 197,
+      "time": 10,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 198,
+      "time": 12,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 199,
+      "time": 12,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 200,
+      "time": 12,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 201,
+      "time": 12,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 202,
+      "time": 12,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 203,
+      "time": 12,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 204,
+      "time": 12,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 205,
+      "time": 12,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 206,
+      "time": 15,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 207,
+      "time": 21,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 208,
+      "time": 16,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 209,
+      "time": 16.3,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 210,
+      "time": 16.6,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 211,
+      "time": 16.9,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 212,
+      "time": 17.2,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 213,
+      "time": 17.5,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 214,
+      "time": 17.8,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 215,
+      "time": 18.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 216,
+      "time": 18.5,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 217,
+      "time": 18.8,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 218,
+      "time": 19.1,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 219,
+      "time": 19.4,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 220,
+      "time": 19.7,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 221,
+      "time": 20,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 222,
+      "time": 16,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 223,
+      "time": 16,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 224,
+      "time": 16,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 225,
+      "time": 16.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 226,
+      "time": 16.8,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 227,
+      "time": 17.3,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 228,
+      "time": 17.7,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 229,
+      "time": 18,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 230,
+      "time": 18.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 231,
+      "time": 18.8,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 232,
+      "time": 19.3,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 233,
+      "time": 19.7,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 234,
+      "time": 20,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 235,
+      "time": 20.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 236,
+      "time": 20.8,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 237,
+      "time": 21.3,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 238,
+      "time": 21.7,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 239,
+      "time": 16,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 240,
+      "time": 16.5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 241,
+      "time": 16.8,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 242,
+      "time": 17.3,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 243,
+      "time": 17.7,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 244,
+      "time": 18,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 245,
+      "time": 18.5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 246,
+      "time": 18.8,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 247,
+      "time": 19.3,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 248,
+      "time": 19.7,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 249,
+      "time": 20,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 250,
+      "time": 18,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 251,
+      "time": 18,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 252,
+      "time": 18,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 253,
+      "time": 18,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 254,
+      "time": 20.2,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 255,
+      "time": 20.4,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 256,
+      "time": 20.41,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 257,
+      "time": 22,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 258,
+      "time": 20.4,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 259,
+      "time": 20,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 260,
+      "time": 20.4,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 261,
+      "time": 22.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 262,
+      "time": 22,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 263,
+      "time": 23,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 264,
+      "time": 23,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 265,
+      "time": 20,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 266,
+      "time": 20,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 267,
+      "time": 20,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 268,
+      "time": 20,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 269,
+      "time": 23,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 270,
+      "time": 25,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 271,
+      "time": 25,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 272,
+      "time": 25.5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 273,
+      "time": 26.8,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 274,
+      "time": 26.999,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 275,
+      "time": 27,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 276,
+      "time": 28,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 277,
+      "time": 28.01,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 278,
+      "time": 28,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 279,
+      "time": 28,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 280,
+      "time": 28,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 281,
+      "time": 28,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 282,
+      "time": 28,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 283,
+      "time": 28,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 284,
+      "time": 32,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 285,
+      "time": 28,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 286,
+      "time": 28.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 287,
+      "time": 28.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 288,
+      "time": 32,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 289,
+      "time": 32,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 290,
+      "time": 32.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 291,
+      "time": 32,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 292,
+      "time": 32,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 293,
+      "time": 32,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 294,
+      "time": 32,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 295,
+      "time": 36,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 296,
+      "time": 35,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 297,
+      "time": 36,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 298,
+      "time": 36,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 299,
+      "time": 36,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 300,
+      "time": 36,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 301,
+      "time": 35,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 302,
+      "time": 36,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 303,
+      "time": 36,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 304,
+      "time": 36,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 305,
+      "time": 36,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 306,
+      "time": 36,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 307,
+      "time": 43,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 308,
+      "time": 41,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 309,
+      "time": 41,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 310,
+      "time": 42,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 311,
+      "time": 40,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 312,
+      "time": 45,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 313,
+      "time": 45,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 314,
+      "time": 45,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 315,
+      "time": 44,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 316,
+      "time": 43,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 317,
+      "time": 43,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 318,
+      "time": 42,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 319,
+      "time": 41,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 320,
+      "time": 41.25,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 321,
+      "time": 43,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 322,
+      "time": 45.5,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 323,
+      "time": 45.5,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 324,
+      "time": 45.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 325,
+      "time": 45.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 326,
+      "time": 45.5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 327,
+      "time": 50,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 328,
+      "time": 50,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 329,
+      "time": 50,
+      "type": "START_LIGHT_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 330,
+      "time": 50,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 331,
+      "time": 50,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 332,
+      "time": 50,
+      "type": "START_CAMERA_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 333,
+      "time": 50,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 334,
+      "time": 50,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 335,
+      "time": 50,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 336,
+      "time": 55,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 337,
+      "time": 57,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 338,
+      "time": 58,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 339,
+      "time": 55,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 340,
+      "time": 54,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 341,
+      "time": 54.01,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 342,
+      "time": 55,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 343,
+      "time": 54.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 344,
+      "time": 55,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 345,
+      "time": 55,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 346,
+      "time": 55,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 347,
+      "time": 55,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 348,
+      "time": 54,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 349,
+      "time": 59,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 350,
+      "time": 59,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 351,
+      "time": 62,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 352,
+      "time": 8.22,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 353,
+      "time": 8.2,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 354,
+      "time": 67,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 39,
+      "start": 1,
+      "index": 15,
+      "actor": "trent",
+      "sound": "DX_m07_omega13_0015_trent",
+      "prefix": "m07_omega13",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 0,
+      "lip_events": [],
+      "source_gap": 3
+    },
+    {
+      "id": 40,
+      "start": 4,
+      "index": 20,
+      "actor": "rockford",
+      "sound": "DX_m07_omega13_0020_rockford",
+      "prefix": "m07_omega13",
+      "character": "Char_rockford",
+      "script_actor": "Rockford",
+      "source_actor_class": "Rockford",
+      "window": 0,
+      "lip_events": [],
+      "source_gap": 3.5
+    },
+    {
+      "id": 45,
+      "start": 7.5,
+      "index": 30,
+      "actor": "trent",
+      "sound": "DX_m07_omega13_0030_trent",
+      "prefix": "m07_omega13",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15.0,
+      "lip_events": [
+        53
+      ],
+      "source_gap": -15.0
+    },
+    {
+      "id": 46,
+      "start": 7.5,
+      "index": 35,
+      "actor": "trent",
+      "sound": "DX_m07_omega13_0035_trent",
+      "prefix": "m07_omega13",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 0,
+      "lip_events": [],
+      "source_gap": 4.5
+    },
+    {
+      "id": 59,
+      "start": 12,
+      "index": 40,
+      "actor": "rockford",
+      "sound": "DX_m07_omega13_0040_rockford",
+      "prefix": "m07_omega13",
+      "character": "Char_rockford",
+      "script_actor": "Rockford",
+      "source_actor_class": "Rockford",
+      "window": 0,
+      "lip_events": [],
+      "source_gap": 6
+    },
+    {
+      "id": 253,
+      "start": 18,
+      "index": 50,
+      "actor": "trent",
+      "sound": "DX_m07_omega13_0050_trent",
+      "prefix": "m07_omega13",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15,
+      "lip_events": [
+        252
+      ],
+      "source_gap": -10
+    },
+    {
+      "id": 264,
+      "start": 23,
+      "index": 60,
+      "actor": "rockford",
+      "sound": "DX_m07_omega13_0060_rockford",
+      "prefix": "m07_omega13",
+      "character": "Char_rockford",
+      "script_actor": "Rockford",
+      "source_actor_class": "Rockford",
+      "window": 0,
+      "lip_events": [],
+      "source_gap": 45.0
+    }
+  ],
+  "notes": [
+    "No source facial allocation: DX_m07_omega13_0015_trent at 1s; audio-only cue retained",
+    "No source facial allocation: DX_m07_omega13_0020_rockford at 4s; audio-only cue retained",
+    "No source facial allocation: DX_m07_omega13_0035_trent at 7.5s; audio-only cue retained",
+    "No source facial allocation: DX_m07_omega13_0040_rockford at 12s; audio-only cue retained",
+    "No source facial allocation: DX_m07_omega13_0060_rockford at 23s; audio-only cue retained"
+  ],
+  "clock": "relative",
+  "entity_names": {
+    "scene_m07_omega13_new": "scene_m07_omega13_new",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "DX_m07_omega13_0010_trent": "DX_m07_omega13_0010_trent",
+    "DX_m07_omega13_0015_trent": "DX_m07_omega13_0015_trent",
+    "DX_m07_omega13_0020_rockford": "DX_m07_omega13_0020_rockford",
+    "DX_m07_omega13_0030_trent": "DX_m07_omega13_0030_trent",
+    "DX_m07_omega13_0035_trent": "DX_m07_omega13_0035_trent",
+    "DX_m07_omega13_0040_rockford": "DX_m07_omega13_0040_rockford",
+    "DX_m07_omega13_0050_trent": "DX_m07_omega13_0050_trent",
+    "DX_m07_omega13_0050b_trent": "DX_m07_omega13_0050b_trent",
+    "DX_m07_omega13_0060_rockford": "DX_m07_omega13_0060_rockford",
+    "music_background": "music_background",
+    "Light_SPACE_background": "Light_SPACE_background",
+    "Light_SPACE_playership": "Light_SPACE_playership",
+    "Light_SPACE_playership_shield_fx": "Light_SPACE_playership_shield_fx",
+    "Light_SPACE_rockford_intro": "Light_SPACE_rockford_intro",
+    "Light_SPACE_rockford_front": "Light_SPACE_rockford_front",
+    "Light_ROOM": "Light_ROOM",
+    "Light_shield_damage": "Light_shield_damage",
+    "Light_ROOM_backside": "Light_ROOM_backside",
+    "Light_ROOM_backside_nomad_light": "Light_ROOM_backside_nomad_light",
+    "Light_gun01_flash": "Light_gun01_flash",
+    "Light_gun02_flash": "Light_gun02_flash",
+    "Ship_l_elite_1_engine_li_small_1": "Ship_l_elite_1_engine_li_small_1",
+    "blackhole_ring": "blackhole_ring",
+    "blackhole_lighting": "blackhole_lighting",
+    "planet_1": "planet_1",
+    "blackhole": "blackhole",
+    "gatling": "gatling",
+    "shield1": "shield1",
+    "shield2": "shield2",
+    "shield3": "shield3",
+    "shield_offline": "shield_offline",
+    "transponder_reveal": "transponder_reveal",
+    "transponder_activates": "transponder_activates",
+    "missile_rolling": "missile_rolling",
+    "missile_loaded": "missile_loaded",
+    "missile_launch": "missile_launch",
+    "missile_travel": "missile_travel",
+    "missile_travel2": "missile_travel2",
+    "click1": "click1",
+    "click2": "click2",
+    "click3": "click3",
+    "init_systems": "init_systems",
+    "system_error1": "system_error1",
+    "system_error2": "system_error2",
+    "system_success": "system_success",
+    "fx_player_trapped": "fx_player_trapped",
+    "fx_shield_offline": "fx_shield_offline",
+    "fx_crystal_light": "fx_crystal_light",
+    "fx_crystal_touch": "fx_crystal_touch",
+    "fx_crystal_touch_mega_effect": "fx_crystal_touch_mega_effect",
+    "fx_crystal_touch_mega_effect2": "fx_crystal_touch_mega_effect2",
+    "fx_player_transponding": "fx_player_transponding",
+    "fx_player_transponding2": "fx_player_transponding2",
+    "fx_player_transponding3": "fx_player_transponding3",
+    "the_stars": "the_stars",
+    "the_background": "the_background",
+    "fx_rockford_engine01": "fx_rockford_engine01",
+    "fx_rockford_engine02": "fx_rockford_engine02",
+    "gun01": "gun01",
+    "gun02": "gun02",
+    "launcher01": "launcher01",
+    "cockpit_gun01": "cockpit_gun01",
+    "cockpit_gun02": "cockpit_gun02",
+    "missile01": "missile01",
+    "missile02": "missile02",
+    "mrk_missile02_start_pos": "automarker_mrk_missile02_start_pos",
+    "mrk_missile02_final_pos": "automarker_mrk_missile02_final_pos",
+    "mrk_missile01_fly2_start_pos": "automarker_mrk_missile01_fly2_start_pos",
+    "mrk_missile01_fly2_final_pos": "automarker_mrk_missile01_fly2_final_pos",
+    "mrk_missile01_start_pos": "automarker_mrk_missile01_start_pos",
+    "mrk_missile01_ready_to_load": "automarker_mrk_missile01_ready_to_load",
+    "mrk_missile01_final_hp": "automarker_mrk_missile01_final_hp",
+    "mrk_missile01_firepoint": "automarker_mrk_missile01_firepoint",
+    "fx_missile": "fx_missile",
+    "fx_missile_alt": "fx_missile_alt",
+    "gun01_proj_01": "gun01_proj_01",
+    "gun01_proj_02": "gun01_proj_02",
+    "gun02_proj_01": "gun02_proj_01",
+    "gun02_proj_02": "gun02_proj_02",
+    "gun_flash_01": "gun_flash_01",
+    "gun_flash_02": "gun_flash_02",
+    "gun_fireblast01": "gun_fireblast01",
+    "gun_fireblast02": "gun_fireblast02",
+    "gun_impact_01": "gun_impact_01",
+    "gun_impact_02": "gun_impact_02",
+    "gun_impact_03": "gun_impact_03",
+    "gun_impact_04": "gun_impact_04",
+    "gun_impact_05": "gun_impact_05",
+    "Char_trent": "Char_trent",
+    "point_trent_before_touch": "automarker_point_trent_before_touch",
+    "Char_rockford": "Char_rockford",
+    "trent_head_ik": "automarker_trent_head_ik",
+    "mrk_rockford_pilot": "automarker_mrk_rockford_pilot",
+    "rockford_chair": "rockford_chair",
+    "rockford_front": "rockford_front",
+    "mrk_rockford_fly_forward": "automarker_mrk_rockford_fly_forward",
+    "mrk_rockford_standing_before_fire": "automarker_mrk_rockford_standing_before_fire",
+    "mrk_rockford_ready_to_fire": "automarker_mrk_rockford_ready_to_fire",
+    "mrk_rockford_ready_to_fire_looking_point": "automarker_mrk_rockford_ready_to_fire_looking_point",
+    "mrk_rockford_ready_to_fire_playerpoint": "automarker_mrk_rockford_ready_to_fire_playerpoint",
+    "PlayerShip": "PlayerShip",
+    "the_cockpit": "the_cockpit",
+    "case": "case",
+    "panel": "panel",
+    "crystal": "crystal",
+    "tome": "tome",
+    "mrk_panel_open": "automarker_mrk_panel_open",
+    "mrk_crystal_open": "automarker_mrk_crystal_open",
+    "mrk_crystal_open2": "automarker_mrk_crystal_open2",
+    "mrk_tome_open": "automarker_mrk_tome_open",
+    "chair": "chair",
+    "rockford_cockpit": "rockford_cockpit",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "automarker_cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "automarker_cam_start_pos2",
+    "cam_start_marker": "automarker_cam_start_focus",
+    "cam_start_marker_pos2": "automarker_cam_start_marker_pos2",
+    "cam_trent_pilot": "cam_trent_pilot",
+    "cam_trent_pilot_marker": "automarker_cam_trent_pilot_focus",
+    "cam_rockford_gunfire": "cam_rockford_gunfire",
+    "cam_rockford_gunfire_pos2": "automarker_cam_rockford_gunfire_pos2",
+    "cam_rockford_gunfire_marker": "automarker_cam_rockford_gunfire_focus",
+    "cam_rockford_gunfire_marker_pos2": "automarker_cam_rockford_gunfire_marker_pos2",
+    "cam_trent_shield_damage": "cam_trent_shield_damage",
+    "cam_trent_shield_damage_pos2": "automarker_cam_trent_shield_damage_pos2",
+    "cam_trent_shield_damage_marker": "automarker_cam_trent_shield_damage_focus",
+    "cam_shield_destroyed": "cam_shield_destroyed",
+    "cam_player_disappeared": "cam_player_disappeared",
+    "cam_player_disappeared_marker": "automarker_cam_player_disappeared_marker",
+    "cam_launcher_start": "cam_launcher_start",
+    "cam_launcher_start_pos2": "automarker_cam_launcher_start_pos2",
+    "cam_launcher_start_marker": "automarker_cam_launcher_start_focus",
+    "cam_launcher_start_marker_pos2": "automarker_cam_launcher_start_marker_pos2",
+    "cam_flying_missile": "cam_flying_missile",
+    "cam_flying_missile_near": "cam_flying_missile_near",
+    "cam_flying_missile_near_pos2": "automarker_cam_flying_missile_near_pos2",
+    "cam_trent_lookback": "cam_trent_lookback",
+    "cam_trent_lookback_marker": "automarker_cam_trent_lookback_focus",
+    "cam_trent_walkback": "cam_trent_walkback",
+    "cam_trent_walkback_marker": "automarker_cam_trent_walkback_focus",
+    "cam_trent_touch": "cam_trent_touch",
+    "cam_trent_touch_pos2": "automarker_cam_trent_touch_pos2",
+    "cam_trent_touch_marker": "automarker_cam_trent_touch_focus",
+    "cam_trent_touch_marker_pos2": "automarker_cam_trent_touch_marker_pos2",
+    "cam_trent_missilewatch": "cam_trent_missilewatch",
+    "cam_trent_missilewatch_marker": "automarker_cam_trent_missilewatch_focus"
+  },
+  "point_names": {
+    "scene_m07_omega13_new": "scene_m07_omega13_new",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "DX_m07_omega13_0010_trent": "DX_m07_omega13_0010_trent",
+    "DX_m07_omega13_0015_trent": "DX_m07_omega13_0015_trent",
+    "DX_m07_omega13_0020_rockford": "DX_m07_omega13_0020_rockford",
+    "DX_m07_omega13_0030_trent": "DX_m07_omega13_0030_trent",
+    "DX_m07_omega13_0035_trent": "DX_m07_omega13_0035_trent",
+    "DX_m07_omega13_0040_rockford": "DX_m07_omega13_0040_rockford",
+    "DX_m07_omega13_0050_trent": "DX_m07_omega13_0050_trent",
+    "DX_m07_omega13_0050b_trent": "DX_m07_omega13_0050b_trent",
+    "DX_m07_omega13_0060_rockford": "DX_m07_omega13_0060_rockford",
+    "music_background": "music_background",
+    "Light_SPACE_background": "Light_SPACE_background",
+    "Light_SPACE_playership": "Light_SPACE_playership",
+    "Light_SPACE_playership_shield_fx": "Light_SPACE_playership_shield_fx",
+    "Light_SPACE_rockford_intro": "Light_SPACE_rockford_intro",
+    "Light_SPACE_rockford_front": "Light_SPACE_rockford_front",
+    "Light_ROOM": "Light_ROOM",
+    "Light_shield_damage": "Light_shield_damage",
+    "Light_ROOM_backside": "Light_ROOM_backside",
+    "Light_ROOM_backside_nomad_light": "Light_ROOM_backside_nomad_light",
+    "Light_gun01_flash": "Light_gun01_flash",
+    "Light_gun02_flash": "Light_gun02_flash",
+    "Ship_l_elite_1_engine_li_small_1": "Ship_l_elite_1_engine_li_small_1",
+    "blackhole_ring": "blackhole_ring",
+    "blackhole_lighting": "blackhole_lighting",
+    "planet_1": "planet_1",
+    "blackhole": "blackhole",
+    "gatling": "gatling",
+    "shield1": "shield1",
+    "shield2": "shield2",
+    "shield3": "shield3",
+    "shield_offline": "shield_offline",
+    "transponder_reveal": "transponder_reveal",
+    "transponder_activates": "transponder_activates",
+    "missile_rolling": "missile_rolling",
+    "missile_loaded": "missile_loaded",
+    "missile_launch": "missile_launch",
+    "missile_travel": "missile_travel",
+    "missile_travel2": "missile_travel2",
+    "click1": "click1",
+    "click2": "click2",
+    "click3": "click3",
+    "init_systems": "init_systems",
+    "system_error1": "system_error1",
+    "system_error2": "system_error2",
+    "system_success": "system_success",
+    "fx_player_trapped": "fx_player_trapped",
+    "fx_shield_offline": "fx_shield_offline",
+    "fx_crystal_light": "fx_crystal_light",
+    "fx_crystal_touch": "fx_crystal_touch",
+    "fx_crystal_touch_mega_effect": "fx_crystal_touch_mega_effect",
+    "fx_crystal_touch_mega_effect2": "fx_crystal_touch_mega_effect2",
+    "fx_player_transponding": "fx_player_transponding",
+    "fx_player_transponding2": "fx_player_transponding2",
+    "fx_player_transponding3": "fx_player_transponding3",
+    "the_stars": "the_stars",
+    "the_background": "the_background",
+    "fx_rockford_engine01": "fx_rockford_engine01",
+    "fx_rockford_engine02": "fx_rockford_engine02",
+    "gun01": "gun01",
+    "gun02": "gun02",
+    "launcher01": "launcher01",
+    "cockpit_gun01": "cockpit_gun01",
+    "cockpit_gun02": "cockpit_gun02",
+    "missile01": "missile01",
+    "missile02": "missile02",
+    "mrk_missile02_start_pos": "mrk_missile02_start_pos",
+    "mrk_missile02_final_pos": "mrk_missile02_final_pos",
+    "mrk_missile01_fly2_start_pos": "mrk_missile01_fly2_start_pos",
+    "mrk_missile01_fly2_final_pos": "mrk_missile01_fly2_final_pos",
+    "mrk_missile01_start_pos": "mrk_missile01_start_pos",
+    "mrk_missile01_ready_to_load": "mrk_missile01_ready_to_load",
+    "mrk_missile01_final_hp": "mrk_missile01_final_hp",
+    "mrk_missile01_firepoint": "mrk_missile01_firepoint",
+    "fx_missile": "fx_missile",
+    "fx_missile_alt": "fx_missile_alt",
+    "gun01_proj_01": "gun01_proj_01",
+    "gun01_proj_02": "gun01_proj_02",
+    "gun02_proj_01": "gun02_proj_01",
+    "gun02_proj_02": "gun02_proj_02",
+    "gun_flash_01": "gun_flash_01",
+    "gun_flash_02": "gun_flash_02",
+    "gun_fireblast01": "gun_fireblast01",
+    "gun_fireblast02": "gun_fireblast02",
+    "gun_impact_01": "gun_impact_01",
+    "gun_impact_02": "gun_impact_02",
+    "gun_impact_03": "gun_impact_03",
+    "gun_impact_04": "gun_impact_04",
+    "gun_impact_05": "gun_impact_05",
+    "Char_trent": "Char_trent",
+    "point_trent_before_touch": "point_trent_before_touch",
+    "Char_rockford": "Char_rockford",
+    "trent_head_ik": "trent_head_ik",
+    "mrk_rockford_pilot": "mrk_rockford_pilot",
+    "rockford_chair": "rockford_chair",
+    "rockford_front": "rockford_front",
+    "mrk_rockford_fly_forward": "mrk_rockford_fly_forward",
+    "mrk_rockford_standing_before_fire": "mrk_rockford_standing_before_fire",
+    "mrk_rockford_ready_to_fire": "mrk_rockford_ready_to_fire",
+    "mrk_rockford_ready_to_fire_looking_point": "mrk_rockford_ready_to_fire_looking_point",
+    "mrk_rockford_ready_to_fire_playerpoint": "mrk_rockford_ready_to_fire_playerpoint",
+    "PlayerShip": "PlayerShip",
+    "the_cockpit": "the_cockpit",
+    "case": "case",
+    "panel": "panel",
+    "crystal": "crystal",
+    "tome": "tome",
+    "mrk_panel_open": "mrk_panel_open",
+    "mrk_crystal_open": "mrk_crystal_open",
+    "mrk_crystal_open2": "mrk_crystal_open2",
+    "mrk_tome_open": "mrk_tome_open",
+    "chair": "chair",
+    "rockford_cockpit": "rockford_cockpit",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "cam_start_pos2",
+    "cam_start_marker": "cam_start_focus",
+    "cam_start_marker_pos2": "cam_start_marker_pos2",
+    "cam_trent_pilot": "cam_trent_pilot",
+    "cam_trent_pilot_marker": "cam_trent_pilot_focus",
+    "cam_rockford_gunfire": "cam_rockford_gunfire",
+    "cam_rockford_gunfire_pos2": "cam_rockford_gunfire_pos2",
+    "cam_rockford_gunfire_marker": "cam_rockford_gunfire_focus",
+    "cam_rockford_gunfire_marker_pos2": "cam_rockford_gunfire_marker_pos2",
+    "cam_trent_shield_damage": "cam_trent_shield_damage",
+    "cam_trent_shield_damage_pos2": "cam_trent_shield_damage_pos2",
+    "cam_trent_shield_damage_marker": "cam_trent_shield_damage_focus",
+    "cam_shield_destroyed": "cam_shield_destroyed",
+    "cam_player_disappeared": "cam_player_disappeared",
+    "cam_player_disappeared_marker": "cam_player_disappeared_marker",
+    "cam_launcher_start": "cam_launcher_start",
+    "cam_launcher_start_pos2": "cam_launcher_start_pos2",
+    "cam_launcher_start_marker": "cam_launcher_start_focus",
+    "cam_launcher_start_marker_pos2": "cam_launcher_start_marker_pos2",
+    "cam_flying_missile": "cam_flying_missile",
+    "cam_flying_missile_near": "cam_flying_missile_near",
+    "cam_flying_missile_near_pos2": "cam_flying_missile_near_pos2",
+    "cam_trent_lookback": "cam_trent_lookback",
+    "cam_trent_lookback_marker": "cam_trent_lookback_focus",
+    "cam_trent_walkback": "cam_trent_walkback",
+    "cam_trent_walkback_marker": "cam_trent_walkback_focus",
+    "cam_trent_touch": "cam_trent_touch",
+    "cam_trent_touch_pos2": "cam_trent_touch_pos2",
+    "cam_trent_touch_marker": "cam_trent_touch_focus",
+    "cam_trent_touch_marker_pos2": "cam_trent_touch_marker_pos2",
+    "cam_trent_missilewatch": "cam_trent_missilewatch",
+    "cam_trent_missilewatch_marker": "cam_trent_missilewatch_focus"
+  }
+}

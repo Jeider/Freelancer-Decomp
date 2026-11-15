@@ -189,7 +189,8 @@ void Globals(NnPreferences& p){
     for(int id:{1400,1401,1495,1555,1498})p.OptionsA.push_back(Option(id));
     p.OptionsA.push_back(Option(1898,true));p.OptionsA.push_back(Option(777));
     p.MoveOptions();
-    assert(p.MiscOptions.size()==5&&p.OptionsA.size()==15&&p.OptionsA[0].Id==1334&&p.OptionsA[1].Id==1898&&p.OptionsA[2].Id==777);
+    assert(p.MiscOptions.size()==5&&p.OptionsA.size()==15&&p.OptionsA[0].Id==1894&&p.OptionsA[1].Id==1334);
+    assert(p.OptionsA[2].Id==-1&&p.OptionsA[3].Id==1898&&p.OptionsA[4].Id==777);
 }
 void Enter(NnPreferences& p){p.EnterMiscPage();assert(p.CurPage==7&&p.bFlipping);p.EnterMiscPage();p.bFlipping=false;}
 void Toggle(NnPreferences& p,int slot){
@@ -208,6 +209,11 @@ void Select(NnPreferences& p,int slot,unsigned value){
     assert(!p.MiscDropdown->IsOpen());
 }
 int main(){
+    NnPreferences mainLayout;mainLayout.OptionsA.assign(8,BlankOption());
+    mainLayout.OptionsA[4]=Option(1896,true);mainLayout.OptionsA[5]=Option(1501,false);
+    mainLayout.OptionsA[7]=Option(1897,true);mainLayout.MoveOptions();
+    assert(mainLayout.OptionsA[8].Id==1896&&mainLayout.OptionsA[9].Id==1501);
+    for(int i=3;i<8;++i) assert(mainLayout.OptionsA[i].Id==-1);
     for(int id:{1400,1401,1495,1555,1498})perf.push_back({id,1,1,Applied});
     NnPreferences p;Globals(p);assert(p.CreateMiscPage(-.3f,.205f,.077f));
     AssignGameSessionFlags(3);SetSavedRadarAutoMode(2);SetSavedAutoTurretsEnabled(true);SetSavedAutoTurretReserve(35);

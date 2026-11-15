@@ -1,0 +1,406 @@
+{
+  "m02_bship_bar_offer": {
+    "ok": true,
+    "dialogue": 19
+  },
+  "m02_bship_bar_decision": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m02_bship_bar_accept": {
+    "ok": true,
+    "dialogue": 6
+  },
+  "m02_wilham_vendor": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m02_jacobo_offer": {
+    "ok": true,
+    "dialogue": 13
+  },
+  "m02_jacobo_vendor": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m02_junkers": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m02_explode_camera": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m02_reichman": {
+    "ok": true,
+    "dialogue": 14
+  },
+  "m03_offer": {
+    "ok": true,
+    "dialogue": 11
+  },
+  "m03_offer_decision": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m03_offer_accept": {
+    "ok": true,
+    "dialogue": 8
+  },
+  "m03_fleet_arrive": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m03_kgb_death01": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m03_kgb_death02": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m03_reward": {
+    "ok": true,
+    "dialogue": 3
+  },
+  "m04_offer": {
+    "ok": true,
+    "dialogue": 9
+  },
+  "m04_offer_decision": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m04_offer_accept": {
+    "ok": true,
+    "dialogue": 3
+  },
+  "m04_officer_scene01": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m04_officer_scene02": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m04_friends_arrive_hassler": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m04_friends_arrive_alaric": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m04_reactor_fx": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m04_jacobo_death": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m04_jumphole": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m04_hatcher": {
+    "ok": true,
+    "dialogue": 15
+  },
+  "m04_final": {
+    "ok": true,
+    "dialogue": 14
+  },
+  "m05_offer": {
+    "ok": true,
+    "dialogue": 19
+  },
+  "m05_offer_decision": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_offer_accept": {
+    "ok": true,
+    "dialogue": 2
+  },
+  "m05_piratebar": {
+    "ok": true,
+    "dialogue": 15
+  },
+  "m05_detroit": {
+    "ok": true,
+    "dialogue": 9
+  },
+  "m05_barman": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_research_explode": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_arrest_camera01": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_arrest_camera02": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_arrest_camera03": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_arrest_camera04": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_arrest_camera05": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_arrest_camera06": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_arrest_camera07": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_arrest_camera08": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_arrest_camera09": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_rheinlanders_camera": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m05_equip": {
+    "ok": true,
+    "dialogue": 51
+  },
+  "m06_offer": {
+    "ok": true,
+    "dialogue": 14
+  },
+  "m06_offer_decision": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_offer_accept": {
+    "ok": true,
+    "dialogue": 2
+  },
+  "m06_vendor_hatcher": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_vendor_alaric": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_briefing": {
+    "ok": true,
+    "dialogue": 29
+  },
+  "m06_mount": {
+    "ok": true,
+    "dialogue": 9
+  },
+  "m06_nomad_area_camera1": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_nomad_area_camera2": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_nomad_area_camera3": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_nomad_area_camera4": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_lab_land": {
+    "ok": true,
+    "dialogue": 4
+  },
+  "m06_lab_room": {
+    "ok": true,
+    "dialogue": 2
+  },
+  "m06_lab_launch": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_lab_explode_camera": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_torpedo_alert": {
+    "ok": true,
+    "dialogue": 4
+  },
+  "m06_jumpin_camera1": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_jumpin_camera2": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_order_camera3": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_order_camera4": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_omicron_major": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m06_order_deck": {
+    "ok": true,
+    "dialogue": 2
+  },
+  "m06_prison_new": {
+    "ok": true,
+    "dialogue": 21
+  },
+  "m07_offer": {
+    "ok": true,
+    "dialogue": 19
+  },
+  "m07_offer_decision": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m07_offer_accept": {
+    "ok": true,
+    "dialogue": 1
+  },
+  "m07_tortuga_wp_camera": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m01b_armored_trap_camera": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m07_omega13": {
+    "ok": true,
+    "dialogue": 7
+  },
+  "m07_tau_arrival": {
+    "ok": true,
+    "dialogue": 1
+  },
+  "m07_battleship": {
+    "ok": true,
+    "dialogue": 18
+  },
+  "m07_check_artifact": {
+    "ok": true,
+    "dialogue": 9
+  },
+  "m07_reward": {
+    "ok": true,
+    "dialogue": 6
+  },
+  "m07_gunners": {
+    "ok": true,
+    "dialogue": 7
+  },
+  "m08_wales_init": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_liberty_enter_camera_01": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_lair_enter_door_01": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_core_camera_01": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_core_camera_02": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_core_camera_03": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_core_camera_04": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_core_camera_06": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_core_camera_08": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_core_camera_07": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_core_camera_09": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_outside_camera_01": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_outside_camera_02": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_lair_done_camera_04": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_lair_done_camera_01": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_lair_done_camera_02": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_lair_done_camera_03": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_osiris": {
+    "ok": true,
+    "dialogue": 40
+  },
+  "m08_offer": {
+    "ok": true,
+    "dialogue": 46
+  },
+  "m08_offer_decision": {
+    "ok": true,
+    "dialogue": 0
+  },
+  "m08_offer_accept": {
+    "ok": true,
+    "dialogue": 5
+  }
+}

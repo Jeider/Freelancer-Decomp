@@ -1,0 +1,272 @@
+{
+  "name": "m05_offer_accept",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_offer_accept.thn",
+  "sha256": "e3e70a61204b1128b1a133dda829778b4cf398aee4931116d7d303a9d78f2255",
+  "uses": [
+    {
+      "mission": 5,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "mission_line": 142,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\vendor_msn.ini",
+      "line": 6,
+      "role": "accept",
+      "thn": "scripts\\mod\\m05_offer_accept.thn"
+    }
+  ],
+  "source_duration": 24.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 3,
+      "time": 0.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 4,
+      "time": 0.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 8.1,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 7,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 7,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 7,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 10,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 12,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 16,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 19,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 11,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 17,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 11,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 18,
+      "time": 11,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 19,
+      "time": 16.8,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 3,
+      "start": 0.5,
+      "index": 200,
+      "actor": "trent",
+      "sound": "DX_m05_offer_0200_trent",
+      "prefix": "m05_offer",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 5.0,
+      "lip_events": [
+        4
+      ],
+      "source_gap": 5.5
+    },
+    {
+      "id": 17,
+      "start": 11,
+      "index": 210,
+      "actor": "hatcher",
+      "sound": "DX_m05_offer_0210_hatcher",
+      "prefix": "m05_offer",
+      "character": "Char_hatcher",
+      "script_actor": "Hatcher",
+      "source_actor_class": "Hatcher",
+      "window": 11.8,
+      "lip_events": [
+        18,
+        19
+      ],
+      "source_gap": 1.2
+    }
+  ],
+  "notes": [],
+  "clock": "relative",
+  "entity_names": {
+    "Scene_M05_new_offer_scene_accept": "Scene_M05_new_offer_scene_accept",
+    "ambi_LtG00_Tbl_rTable4/01": "ambi_LtG00_Tbl_rTable4/01",
+    "ambi_LtG00_Bar_Ovrhd01A": "ambi_LtG00_Bar_Ovrhd01A",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "DX_m05_offer_0180_trent": "DX_m05_offer_0180_trent",
+    "DX_m05_offer_0190_hatcher": "DX_m05_offer_0190_hatcher",
+    "DX_m05_offer_0200_trent": "DX_m05_offer_0200_trent",
+    "DX_m05_offer_0210_hatcher": "DX_m05_offer_0210_hatcher",
+    "Char_hatcher": "Char_hatcher",
+    "Char_trent": "Char_trent",
+    "trent_head_ik": "automarker_trent_head_ik",
+    "trent_eye_ik": "automarker_trent_eye_ik",
+    "hatcher_head_ik": "automarker_hatcher_head_ik",
+    "hatcher_eye_ik": "automarker_hatcher_eye_ik",
+    "head_hatcher": "automarker_head_hatcher",
+    "head_hatcher_lower": "automarker_head_hatcher_lower",
+    "head_trent_sit": "automarker_head_trent_sit",
+    "head_trent_stand": "automarker_head_trent_stand",
+    "head_trent_exipoint": "automarker_head_trent_exipoint",
+    "marker_card": "automarker_marker_card",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "automarker_cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "automarker_cam_start_pos2",
+    "cam_start_marker": "automarker_cam_start_marker",
+    "cam_start_marker_pos2": "automarker_cam_start_marker_pos2",
+    "cam_hatcher": "cam_hatcher",
+    "cam_hatcher_pos2": "automarker_cam_hatcher_pos2",
+    "cam_hatcher_marker": "automarker_cam_hatcher_focus",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "automarker_cam_trent_marker",
+    "cam_hatcher_top": "cam_hatcher_top",
+    "cam_hatcher_top_pos2": "automarker_cam_hatcher_top_pos2",
+    "cam_hatcher_top_marker": "automarker_cam_hatcher_top_marker",
+    "cam_trent_top": "cam_trent_top",
+    "cam_trent_top_marker": "automarker_cam_trent_top_focus",
+    "cam_hatcher_table": "cam_hatcher_table",
+    "cam_hatcher_table_marker": "automarker_cam_hatcher_table_marker",
+    "cam_table": "cam_table",
+    "cam_table_pos2": "automarker_cam_table_pos2",
+    "cam_table_marker": "automarker_cam_table_marker",
+    "cam_table_marker_pos2": "automarker_cam_table_marker_pos2",
+    "cam_hatcher_reward": "cam_hatcher_reward",
+    "cam_hatcher_reward_pos2": "automarker_cam_hatcher_reward_pos2",
+    "cam_hatcher_reward_marker": "automarker_cam_hatcher_reward_marker"
+  },
+  "point_names": {
+    "Scene_M05_new_offer_scene_accept": "Scene_M05_new_offer_scene_accept",
+    "ambi_LtG00_Tbl_rTable4/01": "ambi_LtG00_Tbl_rTable4/01",
+    "ambi_LtG00_Bar_Ovrhd01A": "ambi_LtG00_Bar_Ovrhd01A",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "DX_m05_offer_0180_trent": "DX_m05_offer_0180_trent",
+    "DX_m05_offer_0190_hatcher": "DX_m05_offer_0190_hatcher",
+    "DX_m05_offer_0200_trent": "DX_m05_offer_0200_trent",
+    "DX_m05_offer_0210_hatcher": "DX_m05_offer_0210_hatcher",
+    "Char_hatcher": "Char_hatcher",
+    "Char_trent": "Char_trent",
+    "trent_head_ik": "trent_head_ik",
+    "trent_eye_ik": "trent_eye_ik",
+    "hatcher_head_ik": "hatcher_head_ik",
+    "hatcher_eye_ik": "hatcher_eye_ik",
+    "head_hatcher": "head_hatcher",
+    "head_hatcher_lower": "head_hatcher_lower",
+    "head_trent_sit": "head_trent_sit",
+    "head_trent_stand": "head_trent_stand",
+    "head_trent_exipoint": "head_trent_exipoint",
+    "marker_card": "marker_card",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "cam_start_pos2",
+    "cam_start_marker": "cam_start_marker",
+    "cam_start_marker_pos2": "cam_start_marker_pos2",
+    "cam_hatcher": "cam_hatcher",
+    "cam_hatcher_pos2": "cam_hatcher_pos2",
+    "cam_hatcher_marker": "cam_hatcher_focus",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "cam_trent_marker",
+    "cam_hatcher_top": "cam_hatcher_top",
+    "cam_hatcher_top_pos2": "cam_hatcher_top_pos2",
+    "cam_hatcher_top_marker": "cam_hatcher_top_marker",
+    "cam_trent_top": "cam_trent_top",
+    "cam_trent_top_marker": "cam_trent_top_focus",
+    "cam_hatcher_table": "cam_hatcher_table",
+    "cam_hatcher_table_marker": "cam_hatcher_table_marker",
+    "cam_table": "cam_table",
+    "cam_table_pos2": "cam_table_pos2",
+    "cam_table_marker": "cam_table_marker",
+    "cam_table_marker_pos2": "cam_table_marker_pos2",
+    "cam_hatcher_reward": "cam_hatcher_reward",
+    "cam_hatcher_reward_pos2": "cam_hatcher_reward_pos2",
+    "cam_hatcher_reward_marker": "cam_hatcher_reward_marker"
+  }
+}

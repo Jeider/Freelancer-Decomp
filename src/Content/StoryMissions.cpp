@@ -5,6 +5,8 @@
 // Author: Giperion.
 
 #include "ContentInternal.h"
+#include "campaign_server.h"
+#include "LocalTriggers.h"
 #include "RpgDialog.h"
 // TU0-14 static IDs (06ea1000..06ea58c0: 16 ids + "default" per retail TU; the port merges
 // the 15 mission TUs into this file, so one copy stands for all 15).
@@ -107,6 +109,9 @@ namespace
         int Field_0x3b8;                              // +0x3b8 (ctor -1)
         unsigned char Field_0x43c;                    // +0x43c (ctor 0)
         unsigned char Field_0x43d;                    // +0x43d (ctor 0)
+        std::wstring CampaignOwner;
+        bool CampaignArrivalPending = false;
+        bool CampaignMissionStarted = false;
     };
 
     // 06ea18c0-06ea1991: chapter 1/2, 0x5528/0x7d00, heartbeat 0.0333 again (+0x14 and
@@ -121,11 +126,25 @@ namespace
         , Field_0x43c(0)
         , Field_0x43d(0)
     {
+        if (CampaignServer::Enabled()) pub::Player::GetName(PlayerId, CampaignOwner);
         SetChapter(1, 2, 0x5528, 0x7d00);
         HeartbeatInterval = 0.0333333351f;
         pub::Controller::SetHeartbeatInterval(ControllerId, HeartbeatInterval);
         MissionState = 3;
+        LocalTriggersConfigureM01a(this);
         LoadMissionIni("Missions\\M01a\\m01a.ini");
+        if (CampaignServer::Enabled() && !pub::SinglePlayer()) {
+            const unsigned entry = CreateID("real_mission_init");
+            if (TriggerMap.find(entry) != TriggerMap.end()) {
+                // Preserve authored initial triggers except the old space-intro entry.
+                InitiallyActive.erase(CreateID("MSN_START"));
+                InitiallyActive.emplace(entry, entry);
+                CampaignArrivalPending = true;
+            }
+            // The personal adapter owns arrival even when it removed the
+            // definition from the shared trigger map.
+            InitiallyActive.erase(CreateID("MSN_START"));
+        }
         pub::GetBaseID(GLi0101BaseId, "Li01_01_Base");
         pub::GetBaseID(GLi0102BaseId, "Li01_02_Base");
     }
@@ -134,6 +153,34 @@ namespace
                                            void const* MessageParms)
     {
         using pub::Controller::EMessage;
+        if (CampaignServer::Enabled()) {
+            // Personal saves cannot reload the shared mission, and the cached
+            // owner pointer must not be dereferenced after disconnect/slot reuse.
+            if (MessageId == EMessage::PlayerLoad || MessageId == EMessage::PlayerSave) return;
+            std::wstring owner;
+            if (!PlayerState || FindContentPlayerState(PlayerId) != PlayerState ||
+                pub::Player::GetName(PlayerId, owner) != 0 || owner != CampaignOwner) return;
+            if (MessageId == EMessage::MissionStart) {
+                if (CampaignMissionStarted) return;
+                CampaignMissionStarted = true;
+                FMissionScript::HandleMissionMessage(MessageId, MessageParms);
+                // Campaign starts after room entry, so replay only the mission's
+                // arrival condition, not the engine's docking/player-load event.
+                unsigned base = 0;
+                pub::Player::GetBase(PlayerId, base);
+                if (CampaignArrivalPending && base == CreateID("sig13_01_base")) {
+                    CampaignArrivalPending = false;
+                    unsigned arrival[] = {base, PlayerId};
+                    EMessage event = EMessage::BaseEnter;
+                    DispatchMissionTriggerEvent(this, &event, arrival);
+                }
+                return;
+            }
+            if (MessageId == EMessage::BaseEnter &&
+                static_cast<unsigned const*>(MessageParms)[1] == PlayerId &&
+                static_cast<unsigned const*>(MessageParms)[0] == CreateID("sig13_01_base"))
+                CampaignArrivalPending = false;
+        }
         if (MessageId == EMessage::BaseEnter)
         {
             // 06ea1cde-06ea1d19: {BaseId, PlayerId}.

@@ -1,0 +1,55 @@
+{
+  "name": "m08_core_camera_04",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_04.thn",
+  "sha256": "bfb0cdaf18532ad89a55ebc466da3f0063a9c4b346bbd87bfd32858fbbf87c57",
+  "uses": [
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 1028,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 1028,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_core_camera_04.thn"
+    },
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 1121,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 1121,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_core_camera_04.thn"
+    }
+  ],
+  "source_duration": 30.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_core_cam4": "scene_core_cam4",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "main_object": "automarker_cam_focus"
+  },
+  "point_names": {
+    "scene_core_cam4": "scene_core_cam4",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "main_object": "cam_focus"
+  }
+}

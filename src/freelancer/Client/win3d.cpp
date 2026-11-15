@@ -1217,6 +1217,10 @@ void Win3DDrawAll()
         CutsceneSkipDraw();
         NativeSubtitles::Draw();
     }
+#ifdef FREELANCER_WALK_MODE
+    // World labels are independent of the toolbar fade scope above.
+    BaseWalkDrawNames();
+#endif
     MouseFrameUpdate();        // FUN_0041f150
     DALib::MaterialBatcher->SetBinOrder(1, 1);
 }

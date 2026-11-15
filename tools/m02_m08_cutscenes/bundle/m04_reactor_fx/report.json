@@ -1,0 +1,46 @@
+{
+  "name": "m04_reactor_fx",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_reactor_fx.thn",
+  "sha256": "4864376136cba3845017c8a09dde4dae0aa2974bf11918e441d4795ccf96c429",
+  "uses": [
+    {
+      "mission": 4,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "mission_line": 712,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "line": 712,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m04_reactor_fx.thn"
+    }
+  ],
+  "source_duration": 30.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_Trailer_Terraformer_Cam": "Scene_Trailer_Terraformer_Cam",
+    "Camera_1": "Camera_1",
+    "Marker_1": "automarker_Camera_1_focus",
+    "Monitor_1": "Monitor_1"
+  },
+  "point_names": {
+    "Scene_Trailer_Terraformer_Cam": "Scene_Trailer_Terraformer_Cam",
+    "Camera_1": "Camera_1",
+    "Marker_1": "Camera_1_focus",
+    "Monitor_1": "Monitor_1"
+  }
+}

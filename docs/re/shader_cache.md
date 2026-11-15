@@ -1,5 +1,69 @@
 # RP9 shader bytecode cache
 
+## Mandatory game startup (2026-11-11)
+
+RP9 now blocks device initialization until `RP9ShaderManifest.h` has prepared every
+required stage. This also applies to direct `bin/freelancer.exe` launches and when
+`surface_shaders=0`. The preparation window is before gameplay, not an overlay over
+an already running game. It counts successfully cached stages only.
+
+The sequence is: read required sources/includes, validate cached bytecode, compile
+missing entries, atomically store and read back new entries, then create each shader
+on the current D3D9 device. Compilation, missing source, persistence or GPU creation
+failure blocks startup and names the failing stage. Closing preparation cancels
+the launch after active compiler calls finish; workers are joined. Device resets
+do not reopen the startup window.
+
+The manifest currently has 123 stages, including black hole main/composite, all
+nebula styles, cloak, HUD, beams, soft particles, color grading, gamma, driver warmup
+and supersample resolve. `RP9_SKIP_OPTIMIZATION` has one shared flags policy; the
+supersample resolve retains its level-3 optimization flag. The offline
+`tools/warm_surface_cache.cpp` uses this same manifest and persistence checks.
+Add any new runtime stage/variant to the manifest as part of its implementation.
+
+This is a persistent **bytecode** cache. D3D shader objects and other GPU resources
+must still be recreated per device; scene driver draw warmup remains separate.
+Hot reload still recompiles changed sources. The historical background surface
+warmup and permissive no-disk-write behavior described below have been superseded
+for production RP9 paths.
+
+Validation: `python tools/shader_startup/check.py` exercises cold/warm cache,
+native D3D9 shader acceptance, malformed HLSL, missing sources and a cache path that
+cannot be written. On the local RTX 5080 all 123 stages passed; the warm pass had
+123 hits. `tools/hitch_log/check_warmup_gpu.py` also passed after routing its
+auxiliary vertex shader through the persistent cache.
+
+GTX 1060 investigation: the old queue omitted black hole and some nebula styles,
+ignored compile/store failures, and only waited for surface jobs. These defects
+are fixed, but no GTX 1060 reproduction is available locally. Startup logs the
+adapter/caps/depth and per-stage compile/cache/GPU outcome. Client diagnostics
+distinguish disabled settings, missing scene depth, resource failures and draw
+submission. A successful submission does not prove visible pixels. Confirm the
+affected scene on GTX 1060 before closing that bug.
+
+Live installation/direct-launch check: `RP9.dll` and `freelancer.exe` installed
+into `D:\Games\FL_MOD\bin` with verified backups. The 2026-11-11 22:38 launch
+reported 117 stage cache hits and six newly stored/verified stages, then READY.
+The sampled subsequent gameplay log contained no shader cache MISS; the intro
+black-hole draw also succeeded. Evidence: `out/shader_startup/game_startup_verified.txt`.
+Runtime diagnostics are in `%LOCALAPPDATA%\Freelancer\FLSpew.txt` on this installation
+(the directory follows the game's local user-data path).
+
+Windowed startup regression: the 23:02 reproduction recorded Clear failures with
+valid color target/viewport but no bound depth surface (`depth=0x0`). The startup
+window previously activated after INTZ creation; activation handlers can release
+device resources while initialization is still running. Preparation now finishes
+before depth and other device resources are created, and its window neither
+activates on show nor on mouse clicks. Filtering PeekMessage by HWND alone does
+not prevent sent activation messages. The native startup check verifies that
+show/update/click/destroy preserve the active window and that depth clear succeeds.
+Failure evidence: `out/shader_startup/clear_failure_reproduced.txt`.
+After installation, the 23:07 windowed launch logged READY before INTZ creation,
+with no Clear/INVALIDCALL failures in the sampled log and no accumulated menu
+trails in the capture (`out/shader_startup/window_fix_verified.txt`,
+`out/shader_startup/window_fix.png`). One clean launch is not proof against every
+intermittent activation sequence.
+
 All RP9 Ex shaders use the shared `CompileStage` wrapper. Successful Shader Model
 3 bytecode is stored in `%LOCALAPPDATA%\Freelancer-Decomp\RP9\ShaderCache`.
 `FREELANCER_SHADER_CACHE_DIR` overrides the directory for portable installs/tests.
@@ -77,3 +141,18 @@ Jobs run on a pool of `cores - 1` workers (not a thread per job), surface varian
 dropped. A key that does not match a site's text only costs one wasted compile: the site compiles (and caches)
 for itself as before. Check `shader cache HIT` lines in the RP9 log on the second launch: a `MISS` after the
 warm-up means a mismatched key.
+
+## Space/interior quality keys (2026-11-14)
+
+`Rp9Startup::SurfaceQualityPrefix` is shared by the startup manifest, driver
+warm-up and material compilation. Full 3/3 quality uses the unprefixed source,
+preserving the existing cache. Reduced quality uses the same relief/highlight
+defines at all three sites. The manifest includes the active space pair and,
+when different and enabled, the interior pair, with duplicate jobs removed.
+`tools/shader_startup/check_manifest.cpp` checks these source identities.
+
+The startup counter reports successfully prepared stages, not the current
+job index. Up to four compiler workers can all be busy while that count stays
+unchanged. After a source change the full shadow variants may take minutes;
+the startup window now displays elapsed seconds. This is not a compiler timeout
+or a claim that compilation has completed. Already stored stages survive a restart.

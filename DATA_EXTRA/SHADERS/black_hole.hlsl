@@ -218,10 +218,15 @@ float4 PSMain(Interp In,float2 Pixel:VPOS):COLOR0
     float T=1;
     float S=TEntry;
     bool Captured=false, HitScene=false;
-    float DGlow=1e3, DRing=1e3;
+    float DGlowSq=1e6, DRing=1e3;
     float3 LTor=0; // the vortices, kept apart so they never show over the shadow
     int MaxSteps=(int)State.z;
     float Status=0; // 0 marching, 1 captured, 2 scene hit, 3 escaped
+    // Constant for this ray; do not recompute for every integration step.
+    float Th=Volume.x*smoothstep(.36,.12,abs(D.y));
+    float Nl=(Th>.001 && Dbg.y<.5) ? 4 : 1;
+    float ThFrac=Th/max(Volume.x,1e-6);
+    float CamIn=Slab.x>0 ? 1-smoothstep(Slab.y,Slab.y*3,abs(O.y)) : 0;
     [loop] for(int I=0;I<255;++I)
     {
         float R=length(P);
@@ -231,9 +236,11 @@ float4 PSMain(Interp In,float2 Pixel:VPOS):COLOR0
         Ds=min(Ds,max(TScene-S,.001));
         // Inside the gas slab near the eye the stride stays short enough to resolve its billows.
         if(Slab.x>0 && abs(P.y)<Slab.y*2.5 && length(P-O)<Slab.z) Ds=min(Ds,max(.15,Slab.y*.5));
-        float H2=dot(cross(P,V),cross(P,V));
+        float3 Angular=cross(P,V);
+        float H2=dot(Angular,Angular);
         float Fade=1-smoothstep(.55*Rb,Rb,R);
-        float3 A=-1.5*H2*P/pow(max(R,.5),5)*State.w*Fade;
+        float SafeR=max(R,.5), R2=SafeR*SafeR;
+        float3 A=-1.5*H2*P/(R2*R2*SafeR)*State.w*Fade;
         float3 Vn=normalize(V+A*Ds);
         float3 Pn=P+Vn*Ds;
         // Disc crossings. With a thickness the disc is a stack of layers flaring with radius
@@ -243,9 +250,6 @@ float4 PSMain(Interp In,float2 Pixel:VPOS):COLOR0
         // The layers spread only when the disc is seen near edge-on, where that gives it a body;
         // from higher up they close onto the mid-plane, or their shifted copies of the bands
         // overlap into a brick pattern. Closed, one layer draws the same at a quarter of the cost.
-        float Th=Volume.x*smoothstep(.36,.12,abs(D.y));
-        float Nl=(Th>.001 && Dbg.y<.5) ? 4 : 1;
-        float ThFrac=Th/max(Volume.x,1e-6); // as the layers close, their pattern shifts and shading fade too: no seam where four become one
         [loop] for(int K=0;K<4;++K)
         {
             if(K>=Nl) break;
@@ -281,7 +285,6 @@ float4 PSMain(Interp In,float2 Pixel:VPOS):COLOR0
                     float Al=DiscEmission(X,Vn,Off*ThFrac,E)*NearFade(X);
                     // With the eye inside the gas slab, the sheet seen at a grazing angle would draw a
                     // hard horizon wall: there it gives way to the slab's own soft volume.
-                    float CamIn=Slab.x>0 ? 1-smoothstep(Slab.y,Slab.y*3,abs(O.y)) : 0;
                     Al*=lerp(1,smoothstep(.03,.35,abs(Vn.y)),CamIn);
                     Al=1-pow(1-Al,1/Nl);
                     L+=T*Al*E*(Nl>1 ? lerp(1,(1-.45*abs(Off))/.7,ThFrac) : 1); // the four layers average to the one
@@ -289,20 +292,22 @@ float4 PSMain(Interp In,float2 Pixel:VPOS):COLOR0
                 }
             }
         }
-        float Rho=length(P.xz);
+        float Rho=RhoP;
         // The disc as a volume close to the eye: where the sheet fades out near the eye (NearFade),
         // a slab of gas takes its place -- billows of two noise octaves riding the disc's Keplerian
         // orbit, coloured like the disc at that radius, lit from the hot centre (brighter looking
         // inwards: forward scattering) and dimming what lies behind them.
         [branch] if(Slab.x>0 && abs(P.y)<Slab.y*2.5 && Rho>Disk.x*.8 && Rho<Disk.y && length(P-O)<Slab.z)
         {
+            float Near=1-NearFade(P);
+            [branch] if(Near>0)
+            {
             float Prof=exp(-pow(P.y/Slab.y,2));
             float Ak=atan2(P.z,P.x)-Disk.w*.9*pow(max(Rho,.5),-1.5)*State.x;
             float2 Ck=float2(cos(Ak),sin(Ak));
             float G1=Noise3(float3(Ck*Rho*.45,P.y*1.6/Slab.y+Rho*.3));
             float G2=Noise3(float3(Ck*Rho*1.1+5.3,P.y*3.5/Slab.y+Rho*.9));
             float Gas=pow(saturate(G1*.95+G2*.6-.6),1.5); // sparse billows with clear gaps
-            float Near=1-NearFade(P);                         // where the sheet has faded
             float Reach=1-smoothstep(Slab.z*.6,Slab.z,length(P-O));
             float Dn=Prof*Gas*Near/max(1-Dbg2.y,.05)*Reach*smoothstep(Disk.x*.8,Disk.x*1.1,Rho)*(1-smoothstep(Disk.y*.7,Disk.y,Rho))*Slab.x;
             float Ur=saturate((Rho-Disk.x)/max(Disk.y-Disk.x,.001));
@@ -310,12 +315,13 @@ float4 PSMain(Interp In,float2 Pixel:VPOS):COLOR0
             float Phase=.35+1.4*pow(saturate(dot(V,-P/max(length(P),.001))),4);
             L+=T*Gc*Phase*Dn*Tint.w*Ds*.6;
             T*=exp(-Dn*Ds*.9);
+            }
         }
         // Polar inflow: smoke streams above and below the hole, on a cone wide at the hole that
         // narrows away from it, wound with spiral streaks that turn and pour in towards the hole; it melts into the disc's
         // glow near the plane and fades when the axis is seen end-on (from above it stays behind) (warm white near the
         // hole, orange further out). Look.z is the strength, Misc.w the funnel's width.
-        [branch] if(Look.z>0 && Dbg.w<.5)
+        [branch] if(Look.z>0 && Dbg.w<.5 && abs(P.y)>.5 && abs(P.y)<Disk.y*.9)
         {
             float Ay=abs(P.y), Lv=Disk.y*.9;
             float Rf=Misc.w*.6*(.35+.3*max(Lv-Ay,0))+Disk.x*2.5*exp(-Ay/2.2); // wide at the hole, narrowing away; at the disc it spreads out over it (and the lens bends that sheet round with the arc)
@@ -354,7 +360,8 @@ float4 PSMain(Interp In,float2 Pixel:VPOS):COLOR0
             L+=T*Hc*Hz*Volume.y*Tint.w*Ds*.35;
             T*=exp(-Hz*Volume.y*Ds*.04);
         }
-        DGlow=min(DGlow,length(float2(Rho-Disk.x*1.15,P.y)));
+        float2 GlowDelta=float2(Rho-Disk.x*1.15,P.y);
+        DGlowSq=min(DGlowSq,dot(GlowDelta,GlowDelta));
         DRing=min(DRing,abs(R-1.5));
         P=Pn; V=Vn; S+=Ds;
     }
@@ -382,7 +389,7 @@ float4 PSMain(Interp In,float2 Pixel:VPOS):COLOR0
         else Bg=Base.rgb;
     }
     if(!Captured) L+=T*float3(1,.85,.6)*Look.w*Tint.w*.6*exp(-DRing*DRing/.0009);
-    L+=float3(1,.55,.2)*Tint.rgb*Look.w*Tint.w*.35*exp(-DGlow/max(Disk.x*.6,.01));
+    L+=float3(1,.55,.2)*Tint.rgb*Look.w*Tint.w*.35*exp(-sqrt(DGlowSq)/max(Disk.x*.6,.01));
     L=max(L,0);
     float3 Lt=1-exp(-L*State.y);
     float3 Out=Lt+T*Bg;

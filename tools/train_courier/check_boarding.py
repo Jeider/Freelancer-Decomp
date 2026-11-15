@@ -236,7 +236,7 @@ transfer='\n'.join(function(content,'bool '+name+'(').replace('bool '+name+'(', 
 transfer+='\n'+function(content,'void onPlayerLaunch(').replace('void onPlayerLaunch(', 'void CourierMission::onPlayerLaunch(',1)
 server=ROOT/'src/Server/server_train_yard.cpp'
 bridge=server.read_text(encoding='utf-8')
-bridge=bridge[bridge.index('        if(!validPose(p->position,p->orientation))'):bridge.index('    } else if(p->operation==Op::ClearTransfer)')]
+bridge=bridge[bridge.index('        if(!validPose(p->position,p->orientation))'):bridge.index('    } else if(p->operation==Op::ParkedSolar)')]
 bridge='int PrepareServerTransfer(Packet* p) {using Op=Operation;unsigned currentSystem=7;auto& state=couriers[p->player];if(p->operation==Op::Transfer){\n'+bridge+'}\nreturn 1;\n}'
 launch=function(server,'bool TrainCourierLaunchPose(')
 launch_source=function(ROOT/'src/Server/IServerImpl.cpp','void IServerImpl::PlayerLaunch(')

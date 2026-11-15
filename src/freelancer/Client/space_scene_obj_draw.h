@@ -125,6 +125,7 @@ float GetSpaceFieldRadiusSq();
 void SpaceDrawQueueRelease();
 
 #ifdef FREELANCER_RP9
+bool SpaceNativeNebulaObject(FClientGameobj* Object, FSpaceCamera* Camera);
 // First-person cockpit can be absent from the world's opaque hull queue.
 void SpaceSetCockpitGlintBounds(const float* Center,float Radius);
 #endif

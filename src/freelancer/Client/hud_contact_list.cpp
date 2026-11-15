@@ -601,6 +601,18 @@ HUD_ContactList::~HUD_ContactList()
     // member and the base destructors, in that order.
 }
 
+void HUD_ContactList::SetTarget(IObjRW* NewTarget)
+{
+    HUDItem::SetTarget(NewTarget);
+    // The HUD survives an in-space ship transfer. Never retain equipment owned
+    // by the previous ship, which is released before the next HUD draw.
+    CShip const* const Ship = NewTarget ? AsShip(NewTarget->cobject()) : nullptr;
+    Scanner = Ship ? const_cast<CEquip*>(Ship->EquipManager.FindFirst(0x80000)) : nullptr;
+    Contacts.clear();
+    ScrollPos = 0;
+    bDirty = 1;
+}
+
 bool HUD_ContactList::Create(Win3D* NewParent, void* Data)
 {
     // FUN_004cf6a0 (this = the WinControl face).

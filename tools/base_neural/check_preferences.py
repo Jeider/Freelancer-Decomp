@@ -21,12 +21,16 @@ struct UiScroll:WinControl {
 struct NnPreferences:WinControl {
  UiScroll* NeuralStrengthSlider=nullptr;NnTextControl* NeuralStrengthValue=nullptr;
  int NeuralStrength=100,NeuralStrengthOriginal=100;
- NnButtonControl* NeuralEnableToggle=nullptr;bool NeuralEnabled=false,NeuralEnabledOriginal=false;
+  NnTextControl* NeuralStrengthLabel=nullptr;
+  NnButtonControl* NeuralEnableToggle=nullptr;bool NeuralEnabled=false,NeuralEnabledOriginal=false;
  UiScroll* CreateUIScroll(char const*,float const* at,float,float,int,int,int,int){
   auto* c=Own(new UiScroll);memcpy(c->position,at,sizeof(c->position));return c;
  }
 ''')
 common=(ROOT/'src/Common/graphics_settings.cpp').read_text().replace('#include "common_misc.h"','')
+common=common.split('#include "common_reputation.h"')[0].replace('#include "graphics_adapter.h"','')
+common=common.replace('client ? GraphicsAdapter::Detect() : GraphicsAdapter::Info{}','GraphicsAdapter::Detect()')
+common=common.replace('bool const client=executable && _strnicmp(executable+1,"freelancer",10)==0;','(void)executable;')
 grade=(ROOT/'src/freelancer/Client/color_grade_preferences.cpp').read_text().replace('#include "common_misc.h"','').replace('#include "port_config.h"','')
 prefs=(ROOT/'src/freelancer/Client/base_neural_preferences.cpp').read_text().replace('#include "common_misc.h"','')
 prefs=prefs.replace('#include "port_config.h"','')
@@ -50,19 +54,36 @@ int main(int argc,char** argv){
  if(!strcmp(argv[1],"invalid")){
   Write("[BaseNeural]\nstrength_percent=101garbage\n");assert(StrengthPercent()==100);puts("PASS invalid fallback");return 0;
  }
- Write("[BaseNeural]\nstrength_percent=42\n");
- assert(StrengthPercent()==42&&DefaultStrengthPercent()==100);
- NnPreferences p;assert(p.CreateGraphicsRows());p.SnapshotGraphics();p.SetGraphicsHidden(false);
- assert(p.NeuralStrength==42&&p.NeuralStrengthSlider->value==42&&!p.GraphicsDirty());
- assert(p.NeuralStrengthValue->text==L"42%");
- assert(!Enabled()&&!ConfiguredEnabled());
- p.GraphicsProperty(0x30,p.NeuralEnableToggle,0);assert(Enabled()&&!ConfiguredEnabled());
- p.RevertGraphics();assert(!Enabled());
+ if(!strcmp(argv[1],"disabled")){
+  Write("[BaseNeural]\nenabled=0\n");
+  NnPreferences p;p.CurPage=1;assert(p.CreateGraphicsRows());p.SetGraphicsHidden(false);
+  assert(!p.NeuralStrengthLabel->mockHidden && !p.NeuralStrengthValue->mockHidden && !p.NeuralStrengthSlider->mockHidden);
+  auto strength=StrengthPercent();p.GraphicsProperty(0x3e,p.NeuralStrengthSlider,17);
+  assert(StrengthPercent()==strength && !Enabled());
+  p.GraphicsProperty(0x30,p.NeuralEnableToggle,0);assert(Enabled()&&!ConfiguredEnabled());
+  p.CommitGraphics();p.SnapshotGraphics();assert(ConfiguredEnabled());
+  p.GraphicsProperty(0x30,p.NeuralEnableToggle,1);p.CommitGraphics();p.SnapshotGraphics();assert(!ConfiguredEnabled());
+  assert(!p.ColorGradeCell.Label->mockHidden);puts("PASS disabled DLSS controls remain visible without enabling processing");return 0;
+ }
+  Write("[BaseNeural]\nenabled=1\nstrength_percent=42\n");
+  assert(StrengthPercent()==42&&DefaultStrengthPercent()==100);
+  NnPreferences p;p.CurPage=1;assert(p.CreateGraphicsRows());p.SnapshotGraphics();p.SetGraphicsHidden(false);
+  assert(p.NeuralStrength==42&&p.NeuralStrengthSlider->value==42&&!p.GraphicsDirty());
+  assert(p.NeuralStrengthValue->text==L"42%");
+  assert(!p.NeuralStrengthLabel->mockHidden && !p.NeuralStrengthSlider->mockHidden);
+  assert(std::fabs(p.NeuralStrengthLabel->position[1]-(.205f-8*.035f))<.001f);
+  assert(Enabled()&&ConfiguredEnabled());
+  assert(!p.NeuralEnableToggle->mockHidden);
+  assert(p.NeuralEnableToggle->position[0]>.39f);
+  p.GraphicsProperty(0x30,p.NeuralEnableToggle,1);assert(!Enabled()&&ConfiguredEnabled()&&p.GraphicsDirty());
+  assert(p.NeuralEnableToggle->state==1);
+  p.GraphicsProperty(0x3e,p.NeuralStrengthSlider,17);assert(StrengthPercent()==42);
+  p.RevertGraphics();assert(Enabled());
  // In-game preferences retain Anim=-2; only the main menu animates it to +1.
  p.Anim=-2;assert(!p.GraphicsProperty(0x3e,p.NeuralStrengthSlider,0));
  assert(StrengthPercent()==42);p.bInGame=true;
- assert(p.NeuralStrengthSlider->position[1]<p.GraphicsCells[8].Label->position[1]-.03f);
- assert(p.GraphicsHint->position[1]<p.NeuralStrengthSlider->position[1]-.03f);
+  assert(std::fabs(p.NeuralStrengthSlider->position[1]-(p.NeuralStrengthLabel->position[1]+.007f))<.001f);
+  assert(p.GraphicsHint->position[1]< -.15f);
  assert(p.GraphicsProperty(0x3e,p.NeuralStrengthSlider,0));
  assert(StrengthPercent()==0&&ConfiguredStrengthPercent()==42&&p.bDirty);
  SavePerfOptions("PerfOptions.ini");
@@ -77,7 +98,8 @@ int main(int argc,char** argv){
  p.SetGraphicsHidden(true);assert(p.NeuralStrengthSlider->mockHidden);p.SetGraphicsHidden(false);
  PreviewStrength(-1);assert(StrengthPercent()==0);PreviewStrength(101);assert(StrengthPercent()==100);
  CancelStrengthPreview();assert(StrengthPercent()==73);
- p.GraphicsProperty(0x30,p.NeuralEnableToggle,0);p.CommitGraphics();assert(Enabled());
+  p.GraphicsProperty(0x30,p.NeuralEnableToggle,1);p.CommitGraphics();assert(!Enabled());
+  p.GraphicsProperty(0x30,p.NeuralEnableToggle,0);p.CommitGraphics();assert(Enabled());
  SavePerfOptions("PerfOptions.ini");
  assert(GetPrivateProfileIntA("BaseNeural","strength_percent",999,path)==73);
  puts("PASS in-game Anim=-2 input, menu animation guard, native slider, preview/cancel/defaults/persistence");
@@ -91,5 +113,5 @@ env['INCLUDE']=';'.join(map(str,[vc/'include']+[sdk/'Include'/version/x for x in
 env['LIB']=';'.join(map(str,[vc/'lib/x86']+[sdk/'Lib'/version/x/'x86' for x in ('ucrt','um')]))
 subprocess.run([str(vc/'bin/Hostx64/x86/cl.exe'),'/nologo','/std:c++17','/W4','/WX','/EHsc','/MT',
                f'/I{ROOT/"src/include"}',f'/I{ROOT/"src/freelancer/Client"}','check.cpp','/Fecheck.exe'],cwd=OUT,env=env,check=True)
-for mode in ('exercise','reload','invalid'):
+for mode in ('exercise','reload','invalid','disabled'):
     subprocess.run([str(OUT/'check.exe'),mode],cwd=OUT,check=True)

@@ -1084,13 +1084,19 @@ IObjRW* SystemManagerTimerTable::FindObjectDockingAtBase(IObjInspect const* Base
     if (BaseIface == nullptr)
         return nullptr;
 
-    // 243665 `TEST AL,0x3`: only the low byte is tested, and the mask fits in
-    // it, so this is (Type & OBJ_MOON|OBJ_PLANET) != 0.
-    if ((GetObjectTypeOrZero(BaseIface) & 0x3u) == 0)
+    // Keep working ports as the target. Only non-docking solar cores need
+    // redirection; ships and unrelated scenery cannot acquire a base's port.
+    unsigned const Type = GetObjectTypeOrZero(BaseIface);
+    bool const Planet = (Type & 3u) != 0;
+    auto const* Body = BaseIface->cobject();
+    auto const* Arch = Body ? Body->get_archetype() : nullptr;
+    if (!Planet && (BaseIface->has_dock_hardpoints() || !Arch ||
+        Arch->get_class_type() != Archetype::AClassSolar))
         return nullptr;
 
     unsigned BaseId = 0;
     BaseIface->get_base(BaseId); // vtable +0x8c; retail ignores the result
+    if (!BaseId) return nullptr;
 
     // The 3-dword {cursor, cursor, TypeMask} walk state IObjDB's slot 0 owns
     // and updates in place. Identical layout to ScanList::add_in_range's own
@@ -1100,7 +1106,7 @@ IObjRW* SystemManagerTimerTable::FindObjectDockingAtBase(IObjInspect const* Base
         unsigned Cursor0;
         unsigned Cursor1;
         unsigned TypeMask;
-    } IterState = { 0, 0, 0x20u }; // OBJ_DOCKING_RING
+    } IterState = { 0, 0, Planet ? 0x20u : 0xfdffu };
 
     // 243673/243694 `MOV ECX,[EDI]; CALL [EDX]`: IObjDB::GetNext (slot 0).
     IObjDB* const ObjDb = ObjectDb;
@@ -1112,7 +1118,7 @@ IObjRW* SystemManagerTimerTable::FindObjectDockingAtBase(IObjInspect const* Base
         // IObjInspect::get_dock_target (IObjInspect is IObjRW's first base).
         unsigned DockTarget = 0; // retail re-zeroes this slot before every call
         Candidate->get_dock_target(DockTarget);
-        if (DockTarget == BaseId)
+        if (DockTarget == BaseId && Candidate->has_dock_hardpoints())
             return Candidate;
 
         Candidate = ObjDb->GetNext(&IterState);

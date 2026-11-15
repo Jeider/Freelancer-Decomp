@@ -17,6 +17,7 @@
 #include "RpgContacts.h"
 #include "RpgSpace.h"
 #include "TrainCourier.h"
+#include "LocalTriggers.h"
 #include "DockQueues.h"         // AllocateFormationId (FUN_06efeb00)
 #include "Encounters.h"
 #include "MissionObject.h"      // FNnPathLeg
@@ -480,6 +481,8 @@ namespace
     // FUN_06f002e0 (06f002e0-06f003d6).
     void FGameSupport::OnPlayerLoad(FPlayerLoadMessage const* Message)
     {
+        // Release personal RTC handles while the old base/player state still exists.
+        LocalTriggersPlayerLogout(Message->PlayerId);
 #ifdef FREELANCER_RPG_WORLD
         RpgSpaceTrackPlayer(Message->PlayerId);
         TrainCourierOnPlayerLoad(Message->PlayerId, nullptr);
@@ -487,6 +490,7 @@ namespace
         FContentPlayerState* State = ReplaceContentPlayerState(Message->PlayerId);
         Message->Reader->reset();
         LoadContentPlayerState(State, Message->Reader);
+        LocalTriggersPlayerLoad(Message->PlayerId, Message->Reader);
 #ifdef FREELANCER_RPG_WORLD
         TrainCourierOnPlayerLoad(Message->PlayerId, Message->Reader);
 #endif
@@ -605,6 +609,7 @@ namespace
             // 06effb50
             FPlayerSaveMessage const* Message = static_cast<FPlayerSaveMessage const*>(Parms);
             FindContentPlayerState(Message->PlayerId)->Save(Message->File);
+            LocalTriggersPlayerSave(Message->PlayerId, Message->File);
             break;
         }
         case EMessage::PlayerLoad:
@@ -663,6 +668,7 @@ namespace
             break;
         }
         case EMessage::PlayerLogout:
+            LocalTriggersPlayerLogout(*static_cast<unsigned int const*>(Parms));
 #ifdef FREELANCER_RPG_WORLD
             RpgContactsLogout(*static_cast<unsigned int const*>(Parms));
             RpgSpaceLogout(*static_cast<unsigned int const*>(Parms));

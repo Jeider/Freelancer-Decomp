@@ -1,0 +1,676 @@
+{
+  "name": "m06_omicron_major",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_omicron_major.thn",
+  "sha256": "b843bd821ae2801ec730b27677ca06083f727f6312d4e2cc07fe6c5b591665c8",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 3613,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\omicron_rtc.ini",
+      "line": 3,
+      "role": "action",
+      "thn": "scripts\\mod\\m06_omicron_major.thn"
+    }
+  ],
+  "source_duration": 60.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 18,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 22,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 24,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 25,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 26,
+      "time": 0,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 27,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 28,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 0,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 30,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 31,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 0,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 33,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 35,
+      "time": 0,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 36,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 37,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 38,
+      "time": 0,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 39,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 40,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 41,
+      "time": 0,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 42,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 43,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 44,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 45,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 46,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 47,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 48,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 49,
+      "time": 5,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 50,
+      "time": 5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 51,
+      "time": 6,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 52,
+      "time": 6,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 53,
+      "time": 12,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 54,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 55,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 56,
+      "time": 12,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 57,
+      "time": 12,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 58,
+      "time": 12,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 59,
+      "time": 12,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 60,
+      "time": 22,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 61,
+      "time": 22,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 62,
+      "time": 34,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 63,
+      "time": 28,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 64,
+      "time": 27,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 65,
+      "time": 36,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 66,
+      "time": 42,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 67,
+      "time": 44,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 68,
+      "time": 44,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 69,
+      "time": 44,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 70,
+      "time": 52,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 71,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 72,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 73,
+      "time": 10,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 74,
+      "time": 10,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 75,
+      "time": 10,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 76,
+      "time": 10,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 77,
+      "time": 10,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 78,
+      "time": 10,
+      "type": "START_PSYS_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 79,
+      "time": 0,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 80,
+      "time": 0,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 81,
+      "time": 15,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 82,
+      "time": 28,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 83,
+      "time": 36,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 84,
+      "time": 44,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 85,
+      "time": 52,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 86,
+      "time": 0,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 87,
+      "time": 50,
+      "type": "START_AUDIO_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_System_Omicron_Major": "Scene_System_Omicron_Major",
+    "Monitor_1": "Monitor_1",
+    "Light_SCENE": "Light_SCENE",
+    "Marker_Camera1": "automarker_Camera_1_focus",
+    "X/Shipcentre/01": "automarker_X/Shipcentre/01",
+    "Camera_1": "Camera_1",
+    "Marker_CamArrive": "automarker_Marker_CamArrive",
+    "Marker_LookArrive": "automarker_Marker_LookArrive",
+    "Marker_Lapa": "automarker_Marker_Lapa",
+    "BIGSHIP": "BIGSHIP",
+    "PlayerShip": "PlayerShip",
+    "Player_connecter": "Player_connecter",
+    "Player_Marker": "automarker_Player_Marker",
+    "li_elite01": "li_elite01",
+    "li_elite02": "li_elite02",
+    "li_elite03": "li_elite03",
+    "li_elite04": "li_elite04",
+    "or_elite01": "or_elite01",
+    "or_elite02": "or_elite02",
+    "ambi_LtG11_Puffs_Amb": "ambi_LtG11_Puffs_Amb",
+    "ambi_skydome_clouds_snow": "ambi_skydome_clouds_snow",
+    "Path_GOTO_PL": "Path_GOTO_PL",
+    "Path_Order01_Position": "Path_Order01_Position",
+    "Path_Order02_Position": "Path_Order02_Position",
+    "lapa": "lapa",
+    "lapa_down": "lapa_down",
+    "lapa_up": "lapa_up",
+    "player_up": "player_up",
+    "PlayerShipEngines_2": "PlayerShipEngines_2",
+    "fx_li_engine1": "fx_li_engine1",
+    "fx_li_engine2": "fx_li_engine2",
+    "fx_li_engine3": "fx_li_engine3",
+    "fx_li_engine4": "fx_li_engine4",
+    "fx_li_trapped1": "fx_li_trapped1",
+    "fx_li_trapped2": "fx_li_trapped2",
+    "fx_li_trapped3": "fx_li_trapped3",
+    "fx_player_trapped": "fx_player_trapped",
+    "fx_li_trapped4": "fx_li_trapped4",
+    "fx_or_engine1a": "fx_or_engine1a",
+    "fx_or_engine1b": "fx_or_engine1b",
+    "fx_or_engine1c": "fx_or_engine1c",
+    "fx_or_engine2a": "fx_or_engine2a",
+    "fx_or_engine2b": "fx_or_engine2b",
+    "fx_or_engine2c": "fx_or_engine2c",
+    "camera_start_path": "camera_start_path",
+    "marker_start_path": "marker_start_path",
+    "camera_bigship_arrive_path": "camera_bigship_arrive_path",
+    "marker_bigship_arrive_path": "marker_bigship_arrive_path",
+    "camera_baydoor_path": "camera_baydoor_path",
+    "marker_baydoor_path": "marker_baydoor_path",
+    "marker_baydoor_down_path": "marker_baydoor_down_path",
+    "camera_getting_path": "camera_getting_path",
+    "marker_getting_path": "marker_getting_path",
+    "gf_rtc_shipcushion_1": "gf_rtc_shipcushion_1",
+    "music_main": "music_main",
+    "rumble_player": "rumble_player",
+    "rumble_osiris": "rumble_osiris",
+    "open_baydoor": "open_baydoor",
+    "close_baydoor": "close_baydoor",
+    "extend_lapa": "extend_lapa",
+    "move_lapa_back": "move_lapa_back"
+  },
+  "point_names": {
+    "Scene_System_Omicron_Major": "Scene_System_Omicron_Major",
+    "Monitor_1": "Monitor_1",
+    "Light_SCENE": "Light_SCENE",
+    "Marker_Camera1": "Camera_1_focus",
+    "X/Shipcentre/01": "X/Shipcentre/01",
+    "Camera_1": "Camera_1",
+    "Marker_CamArrive": "Marker_CamArrive",
+    "Marker_LookArrive": "Marker_LookArrive",
+    "Marker_Lapa": "Marker_Lapa",
+    "BIGSHIP": "BIGSHIP",
+    "PlayerShip": "PlayerShip",
+    "Player_connecter": "Player_connecter",
+    "Player_Marker": "Player_Marker",
+    "li_elite01": "li_elite01",
+    "li_elite02": "li_elite02",
+    "li_elite03": "li_elite03",
+    "li_elite04": "li_elite04",
+    "or_elite01": "or_elite01",
+    "or_elite02": "or_elite02",
+    "ambi_LtG11_Puffs_Amb": "ambi_LtG11_Puffs_Amb",
+    "ambi_skydome_clouds_snow": "ambi_skydome_clouds_snow",
+    "Path_GOTO_PL": "Path_GOTO_PL",
+    "Path_Order01_Position": "Path_Order01_Position",
+    "Path_Order02_Position": "Path_Order02_Position",
+    "lapa": "lapa",
+    "lapa_down": "lapa_down",
+    "lapa_up": "lapa_up",
+    "player_up": "player_up",
+    "PlayerShipEngines_2": "PlayerShipEngines_2",
+    "fx_li_engine1": "fx_li_engine1",
+    "fx_li_engine2": "fx_li_engine2",
+    "fx_li_engine3": "fx_li_engine3",
+    "fx_li_engine4": "fx_li_engine4",
+    "fx_li_trapped1": "fx_li_trapped1",
+    "fx_li_trapped2": "fx_li_trapped2",
+    "fx_li_trapped3": "fx_li_trapped3",
+    "fx_player_trapped": "fx_player_trapped",
+    "fx_li_trapped4": "fx_li_trapped4",
+    "fx_or_engine1a": "fx_or_engine1a",
+    "fx_or_engine1b": "fx_or_engine1b",
+    "fx_or_engine1c": "fx_or_engine1c",
+    "fx_or_engine2a": "fx_or_engine2a",
+    "fx_or_engine2b": "fx_or_engine2b",
+    "fx_or_engine2c": "fx_or_engine2c",
+    "camera_start_path": "camera_start_path",
+    "marker_start_path": "marker_start_path",
+    "camera_bigship_arrive_path": "camera_bigship_arrive_path",
+    "marker_bigship_arrive_path": "marker_bigship_arrive_path",
+    "camera_baydoor_path": "camera_baydoor_path",
+    "marker_baydoor_path": "marker_baydoor_path",
+    "marker_baydoor_down_path": "marker_baydoor_down_path",
+    "camera_getting_path": "camera_getting_path",
+    "marker_getting_path": "marker_getting_path",
+    "gf_rtc_shipcushion_1": "gf_rtc_shipcushion_1",
+    "music_main": "music_main",
+    "rumble_player": "rumble_player",
+    "rumble_osiris": "rumble_osiris",
+    "open_baydoor": "open_baydoor",
+    "close_baydoor": "close_baydoor",
+    "extend_lapa": "extend_lapa",
+    "move_lapa_back": "move_lapa_back"
+  }
+}

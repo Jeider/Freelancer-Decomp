@@ -97,4 +97,5 @@ public:
 	                                   //        its only reader, CServerConfigDlg::OnInitDialog
 	                                   //        (.text:00406b3b), then accepts a loaded FLServer.cfg
 	                                   //        through OnOK without waiting for the user
+	bool bCampaignServer = false;      // port: fixed before the server startup thread begins
 };

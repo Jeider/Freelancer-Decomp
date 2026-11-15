@@ -3,6 +3,7 @@
 #include "ContentInternal.h"
 #include "TrainCourier.h"
 #include "train_courier_hud.h"
+#include "player_ship_transfer.h"
 #ifdef FREELANCER_RPG_WORLD
 #include "MissionScript.h"
 #include "MissionAct.h"
@@ -51,7 +52,7 @@ struct Config {
     Rules rules;
     std::vector<Point> points,parkingPoints;
     std::vector<Route> routes;
-    std::map<std::string,std::string> commodityVoices;
+    std::map<std::string,std::string> commodityVoices,commodityClass;
     std::map<std::string,unsigned> commodityNames,commodityPods;
     std::map<std::string,std::vector<unsigned>> descriptions;
     unsigned description=0,timerIds=0,overdueIds=0,lossIds=0;
@@ -137,14 +138,15 @@ struct Config {
                 if(!parking)p.position.y+=350.f;
                 (parking?parkingPoints:points).push_back(p);
             } else if(reader.is_header("CourierCommodity")) {
-                std::string nickname,voiceName;unsigned name=0,pod=0;
+                std::string nickname,voiceName,kind;unsigned name=0,pod=0;
                 while(reader.read_value()) {
                     if(reader.is_value("nickname"))nickname=reader.get_value_string();
                     else if(reader.is_value("voice_name"))voiceName=reader.get_value_string();
                     else if(reader.is_value("name_ids"))name=reader.get_value_int(0);
                     else if(reader.is_value("pod"))pod=CreateID(reader.get_value_string());
+                    else if(reader.is_value("courier_class"))kind=reader.get_value_string();
                 }
-                if(!nickname.empty())commodityVoices[nickname]=voiceName;
+                if(!nickname.empty()){commodityVoices[nickname]=voiceName;if(!kind.empty())commodityClass[nickname]=kind;}
                 commodityNames[nickname]=name;commodityPods[nickname]=pod;
             } else if(reader.is_header("CourierRoute")) {
                 Route r;
@@ -218,6 +220,7 @@ class CourierMission final : public FMissionScript {
     BridgeFn bridge=nullptr;
     CargoSnapshot savedCargo{};
     bool restoreCargo=false,restoreObjective=false,continueSpoken=false,transferInSpace=false;
+    bool spaceTransferComplete=false;
     bool cargoPending=false;
     bool returnImmediately=false,repositionedOrder=false;
     unsigned objectiveObject=0,objectiveName=0;
@@ -234,15 +237,30 @@ class CourierMission final : public FMissionScript {
     void advanceClock(float dt) {
         if(activeOrder() && state.pickedUp && std::isfinite(dt) && dt>0)remaining=(std::max)(-604800.f,remaining-dt);
     }
-    std::vector<std::string> goodsFor(Point const& target) const {
+    std::vector<std::string> goodsFor(Point const& target,unsigned jumps) const {
         std::vector<std::string> goods;
-        // Consolidated freight may not belong to this depot's regular stock.
-        auto const available=(trailer || cargoPending)?std::vector<std::string>{commodity}:source.commodities;
+        bool held=trailer || cargoPending;
+        auto const available=held?std::vector<std::string>{commodity}:source.commodities;
         for(auto const& name:available) {
-            if(std::find(target.demand.begin(),target.demand.end(),name)!=target.demand.end() &&
-               config.descriptions.find(name)!=config.descriptions.end() && !config.descriptions.at(name).empty())goods.push_back(name);
+            if(std::find(target.demand.begin(),target.demand.end(),name)==target.demand.end())continue;
+            if(config.descriptions.find(name)==config.descriptions.end() || config.descriptions.at(name).empty())continue;
+            if(!held) {
+                auto kind=config.commodityClass.find(name);
+                if(!cargoFitsHaul(kind==config.commodityClass.end()?std::string():kind->second,jumps))continue;
+            }
+            goods.push_back(name);
         }
         return goods;
+    }
+    std::string pickCommodity(std::vector<std::string> const& goods) const {
+        unsigned best=4;std::vector<std::string> tier;
+        for(auto const& name:goods) {
+            auto kind=config.commodityClass.find(name);
+            unsigned rank=cargoRank(kind==config.commodityClass.end()?std::string():kind->second);
+            if(rank<best){best=rank;tier.clear();}
+            if(rank==best)tier.push_back(name);
+        }
+        return tier[std::rand()%tier.size()];
     }
     void describeOrder() {
         if(!proseIds || commodity.empty())return;
@@ -303,6 +321,11 @@ class CourierMission final : public FMissionScript {
                 else if(reader.is_value("source"))state.source=reader.get_value_string();
                 else if(reader.is_value("destination"))state.destination=reader.get_value_string();
                 else if(reader.is_value("recent_base"))rememberBase(state,reader.get_value_string());
+                else if(reader.is_value("recent_route")) {
+                    std::string key=reader.get_value_string();
+                    auto bar=key.find('|');
+                    if(bar!=std::string::npos)rememberRoute(state,key.substr(0,bar),key.substr(bar+1));
+                }
                 else if(reader.is_value("picked_up"))state.pickedUp=reader.get_value_bool(0);
                 else if(reader.is_value("retired"))state.retired=reader.get_value_bool(0);
                 else if(reader.is_value("paid"))state.paid=reader.get_value_bool(0);
@@ -314,6 +337,10 @@ class CourierMission final : public FMissionScript {
                 else if(reader.is_value("loss_charge"))lossCharge=reader.get_value_int(0);
                 else if(reader.is_value("lost_pods"))lostPods=reader.get_value_int(0);
                 else if(reader.is_value("swapped"))swapped=reader.get_value_bool(0);
+                else if(reader.is_value("space_transfer_complete")) {
+                    spaceTransferComplete=reader.get_value_bool(0);
+                    if(spaceTransferComplete)transferInSpace=true;
+                }
                 else if(reader.is_value("failed"))failed=reader.get_value_bool(0);
                 else if(reader.is_value("commodity"))commodity=reader.get_value_string();
                 else if(reader.is_value("transfer_base"))transferBase=reader.get_value_int(0);
@@ -393,7 +420,9 @@ class CourierMission final : public FMissionScript {
         std::fprintf(file,"deliveries_at_size = %u\ncargo_pending = %u\n",state.deliveriesAtSize,cargoPending);
         std::fprintf(file,"unlocked_wagons = %u\n",state.unlockedWagons);
         for(auto const& base:state.recentBases)std::fprintf(file,"recent_base = %s\n",base.c_str());
+        for(auto const& route:state.recentRoutes)std::fprintf(file,"recent_route = %s\n",route.c_str());
         std::fprintf(file,"return_immediately = %u\nrepositioned_order = %u\n",returnImmediately,repositionedOrder);
+        std::fprintf(file,"space_transfer_complete = %u\n",spaceTransferComplete);
         std::fprintf(file,"transfer_base = %u\ntransfer_position = %.9g, %.9g, %.9g\ntransfer_rotation = ",transferBase,transferPosition.x,transferPosition.y,transferPosition.z);
         for(int i=0;i<9;++i)std::fprintf(file,"%s%.9g",i?", ":"",(&transferOrientation.E[0][0])[i]);
         std::fputc('\n',file);
@@ -599,12 +628,8 @@ class CourierMission final : public FMissionScript {
         if(!state.pickedUp && !friendly(source))return false;
         bool existing=trailer || cargoPending;
         bool feeder=!source.freightHub && !existing;
-        std::map<std::string,Point const*> eligible;
         std::vector<std::string> hubs;
-        for(auto const& p:config.points)if(friendly(p)) {
-            if(p.freightHub)hubs.push_back(p.base);
-            if(!goodsFor(p).empty())eligible[p.base]=&p;
-        }
+        for(auto const& p:config.points)if(friendly(p) && p.freightHub)hubs.push_back(p.base);
         auto depthToHub=[&](std::string const& base) {
             auto const& targets=hubs;
             if(std::find(targets.begin(),targets.end(),base)!=targets.end())return 0u;
@@ -614,47 +639,55 @@ class CourierMission final : public FMissionScript {
             return depth;
         };
         unsigned originDepth=feeder?depthToHub(source.base):0;
-        unsigned bestRank=~0u,bestDistance=~0u;
-        std::vector<size_t> choices;
+        struct Choice {size_t index;unsigned rank;unsigned distance;};
+        std::vector<Choice> passing;
         for(size_t i=0;i<config.routes.size();++i) {
-            auto const& r=config.routes[i];auto found=eligible.find(r.destination);
-            if(r.source!=source.base || r.destination==source.base || found==eligible.end())continue;
-            Point const& target=*found->second;
+            auto const& r=config.routes[i];
+            if(r.source!=source.base || r.destination==source.base)continue;
+            Point const* target=nullptr;
+            for(auto const& p:config.points)if(p.base==r.destination && friendly(p) && !goodsFor(p,r.jumps).empty()){target=&p;break;}
+            if(!target)continue;
             unsigned rank=0;
             if(feeder) {
                 if(feederWagons(config.rules,orderWagonLimit(state,config.rules),r.distance,r.jumps)<2)continue;
-                rank=target.freightHub?0:1;
+                rank=target->freightHub?0:1;
                 // Planets and megabases share the same pool. Intermediate
                 // ordinary depots must still make progress towards a hub.
-                if(rank==1 && depthToHub(target.base)>=originDepth)continue;
+                if(rank==1 && depthToHub(target->base)>=originDepth)continue;
             } else {
                 if(r.distance<minimumRouteDistance(config.rules,state.wagons) ||
                    r.jumps<minimumRouteJumps(config.rules,state.wagons))continue;
                 if(source.refinery && !existing)
-                    rank=target.freightHub?0:1;
+                    rank=target->freightHub?0:1;
             }
-            if(rank>bestRank || (rank==bestRank && r.distance>bestDistance))continue;
-            if(rank<bestRank || r.distance<bestDistance) {
-                choices.clear();bestRank=rank;bestDistance=r.distance;
+            passing.push_back({i,rank,r.distance});
+        }
+        std::vector<Choice> unused;
+        for(auto const& c:passing) {
+            auto const& r=config.routes[c.index];
+            if(!routeSeen(state,r.source,r.destination))unused.push_back(c);
+        }
+        auto const& pool=!unused.empty()?unused:passing;
+        if(unused.empty()) {
+            bool fresh=false;
+            for(auto const& p:config.points) {
+                if(!friendly(p) || p.base==source.base || p.demand.empty())continue;
+                if(!routeSeen(state,source.base,p.base)){fresh=true;break;}
             }
-            choices.push_back(i);
+            if(fresh || pool.empty())return false;
+        }
+        if(pool.empty())return false;
+        unsigned bestRank=~0u,bestDistance=~0u;
+        std::vector<size_t> choices;
+        for(auto const& c:pool) {
+            if(c.rank>bestRank || (c.rank==bestRank && c.distance>bestDistance))continue;
+            if(c.rank<bestRank || c.distance<bestDistance) {
+                choices.clear();bestRank=c.rank;bestDistance=c.distance;
+            }
+            choices.push_back(c.index);
         }
         if(choices.empty())return false;
-        // Among equal shortest routes, favor bases outside recent history 4:1.
-        // A repeat remains possible; history never adds distance or changes
-        // the shared priority of planets and megabases.
-        auto weight=[&](size_t i) {
-            return revisitPenalty(state,config.routes[i].destination)?1u:4u;
-        };
-        unsigned totalWeight=0;
-        for(auto i:choices)totalWeight+=weight(i);
-        unsigned draw=std::rand()%totalWeight;
-        size_t selected=choices.front();
-        for(auto i:choices) {
-            unsigned w=weight(i);
-            if(draw<w){selected=i;break;}
-            draw-=w;
-        }
+        size_t selected=choices[std::rand()%choices.size()];
         auto const& route=config.routes[selected];
         state.distance=route.distance;
         if(feeder)state.wagons=feederWagons(config.rules,orderWagonLimit(state,config.rules),route.distance,route.jumps);
@@ -664,8 +697,8 @@ class CourierMission final : public FMissionScript {
         destination=config.points[points[std::rand()%points.size()]];
         state.source=source.nickname;state.destination=destination.nickname;
         if(!existing) {
-            auto goods=goodsFor(destination);if(goods.empty())return false;
-            commodity=goods[std::rand()%goods.size()];
+            auto goods=goodsFor(destination,route.jumps);if(goods.empty())return false;
+            commodity=pickCommodity(goods);
             auto const& texts=config.descriptions[commodity];proseIds=texts[std::rand()%texts.size()];
             quotedReward=freightQuote(config.rules,state.wagons,state.distance,source.prices[commodity]);
             lossCharge=podLossCharge(config.rules,state.wagons,quotedReward,source.prices[commodity]);
@@ -742,6 +775,24 @@ class CourierMission final : public FMissionScript {
             if(candidate.first>1 && !p.refinery)continue;
             if(tryPickup(p)){haveOrder=true;break;}
         }
+        if(!haveOrder) {
+            std::vector<std::pair<unsigned,size_t>> neighbors;
+            auto longSupply=[&](Point const& p) {
+                for(auto const& name:p.commodities) {
+                    auto kind=config.commodityClass.find(name);
+                    if(kind!=config.commodityClass.end() && longCargo(kind->second))return true;
+                }
+                return false;
+            };
+            for(size_t i=0;i<config.points.size();++i) {
+                auto const& p=config.points[i];
+                if(p.systemId==origin.systemId || p.base==origin.base || !friendly(p) || !longSupply(p))continue;
+                for(auto const& r:config.routes)if(r.source==origin.base && r.destination==p.base && r.jumps<=1)
+                    neighbors.push_back({r.distance,i});
+            }
+            std::sort(neighbors.begin(),neighbors.end());
+            for(auto const& candidate:neighbors)if(tryPickup(config.points[candidate.second])){haveOrder=true;break;}
+        }
         // Actual system stock can be consolidated at the original depot.
         if(!haveOrder)for(auto const& candidate:suppliers) {
             source=origin;
@@ -761,6 +812,7 @@ class CourierMission final : public FMissionScript {
         describeOrder();
         if(config.commodityVoices.find(commodity)==config.commodityVoices.end())return false;
         rememberBase(state,source.base);rememberBase(state,destination.base);
+        rememberRoute(state,source.base,destination.base);
         state.stage=Stage::Offer;
         pendingObject=objectiveObject=objectiveName=0;markerDelay=0;NnPath.Reset();
         GetOrCreatePlayer(PlayerId)->ClearObjectives();
@@ -958,7 +1010,7 @@ class CourierMission final : public FMissionScript {
         }
         if(state.stage==Stage::TransferOut && !swapped) {
             if(!transferInSpace)return;
-            if(!boarding || query().launchSolar!=boarding) {
+            if(!spaceTransferComplete && (!boarding || query().launchSolar!=boarding)) {
                 // A failed anchor spawn must not dereference a missing client
                 // solar or complete the job. Retry after physics restarts.
                 transferInSpace=false;
@@ -1057,9 +1109,20 @@ class CourierMission final : public FMissionScript {
             // Recreate the visible locomotive only on PlayerLaunch.
             boarding=0;transferBase=s->BaseId;transferPosition=pos;transferOrientation=rot;
             state.stage=Stage::TransferOut;
-            if(pub::Player::ForceLand(PlayerId,transferBase)!=0){
-                pub::SpaceObj::Destroy(s->SpaceObjId,DESTROY_NORMAL);s->bSpawned=0;state.stage=Stage::Parking;
+            auto module=GetModuleHandleA("Server.dll");
+            auto transfer=module?reinterpret_cast<PlayerShipTransfer::Bridge>(
+                GetProcAddress(module,"PlayerShipTransferBridge")):nullptr;
+            if(transfer) {
+                PlayerShipTransfer::Packet p;p.player=PlayerId;
+                p.operation=PlayerShipTransfer::Operation::QueueReturn;p.anchor=s->SpaceObjId;
+                int supported=transfer(&p);
+                if(supported && p.result==1)return;
+                // Keep the physical locomotive on failure, never silently fall
+                // back to a landing which would unload the whole system.
             }
+            pub::SpaceObj::Destroy(s->SpaceObjId,DESTROY_NORMAL);s->bSpawned=0;
+            state.stage=Stage::Parking;pause=1.f;
+            FDUMP(0x100001,"TrainCourier: space return unavailable; keeping locomotive player=%u",PlayerId);
         }
         if(state.stage==Stage::Deliver && state.retired && !state.paid && pub::Player::AdjustCash(PlayerId,state.reward)==0) {
             if(lostPods<state.wagons*2)state.deliveriesAtSize=(std::min)(2u,state.deliveriesAtSize+1);
@@ -1070,6 +1133,64 @@ class CourierMission final : public FMissionScript {
         }
     }
 public:
+    int spaceTransfer(PlayerShipTransfer::Packet* p,int phase) {
+        if(!p || !ready || bPendingDestroy || p->player!=PlayerId || p->system!=system())return 0;
+        if(phase==2) {
+            if(p->returning && swapped && state.stage==Stage::TransferOut) {
+                if(auto* s=solar()) {
+                    if(s->bSpawned && s->SpaceObjId)pub::SpaceObj::Destroy(s->SpaceObjId,DESTROY_NORMAL);
+                    s->bSpawned=0;
+                }
+                state.stage=Stage::Parking;pause=1.f;
+            }
+            return 1;
+        }
+        if(phase==0) {
+            if(p->returning) {
+                if(state.stage!=Stage::TransferOut || !swapped)return 0;
+            } else {
+                if(state.stage!=Stage::Boarding || swapped || !boarding)return 0;
+                // A skipped docking animation queues LAND with no target object.
+                // Resolve only this mission's technical base, never a normal base.
+                if(p->anchor ? p->anchor!=boarding : (!transferBase || p->base!=transferBase))return 0;
+                p->anchor=boarding;p->base=transferBase;
+            }
+            p->position=transferPosition;p->orientation=transferOrientation;
+            return 1;
+        }
+        if(phase!=1)return 0;
+        if(PlayerState && PlayerState->ShipObject &&
+           !PlayerState->ShipObject->RebindShip(p->target,p->ship.ShipArchetype))
+            FDUMP(0x100001,"TrainCourier: content ship rebind failed player=%u target=%u",PlayerId,p->target);
+        swapped=!p->returning;
+        state.stage=p->returning?Stage::TransferOut:Stage::TransferIn;
+        spaceTransferComplete=true;transferInSpace=true;pause=1.f;
+        if(!p->returning && boarding) {
+            pub::SpaceObj::Destroy(boarding,DESTROY_NORMAL);boarding=0;
+            if(auto* s=solar())s->bSpawned=0;
+        }
+        if(p->returning) {
+            // The old physical locomotive has now left the system; its parked
+            // representation can be created without two overlapping bodies.
+            auto* s=solar();
+            if(s) {
+                if(s->bSpawned && s->SpaceObjId)pub::SpaceObj::Destroy(s->SpaceObjId,DESTROY_NORMAL);
+                s->ArchetypeId=CreateID("tc_parked_locomotive");s->BaseId=0;
+                s->Position=transferPosition;s->SystemId=system();
+                std::memcpy(&s->Orientation,&transferOrientation,sizeof(Matrix));
+                s->bSpawned=0;
+                boarding=SpawnMissionSolarRecord(s)?s->SpaceObjId:0;
+                if(boarding) {
+                    Packet parked;parked.player=PlayerId;parked.operation=Operation::ParkedSolar;
+                    parked.launchSolar=boarding;
+                    if(!bridge || !bridge(&parked) || parked.result!=1) {
+                        pub::SpaceObj::Destroy(boarding,DESTROY_NORMAL);s->bSpawned=0;boarding=0;
+                    }
+                }
+            }
+        }
+        return 1;
+    }
     bool hud(TrainCourierHud* out) const {
         if(!out || out->size!=sizeof(*out) || !ready || bPendingDestroy || !activeOrder())return false;
         out->remaining=remaining;out->caption=remaining>0?config.timerIds:config.overdueIds;
@@ -1203,6 +1324,11 @@ extern "C" int __cdecl TrainCourierBaseTransfer(unsigned player,unsigned base,in
     auto found=controllers.find(player);
     return pub::SinglePlayer() && found!=controllers.end() && found->second->prepareBaseTransfer(base,prepare!=0);
 }
+extern "C" int __cdecl TrainCourierShipTransfer(PlayerShipTransfer::Packet* packet,int phase) {
+    if(!pub::SinglePlayer() || !packet || packet->size!=sizeof(*packet) || packet->version!=1)return 0;
+    auto found=controllers.find(packet->player);
+    return found!=controllers.end()?found->second->spaceTransfer(packet,phase):0;
+}
 extern "C" int __cdecl TrainCourierGetHud(unsigned player,TrainCourierHud* out) {
     auto found=controllers.find(player);
     return pub::SinglePlayer() && found!=controllers.end() && found->second->hud(out);
@@ -1229,6 +1355,7 @@ void TrainCourierOnPlayerLoad(unsigned player,INI_Reader* reader) {
 bool TrainCourierCanStart(unsigned) {return false;}
 extern "C" int __cdecl TrainCourierGetHud(unsigned,TrainCourierHud*) {return 0;}
 extern "C" int __cdecl TrainCourierBaseTransfer(unsigned,unsigned,int) {return 0;}
+extern "C" int __cdecl TrainCourierShipTransfer(PlayerShipTransfer::Packet*,int) {return 0;}
 IDLL* CreateTrainCourier(char const*,unsigned,void const*) {return nullptr;}
 void TrainCourierOnPlayerLoad(unsigned,INI_Reader*) {}
 #endif

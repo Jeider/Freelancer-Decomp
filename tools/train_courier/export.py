@@ -121,13 +121,14 @@ def export(core, game, output):
     commodities={}
     # Only Pythonlancer's goods are eligible, even if a legacy loadout names a
     # retail commodity. The user's dispatcher inherits this same vocabulary.
-    authored_goods={c.get_nickname():c.get_msg_id_prefix() for c in core.store.get_commodities()}
+    authored_goods={c.get_nickname():c for c in core.store.get_commodities()}
     def register_goods(names):
         for name in names:
             pod=one(equipment.get(name,{}),'pod_appearance')
             if name in authored_goods and pod:
                 commodities[name]=dict(nickname=name,pod=pod,name_ids=int(one(equipment[name],'ids_name','0')),
-                                       voice_name=authored_goods[name])
+                                       voice_name=authored_goods[name].get_msg_id_prefix(),
+                                       courier_class=authored_goods[name].courier_class())
         return sorted(name for name in names if name in commodities)
     for kind, system in entries:
         if kind != 'system' or not one(system, 'file'):
@@ -164,7 +165,8 @@ def export(core, game, output):
                 pod=one(equip,'pod_appearance')
                 if pod:
                     commodities[commodity_name]=dict(nickname=commodity_name,pod=pod,name_ids=int(one(equip,'ids_name','0')),
-                                           voice_name=authored_goods[commodity_name])
+                                           voice_name=authored_goods[commodity_name].get_msg_id_prefix(),
+                                           courier_class=authored_goods[commodity_name].courier_class())
             cargo=[name for name in cargo if name in commodities]
             # Keep actual fixture positions; do not reroll Pythonlancer's random
             # depot type/cargo choices. Local offsets provide clearance for N cars.

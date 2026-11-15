@@ -31,7 +31,31 @@ source+=r'''
  pc[106*4+1]=0;pc[377]=1;pc[378]=1.5f;auto glass=render(ps);
  pc[106*4+2]=1;auto glassNoReflections=render(ps);Require(compare(glass,glassNoReflections).first>1000,"glass reflection gate");
  pc[106*4+1]=1;auto glassBothOff=render(ps);Require(compare(glassNoReflections,glassBothOff).first>1000,"glass highlights survive disabling reflections");
- puts("PASS: surface shader variants compile on D3D9; independent highlight/reflection switches change pixels and restore exactly");
+ // Compile independent quality combinations, create real D3D9 programs and
+ // verify the levels change the same hull without changing its alpha channel.
+ pc[377]=0;pc[106*4+1]=pc[106*4+2]=0;
+ auto fullHull=render(ps);
+ for(int relief=0;relief<4;++relief)for(int highlights=0;highlights<4;++highlights){
+  std::string prefix="#define SURFACE_RELIEF_QUALITY "+std::to_string(relief)+
+   "\n#define SURFACE_HIGHLIGHT_QUALITY "+std::to_string(highlights)+"\n#define SURFACE_NO_SHADOW 1\n";
+  auto code=Compile(prefix+source,"PSMain","ps_3_0");
+  IDirect3DPixelShader9* quality=nullptr;Check(d->CreatePixelShader((DWORD*)code.data(),&quality));
+  auto frame=render(quality);
+  if(highlights==3)Require(compare(frame,fullHull).first==0,"full hull finish preserved at every relief setting");
+  else Require(compare(frame,fullHull).first>0,"reduced finish changes hull pixels");
+  for(size_t i=0;i<frame.size();++i)Require((frame[i]>>24)==(fullHull[i]>>24),"quality preserves alpha");
+  quality->Release();
+ }
+ // Specialized UV/normal routes must compile at every relief level too.
+ for(char const* family:{"SURFACE_SHIP_NORMALS","SURFACE_ROCK","SURFACE_NOMAD","SURFACE_NOMAD_LIGHT","SURFACE_BEAST","SURFACE_GREENHOUSE"})
+ for(int q=0;q<4;++q){
+  std::string prefix="#define "+std::string(family)+" 1\n#define SURFACE_NO_SHADOW 1\n";
+  if(!strcmp(family,"SURFACE_NOMAD_LIGHT") || !strcmp(family,"SURFACE_BEAST"))prefix+="#define SURFACE_NOMAD 1\n";
+  prefix+="#define SURFACE_RELIEF_QUALITY "+std::to_string(q)+"\n#define SURFACE_HIGHLIGHT_QUALITY "+std::to_string(q)+"\n";
+  auto code=Compile(prefix+source,"PSMain","ps_3_0");IDirect3DPixelShader9* quality=nullptr;
+  Check(d->CreatePixelShader((DWORD*)code.data(),&quality));quality->Release();
+ }
+ puts("PASS: all quality combinations and material families compile; quality changes pixels and preserves alpha");
  d->SetTexture(0,nullptr);d->SetTexture(10,nullptr);d->SetTexture(13,nullptr);d->SetVertexShader(nullptr);d->SetPixelShader(nullptr);
  read->Release();rt->Release();base->Release();layers->Release();env->Release();vs->Release();ps->Release();d->Release();api->Release();DestroyWindow(window);
 }

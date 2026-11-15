@@ -12,6 +12,8 @@
 #include "ivp_ov_element.h"
 
 #include "x87_trig.h"
+#include "ivp_finite_guard.h"
+#include "dacom.h"
 
 #include <cmath>
 #include <cstdint>
@@ -78,6 +80,14 @@ namespace
     // time (+0x1c, an int) is behind its edit time.
     void CheckHullSynapsesAndReset(IVP_Hull_Manager* Hull)
     {
+        // Port safety: the teleport crash had NaN growth and an empty pool
+        // (live index 0xffff). Never dispatch or rebase non-finite hull data.
+        if (!IvpFinite::HullNumbers(*Hull))
+        {
+            static unsigned Reports = 0;
+            if (Reports++ < 16) FDUMP(0x100001, "PHYS_FINITE invalid hull %p count=%u live=%u\n", Hull, Hull->PoolCount, Hull->PoolLiveIndex);
+            return;
+        }
         // FLD [+0x28]; FSUB [+0x18]; FST dword [local]; FCOMP 0.0f; TEST AH,0x1; JZ skip.
         double Delta = (double)(Hull->PoolKeyThreshold) - Hull->AccumulatedDeltaA;
         float DeltaStored = (float)(Delta);
@@ -86,6 +96,10 @@ namespace
         {
             for (;;)
             {
+                // The preceding callback may remove the final entry or poison
+                // the growth value. Recheck before EVERY payload dereference.
+                if (!IvpFinite::HullNumbers(*Hull) || !IvpFinite::Scalar(DeltaStored)
+                    || !IvpFinite::HullEntry(*Hull)) return;
                 // `[(word +0x2e) << 4 + [+0x24] + 0xc]` -- the payload of the minimum entry.
                 IVP_Listener_Hull* Listener = (IVP_Listener_Hull*)Hull->PoolEntries[Hull->PoolLiveIndex].Payload;
                 Listener->hull_limit_exceeded_event(Hull, DeltaStored);
@@ -121,6 +135,13 @@ namespace
 void IVP_Calc_Next_PSI_Solver::calc_next_PSI_matrix(IVP_Event_Sim* EventSim, IVP_U_Vector<IVP_Hull_Manager>* ActiveHullManagers)
 {
     IVP_Core* Core = core;
+    const bool BadSpeed = IvpFinite::StopInvalid(Core->Speed);
+    const bool BadRotation = IvpFinite::StopInvalid(Core->RotSpeed);
+    if (BadSpeed || BadRotation)
+    {
+        static unsigned Reports = 0;
+        if (Reports++ < 16) FDUMP(0x100001, "PHYS_FINITE stopped invalid motion core=%p linear=%d angular=%d\n", Core, BadSpeed, BadRotation);
+    }
 
     // :0635131b-:06351330 -- a car wheel with max_surface_deviation == 0 (or NaN) skips every
     // speed limit.

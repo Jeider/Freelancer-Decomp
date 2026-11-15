@@ -7,6 +7,9 @@ struct IRPRoomMaterials : IDAComponent
     virtual GENRESULT DACOM_API SetRoomMaterialFrame(unsigned long Enabled) = 0;
     virtual GENRESULT DACOM_API SetRoomMaterial(const char* Name, const char* Texture) = 0;
     virtual GENRESULT DACOM_API ApplyRoomContactShadows() = 0;
+    virtual GENRESULT DACOM_API SetRoomBase(const char* Nickname) = 0;
+    virtual GENRESULT DACOM_API SetRoomDetail(const char* Detail) = 0;
+    virtual GENRESULT DACOM_API SetRoomProp(unsigned long Prop) = 0;
 };
 
 // Separate optional ABI: opaque silhouettes projected vertically onto room depth.

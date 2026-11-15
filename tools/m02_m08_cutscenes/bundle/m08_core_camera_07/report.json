@@ -1,0 +1,48 @@
+{
+  "name": "m08_core_camera_07",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m08_core_camera_07.thn",
+  "sha256": "e458a8623095baf392e2602474d8d64bfe9d7f260896bdca1cfde09580908042",
+  "uses": [
+    {
+      "mission": 8,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "mission_line": 1465,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m08\\m08.ini",
+      "line": 1465,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m08_core_camera_07.thn"
+    }
+  ],
+  "source_duration": 30.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_core_cam7": "scene_core_cam7",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_marker": "automarker_cam_focus",
+    "main_object": "automarker_main_object"
+  },
+  "point_names": {
+    "scene_core_cam7": "scene_core_cam7",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_marker": "cam_focus",
+    "main_object": "main_object"
+  }
+}

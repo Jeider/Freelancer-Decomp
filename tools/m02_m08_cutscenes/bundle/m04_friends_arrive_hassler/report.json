@@ -1,0 +1,66 @@
+{
+  "name": "m04_friends_arrive_hassler",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m04_friends_arrive_hassler.thn",
+  "sha256": "e4322f67bb87d7bfe9aede25e7d0bac23252e7f5ed8acd61ea0996dc729137b6",
+  "uses": [
+    {
+      "mission": 4,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "mission_line": 570,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m04\\m04.ini",
+      "line": 570,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m04_friends_arrive_hassler.thn"
+    }
+  ],
+  "source_duration": 25.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "Scene_Trailer_Cam5": "Scene_Trailer_Cam5",
+    "Shot06_Camera_1": "Shot06_Camera_1",
+    "Look_At_Marker_1": "automarker_Look_At_Marker_1",
+    "CamPos_Marker_2": "automarker_CamPos_Marker_2",
+    "main_object": "automarker_Shot06_Camera_1_focus",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Camera_1": "Camera_1",
+    "Path_1": "Path_1"
+  },
+  "point_names": {
+    "Scene_Trailer_Cam5": "Scene_Trailer_Cam5",
+    "Shot06_Camera_1": "Shot06_Camera_1",
+    "Look_At_Marker_1": "Look_At_Marker_1",
+    "CamPos_Marker_2": "CamPos_Marker_2",
+    "main_object": "Shot06_Camera_1_focus",
+    "Shot06_Monitor_1": "Shot06_Monitor_1",
+    "Camera_1": "Camera_1",
+    "Path_1": "Path_1"
+  }
+}

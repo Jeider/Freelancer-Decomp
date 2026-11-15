@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "common_physys.h"
+#include "common_train.h"
 #include "physics_tick_profile.h" // Port-only owner-requested diagnostics
 
 #include "common_archetype.h"
@@ -224,6 +225,8 @@ void PhysicalSystem::event_pre_collision(IVP_Event_Collision* Event)
 // is installed, the game filter's answer is returned instead.
 int32_t PhysicalSystem::check_objects_for_collision_detection(IVP_Real_Object* A, IVP_Real_Object* B)
 {
+    const int Nose=CmnTrain::NoseCollision(A,B);
+    if(Nose>=0)return Nose;
     int32_t const Result = IVP_Collision_Filter_Coll_Group_Ident::check_objects_for_collision_detection(A, B);
     if (PhySys::m_pCollisionFilter != nullptr && Result == 1)
         return (int32_t)PhySys::m_pCollisionFilter(A, B);

@@ -1,0 +1,1327 @@
+[
+  {
+    "path": "Pythonlancer/docs/m02_m08_scene_editing.txt",
+    "old": null,
+    "new": "6cc1e78a162418e4aee79eaa32c07aa78664a1b15b43b2800d5462aa02ba14b8"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/source_extensions.py",
+    "old": "1657b399330db942bdda2cc0319a917fe331f5869567fa6e63cf2e1ffeeb6ab4",
+    "new": "0e427ca4671ef6fc786f73db74f09e8af8fb5a1740d64e79b97cde94af2d0036"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m01b_armored_trap_camera.py",
+    "old": "2f848a8afc74122618f2ecbd954054ebc7b62bbd4a5f7aa0703ac88db8cde320",
+    "new": "6100cd58870d4128990cb9393bd29a70e27c2afa4cf314df51f8bb6fea305c05"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m02_bship_bar_accept.py",
+    "old": "6245fff36cd3ed425f1f2a013b06babcf0f59bb68ac1c80864f38e4fab515a9a",
+    "new": "d8104e223965c2e99a6fded9459b30b00e35aa3b3363265b6b779db04e84b033"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m02_bship_bar_decision.py",
+    "old": "f3ea47eab0514fd218b8e48bfa9debb19d001236823742d8b6a55b6e38595579",
+    "new": "de4117abb73ef0043d395c3208766a4c9689f9b9e292caa5de75b4de40416798"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m02_bship_bar_offer.py",
+    "old": "fa5c6f82d1b2c6ae812e2e18441f5696415a93d3121561e9f98a37e2982aae93",
+    "new": "6a125ccdd2462321a76bc58069f699cd4a125267156c88938c64f0c32541b6d9"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m02_explode_camera.py",
+    "old": "772fb0342c307708c438cd25552e8d499590535928c3f0402a07a2bbd8b57055",
+    "new": "517169cba3aeb1f3103631c8cfd09d8e2b5db10647b526968a238b2176a91c87"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m02_jacobo_offer.py",
+    "old": "f2fe6a4b47a267ea6a9e62540fe9de57ebc5c4c60e32fb6412227f4622064c00",
+    "new": "a7b21009a40ec57c346eb1ba44fe4a4e67288c36669fd380bbd5ecd5136367b5"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m02_jacobo_vendor.py",
+    "old": "3b129fef5c7be9f2f968b5675dab029c3ccf342669e4a34989f329b5ddc29b24",
+    "new": "bb52c7ed41faab1a092ce785c5f251451aa56f8d2bbf84c2a36ba247c7a22657"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m02_junkers.py",
+    "old": "9d9f0a9d99dc685353c503881a8e5f33b9888c0af70e738b7d2ff7826677b346",
+    "new": "97d329ba612fbdc829c390224f69fef071ee9ecc537e23b93617e6bbc6571ea9"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m02_reichman.py",
+    "old": "2d5d821e7a4732ae73203dd6c82a89f56a8558d688dc5f236e0ef2dcb4d9d0a6",
+    "new": "c3c86c6d1aa1d81aa33ec7c092aaa8de6f63aa78e05ed720f85be571bbf7f338"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m02_wilham_vendor.py",
+    "old": "a4fd085e62d9d1abbaf534053be7842aabcff2afb2a7ac2887377875f84d5b82",
+    "new": "a04ac939e20b54bf07fb404bacd4fcc570d5e91331072fac2cd26a3b21f30b2d"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m03_fleet_arrive.py",
+    "old": "834e54a47a8906134c75ff60f3338052a2901be5ecc8b7d9acc886c3e56b65ea",
+    "new": "daa0db8edcd4df5e542372d49f7af57ac815bab95c66aa80b813a712fecb8146"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m03_kgb_death01.py",
+    "old": "3f22e781ae86d8773996648cd0ab8fca53b11701465656574bc8927819ec071f",
+    "new": "01acea0f333125b2d1ab33ead2e9a3a8218ee8441105923346d6084c35e144ae"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m03_kgb_death02.py",
+    "old": "774984b62603c1389f5088da1245c0ec28984f456e3ffae7e0ff60778a2f8f99",
+    "new": "7f0346c42922d455a2b373613c914c9f16d0b75073fdfe85b2cf810c45bec01c"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m03_offer.py",
+    "old": "b9b3a901b6e65420e294d17a7edb74b855881f1b31ca311136b218f747f7514d",
+    "new": "79a6289dd6500c5021abad82438358236cb80632fdef3ddb07e047657853393b"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m03_offer_accept.py",
+    "old": "34deb981c018f2edfbefa251b2e8ce86d1a27b00c8658a9a9d33e345f67fa59b",
+    "new": "7a8e3295e4342c55675fa07eaf5f7b8d1d8c5f2049d2df267f2be0142760d7df"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m03_offer_decision.py",
+    "old": "ce631bbd495f30abf1e66849eae8e7cd217594bfe890a87c4cfa07a19e2fe619",
+    "new": "a887580554a013ed35483f35e8088adb7e81c83d98e91f79083afeeceee0de83"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m03_reward.py",
+    "old": "e11760d53e0dc474a5fdb027b411b17a73f22bd53b0d4a6e88d92738db604328",
+    "new": "6e4bea819c1ada1f467c9b223c328aa0db387463af8131f658aac52ed067dfed"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_final.py",
+    "old": "41bf7ff6c394ef88599717b8e02932262ea7bbdc59e1395303f2ca7b40067219",
+    "new": "d6ed076ba9b589535f1b453f4f16ac2c0585924fce478306767d2441308f93b3"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_friends_arrive_alaric.py",
+    "old": "a7eec61d4c896359f29efae1ed28108bc435d4f715d30fe2ec767028db7212a5",
+    "new": "0f8b34b414bc41074242a2df38e2f4d456607fb0aeee37119b0b984dfd5c5dde"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_friends_arrive_hassler.py",
+    "old": "bcac31de73f369f507fedf022a385598dae22b9da53b18deb76be2235c18e21a",
+    "new": "d6bb5ea8d36d09a06de309f8468bddf5cd2bcf6a3388deebea421ac2680c5401"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_hatcher.py",
+    "old": "6e2cd103cc0747c616657b5c232d9fb09632c111e90b000ad52b060b22f34d62",
+    "new": "60f8a4edb450ac1f62758c3565c30f368e18edf8b32827e06bfe3ae3dc222098"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_jacobo_death.py",
+    "old": "351305e155f10c3502d8f428c66bb406a5395269dcc8444a6df0bfaf66697e75",
+    "new": "0553fdf7dc38567326983f773a18fe25315dc09e474b3f1596a8fa82d14a08eb"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_jumphole.py",
+    "old": "c3e28cbd61e057443f2913cc6f88b834ef4631a59425412efaf3ca3b4545b83a",
+    "new": "ff2ffcc321b4d20551bb34645e022883ef4f0eae24f42ddd917829ebfa083988"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_offer.py",
+    "old": "3205a1fef5e44eaba4d0da23065ea28b10629a41496f511464f6696be925c709",
+    "new": "5b49d874073181cb60ba8dc1472555377d593df49366ba00044f50daeb159cad"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_offer_accept.py",
+    "old": "5df58eb4e9ce5aef5ec304a2f7ab398df88a901843bde26583455fdaaf852ec4",
+    "new": "dc68caf7768fa051e1de126aa8e289cacc7aeb1c287a267ef7aa321185e60336"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_offer_decision.py",
+    "old": "74498543d0184280232376be1cbdd02931d3dee76fe941df40279b0b77f769a8",
+    "new": "b5bdbad07c1871a0db1f4ea2aafea7faccb57946b4171c9bf04c28d473950ee5"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_officer_scene01.py",
+    "old": "648e6d20d7d002817ba0cc4ce0e84145e9f7996a182eda70bb8e063ff74d9f93",
+    "new": "a15eba0807da7b95a38ed2747fe829122d05c4604703375e766c3b86811ad325"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_officer_scene02.py",
+    "old": "52860595d426035e1994bc120b9d2dd535e7b32b84152b25a2650ebe1be3dc7f",
+    "new": "fb25eb090174e2516ca0b4cde7a57cda9b94b8917693c0f58b708a0cde410236"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m04_reactor_fx.py",
+    "old": "bc153d0aa0730463db7c5bdf5f027eae2d4d50d414c5a2a5ad326118507af0e9",
+    "new": "47f98f100a3974e950e3c53ae55eb673ea1680e45cf93ce9407605cbd887012b"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_arrest_camera01.py",
+    "old": "cb194d2847e5dfd4b0066de4645f4152436c7fbd4ccfcdc84ba0b4d9f95a7dc3",
+    "new": "80849cbc980ef14beb6574cf9b8b5556834e4a9e41c7f5a5e33914d47d91d81d"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_arrest_camera02.py",
+    "old": "e19313a93bcdc9841e7176a22f03ece4e11add60d2ebf36c0a57a99fb22cda68",
+    "new": "6c22c7acbb73178ac54d99d494ff6641d2cbff3a6db2beb1d73399dce1600179"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_arrest_camera03.py",
+    "old": "116003210cafe34ae83a6661da15b26ce0947a49a93eef88dc0b246f0c57a0f5",
+    "new": "2670d12be1a0cc08f84758714745bb1365b2c8af064eba07ae130ba1a858e512"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_arrest_camera04.py",
+    "old": "891469346fd2dd3bae2ba8c140c6a6ef6a0863ec8a8ccd6023ca847005ed9a89",
+    "new": "5d8c8400a3af831d0f514b03c86c999bfcc2bbba12209449691fdf38f579f0f0"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_arrest_camera05.py",
+    "old": "c3e9e1542651475d06fc4422354a62341b283a8c6329a044c811288b6b2fcf57",
+    "new": "45d0596d0ef33efca75dadb6bd97b9067a7c8e095a5737b6b33f76242a2cd93f"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_arrest_camera06.py",
+    "old": "e6eefc6e374b8dc368769c8630a4674f4b4a9382dec07543fa647793d2a21320",
+    "new": "1542f34cc344735a2930a9c329663cd5e86c0acb499358cc363c841083e38598"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_arrest_camera07.py",
+    "old": "3f5dc4a64f5518cdb88aaceae4fccff4f322481b04ef86bb539b8afa76f2938c",
+    "new": "75a0c2253d92d691ff9b1bff168f6796ebaf0aec416c6fcc82b726860d25cac0"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_arrest_camera08.py",
+    "old": "1938141c42628a41a7504f3e22579eade7cef81bcec8f9972a13ee5c615055d7",
+    "new": "2dfc276b92e346eb6671acbf31016fbfdbc467c461c71179a6c17b85e34d8a10"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_arrest_camera09.py",
+    "old": "6835486c2e1e03b143c18a028646d733e9b89de58a14b999e6173be329b940e3",
+    "new": "ef7980ecfe41f4c4b24d4c4f4ab87f9fc7d77f03b7890d7901247768c5503ca2"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_barman.py",
+    "old": "694da294d977e0734b109adff2745fcc300d6138fc75e7d40752af66cff6c33d",
+    "new": "30230f0e25d907f14a848e3051bcb7e30b0d9b023387907094c9bdcfe7f09b13"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_detroit.py",
+    "old": "9790cd40e87aef29d29d70a8f8783dfba752a074f46d080d07f225fbff7b614e",
+    "new": "f24fb4776c0e2e530ecf2013814c56658b09faf5aeee0e11f9704c8455ffc926"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_equip.py",
+    "old": "08c92af31b59b8ee9f043b0bf68635669742e1bc4fd62453e5eebc018a0e0309",
+    "new": "2eac6f43ea66488c584a69f356ff9f86a9b6e970c8c345e602d062f64e7ba635"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_offer.py",
+    "old": "52d1420afd974b666ffa330af1dcc3b05f0b656fd405081987ca6d74a43b2fe1",
+    "new": "6a9acd73b740e2ed4a97e5817533379f0cc3de0de02143119389682a0bec01fe"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_offer_accept.py",
+    "old": "b0ea4c0a17346986b1fdf2683f41bbb6c4d04701d102c846e41450385c5492f1",
+    "new": "e5a5d2db1443e2fb143a5986d67a5e4632cc8263e07a48600f2b93c3d29cb6da"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_offer_decision.py",
+    "old": "d537aa875e951f8e7224738092fe458d394e3e7bf20fef8dac6d92cf256c8273",
+    "new": "a0187f58f9b2e38c9f617f49e737591e7cded57d4a95cb48769e1316f15c0c5e"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_piratebar.py",
+    "old": "773f24b5058c699f33a51805b25ab12aaa34f5f434dddfadd845672805301c05",
+    "new": "533bfc124500f5ff04fcecab49412a0e3cc09f2e15bd3f40f607180f142c088e"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_research_explode.py",
+    "old": "de58c2301c95eade4b7218f3bf2fd60a2eee0009a3a6eba0e9edc26c3466bd83",
+    "new": "beee89e51e8b73758abb1abd3980cc7fa8d899e2d1f7515208f35c166927379a"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m05_rheinlanders_camera.py",
+    "old": "c37592ef7fdd8641099f794dfe2baae4cc5fdae1682ea5362065dedf31919212",
+    "new": "b1a67ec874d1fa2929aed81b4b5e91353a7cf4fe42fa412f10c4cfe99200a6eb"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_briefing.py",
+    "old": "8a7cc94269e3a5ed31ce8548bb60d52fa6d9f6e969e950b01520b9e8db40463e",
+    "new": "daceb1ae54176a37ddd41da27ea9c9494081066eec01c93c83613c725b3606b4"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_jumpin_camera1.py",
+    "old": "84b760bb48861fb7a667e39b4d57bacd1dcced070fa3b8bc6657f8e106927fe9",
+    "new": "a26735ce632c47468fd56220a82c4384b4a664a5b3ea07bf54c5fb6b2b2aa858"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_jumpin_camera2.py",
+    "old": "7efffcbb7d3e864959ade7e21bb804769ee07ff32585f9ed1a5f51268f66b690",
+    "new": "d4de748fa8f965eee0cd3c2b9e09d6f5b0ec8eb8046e7506c08532c84f679a84"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_lab_explode_camera.py",
+    "old": "a536bc81e3d4dd82ea5ba54d42a18b5cb0aa5f7da6281ad7d5c99c1324cab644",
+    "new": "fd630ceee97a5486af1b8cbbc9c75b3efc19e2b24cdda3aaeb1ee4733a8a5105"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_lab_land.py",
+    "old": "a624d1e55093f196859e8110d8901eeb58eaefa21623adfbbee8bb86fc9e453c",
+    "new": "26236fd892b4325b3400b4090be57199d7b267da297a0fb01b7378fb6451d146"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_lab_launch.py",
+    "old": "4825e0d69f771f880aee99308e068bad3242fae0d92ef6e08486c9eb23dae9d8",
+    "new": "5137e16480f27214b273c847e19b158d045aca0c613b18263d6371e827438912"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_lab_room.py",
+    "old": "610c4cae371593d482b9d1daeb9a0d8220646581d8d7ccce46cfadc33a28fe42",
+    "new": "d0820c0ae8dbb9ae2800377395b9c927fcc2bd9dfd15f9acfd6c31033cd1823c"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_mount.py",
+    "old": "fcf671ffbc705f6d20919c486e7909fa3696b4c1dbeb0ed7d6e187266d9ee0a0",
+    "new": "16e5a1ed432d51015ba5c8534a38f77bef2f28a593a8c21f3b6d38c48ecd4317"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_nomad_area_camera1.py",
+    "old": "231d43de8b0aeeb15b553e9009fc5b6ee85ec443fe4031ecf1db843d6ac2d5c5",
+    "new": "0454a6c4cf7277c679bd6b69ca911203140e110f36f5386c9dc23dc9acafc006"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_nomad_area_camera2.py",
+    "old": "0c19b1e72afffd4db3ce5c109c6643a1f02f29c926f9d0ab897d30ead46b9197",
+    "new": "b691f214846a382e4d6850e652bdc0af8dfc6f0bec1266fb1c4a2ffa25a2c2d0"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_nomad_area_camera3.py",
+    "old": "348b5a889a68fcee6f4dfb557eba035561c9f0bc219e8210c47e46e4a41fc397",
+    "new": "e35d0a8b97f811895ffaf5e88a01aa8b58cf3bfe7118ca204b58ab7de7e8b171"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_nomad_area_camera4.py",
+    "old": "9465c58b4b443bb6e316ec288694a37e4d6113d342c3e70d0414a479243b78ec",
+    "new": "41ff01a6e12e350674ab80afda23e498cf72cdd1f0f8cd901ef7e037428e1331"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_offer.py",
+    "old": "6e348a207b4bbddf34519912c4502f31274c3a4c28d2f4ba841ce8823bc8d54b",
+    "new": "9d84d414573304f6ff54c697cb00e8e0cfef17753f77ba296a855b428a2d73e4"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_offer_accept.py",
+    "old": "6219573b6596c8aaad378fe1b6219520dd443fbc3c9df3ed100d8b22b3dbb23b",
+    "new": "741deaa08041adc1d35c7f827fb246ed458f447032f0fbb00be075b1d3858a19"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_offer_decision.py",
+    "old": "edf932b0c58c5758228c6ca30791af51dc6804b3b097d34ca1c16f9fac745848",
+    "new": "2ad6cd123d74106cd39312e1ab66309f5e46c9a28f30a17e3f005140662e3da2"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_omicron_major.py",
+    "old": "5cd1869cece4d1b1773e6652a4851ea64195dbe9862ddfc800ed499c87d57275",
+    "new": "99d255f3122c3d89e3254cecc1ff9f66a4a5ece0906ffda965de2d759d826592"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_order_camera3.py",
+    "old": "fa4dbd1d6ed5e5e3eeaaab0878ab47609b96cc9e537e9de7dc69b7f006c2e185",
+    "new": "c3ded4ecc54bb22a7d1b1925c849e56257eb47f63b0dc52d35bc9d6dfc2c6374"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_order_camera4.py",
+    "old": "e4d8dd93a960fb23498953b5df63ee69c9601cfa6adb29cb51aae824805c0a49",
+    "new": "93345b44f531e05752c310a94545a0ca6368d67163a7558876df8de014db0b98"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_order_deck.py",
+    "old": "af6a9e06f880c093bebdb02ca07e6dbd6b5a5bd633d17b817ab48165de539f18",
+    "new": "4cccc536473069ec3e8ef60aa2915d3569071f01fb21a176b9e9dbaff2009d5e"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_prison_new.py",
+    "old": "6ab9249d20b2ed05f25b6b0a424f37ad4737d0f773870d8f8e0eac658f45865f",
+    "new": "73b3deec08af5685755c6004c6d9db4b9c44e64899441679f818c6418be45247"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_torpedo_alert.py",
+    "old": "3a2c7db9b8f09787ea552c98e7e653f9df993a8841ef0048a6b0dadc05cd3d71",
+    "new": "8e95ddae0496b269d9fe8a017c266636ad7c38fe121e91f5de6d7dfe2f968309"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_vendor_alaric.py",
+    "old": "f1e5c56607f78fcb858a3a8457994b90bf58d521dd247fe20948db4e63e215f9",
+    "new": "8add10492e0df5bbd2fd2dd8c0673a24ab55d179aef797e7a760fca2b02dd93d"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m06_vendor_hatcher.py",
+    "old": "ae01ed191f97c809bddbeafb1d88510532bfa075df21fe64f4ab6d3b2ac480da",
+    "new": "1f83bec345b7392ad796e05fa13252cf13a3cf60538dc27564d51b108201334c"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_battleship.py",
+    "old": "b5ad1d3d9d915b55cef10bc293a3c0fc60666cd26ec160ce353948b628a91f2b",
+    "new": "8785f2f0949164f0870d09eb46c6a5d5f26c7f6b3d82d209f4d438ac77ee72da"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_check_artifact.py",
+    "old": "4f84b1da085b5f4caf6bc668d0a94d9322fd8e13cae3f997d4254a2a38c48f3b",
+    "new": "b0ad4452704fca4714d4290f457b88f272ec535fbba6dc577b66d94936cd5c27"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_gunners.py",
+    "old": "1afc78e18a431578e56213762c2e566d2a07d23cd4f8979a4a00c69dcddbfdf9",
+    "new": "ead709c82d300033b498d1edec4cbc8ba3549ea83525f88cf882c7206183213d"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_offer.py",
+    "old": "8262e1f5262788189385abca9483e025180d655877827d405ed0e97c10ac0bbc",
+    "new": "5a691311336daaa907de1d0311b57779b0bbf7e1e2fbb285a45868e78e24b7d7"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_offer_accept.py",
+    "old": "ace9fc7bf70978068e38e50c035af9a6e6c872b790bd21521519d4244862379f",
+    "new": "6a905ef61cae6ac627064536be10d227d92c6dee7324eefe6e43bee7b7676b8c"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_offer_decision.py",
+    "old": "7907c953701cc7f9d99cd5d7fb74c3e1b9d5c56d23118b7eeb37d9df1135dcdf",
+    "new": "5fc7ad093721dbd4e401bd4a561fc2e7656f3be7a03650895119cae414ef7858"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_omega13.py",
+    "old": "05fd6183502a07a30d78e7003b2d7244dbedee13fcfb42ed82bf7c2a9a9f9b95",
+    "new": "656edb91d3a0cef8268298e67dceed60126248b377f5595a3429fc6ba68a734c"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_reward.py",
+    "old": "98cf546185a1f3224e2ae6f6daff51f79c3476fa86adc760070026dd15191493",
+    "new": "99d8b5f029bb01943201eeb4bd08a6756d291c3930559c7f42ae30bab046a87c"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_tau_arrival.py",
+    "old": "98e2f6d4255c0f2c9f1e029049f3357a6bb2f155ff7d5eac28c37175bc0e9c4e",
+    "new": "d7b79876ed4a2fa0372927ea3f962c3d436814a67743416c8d2ba9cac5eb1e61"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m07_tortuga_wp_camera.py",
+    "old": "5865ecb8e24ce51b93bb3ee5e5badfcd65114df9400d085f15ed674457bc23fe",
+    "new": "3ae2289cbeb8392ccec8be33f53d37f746cb7ad9bc2c005706959a51ea2cb3e6"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_core_camera_01.py",
+    "old": "7f4eb262dd5b9c1a8219268f33b4fd6fafc4cb797c147444442ba72b2d66c433",
+    "new": "b2dfd982137e3ddb856bf34352707f3c2b8886c7175b7f5fc5794efda02ec78b"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_core_camera_02.py",
+    "old": "129daf0df7c3decc062a8b89e1c2736d07f67b4e971c45c964dd98f3d5e52f33",
+    "new": "d9a1564178d98b6a72dc580de1a09b1ffb98a27571d405722205a0649252d24b"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_core_camera_03.py",
+    "old": "135107f3b08d3ec72ea8f753280e6068941d0917228f7566008c71475ed8bb66",
+    "new": "e4d5b0944c253606fb2f3bea42aa7ce9bd69327cea70f8abc400b7c04cc54ec9"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_core_camera_04.py",
+    "old": "cce42b794a62350d3862c4544f98214471fd868d66175c0862ef6341a8a01b69",
+    "new": "092359f030c5c83c2a6afa738cf4f4428bfdae363878484fab53990e2636fbd3"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_core_camera_06.py",
+    "old": "543e3737693532c5ab17258c13de0054f1d834ba89a0f647e7d7efd01a1346ee",
+    "new": "a8ff080015f84c2a7b22551e2daf48b3f44aec8de9e123d613cdc155122b2358"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_core_camera_07.py",
+    "old": "991e3306f91e5f7b96c8983b190b5d800d1a5a83c1d2ee4762ae05bbd770984d",
+    "new": "249a4bbad36dc52a6af8104fafd8d5ba14b63bfe49b48798158a2d32e7fa6f70"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_core_camera_08.py",
+    "old": "75a9c10b5f18576fd0140ba9a0db5f45fc92a8ad6f7625080c41a3d4926c337c",
+    "new": "eb6f2024655fae79ee3778dbb26438071f8c0bb552295b7d6391820d17d40a24"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_core_camera_09.py",
+    "old": "7d7690f5b26d7651e14927a7092bbaca1de4750f9ae42f187536f44007a32b0a",
+    "new": "306e6c9a06355e39fb531099653e1b9150425e04a80f9b4574f43be96fbf62b1"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_lair_done_camera_01.py",
+    "old": "56231a131990f18ac3422816cf9e53898d2309fc055798f82654e0fa55b6f820",
+    "new": "97557fdc919c0c5ae2609777ab78cacf0ef64cf8f9283ab8e4dbbf52b7814693"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_lair_done_camera_02.py",
+    "old": "6953acbe970da21d62715013527e272dc6623f0a79d5ab6844887a76088720c9",
+    "new": "6c63f0f38b87dfe761d86bcc7028b817ab92d7128e512279724484c8a8a40571"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_lair_done_camera_03.py",
+    "old": "ae0fe2cd163fae6ce9938214da19b61f30038bf8258928ca9c333f5b3a43cf0a",
+    "new": "d74eb2e5873f45611c1927909a4e6f4fba5ae211e54509383557dec81ecd4a3a"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_lair_done_camera_04.py",
+    "old": "86150b7a994c1f5fbc16e90ead7457a67346bc1918edaab5235cdc60765787c4",
+    "new": "11bdec109dd19216141e8ed7f29058ccffee2d5d6ebb29986d77c1721e5e7af4"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_lair_enter_door_01.py",
+    "old": "b962878a75444efcbcebf477c4845e98e84fbcc42634bbadf10f18aa6b71f5ab",
+    "new": "677fbdc56e64749facac2737231097287aa24a5ffa78f8b5f3778997944f2829"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_liberty_enter_camera_01.py",
+    "old": "f3fd2e1d86140be942e7d616d6ec4859246441638e63903f7b4cc8d6eae02b38",
+    "new": "8a4e4aa8a81b1e5a39ba85051dc3e9b18dbf2d1d462b6aefc5217e41d924f99d"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_offer.py",
+    "old": "a96926f2bd66f08c19b5cc72d8be4dc4a017b8d0189bee6e15ba12de983f4ce8",
+    "new": "0d5252eec3e317969c0227fdd09e021c4bb3ee5b795ef7445df346508d8dd1ef"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_offer_accept.py",
+    "old": "e12b33573a4c9c5163c11400825d806fe499ffd0d25c75b9a2491656e176c90f",
+    "new": "209ef923219194629c7e39c5e6861438918965273c7df851e0717830d496ded3"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_offer_decision.py",
+    "old": "8596be6aca0b3c2c0c86138dc1315a52d00e6d8abca23a5a98efd0e7e853c3f1",
+    "new": "444eb5eaed1daef0ef9f9ac2adc184fa54c420f11e89de8de0b5efd33c8c5164"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_osiris.py",
+    "old": "4319bdfd485a95fcab77075b46090a00c365fac24c8a91d3a242cf637eda9c48",
+    "new": "e16eab56da177abb5aa8fd4c25bd99f364f3f69f15d26904a7629fbab9ed5a53"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_outside_camera_01.py",
+    "old": "2b2037b5ec6036f3aaac645ff34e9fa9735ae9e802c97e6887e7d5f538abb5c7",
+    "new": "5d326a7342f4ac3db05cb929f4077a69d17370279c260a090a766e37f2a52680"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_outside_camera_02.py",
+    "old": "cf85ead7588baf59e48197a568647d265a23373a2f9332113ee41543a6148a97",
+    "new": "a84fa8e11f9646b9182ea5c6aad176137c459ce48548dde3edcf175ecdffd6eb"
+  },
+  {
+    "path": "Pythonlancer/story/cutscenes/story_scenes/m08_wales_init.py",
+    "old": "40c506b765471e3e07e50ce8679d89c02208ae2082c4d4c0c1b6a6751baebba6",
+    "new": "de699d666a201ea38361ce4bbfcf1ffc4043fcf854fe4c3aabaf0f3925bc1008"
+  },
+  {
+    "path": "SCENES/DUMPS/m01b_armored_trap_camera.json",
+    "old": "4c7280b1d7a70689f16b537334d2e375e3cab80303e4baf40a9586cbde858433",
+    "new": "5f784583913f5e5ddfc96734e3cb07aa26cd5d90d2676f164fe5f1ab46e8bd76"
+  },
+  {
+    "path": "SCENES/DUMPS/m02_bship_bar_accept.json",
+    "old": "5da9bda324e1ccebc6756484c4ca975ebaff777ebb3e5b50eb3f9b572244f5bd",
+    "new": "761f0e08c1ec76151546feaa002cbd753c60e3983b74acf201bbdd7e2035ed06"
+  },
+  {
+    "path": "SCENES/DUMPS/m02_bship_bar_offer.json",
+    "old": "4af00db5e45238661821b4ad5f662b5f26688290df69a97287ab3aaffbc91714",
+    "new": "8267f646b7e0df7522bfa97130ec3a3192921343c0c2b97b54dc81cb9d8929f9"
+  },
+  {
+    "path": "SCENES/DUMPS/m02_explode_camera.json",
+    "old": "71dfaf2567d0bd6defd296f5206e86de31a5c03e4c55ba4931082da919ded446",
+    "new": "95ceb9c888c2419bb3eade81932e3d6d2bfefa49dba15ed9d32b5b7ffe3e5abf"
+  },
+  {
+    "path": "SCENES/DUMPS/m02_jacobo_offer.json",
+    "old": "be98fd586714ba96a499237b4fdf4f81143b7e41b4988dd7e231ad1a4fc2d7a0",
+    "new": "74db00e12237accd7b46ca1c14dedfb7942d73e99de8584300c1aa7003625b98"
+  },
+  {
+    "path": "SCENES/DUMPS/m02_junkers.json",
+    "old": "73f04425dc384e4c6d46c096489c02772d5b91d1b6c71c49129464bac43bd5a3",
+    "new": "2bf9fd108462641f1573c4b83edd9c88669b9d2c4def4b84841d83a2f3d6525b"
+  },
+  {
+    "path": "SCENES/DUMPS/m02_reichman.json",
+    "old": "2d6640ded59da278d1488248f15f07ae1f09d78ad9737efdc69caa70b107d1c8",
+    "new": "9c542de1d7d0c290082602ff657d31a9c14329481f75d9421e47ed6834a52d4b"
+  },
+  {
+    "path": "SCENES/DUMPS/m03_offer.json",
+    "old": "3b7c850ab661fbc693f035dcafb5780c747dc3b96136c874a6f9017eabbecebc",
+    "new": "c9120d3d845af731fbf10f2b48f976c5deed04d30409e750e19ba804fc41057c"
+  },
+  {
+    "path": "SCENES/DUMPS/m03_offer_accept.json",
+    "old": "5464fcfa46e17f213598106ef0d8a446a6d93514b1988fe7290a1ae50180f487",
+    "new": "5cc743c32997a4772b161e1c950e33393cba85687a6118ecb7344ea8cdbc3c3b"
+  },
+  {
+    "path": "SCENES/DUMPS/m03_reward.json",
+    "old": "9b9edc2a177cf95597082426634aaf998e634b282ff16478842f433b14abec01",
+    "new": "f935904610f4585e1bb52123639c744b7d34160d4bcfdbf9e73ae84fc02d98ed"
+  },
+  {
+    "path": "SCENES/DUMPS/m04_final.json",
+    "old": "40fd41816fd030897a89f07641ed4275af54d4595187847c194be15fede6765b",
+    "new": "c71b760f6215fb2ab96e4f561fb20b6bad9b85efcc301ac3aa98b5123b9d7c1a"
+  },
+  {
+    "path": "SCENES/DUMPS/m04_friends_arrive_alaric.json",
+    "old": "22ed0343703cb2e8cf3976cf9c523ac11a1b3be30e5c15d794eb6479e1a14cc1",
+    "new": "9f20ddda75177bd4ad87c380a7dec88deb140b832f2703e5f3a0f8a03ff968bd"
+  },
+  {
+    "path": "SCENES/DUMPS/m04_friends_arrive_hassler.json",
+    "old": "1f24c66676c0d2db032569a17b8e03ebda7bcc833a4af4fe7aeda22803ba4182",
+    "new": "ee00fb985093036eb75abecfc2b48944ae7655775b3ce664d40e91eb50ad8a9a"
+  },
+  {
+    "path": "SCENES/DUMPS/m04_hatcher.json",
+    "old": "e4502b41ea91f4fc0e7bffeb1756f9b1a7c96f915eaa524697ef9a8f8f872278",
+    "new": "8e3dfff022b7511efa564995689642b4b8cc94cba3f2237bc99c78ea09b84cfb"
+  },
+  {
+    "path": "SCENES/DUMPS/m04_jacobo_death.json",
+    "old": "1f24c66676c0d2db032569a17b8e03ebda7bcc833a4af4fe7aeda22803ba4182",
+    "new": "ee00fb985093036eb75abecfc2b48944ae7655775b3ce664d40e91eb50ad8a9a"
+  },
+  {
+    "path": "SCENES/DUMPS/m04_jumphole.json",
+    "old": "3be68fa7c484844ddfa22f2c5c5137665808d06f32d3254d7b1cbfe5c832e92f",
+    "new": "1a092e594996a7b1cc7c8fa388693173199ba698a18c604dc3f94ab08e4d9f73"
+  },
+  {
+    "path": "SCENES/DUMPS/m04_offer.json",
+    "old": "9027570a7e0669cb2a44ece12f8394cc60278e4581f6d843ed35eda0fc375b81",
+    "new": "85019fcc76291d8eb01bbfe8e37d9b70b67f55b1cc89968843f55a031009fd3c"
+  },
+  {
+    "path": "SCENES/DUMPS/m04_offer_accept.json",
+    "old": "a1f2240ccbcd37640d7ac32958196b2714d52725db70ae018ab4025e5ffa3e4f",
+    "new": "0b60ce00c2d0b53866b6ac8050387b1e946101ffaaca94e6f461a2d922add467"
+  },
+  {
+    "path": "SCENES/DUMPS/m04_officer_scene01.json",
+    "old": "dda0e7d45dcb341ea7bb278c69fb4fb0d5187fe1359071f3bdf4542776df91e4",
+    "new": "a945bda3ef7ee40e8cdfa7aaa313a954b009e83d6de97f564ba044453c02dc5a"
+  },
+  {
+    "path": "SCENES/DUMPS/m05_arrest_camera02.json",
+    "old": "93b59d035c9a617a656cd78af6f22f4e210a9b803397aac4df448345a8ebe4a6",
+    "new": "3ec4022f424aae9fbd33520a164d6519845c5004939792010f1117c95f89342f"
+  },
+  {
+    "path": "SCENES/DUMPS/m05_arrest_camera07.json",
+    "old": "41dcb825a9d863b4c36e7680f3bbf3b36575e4e6127233acb7d5209e1b7b310b",
+    "new": "a0011a6ed75bd54e6993efbc60741816230cf5f29fedb0daf560507fc28aa12e"
+  },
+  {
+    "path": "SCENES/DUMPS/m05_detroit.json",
+    "old": "a064830d83242641b4b079d673d34d3b769eb43352399c76853aa58c7054a752",
+    "new": "37bb4d6cae95d281a1b4c2ad12d0f8ec787cf942d85960ea1490ee0663ed630b"
+  },
+  {
+    "path": "SCENES/DUMPS/m05_equip.json",
+    "old": "1aae192866dc7c91ca7656d13286dd8e2b06d150ca01c4b84018eadca3985ebf",
+    "new": "ba676b651bcebbacabef7ed8e55fe3f9e07c85f2455a4d9bcd6fd7f139fb4a2e"
+  },
+  {
+    "path": "SCENES/DUMPS/m05_offer.json",
+    "old": "c3f769988f6a5062d6e0919f50742ec6f1a309b2bc7a8b1409cf3665c9cd8667",
+    "new": "91d417fb2b1c6c257a3845fbd32d5affa0c60fe17738050878d81b67a9a79128"
+  },
+  {
+    "path": "SCENES/DUMPS/m05_offer_accept.json",
+    "old": "5edeb8bcdea646e7546d6885ffc3d4a3f6aa14bfee0e5ee6f37f8a47ab4cecf4",
+    "new": "a74a3769e1b125aa67d78c0f33a091bece201cc8eb3e0cb9bbed5cc8a78ccb70"
+  },
+  {
+    "path": "SCENES/DUMPS/m05_offer_decision.json",
+    "old": "f0a3ed7798c88b67ff18a112cd282500ffd0e660048cab906dae37b2a9a6f380",
+    "new": "6fc73ed0408d80cd85ddf560ecb259452bcacbc35e52cfbc662a34b41ae156e0"
+  },
+  {
+    "path": "SCENES/DUMPS/m05_piratebar.json",
+    "old": "f997e04e9021cfa753693d740d854cb4ae74c8c9f8c88aadec47372b5c89f4cb",
+    "new": "cc8106006dfd77c216aa3438150c4f54e4042f6461d842525cd7d327a8643843"
+  },
+  {
+    "path": "SCENES/DUMPS/m05_research_explode.json",
+    "old": "1f24c66676c0d2db032569a17b8e03ebda7bcc833a4af4fe7aeda22803ba4182",
+    "new": "ee00fb985093036eb75abecfc2b48944ae7655775b3ce664d40e91eb50ad8a9a"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_briefing.json",
+    "old": "71e81428783f91559c207e4dfd4724b6368f8b308c8b1790b53c67b83f85425f",
+    "new": "a6fbc84b3702f11a781dcf92219be0a4bd9e59cd1a9415533127ea053b65d071"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_lab_land.json",
+    "old": "4350c7ed2cfd933a72a36be2d72a69fa35e0a335a8ebf0cb6bc893c8e3e2ea83",
+    "new": "380dac8a6b57dc799b22cc6d836785d7b436a3af4ead11981a2f13a7b976ff7b"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_lab_launch.json",
+    "old": "3fc0caf7fa47b8f79379082dafd869c914ac25d5117e276f595eda9bd9c49478",
+    "new": "90c0f107e0eba5abdd892ffde5fdbc917e2d79f6cb1ef26c8f5ff55c76c8a8c8"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_lab_room.json",
+    "old": "84103999c5dd4bd3e5b336df576f7f631123a2575dbc4aea97e99d8c28dad5ee",
+    "new": "26bc879b080ed478919543a0db99c4cf9f24dc50cd385f8b64bfc6cf5f34d113"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_mount.json",
+    "old": "3b816dc5e09ab2eb7af7949f3637909a440901fbd4ac2a28762ed936c6b3a53f",
+    "new": "612dea4a1ad94f479fda97b664e78cf2954024d7481d3198685031495e4afbc5"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_nomad_area_camera1.json",
+    "old": "bf5d3770a5d81c7e7a316e7ad4fd3424983f94988df2978278bfc1c20372cd3d",
+    "new": "442893895b5f920c6baf9bbf5d2ca61f8f60936628fd1b3d37746c447beeaed5"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_nomad_area_camera2.json",
+    "old": "f9217a8ffb20cfcc8e69e921b48aced2811f5b67f653ad1b1dd47000de6f2e62",
+    "new": "dd5d13af174751b19bfaa97b979e84017badfb2255125caa7fa434e1649c152f"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_nomad_area_camera3.json",
+    "old": "bf5d3770a5d81c7e7a316e7ad4fd3424983f94988df2978278bfc1c20372cd3d",
+    "new": "442893895b5f920c6baf9bbf5d2ca61f8f60936628fd1b3d37746c447beeaed5"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_offer.json",
+    "old": "85e23554ca0f5d96ee6e42b8015e2b843b8b830d603fa802f8c981dfb8c7f824",
+    "new": "e669a0b829db146acd7523aabc782920a413931562d1502b913227979ffa6892"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_offer_accept.json",
+    "old": "004692eba3372984430e899ac6510b1d303bcc836896163fd39bb58ed588b927",
+    "new": "d7dc0b93eed7eeec9dc76b6079d19462081cf1f4df1e1074ff5749babbb040d1"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_omicron_major.json",
+    "old": "7376791d8a83f8db0a7ab7189624dff51115d10ff9e0582c04c132d25b4e4cca",
+    "new": "2169f67c3b7417bccbe0d8b9d6ed8ee9b52f067bec1259abb9c9b8df153f533a"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_order_camera3.json",
+    "old": "d9651ebb7158b995965c0cee42ec611e5ce3611c6b714fc9dfc235dc905ddd2d",
+    "new": "dd3ebcb145282120ca6f6fc101b730c4a68001a35adddc6a47ad48d3d2d67a60"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_order_deck.json",
+    "old": "09d5a23e1229ff210e6847244e65260beefe418b013e5d093ff629ac7484f9f2",
+    "new": "5e28ac3c1b77d11b9d2223c3137c19094eeb11540c83d961f04f175415d51155"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_prison_new.json",
+    "old": "cba483e35a56a411c7ea11da78285cc2eee249918cca10a73296c929b3d84165",
+    "new": "23ac39c2462e46e1a551a3ef79f11ca4478853c26fd5d548b32a17769f41e605"
+  },
+  {
+    "path": "SCENES/DUMPS/m06_torpedo_alert.json",
+    "old": "06f4aeb6f1d0a1266f9332832184fca8fb8cad94ffcae6c153114ab79f27e4d5",
+    "new": "df4cbdebfec6d4ef20f584eba8ac4a872fa9c9b299cde3bd5dbee0100dcda53a"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_battleship.json",
+    "old": "a0e6b7a6a7a22a9f0100ee17420b98561d716f7e24131cd0874108796453b3d5",
+    "new": "df3254c8f8d758f4f3bdf349f9beb203c41e34493d338f5c1aeb3ccbaab93c2c"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_check_artifact.json",
+    "old": "3e1ed13260953657fa46c83210fabd2943a69fbb400c93fc46d34db85e9febb1",
+    "new": "35b1736608997846797108d6f6e762df0ed582c1c2bfe2ddadc54de1f75bc841"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_gunners.json",
+    "old": "56ed59dd2ce511920b46d941992c52182279a80f7aff11acd6fe6e3558eea37a",
+    "new": "ccc6458c2e461474d3f9ea3c59deabe741122f7ed16948ed2830cb68592c663d"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_offer.json",
+    "old": "a51292cd4f4e345612e4006dd05241bc04c49b3175d7cf286f7f93f7946bf74c",
+    "new": "60f7ff994b1c6ba0e336c7e4700b7914cf67ca27b4c0e3485e65ffa0c6210cd8"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_offer_accept.json",
+    "old": "ff4547011334014e4f775c6e48d5dd9b4fc48cf28a8e8cb1c6a9488fde77955c",
+    "new": "4378d6a28b701968ce3ec1db66aaa77a30a5ed5277a97e88328ca97cb802dd41"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_offer_decision.json",
+    "old": "c4aec357f1908e0ddd249ec4abcfa8e64dba111736625eed0890640e5a9daa81",
+    "new": "4c7f1c2f4a879b62a79d6dceae23949ed8c5f2abfde138b40115caeaf6723772"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_omega13.json",
+    "old": "e8ea90dacc1f104116879fc45b2a645723368396ded8b1108836117793e4142f",
+    "new": "a298ded9288a704f66d06aea69dc2344660b55810836ae490ca8a8245d4ef859"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_reward.json",
+    "old": "4f101d19f6bc08cd1eadb062843c78ac0f42c5821c8fec58e7f2cc0510af4473",
+    "new": "2e9a22c03d676ae4c0188efd9f35337829c45a9d646ef46744df394c47a405d4"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_tau_arrival.json",
+    "old": "acfa0ddc46f7b7bddb8dfc02dd2d14354f2ff728f987d613a6132292334e8db6",
+    "new": "0b6fc440030bbd0887cf5ef38ada4ff836d6d3f49b37b4d0da60978714f08f2b"
+  },
+  {
+    "path": "SCENES/DUMPS/m07_tortuga_wp_camera.json",
+    "old": "5ee2e768fe651c5687e05df955b07ac50394e7ccb64f9930c18b43873d37ef0b",
+    "new": "ef2f18461b88a2ec33b2a95d3b2da3bba230842f62e8b739177ab64736de67f0"
+  },
+  {
+    "path": "SCENES/DUMPS/m08_core_camera_08.json",
+    "old": "71dfaf2567d0bd6defd296f5206e86de31a5c03e4c55ba4931082da919ded446",
+    "new": "95ceb9c888c2419bb3eade81932e3d6d2bfefa49dba15ed9d32b5b7ffe3e5abf"
+  },
+  {
+    "path": "SCENES/DUMPS/m08_core_camera_09.json",
+    "old": "8c29290233c7729fcf4e28c56a449068f0711d4a1ed0bda92deabcfaf95791d5",
+    "new": "672ab4419d3f62f3442fcc2aabb1931ba27a866d71f14283e4f89c755d8deac6"
+  },
+  {
+    "path": "SCENES/DUMPS/m08_lair_enter_door_01.json",
+    "old": "a9ef32afb63ccf65380c2f00c469cf534c0b8389018b2297b1b0cce448845dbc",
+    "new": "74f78921c9eecc0147dd58024a4b03987a1ab9db84cb1b9a193c334bf4ec2d96"
+  },
+  {
+    "path": "SCENES/DUMPS/m08_offer.json",
+    "old": "9b5ac1cba864f25052c48a970fe8ab8fe0657783782bc79aee16ba9409675ff5",
+    "new": "b8d080b9edd2f179470212b240fc5282a0dfa7adf745a8934c416ecc4d892a74"
+  },
+  {
+    "path": "SCENES/DUMPS/m08_offer_accept.json",
+    "old": "75c7ae5d239133ca6ce02170c24674ac984a30bcacfb002ebc2516c827196066",
+    "new": "70f979653d6f018e375e59574aa732b7aff96931850564716579e11d27627e24"
+  },
+  {
+    "path": "SCENES/DUMPS/m08_osiris.json",
+    "old": "19b5a20c1d561c549a2f9be57f23af8e1174244c9eb2cc23aafbaa03a133afa4",
+    "new": "291eb7302e8c031652c407cc959b646f31cb4b4b7a012d9ea291acccbe6876e4"
+  },
+  {
+    "path": "SCENES/DUMPS/m08_outside_camera_02.json",
+    "old": "10e15d19ca9c134d5b7672db25891590b363da0a68dfe996ea615981854e68be",
+    "new": "3899230e59de7063851c75bd03f5680c7aec9688c88e668719e778b73d34d2a8"
+  },
+  {
+    "path": "SCENES/DUMPS/m08_wales_init.json",
+    "old": "642cce8d7c581697c4156c94a2d1d74cc2b90f1eab4d33605465d5c48bb1d901",
+    "new": "f4aca563e61d46375f455469e4e741bde3986c97d06a301dedc8ca692f8b659a"
+  },
+  {
+    "path": "SCENES/m01b_armored_trap_camera.blend",
+    "old": "c6fad505290759447b5a89a52a0c541ddbbf8f206c1928f572c36d33834e16cc",
+    "new": "9a5b1d0bf945283d29c32df98288db95b4acdb3c374d2547b2bbf99642b92c81"
+  },
+  {
+    "path": "SCENES/m02_bship_bar_accept.blend",
+    "old": "0d9537b3679d9a7949028599b9e02fb5c69b88ec99d3282dc9cc0d093c833165",
+    "new": "13de12f3935b80ab9700796195d07b2df16e073371cb92b0cd2abb17cc0de2c6"
+  },
+  {
+    "path": "SCENES/m02_bship_bar_decision.blend",
+    "old": "f31280d81341360eff8d8cc4221556242870f2a542e89c62faf310ef62cffc14",
+    "new": "2e45eb05271ac1b5e4196460884bd073b4119a608db3dcf85ab596610caea7a9"
+  },
+  {
+    "path": "SCENES/m02_bship_bar_offer.blend",
+    "old": "faaf42f0ca6988a288800bd5d2e3658f002d2d4046308bb264daa85bb0547122",
+    "new": "a3b222265a88147a6dd378b8ac31c95a84c4345c83a2200759f8877ee175d9c8"
+  },
+  {
+    "path": "SCENES/m02_explode_camera.blend",
+    "old": "cd8f2fea53e7df36d8ea6520b91e5d6f06714a2757430a35ef40f275b4a7cf8f",
+    "new": "bdad224f9983ffc09a5d789785915c69b808e52ffdad97a23e388f067ff6cc7a"
+  },
+  {
+    "path": "SCENES/m02_jacobo_offer.blend",
+    "old": "74979116e3b9bca875313c5b40af5ff6b97ba2b116de701bf319b69db0619fcf",
+    "new": "c48b8728873a51a8a0878a0e1e0548e8862aa8e92148801b0f4feda6614eb8b7"
+  },
+  {
+    "path": "SCENES/m02_jacobo_vendor.blend",
+    "old": "837785f7f43a2b4c245e7e441f30047445742944ada2a35d6c4d3e9969fbb67f",
+    "new": "bfeafbefa9c5201432a8be9f551dc739a0d217305867622096eda222e361a6a4"
+  },
+  {
+    "path": "SCENES/m02_junkers.blend",
+    "old": "0faee9b2527d532fc7d8cb9184ff11a3fe73a107d2dbc65e83488bb04425dde6",
+    "new": "62d59a4272167359cfa7367530e457a3c70a47479ebf86cab7d192ab6811106e"
+  },
+  {
+    "path": "SCENES/m02_reichman.blend",
+    "old": "b4387a7e61f6baa86300d7493d4f4e2d4cc60dfb628c9014fe48fa4f8c96c2c6",
+    "new": "a9ff15e8eb0a28526df40f6bd11bf397f6a79d25f46b322db5e6c77e77dd5332"
+  },
+  {
+    "path": "SCENES/m02_wilham_vendor.blend",
+    "old": "b82c0e0aada965af12ba1e489ecdab3726a9fd721b6e648b6faaf548c785915a",
+    "new": "31255da80f0d15ff04d99413523c1f3b0b8ee41864dbc73ce944fc868d7a10db"
+  },
+  {
+    "path": "SCENES/m03_fleet_arrive.blend",
+    "old": "0e2b0b1a6be8a5c17c90f92ec4abe3a15f17f7f73bbacae06c8c9775ef25b471",
+    "new": "87f003cf2af938fdf0db9e52481b5319a963b3ff346b7e2ae7c4deb2b21c0211"
+  },
+  {
+    "path": "SCENES/m03_kgb_death01.blend",
+    "old": "da55baffe6bdf242a52b30dd1bd86d25fce8fe5c158ddec76f11b9cd941ca523",
+    "new": "c5eeb7d0cd1944edb2c0bfdfc11fe7b20edefd494cde889f4f823d62bbf4f2ef"
+  },
+  {
+    "path": "SCENES/m03_kgb_death02.blend",
+    "old": "91cbae27500a22d31981ba50ebed990a8006845a3045bcea21e8829722373ae3",
+    "new": "f9036689d70c724f7275c5c0a35c8c2ab605826786a22026684f8062634771e7"
+  },
+  {
+    "path": "SCENES/m03_offer.blend",
+    "old": "a697aed245e4f8f6bf08a1f276da28254d87267288b4c52ec6bb589bb620e761",
+    "new": "2bcffaa4de0fca0e6cc8d4ba0856091806b21a28647d76d7808fab0bdb883d68"
+  },
+  {
+    "path": "SCENES/m03_offer_accept.blend",
+    "old": "15fe8904c0906663397331b05aaa0838c03237e7103a3effe2c248e3fad290b6",
+    "new": "569028fd33c2d06363b0b9c703f555467dc3281c78c1e9b69c34b63e29651fcf"
+  },
+  {
+    "path": "SCENES/m03_offer_decision.blend",
+    "old": "3096fb92b664c9f5552c95833885bba186a539b5136320cdaab19ab68735ebd2",
+    "new": "a2439a7599f3cfff484abd08411d10c78246842eacec5d2576efc1d7e13145a1"
+  },
+  {
+    "path": "SCENES/m03_reward.blend",
+    "old": "6a176080153918c9c5f7c54b5fe742e72c8a6678f28e8e5a6a66bb901f6927ae",
+    "new": "655983ed882304902789055e9d582520cc90c250b0ee6c8862fc8e86ab962a20"
+  },
+  {
+    "path": "SCENES/m04_final.blend",
+    "old": "34c7b581af0d0113ecdcfbbafd8b19634c344e5c1ccab1db7460a83a37dcd3b8",
+    "new": "d391c300dcaf881f4f55a1f13f212a895b214495994c49e8c6a106826327d2d9"
+  },
+  {
+    "path": "SCENES/m04_friends_arrive_alaric.blend",
+    "old": "fffbeafd9276fb1c65bead3b52305741f821b7b291a58838f33637b673b106dd",
+    "new": "e31e2955f7523c9487900ea42f50d867c7dd2db1c2aa65b6c3dc04071c8c0233"
+  },
+  {
+    "path": "SCENES/m04_friends_arrive_hassler.blend",
+    "old": "0838ee3db727b38081c26d7cb815e8137a43831e988ab992213da7e044dbeacf",
+    "new": "f1a0af052d168921caea5788ebefb84982b65c942fbd2593be3edbd73af405b9"
+  },
+  {
+    "path": "SCENES/m04_hatcher.blend",
+    "old": "27b7c3f3cb27ae847785e7f732fdb9c2da3cf33c755c9d62991d53236b3c7810",
+    "new": "00453c36f717ad8a3376b7c250c24dd7a244189ae8f4c973fdaf252bdd88dd1f"
+  },
+  {
+    "path": "SCENES/m04_jacobo_death.blend",
+    "old": "8de10c37e4c6ad72e6f6b35667b6fd324b0cb6c26fe7b68d3f626bf5e50dba88",
+    "new": "d4d8d220ba15d8695153d894d1a1573b99011a4091a6cfd1e417c2aa3078a7f5"
+  },
+  {
+    "path": "SCENES/m04_jumphole.blend",
+    "old": "8211430c2bcb6c45479024e8f3ea76fe13645c48fd2e976f40e2d9064fdec5bc",
+    "new": "ecc4fbb49d32979ebee366432c5db1ec42decc4a7f8f28b1433febc5298f2cb6"
+  },
+  {
+    "path": "SCENES/m04_offer.blend",
+    "old": "b1d569e61a0b975ce01ff8f4065e7195f3f119ad9cadea65a5e2dd8f66b64157",
+    "new": "19c1ec6f9e7465bc4af209539c385a8d34803a53db3054b8e8ecfaea45726957"
+  },
+  {
+    "path": "SCENES/m04_offer_accept.blend",
+    "old": "5b4d975a9a9e282aaa9feb3036a6783d7ececd0a4525b8a66967998f72e7752c",
+    "new": "d8c2f5095969c8b16a0c3215ed25c4d5ee429121942343d1a2cdc91cdca66805"
+  },
+  {
+    "path": "SCENES/m04_offer_decision.blend",
+    "old": "0866427e35e63219033aeac1b116adb9d0be7d0f6f5025b4ca578eee2829eab9",
+    "new": "698826394123793efaaa9bdad6931d6691e7ca84022303e0072d90cd74292e72"
+  },
+  {
+    "path": "SCENES/m04_officer_scene01.blend",
+    "old": "bb77b875ce90c143c1d70ef6014ac79ee82b128b044c0c514ccd43942918b20d",
+    "new": "81699e931378418c5c59e4ee3c6b30c402f0245d77763fa6ed4c1a758c529751"
+  },
+  {
+    "path": "SCENES/m04_officer_scene02.blend",
+    "old": "5ec587bdf128a5528086eadec4e513fb61203b59590150625ead5c0bd90c62dc",
+    "new": "675bacb7cab240cf5f89629d79e907540cc6c1725791db9c35d17bb87c8eaebf"
+  },
+  {
+    "path": "SCENES/m04_reactor_fx.blend",
+    "old": "ce11885334633568e48e05ab3e8cbe45ddaa8c5975667dd633838da212b4591b",
+    "new": "b5cfb94077b1f12c213f9e237c40d2dd885e7d2fb3caa6e80affd8b3949750be"
+  },
+  {
+    "path": "SCENES/m05_arrest_camera01.blend",
+    "old": "f06ca71dcb12c705cd89b057c7d229246f296dbe31b284301c2fb180c462b67f",
+    "new": "a4a635b3a6f64a2377b71166a9bd8c2f924186187b411e56e9a468c0d67471cd"
+  },
+  {
+    "path": "SCENES/m05_arrest_camera02.blend",
+    "old": "8e91eaccc288727ed40a1f8db9a738e3c58fba8ff8b390a167809e70360b39b8",
+    "new": "6fc2da7385b5e4067e03d63ec2bf29fb127887c93a433a71bbeae37f3ebe04ab"
+  },
+  {
+    "path": "SCENES/m05_arrest_camera03.blend",
+    "old": "33f15eb83aba6a36c51a7a1da714ce9dd1bd0a35744e386c26944bd6cf975959",
+    "new": "12455cea71bd786c3067b401c48aa9ec585e6000d2bd3b43dd60ada546a4e1c8"
+  },
+  {
+    "path": "SCENES/m05_arrest_camera04.blend",
+    "old": "e44f37e1029673f0aff8ab342909cbb59746d3ecbe079059896382660b923757",
+    "new": "fb807186d577076f370e91959e76ccd94fe1a26030d91cb08664792c99dc3f64"
+  },
+  {
+    "path": "SCENES/m05_arrest_camera05.blend",
+    "old": "cab6af2d3569b231f23f0b26a800c531d198687a5b0f7ca85b8e4e0adbbac667",
+    "new": "a2efcc895af94934208899f8d4bf1e452b7f3c4c6b000e3007dc55bfccfe4460"
+  },
+  {
+    "path": "SCENES/m05_arrest_camera06.blend",
+    "old": "ed51fc72f6f330e3f4f826e5bde555c90bdccf48376e1245a9f44b310cbf7449",
+    "new": "f2ac697465a487d962967b8e15db7a4ce3b027f5f5bd0d262502a63c67441f5a"
+  },
+  {
+    "path": "SCENES/m05_arrest_camera07.blend",
+    "old": "200b7145c1805a42cf7cd23eef700cf376518188e00b29fca0e06703397fe3a1",
+    "new": "2462c4478d51b453e2c52b99ca1fdd33ce426b8c5e4ef56d35fa50b51afc0043"
+  },
+  {
+    "path": "SCENES/m05_arrest_camera08.blend",
+    "old": "3b57351d78b4b978e7d068e7ff1b278d58f9e58830caaaf67825ea2abd5ba418",
+    "new": "81b72e6e9a924af8648cbdd5fbff11a0df8fb6021bd3861b716729390794b8c0"
+  },
+  {
+    "path": "SCENES/m05_arrest_camera09.blend",
+    "old": "4d8bb6052c919f23c119554dbd94dc55ab6ee0eafd391eb0354afe08645e6a94",
+    "new": "754c4c4064e20bae7619d3952b6a3d87158489d61f1f4cc32655d68868538ee9"
+  },
+  {
+    "path": "SCENES/m05_barman.blend",
+    "old": "90627e7456db7e34fb7f5bb078f63f53738c2cd44aa0a53d74035bac2809f92c",
+    "new": "fef87f9a93034d71c692a58696d05a3f90154f7ee7824f58fd19c57429e70fca"
+  },
+  {
+    "path": "SCENES/m05_detroit.blend",
+    "old": "87d3e84cb099284a1896a669e57e47203fe9acb1e744a087ce9d553279a34794",
+    "new": "f83a2f4aeaf793fbfaa78afd684a93c5730daff762aa550e631ea486a98c0069"
+  },
+  {
+    "path": "SCENES/m05_equip.blend",
+    "old": "c6a32c0c412cac4074b1261e3fc83e91c8122a3e400f1c792003c683ef836a17",
+    "new": "058d1157fee493a9c5860310aea05efa1ad9d71720b5d5f31b7535ed30b03a4d"
+  },
+  {
+    "path": "SCENES/m05_offer.blend",
+    "old": "17a51882e4ec40580f4d1fd1a33de14432f8ef17b55e38f7382c275f7f19d3d5",
+    "new": "71ce24421d27cd7cb344ab8c2ca6580054247126b5e1bceae8bcba13c09a5477"
+  },
+  {
+    "path": "SCENES/m05_offer_accept.blend",
+    "old": "2fcbeb1ffa26a49b3587f0ce7a1460fc19caf8a20f8d17daec7dc51a3586bb3e",
+    "new": "00215c40a26229801b8fb32e0fe69c903d2f48d24cf89216dfd2a099f0d7dc94"
+  },
+  {
+    "path": "SCENES/m05_offer_decision.blend",
+    "old": "37d14303b35204df4852ed9de4ac183d03343b9603db4fbaac6c5e764732969a",
+    "new": "5d027ccbedce3db235222b5ade000e06b72d3664e2739d3c20e86fe65dd49e4c"
+  },
+  {
+    "path": "SCENES/m05_piratebar.blend",
+    "old": "f8a8ce61ab3ddd82dcc1f54444178ff0b187f806cf3e077440dbd63dfb9565c5",
+    "new": "9d649452725a117f33d9e404b351558a86a78bfb9907e4064ec374f8fcce0805"
+  },
+  {
+    "path": "SCENES/m05_research_explode.blend",
+    "old": "897f3d815df5b25df7628e85fb0e424bc66b4464cb978c6a7af501a10cb6503f",
+    "new": "d0aea495f0aa7ffd94163114e4de619f84f15bcbbe2ec7759f0cdb81878cfec0"
+  },
+  {
+    "path": "SCENES/m05_rheinlanders_camera.blend",
+    "old": "b3957c750106d038af0e3fa3ab3ac812f7864fb8166962a239a5afefe0aea1fa",
+    "new": "5e2792bf9c7da81f29aac22a9e7c5f0f5457fc7fa599c35b94573fa384eba3bc"
+  },
+  {
+    "path": "SCENES/m06_briefing.blend",
+    "old": "9688449dc61a5692301056303d6514d6dc447638256b3b4e2cde38b42c405e52",
+    "new": "bd9295d2ce0697bb2e48a74a77bcca31e40ad995166300bfaab69ccb6476fd71"
+  },
+  {
+    "path": "SCENES/m06_jumpin_camera1.blend",
+    "old": "fc8df371992b7d5251b748761e971a509767263650d22987f7f0336f686dc87e",
+    "new": "0d613c52fb738229920bf2eb163b149d301a07d65f9c701c6a7f49830274e36e"
+  },
+  {
+    "path": "SCENES/m06_jumpin_camera2.blend",
+    "old": "659b801ca525bdf379c2be6d4660deced2beff6f806f46271c47ae58027fa53a",
+    "new": "ac161639f9f169efc3e4c95fbab862feb48c1b20eb1eabc275b038d7713b9c75"
+  },
+  {
+    "path": "SCENES/m06_lab_explode_camera.blend",
+    "old": "a91a4137d0c855a16bd3af188f818b311837d47c0572302f6a098582001eef5d",
+    "new": "ef9d235f98b563c4c5409dcfa18b3ab9d013c761192b8ed831851d7504740b5f"
+  },
+  {
+    "path": "SCENES/m06_lab_land.blend",
+    "old": "97f496f0317b06c1bfaba55c45a7ec1a55f496e51078121a5543d49cd60fd665",
+    "new": "410a88a6fb49574a0ca00d729de1df72bf95defa5fc2f0aec0b5adbcf2fc52f5"
+  },
+  {
+    "path": "SCENES/m06_lab_launch.blend",
+    "old": "ba2c513b8fe042dae9414237f2d893614db3f4ce8772d9e3e6af1088bd5185d3",
+    "new": "eaf4ff10607071e79e317d21daa91888ba3378edcac69ce030448f20b57d0991"
+  },
+  {
+    "path": "SCENES/m06_lab_room.blend",
+    "old": "fb8fc2595b573bc0e94a74929a484e95f1f676b8b277ff9b000f8d5ed8caef14",
+    "new": "0d20b550b66fc7ce5b44a61209de169212dfd9389839469a4eabb7eb0343ca90"
+  },
+  {
+    "path": "SCENES/m06_mount.blend",
+    "old": "7047d41965ec76133eccc07a1da302757c20aec74efdabe14b3efaf8653108c9",
+    "new": "e208a5eeddb710725d5db47c645bcaa9e536468e58e44c0e28ffbe05e402e41a"
+  },
+  {
+    "path": "SCENES/m06_nomad_area_camera1.blend",
+    "old": "faf3ee584183497d9a974beb9c098aa4f0b428124c311dd6e8bbec8c982631a1",
+    "new": "a1b9d4bfd6bef86e4400b2d70bbdeec7a1a15359a1d8f6c7d4cd107595da9183"
+  },
+  {
+    "path": "SCENES/m06_nomad_area_camera2.blend",
+    "old": "15f8f135e9a62d708c2badccd35b4728808e6154793ad27100f6a4d215a95ac9",
+    "new": "49fe9f00246d7a64a8804a5e50c6ead6f8469ae67e7229f060346c80ffd28e0d"
+  },
+  {
+    "path": "SCENES/m06_nomad_area_camera3.blend",
+    "old": "152c7a6b6164d68eae4724e07a5e844662cc1232e5002faadaef52d8d547f7ec",
+    "new": "1f9736b1733174fbcf11825ed65cc4355d3f2cca9acceedb37a1140156a13037"
+  },
+  {
+    "path": "SCENES/m06_nomad_area_camera4.blend",
+    "old": "b2e6437e5494bfddfa164385f45fbdca588282ea68cfa6fc34a01583603e8087",
+    "new": "8a921658c8d4863cacfb0e80d92c9a95e3a791fb4546c930fff59971a1337567"
+  },
+  {
+    "path": "SCENES/m06_offer.blend",
+    "old": "2ee4cb8e4564d9f9fc1fcdf290e9a1cce03f7ce2e30d0d5f9a7586060c419fa1",
+    "new": "fa4bc54bd4f113724e4019957871091452a7ae521085d104871ceb45d0abc3f9"
+  },
+  {
+    "path": "SCENES/m06_offer_accept.blend",
+    "old": "f59c440fd034c699d8e5fea5b9d22bf63a29d5c6d18f0b4728897bc9d23d6935",
+    "new": "34c6e011daf2d05f29ad604728d43ff4125c606d7336f820ee085851aa65661b"
+  },
+  {
+    "path": "SCENES/m06_offer_decision.blend",
+    "old": "402b9b5885fe22d0b2d21104e864bbd7a391594b06115b64fcd7e002f92ac77b",
+    "new": "e760155c3ce640a5064cb8cab35e6c2f2f1f98c1343dee2c0d4c2530d66d18ec"
+  },
+  {
+    "path": "SCENES/m06_omicron_major.blend",
+    "old": "3c5a23ec1d71c92db28ccf538c4db48417c3c87d943206b3768ccf88479ed185",
+    "new": "c9c1e5acd5dcaee9bd16dd9f8527ef166b8d3f4af8f5bb2046802f4cd55aad53"
+  },
+  {
+    "path": "SCENES/m06_order_camera3.blend",
+    "old": "eaf4c6af85e56dc71c37ff8c49d58fefb6d7ee9c06afaf54af44817b33575fe9",
+    "new": "bff26dfb7fa01397ef3ddea8e7b479c0ef03477372ec70839c1d1f7273d4a729"
+  },
+  {
+    "path": "SCENES/m06_order_camera4.blend",
+    "old": "fa65db9cd0984e310fbe40a1ff725f6784cc248ae36d7d1d99b5ff62969a4a48",
+    "new": "99fc88ddfe4175d3482a44afc78f0f5aac6a84e552cb7d4475b93fcf7bba8ba7"
+  },
+  {
+    "path": "SCENES/m06_order_deck.blend",
+    "old": "bd4983e2b13f2046d6f0a78c226dac837b6e1c8025e86d2c94875da70f971ca7",
+    "new": "9760ba04eeb55e31c6a66c5220e9b1e79980026cac4f1a649009182d85113f83"
+  },
+  {
+    "path": "SCENES/m06_prison_new.blend",
+    "old": "756fc6c90205cf8f82d0749a8e99999623685f9ad0ef80ec24ab5bade0e1a44e",
+    "new": "59608d8641facd91bdfce9839a0daf09a4895f858d823eefcbf17efdd1e81d1b"
+  },
+  {
+    "path": "SCENES/m06_torpedo_alert.blend",
+    "old": "19c1e743c388c35055c16212bf5fdfb51ef4226a271d6944cd61114c8620be41",
+    "new": "e0a41597acb09254f2011b060785bb39f0feccfd12759632ece3776d94ba2375"
+  },
+  {
+    "path": "SCENES/m06_vendor_alaric.blend",
+    "old": "9d405bf17300a687b40ac2fbd36f1e3efe7a95098f5de352ad9ad20e12b0c79b",
+    "new": "cbc8bd36f2e932f3d67de5e851a0eeee4c3f2a478a874cdd237a126bac0c1483"
+  },
+  {
+    "path": "SCENES/m06_vendor_hatcher.blend",
+    "old": "3566f8bed05874d956acdb81092592e1b1734d00f8592a2269bb5f48d3759211",
+    "new": "4fc7af4ffebbdd409f1ec40945dccba50c10fa996b171534f11efed84d01ede7"
+  },
+  {
+    "path": "SCENES/m07_battleship.blend",
+    "old": "0a40128a25fcb20f0c00e0fedd040ae794a1b9560ed273e06ecc2594b855f9e4",
+    "new": "b9d98cb98108174204f861e5e64112f8117e152e416660e6863b8244798065cc"
+  },
+  {
+    "path": "SCENES/m07_check_artifact.blend",
+    "old": "e1bac0b6979be89b58827a61679894235dc7c601154951adf75c71d2595e74b1",
+    "new": "af2758f10be0687b0d8da112b4cbab81b16a0bfda5e801bf51275c35d6e77a42"
+  },
+  {
+    "path": "SCENES/m07_gunners.blend",
+    "old": "22686121efeec444905dc470d1eebbd93e840093ca10d3795f8163cbec24b117",
+    "new": "a86f75a47728e643f91dfe5dec454e142c65c162093af010e9716d48220d6083"
+  },
+  {
+    "path": "SCENES/m07_offer.blend",
+    "old": "cb368b56f82bbf0ffd3738902e394069ca360d731f105071adc7a5a8c4074214",
+    "new": "ab92ec6442b4ddfd6fa35b2b685a1e73d31ba6659e4664d0c608f2056aaca2ba"
+  },
+  {
+    "path": "SCENES/m07_offer_accept.blend",
+    "old": "97ea526da659c6bcba605710715c37c83caa0edb0cd7376e3926cac4d22e845e",
+    "new": "449ad498edd6256961c8721aea1b013bb7d32775a29e5969802ae85b7c01938e"
+  },
+  {
+    "path": "SCENES/m07_offer_decision.blend",
+    "old": "e6cab1684e7ea8a6e609886310434f975a6b16d1ee91671dc1a8cd45ec4ffcd4",
+    "new": "b067baf0a2f9c7f5ee8bb8742bfde9ba2ded7bbec8783cc81f20ee8b44fa07b7"
+  },
+  {
+    "path": "SCENES/m07_omega13.blend",
+    "old": "34ed516bf1d35f880db2d94af07b878a1db7530a905de962122115b078dfef07",
+    "new": "1f659297a7249e22bde5be654492c8d8fa6eabf49853715fe0f0a3e642f47d05"
+  },
+  {
+    "path": "SCENES/m07_reward.blend",
+    "old": "944b9e1d49633a3b13c59dfec284272c9ee6004d058bedcb773293bf6058596d",
+    "new": "2c1ceb1f3a04094d12479be54cd4a0a63cd4e67be2f3e48a58a0c321183a71c3"
+  },
+  {
+    "path": "SCENES/m07_tau_arrival.blend",
+    "old": "fd393eec004c5e1ac886c391bb4881eb1443bf91881c3feba4acb48649be6706",
+    "new": "6bc1c64c9c12fb6f72814cf0715a4a6ff0ec7eb8acb875685901ed1e3a848dc0"
+  },
+  {
+    "path": "SCENES/m07_tortuga_wp_camera.blend",
+    "old": "e51775246d060b3d155f7f19ff0ecba7414e7566fd65f311556f054fb4dcbaf5",
+    "new": "463f57545042f311ce678a5932fc28c60228ac4d001b7ae8ce25f82a505b083c"
+  },
+  {
+    "path": "SCENES/m08_core_camera_01.blend",
+    "old": "5568110d87a472ca6f4966c6f72d9ea06250a13fecceb4c4074b6035f6abfc8a",
+    "new": "425fa53c16b106fb3ff9f9ae055f874cd7788f51d4fbea303d9137d79aa936b2"
+  },
+  {
+    "path": "SCENES/m08_core_camera_02.blend",
+    "old": "c9910673e5dae7ec2fbd0b25ca78c9996025b4d4756fcb760b4b05f9279ddf11",
+    "new": "706b334cec879be41cfae925bdac488e7cc12667091665ae577f05f163b48ab4"
+  },
+  {
+    "path": "SCENES/m08_core_camera_03.blend",
+    "old": "63c836ec479a2edf423857ecbd640bb4997fede38674f5506a2a5987b95591a7",
+    "new": "81bb0c96d1793f5cb7f8505e204f8cc1dbe45cb7a2ed9cbf661fb8bf9af8b850"
+  },
+  {
+    "path": "SCENES/m08_core_camera_04.blend",
+    "old": "78ed26b16d54aa8ebb473b3bad583c889b0bcf1b715eabd70353525eb8bee79d",
+    "new": "a86927ed995ed1116b989a5b9a07f9af27ed83fa6ac560b74d4edac4a70c0d26"
+  },
+  {
+    "path": "SCENES/m08_core_camera_06.blend",
+    "old": "cd67d18fa6fa3b8ad54b3efa5400a91a5b60c971625179811b5961468313c431",
+    "new": "711330598d46046fa1a9f8cce9d1c13516fd2f78c43790c1931eeacc966f5a8a"
+  },
+  {
+    "path": "SCENES/m08_core_camera_07.blend",
+    "old": "d0923f338fcd7c5e27144efba3983209cf96e8dcdb3236e83677994809d49557",
+    "new": "1cb7107ef3da5278eb7f91c1301edef93a4176da6561964fec8d9850c78c2e6f"
+  },
+  {
+    "path": "SCENES/m08_core_camera_08.blend",
+    "old": "e9c14e096a10f441463deeccaacd2b65c4724b69bde02833bb5bdf3d1b55cae4",
+    "new": "fccf10cf132cb493576284032724aff657ea5a293a865bb6cbd4fa4c06cca16e"
+  },
+  {
+    "path": "SCENES/m08_core_camera_09.blend",
+    "old": "d405daa272bda54f55eab64206881a1bfffe276bb0de0e065d01e561b332f438",
+    "new": "84608b35a64a21d56ee964c5f1b48414f6e7780f527ccf1e9f19ad660aff1a98"
+  },
+  {
+    "path": "SCENES/m08_lair_done_camera_01.blend",
+    "old": "51510a33828291e49e282e82ef300ab172b6d138f7e52398a227602e8dc9b765",
+    "new": "78ec9c7cbc59181f88c28d664515122786fb2b9ab84b26e124737d0a7aa0029d"
+  },
+  {
+    "path": "SCENES/m08_lair_done_camera_02.blend",
+    "old": "acd8841c0cf9796515e9062e3c01dfaf54f2ad785cf900a285244ab1a6f6e4fc",
+    "new": "5ab21c360f9c66962648dbe5b328d32bf13e381fb09c6a8e1357cb9243cc88d3"
+  },
+  {
+    "path": "SCENES/m08_lair_done_camera_03.blend",
+    "old": "d56639a64b1ce7b846839070c150f3f0acbfdb15a8bda497cef8388f2be77aea",
+    "new": "b5930cce912c6ff1e5f2abf1dbbfed191a8ab022ceede155ee82bcb233395cb8"
+  },
+  {
+    "path": "SCENES/m08_lair_done_camera_04.blend",
+    "old": "c328858467d27f8f8269b9ebad95d76b7c0667bd39c0d646c26a10dacc101d7d",
+    "new": "5db18021f96f9f48e9a5f3f26e89f6703b2ea26330e09ae8355b9f01607c7aa1"
+  },
+  {
+    "path": "SCENES/m08_lair_enter_door_01.blend",
+    "old": "9bc71510a8065242e0807982389f27ff36daa894c6a976dc50ff8f6baa1d1cd9",
+    "new": "d3d3c1030940d183255c6befc27605c835129aceb1a1c46556fb1498609f1b74"
+  },
+  {
+    "path": "SCENES/m08_liberty_enter_camera_01.blend",
+    "old": "125e40d947ef91aca2102eec7897c97cc9aea5b136ed91980947ac34cffd915d",
+    "new": "d0fe9485f402f250921e3aa137bf42107b721c099465e9172b1289e3a1c17ed3"
+  },
+  {
+    "path": "SCENES/m08_offer.blend",
+    "old": "2b0eb67174d566eab526d3d9340e07a556fcedbbf45b26103b145b7e4ebd1a6b",
+    "new": "ba2b33106e0596399803197d40fb17932d3532fdc9b393a1ff6b2fad7a9f50b9"
+  },
+  {
+    "path": "SCENES/m08_offer_accept.blend",
+    "old": "93dd105e3688746f990b9de0087cce2b46704edd9693087675ccecb304ae0948",
+    "new": "8c6ba152448a99666015576a7fa621a18e48a9c6e69a2929c7116c5a9e6abfdc"
+  },
+  {
+    "path": "SCENES/m08_offer_decision.blend",
+    "old": "28f903da7dc0b02ceb52abbe22fe64a88b47de86b5a4795c1255e616d1c123d8",
+    "new": "a2eb3ca9d3c5c7be93d98c9c1b4fbc77db40458a7be7b1fe180de4a44131f65a"
+  },
+  {
+    "path": "SCENES/m08_osiris.blend",
+    "old": "b3e795231554e4e93b7991e9915e25503897bd3a4d85339c2bd99f4e4de40e24",
+    "new": "81b9b2edd653c560a86e8ad7d66d52875248534a2607ae80c4e2b8f77be52023"
+  },
+  {
+    "path": "SCENES/m08_outside_camera_01.blend",
+    "old": "36f37a04ddc565e2bcd8958e798ee2bfb17fe11d5a247c90c4f587321341a233",
+    "new": "5c7f40619b09638eeac78fd9f05bc1542c30179db8d18e624fb1a2fb17255ebf"
+  },
+  {
+    "path": "SCENES/m08_outside_camera_02.blend",
+    "old": "d41f48ad0eecd786d316fcb2f3238258236a7933d8591de536f29ea659a0b286",
+    "new": "fd7ffe328e0cc351f6fd4a1e9dd65676982f54a91d59135b4c090a57d83f33d8"
+  },
+  {
+    "path": "SCENES/m08_wales_init.blend",
+    "old": "b4d17d190eb08c89d987b0c2c15b451da4c169cbe0fd807b69aa6afb39c63660",
+    "new": "69f4f854a242896770ea33411ceedeb5d2b2fda9689e8d2e7efa77bf49a4bd2c"
+  }
+]

@@ -1,0 +1,54 @@
+{
+  "name": "m05_arrest_camera06",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_arrest_camera06.thn",
+  "sha256": "676320b38ae66abb95751a483a8d2c620f83dabbdf6b4af74880ba1bcd5280d0",
+  "uses": [
+    {
+      "mission": 5,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "mission_line": 1320,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "line": 1320,
+      "role": "act_callthorn",
+      "thn": "scripts\\mod\\m05_arrest_camera06.thn"
+    }
+  ],
+  "source_duration": 300.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [],
+  "notes": [],
+  "clock": "absolute",
+  "entity_names": {
+    "scene_storage1": "scene_storage1",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_pos2": "automarker_cam_pos2",
+    "main_object": "automarker_cam_focus"
+  },
+  "point_names": {
+    "scene_storage1": "scene_storage1",
+    "Monitor_1": "Monitor_1",
+    "cam": "cam",
+    "cam_pos2": "cam_pos2",
+    "main_object": "cam_focus"
+  }
+}

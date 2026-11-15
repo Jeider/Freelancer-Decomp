@@ -1,4 +1,5 @@
 #include "equipment_slots.h"
+#include "campaign_server.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -47,6 +48,7 @@
 #include "../include/common_id.h"              // CreateID, MakeLocationID, ID_String
 #include "../include/common_csys.h"            // EulerMatrix
 #include "../include/common_reputation.h"      // Reputation::*, CostumeDescriptions
+#include "../include/graphics_settings.h"      // PlayerCostume_ApplyOverride
 #include "../include/common_text.h"            // FmtStr
 #include "../include/common_newchar.h"         // NewChar::TheDB
 #include "../include/common_server_types.h"    // SCreateCharacterInfo
@@ -156,6 +158,9 @@ unsigned int CostumeTarget_FindAccessoryId(FCostumeTarget const& Holder, char co
 // No bound and no zero test: an id of 0 (the miss above) is appended too.
 // ---------------------------------------------------------------------------
 void Costume_AddAccessory(Costume& Target, unsigned int AccessoryId) {
+    if (!AccessoryId || Target.AccessoryCount >= 8) return;
+    for (unsigned I = 0; I < Target.AccessoryCount; ++I)
+        if (Target.AccessoryIds[I] == AccessoryId) return;
     Target.AccessoryIds[Target.AccessoryCount] = AccessoryId;
     ++Target.AccessoryCount;
 }
@@ -895,6 +900,7 @@ void __cdecl PlayerData_ApplySavedCharacter(PlayerData& Slot,
     Slot.costume.AccessoryCount = Record.BaseCostume.AccessoryCount;
     for (int I = 0; I < static_cast<int>(Slot.costume.AccessoryCount); ++I)
         Slot.costume.AccessoryIds[I] = Record.BaseCostume.AccessoryIds[I];
+    PlayerCostume_ApplyOverride(Slot.costume, Slot.com_costume);
 
     // .text:06d4ae70 .. .text:06d4ae9d
     Slot.initial_pos[0] = Record.Position[0];
@@ -1222,8 +1228,25 @@ bool __cdecl PlayerData_CreateNewCharacter(PlayerData& Slot, SCreateCharacterInf
                     Joined[0] = '\0';
                     while (Reader.read_header()) {
                         fprintf(Out, "\n[%s]\n", Reader.get_header_ptr());      // .text:06d4bbcd
+                        const bool campaignStart = !SinglePlayer() && CampaignServer::Enabled() && Reader.is_header("Player");
+                        if (campaignStart) {
+                            fprintf(Out, "system = sig13\nbase = sig13_01_base\n");
+                        }
                         while (Reader.read_value()) {
                             char const* const Key = Reader.get_name_ptr();      // S+0x68
+                            // Only new campaign characters: never rewrite saved progress,
+                            // and ignore a template's space position/old dock location.
+                            if (campaignStart && (!_stricmp(Key, "system") || !_stricmp(Key, "base") ||
+                                !_stricmp(Key, "pos") || !_stricmp(Key, "rotate") || !_stricmp(Key, "last_base")))
+                                continue;
+                            // The first ship is awarded by Alaric. An absent ship key
+                            // is the native docked, shipless state (not a ship named "0").
+                            if (campaignStart && (!_stricmp(Key, "%%Package%%") ||
+                                !_stricmp(Key, "ship_archetype") || !_stricmp(Key, "equip") ||
+                                !_stricmp(Key, "cargo") || !_stricmp(Key, "base_equip") ||
+                                !_stricmp(Key, "base_cargo") || !_stricmp(Key, "collision_group") ||
+                                !_stricmp(Key, "base_collision_group")))
+                                continue;
                             if (_stricmp(Key, "%%Package%%") == 0) {
                                 // .text:06d4bc0f -- ship, then the loadout.
                                 // package +0x10 / +0x20, each through the c_str idiom.

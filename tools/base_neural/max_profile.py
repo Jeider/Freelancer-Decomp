@@ -10,8 +10,10 @@ import shutil
 ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/'out/base_neural'
 NR={
-    'NeuralUplift':'1','NREnableUpscaling':'0','EnableHooks':'2',
-    'NRIntensity':'2','NRGlobalTone':'2','NRLocalTone':'2','NRLocalStructure':'2',
+    'NeuralUplift':'1','EnableHooks':'2',
+    'NRIntensity':'1','NRLocalTone':'2','NRLocalStructure':'2',
+    # v10.8: process the helper's DLAA output, not its presentation window.
+    'NRHookPoint':'0','NRPasses':'1','NRResolutionScale':'1','NRFollowInputRes':'0',
     'NRSkinStructure':'1','NRAutoMask':'0','NRUICorrection':'0',
     'NRColorStrength':'1','NRTransferStrength':'1',
     # These are calibration/conventions, not quality sliders. Native SDR/pixel vectors.
@@ -40,12 +42,19 @@ def apply_configs(binary):
         data=(binary/relative).read_bytes()
         data=update(data,'INPUT',{'KeyOverlay':'0,0,0,0','KeyScreenshot':'0,0,0,0','InputProcessing':'0','GamepadNavigation':'0'})
         data=update(data,'OVERLAY',OVERLAY)
-        if relative.startswith('neural/'):data=update(data,'RenoDX.DLSS5',NR)
+        if relative.startswith('neural/'):data=renodx_profile(data)
         result[relative]=data
     if (binary/'port.ini').exists():
         result['port.ini']=update((binary/'port.ini').read_bytes(),'BaseNeural',
             {'mode':'2','result_deadline_ms':'250','blend_strength':'1'})
     return result
+
+def renodx_profile(data):
+    data=update(data,'RenoDX.DLSS5',NR)
+    # Removed/ineffective in v10.8; don't suggest these still control the model.
+    pattern=rb'(?ims)^\[RenoDX\.DLSS5\][^\r\n]*\r?\n.*?(?=^\[|\Z)'
+    return re.sub(pattern,lambda m:re.sub(
+        rb'(?im)^(?:NRGlobalTone|NREnableUpscaling)\s*=[^\r\n]*\r?\n',b'',m.group()),data)
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
@@ -57,7 +66,7 @@ def main():
     if not args.staged:changes['fl_base_neural.addon32']=(OUT/'on/bin/fl_base_neural.addon32').read_bytes()
     if not args.apply:
         for name,data in changes.items():print(name,hashlib.sha256(data).hexdigest())
-        print('Prepared full-scene NR: blend=1; intensity/global tone/local tone/structure=2; skin=1; mask off; enable preference preserved')
+        print('Prepared v10.8 full-scene NR: blend/intensity=1; local tone/structure=2; skin=1; mask off; enable preference preserved')
         return
     stamp=datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')
     backup=OUT/'backups'/('max_profile_'+stamp);backup.mkdir(parents=True)

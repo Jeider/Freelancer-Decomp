@@ -126,6 +126,7 @@ public:
 
     // slot 9 FUN_004a9790 (RET 8); Data == null -> opened in game.
     bool Create(Win3D* NewParent, void* Data) override;
+    void Destroy() override;
     // slot 11 FUN_004ab6e0
     void Update() override;
     // slot 13 FUN_004abdb0
@@ -256,10 +257,18 @@ public:
     std::vector<int> MiscRowIndices;
     NnDropdownPopup* MiscDropdown = nullptr;
     int MiscDropdownRow = -1;
+    Win3D* CustomizationWindow = nullptr;
+    std::vector<WinControl*> CustomizationWidgets;
+    WireButtonControl* CustomizationButtons[2] = {};
     WireButtonControl* VideoModeChoice = nullptr;
     NnDropdownPopup* VideoModeDropdown = nullptr;
     float VideoModeAnchorTop = 0;
 
+    int GraphicsTab = 0;
+    WireButtonControl* GraphicsTabButtons[2] = {};
+    NnTextControl* GraphicsTabTexts[2] = {};
+    WireButtonControl* GraphicsPresetButtons[4] = {};
+    NnTextControl* GraphicsPresetTexts[4] = {};
     FPrefMiscCell GraphicsCells[GraphicsSettings::Count];
     int GraphicsValues[GraphicsSettings::Count] = {};
     int GraphicsOriginal[GraphicsSettings::Count] = {};
@@ -267,9 +276,12 @@ public:
     NnTextControl* GraphicsHint = nullptr;
     NnDropdownPopup* GraphicsDropdown = nullptr;
     int GraphicsDropdownRow = -1;
+    FPrefMiscCell SubtitleCells[2]; // Cutscenes and the disabled future space option.
+    bool SubtitlesValue=true,SubtitlesOriginal=true;
     FPrefMiscCell ColorGradeCell;
     int ColorGradeValue=0,ColorGradeOriginal=0;
 #ifdef FREELANCER_DLSS5
+    NnTextControl* NeuralStrengthLabel=nullptr;
     NnButtonControl* NeuralEnableToggle=nullptr;
     bool NeuralEnabled=false,NeuralEnabledOriginal=false;
     UiScroll* NeuralStrengthSlider = nullptr;
@@ -278,8 +290,15 @@ public:
 #endif
 
 private:
+    bool CreateCustomizationGroup();
+    void SetCustomizationHidden(bool hidden);
+    bool CustomizationProperty(int msg, Win3D* source);
+    void OpenCustomization(bool portrait);
+    void CloseCustomization();
     bool CreateGraphicsRows();
     void SetGraphicsHidden(bool hidden);
+    void ApplyGraphicsTab();
+    void SetOptionRowsHidden(bool hide);
     void RefreshGraphicsRows();
     void SnapshotGraphics();
     void CommitGraphics();

@@ -130,6 +130,7 @@ int main(){
  R((maxHighlight[2080]&255)>(mildHighlight[2080]&255),"maximum clothing increases highlights");
  profile.Skin=-1;profile.Specular=0;
  // Existing indexed palette: four weights, identity transforms then translated bone 1.
+ profile.Skin=-.25f; // Animated clothing, not the rigid environment profile.
  struct SV{float x,y,z,w0,w1,w2;DWORD bones;float nx,ny,nz,u,v,u1,v1;};SV sq[4];
  for(int i=0;i<4;++i){auto&v=q[i];sq[i]={v.x,v.y,v.z,1,0,0,0x01010101,v.nx,v.ny,v.nz,v.u,v.v,v.u1,v.v1};}
  memcpy(e->RoomBones[1],&id,64);e->RoomBones[1][12]=.2f;
@@ -142,8 +143,69 @@ int main(){
  profile.Skin=-1;profile.Normal=0;profile.Specular=0;
  rs(D3DRS_ALPHABLENDENABLE,1);R(!p->ExSurfaceBegin(),"transparent authored pass excluded");rs(D3DRS_ALPHABLENDENABLE,0);
  tss(1,D3DTSS_TEXCOORDINDEX,D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR);R(!p->ExSurfaceBegin(),"authored envmap excluded");tss(1,D3DTSS_TEXCOORDINDEX,1);
+ // The actual Havana/Cadiz material names must select the relief path, including
+ // detail-only grain. Use no generated sidecar to exercise the authored fallback.
+ C(p->SetRoomBase("co_cad_01_base|universe/systems_mod/co_cadiz/rooms/co_cad_01_bar.ini"));
+ C(p->SetRoomMaterial("detailmap_hispahic_m_26.tga","hispahic_m_26.tga"));
+ C(p->SetRoomDetail("pirate_bar_detail_wood01"));
+ R(e->bRoomBrickDraw && e->RoomFinish==4,"Havana wood selects two-layer relief");
+ R(!e->bRoomMasonry,"wood uses quarter relief");
+ C(d->BeginScene());R(p->ExSurfaceBegin(),"wood route");float reliefConstants[4];C(d->GetPixelShaderConstantF(52,reliefConstants,1));R(reliefConstants[3]==2,"wood uploads mild relief mode");p->ExSurfaceEnd();C(d->EndScene());
+ auto flatWood=render(true,q,sizeof(V));
+ C(detail.Texture->LockRect(0,&grad,0,0));
+ for(int y=0;y<4;++y)for(int x=0;x<4;++x)((DWORD*)((char*)grad.pBits+y*grad.Pitch))[x]=0xff000000|((40+x*40)*0x010101);
+ detail.Texture->UnlockRect(0);
+ auto reliefWood=render(true,q,sizeof(V));
+ e->bRoomBrickDraw=false;auto plainWood=render(true,q,sizeof(V));e->bRoomBrickDraw=true;
+ R(delta(reliefWood,plainWood)>3,"second-layer wood relief changes GPU pixels");
+ for(size_t i=0;i<reliefWood.size();++i)R((reliefWood[i]>>24)==(plainWood[i]>>24),"relief preserves authored alpha");
+ rs(D3DRS_ALPHABLENDENABLE,1);R(!p->ExRoomMaterialBegin(),"Havana blended pass stays native");rs(D3DRS_ALPHABLENDENABLE,0);
+ tss(1,D3DTSS_TEXCOORDINDEX,D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR);R(!p->ExRoomMaterialBegin(),"Havana reflection coordinates stay native");tss(1,D3DTSS_TEXCOORDINDEX,1);
+ C(p->SetRoomMaterial("detailmap_ispahic_m_01.tga","hispahic_m_01.tga"));C(p->SetRoomDetail("dtl_tile11.tga"));
+ R(e->bRoomBrickDraw && e->RoomFinish==0,"Havana masonry selects relief without wood coating");
+ render(true,q,sizeof(V));
+ C(p->SetRoomMaterial("detailmap_hispahic_m_03.tga","hispahic_m_03.tga"));C(p->SetRoomDetail("dtl_tile11.tga"));
+ R(e->bRoomMasonry,"brick floor keeps strong relief");
+ C(d->BeginScene());R(p->ExSurfaceBegin(),"masonry route");C(d->GetPixelShaderConstantF(52,reliefConstants,1));R(reliefConstants[3]==4,"masonry uploads strong relief mode");p->ExSurfaceEnd();C(d->EndScene());
+ auto strongMasonry=render(true,q,sizeof(V));e->bRoomMasonry=false;auto mildMasonry=render(true,q,sizeof(V));R(delta(strongMasonry,mildMasonry)>3,"quarter relief changes GPU output");
+ for(const char* suffix:{"01","10","12","19","23","27"}) {
+  std::string tex=std::string("hispahic_m_")+suffix+".tga";
+  C(p->SetRoomMaterial(("detailmap_"+tex).c_str(),tex.c_str()));
+  R(e->bRoomBrickDraw && e->bRoomMasonry,"mixed masonry atlas keeps full relief");
+ }
+ for(const char* suffix:{"08","15","16","17","22","24","26"}) {
+  std::string tex=std::string("hispahic_m_")+suffix+".tga";
+  C(p->SetRoomMaterial(("detailmap_"+tex).c_str(),tex.c_str()));
+  R(e->bRoomBrickDraw && !e->bRoomMasonry,"wood atlas keeps quarter relief");
+ }
+ for(const char* tex:{"wall-3.tga021211150031","main_floor-1.tga021211150031",
+                     "bret_bar#2_11.tga030103145139","bret_bar#3-30.tga021124165307","bsbar-1.tga021219125156"}) {
+  C(p->SetRoomMaterial("breton_fixture",tex));C(p->SetRoomDetail(nullptr));
+  R(e->bRoomBrickDraw && e->bRoomMasonry,"Bretonian masonry route selected");
+  C(d->BeginScene());R(p->ExSurfaceBegin(),"Bretonian 30 percent route");C(d->GetPixelShaderConstantF(52,reliefConstants,1));R(reliefConstants[3]==8,"Bretonian masonry uploads 30 percent mode");p->ExSurfaceEnd();C(d->EndScene());
+  render(true,q,sizeof(V));
+ }
+ for(const char* tex:{"barrels.tga021211150031","bret_bar#2_16.tga030103145139",
+                     "bret_bar#3-16.tga021124165307","bsbar-16.tga021219125156"}) {
+  C(p->SetRoomMaterial("breton_fixture",tex));
+  R(e->bRoomBrickDraw && !e->bRoomMasonry,"Bretonian furnishings use quarter relief");
+  C(d->BeginScene());R(p->ExSurfaceBegin(),"Bretonian furnishing route");C(d->GetPixelShaderConstantF(52,reliefConstants,1));R(reliefConstants[3]==6,"Bretonian furnishings upload 30 percent of quarter mode");p->ExSurfaceEnd();C(d->EndScene());
+ }
+ for(const char* tex:{"barbican_b_12.tga021210213524","barbican_b_07.tga021210213524",
+                     "news.tga021211150031","bsbar-3l.tga021219125156","wall-3.tga"}) {
+  C(p->SetRoomMaterial("breton_fixture",tex));R(!e->bRoomBrickDraw,"Barbican, displays, lights and unrelated atlases excluded");
+ }
+ C(p->SetRoomProp(1));C(p->SetRoomMaterial("breton_fixture","bret_bar#2_11.tga030103145139"));
+ R(!e->bRoomBrickDraw,"Bretonian loose props excluded");
+ C(p->SetRoomMaterial("hispahic_m_01.tga","hispahic_m_01.tga"));
+ R(!e->bRoomBrickDraw,"props do not inherit room relief");C(p->SetRoomProp(0));
+ C(p->SetRoomBase(""));C(p->SetRoomMaterial("fixture","base"));R(!e->bRoomBrickDraw,"relief flag reset between materials");
  C(p->SetRoomMaterial("missing","base"));R(!p->ExSurfaceBegin(),"unprofiled material native");
- C(p->SetRoomMaterialFrame(0));R(!p->ExSurfaceBegin(),"room route absent in flight");
+ puts("PASS Havana/Cadiz wood and masonry routing, detail relief, alpha and native exclusions");
+ C(p->SetLocalShadowReceiver(256));R(e->bNativeNebulaObject,"nebula native scope active");
+ C(p->SetRoomMaterialFrame(0));R(!p->ExSurfaceBegin(),"nebula objects bypass enhanced surface shader");
+ C(p->SetLocalShadowReceiver(0));R(!e->bNativeNebulaObject,"native nebula scope cleared after object");
+ R(!p->ExSurfaceBegin(),"room route absent in flight");
  // Actual INTZ depth, flat plane then a nearby occluder. AO must preserve flat
  // surfaces, darken only contact, keep alpha, and restore depth/blend state.
  C(p->SetRoomMaterialFrame(1));
@@ -172,7 +234,7 @@ int main(){
  auto withCharacter=contact(true,true);R(withCharacter[2080]==0x80c0c0c0,"character drawn after AO retains its native colour and alpha");
  // A top-down silhouette lands on scene geometry below the caster, not on
  // geometry above it. Use actual INTZ depth and the production begin/draw/end.
- auto silhouette=[&](bool skin,bool above,bool transparent,bool modelview=false,bool character=false){
+ auto silhouette=[&](bool skin,bool above,bool transparent,bool modelview=false,bool character=false,bool body=false,bool alphaHole=false){
   contact(false); // opaque receiver at camera depth .6, RGB192 alpha128
   D3DXMATRIX camera;ZeroMemory(&camera,sizeof(camera));camera._11=1;camera._32=1;camera._23=-1;camera._43=above?.8f:.5f;camera._44=1;
   memcpy(p->Transforms_.View.Values,&camera,64);memcpy(p->Transforms_.World.Values,&id,64);
@@ -183,33 +245,58 @@ int main(){
   V caster[]={{-.3f,.1f,-.3f,0,1,0,0,0,0,0},{-.3f,.1f,.3f,0,1,0,0,0,0,0},
               {.3f,.1f,-.3f,0,1,0,0,0,0,0},{.3f,.1f,.3f,0,1,0,0,0,0,0}};
   rs(D3DRS_ALPHABLENDENABLE,transparent?1:0);
+  if(character && transparent) {
+   D3DLOCKED_RECT tex;C(base.Texture->LockRect(0,&tex,0,0));
+   for(int y=0;y<4;++y)for(int x=0;x<4;++x)((DWORD*)((char*)tex.pBits+y*tex.Pitch))[x]=alphaHole?0x00ffffff:0xffffffff;
+   base.Texture->UnlockRect(0);C(d->SetTexture(0,base.Texture));
+   e->bSurfaceMaterialValid=true;e->SurfaceMaterial.Diffuse.a=1;
+  }
   rs(D3DRS_INDEXEDVERTEXBLENDENABLE,skin?1:0);rs(D3DRS_VERTEXBLEND,skin?D3DVBF_3WEIGHTS:D3DVBF_DISABLE);
   p->StreamCache_.Fvf=(skin ? D3DFVF_XYZB4|D3DFVF_LASTBETA_UBYTE4:D3DFVF_XYZ)|D3DFVF_NORMAL|D3DFVF_TEX2;C(d->SetFVF(p->StreamCache_.Fvf));
   memcpy(e->RoomBones[1],&id,64);e->RoomBones[1][12]=.15f;
   if(modelview){memcpy(p->Transforms_.World.Values,&camera,64);memcpy(p->Transforms_.View.Values,&id,64);
    D3DXMATRIX bone;memcpy(&bone,e->RoomBones[1],64);bone*=camera;memcpy(e->RoomBones[1],&bone,64);}
-  bool draws=p->ExShadowDrawBegin();R(draws!=transparent,"opaque silhouette excludes transparent effects");
+  bool draws=p->ExShadowDrawBegin();R(draws==(!transparent || character),"character alpha surfaces accepted; room transparency excluded");
   if(draws){
    if(skin){SV v[4];for(int i=0;i<4;++i){auto&q=caster[i];v[i]={q.x,q.y,q.z,1,0,0,0x01010101,q.nx,q.ny,q.nz,0,0,0,0};}C(d->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,v,sizeof(SV)));}
    else C(d->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,caster,sizeof(V)));
+   if(body) {
+    // A separate skinned body part extends beyond the head silhouette. Its
+    // own palette must contribute rather than leaving only the first part.
+    memcpy(e->RoomBones[2],e->RoomBones[1],64);
+    R(p->ExShadowDrawBegin(),"second body part accepts indexed skinning");
+    SV limbs[4];for(int i=0;i<4;++i){auto&q=caster[i];
+     limbs[i]={q.x*.5f-.6f,q.y,q.z,1,0,0,0x02020202,q.nx,q.ny,q.nz,0,0,0,0};}
+    C(d->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,limbs,sizeof(SV)));
+   }
   }
-  GENRESULT ended=p->EndRoomShadow();R((ended>=0)!=transparent,"empty silhouette retains native fallback");C(d->EndScene());
+  GENRESULT ended=p->EndRoomShadow();R((ended>=0)==(!transparent || character),"empty submission retains native fallback");C(d->EndScene());
   R(!e->bShadowDrawing && !e->bRoomShadowDrawing,"room shadow scope closed");
   D3DVIEWPORT9 vp;C(d->GetViewport(&vp));R(vp.Width==64 && vp.Height==64,"shadow viewport restored");
   IDirect3DSurface9*ds=nullptr;C(d->GetDepthStencilSurface(&ds));R(ds==e->SceneDepth.Surface,"silhouette depth restored");ds->Release();
   C(d->GetRenderTargetData(target,read));D3DLOCKED_RECT l;C(read->LockRect(&l,0,D3DLOCK_READONLY));
   DWORD middle=((DWORD*)((char*)l.pBits+32*l.Pitch))[32],outside=((DWORD*)((char*)l.pBits+32*l.Pitch))[55];
+  unsigned shadowPixels=0;
+  for(int y=0;y<64;++y)for(int x=0;x<64;++x)
+   if((((DWORD*)((char*)l.pBits+y*l.Pitch))[x]&255)<180)++shadowPixels;
   DWORD extended=((DWORD*)((char*)l.pBits+32*l.Pitch))[43];read->UnlockRect();
   if(!skin && !above && !transparent)R(character ? (extended&255)<150:(extended&255)==192,
       "character silhouette extends with height; ship silhouette stays vertical");
   printf("Silhouette skin %u above %u transparent %u: center %lu, outside %lu\n",skin,above,transparent,middle&255,outside&255);
   R((middle>>24)==128 && (outside&255)==192,"silhouette preserves alpha and unaffected floor");
-  R((above || transparent) ? (middle&255)==192:(middle&255)<150,"only geometry below opaque silhouette is shadowed");
+  R((above || (transparent && (!character || alphaHole))) ? (middle&255)==192:(middle&255)<150,"alpha holes and room transparency do not cast; solid DFM texels do");
   memcpy(p->Transforms_.View.Values,&id,64);memcpy(p->Transforms_.World.Values,&id,64);
+  return shadowPixels;
  };
  silhouette(false,false,false);silhouette(true,false,false);silhouette(false,true,false);silhouette(false,false,true);
  silhouette(false,false,false,true);silhouette(true,false,false,true);
  silhouette(false,false,false,false,true);silhouette(false,false,false,true,true);
+ auto headPixels=silhouette(true,false,false,false,true);
+ auto bodyPixels=silhouette(true,false,false,false,true,true);
+ R(bodyPixels>headPixels+20,"separate skinned body expands shadow beyond head");
+ silhouette(false,false,true,false,true); // real DFM path: CPU-skinned XYZ + alpha blend
+ silhouette(false,false,true,true,true); // same with precomposed modelview
+ silhouette(false,false,true,false,true,false,true); // alpha holes remain clear
  C(p->SetRoomMaterialFrame(0));float center[]={0,0,0},view12[12]={};R(p->BeginRoomShadow(view12,center,1)<0,"room silhouettes unavailable in flight");
  p->ExReleaseAllGpu();p->Device_=nullptr;p->DeviceReady_=0;delete p;
  read->Release();target->Release();base.Texture->Release();detail.Texture->Release();finish.Texture->Release();d->Release();a->Release();DestroyWindow(w);

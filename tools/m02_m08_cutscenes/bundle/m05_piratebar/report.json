@@ -1,0 +1,1268 @@
+{
+  "name": "m05_piratebar",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m05_piratebar.thn",
+  "sha256": "3d6f01c22ebda97f723b89d2b4b000ac9ef975885d01769c3caac5ee5b2d2652",
+  "uses": [
+    {
+      "mission": 5,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m05\\m05.ini",
+      "mission_line": 272,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m05\\smuggler_msn.ini",
+      "line": 4,
+      "role": "action",
+      "thn": "scripts\\mod\\m05_piratebar.thn"
+    }
+  ],
+  "source_duration": 119.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 105.1,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "debug/subtitle excluded"
+    },
+    {
+      "index": 9,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 10,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 11,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 12,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 13,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 14,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 15,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 16,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 18,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 1,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 7,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 22,
+      "time": 3.9,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 6.2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 24,
+      "time": 7,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 25,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 26,
+      "time": 9,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 27,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 28,
+      "time": 2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 29,
+      "time": 4,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 30,
+      "time": 8,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 31,
+      "time": 10,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 10,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 33,
+      "time": 11.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 12,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 35,
+      "time": 10,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 36,
+      "time": 10,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 37,
+      "time": 20,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 38,
+      "time": 23,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 39,
+      "time": 25,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 40,
+      "time": 17,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 41,
+      "time": 16,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 42,
+      "time": 18.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 43,
+      "time": 12,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 44,
+      "time": 16.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 45,
+      "time": 18,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 46,
+      "time": 18.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 47,
+      "time": 18.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 48,
+      "time": 20,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 49,
+      "time": 24,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 50,
+      "time": 33.4,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 51,
+      "time": 33.4,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 52,
+      "time": 33.4,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 53,
+      "time": 48.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 54,
+      "time": 29,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 55,
+      "time": 45,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 56,
+      "time": 33,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 57,
+      "time": 33.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 58,
+      "time": 39,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 59,
+      "time": 41,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 60,
+      "time": 44,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 61,
+      "time": 24,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 62,
+      "time": 27,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 63,
+      "time": 24,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 64,
+      "time": 28,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 65,
+      "time": 30,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 66,
+      "time": 33.4001,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 67,
+      "time": 33.4002,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 68,
+      "time": 48.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 69,
+      "time": 25,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 70,
+      "time": 25,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 71,
+      "time": 33.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 72,
+      "time": 33.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 73,
+      "time": 37.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 74,
+      "time": 40,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 75,
+      "time": 40,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 76,
+      "time": 48.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 77,
+      "time": 48.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 78,
+      "time": 51.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 79,
+      "time": 56,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 80,
+      "time": 56,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 81,
+      "time": 61.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 82,
+      "time": 56,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 83,
+      "time": 59,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 84,
+      "time": 59,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 85,
+      "time": 60.75,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 86,
+      "time": 63.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 87,
+      "time": 62,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 88,
+      "time": 62.2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 89,
+      "time": 65.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 90,
+      "time": 64,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 91,
+      "time": 64.5,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 92,
+      "time": 65,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 93,
+      "time": 65,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 94,
+      "time": 66,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 95,
+      "time": 68,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 96,
+      "time": 68,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 97,
+      "time": 68.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 98,
+      "time": 68.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 99,
+      "time": 72,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 100,
+      "time": 72,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 101,
+      "time": 72.8,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 102,
+      "time": 74.3,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 103,
+      "time": 72,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 104,
+      "time": 72,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 105,
+      "time": 74,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 106,
+      "time": 77,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 107,
+      "time": 76.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 108,
+      "time": 76.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 109,
+      "time": 76.5,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 110,
+      "time": 76.5,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 111,
+      "time": 76.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 112,
+      "time": 83.2,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 113,
+      "time": 82,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 114,
+      "time": 82,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 115,
+      "time": 84,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 116,
+      "time": 84,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 117,
+      "time": 85,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 118,
+      "time": 85,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 119,
+      "time": 88,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 120,
+      "time": 88,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 121,
+      "time": 106,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 122,
+      "time": 86,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 123,
+      "time": 88,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 124,
+      "time": 90,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 125,
+      "time": 92.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 126,
+      "time": 96.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 127,
+      "time": 100,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 128,
+      "time": 102,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 129,
+      "time": 89,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 130,
+      "time": 89,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 131,
+      "time": 91,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 132,
+      "time": 95,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 133,
+      "time": 97.5,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 134,
+      "time": 100,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 135,
+      "time": 104,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 136,
+      "time": 105,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 137,
+      "time": 105,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 138,
+      "time": 110.00001,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 139,
+      "time": 105,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 140,
+      "time": 105,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 141,
+      "time": 110,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 142,
+      "time": 110,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 143,
+      "time": 112,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 144,
+      "time": 112,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 145,
+      "time": 119,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 35,
+      "start": 10,
+      "index": 10,
+      "actor": "trent",
+      "sound": "DX_m05_piratebar_0010_trent",
+      "prefix": "m05_piratebar",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 8,
+      "lip_events": [
+        36
+      ],
+      "source_gap": 0.5
+    },
+    {
+      "id": 46,
+      "start": 18.5,
+      "index": 20,
+      "actor": "smith",
+      "sound": "DX_m05_piratebar_0020_smith",
+      "prefix": "m05_piratebar",
+      "character": "Char_smith",
+      "script_actor": "Smith",
+      "source_actor_class": "Smith",
+      "window": 5.5,
+      "lip_events": [
+        47,
+        48
+      ],
+      "source_gap": 1.0
+    },
+    {
+      "id": 69,
+      "start": 25,
+      "index": 30,
+      "actor": "trent",
+      "sound": "DX_m05_piratebar_0030_trent",
+      "prefix": "m05_piratebar",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15,
+      "lip_events": [
+        70
+      ],
+      "source_gap": -6.5
+    },
+    {
+      "id": 71,
+      "start": 33.5,
+      "index": 40,
+      "actor": "trent",
+      "sound": "DX_m05_piratebar_0040_trent",
+      "prefix": "m05_piratebar",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15.0,
+      "lip_events": [
+        72,
+        73
+      ],
+      "source_gap": -8.5
+    },
+    {
+      "id": 74,
+      "start": 40,
+      "index": 50,
+      "actor": "trent",
+      "sound": "DX_m05_piratebar_0050_trent",
+      "prefix": "m05_piratebar",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15,
+      "lip_events": [
+        75
+      ],
+      "source_gap": -6.5
+    },
+    {
+      "id": 76,
+      "start": 48.5,
+      "index": 55,
+      "actor": "trent",
+      "sound": "DX_m05_piratebar_0055_trent",
+      "prefix": "m05_piratebar",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 18.0,
+      "lip_events": [
+        77,
+        78
+      ],
+      "source_gap": -7.5
+    },
+    {
+      "id": 83,
+      "start": 59,
+      "index": 60,
+      "actor": "smith",
+      "sound": "DX_m05_piratebar_0060_smith",
+      "prefix": "m05_piratebar",
+      "character": "Char_smith",
+      "script_actor": "Smith",
+      "source_actor_class": "Smith",
+      "window": 5.75,
+      "lip_events": [
+        84,
+        85
+      ],
+      "source_gap": 0.25
+    },
+    {
+      "id": 92,
+      "start": 65,
+      "index": 70,
+      "actor": "trent",
+      "sound": "DX_m05_piratebar_0070_trent",
+      "prefix": "m05_piratebar",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 3,
+      "lip_events": [
+        93
+      ],
+      "source_gap": 0.5
+    },
+    {
+      "id": 97,
+      "start": 68.5,
+      "index": 80,
+      "actor": "smith",
+      "sound": "DX_m05_piratebar_0080_smith",
+      "prefix": "m05_piratebar",
+      "character": "Char_smith",
+      "script_actor": "Smith",
+      "source_actor_class": "Smith",
+      "window": 4.0,
+      "lip_events": [
+        98
+      ],
+      "source_gap": -0.5
+    },
+    {
+      "id": 103,
+      "start": 72,
+      "index": 90,
+      "actor": "trent",
+      "sound": "DX_m05_piratebar_0090_trent",
+      "prefix": "m05_piratebar",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 5,
+      "lip_events": [
+        104,
+        105
+      ],
+      "source_gap": -0.5
+    },
+    {
+      "id": 110,
+      "start": 76.5,
+      "index": 100,
+      "actor": "smith",
+      "sound": "DX_m05_piratebar_0100_smith",
+      "prefix": "m05_piratebar",
+      "character": "Char_smith",
+      "script_actor": "Smith",
+      "source_actor_class": "Smith",
+      "window": 8.0,
+      "lip_events": [
+        111
+      ],
+      "source_gap": 0.5
+    },
+    {
+      "id": 117,
+      "start": 85,
+      "index": 110,
+      "actor": "trent",
+      "sound": "DX_m05_piratebar_0110_trent",
+      "prefix": "m05_piratebar",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 3,
+      "lip_events": [
+        118
+      ],
+      "source_gap": 1
+    },
+    {
+      "id": 129,
+      "start": 89,
+      "index": 120,
+      "actor": "smith",
+      "sound": "DX_m05_piratebar_0120_smith",
+      "prefix": "m05_piratebar",
+      "character": "Char_smith",
+      "script_actor": "Smith",
+      "source_actor_class": "Smith",
+      "window": 15,
+      "lip_events": [
+        130,
+        131,
+        132,
+        133,
+        134
+      ],
+      "source_gap": 1
+    },
+    {
+      "id": 139,
+      "start": 105,
+      "index": 130,
+      "actor": "trent",
+      "sound": "DX_m05_piratebar_0130_trent",
+      "prefix": "m05_piratebar",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 3,
+      "lip_events": [
+        140
+      ],
+      "source_gap": 4
+    },
+    {
+      "id": 143,
+      "start": 112,
+      "index": 140,
+      "actor": "smith",
+      "sound": "DX_m05_piratebar_0140_smith",
+      "prefix": "m05_piratebar",
+      "character": "Char_smith",
+      "script_actor": "Smith",
+      "source_actor_class": "Smith",
+      "window": 3,
+      "lip_events": [
+        144
+      ],
+      "source_gap": 4.0
+    }
+  ],
+  "notes": [],
+  "clock": "relative",
+  "entity_names": {
+    "Scene_M05_piratebar": "Scene_M05_piratebar",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "vfx_rtc_sydsmoke_3": "vfx_rtc_sydsmoke_3",
+    "vfx_rtc_cigaretteglow_4": "vfx_rtc_cigaretteglow_4",
+    "prop_cigarette_2": "prop_cigarette_2",
+    "prop_pda": "prop_pda",
+    "DX_m05_piratebar_0010_trent": "DX_m05_piratebar_0010_trent",
+    "DX_m05_piratebar_0020_smith": "DX_m05_piratebar_0020_smith",
+    "DX_m05_piratebar_0030_trent": "DX_m05_piratebar_0030_trent",
+    "DX_m05_piratebar_0040_trent": "DX_m05_piratebar_0040_trent",
+    "DX_m05_piratebar_0050_trent": "DX_m05_piratebar_0050_trent",
+    "DX_m05_piratebar_0055_trent": "DX_m05_piratebar_0055_trent",
+    "DX_m05_piratebar_0060_smith": "DX_m05_piratebar_0060_smith",
+    "DX_m05_piratebar_0070_trent": "DX_m05_piratebar_0070_trent",
+    "DX_m05_piratebar_0080_smith": "DX_m05_piratebar_0080_smith",
+    "DX_m05_piratebar_0090_trent": "DX_m05_piratebar_0090_trent",
+    "DX_m05_piratebar_0100_smith": "DX_m05_piratebar_0100_smith",
+    "DX_m05_piratebar_0110_trent": "DX_m05_piratebar_0110_trent",
+    "DX_m05_piratebar_0120_smith": "DX_m05_piratebar_0120_smith",
+    "DX_m05_piratebar_0130_trent": "DX_m05_piratebar_0130_trent",
+    "DX_m05_piratebar_0140_smith": "DX_m05_piratebar_0140_smith",
+    "Char_smith": "Char_smith",
+    "Char_trent": "Char_trent",
+    "point_trent_stand": "automarker_point_trent_stand",
+    "point_trent_sit_side": "automarker_point_trent_sit_side",
+    "point_trent_sit_front": "automarker_point_trent_sit_front",
+    "trent_head_ik": "automarker_trent_head_ik",
+    "trent_eye_ik": "automarker_trent_eye_ik",
+    "smith_head_ik": "automarker_smith_head_ik",
+    "smith_eye_ik": "automarker_smith_eye_ik",
+    "head_smith": "automarker_head_smith",
+    "head_smith_front": "automarker_head_smith_front",
+    "head_smith_front_btm": "automarker_head_smith_front_btm",
+    "head_trent_stand": "automarker_head_trent_stand",
+    "head_trent_sit": "automarker_head_trent_sit",
+    "out_window_center": "automarker_out_window_center",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "automarker_cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "automarker_cam_start_pos2",
+    "cam_start_marker": "automarker_cam_start_focus",
+    "cam_start_marker_pos2": "automarker_cam_start_marker_pos2",
+    "cam_trent_stand": "cam_trent_stand",
+    "cam_trent_stand_marker": "automarker_cam_trent_stand_focus",
+    "cam_trent_stand_marker_pos2": "automarker_cam_trent_stand_marker_pos2",
+    "cam_smith": "cam_smith",
+    "cam_smith_marker": "automarker_cam_smith_focus",
+    "cam_smith_far": "cam_smith_far",
+    "cam_smith_far_marker": "automarker_cam_smith_far_focus",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "automarker_cam_trent_focus",
+    "cam_trough": "cam_trough",
+    "cam_trough_pos2": "automarker_cam_trough_pos2",
+    "cam_trough_marker": "automarker_cam_trough_focus",
+    "cam_trough_marker_pos2": "automarker_cam_trough_marker_pos2",
+    "cam_trent_sidetalk": "cam_trent_sidetalk",
+    "cam_trent_sidetalk_marker": "automarker_cam_trent_sidetalk_focus"
+  },
+  "point_names": {
+    "Scene_M05_piratebar": "Scene_M05_piratebar",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "vfx_rtc_sydsmoke_3": "vfx_rtc_sydsmoke_3",
+    "vfx_rtc_cigaretteglow_4": "vfx_rtc_cigaretteglow_4",
+    "prop_cigarette_2": "prop_cigarette_2",
+    "prop_pda": "prop_pda",
+    "DX_m05_piratebar_0010_trent": "DX_m05_piratebar_0010_trent",
+    "DX_m05_piratebar_0020_smith": "DX_m05_piratebar_0020_smith",
+    "DX_m05_piratebar_0030_trent": "DX_m05_piratebar_0030_trent",
+    "DX_m05_piratebar_0040_trent": "DX_m05_piratebar_0040_trent",
+    "DX_m05_piratebar_0050_trent": "DX_m05_piratebar_0050_trent",
+    "DX_m05_piratebar_0055_trent": "DX_m05_piratebar_0055_trent",
+    "DX_m05_piratebar_0060_smith": "DX_m05_piratebar_0060_smith",
+    "DX_m05_piratebar_0070_trent": "DX_m05_piratebar_0070_trent",
+    "DX_m05_piratebar_0080_smith": "DX_m05_piratebar_0080_smith",
+    "DX_m05_piratebar_0090_trent": "DX_m05_piratebar_0090_trent",
+    "DX_m05_piratebar_0100_smith": "DX_m05_piratebar_0100_smith",
+    "DX_m05_piratebar_0110_trent": "DX_m05_piratebar_0110_trent",
+    "DX_m05_piratebar_0120_smith": "DX_m05_piratebar_0120_smith",
+    "DX_m05_piratebar_0130_trent": "DX_m05_piratebar_0130_trent",
+    "DX_m05_piratebar_0140_smith": "DX_m05_piratebar_0140_smith",
+    "Char_smith": "Char_smith",
+    "Char_trent": "Char_trent",
+    "point_trent_stand": "point_trent_stand",
+    "point_trent_sit_side": "point_trent_sit_side",
+    "point_trent_sit_front": "point_trent_sit_front",
+    "trent_head_ik": "trent_head_ik",
+    "trent_eye_ik": "trent_eye_ik",
+    "smith_head_ik": "smith_head_ik",
+    "smith_eye_ik": "smith_eye_ik",
+    "head_smith": "head_smith",
+    "head_smith_front": "head_smith_front",
+    "head_smith_front_btm": "head_smith_front_btm",
+    "head_trent_stand": "head_trent_stand",
+    "head_trent_sit": "head_trent_sit",
+    "out_window_center": "out_window_center",
+    "cam_dbg": "cam_dbg",
+    "cam_dbg_marker": "cam_dbg_marker",
+    "cam_start": "cam_start",
+    "cam_start_pos2": "cam_start_pos2",
+    "cam_start_marker": "cam_start_focus",
+    "cam_start_marker_pos2": "cam_start_marker_pos2",
+    "cam_trent_stand": "cam_trent_stand",
+    "cam_trent_stand_marker": "cam_trent_stand_focus",
+    "cam_trent_stand_marker_pos2": "cam_trent_stand_marker_pos2",
+    "cam_smith": "cam_smith",
+    "cam_smith_marker": "cam_smith_focus",
+    "cam_smith_far": "cam_smith_far",
+    "cam_smith_far_marker": "cam_smith_far_focus",
+    "cam_trent": "cam_trent",
+    "cam_trent_marker": "cam_trent_focus",
+    "cam_trough": "cam_trough",
+    "cam_trough_pos2": "cam_trough_pos2",
+    "cam_trough_marker": "cam_trough_focus",
+    "cam_trough_marker_pos2": "cam_trough_marker_pos2",
+    "cam_trent_sidetalk": "cam_trent_sidetalk",
+    "cam_trent_sidetalk_marker": "cam_trent_sidetalk_focus"
+  }
+}

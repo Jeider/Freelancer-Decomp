@@ -12,6 +12,8 @@
 #include "ContentStaticIds.h"
 
 #include "BaseDB.h"
+#include "LocalTriggers.h"
+#include "personal_story_offer.h"
 #include "RpgContacts.h"
 #include "BaseSupport.h"         // FMissionOfferAcceptMsg, RefreshMissionVendorOffers
 #include "ContentInternal.h"     // OpenContentDataIni
@@ -1052,6 +1054,8 @@ int FContentBase::CreateBarScene(FCharacterEncounter const* Script, unsigned int
     Behavior.NameFmtStr.end_mad_lib();
     // 06ea9914-06ea992e: 3 with an offer text (pointer test only), 5 without.
     Behavior.Field21c = Script->FindActionText(3) != nullptr ? 3 : 5;
+    if (Behavior.Field21c == 3 && LocalTriggersPersonalOffer(ControllerId))
+        Behavior.Field21c = PersonalStoryOfferType;
     Behavior.Filter = PlayerId;
     Behavior.Field220 = ControllerId;
     Behavior.Field224 = 0;

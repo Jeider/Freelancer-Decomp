@@ -40,6 +40,7 @@
 #include "render/IRenderPipelineEx.h"
 #include "render/IRPFrameQuality.h"
 #include "render/IRPRoomMaterials.h"
+#include "perf_options.h"
 #include "port_config.h"
 
 #include <cmath>
@@ -492,13 +493,27 @@ void RenderEx::AfterSpaceScene()
         DrawSceneDepthView();
 }
 
-void RenderEx::RoomMaterialFrame(bool Enabled)
+void RenderEx::RoomMaterialFrame(bool Enabled, char const* BaseNick)
 {
+    SetPerfRoomScope(Enabled);
     if (!IsAvailable()) return;
     IRPRoomMaterials* Room = nullptr;
     if (DALib::Pipeline->QueryInterface(Iids::RPRoomMaterials, reinterpret_cast<void**>(&Room)) >= 0 && Room)
     {
         Room->SetRoomMaterialFrame(Enabled ? 1 : 0);
+        if (Enabled)
+            Room->SetRoomBase(BaseNick);
+        Room->Release();
+    }
+}
+
+void RenderEx::RoomProp(bool Prop)
+{
+    if (!IsAvailable()) return;
+    IRPRoomMaterials* Room = nullptr;
+    if (DALib::Pipeline->QueryInterface(Iids::RPRoomMaterials, reinterpret_cast<void**>(&Room)) >= 0 && Room)
+    {
+        Room->SetRoomProp(Prop ? 1 : 0);
         Room->Release();
     }
 }

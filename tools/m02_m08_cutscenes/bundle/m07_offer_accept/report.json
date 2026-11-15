@@ -1,0 +1,165 @@
+{
+  "name": "m07_offer_accept",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m07_offer_accept.thn",
+  "sha256": "1f5038a5ff9d208edf5ba42654ac0a569813a1bd8dd6f69da31eac5a173a0450",
+  "uses": [
+    {
+      "mission": 7,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\m07.ini",
+      "mission_line": 83,
+      "reference": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m07\\tobago_bar.ini",
+      "line": 5,
+      "role": "accept",
+      "thn": "scripts\\mod\\m07_offer_accept.thn"
+    }
+  ],
+  "source_duration": 4.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 0,
+      "type": "START_IK",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 5,
+      "start": 0,
+      "index": 110,
+      "actor": "trent",
+      "sound": "DX_m07_offer_0110_trent",
+      "prefix": "m07_offer",
+      "character": "Char_trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 6,
+      "lip_events": [
+        6
+      ],
+      "source_gap": -2.0
+    }
+  ],
+  "notes": [],
+  "clock": "relative",
+  "entity_names": {
+    "scene_m07_offer": "scene_m07_offer",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_bartender_Fixture": "Char_bartender_fixture",
+    "prop_cigarette_2": "prop_cigarette_2",
+    "DX_m06_freeport_0010_delta1": "DX_m06_freeport_0010_delta1",
+    "DX_m06_freeport_0020_trent": "DX_m06_freeport_0020_trent",
+    "DX_m06_freeport_0030_delta1": "DX_m06_freeport_0030_delta1",
+    "DX_m06_freeport_0040_delta1": "DX_m06_freeport_0040_delta1",
+    "DX_m06_freeport_0050_delta1": "DX_m06_freeport_0050_delta1",
+    "DX_m06_freeport_0060_delta1": "DX_m06_freeport_0060_delta1",
+    "DX_m06_freeport_0070_trent": "DX_m06_freeport_0070_trent",
+    "DX_m06_freeport_0090_delta1": "DX_m06_freeport_0090_delta1",
+    "DX_m06_freeport_0100_delta1": "DX_m06_freeport_0100_delta1",
+    "DX_m07_offer_0010_barman": "DX_m07_offer_0010_barman",
+    "DX_m07_offer_0020_trent": "DX_m07_offer_0020_trent",
+    "DX_m07_offer_0030_barman": "DX_m07_offer_0030_barman",
+    "DX_m07_offer_0040_trent": "DX_m07_offer_0040_trent",
+    "DX_m07_offer_0050_barman": "DX_m07_offer_0050_barman",
+    "DX_m07_offer_0060_trent": "DX_m07_offer_0060_trent",
+    "DX_m07_offer_0070_barman": "DX_m07_offer_0070_barman",
+    "DX_m07_offer_0080_barman": "DX_m07_offer_0080_barman",
+    "DX_m07_offer_0090_barman": "DX_m07_offer_0090_barman",
+    "DX_m07_offer_0100_barman": "DX_m07_offer_0100_barman",
+    "DX_m07_offer_0110_trent": "DX_m07_offer_0110_trent",
+    "Char_trent_base": "Char_trent_base",
+    "Char_trent": "Char_trent",
+    "Char_barman": "Char_barman",
+    "head_barman_near": "automarker_head_barman_near",
+    "cam_trent_deal": "cam_trent_deal",
+    "cam_trent_deal_marker": "automarker_cam_trent_deal_focus"
+  },
+  "point_names": {
+    "scene_m07_offer": "scene_m07_offer",
+    "Monitor_1": "Monitor_1",
+    "offscreen": "offscreen",
+    "Char_bartender_Fixture": "Char_bartender_fixture",
+    "prop_cigarette_2": "prop_cigarette_2",
+    "DX_m06_freeport_0010_delta1": "DX_m06_freeport_0010_delta1",
+    "DX_m06_freeport_0020_trent": "DX_m06_freeport_0020_trent",
+    "DX_m06_freeport_0030_delta1": "DX_m06_freeport_0030_delta1",
+    "DX_m06_freeport_0040_delta1": "DX_m06_freeport_0040_delta1",
+    "DX_m06_freeport_0050_delta1": "DX_m06_freeport_0050_delta1",
+    "DX_m06_freeport_0060_delta1": "DX_m06_freeport_0060_delta1",
+    "DX_m06_freeport_0070_trent": "DX_m06_freeport_0070_trent",
+    "DX_m06_freeport_0090_delta1": "DX_m06_freeport_0090_delta1",
+    "DX_m06_freeport_0100_delta1": "DX_m06_freeport_0100_delta1",
+    "DX_m07_offer_0010_barman": "DX_m07_offer_0010_barman",
+    "DX_m07_offer_0020_trent": "DX_m07_offer_0020_trent",
+    "DX_m07_offer_0030_barman": "DX_m07_offer_0030_barman",
+    "DX_m07_offer_0040_trent": "DX_m07_offer_0040_trent",
+    "DX_m07_offer_0050_barman": "DX_m07_offer_0050_barman",
+    "DX_m07_offer_0060_trent": "DX_m07_offer_0060_trent",
+    "DX_m07_offer_0070_barman": "DX_m07_offer_0070_barman",
+    "DX_m07_offer_0080_barman": "DX_m07_offer_0080_barman",
+    "DX_m07_offer_0090_barman": "DX_m07_offer_0090_barman",
+    "DX_m07_offer_0100_barman": "DX_m07_offer_0100_barman",
+    "DX_m07_offer_0110_trent": "DX_m07_offer_0110_trent",
+    "Char_trent_base": "Char_trent_base",
+    "Char_trent": "Char_trent",
+    "Char_barman": "Char_barman",
+    "head_barman_near": "head_barman_near",
+    "cam_trent_deal": "cam_trent_deal",
+    "cam_trent_deal_marker": "cam_trent_deal_focus"
+  }
+}

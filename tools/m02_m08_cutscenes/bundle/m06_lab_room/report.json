@@ -1,0 +1,413 @@
+{
+  "name": "m06_lab_room",
+  "source": "D:\\Games\\FL_MOD\\DATA\\scripts\\mod\\m06_lab_room.thn",
+  "sha256": "0454af60349688466ae11b5b4043f20ee64676724e038807d9bafd9b7e2de2de",
+  "uses": [
+    {
+      "mission": 6,
+      "mission_file": "D:\\Games\\FL_MOD\\Assets\\Pythonlancer\\templates\\missions\\m06\\m06.ini",
+      "mission_line": 2855,
+      "reference": "D:\\Games\\FL_MOD\\DATA\\missions\\m06\\lab_room_rtc.ini",
+      "line": 3,
+      "role": "offer",
+      "thn": "scripts\\mod\\m06_lab_room.thn"
+    }
+  ],
+  "source_duration": 36.0,
+  "events": [
+    {
+      "index": 0,
+      "time": 0,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 1,
+      "time": 0,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 2,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 3,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 4,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "converted"
+    },
+    {
+      "index": 5,
+      "time": 0,
+      "type": "ATTACH_ENTITY",
+      "status": "LookAtCamera initialization"
+    },
+    {
+      "index": 6,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 7,
+      "time": 0,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 8,
+      "time": 0,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 9,
+      "time": 6,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 10,
+      "time": 10.5,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 11,
+      "time": 9,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 12,
+      "time": 9.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 13,
+      "time": 13,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 14,
+      "time": 13,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 15,
+      "time": 16,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 16,
+      "time": 16,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 17,
+      "time": 16,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 18,
+      "time": 16,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 19,
+      "time": 16.5,
+      "type": "START_PSYS",
+      "status": "converted"
+    },
+    {
+      "index": 20,
+      "time": 27,
+      "type": "SET_CAMERA",
+      "status": "converted"
+    },
+    {
+      "index": 21,
+      "time": 27,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 22,
+      "time": 27,
+      "type": "START_PATH_ANIMATION",
+      "status": "converted"
+    },
+    {
+      "index": 23,
+      "time": 26,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 24,
+      "time": 27.001,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 25,
+      "time": 28.5,
+      "type": "CONNECT_HARDPOINTS",
+      "status": "converted"
+    },
+    {
+      "index": 26,
+      "time": 27.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 27,
+      "time": 29,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 28,
+      "time": 29,
+      "type": "START_MOTION",
+      "status": "facial() allocation"
+    },
+    {
+      "index": 29,
+      "time": 31,
+      "type": "START_SOUND",
+      "status": "facial() audio"
+    },
+    {
+      "index": 30,
+      "time": 32,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 31,
+      "time": 34.5,
+      "type": "START_MOTION",
+      "status": "converted"
+    },
+    {
+      "index": 32,
+      "time": 26,
+      "type": "START_IK",
+      "status": "converted"
+    },
+    {
+      "index": 33,
+      "time": 28,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 34,
+      "time": 34,
+      "type": "START_SPATIAL_PROP_ANIM",
+      "status": "converted"
+    },
+    {
+      "index": 35,
+      "time": 0,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 36,
+      "time": 10.5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 37,
+      "time": 16.5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 38,
+      "time": 18.5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 39,
+      "time": 20.2,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 40,
+      "time": 20.5,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 41,
+      "time": 20.8,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 42,
+      "time": 21.1,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 43,
+      "time": 22.2,
+      "type": "START_SOUND",
+      "status": "converted"
+    },
+    {
+      "index": 44,
+      "time": 28.4,
+      "type": "START_SOUND",
+      "status": "converted"
+    }
+  ],
+  "dialogue": [
+    {
+      "id": 27,
+      "start": 29,
+      "index": 10,
+      "actor": "trent",
+      "sound": "DX_m06_lab_room_0010_trent",
+      "prefix": "m06_lab_room",
+      "character": "Char_Trent",
+      "script_actor": "Trent",
+      "source_actor_class": "Trent",
+      "window": 15,
+      "lip_events": [
+        28
+      ],
+      "source_gap": -13
+    },
+    {
+      "id": 29,
+      "start": 31,
+      "index": 20,
+      "actor": "alaric",
+      "sound": "DX_m06_lab_room_0020_alaric",
+      "prefix": "m06_lab_room",
+      "character": null,
+      "script_actor": "Alaric",
+      "source_actor_class": "Alaric",
+      "window": 0,
+      "lip_events": [],
+      "source_gap": 5.0
+    }
+  ],
+  "notes": [
+    "No source facial allocation: DX_m06_lab_room_0020_alaric at 31s; audio-only cue retained"
+  ],
+  "clock": "relative",
+  "entity_names": {
+    "Scene_m06_lab3": "Scene_m06_lab3",
+    "Monitor_1": "Monitor_1",
+    "DX_m06_lab_room_0010_trent": "DX_m06_lab_room_0010_trent",
+    "DX_m06_lab_room_0020_alaric": "DX_m06_lab_room_0020_alaric",
+    "Mrk_TrentCrystal_LookAt": "automarker_Mrk_TrentCrystal_LookAt",
+    "Mrk_TrentCrystal_LookAt_pos2": "automarker_Mrk_TrentCrystal_LookAt_pos2",
+    "Camera_X": "Camera_X",
+    "Camera_Case": "Camera_Case",
+    "prop_case": "prop_case",
+    "prop_crystal": "prop_crystal",
+    "prop_tome": "prop_tome",
+    "fx_gas": "fx_gas",
+    "fx_light": "fx_light",
+    "Char_Trent": "Char_trent",
+    "Mrk_TrentTome": "automarker_Mrk_TrentTome",
+    "Mrk_TrentAway": "automarker_Mrk_TrentAway",
+    "Mrk_TrentCrystal": "automarker_Mrk_TrentCrystal",
+    "Mrk_TrentWarning": "automarker_Mrk_TrentWarning",
+    "Mrk_CameraInit": "automarker_Camera_X_focus",
+    "Path_CameraInit": "Path_CameraInit",
+    "Path_Mrk_CameraInit": "Path_Mrk_CameraInit",
+    "Camera_Tome": "Camera_Tome",
+    "Mrk_CameraTome": "automarker_Camera_Tome_focus",
+    "Camera_OpenCase": "Camera_OpenCase",
+    "Path_CameraOpenCase": "Path_CameraOpenCase",
+    "Mrk_CameraGetCrystal": "automarker_Camera_GetCrystal_focus",
+    "Camera_GetCrystal": "Camera_GetCrystal",
+    "Path_CameraGetCrystal": "Path_CameraGetCrystal",
+    "Path_MrkGetCrystal": "Path_MrkGetCrystal",
+    "Mrk_ExitPoint": "automarker_Mrk_ExitPoint",
+    "Camera_Last": "Camera_Last",
+    "music_main": "music_main",
+    "pick_tome_sound": "pick_tome_sound",
+    "weld1_sound": "weld1_sound",
+    "weld2_sound": "weld2_sound",
+    "weld3_sound": "weld3_sound",
+    "weld4_sound": "weld4_sound",
+    "weld5_sound": "weld5_sound",
+    "laser_sound": "laser_sound",
+    "step1": "step1",
+    "step2": "step2",
+    "step3": "step3"
+  },
+  "point_names": {
+    "Scene_m06_lab3": "Scene_m06_lab3",
+    "Monitor_1": "Monitor_1",
+    "DX_m06_lab_room_0010_trent": "DX_m06_lab_room_0010_trent",
+    "DX_m06_lab_room_0020_alaric": "DX_m06_lab_room_0020_alaric",
+    "Mrk_TrentCrystal_LookAt": "Mrk_TrentCrystal_LookAt",
+    "Mrk_TrentCrystal_LookAt_pos2": "Mrk_TrentCrystal_LookAt_pos2",
+    "Camera_X": "Camera_X",
+    "Camera_Case": "Camera_Case",
+    "prop_case": "prop_case",
+    "prop_crystal": "prop_crystal",
+    "prop_tome": "prop_tome",
+    "fx_gas": "fx_gas",
+    "fx_light": "fx_light",
+    "Char_Trent": "Char_trent",
+    "Mrk_TrentTome": "Mrk_TrentTome",
+    "Mrk_TrentAway": "Mrk_TrentAway",
+    "Mrk_TrentCrystal": "Mrk_TrentCrystal",
+    "Mrk_TrentWarning": "Mrk_TrentWarning",
+    "Mrk_CameraInit": "Camera_X_focus",
+    "Path_CameraInit": "Path_CameraInit",
+    "Path_Mrk_CameraInit": "Path_Mrk_CameraInit",
+    "Camera_Tome": "Camera_Tome",
+    "Mrk_CameraTome": "Camera_Tome_focus",
+    "Camera_OpenCase": "Camera_OpenCase",
+    "Path_CameraOpenCase": "Path_CameraOpenCase",
+    "Mrk_CameraGetCrystal": "Camera_GetCrystal_focus",
+    "Camera_GetCrystal": "Camera_GetCrystal",
+    "Path_CameraGetCrystal": "Path_CameraGetCrystal",
+    "Path_MrkGetCrystal": "Path_MrkGetCrystal",
+    "Mrk_ExitPoint": "Mrk_ExitPoint",
+    "Camera_Last": "Camera_Last",
+    "music_main": "music_main",
+    "pick_tome_sound": "pick_tome_sound",
+    "weld1_sound": "weld1_sound",
+    "weld2_sound": "weld2_sound",
+    "weld3_sound": "weld3_sound",
+    "weld4_sound": "weld4_sound",
+    "weld5_sound": "weld5_sound",
+    "laser_sound": "laser_sound",
+    "step1": "step1",
+    "step2": "step2",
+    "step3": "step3"
+  }
+}

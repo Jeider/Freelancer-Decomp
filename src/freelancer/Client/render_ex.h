@@ -48,7 +48,8 @@ namespace RenderEx
     void AfterSpaceScene();
     void AntialiasScene(); // Completed 3D frame (space/cockpit/rooms), before UI.
     void ColorGradeScene();
-    void RoomMaterialFrame(bool Enabled);
+    void RoomMaterialFrame(bool Enabled, char const* BaseNick = nullptr);
+    void RoomProp(bool Prop);
     void RoomContactShadows();
     bool BeginRoomShadow(const float* CameraView12, const float* Center, float Radius, bool Character);
     bool EndRoomShadow();

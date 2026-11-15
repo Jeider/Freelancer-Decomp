@@ -1,0 +1,917 @@
+{
+  "m01b_armored_trap_camera": {
+    "ok": true,
+    "events": 8,
+    "entities": 20,
+    "duration": 54.375,
+    "source_external_references": [],
+    "exact_source_actions": 7,
+    "action_differences": []
+  },
+  "m02_bship_bar_accept": {
+    "ok": true,
+    "events": 70,
+    "entities": 48,
+    "duration": 40.5,
+    "source_external_references": [],
+    "exact_source_actions": 45,
+    "action_differences": []
+  },
+  "m02_bship_bar_decision": {
+    "ok": true,
+    "events": 3,
+    "entities": 13,
+    "duration": 2000.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m02_bship_bar_offer": {
+    "ok": true,
+    "events": 227,
+    "entities": 112,
+    "duration": 193.0,
+    "source_external_references": [],
+    "exact_source_actions": 146,
+    "action_differences": []
+  },
+  "m02_explode_camera": {
+    "ok": true,
+    "events": 6,
+    "entities": 7,
+    "duration": 15.0,
+    "source_external_references": [],
+    "exact_source_actions": 5,
+    "action_differences": []
+  },
+  "m02_jacobo_offer": {
+    "ok": true,
+    "events": 185,
+    "entities": 92,
+    "duration": 104.0,
+    "source_external_references": [],
+    "exact_source_actions": 142,
+    "action_differences": []
+  },
+  "m02_jacobo_vendor": {
+    "ok": true,
+    "events": 2,
+    "entities": 6,
+    "duration": 15.133,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m02_junkers": {
+    "ok": true,
+    "events": 8,
+    "entities": 15,
+    "duration": 33.5,
+    "source_external_references": [],
+    "exact_source_actions": 6,
+    "action_differences": []
+  },
+  "m02_reichman": {
+    "ok": true,
+    "events": 171,
+    "entities": 103,
+    "duration": 86.0,
+    "source_external_references": [],
+    "exact_source_actions": 127,
+    "action_differences": []
+  },
+  "m02_wilham_vendor": {
+    "ok": true,
+    "events": 2,
+    "entities": 6,
+    "duration": 15.133,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m03_fleet_arrive": {
+    "ok": true,
+    "events": 4,
+    "entities": 7,
+    "duration": 6.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m03_kgb_death01": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 10.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m03_kgb_death02": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 20.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m03_offer": {
+    "ok": true,
+    "events": 130,
+    "entities": 58,
+    "duration": 68.0,
+    "source_external_references": [],
+    "exact_source_actions": 91,
+    "action_differences": []
+  },
+  "m03_offer_accept": {
+    "ok": true,
+    "events": 109,
+    "entities": 67,
+    "duration": 98.0,
+    "source_external_references": [],
+    "exact_source_actions": 74,
+    "action_differences": []
+  },
+  "m03_offer_decision": {
+    "ok": true,
+    "events": 5,
+    "entities": 17,
+    "duration": 1000.0,
+    "source_external_references": [],
+    "exact_source_actions": 4,
+    "action_differences": []
+  },
+  "m03_reward": {
+    "ok": true,
+    "events": 40,
+    "entities": 28,
+    "duration": 46.0,
+    "source_external_references": [],
+    "exact_source_actions": 28,
+    "action_differences": []
+  },
+  "m04_final": {
+    "ok": true,
+    "events": 112,
+    "entities": 56,
+    "duration": 72.0,
+    "source_external_references": [],
+    "exact_source_actions": 74,
+    "action_differences": []
+  },
+  "m04_friends_arrive_alaric": {
+    "ok": true,
+    "events": 5,
+    "entities": 11,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 4,
+    "action_differences": []
+  },
+  "m04_friends_arrive_hassler": {
+    "ok": true,
+    "events": 4,
+    "entities": 11,
+    "duration": 25.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m04_hatcher": {
+    "ok": true,
+    "events": 159,
+    "entities": 74,
+    "duration": 100.0,
+    "source_external_references": [
+      "wlkg_trent_front"
+    ],
+    "exact_source_actions": 107,
+    "action_differences": []
+  },
+  "m04_jacobo_death": {
+    "ok": true,
+    "events": 4,
+    "entities": 11,
+    "duration": 6.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m04_jumphole": {
+    "ok": true,
+    "events": 3,
+    "entities": 9,
+    "duration": 8.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m04_offer": {
+    "ok": true,
+    "events": 84,
+    "entities": 59,
+    "duration": 101.0,
+    "source_external_references": [],
+    "exact_source_actions": 55,
+    "action_differences": []
+  },
+  "m04_offer_accept": {
+    "ok": true,
+    "events": 25,
+    "entities": 42,
+    "duration": 19.5,
+    "source_external_references": [
+      "cam_start"
+    ],
+    "exact_source_actions": 15,
+    "action_differences": []
+  },
+  "m04_offer_decision": {
+    "ok": true,
+    "events": 4,
+    "entities": 13,
+    "duration": 5555.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m04_officer_scene01": {
+    "ok": true,
+    "events": 4,
+    "entities": 12,
+    "duration": 255.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m04_officer_scene02": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 1500.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m04_reactor_fx": {
+    "ok": true,
+    "events": 2,
+    "entities": 5,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m05_arrest_camera01": {
+    "ok": true,
+    "events": 4,
+    "entities": 6,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m05_arrest_camera02": {
+    "ok": true,
+    "events": 7,
+    "entities": 15,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 6,
+    "action_differences": []
+  },
+  "m05_arrest_camera03": {
+    "ok": true,
+    "events": 4,
+    "entities": 6,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m05_arrest_camera04": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m05_arrest_camera05": {
+    "ok": true,
+    "events": 4,
+    "entities": 6,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m05_arrest_camera06": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m05_arrest_camera07": {
+    "ok": true,
+    "events": 6,
+    "entities": 7,
+    "duration": 600.0,
+    "source_external_references": [],
+    "exact_source_actions": 5,
+    "action_differences": []
+  },
+  "m05_arrest_camera08": {
+    "ok": true,
+    "events": 4,
+    "entities": 6,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m05_arrest_camera09": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m05_barman": {
+    "ok": true,
+    "events": 15,
+    "entities": 6,
+    "duration": 63.498,
+    "source_external_references": [],
+    "exact_source_actions": 15,
+    "action_differences": []
+  },
+  "m05_detroit": {
+    "ok": true,
+    "events": 75,
+    "entities": 49,
+    "duration": 68.0,
+    "source_external_references": [],
+    "exact_source_actions": 32,
+    "action_differences": []
+  },
+  "m05_equip": {
+    "ok": true,
+    "events": 510,
+    "entities": 214,
+    "duration": 320.0,
+    "source_external_references": [],
+    "exact_source_actions": 334,
+    "action_differences": []
+  },
+  "m05_offer": {
+    "ok": true,
+    "events": 143,
+    "entities": 61,
+    "duration": 128.99999999999997,
+    "source_external_references": [],
+    "exact_source_actions": 71,
+    "action_differences": []
+  },
+  "m05_offer_accept": {
+    "ok": true,
+    "events": 22,
+    "entities": 57,
+    "duration": 24.0,
+    "source_external_references": [],
+    "exact_source_actions": 13,
+    "action_differences": []
+  },
+  "m05_offer_decision": {
+    "ok": true,
+    "events": 4,
+    "entities": 17,
+    "duration": 50000.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m05_piratebar": {
+    "ok": true,
+    "events": 149,
+    "entities": 57,
+    "duration": 119.0,
+    "source_external_references": [],
+    "exact_source_actions": 99,
+    "action_differences": []
+  },
+  "m05_research_explode": {
+    "ok": true,
+    "events": 4,
+    "entities": 11,
+    "duration": 10.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m05_rheinlanders_camera": {
+    "ok": true,
+    "events": 2,
+    "entities": 5,
+    "duration": 300.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m06_briefing": {
+    "ok": true,
+    "events": 327,
+    "entities": 110,
+    "duration": 243.0,
+    "source_external_references": [],
+    "exact_source_actions": 199,
+    "action_differences": []
+  },
+  "m06_jumpin_camera1": {
+    "ok": true,
+    "events": 2,
+    "entities": 5,
+    "duration": 10.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m06_jumpin_camera2": {
+    "ok": true,
+    "events": 2,
+    "entities": 5,
+    "duration": 10.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m06_lab_explode_camera": {
+    "ok": true,
+    "events": 2,
+    "entities": 5,
+    "duration": 11.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m06_lab_land": {
+    "ok": true,
+    "events": 53,
+    "entities": 51,
+    "duration": 40.0,
+    "source_external_references": [],
+    "exact_source_actions": 35,
+    "action_differences": []
+  },
+  "m06_lab_launch": {
+    "ok": true,
+    "events": 34,
+    "entities": 67,
+    "duration": 14.0,
+    "source_external_references": [
+      "Mrk_CameraInit"
+    ],
+    "exact_source_actions": 32,
+    "action_differences": []
+  },
+  "m06_lab_room": {
+    "ok": true,
+    "events": 47,
+    "entities": 59,
+    "duration": 36.0,
+    "source_external_references": [],
+    "exact_source_actions": 39,
+    "action_differences": []
+  },
+  "m06_mount": {
+    "ok": true,
+    "events": 68,
+    "entities": 29,
+    "duration": 40.0,
+    "source_external_references": [],
+    "exact_source_actions": 28,
+    "action_differences": []
+  },
+  "m06_nomad_area_camera1": {
+    "ok": true,
+    "events": 2,
+    "entities": 6,
+    "duration": 25.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m06_nomad_area_camera2": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 25.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m06_nomad_area_camera3": {
+    "ok": true,
+    "events": 2,
+    "entities": 6,
+    "duration": 25.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m06_nomad_area_camera4": {
+    "ok": true,
+    "events": 2,
+    "entities": 5,
+    "duration": 25.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m06_offer": {
+    "ok": true,
+    "events": 182,
+    "entities": 63,
+    "duration": 135.5,
+    "source_external_references": [],
+    "exact_source_actions": 114,
+    "action_differences": []
+  },
+  "m06_offer_accept": {
+    "ok": true,
+    "events": 21,
+    "entities": 37,
+    "duration": 16.0,
+    "source_external_references": [],
+    "exact_source_actions": 12,
+    "action_differences": []
+  },
+  "m06_offer_decision": {
+    "ok": true,
+    "events": 5,
+    "entities": 17,
+    "duration": 5000.0,
+    "source_external_references": [],
+    "exact_source_actions": 4,
+    "action_differences": []
+  },
+  "m06_omicron_major": {
+    "ok": true,
+    "events": 88,
+    "entities": 107,
+    "duration": 60.0,
+    "source_external_references": [],
+    "exact_source_actions": 87,
+    "action_differences": []
+  },
+  "m06_order_camera3": {
+    "ok": true,
+    "events": 3,
+    "entities": 7,
+    "duration": 20.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m06_order_camera4": {
+    "ok": true,
+    "events": 2,
+    "entities": 5,
+    "duration": 10.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m06_order_deck": {
+    "ok": true,
+    "events": 45,
+    "entities": 77,
+    "duration": 50.0,
+    "source_external_references": [],
+    "exact_source_actions": 37,
+    "action_differences": []
+  },
+  "m06_prison_new": {
+    "ok": true,
+    "events": 452,
+    "entities": 221,
+    "duration": 230.0,
+    "source_external_references": [],
+    "exact_source_actions": 376,
+    "action_differences": []
+  },
+  "m06_torpedo_alert": {
+    "ok": true,
+    "events": 57,
+    "entities": 45,
+    "duration": 39.5,
+    "source_external_references": [],
+    "exact_source_actions": 39,
+    "action_differences": []
+  },
+  "m06_vendor_alaric": {
+    "ok": true,
+    "events": 10,
+    "entities": 6,
+    "duration": 61.464,
+    "source_external_references": [],
+    "exact_source_actions": 10,
+    "action_differences": []
+  },
+  "m06_vendor_hatcher": {
+    "ok": true,
+    "events": 9,
+    "entities": 6,
+    "duration": 29.812,
+    "source_external_references": [],
+    "exact_source_actions": 9,
+    "action_differences": []
+  },
+  "m07_battleship": {
+    "ok": true,
+    "events": 197,
+    "entities": 72,
+    "duration": 123.0,
+    "source_external_references": [],
+    "exact_source_actions": 80,
+    "action_differences": []
+  },
+  "m07_check_artifact": {
+    "ok": true,
+    "events": 108,
+    "entities": 122,
+    "duration": 72.0,
+    "source_external_references": [],
+    "exact_source_actions": 59,
+    "action_differences": []
+  },
+  "m07_gunners": {
+    "ok": true,
+    "events": 134,
+    "entities": 104,
+    "duration": 68.0,
+    "source_external_references": [],
+    "exact_source_actions": 101,
+    "action_differences": []
+  },
+  "m07_offer": {
+    "ok": true,
+    "events": 159,
+    "entities": 83,
+    "duration": 136.0,
+    "source_external_references": [],
+    "exact_source_actions": 87,
+    "action_differences": []
+  },
+  "m07_offer_accept": {
+    "ok": true,
+    "events": 11,
+    "entities": 43,
+    "duration": 4.0,
+    "source_external_references": [],
+    "exact_source_actions": 7,
+    "action_differences": []
+  },
+  "m07_offer_decision": {
+    "ok": true,
+    "events": 6,
+    "entities": 22,
+    "duration": 140.0,
+    "source_external_references": [],
+    "exact_source_actions": 5,
+    "action_differences": []
+  },
+  "m07_omega13": {
+    "ok": true,
+    "events": 357,
+    "entities": 219,
+    "duration": 68.0,
+    "source_external_references": [],
+    "exact_source_actions": 335,
+    "action_differences": []
+  },
+  "m07_reward": {
+    "ok": true,
+    "events": 139,
+    "entities": 137,
+    "duration": 61.5,
+    "source_external_references": [],
+    "exact_source_actions": 90,
+    "action_differences": []
+  },
+  "m07_tau_arrival": {
+    "ok": true,
+    "events": 44,
+    "entities": 47,
+    "duration": 32.0,
+    "source_external_references": [],
+    "exact_source_actions": 37,
+    "action_differences": []
+  },
+  "m07_tortuga_wp_camera": {
+    "ok": true,
+    "events": 4,
+    "entities": 9,
+    "duration": 10000.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m08_core_camera_01": {
+    "ok": true,
+    "events": 3,
+    "entities": 7,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m08_core_camera_02": {
+    "ok": true,
+    "events": 2,
+    "entities": 7,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m08_core_camera_03": {
+    "ok": true,
+    "events": 2,
+    "entities": 5,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m08_core_camera_04": {
+    "ok": true,
+    "events": 2,
+    "entities": 5,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m08_core_camera_06": {
+    "ok": true,
+    "events": 2,
+    "entities": 6,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m08_core_camera_07": {
+    "ok": true,
+    "events": 2,
+    "entities": 6,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m08_core_camera_08": {
+    "ok": true,
+    "events": 6,
+    "entities": 7,
+    "duration": 60.0,
+    "source_external_references": [],
+    "exact_source_actions": 5,
+    "action_differences": []
+  },
+  "m08_core_camera_09": {
+    "ok": true,
+    "events": 7,
+    "entities": 8,
+    "duration": 60.0,
+    "source_external_references": [],
+    "exact_source_actions": 6,
+    "action_differences": []
+  },
+  "m08_lair_done_camera_01": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m08_lair_done_camera_02": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 3,
+    "action_differences": []
+  },
+  "m08_lair_done_camera_03": {
+    "ok": true,
+    "events": 3,
+    "entities": 6,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 2,
+    "action_differences": []
+  },
+  "m08_lair_done_camera_04": {
+    "ok": true,
+    "events": 6,
+    "entities": 7,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 6,
+    "action_differences": []
+  },
+  "m08_lair_enter_door_01": {
+    "ok": true,
+    "events": 6,
+    "entities": 7,
+    "duration": 60.0,
+    "source_external_references": [],
+    "exact_source_actions": 5,
+    "action_differences": []
+  },
+  "m08_liberty_enter_camera_01": {
+    "ok": true,
+    "events": 2,
+    "entities": 6,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m08_offer": {
+    "ok": true,
+    "events": 288,
+    "entities": 117,
+    "duration": 230.00000000000003,
+    "source_external_references": [],
+    "exact_source_actions": 143,
+    "action_differences": []
+  },
+  "m08_offer_accept": {
+    "ok": true,
+    "events": 71,
+    "entities": 108,
+    "duration": 37.599999999999994,
+    "source_external_references": [],
+    "exact_source_actions": 36,
+    "action_differences": []
+  },
+  "m08_offer_decision": {
+    "ok": true,
+    "events": 10,
+    "entities": 21,
+    "duration": 267111111.0,
+    "source_external_references": [],
+    "exact_source_actions": 9,
+    "action_differences": []
+  },
+  "m08_osiris": {
+    "ok": true,
+    "events": 325,
+    "entities": 110,
+    "duration": 226.0,
+    "source_external_references": [],
+    "exact_source_actions": 150,
+    "action_differences": []
+  },
+  "m08_outside_camera_01": {
+    "ok": true,
+    "events": 2,
+    "entities": 7,
+    "duration": 30.0,
+    "source_external_references": [],
+    "exact_source_actions": 1,
+    "action_differences": []
+  },
+  "m08_outside_camera_02": {
+    "ok": true,
+    "events": 6,
+    "entities": 8,
+    "duration": 60.0,
+    "source_external_references": [],
+    "exact_source_actions": 5,
+    "action_differences": []
+  },
+  "m08_wales_init": {
+    "ok": true,
+    "events": 6,
+    "entities": 15,
+    "duration": 42.187,
+    "source_external_references": [],
+    "exact_source_actions": 6,
+    "action_differences": []
+  }
+}

@@ -1,6 +1,34 @@
 Automatic interior/character materials (RP9)
 ============================================
 
+Bretonian bar relief (2026-11-12):
+- User tuning: 30% of the initial Bretonian normal slope, groove contrast and
+  relief-linked highlights, preserving its full/quarter material distinction.
+  Havana/Cadiz strength is unchanged.
+- Explicit CMP texture identities select Avalon, Cambridge, Warwick and
+  battleship walls/floors for full relief, furnishings for quarter relief.
+- Barbican remains excluded at the user's request. Screens, lamps and unrelated
+  generic texture names do not select the new path. Native transparency and
+  texture-stage checks still apply. GPU routing/draw tests cover all four sets;
+  artistic strength still requires review in the actual rooms.
+
+Havana/Cadiz wood and masonry relief (2026-11-11):
+- All hispahic/ispahic atlases now keep full relief, including mixed masonry
+  (01/10/12/27). Only wood atlases 08/15/16/17/22/24/26 retain quarter normal
+  slope and groove contrast. These are per-atlas
+  classifications, not per-pixel material masks. Wood gets a matte finish with
+  reduced highlights. GPU checks verify both constant modes and pixel response.
+- Authored hispahic/ispahic environment materials now select the previously
+  disconnected two-layer relief path, in every room using those materials.
+- Wood detail maps retain the wood finish; masonry keeps the uncoated finish.
+- Selection resets per material and excludes props. Existing material validity,
+  FVF, texture-coordinate and stage-operation checks remain enforced; blended
+  masonry stays native. This is diffuse-derived relief, not geometric displacement.
+- GPU regression checks actual detail-layer response, alpha preservation, wood
+  and masonry routing, native exclusions and reset between materials.
+  Run tools/room_materials/check.py --startup-build after shader_startup/build.py
+  to test the current installed-build configuration rather than older RP9 objects.
+
 Only DrawClientLocation opens the room scope. Original DATA assets, room lights,
 THN scripts, UVs, geometry and animation are never rewritten. Existing multilayer
 diffuse/emissive maps retain their stage operations and UV transforms.

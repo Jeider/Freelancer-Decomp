@@ -679,6 +679,7 @@ void FirstPersonCameraSceneDraw(FFirstPersonCamera* Cam, unsigned LayerFlags, un
     // First person bypasses SpaceCameraRenderSlot78: filter the completed image
     // exactly once, after the cabin, before any HUD text.
     RenderEx::AntialiasScene();
+    RenderEx::ColorGradeScene();
 #endif
     // 0x005185d8..0x005185e0: HUDCamera's slot 0x78 body, called directly.
     HudCameraDraw((FGameCamera*)Hud);

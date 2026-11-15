@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "object_prop.h"
+#include "render_ex.h"
 
 #include "client_cliobj.h"
 #include "engine_light.h"
@@ -151,7 +152,15 @@ void FObjectProp::DrawOpaque(ICamera* /*Camera*/)
                               0);
     }
     // 0x00446b2c..0x00446b30: FUN_0044af60.
+#ifdef FREELANCER_RP9
+    // The main room mesh is also an FObjectProp. Marking it as a loose prop
+    // suppresses environment-only material effects, including Havana masonry.
+    RenderEx::RoomProp(bRoomMain == 0);
+#endif
     RoomControlDrawObject(Owner, this);
+#ifdef FREELANCER_RP9
+    RenderEx::RoomProp(false);
+#endif
 }
 
 void FObjectProp::DrawTranslucent(ICamera* Camera)

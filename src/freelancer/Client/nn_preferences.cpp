@@ -12,6 +12,8 @@
 // registered only by the WINFACTORY global below.
 
 #include "nn_preferences.h"
+#include "page_customization.h"
+#include "hud_interface_ids.h"
 #include "color_grade_preferences.h"
 #ifdef FREELANCER_DLSS5
 #include "base_neural_preferences.h"
@@ -80,6 +82,9 @@ namespace
 
     char const kKeyListPath[] = "../Data/interface/keylist.ini"; // 0x005d4cbc
     char const kPerfOptionsFile[] = "PerfOptions.ini";           // 0x005d5088
+
+    void SetPerfOptionValue(FPerfOption* Option, float Value);
+    void HideOptionRow(NnPreferences* Self, int Index);
 
     void ShowControl(Win3D* Control)
     {
@@ -153,6 +158,7 @@ NnPreferences::NnPreferences()
 
 NnPreferences::~NnPreferences()
 {
+    CloseCustomization();
     ColorGrade::Cancel();
 #ifdef FREELANCER_DLSS5
     BaseNeural::CancelStrengthPreview();
@@ -170,6 +176,7 @@ bool NnPreferences::Slot23(unsigned, unsigned, unsigned)
 
 void NnPreferences::Draw()
 {
+    if (CustomizationWindow) { Win3DFlushBeforeOverlayDraw(); CustomizationWindow->Draw(); return; }
     // FUN_004abdb0: flush, then every visible child (Flags bit 1) draws; the set-key frame
     // flushes the overlay batch again before it draws.
     Win3DFlushBeforeOverlayDraw();
@@ -194,6 +201,11 @@ void NnPreferences::Draw()
 
 void NnPreferences::Update()
 {
+    if (CustomizationWindow) {
+        if (CustomizationWindowClosed(CustomizationWindow)) CloseCustomization();
+        else CustomizationWindow->Update();
+        return;
+    }
     // FUN_004ab6e0
     WinControl::Update();
     if (VideoModeDropdown && (bFlipping || bClosingAnim || bClosed)) VideoModeDropdown->Close();
@@ -376,7 +388,8 @@ void NnPreferences::Update()
 
 void NnPreferences::SetRowsHidden(bool bHide)
 {
-    if (CurPage==1) SetGraphicsHidden(bHide);
+    SetCustomizationHidden(bHide || CurPage!=1);
+    if (CurPage==1 || CurPage==2) SetGraphicsHidden(bHide);
     if (bHide) {
         if (VideoModeDropdown) VideoModeDropdown->Close();
         if (VideoModeChoice) HideControl(VideoModeChoice);
@@ -439,6 +452,7 @@ void NnPreferences::SetRowsHidden(bool bHide)
         if (!bHide)
         {
             RefreshRows(-1);
+            if (CurPage==1 || CurPage==2) ApplyGraphicsTab();
             return;
         }
     }
@@ -531,8 +545,10 @@ bool NnPreferences::VideoModeProperty(int msg, Win3D* source, uintptr_t value)
 
 intptr_t NnPreferences::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 {
+    if (CustomizationWindow) return 0;
     // FUN_004ac0a0
     Win3D* const Source = reinterpret_cast<Win3D*>(A);
+    if (CustomizationProperty(Msg,Source)) return 0;
     if (GraphicsProperty(Msg,Source,B)) return 0;
     if (VideoModeProperty(Msg,Source,B)) return 0;
 
@@ -605,7 +621,7 @@ intptr_t NnPreferences::SetProperty(int Msg, uintptr_t A, uintptr_t B)
                     ShowConfirmDialog(false);
                     return 1;
                 }
-                if (CurPage==1) CommitGraphics();
+                if (CurPage==1 || CurPage==2) CommitGraphics();
                 TakeSnapshot();
             }
             bDirty = 0;
@@ -823,8 +839,17 @@ intptr_t NnPreferences::SetProperty(int Msg, uintptr_t A, uintptr_t B)
             }
             // 0x004ace35 / 0x004ad1eb: FLD float +0x14, FMUL float 100.0f on the x87 stack, ftol --
             // an exact product (24 x 7 bits), so double, not a rounded float, reaches ftol.
-            FPerfOption* const Graphics = FindPerfOption("default_graphics");
-            SetSliderOption(0x767, static_cast<int>(static_cast<double>(Graphics->Applied) * 100.0), -1);
+            if (CurPage == 1)
+            {
+                SetPerfOptionValue(FindPerfOption("default_graphics"), 1.0f);
+                SetPerfOptionValue(FindPerfOption("advanced_graphics"), 1.0f);
+                SetSliderOption(0x767, 100, -1);
+            }
+            else
+            {
+                FPerfOption* const Graphics = FindPerfOption("default_graphics");
+                SetSliderOption(0x767, static_cast<int>(static_cast<double>(Graphics->Applied) * 100.0), -1);
+            }
             if (CurPage == 1)
             {
                 // 0x004ace5c: the default video mode from the device caps.
@@ -1030,6 +1055,7 @@ bool NnPreferences::MouseEvent(FWin3DMouseEvent const* Event)
 
 bool NnPreferences::KeyEvent(unsigned Key, unsigned char* Modifiers)
 {
+    if (CustomizationWindow) return CustomizationWindow->KeyEvent(Key,Modifiers);
     if (GraphicsDropdown && GraphicsDropdown->IsOpen()) return GraphicsDropdown->KeyEvent(Key,Modifiers);
     if (VideoModeDropdown != nullptr && VideoModeDropdown->IsOpen())
         return VideoModeDropdown->KeyEvent(Key, Modifiers);
@@ -1252,7 +1278,7 @@ void NnPreferences::EnterVideoPage()
     ShowControl(DefaultsButton);
     ShowControl(DefaultsText);
     ShowControl(Title);
-    ShowControl(StaticBar);
+    HideControl(StaticBar); // obsolete retail detail separator crosses the new tabs/rows
     SetTextIds(Title, 0x68d);
     SetRowsHidden(false);
 }
@@ -1356,8 +1382,23 @@ namespace
     }
 }
 
+void NnPreferences::SetOptionRowsHidden(bool hide)
+{
+    if (hide)
+    {
+        for (int Index = 0; Index < 14; ++Index)
+            HideOptionRow(this, Index);
+        if (VideoModeDropdown) VideoModeDropdown->Close();
+        if (VideoModeChoice) HideControl(VideoModeChoice);
+        return;
+    }
+    if (CurPage == 1 || CurPage == 2 || CurPage == 3)
+        RefreshRows(-1);
+}
+
 void NnPreferences::LeaveInterfacePage()
 {
+    SetCustomizationHidden(true);
     SetGraphicsHidden(true);
     if (VideoModeDropdown) VideoModeDropdown->Close();
     // FUN_004aebb0
@@ -1386,6 +1427,7 @@ void NnPreferences::LeaveInterfacePage()
 
 void NnPreferences::LeaveVideoPage()
 {
+    SetGraphicsHidden(true);
     // FUN_004aeca0
     if (bDirty != 0)
     {
@@ -2023,7 +2065,12 @@ bool NnPreferences::LoadOptList(char const* Path)
         bool moving = false;
         for (auto it = OptionsA.begin(); it != OptionsA.end(); )
         {
-            if (it->bHeader && it->Id == 1897) { moving = true; it = OptionsA.erase(it); continue; }
+            if (it->bHeader && it->Id == 1897) {
+                moving = true;
+                it->Id = PreferenceIds::GraphicsAdditional;
+                ++it;
+                continue;
+            }
             if (moving && it->bHeader && it->Id != -1) moving = false;
             if (moving)
             {
@@ -2032,11 +2079,21 @@ bool NnPreferences::LoadOptList(char const* Path)
             }
             else ++it;
         }
-        // Keep only the display/mouse controls; rows 3..11 host the
-        // added graphics controls in the space vacated by Miscellaneous.
-        OptionsA.erase(std::remove_if(OptionsA.begin(),OptionsA.end(),
-            [](FPrefOption const& row){return row.Id==-1 || (row.bHeader && (row.Id==1894 || row.Id==1896));}),OptionsA.end());
+        // Display extras continue the Monitor block after resolution and gamma.
+        // Move the original control heading and mouse row together, retaining IDs.
+        FPrefOption control = BlankOption(), mouse = BlankOption();
+        for (auto& row : OptionsA) {
+            if (row.Id == 1896) { control=row; row=BlankOption(); }
+            else if (row.Id == 1501) { mouse=row; row=BlankOption(); }
+            else if (row.Id == PreferenceIds::GraphicsAdditional) row=BlankOption();
+        }
         while (OptionsA.size() < 15) OptionsA.push_back(BlankOption());
+        int controlRow=8;
+#ifdef FREELANCER_DLSS5
+        ++controlRow;
+#endif
+        OptionsA[controlRow]=control;
+        OptionsA[controlRow+1]=mouse;
     }
     if (bSeedMode != 0)
         ApplyChangedPerfOptions();
@@ -2046,7 +2103,7 @@ bool NnPreferences::LoadOptList(char const* Path)
 void NnPreferences::TakeSnapshot()
 {
     if (CurPage == 7) { SnapshotMisc(); return; }
-    if (CurPage==1 && !bSeedMode) SnapshotGraphics();
+    if ((CurPage==1 || CurPage==2) && !bSeedMode) SnapshotGraphics();
     // FUN_004b0530: the current value of each of the 14 rows (headers -1, sliders their scroll
     // value, toggles 0/1), then the three preview sounds stop. The row copy is a local that is
     // only overwritten on pages 1..3 -- retail seeds it once (Id -1, bytes 0).
@@ -2231,8 +2288,7 @@ void NnPreferences::ApplyPercent(int Percent)
         Percent = static_cast<int>(static_cast<double>(FindPerfOption("default_graphics")->Applied) * 100.0);
     SetSliderOption(0x767, Percent, -1);
 
-    // 0x004b04e3: advanced_graphics = 0 (no null test).
-    SetPerfOptionValue(FindPerfOption("advanced_graphics"), 0.0f);
+    SetPerfOptionValue(FindPerfOption("advanced_graphics"), 1.0f);
 }
 
 bool NnPreferences::SeedGraphicsDefaults()
@@ -2243,7 +2299,7 @@ bool NnPreferences::SeedGraphicsDefaults()
     NnPreferences* const Dialog = new NnPreferences();
     Dialog->bSeedMode = 1;
     Dialog->LoadOptList(kOptListPath);
-    float const Score = ProbeMachineGraphicsLevel();
+    float const Score = 1.0f;
 
     // 0x004a94b7: FCOMP 0.0f / TEST AH,5 / JP -- only "less" returns (unordered goes on). The
     // dialog is not freed on this path.
@@ -2259,7 +2315,7 @@ bool NnPreferences::SeedGraphicsDefaults()
         SetPerfOptionValue(General, Score);
     FPerfOption* const Advanced = FindPerfOption("advanced_graphics");
     if (Advanced != nullptr)
-        SetPerfOptionValue(Advanced, 0.0f);
+        SetPerfOptionValue(Advanced, 1.0f);
 
     // 0x004a95a7: FUN_004b0370(ftol(score * 100.0f)), then vt[0](1) -- the scalar deleting dtor.
     Dialog->ApplyPercent(static_cast<int>(static_cast<double>(Score) * 100.0));
@@ -2555,7 +2611,7 @@ void NnPreferences::UpdateDirty(int Id, float Value)
     // snapshot, makes the page dirty.
     if (bSeedMode != 0)
         return;
-    bool bFound = CurWidth != SelWidth || bCur32 != bSel32 || (CurPage==1 && GraphicsDirty());
+    bool bFound = CurWidth != SelWidth || bCur32 != bSel32 || ((CurPage==1 || CurPage==2) && GraphicsDirty());
     // The row copy: Id -1 and the three bytes 0 before the loop, overwritten only on pages 1..3.
     FPrefOption Row = BlankOption();
     for (int Index = 0; Index < 14 && !bFound; ++Index)
@@ -2684,7 +2740,7 @@ void NnPreferences::ProbeModes(int)
 void NnPreferences::Revert(bool bApply)
 {
     if (CurPage == 7) { RevertMisc(); return; }
-    if (CurPage==1 && !bSeedMode) RevertGraphics();
+    if ((CurPage==1 || CurPage==2) && !bSeedMode) RevertGraphics();
     // FUN_004b06a0 (RET 4): every row that moved away from its snapshot goes back; with bApply
     // the widgets follow and the row index is passed on.
     if (bSeedMode != 0)
@@ -3647,6 +3703,7 @@ bool NnPreferences::Create(Win3D* NewParent, void* Data)
     }
 
     if (!CreateMiscPage(ColumnX, ColumnY, Step)) return false;
+    if (!CreateCustomizationGroup()) return false;
     if (!CreateGraphicsRows()) return false;
 
     // 0x004ab276..0x004ab311: FUN_005a0db0("SetKeyFrame", alt-f4window.cmp, {0, 0, -1}, 0,
