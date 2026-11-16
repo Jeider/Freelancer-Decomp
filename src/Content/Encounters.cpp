@@ -12,6 +12,7 @@
 #ifdef FREELANCER_ADOXA
 #include "../include/port_plugins.h" // port-only adoxa plugins
 #include "common_server.h"        // pub::Player::GetRank (MatchPlayer)
+#include "ServerNpcScaling.h"
 #endif
 #include "BaseSupport.h"
 #include "BaseDB.h"
@@ -231,8 +232,9 @@ bool FZonePopulation::ParseValue(INI_Reader* Reader, FSystemInfo* InSystem, FSys
 #ifdef FREELANCER_ADOXA
         int Level = static_cast<int>(Reader->get_value_float(1));           // ftol
         // Port-only, adoxa's MatchPlayer.dll (docs/adoxa.md; 06ef9066): the encounter level is
-        // raised to half of player 1's rank, when the system loads.
-        if (PORT_PLUGIN_ON("MatchPlayer"))
+        // raised to half of player 1's rank, when the system loads. Freeflight MP
+        // keeps the authored level here and matches all online players at spawn.
+        if (PORT_PLUGIN_ON("MatchPlayer") && !ServerNpcScaling::Active())
         {
             int Rank = 0;
             pub::Player::GetRank(1u, Rank);

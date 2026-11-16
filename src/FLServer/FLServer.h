@@ -72,6 +72,8 @@ public:
 
 protected:
 	// Message handlers (message map .rdata:0041cdb8).
+    afx_msg void OnCampaign();
+    afx_msg void OnUpdateCampaign(CCmdUI* CmdUI);
 	afx_msg void OnAppAbout();                              // 0040cae0
 	afx_msg void OnDebugDebug();                            // 0040cf50
 	afx_msg void OnDebugAiDebugger();                       // 0040cf40

@@ -64,8 +64,12 @@ int main(){
     std::vector<IDirect3DVertexShader9*> effectVertices;
     for(auto const& spec: {std::vector<std::string>{"far_rocks.hlsl","VSMain","PSMain"},
         {"far_rocks.hlsl","VSMesh","PSMesh"},{"field_dust.hlsl","VSMain","PSMarch"},
-        {"field_dust.hlsl","VSMain","PSComposite"}}){
-        std::ifstream fieldFile("D:/games/FL_MOD/DATA_EXTRA/SHADERS/"+spec[0]);
+        {"field_dust.hlsl","VSMain","PSComposite"},
+        {"tradelane_corridor.hlsl","VSMain","PSMain"},{"tradelane_corridor.hlsl","VSMain","PSWarp"},
+        {"ship_warp.hlsl","VSMain","PSMain"},{"ship_warp.hlsl","VSMain","PSWarp"},
+        {"jump_travel_prototype.hlsl","VSMain","PSMain"},{"jump_travel_prototype.hlsl","VSMain","PSTransition"},
+        {"jump_cloud.hlsl","VSMain","PSMain"},{"jump_cloud.hlsl","VSComposite","PSComposite"}}){
+        std::ifstream fieldFile("DATA_EXTRA/SHADERS/"+spec[0]);
         std::string fieldSource((std::istreambuf_iterator<char>(fieldFile)),{});
         fieldSource="#line 1 \"SHADERS/"+spec[0]+"\"\n"+fieldSource;
         code=compile(fieldSource,spec[1].c_str(),"vs_3_0");

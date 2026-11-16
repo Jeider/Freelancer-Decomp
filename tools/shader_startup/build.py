@@ -2,13 +2,14 @@
 from pathlib import Path
 import os
 import subprocess
+import sys
 
 root = Path(__file__).resolve().parents[2]
 binary = root / 'out/base_neural/on/bin'
 msbuild = 'C:/Program Files/Microsoft Visual Studio/18/Community/MSBuild/Current/Bin/MSBuild.exe'
 env = dict(os.environ)
 env['LIB'] = str(binary) + ';' + env.get('LIB', '')
-for project in ('RP9', 'freelancer'):
+for project in (('Common', 'RP9', 'freelancer') if '--common' in sys.argv else ('RP9', 'freelancer')):
     obj = root / 'out/base_neural/on/obj' / project
     obj.mkdir(parents=True, exist_ok=True)
     args = [msbuild, str(root/'src'/project/(project+'.vcxproj')), '/t:Build',

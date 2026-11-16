@@ -72,6 +72,8 @@ static unsigned int GServerFrameCount = 0;
 // writable .data but nothing writes it (only the two reads at .text:0040cda0 / 0040cdb4).
 static float GServerFramePeriod = 0.0333333351f;
 
+#include "CampaignControl.inl"
+
 // .data:004278a0 (vtable .rdata:0041d030, set by the static initializer .text:0040b340) — the
 // loading screen InitInstance registers with Common: both slots are a bare RET
 // (.text:0040b350 / 0040b360), so Common's progress refreshes do nothing in the server.
@@ -143,6 +145,8 @@ END_MESSAGE_MAP()
 
 // .rdata:0041cdb8 — ids from ServerResources.dll's menu 128.
 BEGIN_MESSAGE_MAP(CFLServerApp, CWinApp)
+    ON_COMMAND(CampaignMenu, &CFLServerApp::OnCampaign)
+    ON_UPDATE_COMMAND_UI(CampaignMenu, &CFLServerApp::OnUpdateCampaign)
 	ON_COMMAND(ID_APP_ABOUT, &CFLServerApp::OnAppAbout)
 	ON_COMMAND(32771, &CFLServerApp::OnDebugDebug)
 	ON_COMMAND(32772, &CFLServerApp::OnDebugAiDebugger)
@@ -539,6 +543,10 @@ BOOL CFLServerApp::InitInstance()
 		SummaryForm->ResizeParentToFit(FALSE);
 	}
 	m_pMainWnd->ShowWindow(SW_SHOW);
+    if (HMENU menu=::GetMenu(m_pMainWnd->m_hWnd)) {
+        ::AppendMenuW(menu,MF_STRING,CampaignMenu,L"\u041a\u0430\u043c\u043f\u0430\u043d\u0438\u044f...");
+        ::DrawMenuBar(m_pMainWnd->m_hWnd);
+    }
 
 	RegisterLoadingScreen(&GServerLoadingScreen);
 

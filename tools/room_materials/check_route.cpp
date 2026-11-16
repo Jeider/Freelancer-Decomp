@@ -1,6 +1,7 @@
 #include "RP9Ex.h"
 #include "dacom_iids.h"
 #include "RP9LightCompatibility.h"
+#include "RP9FullHairMaterials.h"
 #include <d3dx9.h>
 #include <cstdio>
 #include <cstdlib>
@@ -137,7 +138,52 @@ int main(){
  fvf=D3DFVF_XYZB4|D3DFVF_LASTBETA_UBYTE4|D3DFVF_NORMAL|D3DFVF_TEX2;p->StreamCache_.Fvf=fvf;C(d->SetFVF(fvf));
  rs(D3DRS_INDEXEDVERTEXBLENDENABLE,1);rs(D3DRS_VERTEXBLEND,D3DVBF_3WEIGHTS);
  auto skinned=render(true,sq,sizeof(SV));R(skinned[32*64+57]!=0xff000000 && skinned[32*64+10]==0xff000000,"skinned palette translation preserved");
+ C(p->SetRoomMaterial("hatcher_hair_v1","hatcher_hair_v1.tga"));
+ R(e->RoomCurrent && e->RoomFinish==5.4f,"dedicated hair selected without face profile");
+ e->bRoomBrick=true;
+ auto hairSkin=render(true,sq,sizeof(SV));
+ R(hairSkin[32*64+57]!=0xff000000 && hairSkin[32*64+10]==0xff000000,"hair keeps indexed bone transform in masonry rooms");
+ e->bRoomBrick=false;
  rs(D3DRS_INDEXEDVERTEXBLENDENABLE,0);rs(D3DRS_VERTEXBLEND,D3DVBF_DISABLE);p->StreamCache_.Fvf=D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_TEX2;C(d->SetFVF(p->StreamCache_.Fvf));
+ V hairQ[4];for(int i=0;i<4;++i){hairQ[i]=q[i];hairQ[i].u*=.025f;hairQ[i].v*=.025f;}
+ auto hairLit=render(true,hairQ,sizeof(V));
+ e->RoomFinish=0;auto hairPlain=render(true,hairQ,sizeof(V));e->RoomFinish=5.4f;
+ R(delta(hairLit,hairPlain)>2,"hair shader changes real GPU pixels");
+ for(size_t i=0;i<hairLit.size();++i)R((hairLit[i]>>24)==(hairPlain[i]>>24),"hair preserves alpha");
+ rs(D3DRS_ALPHABLENDENABLE,1);C(d->BeginScene());R(p->ExRoomMaterialBegin(),"CPU-skinned DFM blended route supported");p->ExSurfaceEnd();C(d->EndScene());rs(D3DRS_ALPHABLENDENABLE,0);
+ C(p->SetRoomMaterial("li_hatcher_head01","li_hatcher_head02.TGA"));R(!p->ExRoomMaterialBegin(),"Hatcher face remains native after hair");
+ C(p->SetRoomMaterial("other_hair","other_hair.tga"));R(!p->ExRoomMaterialBegin(),"other hair requires explicit opt in");
+ C(p->SetRoomMaterial("short_hair_pl_female3_head_1","pl_female3_head01.tga"));
+ R(e->RoomCurrent && e->RoomFinish==5.4f,"Sinclair short hair opts in");
+ auto shortHair=render(true,hairQ,sizeof(V));
+ R(delta(shortHair,hairPlain)>1,"short hair changes GPU pixels");
+ C(p->SetRoomMaterial("hero_hair_pi_pirate5_head01","pi_pirate5_head04.TGA"));
+ R(e->RoomCurrent && e->RoomFinish==5.4f,"Trent selects authored lock relief");
+ auto heroHair=render(true,hairQ,sizeof(V));
+ R(delta(heroHair,shortHair)>1,"hero profile differs from basic hair");
+ for(size_t i=0;i<heroHair.size();++i)R((heroHair[i]>>24)==(hairPlain[i]>>24),"hero hair preserves alpha");
+ C(p->SetRoomMaterial("hero_hair_old_trent_head","old_trent_head.tga"));
+ R(e->RoomCurrent && e->RoomFinish==5.4f,"classic Trent selects hero profile");
+ C(p->SetRoomMaterial("hero_hair_pi_pirate5_head01","wrong.tga"));R(!p->ExRoomMaterialBegin(),"hair requires matching texture");
+ C(p->SetRoomMaterial("pi_pirate5_head01","pi_pirate5_head04.TGA"));R(!p->ExRoomMaterialBegin(),"Trent face remains native");
+ C(p->SetRoomMaterial("pl_female3_head_1","pl_female3_head01.tga"));R(!p->ExRoomMaterialBegin(),"Sinclair face remains native");
+ C(p->SetRoomMaterial("short_hair_pl_female4_head03","pl_female4_head03.TGA"));
+ R(e->RoomCurrent && e->RoomFinish==5.4f,"Juni selects dedicated tangent normal map");
+ auto juniNormal=render(true,q,sizeof(V));
+ R(e->RoomCurrent->Texture!=nullptr,"Juni normal map loaded on GPU");
+ float juniStrength=e->RoomCurrent->Normal;e->RoomCurrent->Normal=0;
+ auto juniFlat=render(true,q,sizeof(V));e->RoomCurrent->Normal=juniStrength;
+ R(delta(juniNormal,juniFlat)>2,"Juni normal map changes lighting on unchanged geometry");
+ for(size_t i=0;i<juniNormal.size();++i)R((juniNormal[i]>>24)==(juniFlat[i]>>24),"Juni normal map preserves alpha");
+ C(p->SetRoomMaterial("pl_female4_head03","pl_female4_head03.TGA"));R(!p->ExRoomMaterialBegin(),"Juni face excluded from strong normals");
+ for(auto const& hairMaterial:kFullHairMaterials){
+  C(p->SetRoomMaterial(hairMaterial.Name,hairMaterial.Texture));
+  R(e->RoomCurrent && e->RoomFinish==5.4f,"all registered hair selects normal map route");
+  auto mapped=render(true,q,sizeof(V));
+  R(e->RoomCurrent->Texture!=nullptr,"all hair normal maps load on GPU");
+ }
+ printf("PASS: %u hair material/texture normal maps rendered on GPU\n",unsigned(sizeof(kFullHairMaterials)/sizeof(kFullHairMaterials[0])));
+ C(p->SetRoomMaterial("fixture","base"));
  profile.Skin=1;profile.Normal=1;profile.Specular=1;
  R(!p->ExRoomMaterialBegin(),"skin keeps native lighting even with strong material parameters");
  profile.Skin=-1;profile.Normal=0;profile.Specular=0;

@@ -45,6 +45,10 @@ struct FGateTunnelVertex
     float UV[2];
 };
 static_assert(sizeof(FGateTunnelVertex) == 24, "tunnel XYZ/DIFFUSE/TEX1 layout");
+#ifdef FREELANCER_RP9
+#include "jump_travel_prototype.inl"
+#include "jump_cloud.inl"
+#endif
 struct FGateTunnelLayerCapture
 {
     std::vector<FGateTunnelVertex> Vertices, Strip;
@@ -898,6 +902,17 @@ namespace
 void GateTunnelDrawLaunch(FSpaceCamera* Camera, FJumpShipEffect const* Effect)
 {
 #ifdef FREELANCER_RP9
+    if(Effect&&Effect->Ship&&JumpCloudReady(Effect->Tunnel)&&
+       (Effect->Ship->Field_0x158==2||Effect->Ship->Field_0x158==3))return;
+    if(Camera && Effect && Effect->Ship && JumpPrototypeReady(Effect->Tunnel) &&
+        static_cast<void*>(static_cast<IObjRW*>(Effect->Ship))==GetPlayerObjRW() && GetGameOption(kGameOptEffectsGroup))
+    {
+        int State=Effect->Ship->Field_0x158;
+        float Age=Effect->Field_0x70;
+        if(State==2 || State==3) return; // Flight background is below the crisp ship draw.
+        if(State==1 && Effect->JumpOutTime>0 && DrawJumpPrototype(Camera,2*Age/Effect->JumpOutTime,0,Age/Effect->JumpOutTime)) return;
+        if(State==4 && Effect->JumpInTime>0 && DrawJumpPrototype(Camera,2+Effect->Tunnel->SpeedClock+Age,2,Age/Effect->JumpInTime)) return;
+    }
     if (JumpHoleVisualDrawIngress(Camera,Effect)) return;
     if (!Camera || !Effect || !Effect->Ship || !Effect->Tunnel ||
         !Effect->Tunnel->bHyperspaceClouds || !GetGameOption(kGameOptEffectsGroup))
@@ -987,6 +1002,7 @@ void GateTunnelDrawLaunch(FSpaceCamera* Camera, FJumpShipEffect const* Effect)
 void GateTunnelDrawRefraction(FSpaceCamera* Camera,FJumpShipEffect const* Effect)
 {
 #ifdef FREELANCER_RP9
+    if(Effect && (JumpCloudReady(Effect->Tunnel)||JumpPrototypeReady(Effect->Tunnel))) return;
     if(!Camera || !Effect || !Effect->Ship || !Effect->Tunnel ||
        static_cast<void*>(static_cast<IObjRW*>(Effect->Ship))!=GetPlayerObjRW() ||
        !GetGameOption(kGameOptEffectsGroup)) return;
@@ -1025,6 +1041,8 @@ void GateTunnelDrawRefraction(FSpaceCamera* Camera,FJumpShipEffect const* Effect
 void GateTunnelRenderShutdown()
 {
 #ifdef FREELANCER_RP9
+    ReleaseJumpPrototype();
+    ReleaseJumpCloud();
     IRenderPipelineEx* Ex = RenderEx::GetPipelineEx();
     if(Ex && G_HyperspaceRefraction) Ex->DestroyExProgram(G_HyperspaceRefraction);
     if(Ex && G_HyperspaceScene) Ex->DestroyExTexture(G_HyperspaceScene);
@@ -1041,6 +1059,13 @@ void GateTunnelRenderShutdown()
 #endif
 }
 
+void GateTunnelPrepareSystem()
+{
+#ifdef FREELANCER_RP9
+    if(GetGameOption(kGameOptEffectsGroup)&&GraphicsSettings::Get(GraphicsSettings::Hyperspace)>0){PrepareJumpCloud();PrepareJumpPrototype();}
+#endif
+}
+
 bool FGateTunnel::Draw(FSpaceCamera* Camera)
 {
     // FUN_004ffab0.
@@ -1051,6 +1076,11 @@ bool FGateTunnel::Draw(FSpaceCamera* Camera)
     // 0x004ffac7..0x004ffadc: a light that is off is switched on (vt+4) for the draw.
     if (Light != nullptr && (Light->Flags & 0x08) == 0)
         GameLightEnable(Light);
+
+#ifdef FREELANCER_RP9
+    if(DrawJumpCloud(Camera,this))return true;
+    if(GraphicsSettings::Get(GraphicsSettings::Hyperspace)>0 && JumpPrototypeReady(this) && DrawJumpPrototype(Camera,2+SpeedClock,1,1)) return true;
+#endif
 
     Win3DApplyCamera(AsCamera(Camera));
     Win3DDisable(kWin3DCullFace);
@@ -1074,7 +1104,7 @@ bool FGateTunnel::Draw(FSpaceCamera* Camera)
     Win3DDisable(kWin3DBlend);
 #ifdef FREELANCER_RP9
     // Always retain both original animated layers beneath the translucent clouds.
-    if (bHyperspaceClouds)
+    if (bHyperspaceClouds && GraphicsSettings::Get(GraphicsSettings::Hyperspace)>0)
         return DrawHyperspace(*this, AsCamera(Camera));
 #endif
     return false;

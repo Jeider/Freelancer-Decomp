@@ -1,5 +1,7 @@
 #include "tradelane_visual.h"
 #include "tradelane_visual_style.h"
+#include "graphics_settings.h"
+#include "travel_quality.h"
 
 #ifdef FREELANCER_RP9
 #include "tradelane_visual_mesh.h"
@@ -25,6 +27,8 @@
 
 namespace
 {
+    // User disabled refraction: skip capture resources and the distortion pass.
+    constexpr bool kTradeLaneRefractionEnabled = false;
     struct FTravelState
     {
         FMatrix Rotation = {};
@@ -42,6 +46,8 @@ namespace
     FRPExBuffer* G_Buffer = nullptr;
     FRPExTexture* G_SceneCopy = nullptr;
     FRPExTexture* G_Noise = nullptr;
+    // Deterministic CPU data survives shader reloads and graphics-resource resets.
+    std::vector<std::uint32_t> G_NoiseData;
     IRPSceneCapture* G_Capture = nullptr;
 
     bool SupportedTunnel(unsigned Id, unsigned& Mode)
@@ -130,7 +136,7 @@ namespace
         G_ProgramTried = true;
         IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
         if (Ex->CreateExProgram(RenderEx::GetExtraData(), "SHADERS\\tradelane_corridor.hlsl",
-                                "VSMain", "PSMain", &G_Program) != GR_OK)
+                                "VSMain", TravelQuality::TradeLaneEntry(GraphicsSettings::Get(GraphicsSettings::TradeLane)), &G_Program) != GR_OK)
         {
             ReleaseResources();
             FDUMP(0x100002, "Trade lane corridor shader unavailable; player travel sound remains active.\n");
@@ -142,17 +148,20 @@ namespace
             ReleaseResources();
             return false;
         }
-        std::vector<std::uint32_t> Noise(TradeLaneNoiseSize * TradeLaneNoiseSize * TradeLaneNoiseSize);
-        BuildTradeLaneNoise(Noise.data());
+        if (G_NoiseData.empty())
+        {
+            G_NoiseData.resize(TradeLaneNoiseSize * TradeLaneNoiseSize * TradeLaneNoiseSize);
+            BuildTradeLaneNoise(G_NoiseData.data());
+        }
         if (Ex->CreateExVolumeTexture(TradeLaneNoiseSize, TradeLaneNoiseSize, TradeLaneNoiseSize,
-                                     RPExFormatA8R8G8B8, Noise.data(), &G_Noise) != GR_OK)
+                                     RPExFormatA8R8G8B8, G_NoiseData.data(), &G_Noise) != GR_OK)
         {
             ReleaseResources();
             FDUMP(0x100002, "Trade lane volume noise unavailable; player travel sound remains active.\n");
             return false;
         }
         // Optional capture interface: old RP9 builds retain the procedural glow.
-        if (DALib::Pipeline->QueryInterface(Iids::RPSceneCapture,
+        if (kTradeLaneRefractionEnabled && DALib::Pipeline->QueryInterface(Iids::RPSceneCapture,
                 reinterpret_cast<void**>(&G_Capture)) == GR_OK && G_Capture)
         {
             FRPExRenderTargetDesc Target = {0, 0, 1.0f, RPExFormatA8R8G8B8};
@@ -188,6 +197,14 @@ FTradeLaneVisualStyle TradeLaneVisualResolveStyle(FTransform const& Lane, unsign
     return ResolveStyle(Lane, RouteId);
 #else
     return FTradeLaneVisualStyle();
+#endif
+}
+
+void TradeLaneVisualPrepareSystem()
+{
+#ifdef FREELANCER_RP9
+    // Loading-screen caller, before WarmSceneCaches submits the driver warmup.
+    if (GetGameOption(kGameOptEffectsGroup)) EnsureProgram();
 #endif
 }
 
@@ -228,10 +245,11 @@ void TradeLaneVisualTick(float Dt, float X, float Y, float Z)
         Distance -= (double(Position[I]) - G_Travel.Previous[I]) * G_Travel.Rotation.D[I][2];
         G_Travel.Previous[I] = Position[I];
     }
-    G_Travel.Phase = std::fmod(G_Travel.Phase + Distance / 1600.0, 1024.0);
-    if (G_Travel.Phase < 0) G_Travel.Phase += 1024.0;
-    // Keep the clock bounded; shader time harmonics repeat over 96 seconds.
-    G_Travel.Time = std::fmod(G_Travel.Time + Dt, 96.0f);
+    // Common period for the outer tube (16), sheet noise (4), and rings (4.5).
+    // A 36-cycle wrap would now make the fourfold-spaced outer tube jump.
+    G_Travel.Phase = std::fmod(G_Travel.Phase + Distance / 1600.0, 144.0);
+    if (G_Travel.Phase < 0) G_Travel.Phase += 144.0;
+    G_Travel.Time = std::fmod(G_Travel.Time + Dt, 1440.0f);
     G_Travel.Age += Dt;
     if (G_Travel.Age > 2.0f) G_Travel.Age = 2.0f;
     if (G_Travel.Stopping)
@@ -294,10 +312,14 @@ void TradeLaneVisualDraw(FSpaceCamera* Camera)
         Smooth(G_Travel.Age / 0.12f) * (1.0f - Smooth((G_Travel.Age - 0.12f) / 0.38f));
     float DepthMin = 0.0f, DepthMax = 1.0f;
     Pipe->GetDepthRange(&DepthMin, &DepthMax);
+    // Refraction settles before braking at the last ring. Glow retains its
+    // original 0.65 s fade; no scene copy is needed once distortion has stopped.
+    float const WarpStrength = (kTradeLaneRefractionEnabled ? 0.055f : 0.0f) * (G_Travel.Stopping ?
+        1.0f - Smooth(G_Travel.ExitAge / 0.20f) : 1.0f);
     FTradeLaneVisualStyle const& Style = G_Travel.Style;
     float const P[32] = {float(G_Travel.Phase), G_Travel.Time, G_Travel.Intensity, Pulse,
                         Style.Body[0], Style.Body[1], Style.Body[2], Style.Enabled,
-                        W ? 1.0f / W : 0, H ? 1.0f / H : 0, 0.055f, 0,
+                        W ? 1.0f / W : 0, H ? 1.0f / H : 0, WarpStrength, Depth ? 1.0f : 0.0f,
                         W ? (Vp[0] + 0.5f) / W : 0, H ? (Vp[1] + 0.5f) / H : 0,
                         W ? (Vp[2] + 0.5f) / W : 1, H ? (Vp[3] + 0.5f) / H : 1,
                         Camera->GetZNear(), Camera->GetZFar(), DepthMin, DepthMax,
@@ -309,7 +331,7 @@ void TradeLaneVisualDraw(FSpaceCamera* Camera)
         RPExAddressWrap, RPExAddressWrap, RPExAddressWrap};
     // Snapshot once before our glow. HUD is drawn later. The depth-aware warp protects
     // nearby hulls and the cockpit, including the displaced sample's filtering footprint.
-    if (G_WarpProgram && G_SceneCopy && G_Capture && Depth && W && H &&
+    if (WarpStrength > 0 && G_WarpProgram && G_SceneCopy && G_Capture && Depth && W && H &&
         G_Capture->CaptureSceneColor(G_SceneCopy) == GR_OK)
     {
         FRPExPassDesc WarpPass = {nullptr, 0, 0};
@@ -333,9 +355,11 @@ void TradeLaneVisualDraw(FSpaceCamera* Camera)
             Ex->EndExPass();
         }
     }
-    FRPExPassDesc Pass = {nullptr, RPExPassKeepDepth, 0};
+    FRPExPassDesc Pass = {nullptr, Depth ? 0ul : RPExPassKeepDepth, 0};
     if (Ex->BeginExPass(&Pass) != GR_OK) return;
-    Pipe->SetRenderState(D3DRS_ZENABLE, 1);
+    // The cylinder is only a coverage proxy. The shader clips the actual volume
+    // against sampled world depth; testing the proxy creates a circular hard cut.
+    Pipe->SetRenderState(D3DRS_ZENABLE, Depth ? 0 : 1);
     Pipe->SetRenderState(D3DRS_ZWRITEENABLE, 0);
     Pipe->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
     Pipe->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
@@ -344,7 +368,10 @@ void TradeLaneVisualDraw(FSpaceCamera* Camera)
     Pipe->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
     Pipe->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
     Pipe->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+    FRPExSamplerState DepthSampler = {RPExFilterPoint, RPExMipNone,
+        RPExAddressClamp, RPExAddressClamp, RPExAddressClamp};
     if (Ex->BindExProgram(G_Program) == GR_OK &&
+        (!Depth || Ex->BindExTexture(1, Depth, &DepthSampler) == GR_OK) &&
         Ex->BindExTexture(2, G_Noise, &NoiseSampler) == GR_OK &&
         Ex->SetExVertexConstants(0, V, 11) == GR_OK &&
         Ex->SetExVertexConstants(11, P, 1) == GR_OK &&

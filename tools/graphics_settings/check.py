@@ -34,6 +34,7 @@ stub = r'''
 #include <string>
 #include <vector>
 #include "graphics_policy.h"
+#include "travel_quality.h"
 #include "hud_interface_ids.h"
 #include "color_grade_preferences.h"
 int __cdecl PortConfigInt(char const* section,char const*,int fallback){return !strcmp(section,"ColorGrade")?3:fallback;}
@@ -60,7 +61,11 @@ constexpr unsigned kWin3DPickable=4,kWin3DVisible=2;
 unsigned G_NnPaletteArgb_679b94=1,G_NnPaletteArgb_679bb0=2,G_NnPaletteArgb_679ba4=3;
 struct Win3D {virtual ~Win3D()=default;unsigned Flags=2;};
 struct WinControl:Win3D {
- float position[3]={},extents[3]={};bool mockHidden=false;
+ float position[3]={},anchor[3]={},Offset[3]={},extents[3]={};bool mockHidden=false;
+ // Retail controls store their creation coordinates in Offset. SetPosition
+ // moves the parent anchor, and drawing/hit testing adds Offset to that anchor.
+ virtual void SetPosition(float const* p){for(int i=0;i<3;++i){anchor[i]=p[i];position[i]=anchor[i]+Offset[i];}}
+ virtual void SetOffset(float x,float y,float z){Offset[0]=x;Offset[1]=y;Offset[2]=z;float parent[3]={};SetPosition(parent);}
  virtual intptr_t SetProperty(int msg,uintptr_t a,uintptr_t){if(msg==1){mockHidden=a!=0;Flags=mockHidden?0:2;}return 0;}
 };
 struct NnTextControl:WinControl {unsigned TextColour=0;float width=0;std::wstring text;void SetText(wchar_t const* s){text=s;}};
@@ -69,10 +74,12 @@ struct NnButtonControl:WinControl {
  intptr_t SetProperty(int msg,uintptr_t a,uintptr_t b)override{if(msg==0x30)state=a==0?1:0;return WinControl::SetProperty(msg,a,b);}
 };
 struct WireButtonControl:WinControl {};
+struct UiScroll:WinControl {int value=0,page=0;bool stepMode=false;void SetStepMode(bool b){stepMode=b;} void SetPageField(float){} void SetActiveField(bool){} intptr_t SetProperty(int msg,uintptr_t a,uintptr_t b)override{
+ if(msg==0x38)value=int(a);return WinControl::SetProperty(msg,a,b);}};
 struct FPrefMiscCell {NnTextControl* Label=nullptr;NnTextControl* Value=nullptr;NnButtonControl* Toggle=nullptr;WireButtonControl* Choice=nullptr;};
 struct NnDropdownPopup:WinControl {
- bool open=false;std::vector<std::wstring> choices;
- bool Open(float,float,float,std::vector<std::wstring> const& c,int selected){assert(selected>=0 && selected<int(c.size()));choices=c;open=true;return true;}
+ bool open=false;float left=0;std::vector<std::wstring> choices;
+ bool Open(float x,float,float,std::vector<std::wstring> const& c,int selected){left=x;assert(selected>=0 && selected<int(c.size()));choices=c;open=true;return true;}
  void Close(){open=false;}void Draw(){}bool IsOpen()const{return open;}
 };
 void DrawNnDropdownCaret(WireButtonControl*){}
@@ -88,6 +95,8 @@ struct NnPreferences:WinControl {
   int GraphicsDropdownRow=-1,CurPage=2,GraphicsTab=0;float Anim=1;
   WireButtonControl* GraphicsTabButtons[2]={};NnTextControl* GraphicsTabTexts[2]={};
   WireButtonControl* GraphicsPresetButtons[4]={};NnTextControl* GraphicsPresetTexts[4]={};
+  UiScroll* GraphicsScroll=nullptr;int GraphicsFirstRow=0;
+  WinControl* GraphicsInteriorSeparator=nullptr;
   void SetOptionRowsHidden(bool){}
   void ApplyGraphicsTab();
  bool bInGame=false,bFlipping=false,bConfirmMode=false,bVideoConfirm=false,bDirty=false;
@@ -95,14 +104,16 @@ struct NnPreferences:WinControl {
  NnTextControl defaultsText,cancelText;NnTextControl* DefaultsText=&defaultsText;NnTextControl* CancelText=&cancelText;
  ~NnPreferences(){for(auto* control:owned)delete control;}
  template<class T>T* Own(T* c){owned.push_back(c);return c;}
+ UiScroll* CreateUIScroll(char const*,float const* at,float,float,int,int,int page,int){auto* c=Own(new UiScroll);c->SetOffset(at[0],at[1],at[2]);c->page=page;return c;}
+ WinControl* CreateWireStaticControl(char const*,float const* at,float const* half,unsigned char,unsigned char,int,int){auto* c=Own(new WinControl);c->SetOffset(at[0],at[1],at[2]);memcpy(c->extents,half,sizeof(c->extents));return c;}
  NnTextControl* CreateTextControl(char const*,char const*,float const* at,char const*,float width,float,float,unsigned,int,int,unsigned char){
-  auto* c=Own(new NnTextControl);memcpy(c->position,at,sizeof(c->position));c->width=width;return c;
+  auto* c=Own(new NnTextControl);c->SetOffset(at[0],at[1],at[2]);c->width=width;return c;
  }
  template<class... T>WinControl* CreateToggleButtonControl(char const*,char const*,char const*,char const*,void*,float const* at,void*,float const* half,T...){
-  auto* c=Own(new NnButtonControl);memcpy(c->position,at,sizeof(c->position));memcpy(c->extents,half,sizeof(c->extents));return c;
+  auto* c=Own(new NnButtonControl);c->SetOffset(at[0],at[1],at[2]);memcpy(c->extents,half,sizeof(c->extents));return c;
  }
  template<class... T>WinControl* CreateWireButtonControl(char const*,char const*,float const* at,float const* half,T...){
-  auto* c=Own(new WireButtonControl);memcpy(c->position,at,sizeof(c->position));memcpy(c->extents,half,sizeof(c->extents));return c;
+  auto* c=Own(new WireButtonControl);c->SetOffset(at[0],at[1],at[2]);memcpy(c->extents,half,sizeof(c->extents));return c;
  }
  void UpdateDirty(int,float){bDirty=GraphicsDirty();}
  bool CreateGraphicsRows();void SetGraphicsHidden(bool);void RefreshGraphicsRows();
@@ -171,7 +182,15 @@ int main(int argc,char** argv){
  assert(PortGraphicsRenderValue("anisotropy",16)==8);
  assert(PortGraphicsRenderValue("smaa",0)==1 && PortGraphicsRenderValue("fxaa",1)==0);
  assert(PortGraphicsRenderValue("nebula_resolution_scale",1)==.5f);
+ assert(PortGraphicsRenderValue("character_hair",0)==3);
+ PortCharacterPortraitScope(1);PortCharacterPortraitScope(1);
+ assert(PortGraphicsRenderValue("character_hair",3)==0 && PortGraphicsRenderValue("character_hair_motion",1)==0);
+ assert(PortGraphicsRenderValue("anisotropy",16)==8);
+ PortCharacterPortraitScope(0);assert(PortGraphicsRenderValue("character_hair",3)==0);
+ PortCharacterPortraitScope(0);assert(PortGraphicsRenderValue("character_hair",0)==3);
  int all[Count];for(int i=0;i<Count;++i)all[i]=Default(i);
+ for(int tier=0;tier<4;++tier){all[Hair]=tier;assert(RenderValue(all,"character_hair",3)==tier);
+  assert(RenderValue(all,"character_hair_motion",1)==(tier<2?0.f:tier==2?.55f:1.f));}all[Hair]=Default(Hair);
  all[Shadows]=all[Relief]=all[Highlights]=all[Reflections]=all[Nebulae]=0;
  for(char const* key:{"local_shadows","rock_shadows","planet_terrain_shadows",
   "ship_normals","rock_relief","cockpit_relief","planet_relief","nomad_relief","dyson_relief","beast_relief",
@@ -217,13 +236,51 @@ int main(int argc,char** argv){
  }
  Set(-1,5);Set(Count,5);Set(Shadows,999);assert(!RestartRequired());
  NnPreferences p;assert(p.CreateGraphicsRows());p.SnapshotGraphics();p.SetGraphicsHidden(false);
- for(int i=0;i<Count;++i){auto& c=p.GraphicsCells[i];assert(c.Label->mockHidden==(i==VSync || i==FpsLimit));
-  unsigned id=i==WeaponLights?PreferenceIds::GraphicsWeaponLights:i==Anomalies?PreferenceIds::GraphicsAnomalies:i==Interiors?PreferenceIds::GraphicsInteriors:238251+i;
-  wchar_t expected[32];swprintf_s(expected,L"IDS%u",id);assert(c.Label->text==expected);
-   assert(c.Label->position[1]>-.20f && c.Label->position[1]<.18f);
-  assert(c.Label->position[0]+c.Label->width<.181f);
+ for(int i=0;i<Count;++i){auto& c=p.GraphicsCells[i];assert(c.Label->mockHidden==(i==VSync || i==FpsLimit || i==Interiors || i==Hair));
+  unsigned id=i==TradeLane?PreferenceIds::GraphicsTradeLane:i==Hyperspace?PreferenceIds::GraphicsHyperspace:i==WeaponLights?PreferenceIds::GraphicsWeaponLights:i==Anomalies?PreferenceIds::GraphicsAnomalies:i==Interiors?PreferenceIds::GraphicsInteriors:238251+i;
+  wchar_t expected[32];swprintf_s(expected,L"IDS%u",id);assert(i==Hair ? c.Label->text==L"\u0412\u041e\u041b\u041e\u0421\u042b \u041f\u0415\u0420\u0421\u041e\u041d\u0410\u0416\u0415\u0419" : c.Label->text==expected);
+   if(!c.Label->mockHidden)assert(c.Label->position[1]>-.20f && c.Label->position[1]<.18f);
+  assert(c.Label->position[0]+c.Label->width<(i==VSync || i==FpsLimit?.181f:.151f));
   assert((c.Toggle!=nullptr)==Toggle(i));assert((c.Choice!=nullptr)!=Toggle(i));
  }
+ assert(!p.GraphicsScroll->mockHidden);
+ assert(!p.GraphicsScroll->stepMode && p.GraphicsScroll->page==11);
+ assert(std::fabs(p.GraphicsScroll->position[0]-.408f)<.0001f);
+ assert(p.GraphicsInteriorSeparator->mockHidden);
+ for(int repeat=0;repeat<3;++repeat){
+  p.ApplyGraphicsTab();
+  assert(std::fabs(p.GraphicsCells[Shadows].Label->position[0]+.11f)<.0001f);
+  assert(std::fabs(p.GraphicsCells[Shadows].Label->position[1]-.165078125f)<.0001f);
+  assert(std::fabs(p.GraphicsCells[Shadows].Choice->position[0]-.272f)<.0001f);
+ }
+ assert(p.GraphicsCells[Anomalies].Label->position[1]>p.GraphicsCells[TradeLane].Label->position[1]);
+ assert(p.GraphicsCells[TradeLane].Label->position[1]>p.GraphicsCells[Hyperspace].Label->position[1]);
+ Select(p,TradeLane,0);Select(p,Hyperspace,3);
+ assert(p.GraphicsValues[TradeLane]==0 && p.GraphicsValues[Hyperspace]==3);
+ assert(p.GraphicsCells[TradeLane].Value->text==L"IDS238411");
+ p.GraphicsProperty(0x26,p.GraphicsCells[TradeLane].Choice,0);assert(p.GraphicsDropdown->open);
+ assert(std::fabs(p.GraphicsDropdown->left-.151f)<.0001f);
+ p.GraphicsProperty(0x3e,p.GraphicsScroll,3);
+ assert(p.GraphicsFirstRow==3 && !p.GraphicsDropdown->open);
+ assert(p.GraphicsCells[Shadows].Label->mockHidden && !p.GraphicsCells[Hair].Label->mockHidden);
+ assert(p.GraphicsCells[Hair].Label->position[1]>p.GraphicsHint->position[1]+.027f);
+ assert(!p.GraphicsScroll->stepMode && p.GraphicsScroll->page==11);
+ assert(!p.GraphicsInteriorSeparator->mockHidden);
+ assert(p.GraphicsInteriorSeparator->position[1]>p.GraphicsCells[Interiors].Label->position[1]);
+ assert(p.GraphicsInteriorSeparator->position[1]<p.GraphicsCells[Hyperspace].Choice->position[1]-.0145f);
+ assert(p.GraphicsInteriorSeparator->position[1]-p.GraphicsCells[Interiors].Label->position[1]>.020f);
+ assert(p.GraphicsCells[Hyperspace].Choice->position[1]-.0145f-p.GraphicsInteriorSeparator->position[1]>.020f);
+ Select(p,Interiors,1);assert(p.GraphicsValues[TradeLane]==0 && p.GraphicsValues[Hyperspace]==3);
+ p.GraphicsProperty(0x3e,p.GraphicsScroll,999);assert(p.GraphicsFirstRow==3);
+ p.GraphicsProperty(0x3e,p.GraphicsScroll,0);assert(p.GraphicsFirstRow==0);
+ assert(p.GraphicsInteriorSeparator->mockHidden);
+ p.RevertGraphics();
+ assert(!strcmp(TravelQuality::TradeLaneEntry(0),"PSStandard"));
+ assert(!strcmp(TravelQuality::TradeLaneEntry(1),"PSLow"));
+ assert(!strcmp(TravelQuality::TradeLaneEntry(2),"PSMedium"));
+ assert(!strcmp(TravelQuality::TradeLaneEntry(3),"PSMain"));
+ assert(TravelQuality::HyperspaceScale(0)==0 && TravelQuality::HyperspaceScale(1)==.25f);
+ assert(TravelQuality::HyperspaceScale(2)==1.f/3 && TravelQuality::HyperspaceScale(3)==.5f);
  // Both monitor rows are hidden on Details; only the cutscene row is interactive.
  assert(p.SubtitleCells[0].Label->mockHidden && p.SubtitleCells[1].Label->mockHidden);
  p.CurPage=1;p.SetGraphicsHidden(false);
@@ -249,12 +306,16 @@ int main(int argc,char** argv){
   assert(p.GraphicsProperty(0x26,p.GraphicsPresetButtons[preset],0));
   assert(p.GraphicsValues[VSync]==vsync && p.GraphicsValues[FpsLimit]==fps && p.ColorGradeValue==grade);
   assert(p.GraphicsValues[Anomalies]==preset && p.GraphicsValues[Interiors]==preset);
+  assert(p.GraphicsValues[TradeLane]==preset && p.GraphicsValues[Hyperspace]==preset);
   assert(p.GraphicsValues[Shadows]==preset && p.GraphicsValues[Relief]==preset && p.GraphicsValues[Highlights]==preset);
   assert(p.GraphicsValues[WeaponLights]==int(preset>=2));
   assert(p.GraphicsValues[Antialiasing]==(preset<2?preset:2));
   assert(p.GraphicsValues[Anisotropy]==(preset<2?preset:preset==2?3:4));
  }
  p.CurPage=1;p.ApplyGraphicsTab();
+ assert(std::fabs(p.GraphicsCells[VSync].Label->position[0]+.11f)<.0001f);
+ assert(std::fabs(p.GraphicsCells[VSync].Label->position[1]-(.205f-3*.035f+.0135f))<.0001f);
+ assert(std::fabs(p.GraphicsCells[FpsLimit].Choice->position[0]-.302f)<.0001f);
  assert(!p.GraphicsCells[VSync].Label->mockHidden && !p.GraphicsCells[FpsLimit].Label->mockHidden);
  assert(p.GraphicsCells[Relief].Label->mockHidden && p.GraphicsPresetButtons[0]->mockHidden);
  assert(!p.DefaultsButton->mockHidden && !p.CancelButton->mockHidden);

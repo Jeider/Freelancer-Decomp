@@ -23,6 +23,9 @@
 #include "nebula_volume.h" // NebulaVolume::RegisterNebula (port-only)
 #include "far_rocks.h"
 #include "field_dust.h"
+#include "tradelane_visual.h"
+#include "ship_warp_visual.h"
+#include "gate_tunnel.h"
 #include "render/IRPRenderWarmup.h"
 #include "render/IRenderPipeline.h"
 #endif
@@ -925,6 +928,11 @@ void StarSysEnter(unsigned SystemId)
     FarRocksPrepareSystem();
     RefreshLoadingProgress();
     FieldDustPrepareSystem();
+    RefreshLoadingProgress();
+    TradeLaneVisualPrepareSystem();
+    ShipWarpVisualPrepareSystem();
+    GateTunnelPrepareSystem();
+    RefreshLoadingProgress();
     IRPRenderWarmup* Warmup = nullptr;
     if (DALib::Pipeline && DALib::Pipeline->QueryInterface(Iids::RPRenderWarmup,
         reinterpret_cast<void**>(&Warmup)) >= 0 && Warmup)

@@ -992,6 +992,41 @@ void FCommChannel::PlayNoPortrait(FCommMessage const* Msg, bool bPositionalArg)
     Linger = Msg->Linger;
 }
 
+// Substitute only the local comm costume, never the character's world appearance.
+static Costume HelmetCommCostume(Costume CostumeValue)
+{
+    CostumeDescriptions const* Descriptions = GetCostumeDescriptions();
+    bool HasHelmet = false;
+    for (unsigned i = 0; i < CostumeValue.AccessoryCount && i < 8; ++i)
+    {
+        accessory const* Accessory = Descriptions->find_accessory(CostumeValue.AccessoryIds[i]);
+        if (Accessory != nullptr &&
+            _strnicmp(Accessory->get_mesh(), "characters\\commhelmets\\",
+                      sizeof("characters\\commhelmets\\") - 1) == 0)
+        {
+            HasHelmet = true;
+            break;
+        }
+    }
+    if (!HasHelmet)
+        return CostumeValue;
+    char const* Names[][2] = {
+        {"li_hatcher_head", "li_hatcher_head_hat"},
+        {"br_darcy_head", "br_darcy_head_hat"}
+    };
+    for (auto const& NamesPair : Names)
+    {
+        unsigned const Original = Descriptions->find_part_id(1, NamesPair[0]);
+        unsigned const Helmet = Descriptions->find_part_id(1, NamesPair[1]);
+        if (Original != 0 && Helmet != 0 && CostumeValue.PartIds[0] == Original)
+        {
+            CostumeValue.PartIds[0] = Helmet;
+            break;
+        }
+    }
+    return CostumeValue;
+}
+
 void FCommChannel::Appearance(CObject* SpeakerObject, CObject* ReceiverUnused,
                               Costume SpeakerCostume, unsigned InNameIds,
                               FVoiceProfile* Profile, Win3D* Parent)
@@ -1023,6 +1058,7 @@ void FCommChannel::Appearance(CObject* SpeakerObject, CObject* ReceiverUnused,
     // 0x004cb2f2..0x004cb319: the head only above detail level 0 (NaN included goes without).
     if (static_cast<double>(GetPerfOptionSlot(5)) > 0.0)
     {
+        SpeakerCostume = HelmetCommCostume(SpeakerCostume);
         Body = G_EngineCharacterCache.FindOrCreate(SpeakerCostume); // FUN_004c9a80
         bNoPortrait = 0;
         if (Body != nullptr)
@@ -1474,8 +1510,13 @@ void FCommChannel::DrawFrame()
     Win3DEnd(); // tail jump FUN_00421690
 }
 
+#include "graphics_settings.h"
 void FCommChannel::DrawPortrait(FGameCamera* Cam, FEngineLight* Light, void* BackdropTexture)
 {
+    struct PortraitGuard {
+        PortraitGuard(){PortCharacterPortraitScope(1);}
+        ~PortraitGuard(){PortCharacterPortraitScope(0);}
+    } portraitGuard;
     // FUN_004cc660.
     ICamera* const CamIface = AsCamera(Cam);
     Win3DDisable(0xb71);
@@ -2111,7 +2152,10 @@ void HudCommPreloadCostume(Costume const* SpeakerCostume)
     {
         return;
     }
-    if (G_EngineCharacterCache.FindOrCreate(*SpeakerCostume) == nullptr)
+    if (SpeakerCostume == nullptr)
+        return;
+    Costume const PortraitCostume = HelmetCommCostume(*SpeakerCostume);
+    if (G_EngineCharacterCache.FindOrCreate(PortraitCostume) == nullptr)
     {
         FDUMP(0x100002, "%s(%d) : *** WARNING: Failed to load costume %d/%d\n", kHudCommCpp, 0x119,
               SpeakerCostume->PartIds[1], SpeakerCostume->PartIds[0]);

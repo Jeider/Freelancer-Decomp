@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <fstream>
+#include "../src/RP9/RP9ShaderCache.h"
 #include "../src/freelancer/Client/tradelane_visual_mesh.h"
 #include "../src/freelancer/Client/tradelane_visual_noise.h"
 #include "../src/freelancer/Client/tradelane_visual_style.h"
@@ -20,6 +22,10 @@ static IDirect3DPixelShader9 *PS,*White,*Warp;
 static IDirect3DTexture9 *SceneColor,*SceneDepth;
 static IDirect3DVertexBuffer9* VB;
 static bool WarpEnabled=true,GlowEnabled=true,WallOnly=false,Beauty=false;
+static bool SampledDepth=true,LegacyDepth=false;
+static const char* ShaderSource="DATA_EXTRA/SHADERS/tradelane_corridor.hlsl";
+static const char* PixelEntry="PSMain";
+static float PlaneDistance=0;
 static float Letterbox=1,Clock=3;
 static IDirect3DTexture9* Background;
 static IDirect3DVolumeTexture9* Noise;
@@ -32,8 +38,19 @@ template<class T> static void Release(T*& p) {if(p) {p->Release();p=nullptr;}}
 static void Compile() {
     for(int stage=0;stage<3;++stage) {
         ID3DXBuffer *code=nullptr,*error=nullptr,*dis=nullptr;
-        HRESULT hr=D3DXCompileShaderFromFileA("DATA_EXTRA/SHADERS/tradelane_corridor.hlsl",nullptr,nullptr,
-            stage==2?"PSWarp":stage?"PSMain":"VSMain",stage?"ps_3_0":"vs_3_0",0,&code,&error,nullptr);
+        std::ifstream file(ShaderSource,std::ios::binary);
+        std::string source((std::istreambuf_iterator<char>(file)),{});
+        Require(!source.empty(),"shader source present");
+        source="#line 1 \"SHADERS/tradelane_corridor.hlsl\"\n"+source;
+        const char* entry=stage==2?"PSWarp":stage?PixelEntry:"VSMain";
+        const char* profile=stage?"ps_3_0":"vs_3_0";
+        std::vector<unsigned char> bytes,verified;std::string messages;bool hit=false,stored=false;
+        DWORD flags=Rp9ShaderCache::FlagsForSource(source);
+        HRESULT hr=Rp9ShaderCache::Compile(source,nullptr,entry,profile,flags,&bytes,&messages,&hit,&stored,true);
+        if(!messages.empty())puts(messages.c_str());Check(hr);
+        Check(Rp9ShaderCache::Compile(source,nullptr,entry,profile,flags,&verified,&messages,&hit,&stored,true));
+        Require(hit&&bytes==verified,"game shader cache reload HIT");
+        Check(D3DXCreateBuffer(static_cast<DWORD>(bytes.size()),&code));memcpy(code->GetBufferPointer(),bytes.data(),bytes.size());
         if(error) {puts((char*)error->GetBufferPointer());Release(error);}Check(hr);
         Check(D3DXDisassembleShader((DWORD*)code->GetBufferPointer(),FALSE,nullptr,&dis));
         std::string path=std::string(Out)+(stage==2?"warp.asm":stage?"ps.asm":"vs.asm");FILE* f=fopen(path.c_str(),"wb");
@@ -94,7 +111,7 @@ static void Camera(float yaw=0,float pitch=0,float roll=0,float letterbox=1,floa
 }
 static void Params(float phase=0,float envelope=1,float pulse=0,float clock=3,float age=2,float exitProgress=0,bool stopping=false) {
     Clock=clock;float c[32]={phase,clock,envelope,pulse,.10f,.38f,.65f,0,
-        1.f/W,1.f/H,.055f,0,.5f/W,(1-Letterbox)*.5f+.5f/H,1-.5f/W,(1+Letterbox)*.5f-.5f/H,
+        1.f/W,1.f/H,.055f,SampledDepth?1.f:0.f,.5f/W,(1-Letterbox)*.5f+.5f/H,1-.5f/W,(1+Letterbox)*.5f-.5f/H,
         1,20000,0,.9f,age,exitProgress,stopping?1.f:0.f,1};
     for(int i=0;i<3;++i) {c[4+i]=Style.Body[i];c[24+i]=Style.Accent[i];}
     c[7]=Style.Enabled;c[27]=Style.Mode;for(int i=0;i<4;++i)c[28+i]=Style.Seed[i];
@@ -129,13 +146,17 @@ static void Draw() {
         Dev->SetRenderState(D3DRS_ZENABLE,FALSE);Dev->SetRenderState(D3DRS_ALPHABLENDENABLE,FALSE);
         Geometry(TradeLaneCorridorVertexCount);Dev->SetTexture(0,nullptr);Dev->SetTexture(1,nullptr);
     }
-    Dev->SetRenderState(D3DRS_ZENABLE,TRUE);Dev->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
+    Dev->SetRenderState(D3DRS_ZENABLE,SampledDepth?FALSE:TRUE);Dev->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
+    Dev->SetTexture(1,SampledDepth?SceneDepth:nullptr);
+    Dev->SetSamplerState(1,D3DSAMP_MINFILTER,D3DTEXF_POINT);Dev->SetSamplerState(1,D3DSAMP_MAGFILTER,D3DTEXF_POINT);
+    Dev->SetSamplerState(1,D3DSAMP_ADDRESSU,D3DTADDRESS_CLAMP);Dev->SetSamplerState(1,D3DSAMP_ADDRESSV,D3DTADDRESS_CLAMP);
     if(GlowEnabled) {Check(Dev->SetPixelShader(PS));Geometry(WallOnly?TradeLaneCorridorVertexCount:TradeLaneVertexCount);}
 }
+static float EncodeDepth(float distance) {return .9f*(20000.f/(20000.f-1.f)-20000.f/((20000.f-1.f)*distance));}
 static void DepthTexture(bool blocker,bool cockpit) {
     D3DLOCKED_RECT r;Check(SceneDepth->LockRect(0,&r,nullptr,0));
     for(int y=0;y<H;++y)for(int x=0;x<W;++x) {
-        float d=1.f;
+        float d=PlaneDistance>0?EncodeDepth(PlaneDistance):1.f;
         if(blocker&&x>=W/4&&x<W*3/4&&y>=H/4&&y<H*3/4)d=0;
         if(cockpit&&y>H*3/4)d=.95f;
         ((float*)((char*)r.pBits+y*r.Pitch))[x]=d;
@@ -170,7 +191,7 @@ static void CheckX8Snapshot() {
 }
 static std::vector<DWORD> Render(const char* name=nullptr,bool background=false,bool blocker=false,bool cockpit=false,float clearDepth=1) {
     DepthTexture(blocker,cockpit);
-    Check(Dev->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,clearDepth,0));Check(Dev->BeginScene());
+    Check(Dev->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,PlaneDistance>0?EncodeDepth(PlaneDistance):clearDepth,0));Check(Dev->BeginScene());
     if(background) Backdrop();
     if(blocker) {
         D3DRECT area={W/4,H/4,W*3/4,H*3/4};Check(Dev->Clear(1,&area,D3DCLEAR_ZBUFFER|(background?D3DCLEAR_TARGET:0),0xffff00ff,0,0));
@@ -225,13 +246,13 @@ static void CheckStyles() {
         Style=ConfigStyle(mode);printf("STYLE %s\n",names[mode]);Camera();Params(.3125f);
         char name[80];sprintf(name,"style_%s",names[mode]);auto base=Render(name,true);auto pause=Render(nullptr,true);
         Require(Changes(base,pause)==0,"style pause remains pixel-exact");
-        Params(.3125f,1,0,99);auto clock=Render(nullptr,true);
-        Require(Changes(base,clock,2)<W*H/200,"style clock repeats after 96 seconds");
-        Params(.3125f,1,0,95.99f);auto edge=Render(nullptr,true);
-        Params(.3125f,1,0,191.99f);auto edgeWrap=Render(nullptr,true);
+        Params(.3125f,1,0,1443);auto clock=Render(nullptr,true);
+        Require(Changes(base,clock,2)<W*H/200,"style clock repeats after 1440 seconds");
+        Params(.3125f,1,0,1439.99f);auto edge=Render(nullptr,true);
+        Params(.3125f,1,0,2879.99f);auto edgeWrap=Render(nullptr,true);
         Require(Changes(edge,edgeWrap,2)<W*H/200,"style surge near clock boundary repeats continuously");
-        Params(1024.3125f);auto phase=Render(nullptr,true);
-        Require(Changes(base,phase,2)<W*H/200,"style phase repeats after 1024 cycles");
+        Params(144.3125f);auto phase=Render(nullptr,true);
+        Require(Changes(base,phase,2)<W*H/200,"style phase repeats after 144 cycles");
         Params(.3125f);auto depth=Render(nullptr,false,true);int leaks=0;
         for(int y=H/4;y<H*3/4;++y)for(int x=W/4;x<W*3/4;++x)leaks+=(depth[y*W+x]&0xffffff)!=0;
         Require(leaks==0,"style respects foreground depth");
@@ -251,7 +272,42 @@ static void CheckStyles() {
     Style=ConfigStyle(worstMode);Size(1920,1080);Camera();Params(.3125f);Benchmark();
     Size(3840,2160);Camera();Params(.3125f);Benchmark();Style=FTradeLaneVisualStyle();
 }
+static void CheckDepthIntersection() {
+    Size(960,540);Camera();Params(.3125f);WarpEnabled=false;WallOnly=true;
+    PlaneDistance=1000;Render(LegacyDepth?"depth_before":"depth_after",true);
+    PlaneDistance=9450;auto a=Render();PlaneDistance=9550;auto b=Render();
+    int peak=0;for(int y=H/2-2;y<=H/2+2;++y)for(int x=W/2-2;x<=W/2+2;++x)for(int c=0;c<3;++c)
+        peak=std::max(peak,abs(int((a[y*W+x]>>(8*c))&255)-int((b[y*W+x]>>(8*c))&255)));
+    printf("Depth cap crossing: peak central change %d/255\n",peak);
+    if(!LegacyDepth) {
+        Require(peak<=2,"object crossing former 9500m proxy cap does not pop central glow");
+        PlaneDistance=100;auto foreground=Render();
+        Require(std::all_of(foreground.begin(),foreground.end(),[](DWORD p){return !(p&0xffffff);}),"near surface hides all volume and central glare");
+        // A plane passing through the old wall must not toggle the entire volume.
+        PlaneDistance=999.5f;auto before=Render();PlaneDistance=1000.5f;auto after=Render();
+        int jumps=Changes(before,after,25);
+        printf("Intersection change >25: %d pixels\n",jumps);
+        Require(jumps==0,"1m surface motion has no hard cylinder intersection jump");
+        Camera(.6f,.2f);PlaneDistance=100;auto turned=Render();
+        Require(std::all_of(turned.begin(),turned.end(),[](DWORD p){return !(p&0xffffff);}),"turned camera reconstructs foreground depth correctly");
+    }
+    PlaneDistance=0;WallOnly=false;WarpEnabled=true;Camera();Params(.3125f);
+}
+static void CheckCameraStability() {
+    Size(960,540);Camera(.4f,.1f);Params(.3125f);PlaneDistance=1000;
+    auto reference=Render();
+    for(float origin:{100000.f,100000.03125f,100000.0625f,100000.09375f}) {
+        Camera(.4f,.1f,0,1,origin);auto moved=Render();
+        Require(Changes(reference,moved)==0,"camera-relative tunnel stays pixel-exact during small movements at large world coordinates");
+    }
+    PlaneDistance=0;Camera();Params(.3125f);
+}
 int main(int argc,char** argv) {
+    bool qualityCheck=argc>2&&strcmp(argv[1],"--quality")==0;
+    if(qualityCheck)PixelEntry=argv[2];
+    LegacyDepth=argc>1&&(strcmp(argv[1],"--depth-before")==0||strcmp(argv[1],"--bench-original")==0);SampledDepth=!LegacyDepth;
+    if(LegacyDepth) ShaderSource="out/tradelane_depth/original/tradelane_corridor.hlsl";
+    if(argc>1&&strcmp(argv[1],"--bench-previous")==0) ShaderSource="out/tradelane_smooth/previous/tradelane_corridor.hlsl";
     SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX);CreateDirectoryA("src/obj/tradelane_check",nullptr);
     HWND hwnd=CreateWindowA("STATIC","tradelane check",WS_POPUP,0,0,64,64,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
     IDirect3D9* api=Direct3DCreate9(D3D_SDK_VERSION);if(!api)return 1;
@@ -268,6 +324,30 @@ int main(int argc,char** argv) {
     Dev->SetRenderState(D3DRS_ALPHATESTENABLE,FALSE);Dev->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
     Dev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_ONE);Dev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
     Dev->SetRenderState(D3DRS_BLENDOP,D3DBLENDOP_ADD);Dev->SetRenderState(D3DRS_LIGHTING,FALSE);
+    if(qualityCheck){
+        Size(960,540);Camera();Params(.3125f);auto base=Render("quality",true);
+        Require(Changes(base,Render(nullptr,true))==0,"quality pause stable");
+        Params(144.3125f);Require(Changes(base,Render(nullptr,true),2)<W*H/200,"quality travel wrap stable");
+        Params(.3125f,0);auto off=Render();Require(std::all_of(off.begin(),off.end(),[](DWORD p){return !(p&0xffffff);}),"quality zero envelope invisible");
+        Params(.3125f);auto blocked=Render(nullptr,false,true);int leaks=0;
+        for(int y=H/4;y<H*3/4;++y)for(int x=W/4;x<W*3/4;++x)leaks+=(blocked[y*W+x]&0xffffff)!=0;
+        Require(!leaks,"quality preserves foreground depth");
+        if(argc==5&&strcmp(argv[3],"--reference")==0){
+            Params(.3125f);auto current=Render(nullptr,true);
+            Release(VS);Release(PS);Release(Warp);Release(White);
+            const char* selected=ShaderSource;ShaderSource=argv[4];Compile();
+            Params(.3125f);auto reference=Render(nullptr,true);
+            Require(Changes(current,reference)==0,"high quality preserves the installed image exactly");
+            Release(VS);Release(PS);Release(Warp);Release(White);ShaderSource=selected;Compile();
+        }
+        CheckStyles();puts("PASS selected quality shader");return 0;
+    }
+    if(argc>1&&strncmp(argv[1],"--bench",7)==0) {
+        Camera();Params(.3125f);puts("Open space:");Benchmark();
+        PlaneDistance=1000;puts("Surface at 1000m:");Benchmark();
+        PlaneDistance=100;puts("Surface at 100m:");Benchmark();goto cleanup;
+    }
+    if(argc>1&&(strcmp(argv[1],"--depth")==0||LegacyDepth)) {CheckDepthIntersection();goto cleanup;}
     if(argc>1&&strcmp(argv[1],"--video")==0) {
         CreateDirectoryA("src/obj/tradelane_check/video",nullptr);Beauty=true;Size(960,540);Camera();
         Params(.3125f,1,0,3,2);Render("beauty_preview",true);
@@ -282,7 +362,7 @@ int main(int argc,char** argv) {
         goto cleanup;
     }
     {
-    CheckX8Snapshot();
+    CheckDepthIntersection();CheckCameraStability();Size(1920,1080);CheckX8Snapshot();
     Camera();Params(.3125f);auto initial=Render("forward",true);auto lit=Render();
     for(int pose=0;pose<5;++pose) {
         Camera(0,0,pose*3.14159265f/48.f);auto saved=PS;PS=White;WallOnly=true;auto mask=Render(pose==0?"coverage":nullptr);PS=saved;WallOnly=false;
@@ -293,7 +373,7 @@ int main(int argc,char** argv) {
     Params(.6f);auto next=Render("moving",true);Require(Changes(initial,next)>W*H/10,"flow responds to travelled distance");
     Params(.3125f,0);auto off=Render();Require(std::all_of(off.begin(),off.end(),[](DWORD p){return !(p&0xffffff);}),"zero envelope is fully invisible");
     Params(.3125f);auto same=Render();Require(Changes(lit,same)==0,"paused phase is stable");
-    Params(1024.3125f);auto wrap=Render();printf("wrap: %d pixels differ by >2/255\n",Changes(lit,wrap,2));
+    Params(144.3125f);auto wrap=Render();printf("wrap: %d pixels differ by >2/255\n",Changes(lit,wrap,2));
     Require(Changes(lit,wrap,2)<W*H/200,"phase wrap is visually continuous");
     Params(.3125f);Camera(.65f,.1f,.05f);auto rotated=Render("turned",true);
     Require(Changes(initial,rotated)>W*H/5,"camera turning changes corridor perspective");
@@ -302,11 +382,11 @@ int main(int argc,char** argv) {
     Params(.3125f);auto blocked=Render(nullptr,false,true);int leaks=0,hidden=0;
     for(int y=H/4;y<H*3/4;++y)for(int x=W/4;x<W*3/4;++x){leaks+=(blocked[y*W+x]&0xffffff)!=0;hidden+=(lit[y*W+x]&0xffffff)!=0;}
     Require(leaks==0&&hidden>1000,"foreground depth occludes corridor");
-    WarpEnabled=false;Params(.3125f);float missingWarp[4]={0,0,0,0};
+    WarpEnabled=false;SampledDepth=false;Params(.3125f);float missingWarp[4]={0,0,0,0};
     Check(Dev->SetPixelShaderConstantF(2,missingWarp,1));auto missingDepth=Render();
     int fallbackLit=0;for(DWORD pixel:missingDepth)fallbackLit+=(pixel&0xffffff)!=0;
     Require(fallbackLit>1000,"missing scene-depth dimensions retain visible glow fallback");
-    Params(.3125f);WarpEnabled=true;
+    SampledDepth=true;Params(.3125f);WarpEnabled=true;
     WarpEnabled=false;auto fullDepth=Render();auto partitionDepth=Render(nullptr,false,false,false,.95f);
     Require(Changes(fullDepth,partitionDepth)==0&&hidden>1000,"world max .9 glow remains visible against depth .95");
     auto partitionNear=Render(nullptr,false,true,false,.95f);int partitionLeaks=0;
@@ -318,7 +398,7 @@ int main(int argc,char** argv) {
     Camera();Params(.3125f);GlowEnabled=false;WarpEnabled=false;
     auto unwarped=Render("warp_off",true);WarpEnabled=true;auto warped=Render("warp_on",true);
     int warpChanges=Changes(unwarped,warped,2);printf("Warp changed pixels: %d\n",warpChanges);
-    Require(warpChanges>W*H/1000,"scene refraction visibly changes copied background");
+    Require(Changes(unwarped,warped)==0,"disabled refraction preserves every background pixel");
     Params(.3125f,0);auto warpZero=Render(nullptr,true);
     Require(Changes(unwarped,warpZero)==0,"zero warp envelope is pixel-exact identity");
     Params(.3125f);WarpEnabled=false;auto protectedBase=Render(nullptr,true,true,true);
@@ -336,12 +416,12 @@ int main(int argc,char** argv) {
     Require(rimLeaks==0,"protected colors are not pulled across silhouettes by bilinear sampling");
     Params(.3125f);auto clockBase=Render(nullptr,true);auto clockPause=Render(nullptr,true);
     Require(Changes(clockBase,clockPause)==0,"paused warp clock is stable");
-    Params(.3125f,1,0,99);auto clockWrap=Render(nullptr,true);
-    Require(Changes(clockBase,clockWrap,2)<W*H/200,"warp clock 96-second wrap is continuous");
+    Params(.3125f,1,0,1443);auto clockWrap=Render(nullptr,true);
+    Require(Changes(clockBase,clockWrap,2)<W*H/200,"warp clock 1440-second wrap is continuous");
     Params(.3125f,1,0,3.2f);auto clockNext=Render(nullptr,true);
-    Require(Changes(clockBase,clockNext,2)>100,"refraction responds to time");
+    Require(Changes(clockBase,clockNext)==0,"disabled refraction stays identical as time advances");
     GlowEnabled=true;Params(.3125f);auto combined=Render("sheath_forward",true);
-    Params(.3125f,1,0,99);auto sheathWrap=Render(nullptr,true);
+    Params(.3125f,1,0,1443);auto sheathWrap=Render(nullptr,true);
     Require(Changes(combined,sheathWrap,2)<W*H/200,"sheath and glow clock wrap is continuous");
     Params(.3125f,1,0,3.2f);auto sheathNext=Render("sheath_moving",true);
     Require(Changes(combined,sheathNext,2)>1000,"sheath animates without CPU mesh updates");

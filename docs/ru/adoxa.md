@@ -34,10 +34,23 @@
 | `dock_key` | dock_key.dll v1.01: ключи из `DATA\dock_key.ini` для запертых стыковок | `CheckDockPermission` (`06f6c958`); снаряжение стыкующегося игрока (плагин для любого корабля смотрел первого игрока) |
 | `ammolimit` | AmmoLimit.dll: `ammo_limit = n \| *f \| /f` | `Projectile::read`; `CShip::get_ammo_capacity_remaining`, лимиты у торговца и в инвентаре |
 | `MatchJob` | MatchJob.dll: сложность заданий по рангу из `DATA\MISSIONS\RankDiffSP.ini` | предложения миссий в `LootProps.cpp` (`06f046eb`) |
-| `MatchPlayer` | MatchPlayer.dll: уровень встреч поднимается до половины ранга игрока | `FZonePopulation::ParseValue` (`06ef9066`) |
+| `MatchPlayer` | MatchPlayer.dll: уровень встреч поднимается до половины ранга игрока | `FZonePopulation::ParseValue` (`06ef9066`); в MP без сюжетки — максимум ранга онлайн-игроков при спавне |
 | `callsign` | callsign.dll: позывной игрока (`port.ini [callsign] callsign = фракция [формация [n][-][n]]`) | `Gcs.cpp`: `gcs_refer_faction_*`, `gcs_refer_formationdesig_*`, `gcs_misc_dash`, два номера игрока |
 | `DisableAutoLevelToggle` | правка exe `0xdbe10 94 -> 95` («Disable auto-level toggling») | `HUD_Status::OnEvent`, case `0x3e` |
 | `DisableLevelCameraToggle` | правка exe `0x11a1d3 94 -> 95` («Disable level camera toggling») | `ThirdPersonCameraOnEvent` (`0x0051a1d2`), событие `0x3f`; вместе с парной правкой `0x005186e3` (1 -> 0) выравнивание камеры изначально выключено (конструктор камеры от третьего лица), а при появлении корабля оно выключается в камере и в менеджере поведения после flight_controls_fix из FLSharp — и крен jflp не выравнивается обратно |
+
+На сервере без сюжетной галки `MatchPlayer` выбирает новые фоновые корабли по
+`max(сложность зоны, максимальный ранг вошедших игроков / 2)`, с прежним смещением
+сложности для каждого типа корабля. Учитываются игроки на базах и в других системах;
+вход, выход, смена персонажа и ранга действуют на следующие спавны. Уже созданные
+корабли и явные `ship_by_npc_arch` не меняются. При отсутствии нужного варианта
+берётся ближайший доступный уровень той же фракции/типа, не ниже исходного порога;
+если такого нет, остаётся исходный выбор зоны. `MatchJob` использует тот же максимум
+для новых предложений, сохраняя таблицу `RankDiffSP.ini` и нижние границы сложности.
+В SP и на сюжетном сервере обе настройки сохраняют прежнее поведение.
+Проверка: `python tools/npc_scaling/check.py --bundle`; сборка: `Content`;
+установка: `python tools/npc_scaling/install.py`, затем та же команда с `--apply`.
+Для MP обновляется серверный `bin/Content.dll`; клиентское обновление не требуется.
 
 ## Интерфейс
 

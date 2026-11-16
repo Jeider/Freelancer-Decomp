@@ -28,13 +28,49 @@
 #include "common_server.h"
 #include "common_tstring.h"
 #include "x86math.h"            // FTransform
+#ifdef FREELANCER_ADOXA
+#include "ServerNpcScaling.h"
+#endif
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
 
 namespace
 {
+    FNpcShipArch* PickEncounterShipArch(unsigned int faction, FEncounterShip const& ship,
+                                      int authoredLevel, int matchedLevel)
+    {
+        if (ship.NpcArch.Id != 0)
+            return FindNpcShipArch(&ship.NpcArch.Id, &GNpcShipArchs);
+#ifdef FREELANCER_ADOXA
+        if (matchedLevel > authoredLevel && !ship.ShipClasses.empty()) {
+            // Only replace ApplyDifficulty's generated tag in a temporary copy.
+            // Keep zone templates, faction/type constraints and existing NPCs intact.
+            FEncounterShip matched(ship);
+            int const base = (std::max)(1, authoredLevel + ship.DifficultyOffset);
+            int const target = (std::max)(1, matchedLevel + ship.DifficultyOffset);
+            char buffer[32];
+            sprintf_s(buffer, sizeof(buffer), "diff%d", base);
+            auto tag = std::find(matched.ShipClasses.begin(), matched.ShipClasses.end(), CreateID(buffer));
+            if (tag != matched.ShipClasses.end()) {
+                sprintf_s(buffer, sizeof(buffer), "diff%d", target);
+                *tag = CreateID(buffer);
+                if (auto* arch = PickFactionShipLineArch(faction, &matched, -1)) return arch;
+                // Some factions lack a variant at the requested difficulty (or
+                // the player's rank exceeds the content range). Pick the nearest
+                // available level of the same faction/type, without lowering the
+                // authored floor. Never make the encounter disappear for this.
+                matched.ShipClasses.erase(tag);
+                auto* arch = PickFactionShipLineArch(faction, &matched, target);
+                if (arch && arch->GetLevel() >= base) return arch;
+            }
+        }
+#endif
+        return PickFactionShipLineArch(faction, &ship, -1);
+    }
+
     // The unique insert of FUN_06ef5ca0 / FUN_06ef39a0: a linear find, then insert(end);
     // retail re-finds the id afterwards and discards the result (FUN_06eb5f30 +
     // FUN_06fa6e80).
@@ -767,6 +803,10 @@ namespace
 int FEncounterParameters::Spawn(FSpawnRequest const* Request, bool const* bStarred,
                                 std::list<FDensityRestriction> const* Restrictions)
 {
+    int MatchedLevel = Difficulty;
+#ifdef FREELANCER_ADOXA
+    MatchedLevel = ServerNpcScaling::EncounterLevel(Difficulty);
+#endif
     int Result = 0;                                                         // 06ef5514
     // CurrentPermutation is dereferenced as is (Refresh leaves it at the end of the list
     // only when every weight is 0).
@@ -835,10 +875,7 @@ int FEncounterParameters::Spawn(FSpawnRequest const* Request, bool const* bStarr
             for (std::vector<FEncounterShip>::iterator Ship = Formation->Ships.begin();
                  Ship != Formation->Ships.end(); ++Ship)
             {
-                if (Ship->NpcArch.Id == 0)
-                    Ship->Arch = PickFactionShipLineArch(Formation->Faction, &*Ship, -1);
-                else
-                    Ship->Arch = FindNpcShipArch(&Ship->NpcArch.Id, &GNpcShipArchs);   // FUN_06f32480
+                Ship->Arch = PickEncounterShipArch(Formation->Faction, *Ship, Difficulty, MatchedLevel);
                 if (Ship->Arch == nullptr)
                 {
                     bArchs = false;

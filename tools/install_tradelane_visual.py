@@ -20,6 +20,9 @@ PAYLOAD = ('bin/freelancer.exe', 'bin/freelancer.pdb',
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--game-root', type=Path, default=Path('D:/games/FL_MOD'))
+    parser.add_argument('--binary-root', type=Path, default=REPO/'bin',
+                        help='Use the selected client build, including optional DLSS support')
+    parser.add_argument('--keep-rp9', action='store_true', help='Install only client and shader; preserve current RP9')
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--apply', action='store_true')
     mode.add_argument('--restore', type=Path)
@@ -28,7 +31,15 @@ def main():
     if not (args.apply or args.restore):
         items = []
         for rel in PAYLOAD:
-            copy(safe(REPO, rel), safe(STAGE, rel))
+            if args.keep_rp9 and rel.startswith('bin/RP9.'):
+                continue
+            source = safe(args.binary_root, Path(rel).name) if rel.startswith('bin/') else safe(REPO, rel)
+            if rel == 'bin/freelancer.exe':
+                dependencies = [REPO/'src/freelancer/Client'/name for name in
+                                ('tradelane_visual.cpp', 'tradelane_visual_mesh.h', 'tradelane_visual.h')]
+                if any(p.stat().st_mtime > source.stat().st_mtime for p in dependencies):
+                    raise ValueError('Rebuild client before preparing installation')
+            copy(source, safe(STAGE, rel))
             before, after = digest(safe(game, rel)), digest(safe(STAGE, rel))
             if before != after:
                 items.append(dict(relative=rel, original=before, prepared=after))

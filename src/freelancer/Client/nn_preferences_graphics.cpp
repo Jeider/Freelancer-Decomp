@@ -8,11 +8,11 @@
 #include "hud_interface_ids.h"
 #include "color_grade_preferences.h"
 #include "native_subtitles.h"
+#include "ui_scroll.h"
 #include <cstring>
 #include <string>
 #ifdef FREELANCER_DLSS5
 #include "base_neural_preferences.h"
-#include "ui_scroll.h"
 #endif
 
 namespace
@@ -21,9 +21,9 @@ namespace
     float DetailRowY(int row, bool inGame)
     {
         // Keep the first row below the tabs, including its full text/button height.
-        // Spread the ten advanced rows down to the restart hint, leaving room
+        // Spread the eleven advanced rows down to the restart hint, leaving room
         // for the last control's height and the preset buttons below it.
-        return (inGame ? .1553125f : .165078125f) - row * .039f;
+        return (inGame ? .1553125f : .165078125f) - row * .0351f;
     }
     float MainRowY(int row, bool inGame)
     {
@@ -32,13 +32,25 @@ namespace
     }
     bool MainSetting(int setting)
     { return setting==GraphicsSettings::VSync || setting==GraphicsSettings::FpsLimit; }
-    float SettingRowY(int setting, bool inGame)
+    constexpr float GraphicsColumnShift=.03f;
+    float ColumnShift(int setting) { return MainSetting(setting)?0.f:GraphicsColumnShift; }
+    constexpr int GraphicsVisibleRows=11;
+    constexpr int GraphicsOrder[]={GraphicsSettings::Shadows,GraphicsSettings::Relief,GraphicsSettings::Highlights,
+        GraphicsSettings::Reflections,GraphicsSettings::Anisotropy,GraphicsSettings::Antialiasing,
+        GraphicsSettings::Nebulae,GraphicsSettings::WeaponLights,GraphicsSettings::Anomalies,
+        GraphicsSettings::TradeLane,GraphicsSettings::Hyperspace,-1,GraphicsSettings::Interiors,GraphicsSettings::Hair};
+    // The separator occupies its own scroll row, leaving space on both sides.
+    constexpr int GraphicsSeparatorRow=11;
+    constexpr int GraphicsRowCount=sizeof(GraphicsOrder)/sizeof(GraphicsOrder[0]);
+    int GraphicsRow(int setting)
+    {
+        for(int row=0;row<GraphicsRowCount;++row)if(GraphicsOrder[row]==setting)return row;
+        return -1;
+    }
+    float SettingRowY(int setting, bool inGame, int first=0)
     {
         if(MainSetting(setting)) return MainRowY(setting==GraphicsSettings::VSync?0:1,inGame)+.0135f;
-        int row=setting;
-        if(setting>GraphicsSettings::VSync) --row;
-        if(setting>GraphicsSettings::FpsLimit) --row;
-        return DetailRowY(row,inGame);
+        return DetailRowY(GraphicsRow(setting)-first,inGame);
     }
     bool SettingOnPage(int setting,int page,int tab)
     { return MainSetting(setting) ? page==1 : page==2 && tab==0; }
@@ -54,6 +66,9 @@ namespace
     }
     std::wstring Label(int setting)
     {
+        if(setting==GraphicsSettings::Hair)return L"\u0412\u041e\u041b\u041e\u0421\u042b \u041f\u0415\u0420\u0421\u041e\u041d\u0410\u0416\u0415\u0419";
+        if(setting==GraphicsSettings::TradeLane)return IdText(PreferenceIds::GraphicsTradeLane);
+        if(setting==GraphicsSettings::Hyperspace)return IdText(PreferenceIds::GraphicsHyperspace);
         constexpr int ids[]={PreferenceIds::GraphicsShadows,PreferenceIds::GraphicsSurfaceRelief,PreferenceIds::GraphicsHighlights,
             PreferenceIds::GraphicsReflections,PreferenceIds::GraphicsAnisotropy,PreferenceIds::GraphicsAntialiasing,
             PreferenceIds::GraphicsNebulae,PreferenceIds::GraphicsVsync,PreferenceIds::GraphicsFpsLimit,
@@ -63,10 +78,10 @@ namespace
     std::wstring ValueText(int setting, int value)
     {
         using namespace GraphicsSettings;
-        if (((setting==Interiors || setting==Relief || setting==Highlights) && value==0) || (setting==Anomalies && value==1))
+        if (((setting==Interiors || setting==Relief || setting==Highlights || setting==TradeLane || setting==Hyperspace) && value==0) || (setting==Anomalies && value==1))
             return IdText(PreferenceIds::GraphicsStandard);
         if (Toggle(setting)) return IdText(value ? PreferenceIds::GraphicsOn : PreferenceIds::GraphicsOff);
-        if (setting==Shadows || setting==Nebulae || setting==Anomalies || setting==Interiors || setting==Relief || setting==Highlights)
+        if (setting==Shadows || setting==Nebulae || setting==Anomalies || setting==Interiors || setting==Relief || setting==Highlights || setting==Hair || setting==TradeLane || setting==Hyperspace)
         {
             constexpr int ids[]={PreferenceIds::GraphicsOff,PreferenceIds::GraphicsLow,PreferenceIds::GraphicsMedium,PreferenceIds::GraphicsHigh};
             return IdText(ids[value]);
@@ -110,13 +125,14 @@ bool NnPreferences::CreateGraphicsRows()
         auto& cell=GraphicsCells[i];
         char name[40];
         sprintf_s(name,"GraphicsLabel%d",i);
-        cell.Label=text(name,Label(i).c_str(),-.11f,SettingRowY(i,bInGame!=0),.29f,0,.9f);
+        float const shift=ColumnShift(i);
+        cell.Label=text(name,Label(i).c_str(),-.11f,SettingRowY(i,bInGame!=0),.29f-shift,0,.9f);
         sprintf_s(name,"GraphicsValue%d",i);
-        cell.Value=text(name,L"",.188f,SettingRowY(i,bInGame!=0),.207f,1,.9f);
-        float const at[3]={.302f,SettingRowY(i,bInGame!=0)-.0145f,0},half[3]={.121f,.0145f,0};
+        cell.Value=text(name,L"",.188f-shift,SettingRowY(i,bInGame!=0),.207f,1,.9f);
+        float const at[3]={.302f-shift,SettingRowY(i,bInGame!=0)-.0145f,0},half[3]={.121f,.0145f,0};
         if (GraphicsSettings::Toggle(i))
         {
-            float const toggleAt[3]={.405f,at[1],0},toggleHalf[3]={.015f,.015f,0};
+            float const toggleAt[3]={.405f-shift,at[1],0},toggleHalf[3]={.015f,.015f,0};
             sprintf_s(name,"GraphicsToggle%d",i);
             cell.Toggle=static_cast<NnButtonControl*>(CreateToggleButtonControl(name,
                 "Interface\\NeuroNet\\Inventory\\check.3db","Interface\\NeuroNet\\Inventory\\repairblackbox.3db",
@@ -135,6 +151,20 @@ bool NnPreferences::CreateGraphicsRows()
         }
         if (!cell.Label || !cell.Value) return false;
     }
+    float const separatorAt[3]={.1565f-GraphicsColumnShift*.5f,0,0};
+    float const separatorHalf[3]={.2665f-GraphicsColumnShift*.5f,0,0};
+    GraphicsInteriorSeparator=CreateWireStaticControl("GraphicsInteriorSeparator",separatorAt,separatorHalf,0,0,0,1);
+    if(!GraphicsInteriorSeparator)return false;
+    GraphicsInteriorSeparator->Flags&=~kWin3DPickable;
+    GraphicsWidgets.push_back(GraphicsInteriorSeparator);
+    float const scrollAt[3]={.438f-GraphicsColumnShift,DetailRowY(0,bInGame!=0),-1.f};
+    GraphicsScroll=CreateUIScroll("GraphicsScroll",scrollAt,.015f,.386f,0,GraphicsRowCount,GraphicsVisibleRows,0);
+    if(!GraphicsScroll)return false;
+    GraphicsScroll->SetProperty(0x37,0,GraphicsRowCount-1);
+    // A list needs a proportional thumb. Step mode is for sliders and forces
+    // its length to zero on the next Relayout (e.g. the first wheel event).
+    GraphicsScroll->SetStepMode(false);
+    GraphicsWidgets.push_back(GraphicsScroll);
     SubtitlesValue=SubtitlesOriginal=NativeSubtitles::CutsceneEnabled();
     for(int i=0;i<2;++i) {
         auto& cell=SubtitleCells[i];
@@ -237,12 +267,27 @@ void NnPreferences::ApplyGraphicsTab()
     for (int i=0;i<GraphicsSettings::Count;++i)
     {
         auto& cell=GraphicsCells[i];
-        bool const show=SettingOnPage(i,CurPage,GraphicsTab);
+        int const row=GraphicsRow(i);
+        bool const show=SettingOnPage(i,CurPage,GraphicsTab) &&
+            (MainSetting(i)||(row>=GraphicsFirstRow&&row<GraphicsFirstRow+GraphicsVisibleRows));
+        float const y=SettingRowY(i,bInGame!=0,GraphicsFirstRow);
+        // Creation coordinates are local Offset, not SetPosition's parent anchor.
+        // Updating the anchor with x/y would add the same coordinates twice in
+        // retail text, wire and toggle controls (including the two Main rows).
+        auto moveCell=[&](WinControl* control,float x,float cy){if(control)control->SetOffset(x,cy,control->Offset[2]);};
+        float const shift=ColumnShift(i);
+        moveCell(cell.Label,-.11f,y);moveCell(cell.Value,.188f-shift,y);
+        moveCell(cell.Toggle,.405f-shift,y-.0145f);moveCell(cell.Choice,.302f-shift,y-.0145f);
         Visible(cell.Label,show);
         Visible(cell.Value,show);
         Visible(cell.Toggle,show);
         Visible(cell.Choice,show);
     }
+    Visible(GraphicsScroll,image && GraphicsRowCount>GraphicsVisibleRows);
+    int const separatorRow=GraphicsSeparatorRow-GraphicsFirstRow;
+    if(GraphicsInteriorSeparator)GraphicsInteriorSeparator->SetOffset(.1565f-GraphicsColumnShift*.5f,
+        DetailRowY(separatorRow,bInGame!=0)-.0145f,GraphicsInteriorSeparator->Offset[2]);
+    Visible(GraphicsInteriorSeparator,image && separatorRow>=0 && separatorRow<GraphicsVisibleRows);
     for(auto& cell:SubtitleCells) { Visible(cell.Label,main);Visible(cell.Toggle,main); }
     Visible(ColorGradeCell.Label,main);
     Visible(ColorGradeCell.Value,main);
@@ -354,6 +399,17 @@ bool NnPreferences::GraphicsProperty(int msg, Win3D* source, uintptr_t value)
 {
     // The in-game dialog never runs the main-menu opening animation: Anim stays -2.
     if ((CurPage!=1 && CurPage!=2) || bFlipping || bConfirmMode || bVideoConfirm || (!bInGame && Anim<0)) return false;
+    if(source==GraphicsScroll && CurPage==2 && GraphicsTab==0){
+        if(msg==0x3e){
+            GraphicsFirstRow=int(value);
+            if(GraphicsFirstRow<0)GraphicsFirstRow=0;
+            if(GraphicsFirstRow>GraphicsRowCount-GraphicsVisibleRows)GraphicsFirstRow=GraphicsRowCount-GraphicsVisibleRows;
+            GraphicsScroll->SetProperty(0x38,GraphicsFirstRow,0);
+            if(GraphicsDropdown)GraphicsDropdown->Close();
+            GraphicsDropdownRow=-1;ApplyGraphicsTab();
+        }
+        return true;
+    }
 #ifdef FREELANCER_DLSS5
     if(CurPage==1 && NeuralEnableToggle&&source==NeuralEnableToggle)
     {
@@ -454,7 +510,7 @@ bool NnPreferences::GraphicsProperty(int msg, Win3D* source, uintptr_t value)
             std::vector<std::wstring> choices;
             int const first=GraphicsSettings::Minimum(i);
             for (int valueIndex=first;valueIndex<=GraphicsSettings::Maximum(i);++valueIndex) choices.push_back(ValueText(i,valueIndex));
-            if (GraphicsDropdown->Open(.181f,SettingRowY(i,bInGame!=0),.242f,choices,GraphicsValues[i]-first)) GraphicsDropdownRow=i;
+            if (GraphicsDropdown->Open(.181f-ColumnShift(i),SettingRowY(i,bInGame!=0,GraphicsFirstRow),.242f,choices,GraphicsValues[i]-first)) GraphicsDropdownRow=i;
             return true;
         }
     }

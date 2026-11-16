@@ -1708,10 +1708,12 @@ GENRESULT DACOM_API FDirectX9::WarmSceneCaches()
         }
     }
     std::vector<FRPExProgram*> programs;
-    // These programs were registered by the current system's field preparation.
-    // Other effects can have different vertex interfaces; keep this pass scoped.
+    // Programs registered during system preparation, before flight starts.
+    // The warmup declaration supplies POSITION/COLOR/TEXCOORD for lane effects too.
     for(auto* p:E->Programs) if(!p->DriverWarmed && p->Vs && p->Ps &&
-        (p->Path.find("far_rocks.hlsl")!=std::string::npos || p->Path.find("field_dust.hlsl")!=std::string::npos)) {
+        (p->Path.find("far_rocks.hlsl")!=std::string::npos || p->Path.find("field_dust.hlsl")!=std::string::npos ||
+         p->Path.find("tradelane_corridor.hlsl")!=std::string::npos || p->Path.find("ship_warp.hlsl")!=std::string::npos ||
+         p->Path.find("jump_travel_prototype.hlsl")!=std::string::npos || p->Path.find("jump_cloud.hlsl")!=std::string::npos)) {
         pairs.push_back({p->Vs,p->Ps,false}); programs.push_back(p);
     }
     HRESULT const hr=Rp9Warmup::Draw(Device_,E->bInScene,pairs);

@@ -276,6 +276,9 @@ public:
     NnTextControl* GraphicsHint = nullptr;
     NnDropdownPopup* GraphicsDropdown = nullptr;
     int GraphicsDropdownRow = -1;
+    UiScroll* GraphicsScroll = nullptr;
+    WinControl* GraphicsInteriorSeparator = nullptr;
+    int GraphicsFirstRow = 0;
     FPrefMiscCell SubtitleCells[2]; // Cutscenes and the disabled future space option.
     bool SubtitlesValue=true,SubtitlesOriginal=true;
     FPrefMiscCell ColorGradeCell;

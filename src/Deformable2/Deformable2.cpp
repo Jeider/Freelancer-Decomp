@@ -6,6 +6,7 @@
 
 #include "Deformable2.h"
 #include "EyeMaterial.h"     // RegisterEyeMaterialFactory (FUN_065fdfd0)
+#include "HairMotion.h"
 #include "common_misc.h"   // ICamera (GetViewTransform +0x40, ClassifySphere +0x3C)
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
@@ -20,6 +21,17 @@
 #include <map>
 #include <new>
 #include <vector>
+
+struct FHairMeshMotion { std::vector<float> Weights; unsigned Bone=0; };
+static std::map<FDeformMesh*,FHairMeshMotion> G_HairMeshes;
+static std::map<FLodHolder*,HairMotion::State> G_HairStates;
+static float HairMotionStrength()
+{
+    using Query=float(__cdecl*)(const char*,float);
+    static Query query=nullptr;
+    if(!query){HMODULE common=GetModuleHandleA("Common.dll");if(common)query=(Query)GetProcAddress(common,"PortGraphicsRenderValue");}
+    return query ? query("character_hair_motion",1.f) : 1.f;
+}
 
 namespace
 {
@@ -217,6 +229,7 @@ static void DestroyVertexRemapList(FVertexRemapList* List)
 // remap walk, FaceFlags, then the base vtable (~FDeformMesh).
 FMeshArchetype::~FMeshArchetype()
 {
+    G_HairMeshes.erase(this);
     if (FaceGroups != nullptr)
     {
         int* Header = (int*)FaceGroups - 1;
@@ -640,7 +653,7 @@ static unsigned char ComputeMeshBoundSphere(FMeshArchetype* Arch, float* OutRadi
     OutCenter[0] = Arch->SphereCenter[0];
     OutCenter[1] = Arch->SphereCenter[1];
     OutCenter[2] = Arch->SphereCenter[2];
-    *OutRadius = Arch->SphereRadius;
+    *OutRadius = Arch->SphereRadius + (G_HairMeshes.find(Arch)!=G_HairMeshes.end() ? .006f : 0.f);
     return 1;
 }
 
@@ -856,6 +869,16 @@ unsigned char FMeshArchetype::Skin(FLodHolder* Holder, FDeformVbDesc* Vb, unsign
 
     unsigned char* const Dirty = FaceFlags;
     const unsigned char* const Positions = (const unsigned char*)Vertices;
+    auto Hair=G_HairMeshes.find(this);
+    HairMotion::State* Motion=nullptr;
+    const float HairStrength=Hair==G_HairMeshes.end()?0.f:HairMotionStrength();
+    if(Hair!=G_HairMeshes.end() && Hair->second.Bone<(unsigned)Holder->BindCursor){
+        if(HairStrength>0){
+            Motion=&G_HairStates[Holder];
+            Motion->update((double)GetTickCount64()*.001,Holder->BoneSlots[Hair->second.Bone].LocalTransform);
+        }
+        for(unsigned i=0;i<(unsigned)VertexCount;++i)if(Hair->second.Weights[i]>0)Dirty[i]=1;
+    }
     unsigned int Vertex = 0;
     while (Vertex < (unsigned int)VertexCount)
     {
@@ -865,8 +888,12 @@ unsigned char FMeshArchetype::Skin(FLodHolder* Holder, FDeformVbDesc* Vb, unsign
             SkinnedVertexCount += 1;
             const FSkinVertex* const SkinVertex = &SkinTable[Vertex];
             const FSkinPair* const Pairs = SkinVertex->Pairs;
-            const float* const Source =
+            const float* Source =
                 (const float*)(Positions + (size_t)Vertex * 0x18);
+            float HairSource[6];
+            if(Motion && Hair->second.Weights[Vertex]>0){
+                Motion->deform(Source,Hair->second.Weights[Vertex]*HairStrength,HairSource);Source=HairSource;
+            }
             const float* const First = Holder->BoneSlots[Pairs[0].BoneId].Matrix;
             float Out[6];
             const int Count = SkinVertex->BoneCount;
@@ -1553,6 +1580,22 @@ static bool LoadGeometry(FMeshArchetype* Arch, IFileSystem* Fs)
     CloseMappedFileNode(&WeightNode);
     CloseMappedFileNode(&IdNode);
     CloseMappedFileNode(&CountNode);
+    // Optional opt-in stream authored by the Hatcher builder. Missing stream is native.
+    FMappedFileNode HairNode;InitMappedFileNode(&HairNode,Fs);
+    MapFileNode(&HairNode,"Hair_motion_weights",0xFFFFFFFF);
+    FMappedFileNode HairBone;InitMappedFileNode(&HairBone,Fs);
+    MapFileNode(&HairBone,"Hair_motion_bone",0xFFFFFFFF);
+    if(HairNode.View && HairNode.Size==VertexCount*4 && HairBone.View && HairBone.Size==4){
+        FHairMeshMotion Motion;Motion.Bone=*(const unsigned*)HairBone.View;
+        const float* Weights=(const float*)HairNode.View;bool Valid=Motion.Bone<G_MaxBoneCount;
+        for(unsigned i=0;i<VertexCount && Valid;++i){
+            Valid=std::isfinite(Weights[i]) && Weights[i]>=0 && Weights[i]<=1;
+            Motion.Weights.push_back(Weights[i]);
+        }
+        if(Valid)G_HairMeshes[Arch]=Motion;
+    }
+    CloseMappedFileNode(&HairBone);DropFileSystem(&HairBone.Fs);
+    CloseMappedFileNode(&HairNode);DropFileSystem(&HairNode.Fs);
     Fs->OpenNode(G_ParentNode); // 065f8349
     return true;
 }
@@ -1843,6 +1886,7 @@ static int ReleaseSkeleton(FSkeleton* Skel)
 // FUN_065f1470 thiscall RET 0: delete BoneSlots, ReleaseSkeleton, null +0.
 static void DestroyLodHolderBody(FLodHolder* Holder)
 {
+    G_HairStates.erase(Holder);
     if (Holder == nullptr)
         return;
     if (Holder->BoneSlots != nullptr)
@@ -3547,7 +3591,7 @@ static unsigned char DrawPartLive(FDeformPart* Part, ICamera* Camera, void* /*Un
     const bool bVbSelected = G_VertexBuffer->SelectVb(Part->Vb.Listing.VertexBuffer) >= 0;
     const unsigned char Flags = Part->Flags;
     const unsigned char bRebuild = ((Flags & 1) != 0 || !bVbSelected) ? 1 : 0;
-    if ((Flags & 2) != 0 || bRebuild != 0)
+    if ((Flags & 2) != 0 || bRebuild != 0 || G_HairMeshes.find(Part->Current)!=G_HairMeshes.end())
     {
         if (Part->Current->Skin(Part->Lod, &Part->Vb, bRebuild) == 0)
             return 0;

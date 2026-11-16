@@ -90,4 +90,6 @@ namespace PreferenceIds
     constexpr int GraphicsStandard = 238411;
     constexpr int GraphicsAdditional = 238412;
     constexpr int GraphicsAllOff = 238413;
+    constexpr int GraphicsTradeLane = 238414;
+    constexpr int GraphicsHyperspace = 238415;
 }

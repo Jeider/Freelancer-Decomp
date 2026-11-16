@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "server_action_stats.h"
+#include "campaign_control.h"
 #include "common_cequip.h"
 #include "../include/common_server.h"
 #include "../include/common_pathfind.h" // PathfindManager (pub::AI::SubmitState)
@@ -5137,6 +5138,10 @@ SERVER_API int __cdecl SetRank(unsigned int player_id, int rank) {
     if (!IsValidPlayer(player_id)) return -2;
     PlayerSlot* p = PlayerDB_GetPlayer(player_id);
     if (!p) return -2;
+    if (!SinglePlayer() && CampaignServer::Enabled()) {
+        unsigned global=CampaignControl::Rank();
+        if (global) rank=int(global);
+    }
     p->rank_level = (unsigned int)rank;
     if (::g_pClientInterface) {
         ::g_pClientInterface->SendServerMiscObjUpdateRank(player_id, player_id, rank);

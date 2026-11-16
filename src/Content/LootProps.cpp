@@ -10,6 +10,7 @@
 #include "LootProps.h"
 #ifdef FREELANCER_ADOXA
 #include "../include/port_plugins.h" // port-only adoxa plugins
+#include "ServerNpcScaling.h"
 #include "ContentInternal.h"     // OpenContentDataIni
 #include "common_ini.h"
 #include "common_server.h"
@@ -88,7 +89,9 @@ namespace
         if (Rows.empty())
             return;
         int Rank = 0;
-        if (pub::SinglePlayer())
+        if (ServerNpcScaling::Active())
+            Rank = ServerNpcScaling::HighestRank();
+        else if (pub::SinglePlayer())
             pub::Player::GetRank(PlayerId, Rank);
         else
         {

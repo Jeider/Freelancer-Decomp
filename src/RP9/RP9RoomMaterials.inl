@@ -1,4 +1,6 @@
 // Included by RP9Ex.cpp: shares the compiler/cache and legacy state helpers.
+#include "RP9FullHairMaterials.h"
+
 static std::string RoomDataPath(const char* Relative)
 {
     char Module[MAX_PATH] = {}; GetModuleFileNameA(nullptr, Module, MAX_PATH);
@@ -343,6 +345,25 @@ GENRESULT DACOM_API FDirectX9::SetRoomMaterial(const char* Name, const char* Tex
         if(Found!=Profiles.end()) E->ShipNormalCurrent=Found->second;
     }
     if (!E->bRoomFrame || !E->bRoomEnabled || !Name) return GR_OK;
+    // Exact authored hair-only groups; never activate on a shared face atlas.
+    if (Texture && (_strnicmp(Name,"short_hair_",11)==0 ||
+                    _strnicmp(Name,"hero_hair_",10)==0 ||
+                    _stricmp(Name,"hatcher_hair_v1")==0 ||
+                    _stricmp(Name,"hatcher_hat_hair")==0))
+    for (auto const& Entry : kFullHairMaterials)
+    {
+        if (_stricmp(Name,Entry.Name)!=0 || _stricmp(Texture,Entry.Texture)!=0) continue;
+        const float Quality=Rp9UserGraphics("character_hair",3);
+        if(Quality<.5f)return GR_OK;
+        auto& Hair=E->RoomProfiles[LowerString(std::string(Name)+"|"+Texture)];
+        if (Hair.Map.empty()) { Hair.Map=Entry.Map; Hair.Tried=false; }
+        Hair.Normal=(.36f+.14f*Quality)*1.08f;
+        Hair.Roughness=.50f;
+        Hair.Specular=.28f+.07f*Quality;
+        Hair.Skin=.25f;
+        E->RoomCurrent=&Hair; E->RoomFinish=5.4f;
+        return GR_OK;
+    }
     auto FacePart = [](const char* S) {
         if (!S || !S[0]) return false;
         std::string L = LowerString(S);
@@ -473,17 +494,18 @@ bool FDirectX9::ExRoomMaterialBegin()
     // Restore native face shading, including its per-vertex lighting. Merely
     // zeroing the generated normal would retain the new per-pixel facial shading.
     if (E->RoomCurrent->Skin > .5f) return false;
-    if (E->bRoomBrick && E->RoomCurrent->Skin >= -.5f) return false;
+    const bool Hair=E->RoomFinish>=5.f && E->RoomFinish<5.5f && E->RoomCurrent->Skin==.25f;
+    if (!Hair && E->bRoomBrick && E->RoomCurrent->Skin >= -.5f) return false;
     const unsigned Fvf = StreamCache_.Fvf ? StreamCache_.Fvf : StreamCache_.VertexBuffer ? StreamCache_.VertexBuffer->Fvf : 0;
     const unsigned Uvs = (Fvf & D3DFVF_TEXCOUNT_MASK) >> D3DFVF_TEXCOUNT_SHIFT;
     const bool Skin = (Fvf & D3DFVF_POSITION_MASK) == D3DFVF_XYZB4 && (Fvf & D3DFVF_LASTBETA_UBYTE4) &&
                      RenderStates_.GetPending(D3DRS_INDEXEDVERTEXBLENDENABLE) && RenderStates_.GetPending(D3DRS_VERTEXBLEND) == D3DVBF_3WEIGHTS;
-    if (Skin && (E->bRoomBrick || E->bRoomBrickDraw || E->RoomCurrent->Skin < -.5f)) return false;
+    if (Skin && !Hair && (E->bRoomBrick || E->bRoomBrickDraw || E->RoomCurrent->Skin < -.5f)) return false;
     const unsigned FvfBody = Fvf;
     if ((!Skin && (FvfBody & D3DFVF_POSITION_MASK) != D3DFVF_XYZ) || !(FvfBody & D3DFVF_NORMAL) ||
         !Uvs || Uvs > 3 || (Fvf & 0xffff0000u) ||
         (RenderStates_.GetPending(D3DRS_ALPHABLENDENABLE) &&
-         !(E->RoomFinish > 1.5f && E->RoomFinish < 2.5f))) return false;
+        !(Hair || (E->RoomFinish > 1.5f && E->RoomFinish < 2.5f)))) return false;
     if (Skin && E->bRoomPaletteUnsupported) return false;
     // Never reinterpret authored reflection vectors or unusual multipass blends.
     auto Tss = [&](unsigned S, unsigned T, unsigned Default) {

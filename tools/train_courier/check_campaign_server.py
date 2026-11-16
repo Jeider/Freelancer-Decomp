@@ -15,6 +15,7 @@ from build_asf_hq import compiler_env
 
 def main():
     subprocess.run([sys.executable, str(ROOT/'tools/train_courier/check_campaign_arrival.py')], check=True)
+    subprocess.run([sys.executable, str(ROOT/'tools/train_courier/check_campaign_control.py')], check=True)
     launcher = (ROOT/'src/Content/StoryLauncher.cpp').read_text(encoding='utf-8')
     story = (ROOT/'src/Content/Story.cpp').read_text(encoding='utf-8')
     code = r'''
@@ -39,7 +40,7 @@ void _SendMessage(unsigned id,EMessage event,void const* data){
     if(event==EMessage::BaseEnter){assert(id==42&&static_cast<unsigned const*>(data)[1]==1);++replays;}
     else {assert(id==creates&&event==EMessage::Heartbeat);++kicks;}
 }
-unsigned Create(char const*,char const* kind,FStoryCreateParms* p,int){assert(!strcmp(kind,"CampaignStory")&&p->PlayerId==2);return ++creates;}
+unsigned Create(char const*,char const* kind,FStoryCreateParms* p,int){assert(!strcmp(kind,"CampaignStory")&&p->PlayerId==0);return ++creates;}
 }
 namespace Player {int GetName(unsigned,std::wstring&);}
 }
@@ -58,7 +59,7 @@ int pub::Player::GetName(unsigned id,std::wstring& n){n=names[id];return n.empty
 struct IDLL {virtual ~IDLL()=default;virtual void HandleMessage(EMessage,void const*)=0;};
 std::map<unsigned,unsigned> GSpecificNpcs;
 void LoadStoryNpcs(){++npcLoads;}
-''' + block(launcher, 'class FCampaignLauncher final') + r''';
+''' + block(launcher, 'class FCampaignLauncher final') + ';\n' + block(launcher, 'IDLL* CreateCampaignLauncher(') + r'''
 unsigned GStoryMissionController=0;
 struct FStorySaveMessage {unsigned PlayerId;FILE* File;};
 struct FStoryLoadMessage {unsigned PlayerId;void* Reader;};
@@ -82,29 +83,19 @@ void ConfigTests(){
 int main(){
     ConfigTests();assert(!CampaignServer::Enabled());
     players[2].reset(new State);names[2]=L"leader";
-    FCampaignLauncher launcher(10);assert(npcLoads==1);
-    launcher.HandleMessage(EMessage::Heartbeat,nullptr);assert(!creates);
+    assert(!CreateCampaignLauncher("CampaignLauncher",10,nullptr)&&!creates);
     mode=true;assert(CampaignServer::Enabled());
-    launcher.HandleMessage(EMessage::PlayerLogin,nullptr);assert(!creates);
-    launcher.HandleMessage(EMessage::Heartbeat,nullptr);assert(!creates);
-    players[2]->base=true;sp=true;launcher.HandleMessage(EMessage::Heartbeat,nullptr);assert(!creates);
-    unsigned arrival[]={123,2};sp=false;launcher.HandleMessage(EMessage::BaseEnter,arrival);
-    assert(creates==1&&kicks==1&&players[2]->LocationId==0); // before first room entry
-    launcher.HandleMessage(EMessage::Heartbeat,nullptr);assert(creates==1);
-    FStory story;
-    mode=false;story.HandleMessage(EMessage::Heartbeat,nullptr);assert(!starts);
-    mode=true;sp=true;story.HandleMessage(EMessage::Heartbeat,nullptr);assert(!starts);
-    sp=false;story.HandleMessage(EMessage::Heartbeat,nullptr);assert(starts==1&&players[2]->live==42);
-    players[1].reset(new State);players[1]->base=true;names[1]=L"guest";
-    unsigned guestEntry[]={123,1};story.HandleMessage(EMessage::BaseEnter,guestEntry);
-    assert(starts==1&&players[1]->live==42&&players[2]->joins==1&&replays==1);
-    story.HandleMessage(EMessage::Heartbeat,nullptr);assert(starts==1&&players[1]->joins==1);
+    sp=true;assert(!CreateCampaignLauncher("CampaignLauncher",10,nullptr)&&!creates);
+    sp=false;std::unique_ptr<IDLL> launcher(CreateCampaignLauncher("CampaignLauncher",10,nullptr));
+    assert(launcher&&creates==1&&npcLoads==1&&!starts); // progress loaded before first player
+    unsigned arrival[]={123,2};
+    launcher->HandleMessage(EMessage::BaseEnter,arrival);
+    launcher->HandleMessage(EMessage::PlayerLogin,nullptr);
+    launcher->HandleMessage(EMessage::Heartbeat,nullptr);assert(creates==1&&!starts);
+    FStory story;story.bCampaign=false;sp=true;
     FStoryLoadMessage load{2,nullptr};FStorySaveMessage save{2,nullptr};
-    story.HandleMessage(EMessage::PlayerLoad,&load);story.HandleMessage(EMessage::PlayerSave,&save);assert(!loads&&!saves);
-    names[2]=L"stranger";players[3].reset(new State);players[3]->base=true;
-    story.HandleMessage(EMessage::Heartbeat,nullptr);assert(!players[3]->joins&&starts==1);
-    story.bCampaign=false;story.HandleMessage(EMessage::PlayerLoad,&load);story.HandleMessage(EMessage::PlayerSave,&save);assert(loads==1&&saves==1);
-    puts("PASS campaign mode: config off/on/legacy/corrupt, start before room entry, one Story/mission, guest joins, no per-player StoryInfo, SP path, slot reuse guard");
+    story.HandleMessage(EMessage::PlayerLoad,&load);story.HandleMessage(EMessage::PlayerSave,&save);assert(loads==1&&saves==1);
+    puts("PASS campaign mode: config off/on/legacy/corrupt, one controller before login, gated factory, SP StoryInfo preserved");
 }
 '''
     out = ROOT/'out/campaign_server/check'
@@ -128,12 +119,14 @@ int main(){
         before, after = exports(game/name), exports(binary/name)
         assert before <= after, (name, before-after)
         if name == 'FLServer.exe':
-            assert 'FreelancerCampaignServerEnabled' in after
+            assert {'FreelancerCampaignServerEnabled','FreelancerCampaignGetState',
+                    'FreelancerCampaignSetState','FreelancerCampaignTakeStart'} <= after
     print('PASS installed exports preserved and dedicated host mode query exported')
-    inputs = [Path(__file__), ROOT/'tools/train_courier/check_local_triggers.py', ROOT/'tools/train_courier/check_campaign_arrival.py']
+    inputs = [Path(__file__), ROOT/'tools/train_courier/check_local_triggers.py', ROOT/'tools/train_courier/check_campaign_arrival.py',
+              ROOT/'tools/train_courier/check_campaign_control.py']
     for folder in ('Content', 'Server', 'FLServer'):
         inputs += [p for p in (ROOT/'src'/folder).iterdir() if p.suffix in ('.cpp', '.h', '.inl', '.def')]
-    inputs += [ROOT/'src/include'/name for name in ('campaign_server.h', 'server_campaign_config.h')]
+    inputs += [ROOT/'src/include'/name for name in ('campaign_server.h', 'server_campaign_config.h', 'campaign_control.h', 'campaign_progress_file.h')]
     inputs += [binary/name for name in ('Server.dll', 'Server.pdb', 'Content.dll', 'Content.pdb', 'FLServer.exe', 'FLServer.pdb')]
     inputs += [game/name for name in ('Common.dll', 'DALib.dll', 'dacom.dll', 'ServerResources.dll')]
     inputs += [Path('D:/Games/FL_MOD/DATA/MISSIONS/M01a/m01a.ini')]

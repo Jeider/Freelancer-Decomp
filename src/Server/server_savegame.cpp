@@ -1,5 +1,6 @@
 #include "equipment_slots.h"
 #include "campaign_server.h"
+#include "campaign_control.h"
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 // This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
@@ -929,6 +930,10 @@ void __cdecl PlayerData_ApplySavedCharacter(PlayerData& Slot,
     Slot.bSkipNextAutosave = 0;                                        // +0x340
     Slot.starting_ring = Record.StartingRing;                           // +0x414
     Slot.rank_level = Record.Rank;                                      // +0x284
+    if (!SinglePlayer() && CampaignServer::Enabled()) {
+        unsigned global=CampaignControl::Rank();
+        if (global) Slot.rank_level=global;
+    }
 
     // .text:06d4afc8 .. .text:06d4b096
     Slot.weapon_group_name = Record.WeaponGroups;                       // +0x380
@@ -1228,7 +1233,8 @@ bool __cdecl PlayerData_CreateNewCharacter(PlayerData& Slot, SCreateCharacterInf
                     Joined[0] = '\0';
                     while (Reader.read_header()) {
                         fprintf(Out, "\n[%s]\n", Reader.get_header_ptr());      // .text:06d4bbcd
-                        const bool campaignStart = !SinglePlayer() && CampaignServer::Enabled() && Reader.is_header("Player");
+                        const bool campaignStart = !SinglePlayer() && CampaignServer::Enabled() &&
+                            CampaignControl::Get().state.completed == 0 && Reader.is_header("Player");
                         if (campaignStart) {
                             fprintf(Out, "system = sig13\nbase = sig13_01_base\n");
                         }

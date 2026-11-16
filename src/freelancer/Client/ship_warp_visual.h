@@ -11,5 +11,6 @@ void ShipWarpVisualTickLanes(float Dt);
 void ShipWarpVisualTickJump(FJumpShipEffect const* Effect,float Dt);
 void ShipWarpVisualForgetJump(FJumpShipEffect const* Effect);
 void ShipWarpVisualReset();
+void ShipWarpVisualPrepareSystem();
 void ShipWarpVisualDraw(FSpaceCamera* Camera,FClientShipGameobj* TunnelShip=nullptr);
 void ShipWarpVisualRenderShutdown();

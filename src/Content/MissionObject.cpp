@@ -12,6 +12,7 @@
 
 #include "ContentInternal.h"    // GContentNextUniqueId (DAT_06fce76c)
 #include "ContentPlayerState.h"
+#include "campaign_control.h"
 #include "Guides.h"             // FContentGuide (mission ship slot +0x68)
 #include "MissionDialogs.h"     // TU28 GMissionDialogs / FMissionDialog ([Dialog])
 #include "MissionObjList.h"     // LoadObjList (TU40 FUN_06f25260), FObjListDirective
@@ -133,6 +134,16 @@ FMissionObject::~FMissionObject()
 // If +0x19 is set before or after that, pub::Controller::Destroy(+4) and +0x81 = 1.
 void FMissionObject::HandleMessage(pub::Controller::EMessage MessageId, void const* MessageParms)
 {
+    if (!pub::SinglePlayer() && CampaignServer::Enabled()) {
+        auto campaign=CampaignControl::Get();
+        if (campaign.controller==ControllerId) {
+            if (campaign.state.phase==CampaignControl::Error) return;
+            std::wstring name;
+            if (reinterpret_cast<std::uintptr_t>(FindContentPlayerState(PlayerId))!=campaign.ownerState ||
+                pub::Player::GetName(PlayerId,name)!=0 || name!=campaign.ownerName) return;
+            if (MessageId==pub::Controller::EMessage::PlayerLoad || MessageId==pub::Controller::EMessage::PlayerSave) return;
+        }
+    }
     if (bDestroyed != 0)
         return;
     if (bPendingDestroy == 0)

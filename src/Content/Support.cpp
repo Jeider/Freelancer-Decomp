@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "ContentInternal.h"
+#include "campaign_control.h"
 #include "ContentMessageRouter.h"
 #include "ContentPlayerState.h"
 #include "PilotPersonalities.h"
@@ -199,6 +200,15 @@ void LoadPlayerToughnessScale(INI_Reader* Reader)
 
 void RecalculateContentPlayerRank(FContentPlayerState* State)
 {
+    if (State && !pub::SinglePlayer() && CampaignServer::Enabled()) {
+        int rank=int(CampaignControl::Rank()), current=0;
+        if (rank==0) return; // campaign checkpoint not loaded yet, or storage error
+        if (pub::Player::GetRank(State->PlayerId,current)==0 && current!=rank)
+            pub::Player::SetRank(State->PlayerId,rank);
+        pub::Reputation::SetRank(State->Reputation,float(rank));
+        pub::Player::SetMoneyNeededToNextRank(State->PlayerId,0);
+        return;
+    }
     // Content.dll FUN_06f49440 (.text:06f49440–06f495e4, listing 286859–287013).
     int Cash = 0;
     float AssetValue = 0.0f;
@@ -399,7 +409,7 @@ void LoadContentPlayerState(FContentPlayerState* State, INI_Reader* Reader)
 void SetContentPlayerMissionNumber(FContentPlayerState* State, unsigned int MissionNumber,
                                    unsigned int bAdvanceRank)
 {
-    if ((bAdvanceRank & 0xffu) != 0)
+    if ((bAdvanceRank & 0xffu) != 0 && (pub::SinglePlayer() || !CampaignServer::Enabled()))
     {
         switch (MissionNumber)
         {

@@ -8,6 +8,7 @@
 
 namespace
 {
+    thread_local unsigned CharacterPortraitDepth=0;
     struct Preferences
     {
         int Active[GraphicsSettings::Count];
@@ -36,7 +37,7 @@ namespace
                 int value=GraphicsSettings::Default(i);
                 // New setting on an already-profiled integrated adapter: do not
                 // reset other manual choices just to initialize this addition.
-                if (i==GraphicsSettings::Interiors && gpu.Type==GraphicsAdapter::Integrated) value=0;
+                if ((i==GraphicsSettings::Interiors || i==GraphicsSettings::Hair || i==GraphicsSettings::TradeLane || i==GraphicsSettings::Hyperspace) && gpu.Type==GraphicsAdapter::Integrated) value=0;
                 // Migrate existing synchronization/filtering preferences on first run.
                 if (i==GraphicsSettings::VSync) value=GetPrivateProfileIntA("Render","vsync",1,port)!=0;
                 if (i==GraphicsSettings::WeaponLights) value=GetPrivateProfileIntA("Render","weapon_lights",1,port)!=0;
@@ -137,7 +138,14 @@ void __cdecl GraphicsSettings::WriteAutoProfile(FILE* file)
 }
 float __cdecl PortGraphicsRenderValue(char const* key, float authored)
 {
+    if (CharacterPortraitDepth && key && std::strncmp(key,"character_hair",14)==0) return 0;
     return key ? GraphicsSettings::RenderValue(State().Active,key,authored) : authored;
+}
+
+void __cdecl PortCharacterPortraitScope(int enter)
+{
+    if(enter)++CharacterPortraitDepth;
+    else if(CharacterPortraitDepth)--CharacterPortraitDepth;
 }
 
 #include "common_reputation.h"

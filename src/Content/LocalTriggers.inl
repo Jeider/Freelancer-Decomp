@@ -2,6 +2,7 @@
 // layout: no second Story/controller or mission world is created for a participant.
 #include "LocalTriggers.h"
 #include "campaign_server.h"
+#include "campaign_control.h"
 #include <memory>
 #include <string>
 
@@ -108,7 +109,14 @@ bool Capture(FMissionScript* mission, INI_Reader* reader) {
         return true;
     }
     auto& runtime = Runtimes[mission];
-    if (runtime.source.empty()) runtime.source = reader->get_file_name();
+    if (runtime.source.empty()) {
+        runtime.source = reader->get_file_name();
+        auto attempt=CampaignControl::Get().state.attempt;
+        if (attempt) {
+            char suffix[32];sprintf_s(suffix,"#%016llx",static_cast<unsigned long long>(attempt));
+            runtime.source += suffix;
+        }
+    }
     runtime.definitions.emplace(CreateID(nickname.c_str()), text);
     return true;
 }

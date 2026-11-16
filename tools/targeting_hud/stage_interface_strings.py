@@ -17,6 +17,8 @@ REPO = Path(__file__).resolve().parents[2]
 GAME = Path('D:/games/FL_MOD')
 STAGE = REPO / 'src/obj/hud_saved_tooltips/install'
 ROWS = [
+    ('GraphicsTradeLane', 'Качество торговых путей', 'Trade lane quality'),
+    ('GraphicsHyperspace', 'Качество гиперпрыжка', 'Hyperspace quality'),
     ('GraphicsAllOff', 'Выкл всё', 'All off'),
     ('GraphicsStandard', 'Стандартное', 'Standard'),
     ('GraphicsAdditional', 'Дополнительно', 'Additional'),

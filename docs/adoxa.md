@@ -33,10 +33,23 @@ Each plugin is switched by its own key in `port.ini [Plugins]` (`src/include/por
 | `dock_key` | dock_key.dll v1.01: `DATA\dock_key.ini` keys for locked docks | `CheckDockPermission` (`06f6c958`); the docking player's equipment (the plugin read the first player's for every ship) |
 | `ammolimit` | AmmoLimit.dll: `ammo_limit = n \| *f \| /f` | `Projectile::read`; `CShip::get_ammo_capacity_remaining`, the dealer and inventory caps |
 | `MatchJob` | MatchJob.dll: `DATA\MISSIONS\RankDiffSP.ini` job difficulty by rank | `LootProps.cpp` mission offers (`06f046eb`) |
-| `MatchPlayer` | MatchPlayer.dll: encounter level raised to half the player's rank | `FZonePopulation::ParseValue` (`06ef9066`) |
+| `MatchPlayer` | MatchPlayer.dll: encounter level raised to half the player's rank | `FZonePopulation::ParseValue` (`06ef9066`); non-campaign MP matches the highest online rank at spawn |
 | `callsign` | callsign.dll: the player's call sign (`port.ini [callsign] callsign = faction [formation [n][-][n]]`) | `Gcs.cpp`: `gcs_refer_faction_*`, `gcs_refer_formationdesig_*`, `gcs_misc_dash`, the two player numbers |
 | `DisableAutoLevelToggle` | the exe patch `0xdbe10 94 -> 95` ("Disable auto-level toggling") | `HUD_Status::OnEvent` case `0x3e` |
 | `DisableLevelCameraToggle` | the exe patch `0x11a1d3 94 -> 95` ("Disable level camera toggling") | `ThirdPersonCameraOnEvent` (`0x0051a1d2`), event `0x3f`; with its companion patch `0x005186e3` (1 -> 0) the level camera starts off (third-person ctor), and the spawn turns it off in the camera and the behaviour manager after FLSharp's flight_controls_fix -- so jflp's roll is not re-levelled |
+
+On non-campaign multiplayer servers, `MatchPlayer` selects newly spawned ambient
+ships using `max(zone difficulty, highest online player rank / 2)`, retaining each
+ship line's difficulty offset. Players on bases and in other systems count. Login,
+logout, character switches and rank changes affect subsequent spawns; existing
+ships and explicit `ship_by_npc_arch` entries remain unchanged. Missing variants
+fall back to the nearest available level of the same faction/type, at or above
+the authored floor, or to the original zone selection if none exists. `MatchJob`
+uses the same online maximum for new offers, preserving `RankDiffSP.ini` and the
+authored difficulty floors. SP and campaign servers retain their previous behavior.
+Check: `python tools/npc_scaling/check.py --bundle`; build `Content`; stage/apply
+with `python tools/npc_scaling/install.py` / `--apply`. Only the server's
+`bin/Content.dll` needs updating for MP; no client update is required.
 
 ## Interface
 

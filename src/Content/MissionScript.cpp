@@ -841,6 +841,8 @@ void FMissionScript::ApplyDesiredMissionState()
     if (Desired == G_MissionStateFail)
     {
         OnMissionFail();
+        if (StoryEvents != nullptr && !pub::SinglePlayer() && CampaignServer::Enabled())
+            StoryEvents->OnMissionEvent(4, static_cast<unsigned int>(CampaignSlotSucceed), ControllerId);
         return;
     }
     if (Desired != G_MissionStateSucceed)

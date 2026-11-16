@@ -12,6 +12,7 @@
 
 #include "ContentInternal.h"
 #include "campaign_server.h"
+#include "campaign_progress_file.h"
 #include "ContentStaticIds.h" // TU15 static IDs 06ea5c10..06ea5df0
 #include "ContentPlayerState.h"
 #include "common_ini.h"
@@ -503,9 +504,10 @@ IDLL* CreateStory(char const* /*Name*/, unsigned int ControllerId, void const* P
         &ControllerId, static_cast<pub::Controller::FStoryCreateParms const*>(Parms));
 }
 
+#include "ServerCampaign.inl"
+
 IDLL* CreateCampaignStory(char const*, unsigned int ControllerId, void const* Parms)
 {
     if (!CampaignServer::Enabled() || pub::SinglePlayer() || !Parms) return nullptr;
-    return new (std::nothrow) FStory(&ControllerId,
-        static_cast<pub::Controller::FStoryCreateParms const*>(Parms), true);
+    return new (std::nothrow) FServerCampaign(ControllerId);
 }

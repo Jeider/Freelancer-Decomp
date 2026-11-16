@@ -12,20 +12,11 @@ tree=ast.parse((ROOT/'tools/graphics_settings/check.py').read_text())
 stub=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign)
           and any(isinstance(t,ast.Name) and t.id=='stub' for t in n.targets))
 stub=stub.replace('struct NnPreferences:WinControl {',r'''
-struct UiScroll:WinControl {
- int value=0; void SetStepMode(bool){} void SetPageField(float){} void SetActiveField(bool){}
- intptr_t SetProperty(int msg,uintptr_t a,uintptr_t b)override{
-  if(msg==0x38)value=int(a);return WinControl::SetProperty(msg,a,b);
- }
-};
 struct NnPreferences:WinControl {
  UiScroll* NeuralStrengthSlider=nullptr;NnTextControl* NeuralStrengthValue=nullptr;
  int NeuralStrength=100,NeuralStrengthOriginal=100;
   NnTextControl* NeuralStrengthLabel=nullptr;
   NnButtonControl* NeuralEnableToggle=nullptr;bool NeuralEnabled=false,NeuralEnabledOriginal=false;
- UiScroll* CreateUIScroll(char const*,float const* at,float,float,int,int,int,int){
-  auto* c=Own(new UiScroll);memcpy(c->position,at,sizeof(c->position));return c;
- }
 ''')
 common=(ROOT/'src/Common/graphics_settings.cpp').read_text().replace('#include "common_misc.h"','')
 common=common.split('#include "common_reputation.h"')[0].replace('#include "graphics_adapter.h"','')

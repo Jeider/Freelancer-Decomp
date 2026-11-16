@@ -192,6 +192,7 @@ void GateTunnelDrawRefraction(FSpaceCamera* Camera,FJumpShipEffect const* Effect
 
 // Called before the Ex pipeline releases its device-owned handles.
 void GateTunnelRenderShutdown();
+void GateTunnelPrepareSystem();
 
 // DAT_00674f98 (allocator byte; first DAT_00674f9c, last DAT_00674fa0, end DAT_00674fa4) -- the
 // loaded tunnels, a VC6 vector of pointers built by the static initializer LAB_004fe0c0

@@ -12,5 +12,6 @@ void TradeLaneVisualStart(FTransform const& Lane, unsigned RouteId = 0);
 void TradeLaneVisualStop();
 void TradeLaneVisualTick(float Dt, float X, float Y, float Z);
 void TradeLaneVisualReset();
+void TradeLaneVisualPrepareSystem();
 void TradeLaneVisualDraw(FSpaceCamera* Camera);
 void TradeLaneVisualRenderShutdown();

@@ -201,6 +201,12 @@ int FlplusplusTakeScreenShot()
 
 bool FlplusplusHasWheelScroll(Win3D const* Window)
 {
+    // Preferences now contains native toggles and other controls not in the
+    // original plugin's ten-class list. Let these forward to their page's list
+    // as well, instead of creating dead wheel areas between the wire buttons.
+    for (Win3D const* Owner = Window; Owner != nullptr; Owner = Owner->GetParent())
+        if (dynamic_cast<NnPreferences const*>(Owner) != nullptr)
+            return true;
     // WheelScroll's ten vftable slots (0x005d1da4 .. 0x005e6194): these exact classes.
     std::type_info const& Type = typeid(*Window);
     return Type == typeid(NnLoadSave) || Type == typeid(NeuroNetNavMap) ||
@@ -212,6 +218,7 @@ bool FlplusplusHasWheelScroll(Win3D const* Window)
 
 bool FlplusplusWindowWheel(Win3D* Window, int Wheel)
 {
+    if (Wheel == 0) return false;
     // WheelScroll Window_Wheel: walk up from the window to the first one that owns a visible
     // scroll bar; two held-arrow steps (UICycle LAB_00597560) per call.
     for (Win3D* Win = Window; Win != nullptr; Win = Win->GetParent())
@@ -271,7 +278,8 @@ bool FlplusplusWindowWheel(Win3D* Window, int Wheel)
         {
             NnPreferences* const Preferences = dynamic_cast<NnPreferences*>(Win);
             if (Preferences != nullptr)
-                Scroll = Preferences->CurPage == 0 ? Preferences->KeyScroll : nullptr;
+                Scroll = Preferences->CurPage == 0 ? Preferences->KeyScroll :
+                    Preferences->CurPage == 2 && Preferences->GraphicsTab == 0 ? Preferences->GraphicsScroll : nullptr;
         }
         else if (strcmp(Name, "NeuroNetNavMap") == 0)
         {
@@ -296,7 +304,11 @@ bool FlplusplusWindowWheel(Win3D* Window, int Wheel)
         {
             bool const bUp = Wheel > 0;
             Scroll->WheelStep(bUp);
-            Scroll->WheelStep(bUp);
+            // The short graphics list should move one row per notch, whether
+            // the event originated on its scrollbar or on a setting control.
+            auto const* Preferences = dynamic_cast<NnPreferences*>(Scroll->GetParent());
+            if (Preferences == nullptr || Scroll != Preferences->GraphicsScroll)
+                Scroll->WheelStep(bUp);
             return true;
         }
         if (Win == nullptr)

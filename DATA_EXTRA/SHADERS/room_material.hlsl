@@ -64,6 +64,7 @@ float3 Perturb(float3 N,float3 P,float2 U,float2 XY) {
  return abs(Det)>1e-12 ? normalize(N*sqrt(saturate(1-dot(XY,XY)))+(T*XY.x+Q*XY.y)*Scale*Sign) : N;
 }
 float4 PSMain(Pixel I):COLOR0 {
+ float Hair=Finish.x>4.5 && Finish.x<5.5 ? 1 : 0;
  float4 B=tex2D(BaseMap,I.U0),T=tex2D(DetailMap,I.U1);
  float4 F=Mode.z>.5 ? tex2D(FinishMap,I.U0) : float4(.5,.5,Profile.y,1);
  // Amplify tangent components with a bounded bend; retain a positive normal Z
@@ -110,10 +111,53 @@ float4 PSMain(Pixel I):COLOR0 {
   Groove*=ReliefGain;
   if(Pd>=Pb && Mode.w>1.5) ReliefUv=I.U1;
  }
+ // Analytic per-pixel strand normal field, filtered by the pixel footprint.
+ // Constant across time: moving light/view creates the motion of the highlight.
+ float2 HairAcross=float2(1,.28*cos(I.U0.y*6.2831853));
+ float HairPhase=(I.U0.x+.044563*sin(I.U0.y*6.2831853))*1256.63706;
+ float HairFilter=saturate(1-fwidth(HairPhase)/3.14159265);
+ if(Hair>.5) XY=normalize(HairAcross)*sin(HairPhase)*HairFilter*min(Profile.x,.45);
+ // Trent: derive the larger strand relief from his actual painted locks. The
+ // fine analytic fibres remain secondary; no UV displacement on the face.
+ if(Finish.x>5.1 && Finish.x<5.35){
+  float2 Step=float2(.001953125,0);float3 Luma=float3(.299,.587,.114);
+  float2 LockSlope=float2(
+   dot(tex2D(BaseMap,I.U0+Step).rgb-tex2D(BaseMap,I.U0-Step).rgb,Luma),
+   dot(tex2D(BaseMap,I.U0+Step.yx).rgb-tex2D(BaseMap,I.U0-Step.yx).rgb,Luma));
+  float Filter=saturate(1-max(length(ddx(I.U0)),length(ddy(I.U0)))*180);
+  XY=XY*.45-clamp(LockSlope*2.5,-.65,.65)*Profile.x*Filter;
+  float SlopeLength=dot(LockSlope,LockSlope);
+  if(SlopeLength>.0004)HairAcross=lerp(HairAcross,LockSlope*rsqrt(SlopeLength),.6*Filter);
+ }
+ // Authored hair groups use packed tangent normal maps, not a wavy fibre field.
+ if(Finish.x>5.35 && Finish.x<5.5 && Mode.z>.5){
+  XY=(F.xy*2-1)*Profile.x;
+  // Suppress steep painted edges that read as chipped stone. Keep delicate
+  // longitudinal fibres in the lighting, with pixel-footprint antialiasing.
+  XY*=rsqrt(1+dot(XY,XY)*1.5);
+  float FibrePhase=I.U0.x*2513.27412;
+  float FibreFilter=saturate(1-fwidth(FibrePhase)/3.14159265);
+  float FinePhase=FibrePhase*1.73+.7;
+  float FineFilter=saturate(1-fwidth(FinePhase)/3.14159265);
+  // Broader bundles remain readable on smaller NPC portraits after the finest
+  // fibres have correctly filtered away. Still normal-only, never dark stripes.
+  float BundlePhase=I.U0.x*402.12386;
+  float BundleFilter=saturate(1-fwidth(BundlePhase)/3.14159265);
+  XY.x+=(sin(BundlePhase)*BundleFilter*.055+sin(FibrePhase)*FibreFilter*.045+sin(FinePhase)*FineFilter*.018)*Profile.x;
+  HairAcross=float2(1,0);
+ }
  XY*=rsqrt(max(1.0,dot(XY,XY)/(Sources.w>1?1:lerp(.64,.970,Maximum))));
  float3 N=Perturb(normalize(I.N),I.V,Sources.w>1?ReliefUv:I.U0,XY),V=normalize(-I.V);
  float Wood=Finish.x>3.5 && Finish.x<4.5 ? 1 : 0;
  float3 Grain=N,WoodSpec=0;
+ float3 HairAxis=N,HairSpec=0;
+ if(Hair>.5){
+  float3 X=ddx(I.V),Y=ddy(I.V);float2 A=ddx(I.U0),C=ddy(I.U0);
+  float3 U=X*C.y-Y*A.y,Q=Y*A.x-X*C.x;
+  float3 Across=U*HairAcross.x+Q*HairAcross.y;
+  float3 Axis=cross(N,Across);float Len=dot(Axis,Axis);
+  HairAxis=Len>1e-12 ? Axis*rsqrt(Len) : N;
+ }
  if(Wood>.5){float3 X=ddx(I.V),Y=ddy(I.V);float Ax=ddx(I.U0.x),Bx=ddy(I.U0.x);Grain=X*Bx-Y*Ax;
   float G2=dot(Grain,Grain);Grain=G2>1e-8 ? Grain*rsqrt(G2) : N;}
  // Keep cloth matte while making polished materials distinctly smoother.
@@ -142,6 +186,12 @@ float4 PSMain(Pixel I):COLOR0 {
   float A=SpecRough*SpecRough,A2=A*A,Den=NH*NH*(A2-1)+1,Gk=(SpecRough+1)*(SpecRough+1)/8;
   float G=NV/(NV*(1-Gk)+Gk)*NL/(NL*(1-Gk)+Gk),Fr=.04+.96*pow(1-VH,5);
   Spec+=L.SpecOuter.rgb*Att*NL*(A2/(3.14159265*Den*Den)*G*Fr/max(4*NV*NL,.001))*Profile.z*HighlightGain;
+  if(Hair>.5){
+   float TH=dot(HairAxis,H),Lobe=pow(saturate(1-TH*TH),24);
+   float3 Shifted=normalize(HairAxis+N*.12);float SH=dot(Shifted,H);
+   float Soft=pow(saturate(1-SH*SH),10);
+   HairSpec+=L.SpecOuter.rgb*Att*saturate(NdL*.75+.25)*(Lobe*.22+Soft*.08)*Profile.z;
+  }
   if(Wood>.5){float3 Bit=normalize(cross(N,Grain));WoodSpec+=L.SpecOuter.rgb*Att*NL*pow(saturate(1-abs(dot(H,Bit))),56);}
  }
  float4 Lit=D;
@@ -149,7 +199,8 @@ float4 PSMain(Pixel I):COLOR0 {
  else Lit=I.C;
  float4 R=Stage(B,Lit,Lit,Ops0,Args.xy);
  if(Mode.w>1.5)R=Stage(T,Lit,R,Ops1,Args.zw);
-  if(Mode.y>.5)R.rgb+=min(Spec,lerp(lerp(Interior>.5?(Quiet>.5?.10:.20):.40,.26,SkinProfile),.65,Clothing))*(1-saturate(max(MatEmission.r,max(MatEmission.g,MatEmission.b))));
+  if(Mode.y>.5 && Hair<.5)R.rgb+=min(Spec,lerp(lerp(Interior>.5?(Quiet>.5?.10:.20):.40,.26,SkinProfile),.65,Clothing))*(1-saturate(max(MatEmission.r,max(MatEmission.g,MatEmission.b))));
+  if(Mode.y>.5 && Hair>.5)R.rgb+=min(HairSpec,.30)*lerp(float3(.75,.62,.52),sqrt(saturate(B.rgb)),.45);
   float NV2=max(saturate(dot(N,V)),.01),Fres=pow(1-NV2,Interior>.5?8:4);
   if(Finish.x>.5 && Finish.x<1.5){
     float Vein=abs(frac(dot(I.U0,float2(7,3))+F.y)-.5);
@@ -177,7 +228,7 @@ float4 PSMain(Pixel I):COLOR0 {
   }
   // Room meshes get a light reflection. Props get a smaller one, not the room coat.
   if(Room>.5 && Interior>.5 && Finish.y<.5) R.rgb+=Fres*float3(.16,.18,.22)*(Quiet>.5?.45:1)*ReliefGain;
-  else if(Prop>.5 && Finish.y<.5) R.rgb+=Fres*float3(.07,.08,.1)+Spec*float3(.35,.32,.28)*.12;
+  else if(Prop>.5 && Finish.y<.5 && Hair<.5) R.rgb+=Fres*float3(.07,.08,.1)+Spec*float3(.35,.32,.28)*.12;
  float Distance=FogColour.w>.5 ? length(I.V) : abs(I.V.z),Visibility=1;
  if(Fog.w>2.5)Visibility=saturate((Fog.y-Distance)/max(Fog.y-Fog.x,.0001));
  else if(Fog.w>1.5)Visibility=exp(-pow(Distance*Fog.z,2));else if(Fog.w>.5)Visibility=exp(-Distance*Fog.z);

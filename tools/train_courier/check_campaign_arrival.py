@@ -26,6 +26,10 @@ def main():
 #include <map>
 bool mode=true,sp=false;
 namespace CampaignServer {bool Enabled(){return mode;}}
+namespace CampaignControl {
+struct Snapshot {struct {unsigned completed=0;} state;} current;
+Snapshot Get(){return current;}
+}
 bool SinglePlayer(){return sp;}
 namespace pub {
 bool SinglePlayer(){return sp;}
@@ -68,6 +72,9 @@ int main(){
     assert(file.find("money = original")!=std::string::npos&&file.find("ship_archetype")==std::string::npos);
     assert(file.find("%%Package%%")==std::string::npos&&file.find("equip")==std::string::npos&&file.find("cargo")==std::string::npos);
     assert(Save(false).find("system = original")!=std::string::npos);
+    CampaignControl::current.state.completed=1;file=Save(true);
+    assert(file.find("base = original")!=std::string::npos&&file.find("ship_archetype = original")!=std::string::npos);
+    CampaignControl::current.state.completed=0;
     mode=false;assert(Save(true).find("base = original")!=std::string::npos);
     mode=true;sp=true;assert(Save(true).find("base = original")!=std::string::npos);sp=false;
     Mission m;m.TriggerMap[2]=0;m.InitiallyActive[3]=3;m.InitiallyActive[99]=99;m.Setup();

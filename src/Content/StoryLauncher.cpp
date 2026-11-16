@@ -99,37 +99,18 @@ IDLL* CreateStoryLauncher(char const* /*Name*/, unsigned int ControllerId, void 
 
 namespace {
 class FCampaignLauncher final : public IDLL {
-    bool started = false;
 public:
     explicit FCampaignLauncher(unsigned id) {
         LoadStoryNpcs();
-        pub::Controller::SetHeartbeatInterval(id, 0.25f);
+        pub::Controller::SetHeartbeatInterval(id, -1.0f);
+        // Load server progress before character selection/rank restoration. The
+        // campaign itself waits for a player before starting its first mission.
+        pub::Controller::FStoryCreateParms parms;parms.PlayerId=0;
+        if (!pub::Controller::Create("Content.dll","CampaignStory",&parms,pub::Controller::NORMAL))
+            FDUMP(0x100002,"CampaignServer: failed to create the shared Story controller");
     }
     ~FCampaignLauncher() override { GSpecificNpcs.clear(); }
-    void HandleMessage(pub::Controller::EMessage event, void const* data) override {
-        if (started || !CampaignServer::Enabled() || pub::SinglePlayer() ||
-            (event != pub::Controller::EMessage::Heartbeat && event != pub::Controller::EMessage::BaseEnter)) return;
-        // GameSupport (HIGHEST) has loaded the base before this NORMAL controller.
-        // Register autoplay RTC before LocationEnter, not after the room is displayed.
-        for (auto const& item : GetContentPlayerStates()) {
-            if (event == pub::Controller::EMessage::BaseEnter &&
-                (!data || static_cast<unsigned const*>(data)[1] != item.first)) continue;
-            auto* player = item.second.get();
-            if (!player || (!player->GetBaseRecord() && !player->ShipObject)) continue;
-            pub::Controller::FStoryCreateParms parms;parms.PlayerId = item.first;
-            started = true; // protect against nested/duplicate login events
-            unsigned id = pub::Controller::Create("Content.dll", "CampaignStory", &parms,
-                                                  pub::Controller::NORMAL);
-            if (!id) {
-                FDUMP(0x100002, "CampaignServer: failed to create the shared Story controller");
-                // No automatic retry: partially initialized story actions must not repeat.
-            } else {
-                float elapsed = 0;
-                pub::Controller::_SendMessage(id, pub::Controller::EMessage::Heartbeat, &elapsed);
-            }
-            return;
-        }
-    }
+    void HandleMessage(pub::Controller::EMessage, void const*) override {}
 };
 }
 

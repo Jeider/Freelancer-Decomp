@@ -242,6 +242,13 @@ float Visibility(FState const& S,FSpaceCamera* Camera,float const* ViewCentre,bo
 }
 #endif
 
+void ShipWarpVisualPrepareSystem()
+{
+#ifdef FREELANCER_RP9
+    if (GetGameOption(kGameOptEffectsGroup) && Ready()) WarpReady();
+#endif
+}
+
 bool ShipWarpVisualStartLane(FClientGameobj* Ship,unsigned EffectId,unsigned RouteId)
 {
 #ifdef FREELANCER_RP9

@@ -18,6 +18,9 @@
 NAME FLServer
 EXPORTS
     FreelancerCampaignServerEnabled
+    FreelancerCampaignGetState
+    FreelancerCampaignSetState
+    FreelancerCampaignTakeStart
     ??0CAccount@@QAE@ABV0@@Z=Server.??0CAccount@@QAE@ABV0@@Z @1
     ??0CDPMsgList@@QAE@ABV0@@Z=DALib.??0CDPMsgList@@QAE@ABV0@@Z @2
     ??0CDPServer@@QAE@ABV0@@Z=DALib.??0CDPServer@@QAE@ABV0@@Z @3
