@@ -42,7 +42,7 @@ Native regressions cover empty ring passages, walls, grazing clearance, detached
 parts, the actual nominal/beta Nomad Lair surfaces and the merged station waist.
 This is geometric validation, not a full in-game NPC route/performance test.
 
-One minimal rollback set is kept at out/valensia_mega/rollback, about 22.69 MiB.
+One minimal rollback set is kept at out/stations/valensia_mega/rollback, about 22.69 MiB.
 Its transaction manifest points to retained PairsOriginal files instead of making
 additional copies of those same bytes. No timestamped full-tree backups are made.
 After verified installation, generated staging was removed (90.94 MiB reclaimed).

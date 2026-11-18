@@ -1,0 +1,75 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "status": "Five three-view concepts at source-scale proportions with prominent dorsal hump; original cabin; no wings; retractable side cylinders",
+  "prompt_file": "prompts.json",
+  "final_e3_correction": "E3_correction.json",
+  "native_source_dimensions_xyz": [
+    9.464703587623367,
+    11.46253252029419,
+    23.7216694355011
+  ],
+  "artifacts": [
+    {
+      "id": "A",
+      "label": "A3",
+      "title_ru": "Исходный силуэт и высокий арочный горб",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-6ef020b7-f80c-4f83-aa6c-ee3d9627a1fc.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_03/rh_freighter_A3_sheet.png",
+      "sha256": "02842310795018ce6dd49ec72f3665c6a60da086056975470c9d2c7218421b68",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "B",
+      "label": "B3",
+      "title_ru": "Несущие плечи вокруг горба",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-39cd15a2-d4b7-4aae-9f58-7cc5d633375e.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_03/rh_freighter_B3_sheet.png",
+      "sha256": "f477c947f8421a2db5dde5b26f4e78a50d9bd8632b11e9adb19c6f3d7e9de35e",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "C",
+      "label": "C3",
+      "title_ru": "Ступени корпуса и округлый грузовой верх",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-bfe0fe08-569b-4323-95b4-fa5a50bc93d6.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_03/rh_freighter_C3_sheet.png",
+      "sha256": "73b32e6e9d74f080280d30e883239c0429b8f105b7a1d9019ac3a33cb50ba565",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "D",
+      "label": "D3",
+      "title_ru": "Угловые плечи и выраженный горб",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-59039f9d-1b25-493e-a3b7-8e9e95e1767b.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_03/rh_freighter_D3_sheet.png",
+      "sha256": "81d731eeacc2ee8fa5cd45c0274767183be822f7c65a1e104df51ba974126208",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "E",
+      "label": "E3",
+      "title_ru": "Грузовой корпус на нижней опоре",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-506907fd-57c5-4684-883b-047fcb27e355.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_03/rh_freighter_E3_sheet.png",
+      "sha256": "8f31584ab04e9564533bdd776ad56bd9d3444f2206632bde6d71b91893cad291",
+      "size": [
+        1536,
+        1024
+      ]
+    }
+  ],
+  "verification": "All five final PNG copies match generated originals; source CMP and reference hashes unchanged; document links checked."
+}

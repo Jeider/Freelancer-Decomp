@@ -11,7 +11,7 @@ import numpy as np
 import valensia_mega as m
 from fix_valensia_towers import decoded, expected
 
-OUT=m.REPO/'out/terraform_mega'
+OUT=m.REPO/'out/stations/terraform_mega'
 NAME='tfm_or_hq_body'
 TEMPLATE='Assets/Pythonlancer/templates/dockable/terraforming.py'
 SYSTEM='Assets/Pythonlancer/universe/systems/or_hq_static.py'

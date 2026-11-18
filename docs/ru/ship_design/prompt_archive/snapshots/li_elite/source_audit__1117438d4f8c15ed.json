@@ -1,0 +1,4898 @@
+{
+  "alias": "li_elite_pir",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "archetype": {
+    "nickname": [
+      "li_elite_pir"
+    ],
+    "ship_class": [
+      "1"
+    ],
+    "ids_name": [
+      "110402"
+    ],
+    "ids_info": [
+      "110403"
+    ],
+    "ids_info1": [
+      "110404"
+    ],
+    "ids_info2": [
+      "110405"
+    ],
+    "ids_info3": [
+      "110406"
+    ],
+    "shield_link": [
+      "l_elite_shield01, HpMount, HpShield01"
+    ],
+    "mass": [
+      "100"
+    ],
+    "hold_size": [
+      "45"
+    ],
+    "strafe_force": [
+      "20000"
+    ],
+    "strafe_power_usage": [
+      "8"
+    ],
+    "nanobot_limit": [
+      "19"
+    ],
+    "shield_battery_limit": [
+      "19"
+    ],
+    "hit_pts": [
+      "3320"
+    ],
+    "fuse": [
+      "intermed_damage_smallship01, 0.000000, 996.0",
+      "intermed_damage_smallship02, 0.000000, 664.0",
+      "intermed_damage_smallship03, 0.000000, 332.0"
+    ],
+    "hp_type": [
+      "hp_gun_special_1, HpWeapon01, HpWeapon02, HpWeapon03, HpWeapon04, HpWeapon05",
+      "hp_gun_special_2, HpWeapon01, HpWeapon02, HpWeapon03, HpWeapon04, HpWeapon05",
+      "hp_gun_special_3, HpWeapon01, HpWeapon02, HpWeapon03, HpWeapon04, HpWeapon05",
+      "hp_gun_special_4, HpWeapon01, HpWeapon02, HpWeapon03, HpWeapon04, HpWeapon05",
+      "hp_gun_special_5, HpWeapon01, HpWeapon02, HpWeapon03, HpWeapon04, HpWeapon05",
+      "hp_gun_special_6, HpWeapon03, HpWeapon04",
+      "hp_torpedo_special_1, HpTorpedo01",
+      "hp_torpedo_special_2, HpTorpedo01",
+      "hp_elite_shield_special_1, HpShield01",
+      "hp_elite_shield_special_2, HpShield01",
+      "hp_elite_shield_special_3, HpShield01",
+      "hp_elite_shield_special_4, HpShield01",
+      "hp_elite_shield_special_5, HpShield01",
+      "hp_elite_shield_special_6, HpShield01",
+      "hp_elite_engine_special_1, HpDrive01",
+      "hp_elite_engine_special_2, HpDrive01",
+      "hp_elite_engine_special_3, HpDrive01",
+      "hp_elite_engine_special_4, HpDrive01",
+      "hp_elite_engine_special_5, HpDrive01",
+      "hp_elite_engine_special_6, HpDrive01",
+      "hp_elite_power_special_1, HpPower01",
+      "hp_elite_power_special_2, HpPower01",
+      "hp_elite_power_special_3, HpPower01",
+      "hp_elite_power_special_4, HpPower01",
+      "hp_elite_power_special_5, HpPower01",
+      "hp_elite_power_special_6, HpPower01",
+      "hp_thruster_special_1, HpThruster01, HpThruster02",
+      "hp_thruster_special_2, HpThruster01, HpThruster02",
+      "hp_thruster_special_3, HpThruster01, HpThruster02",
+      "hp_thruster_special_4, HpThruster01, HpThruster02",
+      "hp_thruster_special_5, HpThruster01, HpThruster02",
+      "hp_thruster_special_6, HpThruster01, HpThruster02",
+      "hp_mine_dropper, HpMine01",
+      "hp_countermeasure_dropper, HpCM01"
+    ],
+    "equipment_slot": [
+      "HpHardware01, hardware, 1"
+    ],
+    "msg_id_prefix": [
+      "gcs_refer_shiparch_Libhf"
+    ],
+    "mission_property": [
+      "can_use_berths"
+    ],
+    "lodranges": [
+      "0, 1000, 5000, 10000"
+    ],
+    "type": [
+      "FIGHTER"
+    ],
+    "da_archetype": [
+      "ships\\liberty\\li_pir_elite\\li_pir_elite.cmp"
+    ],
+    "material_library": [
+      "ships\\liberty\\li_pir_playerships.mat",
+      "fx\\envmapbasic.mat"
+    ],
+    "envmap_material": [
+      "envmapship"
+    ],
+    "cockpit": [
+      "cockpits\\liberty\\l_elite.ini"
+    ],
+    "pilot_mesh": [
+      "generic_pilot"
+    ],
+    "linear_drag": [
+      "1.000000"
+    ],
+    "max_bank_angle": [
+      "2"
+    ],
+    "camera_offset": [
+      "8, 34"
+    ],
+    "camera_angular_acceleration": [
+      "0.050000"
+    ],
+    "camera_horizontal_turn_angle": [
+      "17"
+    ],
+    "camera_vertical_turn_up_angle": [
+      "5"
+    ],
+    "camera_vertical_turn_down_angle": [
+      "25"
+    ],
+    "camera_turn_look_ahead_slerp_amount": [
+      "1.000000"
+    ],
+    "explosion_arch": [
+      "explosion_li"
+    ],
+    "surface_hit_effects": [
+      "0, small_hull_hit_light01, small_hull_hit_light02, small_hull_hit_light03",
+      "300, small_hull_hit_medium01, small_hull_hit_medium02, small_hull_hit_medium03",
+      "500, small_hull_hit_heavy01, small_hull_hit_heavy02, small_hull_hit_heavy03"
+    ],
+    "steering_torque": [
+      "50000.000000, 50000.000000, 230000.000000"
+    ],
+    "angular_drag": [
+      "40000.000000, 40000.000000, 141000.000000"
+    ],
+    "rotation_inertia": [
+      "8400.000000, 8400.000000, 8400.000000"
+    ],
+    "nudge_force": [
+      "60000.000000"
+    ],
+    "bay_door_anim": [
+      "Sc_open baydoor"
+    ],
+    "bay_doors_open_snd": [
+      "cargo_doors_open"
+    ],
+    "bay_doors_close_snd": [
+      "cargo_doors_close"
+    ],
+    "hp_bay_surface": [
+      "HpBayDoor01"
+    ],
+    "hp_bay_external": [
+      "HpBayDoor02"
+    ],
+    "hp_tractor_source": [
+      "HpTractor_Source"
+    ],
+    "num_exhaust_nozzles": [
+      "2"
+    ],
+    "source_ini": "ships\\shiparch.ini"
+  },
+  "assets": [
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+      "sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176"
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_playerships.mat",
+      "sha256": "1192ea02af7a53162a43de11807e739a9d02ad0ebcd7d2db04b1fc072b7fa400"
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/fx/envmapbasic.mat",
+      "sha256": "7586554f412d0c4cdc5d58ba04121452baf1d6c62efffb3ba864e2cdcfe497be"
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/cockpits/liberty/l_elite.ini",
+      "sha256": "62c40df27d26a1ca068fb1f574089a4e0cacefdad95c2cafe546db218534f078"
+    }
+  ],
+  "source_stats": {
+    "sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+    "bytes": 207624,
+    "triangles": 1315,
+    "parts": [
+      {
+        "name": "baydoor01_lod1021202161040.3db",
+        "triangles": 2,
+        "materials": [
+          "pir_elite_256_2side"
+        ]
+      },
+      {
+        "name": "baydoor02_lod1021202161040.3db",
+        "triangles": 2,
+        "materials": [
+          "pir_elite_256_2side"
+        ]
+      },
+      {
+        "name": "Li_elite_lod1021202161040.3db",
+        "triangles": 864,
+        "materials": [
+          "pir_elite_256",
+          "pir_elite_256B",
+          "pir_elite_256R",
+          "pir_elite_256LB",
+          "pir_metal03",
+          "weaponplate2"
+        ]
+      },
+      {
+        "name": "Li_Engine01_lod1021202161040.3db",
+        "triangles": 40,
+        "materials": [
+          "pir_elite_256",
+          "engine_grill01"
+        ]
+      },
+      {
+        "name": "Li_Engine02_lod1021202161040.3db",
+        "triangles": 60,
+        "materials": [
+          "pir_elite_256",
+          "engine_grill01"
+        ]
+      },
+      {
+        "name": "Li_glass_lod1021202161040.3db",
+        "triangles": 105,
+        "materials": [
+          "pir_L_glass"
+        ]
+      },
+      {
+        "name": "Li_Spoiler_lod1021202161040.3db",
+        "triangles": 102,
+        "materials": [
+          "pir_elite_256",
+          "weaponplate2"
+        ]
+      },
+      {
+        "name": "Li_port_wing_lod1021202161040.3db",
+        "triangles": 2,
+        "materials": [
+          "none"
+        ]
+      },
+      {
+        "name": "Li_port_wing_poly_lod1021202161040.3db",
+        "triangles": 2,
+        "materials": [
+          "none"
+        ]
+      },
+      {
+        "name": "Li_port_wing1_lod1021202161040.3db",
+        "triangles": 48,
+        "materials": [
+          "weaponplate2",
+          "pir_L_wing_128"
+        ]
+      },
+      {
+        "name": "Li_port_wing2_lod1021202161040.3db",
+        "triangles": 12,
+        "materials": [
+          "pir_L_wing_128"
+        ]
+      },
+      {
+        "name": "Li_port_wing3_lod1021202161040.3db",
+        "triangles": 6,
+        "materials": [
+          "pir_L_wing_128"
+        ]
+      },
+      {
+        "name": "Li_star_wing_lod1021202161040.3db",
+        "triangles": 2,
+        "materials": [
+          "none"
+        ]
+      },
+      {
+        "name": "Li_star_wing_poly_lod1021202161040.3db",
+        "triangles": 2,
+        "materials": [
+          "none"
+        ]
+      },
+      {
+        "name": "Li_star_wing1_lod1021202161040.3db",
+        "triangles": 48,
+        "materials": [
+          "weaponplate2",
+          "pir_L_wing_128"
+        ]
+      },
+      {
+        "name": "Li_star_wing2_lod1021202161040.3db",
+        "triangles": 12,
+        "materials": [
+          "pir_L_wing_128"
+        ]
+      },
+      {
+        "name": "Li_star_wing3_lod1021202161040.3db",
+        "triangles": 6,
+        "materials": [
+          "pir_L_wing_128"
+        ]
+      }
+    ],
+    "lod_parts": {
+      "level0": 17,
+      "level1": 9,
+      "level2": 7
+    },
+    "bounds": [
+      [
+        -4.711050427422597,
+        -2.5599033398977973,
+        -6.476954919264347
+      ],
+      [
+        4.792977343017531,
+        2.472922732787044,
+        8.571637727664502
+      ]
+    ],
+    "dimensions": [
+      9.504027770440128,
+      5.032826072684841,
+      15.04859264692885
+    ],
+    "material_info": [
+      {
+        "id": 202825505,
+        "name": "pir_elite_256B",
+        "texture": "pir_elite_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 254424827,
+        "name": "engine_grill01",
+        "texture": "engine_grill01.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 307185779,
+        "name": "pir_elite_256_2side",
+        "texture": "pir_elite_256.tga",
+        "kind": "DcDtTwo",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 312820022,
+        "name": "pir_elite_256",
+        "texture": "pir_elite_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 426015825,
+        "name": "none",
+        "texture": "",
+        "kind": "none",
+        "texture_size": null
+      },
+      {
+        "id": 4053913413,
+        "name": "pir_elite_256R",
+        "texture": "pir_elite_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 4054631670,
+        "name": "pir_elite_256LB",
+        "texture": "pir_elite_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 4067015673,
+        "name": "weaponplate2",
+        "texture": "weaponplate2.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 4142200882,
+        "name": "pir_L_glass",
+        "texture": "",
+        "kind": "DcDtOcOt",
+        "texture_size": null
+      },
+      {
+        "id": 4168114141,
+        "name": "pir_metal03",
+        "texture": "pir_metal03.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          512,
+          512
+        ]
+      },
+      {
+        "id": 4265321378,
+        "name": "pir_L_wing_128",
+        "texture": "pir_l_wing_128.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          512,
+          512
+        ]
+      }
+    ],
+    "hardpoint_count": 56,
+    "animation_leaves": 88,
+    "warnings": [],
+    "non_pose_channel_warnings": []
+  },
+  "constructs": [
+    {
+      "name": "Li_Engine02_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        0.0019556640181690454,
+        -1.5868732929229736,
+        7.221741199493408
+      ],
+      "rotation": [
+        [
+          1.0,
+          9.598215279359632e-22,
+          -4.089580948462169e-21
+        ],
+        [
+          -9.598213259875715e-22,
+          1.0,
+          5.9604587931971764e-08
+        ],
+        [
+          4.089580948462169e-21,
+          -5.9604587931971764e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "Li_Spoiler_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        4.8820078518474475e-05,
+        1.677998661994934,
+        7.285314083099365
+      ],
+      "rotation": [
+        [
+          1.0,
+          3.3317372967279782e-21,
+          7.1054231224362656e-15
+        ],
+        [
+          -3.755253770355128e-21,
+          1.0,
+          5.960467319710006e-08
+        ],
+        [
+          -7.1054231224362656e-15,
+          -5.960467319710006e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "Li_Engine01_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        -7.128452921278949e-07,
+        0.36799758672714233,
+        8.154315948486328
+      ],
+      "rotation": [
+        [
+          1.0,
+          3.3317372967279782e-21,
+          7.1054231224362656e-15
+        ],
+        [
+          -3.755253770355128e-21,
+          1.0,
+          5.960467319710006e-08
+        ],
+        [
+          -7.1054231224362656e-15,
+          -5.960467319710006e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "Li_glass_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        4.881995846517384e-05,
+        -4.7683712978141557e-07,
+        -1.3393239850501004e-09
+      ],
+      "rotation": [
+        [
+          1.0,
+          3.3317372967279782e-21,
+          7.1054231224362656e-15
+        ],
+        [
+          -3.755253770355128e-21,
+          1.0,
+          5.960467319710006e-08
+        ],
+        [
+          -7.1054231224362656e-15,
+          -5.960467319710006e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "Li_port_wing_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        -1.6619999408721924,
+        -0.8229997158050537,
+        0.0003147961397189647
+      ],
+      "rotation": [
+        [
+          0.8530977964401245,
+          -0.38386204838752747,
+          -0.35337522625923157
+        ],
+        [
+          0.354865163564682,
+          0.92339026927948,
+          -0.14635944366455078
+        ],
+        [
+          0.3824850916862488,
+          -0.00054163858294487,
+          0.9239615201950073
+        ]
+      ]
+    },
+    {
+      "name": "Li_star_wing_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        1.746000051498413,
+        -0.8229995369911194,
+        0.00031478298478759825
+      ],
+      "rotation": [
+        [
+          0.8535501956939697,
+          0.382685124874115,
+          0.35355931520462036
+        ],
+        [
+          -0.3535562753677368,
+          0.9238788485527039,
+          -0.14644408226013184
+        ],
+        [
+          -0.3826879560947418,
+          -5.739534117310541e-06,
+          0.9238776564598083
+        ]
+      ]
+    },
+    {
+      "name": "baydoor01_lod1",
+      "parent": "Root",
+      "kind": "rev",
+      "origin": [
+        -0.658302903175354,
+        1.7349530458450317,
+        1.9699549674987793
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        -3.414601972515682e-21,
+        -1.270549016984667e-21,
+        1.0
+      ],
+      "limits": [
+        0.0,
+        2.0071284770965576
+      ]
+    },
+    {
+      "name": "baydoor02_lod1",
+      "parent": "Root",
+      "kind": "rev",
+      "origin": [
+        0.6769275069236755,
+        1.7349530458450317,
+        1.9699549674987793
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        3.414601972515682e-21,
+        1.2705500267266257e-21,
+        -1.0
+      ],
+      "limits": [
+        0.0,
+        1.919862151145935
+      ]
+    },
+    {
+      "name": "Li_port_wing1_lod1",
+      "parent": "Li_port_wing_poly_lod1",
+      "kind": "rev",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          0.9396926164627075,
+          0.0,
+          0.34202009439468384
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          -0.34202009439468384,
+          0.0,
+          0.9396926164627075
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "limits": [
+        0.0,
+        0.3490658402442932
+      ]
+    },
+    {
+      "name": "Li_port_wing2_lod1",
+      "parent": "Li_port_wing1_lod1",
+      "kind": "rev",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          0.9396926164627075,
+          0.0,
+          0.34202009439468384
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          -0.34202009439468384,
+          0.0,
+          0.9396926164627075
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "limits": [
+        0.0,
+        0.3490658402442932
+      ]
+    },
+    {
+      "name": "Li_port_wing3_lod1",
+      "parent": "Li_port_wing2_lod1",
+      "kind": "rev",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          0.9396926164627075,
+          0.0,
+          0.34202009439468384
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          -0.34202009439468384,
+          0.0,
+          0.9396926164627075
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "limits": [
+        0.0,
+        0.3490658402442932
+      ]
+    },
+    {
+      "name": "Li_star_wing1_lod1",
+      "parent": "Li_star_wing_poly_lod1",
+      "kind": "rev",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          0.9396926164627075,
+          0.0,
+          -0.34202009439468384
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.34202009439468384,
+          0.0,
+          0.9396926164627075
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "limits": [
+        0.0,
+        0.3490658402442932
+      ]
+    },
+    {
+      "name": "Li_star_wing2_lod1",
+      "parent": "Li_star_wing1_lod1",
+      "kind": "rev",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          0.9396926164627075,
+          0.0,
+          -0.34202009439468384
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.34202009439468384,
+          0.0,
+          0.9396926164627075
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "limits": [
+        0.0,
+        0.3490658402442932
+      ]
+    },
+    {
+      "name": "Li_star_wing3_lod1",
+      "parent": "Li_star_wing2_lod1",
+      "kind": "rev",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          0.9396926164627075,
+          0.0,
+          -0.34202009439468384
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.34202009439468384,
+          0.0,
+          0.9396926164627075
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "limits": [
+        0.0,
+        0.3490658402442932
+      ]
+    },
+    {
+      "name": "Li_star_wing_poly_lod1",
+      "parent": "Li_star_wing_lod1",
+      "kind": "pris",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "limits": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "Li_port_wing_poly_lod1",
+      "parent": "Li_port_wing_lod1",
+      "kind": "pris",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "limits": [
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "channels": [
+    {
+      "script": "sc_end anim",
+      "child": "baydoor02_lod1",
+      "parent": "Root",
+      "count": 2,
+      "interval": 0.03333333507180214,
+      "flags": 1,
+      "duration": 0.03333333507180214,
+      "times": [
+        0.0,
+        0.03333333507180214
+      ],
+      "values": [
+        [
+          1.9198600053787231
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.9198600053787231
+      ],
+      "first": [
+        1.9198600053787231
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 8,
+      "expected_bytes": 8,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        3.414601972515682e-21,
+        1.2705500267266257e-21,
+        -1.0
+      ],
+      "degrees": [
+        0.0,
+        109.99987556416437
+      ],
+      "degrees_endpoints": [
+        109.99987556416437,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_end anim",
+      "child": "baydoor01_lod1",
+      "parent": "Root",
+      "count": 2,
+      "interval": 0.03333333507180214,
+      "flags": 1,
+      "duration": 0.03333333507180214,
+      "times": [
+        0.0,
+        0.03333333507180214
+      ],
+      "values": [
+        [
+          2.00711989402771
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        2.00711989402771
+      ],
+      "first": [
+        2.00711989402771
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 8,
+      "expected_bytes": 8,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        -3.414601972515682e-21,
+        -1.270549016984667e-21,
+        1.0
+      ],
+      "degrees": [
+        0.0,
+        114.99949890453283
+      ],
+      "degrees_endpoints": [
+        114.99949890453283,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_open baydoor",
+      "child": "baydoor02_lod1",
+      "parent": "Root",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 0.5,
+      "times": [
+        0.0,
+        0.5
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          1.9198600053787231
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.9198600053787231
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        1.9198600053787231
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        3.414601972515682e-21,
+        1.2705500267266257e-21,
+        -1.0
+      ],
+      "degrees": [
+        0.0,
+        109.99987556416437
+      ],
+      "degrees_endpoints": [
+        0.0,
+        109.99987556416437
+      ]
+    },
+    {
+      "script": "sc_open baydoor",
+      "child": "baydoor01_lod1",
+      "parent": "Root",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 0.5,
+      "times": [
+        0.0,
+        0.5
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          2.00711989402771
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        2.00711989402771
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        2.00711989402771
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        -3.414601972515682e-21,
+        -1.270549016984667e-21,
+        1.0
+      ],
+      "degrees": [
+        0.0,
+        114.99949890453283
+      ],
+      "degrees_endpoints": [
+        0.0,
+        114.99949890453283
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "Li_star_wing1_lod1",
+      "parent": "Li_star_wing_poly_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          0.3490658104419708
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.3490658104419708
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "Li_star_wing2_lod1",
+      "parent": "Li_star_wing1_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          0.3490658104419708
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.3490658104419708
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "Li_star_wing3_lod1",
+      "parent": "Li_star_wing2_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          0.3490658104419708
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.3490658104419708
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "Li_port_wing1_lod1",
+      "parent": "Li_port_wing_poly_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          0.3490658104419708
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.3490658104419708
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "Li_port_wing2_lod1",
+      "parent": "Li_port_wing1_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          0.3490658104419708
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.3490658104419708
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "Li_port_wing3_lod1",
+      "parent": "Li_port_wing2_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          0.3490658104419708
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.3490658104419708
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_force extend",
+      "child": "Li_star_wing1_lod1",
+      "parent": "Li_star_wing_poly_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 999999986991104.0,
+      "times": [
+        0.0,
+        999999986991104.0
+      ],
+      "values": [
+        [
+          0.7853981852531433
+        ],
+        [
+          0.7853981852531433
+        ]
+      ],
+      "minimum": [
+        0.7853981852531433
+      ],
+      "maximum": [
+        0.7853981852531433
+      ],
+      "first": [
+        0.7853981852531433
+      ],
+      "last": [
+        0.7853981852531433
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "degrees": [
+        45.00000125223908,
+        45.00000125223908
+      ],
+      "degrees_endpoints": [
+        45.00000125223908,
+        45.00000125223908
+      ]
+    },
+    {
+      "script": "sc_force extend",
+      "child": "Li_star_wing2_lod1",
+      "parent": "Li_star_wing1_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 999999986991104.0,
+      "times": [
+        0.0,
+        999999986991104.0
+      ],
+      "values": [
+        [
+          0.7853981852531433
+        ],
+        [
+          0.7853981852531433
+        ]
+      ],
+      "minimum": [
+        0.7853981852531433
+      ],
+      "maximum": [
+        0.7853981852531433
+      ],
+      "first": [
+        0.7853981852531433
+      ],
+      "last": [
+        0.7853981852531433
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "degrees": [
+        45.00000125223908,
+        45.00000125223908
+      ],
+      "degrees_endpoints": [
+        45.00000125223908,
+        45.00000125223908
+      ]
+    },
+    {
+      "script": "sc_force extend",
+      "child": "Li_star_wing3_lod1",
+      "parent": "Li_star_wing2_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 999999986991104.0,
+      "times": [
+        0.0,
+        999999986991104.0
+      ],
+      "values": [
+        [
+          0.7853981852531433
+        ],
+        [
+          0.7853981852531433
+        ]
+      ],
+      "minimum": [
+        0.7853981852531433
+      ],
+      "maximum": [
+        0.7853981852531433
+      ],
+      "first": [
+        0.7853981852531433
+      ],
+      "last": [
+        0.7853981852531433
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "degrees": [
+        45.00000125223908,
+        45.00000125223908
+      ],
+      "degrees_endpoints": [
+        45.00000125223908,
+        45.00000125223908
+      ]
+    },
+    {
+      "script": "sc_force extend",
+      "child": "Li_port_wing1_lod1",
+      "parent": "Li_port_wing_poly_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 999999986991104.0,
+      "times": [
+        0.0,
+        999999986991104.0
+      ],
+      "values": [
+        [
+          0.7853981852531433
+        ],
+        [
+          0.7853981852531433
+        ]
+      ],
+      "minimum": [
+        0.7853981852531433
+      ],
+      "maximum": [
+        0.7853981852531433
+      ],
+      "first": [
+        0.7853981852531433
+      ],
+      "last": [
+        0.7853981852531433
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "degrees": [
+        45.00000125223908,
+        45.00000125223908
+      ],
+      "degrees_endpoints": [
+        45.00000125223908,
+        45.00000125223908
+      ]
+    },
+    {
+      "script": "sc_force extend",
+      "child": "Li_port_wing2_lod1",
+      "parent": "Li_port_wing1_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 999999986991104.0,
+      "times": [
+        0.0,
+        999999986991104.0
+      ],
+      "values": [
+        [
+          0.7853981852531433
+        ],
+        [
+          0.7853981852531433
+        ]
+      ],
+      "minimum": [
+        0.7853981852531433
+      ],
+      "maximum": [
+        0.7853981852531433
+      ],
+      "first": [
+        0.7853981852531433
+      ],
+      "last": [
+        0.7853981852531433
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "degrees": [
+        45.00000125223908,
+        45.00000125223908
+      ],
+      "degrees_endpoints": [
+        45.00000125223908,
+        45.00000125223908
+      ]
+    },
+    {
+      "script": "sc_force extend",
+      "child": "Li_port_wing3_lod1",
+      "parent": "Li_port_wing2_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 999999986991104.0,
+      "times": [
+        0.0,
+        999999986991104.0
+      ],
+      "values": [
+        [
+          0.7853981852531433
+        ],
+        [
+          0.7853981852531433
+        ]
+      ],
+      "minimum": [
+        0.7853981852531433
+      ],
+      "maximum": [
+        0.7853981852531433
+      ],
+      "first": [
+        0.7853981852531433
+      ],
+      "last": [
+        0.7853981852531433
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "degrees": [
+        45.00000125223908,
+        45.00000125223908
+      ],
+      "degrees_endpoints": [
+        45.00000125223908,
+        45.00000125223908
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "Li_star_wing1_lod1",
+      "parent": "Li_star_wing_poly_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.3490658104419708
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        0.3490658104419708
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        0.0,
+        19.99999771063855
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "Li_star_wing2_lod1",
+      "parent": "Li_star_wing1_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.3490658104419708
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        0.3490658104419708
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        0.0,
+        19.99999771063855
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "Li_star_wing3_lod1",
+      "parent": "Li_star_wing2_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.3490658104419708
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        0.3490658104419708
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        0.0,
+        19.99999771063855
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "Li_port_wing1_lod1",
+      "parent": "Li_port_wing_poly_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.3490658104419708
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        0.3490658104419708
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        0.0,
+        19.99999771063855
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "Li_port_wing2_lod1",
+      "parent": "Li_port_wing1_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.3490658104419708
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        0.3490658104419708
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        0.0,
+        19.99999771063855
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "Li_port_wing3_lod1",
+      "parent": "Li_port_wing2_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.3490658104419708
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.3490658104419708
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        0.3490658104419708
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "degrees": [
+        0.0,
+        19.99999771063855
+      ],
+      "degrees_endpoints": [
+        0.0,
+        19.99999771063855
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "file": "baydoor01_lod1021202161040.3db",
+      "object": "baydoor01_lod1",
+      "flight": {
+        "min": [
+          -0.6570296210702509,
+          1.7331481681903824,
+          0.30223679542541504
+        ],
+        "max": [
+          0.009570717811584473,
+          1.7367584153544158,
+          3.6376736164093018
+        ],
+        "dimensions": [
+          0.6666003388818353,
+          0.0036102471640333533,
+          3.3354368209838867
+        ]
+      },
+      "stowed": {
+        "min": [
+          -0.6570296210702509,
+          1.7331481681903824,
+          0.30223679542541504
+        ],
+        "max": [
+          0.009570717811584473,
+          1.7367584153544158,
+          3.6376736164093018
+        ],
+        "dimensions": [
+          0.6666003388818353,
+          0.0036102471640333533,
+          3.3354368209838867
+        ]
+      }
+    },
+    {
+      "file": "baydoor02_lod1021202161040.3db",
+      "object": "baydoor02_lod1",
+      "flight": {
+        "min": [
+          0.009571194648742676,
+          1.7331482148729265,
+          0.3022366762161255
+        ],
+        "max": [
+          0.676171533530578,
+          1.7367582633160055,
+          3.637673497200012
+        ],
+        "dimensions": [
+          0.6666003388818353,
+          0.0036100484430789948,
+          3.3354368209838867
+        ]
+      },
+      "stowed": {
+        "min": [
+          0.009571194648742676,
+          1.7331482148729265,
+          0.3022366762161255
+        ],
+        "max": [
+          0.676171533530578,
+          1.7367582633160055,
+          3.637673497200012
+        ],
+        "dimensions": [
+          0.6666003388818353,
+          0.0036100484430789948,
+          3.3354368209838867
+        ]
+      }
+    },
+    {
+      "file": "li_elite_lod1021202161040.3db",
+      "object": "root",
+      "flight": {
+        "min": [
+          -2.815718412399292,
+          -1.9121531248092651,
+          -6.315887928009033
+        ],
+        "max": [
+          2.8482420444488525,
+          2.3111863136291504,
+          8.366934776306152
+        ],
+        "dimensions": [
+          5.6639604568481445,
+          4.2233394384384155,
+          14.682822704315186
+        ]
+      },
+      "stowed": {
+        "min": [
+          -2.815718412399292,
+          -1.9121531248092651,
+          -6.315887928009033
+        ],
+        "max": [
+          2.8482420444488525,
+          2.3111863136291504,
+          8.366934776306152
+        ],
+        "dimensions": [
+          5.6639604568481445,
+          4.2233394384384155,
+          14.682822704315186
+        ]
+      }
+    },
+    {
+      "file": "li_engine01_lod1021202161040.3db",
+      "object": "li_engine01_lod1",
+      "flight": {
+        "min": [
+          -1.158975121948685,
+          -0.7943959771378979,
+          7.736102411856072
+        ],
+        "max": [
+          1.1781170392299039,
+          1.5312205902673113,
+          8.571637727664504
+        ],
+        "dimensions": [
+          2.337092161178589,
+          2.325616567405209,
+          0.835535315808432
+        ]
+      },
+      "stowed": {
+        "min": [
+          -1.158975121948685,
+          -0.7943959771378979,
+          7.736102411856072
+        ],
+        "max": [
+          1.1781170392299039,
+          1.5312205902673113,
+          8.571637727664504
+        ],
+        "dimensions": [
+          2.337092161178589,
+          2.325616567405209,
+          0.835535315808432
+        ]
+      }
+    },
+    {
+      "file": "li_engine02_lod1021202161040.3db",
+      "object": "li_engine02_lod1",
+      "flight": {
+        "min": [
+          -0.775817716261372,
+          -2.367281214994663,
+          5.1310860645752765
+        ],
+        "max": [
+          0.7798444388899952,
+          -0.8064647871708603,
+          7.502588247245072
+        ],
+        "dimensions": [
+          1.5556621551513672,
+          1.5608164278238028,
+          2.3715021826697953
+        ]
+      },
+      "stowed": {
+        "min": [
+          -0.775817716261372,
+          -2.367281214994663,
+          5.1310860645752765
+        ],
+        "max": [
+          0.7798444388899952,
+          -0.8064647871708603,
+          7.502588247245072
+        ],
+        "dimensions": [
+          1.5556621551513672,
+          1.5608164278238028,
+          2.3715021826697953
+        ]
+      }
+    },
+    {
+      "file": "li_glass_lod1021202161040.3db",
+      "object": "li_glass_lod1",
+      "flight": {
+        "min": [
+          -0.9833936653740568,
+          -0.7320497547770501,
+          -6.4769549192643705
+        ],
+        "max": [
+          0.9841873683326082,
+          0.9906546454601282,
+          -3.174110229080239
+        ],
+        "dimensions": [
+          1.967581033706665,
+          1.7227044002371783,
+          3.3028446901841315
+        ]
+      },
+      "stowed": {
+        "min": [
+          -0.9833936653740568,
+          -0.7320497547770501,
+          -6.4769549192643705
+        ],
+        "max": [
+          0.9841873683326082,
+          0.9906546454601282,
+          -3.174110229080239
+        ],
+        "dimensions": [
+          1.967581033706665,
+          1.7227044002371783,
+          3.3028446901841315
+        ]
+      }
+    },
+    {
+      "file": "li_port_wing1_lod1021202161040.3db",
+      "object": "li_port_wing1_lod1",
+      "flight": {
+        "min": [
+          -5.561075425331916,
+          -2.971526199494568,
+          -0.1446329333456166
+        ],
+        "max": [
+          -1.447956333312183,
+          -0.6365838802684491,
+          6.522660044137566
+        ],
+        "dimensions": [
+          4.113119092019733,
+          2.3349423192261187,
+          6.667292977483182
+        ]
+      },
+      "stowed": {
+        "min": [
+          -3.7041606411149344,
+          -2.196037672492528,
+          -0.15988969312126058
+        ],
+        "max": [
+          -0.38768410928539754,
+          -0.24020079110356052,
+          6.482748220460577
+        ],
+        "dimensions": [
+          3.3164765318295366,
+          1.9558368813889673,
+          6.642637913581837
+        ]
+      }
+    },
+    {
+      "file": "li_port_wing2_lod1021202161040.3db",
+      "object": "li_port_wing2_lod1",
+      "flight": {
+        "min": [
+          -6.919351528956225,
+          -3.501258692232667,
+          0.05522894354361746
+        ],
+        "max": [
+          -1.759616594676793,
+          -0.7967698195897355,
+          4.32287703318044
+        ],
+        "dimensions": [
+          5.159734934279433,
+          2.7044888726429317,
+          4.267648089636823
+        ]
+      },
+      "stowed": {
+        "min": [
+          -4.389681377227161,
+          -2.440894248631347,
+          0.1491681676490265
+        ],
+        "max": [
+          -1.5105147901108575,
+          -0.7682388349587161,
+          5.648026549562836
+        ],
+        "dimensions": [
+          2.8791665871163037,
+          1.672655413672631,
+          5.498858381913809
+        ]
+      }
+    },
+    {
+      "file": "li_port_wing3_lod1021202161040.3db",
+      "object": "li_port_wing3_lod1",
+      "flight": {
+        "min": [
+          -6.705717472924093,
+          -3.399053300540992,
+          -0.7088248352987622
+        ],
+        "max": [
+          -2.0996730128008045,
+          -1.0852610684031412,
+          1.708651664133315
+        ],
+        "dimensions": [
+          4.606044460123288,
+          2.3137922321378506,
+          2.417476499432077
+        ]
+      },
+      "stowed": {
+        "min": [
+          -4.711050004984809,
+          -2.5547254355325597,
+          0.5729887968557202
+        ],
+        "max": [
+          -1.6853851114056073,
+          -0.9251763711269966,
+          4.848352242666786
+        ],
+        "dimensions": [
+          3.0256648935792017,
+          1.629549064405563,
+          4.275363445811066
+        ]
+      }
+    },
+    {
+      "file": "li_port_wing_lod1021202161040.3db",
+      "object": "li_port_wing_lod1",
+      "flight": {
+        "min": [
+          -1.6809883247550688,
+          -0.8308873906944589,
+          -0.01741219273876447
+        ],
+        "max": [
+          -1.6445389885228425,
+          -0.8157446531096612,
+          0.022057493402017708
+        ],
+        "dimensions": [
+          0.03644933623222624,
+          0.015142737584797783,
+          0.03946968614078218
+        ]
+      },
+      "stowed": {
+        "min": [
+          -1.6809883247550688,
+          -0.8308873906944589,
+          -0.01741219273876447
+        ],
+        "max": [
+          -1.6445389885228425,
+          -0.8157446531096612,
+          0.022057493402017708
+        ],
+        "dimensions": [
+          0.03644933623222624,
+          0.015142737584797783,
+          0.03946968614078218
+        ]
+      }
+    },
+    {
+      "file": "li_port_wing_poly_lod1021202161040.3db",
+      "object": "li_port_wing_poly_lod1",
+      "flight": {
+        "min": [
+          -1.6809883247550688,
+          -0.8308873906944589,
+          -0.01741219273876447
+        ],
+        "max": [
+          -1.6445389885228425,
+          -0.8157446531096612,
+          0.022057493402017708
+        ],
+        "dimensions": [
+          0.03644933623222624,
+          0.015142737584797783,
+          0.03946968614078218
+        ]
+      },
+      "stowed": {
+        "min": [
+          -1.6809883247550688,
+          -0.8308873906944589,
+          -0.01741219273876447
+        ],
+        "max": [
+          -1.6445389885228425,
+          -0.8157446531096612,
+          0.022057493402017708
+        ],
+        "dimensions": [
+          0.03644933623222624,
+          0.015142737584797783,
+          0.03946968614078218
+        ]
+      }
+    },
+    {
+      "file": "li_spoiler_lod1021202161040.3db",
+      "object": "li_spoiler_lod1",
+      "flight": {
+        "min": [
+          -2.755024488866181,
+          0.8835891332160632,
+          6.197483406006636
+        ],
+        "max": [
+          2.774166528284698,
+          2.4729227327870467,
+          8.373355493918952
+        ],
+        "dimensions": [
+          5.529191017150879,
+          1.5893335995709834,
+          2.1758720879123157
+        ]
+      },
+      "stowed": {
+        "min": [
+          -2.755024488866181,
+          0.8835891332160632,
+          6.197483406006636
+        ],
+        "max": [
+          2.774166528284698,
+          2.4729227327870467,
+          8.373355493918952
+        ],
+        "dimensions": [
+          5.529191017150879,
+          1.5893335995709834,
+          2.1758720879123157
+        ]
+      }
+    },
+    {
+      "file": "li_star_wing1_lod1021202161040.3db",
+      "object": "li_star_wing1_lod1",
+      "flight": {
+        "min": [
+          1.5319592495119898,
+          -2.9715611024941406,
+          -0.14463676885329138
+        ],
+        "max": [
+          5.645063897910962,
+          -0.6365820061525953,
+          6.522657223831294
+        ],
+        "dimensions": [
+          4.113104648398972,
+          2.334979096341545,
+          6.667293992684585
+        ]
+      },
+      "stowed": {
+        "min": [
+          0.47050920162299814,
+          -2.199009213127406,
+          -0.16007461880057236
+        ],
+        "max": [
+          3.7869293823617234,
+          -0.24290368374957383,
+          6.482520993273538
+        ],
+        "dimensions": [
+          3.3164201807387252,
+          1.9561055293778322,
+          6.6425956120741105
+        ]
+      }
+    },
+    {
+      "file": "li_star_wing2_lod1021202161040.3db",
+      "object": "li_star_wing2_lod1",
+      "flight": {
+        "min": [
+          1.8436195443539811,
+          -3.5012727815889613,
+          0.055228845911027
+        ],
+        "max": [
+          7.0033477512298115,
+          -0.796768786770764,
+          4.3228723440234225
+        ],
+        "dimensions": [
+          5.159728206875831,
+          2.7045039948181975,
+          4.267643498112395
+        ]
+      },
+      "stowed": {
+        "min": [
+          1.592443329561049,
+          -2.4457450009864177,
+          0.14926082341558858
+        ],
+        "max": [
+          4.47167903998914,
+          -0.768373277490184,
+          5.647540892906636
+        ],
+        "dimensions": [
+          2.879235710428091,
+          1.6773717234962335,
+          5.498280069491047
+        ]
+      }
+    },
+    {
+      "file": "li_star_wing3_lod1021202161040.3db",
+      "object": "li_star_wing3_lod1",
+      "flight": {
+        "min": [
+          2.1836764577436374,
+          -3.3990481695081454,
+          -0.7088304764893094
+        ],
+        "max": [
+          6.78972197121789,
+          -1.08526006132918,
+          1.7086425375515342
+        ],
+        "dimensions": [
+          4.606045513474253,
+          2.313788108178965,
+          2.4174730140408434
+        ]
+      },
+      "stowed": {
+        "min": [
+          1.7691352030143042,
+          -2.5599032086210447,
+          0.5729260925022963
+        ],
+        "max": [
+          4.79297694334495,
+          -0.9258787201484897,
+          4.84772110726425
+        ],
+        "dimensions": [
+          3.0238417403306457,
+          1.634024488472555,
+          4.274795014761954
+        ]
+      }
+    },
+    {
+      "file": "li_star_wing_lod1021202161040.3db",
+      "object": "li_star_wing_lod1",
+      "flight": {
+        "min": [
+          1.7285370582092159,
+          -0.830871881014157,
+          -0.01741740208569628
+        ],
+        "max": [
+          1.7650056251822734,
+          -0.815766129101702,
+          0.022055878489954005
+        ],
+        "dimensions": [
+          0.03646856697305756,
+          0.015105751912455001,
+          0.039473280575650284
+        ]
+      },
+      "stowed": {
+        "min": [
+          1.7285370582092159,
+          -0.830871881014157,
+          -0.01741740208569628
+        ],
+        "max": [
+          1.7650056251822734,
+          -0.815766129101702,
+          0.022055878489954005
+        ],
+        "dimensions": [
+          0.03646856697305756,
+          0.015105751912455001,
+          0.039473280575650284
+        ]
+      }
+    },
+    {
+      "file": "li_star_wing_poly_lod1021202161040.3db",
+      "object": "li_star_wing_poly_lod1",
+      "flight": {
+        "min": [
+          1.7285370582092159,
+          -0.830871881014157,
+          -0.01741740208569628
+        ],
+        "max": [
+          1.7650056251822734,
+          -0.815766129101702,
+          0.022055878489954005
+        ],
+        "dimensions": [
+          0.03646856697305756,
+          0.015105751912455001,
+          0.039473280575650284
+        ]
+      },
+      "stowed": {
+        "min": [
+          1.7285370582092159,
+          -0.830871881014157,
+          -0.01741740208569628
+        ],
+        "max": [
+          1.7650056251822734,
+          -0.815766129101702,
+          0.022055878489954005
+        ],
+        "dimensions": [
+          0.03646856697305756,
+          0.015105751912455001,
+          0.039473280575650284
+        ]
+      }
+    }
+  ],
+  "wing_summary": [
+    {
+      "child": "Li_star_wing1_lod1",
+      "parent": "Li_star_wing_poly_lod1",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "world_axis": [
+        0.382685124874115,
+        0.9238788485527039,
+        -5.739534117310541e-06
+      ],
+      "degrees_first_last": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "child": "Li_star_wing2_lod1",
+      "parent": "Li_star_wing1_lod1",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "world_axis": [
+        0.382685124874115,
+        0.9238788485527039,
+        -5.739534117310541e-06
+      ],
+      "degrees_first_last": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "child": "Li_star_wing3_lod1",
+      "parent": "Li_star_wing2_lod1",
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "world_axis": [
+        0.382685124874115,
+        0.9238788485527039,
+        -5.739534117310541e-06
+      ],
+      "degrees_first_last": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "child": "Li_port_wing1_lod1",
+      "parent": "Li_port_wing_poly_lod1",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "world_axis": [
+        0.38386204838752747,
+        -0.92339026927948,
+        0.00054163858294487
+      ],
+      "degrees_first_last": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "child": "Li_port_wing2_lod1",
+      "parent": "Li_port_wing1_lod1",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "world_axis": [
+        0.38386204838752747,
+        -0.92339026927948,
+        0.00054163858294487
+      ],
+      "degrees_first_last": [
+        19.99999771063855,
+        0.0
+      ]
+    },
+    {
+      "child": "Li_port_wing3_lod1",
+      "parent": "Li_port_wing2_lod1",
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "world_axis": [
+        0.38386204838752747,
+        -0.92339026927948,
+        0.00054163858294487
+      ],
+      "degrees_first_last": [
+        19.99999771063855,
+        0.0
+      ]
+    }
+  ],
+  "wing_times": [
+    0.0,
+    0.5,
+    1.0,
+    1.5,
+    2.0
+  ],
+  "phase_bounds": [
+    {
+      "min": [
+        -6.919351528956225,
+        -3.5012727815889613,
+        -6.4769549192643705
+      ],
+      "max": [
+        7.0033477512298115,
+        2.4729227327870467,
+        8.571637727664504
+      ],
+      "dimensions": [
+        13.922699280186038,
+        5.974195514376008,
+        15.048592646928874
+      ]
+    },
+    {
+      "min": [
+        -6.700868273421596,
+        -3.39505147893377,
+        -6.4769549192643705
+      ],
+      "max": [
+        6.784552109391897,
+        2.4729227327870467,
+        8.571637727664504
+      ],
+      "dimensions": [
+        13.485420382813494,
+        5.867974211720817,
+        15.048592646928874
+      ]
+    },
+    {
+      "min": [
+        -6.347042375201643,
+        -3.245531608329019,
+        -6.4769549192643705
+      ],
+      "max": [
+        6.430250032077892,
+        2.4729227327870467,
+        8.571637727664504
+      ],
+      "dimensions": [
+        12.777292407279536,
+        5.7184543411160655,
+        15.048592646928874
+      ]
+    },
+    {
+      "min": [
+        -5.66835242301429,
+        -2.960678087462924,
+        -6.4769549192643705
+      ],
+      "max": [
+        5.750960834836882,
+        2.4729227327870467,
+        8.571637727664504
+      ],
+      "dimensions": [
+        11.419313257851172,
+        5.433600820249971,
+        15.048592646928874
+      ]
+    },
+    {
+      "min": [
+        -4.711050004984809,
+        -2.5599032086210447,
+        -6.4769549192643705
+      ],
+      "max": [
+        4.79297694334495,
+        2.4729227327870467,
+        8.571637727664504
+      ],
+      "dimensions": [
+        9.50402694832976,
+        5.032825941408092,
+        15.048592646928874
+      ]
+    }
+  ],
+  "door_phase_bounds": [
+    {
+      "min": [
+        -0.6570296210702509,
+        1.7331481681903824,
+        0.3022366762161255
+      ],
+      "max": [
+        0.676171533530578,
+        1.7367584153544158,
+        3.6376736164093018
+      ],
+      "dimensions": [
+        1.3332011546008289,
+        0.0036102471640333533,
+        3.3354369401931763
+      ]
+    },
+    {
+      "min": [
+        -0.6580548510894072,
+        1.7346607884787435,
+        0.3022366762161255
+      ],
+      "max": [
+        0.6770904202545168,
+        2.057774293993174,
+        3.6376736164093018
+      ],
+      "dimensions": [
+        1.335145271343924,
+        0.3231135055144305,
+        3.3354369401931763
+      ]
+    },
+    {
+      "min": [
+        -0.6591412369576111,
+        1.7362394057706467,
+        0.3022366762161255
+      ],
+      "max": [
+        0.6779724921771112,
+        2.299200406451403,
+        3.6376736164093018
+      ],
+      "dimensions": [
+        1.3371137291347224,
+        0.5629610006807564,
+        3.3354369401931763
+      ]
+    },
+    {
+      "min": [
+        -0.6600209363388077,
+        1.7359381584766076,
+        0.3022366762161255
+      ],
+      "max": [
+        0.6786184205974245,
+        2.4015145002421576,
+        3.6376736164093018
+      ],
+      "dimensions": [
+        1.3386393569362323,
+        0.66557634176555,
+        3.3354369401931763
+      ]
+    },
+    {
+      "min": [
+        -0.9421894252423306,
+        1.7350460754385162,
+        0.3022366762161255
+      ],
+      "max": [
+        0.9068717974075076,
+        2.362680509025829,
+        3.6376736164093018
+      ],
+      "dimensions": [
+        1.8490612226498382,
+        0.627634433587313,
+        3.3354369401931763
+      ]
+    }
+  ],
+  "glazing_bounds": {
+    "min": [
+      -0.9833936653740568,
+      -0.7320497547770501,
+      -6.4769549192643705
+    ],
+    "max": [
+      0.9841873683326082,
+      0.9906546454601282,
+      -3.174110229080239
+    ],
+    "dimensions": [
+      1.967581033706665,
+      1.7227044002371783,
+      3.3028446901841315
+    ]
+  },
+  "glazing_triangles": 105,
+  "glass_boundary_edges": [
+    [
+      [
+        -0.47209,
+        -0.41112,
+        -6.19553
+      ],
+      [
+        -0.4322,
+        -0.3602,
+        -6.2901
+      ]
+    ],
+    [
+      [
+        -0.26886,
+        -0.60881,
+        -5.91222
+      ],
+      [
+        -0.18365,
+        -0.64905,
+        -6.15927
+      ]
+    ],
+    [
+      [
+        -0.47209,
+        -0.41112,
+        -6.19553
+      ],
+      [
+        -0.26886,
+        -0.60881,
+        -5.91222
+      ]
+    ],
+    [
+      [
+        -0.44021,
+        -0.2788,
+        -6.31589
+      ],
+      [
+        -0.4322,
+        -0.3602,
+        -6.2901
+      ]
+    ],
+    [
+      [
+        0.433,
+        -0.3602,
+        -6.29011
+      ],
+      [
+        0.47289,
+        -0.41112,
+        -6.19553
+      ]
+    ],
+    [
+      [
+        0.73116,
+        0.93886,
+        -4.24117
+      ],
+      [
+        0.80901,
+        0.80413,
+        -4.09445
+      ]
+    ],
+    [
+      [
+        0.80901,
+        0.80413,
+        -4.09445
+      ],
+      [
+        0.96334,
+        0.26906,
+        -3.94163
+      ]
+    ],
+    [
+      [
+        0.96334,
+        0.26906,
+        -3.94163
+      ],
+      [
+        0.98258,
+        0.12822,
+        -4.00693
+      ]
+    ],
+    [
+      [
+        0.62677,
+        -0.21136,
+        -6.08024
+      ],
+      [
+        0.76406,
+        -0.17052,
+        -5.81793
+      ]
+    ],
+    [
+      [
+        0.29309,
+        0.14043,
+        -6.07434
+      ],
+      [
+        0.41998,
+        0.41909,
+        -5.7902
+      ]
+    ],
+    [
+      [
+        0.76406,
+        -0.17052,
+        -5.81793
+      ],
+      [
+        0.8679,
+        -0.12134,
+        -5.49898
+      ]
+    ],
+    [
+      [
+        0.41998,
+        0.41909,
+        -5.7902
+      ],
+      [
+        0.49822,
+        0.60699,
+        -5.49514
+      ]
+    ],
+    [
+      [
+        0.8679,
+        -0.12134,
+        -5.49898
+      ],
+      [
+        0.95012,
+        -0.07239,
+        -5.07816
+      ]
+    ],
+    [
+      [
+        0.49822,
+        0.60699,
+        -5.49514
+      ],
+      [
+        0.58261,
+        0.76848,
+        -5.14761
+      ]
+    ],
+    [
+      [
+        0.95012,
+        -0.07239,
+        -5.07816
+      ],
+      [
+        0.98419,
+        -0.01002,
+        -4.64473
+      ]
+    ],
+    [
+      [
+        0.58261,
+        0.76848,
+        -5.14761
+      ],
+      [
+        0.66773,
+        0.87919,
+        -4.72835
+      ]
+    ],
+    [
+      [
+        0.98258,
+        0.12822,
+        -4.00693
+      ],
+      [
+        0.98419,
+        -0.01002,
+        -4.64473
+      ]
+    ],
+    [
+      [
+        0.66773,
+        0.87919,
+        -4.72835
+      ],
+      [
+        0.73116,
+        0.93886,
+        -4.24117
+      ]
+    ],
+    [
+      [
+        -0.21044,
+        0.93787,
+        -4.49541
+      ],
+      [
+        0.00034,
+        0.92455,
+        -4.54656
+      ]
+    ],
+    [
+      [
+        -0.64665,
+        0.98819,
+        -4.22734
+      ],
+      [
+        -0.58324,
+        0.92881,
+        -4.71358
+      ]
+    ],
+    [
+      [
+        -0.42137,
+        0.97613,
+        -4.30287
+      ],
+      [
+        -0.21044,
+        0.93787,
+        -4.49541
+      ]
+    ],
+    [
+      [
+        -0.80822,
+        0.80413,
+        -4.09445
+      ],
+      [
+        -0.73037,
+        0.93886,
+        -4.24117
+      ]
+    ],
+    [
+      [
+        -0.98179,
+        0.12822,
+        -4.00693
+      ],
+      [
+        -0.96255,
+        0.26906,
+        -3.94163
+      ]
+    ],
+    [
+      [
+        -0.96255,
+        0.26906,
+        -3.94163
+      ],
+      [
+        -0.80822,
+        0.80413,
+        -4.09445
+      ]
+    ],
+    [
+      [
+        -0.76326,
+        -0.17052,
+        -5.81793
+      ],
+      [
+        -0.62597,
+        -0.21136,
+        -6.08024
+      ]
+    ],
+    [
+      [
+        -0.41919,
+        0.41909,
+        -5.79019
+      ],
+      [
+        -0.2923,
+        0.14043,
+        -6.07434
+      ]
+    ],
+    [
+      [
+        -0.8671,
+        -0.12134,
+        -5.49898
+      ],
+      [
+        -0.76326,
+        -0.17052,
+        -5.81793
+      ]
+    ],
+    [
+      [
+        -0.49743,
+        0.60699,
+        -5.49514
+      ],
+      [
+        -0.41919,
+        0.41909,
+        -5.79019
+      ]
+    ],
+    [
+      [
+        -0.94933,
+        -0.07239,
+        -5.07816
+      ],
+      [
+        -0.8671,
+        -0.12134,
+        -5.49898
+      ]
+    ],
+    [
+      [
+        -0.58182,
+        0.76848,
+        -5.14761
+      ],
+      [
+        -0.49743,
+        0.60699,
+        -5.49514
+      ]
+    ],
+    [
+      [
+        -0.98339,
+        -0.01002,
+        -4.64473
+      ],
+      [
+        -0.94933,
+        -0.07239,
+        -5.07816
+      ]
+    ],
+    [
+      [
+        -0.66694,
+        0.87919,
+        -4.72835
+      ],
+      [
+        -0.58182,
+        0.76848,
+        -5.14761
+      ]
+    ],
+    [
+      [
+        -0.98339,
+        -0.01002,
+        -4.64473
+      ],
+      [
+        -0.98179,
+        0.12822,
+        -4.00693
+      ]
+    ],
+    [
+      [
+        -0.73037,
+        0.93886,
+        -4.24117
+      ],
+      [
+        -0.66694,
+        0.87919,
+        -4.72835
+      ]
+    ],
+    [
+      [
+        -0.33438,
+        0.46645,
+        -5.77983
+      ],
+      [
+        -0.22231,
+        0.16887,
+        -6.14337
+      ]
+    ],
+    [
+      [
+        -0.22231,
+        0.16887,
+        -6.14337
+      ],
+      [
+        0.22311,
+        0.16887,
+        -6.14337
+      ]
+    ],
+    [
+      [
+        0.22311,
+        0.16887,
+        -6.14337
+      ],
+      [
+        0.33518,
+        0.46645,
+        -5.77983
+      ]
+    ],
+    [
+      [
+        -0.41301,
+        0.65486,
+        -5.48395
+      ],
+      [
+        -0.33438,
+        0.46645,
+        -5.77983
+      ]
+    ],
+    [
+      [
+        0.33518,
+        0.46645,
+        -5.77983
+      ],
+      [
+        0.41381,
+        0.65486,
+        -5.48395
+      ]
+    ],
+    [
+      [
+        -0.49818,
+        0.81804,
+        -5.13295
+      ],
+      [
+        -0.41301,
+        0.65486,
+        -5.48395
+      ]
+    ],
+    [
+      [
+        0.41381,
+        0.65486,
+        -5.48395
+      ],
+      [
+        0.49898,
+        0.81804,
+        -5.13295
+      ]
+    ],
+    [
+      [
+        -0.58324,
+        0.92881,
+        -4.71358
+      ],
+      [
+        -0.49818,
+        0.81804,
+        -5.13295
+      ]
+    ],
+    [
+      [
+        0.49898,
+        0.81804,
+        -5.13295
+      ],
+      [
+        0.58403,
+        0.92881,
+        -4.71358
+      ]
+    ],
+    [
+      [
+        0.00034,
+        0.92455,
+        -4.54656
+      ],
+      [
+        0.21124,
+        0.93787,
+        -4.49541
+      ]
+    ],
+    [
+      [
+        0.58403,
+        0.92881,
+        -4.71358
+      ],
+      [
+        0.64745,
+        0.98819,
+        -4.22734
+      ]
+    ],
+    [
+      [
+        0.21124,
+        0.93787,
+        -4.49541
+      ],
+      [
+        0.42217,
+        0.97613,
+        -4.30287
+      ]
+    ],
+    [
+      [
+        0.16664,
+        -0.73205,
+        -4.85864
+      ],
+      [
+        0.16664,
+        -0.71376,
+        -5.50848
+      ]
+    ],
+    [
+      [
+        -0.16584,
+        -0.71376,
+        -5.50848
+      ],
+      [
+        0.16664,
+        -0.71376,
+        -5.50848
+      ]
+    ],
+    [
+      [
+        -0.16584,
+        -0.73205,
+        -4.85864
+      ],
+      [
+        0.16664,
+        -0.73205,
+        -4.85864
+      ]
+    ],
+    [
+      [
+        -0.16584,
+        -0.73205,
+        -4.85864
+      ],
+      [
+        -0.16584,
+        -0.71376,
+        -5.50848
+      ]
+    ],
+    [
+      [
+        -0.48773,
+        -0.22047,
+        -6.2548
+      ],
+      [
+        -0.26559,
+        0.10275,
+        -6.21253
+      ]
+    ],
+    [
+      [
+        -0.48773,
+        -0.22047,
+        -6.2548
+      ],
+      [
+        -0.44021,
+        -0.2788,
+        -6.31589
+      ]
+    ],
+    [
+      [
+        0.433,
+        -0.3602,
+        -6.29011
+      ],
+      [
+        0.44101,
+        -0.2788,
+        -6.31589
+      ]
+    ],
+    [
+      [
+        -0.26559,
+        0.10275,
+        -6.21253
+      ],
+      [
+        0.26638,
+        0.10275,
+        -6.21253
+      ]
+    ],
+    [
+      [
+        0.26638,
+        0.10275,
+        -6.21253
+      ],
+      [
+        0.48853,
+        -0.22047,
+        -6.2548
+      ]
+    ],
+    [
+      [
+        0.44101,
+        -0.2788,
+        -6.31589
+      ],
+      [
+        0.48853,
+        -0.22047,
+        -6.2548
+      ]
+    ],
+    [
+      [
+        -0.84673,
+        -0.25862,
+        -5.4713
+      ],
+      [
+        -0.6442,
+        -0.57072,
+        -5.27461
+      ]
+    ],
+    [
+      [
+        -0.84673,
+        -0.25862,
+        -5.4713
+      ],
+      [
+        -0.745,
+        -0.30685,
+        -5.78344
+      ]
+    ],
+    [
+      [
+        -0.745,
+        -0.30685,
+        -5.78344
+      ],
+      [
+        -0.61011,
+        -0.34696,
+        -6.0412
+      ]
+    ],
+    [
+      [
+        -0.61011,
+        -0.34696,
+        -6.0412
+      ],
+      [
+        -0.55526,
+        -0.39273,
+        -6.08647
+      ]
+    ],
+    [
+      [
+        -0.55526,
+        -0.39273,
+        -6.08647
+      ],
+      [
+        -0.26888,
+        -0.6201,
+        -5.77458
+      ]
+    ],
+    [
+      [
+        -0.26888,
+        -0.6201,
+        -5.77458
+      ],
+      [
+        -0.25336,
+        -0.66963,
+        -5.50556
+      ]
+    ],
+    [
+      [
+        -0.25336,
+        -0.68786,
+        -4.85805
+      ],
+      [
+        -0.25336,
+        -0.66963,
+        -5.50556
+      ]
+    ],
+    [
+      [
+        -0.6442,
+        -0.57072,
+        -5.27461
+      ],
+      [
+        -0.25336,
+        -0.68786,
+        -4.85805
+      ]
+    ],
+    [
+      [
+        0.64499,
+        -0.57072,
+        -5.27461
+      ],
+      [
+        0.84752,
+        -0.25862,
+        -5.4713
+      ]
+    ],
+    [
+      [
+        0.7458,
+        -0.30685,
+        -5.78344
+      ],
+      [
+        0.84752,
+        -0.25862,
+        -5.4713
+      ]
+    ],
+    [
+      [
+        0.61091,
+        -0.34696,
+        -6.0412
+      ],
+      [
+        0.7458,
+        -0.30685,
+        -5.78344
+      ]
+    ],
+    [
+      [
+        0.55605,
+        -0.39273,
+        -6.08647
+      ],
+      [
+        0.61091,
+        -0.34696,
+        -6.0412
+      ]
+    ],
+    [
+      [
+        0.26968,
+        -0.6201,
+        -5.77458
+      ],
+      [
+        0.55605,
+        -0.39273,
+        -6.08647
+      ]
+    ],
+    [
+      [
+        0.25416,
+        -0.66963,
+        -5.50556
+      ],
+      [
+        0.26968,
+        -0.6201,
+        -5.77458
+      ]
+    ],
+    [
+      [
+        0.25416,
+        -0.68786,
+        -4.85805
+      ],
+      [
+        0.25416,
+        -0.66963,
+        -5.50556
+      ]
+    ],
+    [
+      [
+        0.25416,
+        -0.68786,
+        -4.85805
+      ],
+      [
+        0.64499,
+        -0.57072,
+        -5.27461
+      ]
+    ],
+    [
+      [
+        -0.18365,
+        -0.64905,
+        -6.15927
+      ],
+      [
+        0.18444,
+        -0.64905,
+        -6.15927
+      ]
+    ],
+    [
+      [
+        0.26965,
+        -0.60881,
+        -5.91222
+      ],
+      [
+        0.47289,
+        -0.41112,
+        -6.19553
+      ]
+    ],
+    [
+      [
+        0.18444,
+        -0.64905,
+        -6.15927
+      ],
+      [
+        0.26965,
+        -0.60881,
+        -5.91222
+      ]
+    ],
+    [
+      [
+        0.54872,
+        0.99065,
+        -4.03171
+      ],
+      [
+        0.64745,
+        0.98819,
+        -4.22734
+      ]
+    ],
+    [
+      [
+        0.42217,
+        0.97613,
+        -4.30287
+      ],
+      [
+        0.54872,
+        0.99065,
+        -4.03171
+      ]
+    ],
+    [
+      [
+        0.57784,
+        -0.17988,
+        -6.13785
+      ],
+      [
+        0.62677,
+        -0.21136,
+        -6.08024
+      ]
+    ],
+    [
+      [
+        0.29309,
+        0.14043,
+        -6.07434
+      ],
+      [
+        0.57784,
+        -0.17988,
+        -6.13785
+      ]
+    ],
+    [
+      [
+        -0.64665,
+        0.98819,
+        -4.22734
+      ],
+      [
+        -0.54793,
+        0.99065,
+        -4.03171
+      ]
+    ],
+    [
+      [
+        -0.54793,
+        0.99065,
+        -4.03171
+      ],
+      [
+        -0.42137,
+        0.97613,
+        -4.30287
+      ]
+    ],
+    [
+      [
+        -0.62597,
+        -0.21136,
+        -6.08024
+      ],
+      [
+        -0.57705,
+        -0.17988,
+        -6.13785
+      ]
+    ],
+    [
+      [
+        -0.57705,
+        -0.17988,
+        -6.13785
+      ],
+      [
+        -0.2923,
+        0.14043,
+        -6.07434
+      ]
+    ],
+    [
+      [
+        0.74229,
+        0.91474,
+        -3.37783
+      ],
+      [
+        0.7888,
+        0.95369,
+        -3.71829
+      ]
+    ],
+    [
+      [
+        0.7888,
+        0.95369,
+        -3.71829
+      ],
+      [
+        0.82668,
+        0.80402,
+        -3.911
+      ]
+    ],
+    [
+      [
+        0.82668,
+        0.80402,
+        -3.911
+      ],
+      [
+        0.94019,
+        0.41928,
+        -3.70415
+      ]
+    ],
+    [
+      [
+        0.94019,
+        0.41928,
+        -3.70415
+      ],
+      [
+        0.94759,
+        0.41009,
+        -3.53452
+      ]
+    ],
+    [
+      [
+        0.82365,
+        0.89862,
+        -3.17411
+      ],
+      [
+        0.94759,
+        0.41009,
+        -3.53452
+      ]
+    ],
+    [
+      [
+        0.74229,
+        0.91474,
+        -3.37783
+      ],
+      [
+        0.82365,
+        0.89862,
+        -3.17411
+      ]
+    ],
+    [
+      [
+        -0.788,
+        0.95369,
+        -3.71829
+      ],
+      [
+        -0.7415,
+        0.91474,
+        -3.37783
+      ]
+    ],
+    [
+      [
+        -0.82589,
+        0.80402,
+        -3.911
+      ],
+      [
+        -0.788,
+        0.95369,
+        -3.71829
+      ]
+    ],
+    [
+      [
+        -0.9394,
+        0.41928,
+        -3.70415
+      ],
+      [
+        -0.82589,
+        0.80402,
+        -3.911
+      ]
+    ],
+    [
+      [
+        -0.9468,
+        0.41009,
+        -3.53452
+      ],
+      [
+        -0.9394,
+        0.41928,
+        -3.70415
+      ]
+    ],
+    [
+      [
+        -0.9468,
+        0.41009,
+        -3.53452
+      ],
+      [
+        -0.82286,
+        0.89862,
+        -3.17411
+      ]
+    ],
+    [
+      [
+        -0.82286,
+        0.89862,
+        -3.17411
+      ],
+      [
+        -0.7415,
+        0.91474,
+        -3.37783
+      ]
+    ]
+  ],
+  "glass_boundary_components": [
+    [
+      [
+        -0.48773,
+        -0.22047,
+        -6.2548
+      ],
+      [
+        -0.47209,
+        -0.41112,
+        -6.19553
+      ],
+      [
+        -0.44021,
+        -0.2788,
+        -6.31589
+      ],
+      [
+        -0.4322,
+        -0.3602,
+        -6.2901
+      ],
+      [
+        -0.26886,
+        -0.60881,
+        -5.91222
+      ],
+      [
+        -0.26559,
+        0.10275,
+        -6.21253
+      ],
+      [
+        -0.18365,
+        -0.64905,
+        -6.15927
+      ],
+      [
+        0.18444,
+        -0.64905,
+        -6.15927
+      ],
+      [
+        0.26638,
+        0.10275,
+        -6.21253
+      ],
+      [
+        0.26965,
+        -0.60881,
+        -5.91222
+      ],
+      [
+        0.433,
+        -0.3602,
+        -6.29011
+      ],
+      [
+        0.44101,
+        -0.2788,
+        -6.31589
+      ],
+      [
+        0.47289,
+        -0.41112,
+        -6.19553
+      ],
+      [
+        0.48853,
+        -0.22047,
+        -6.2548
+      ]
+    ],
+    [
+      [
+        -0.98339,
+        -0.01002,
+        -4.64473
+      ],
+      [
+        -0.98179,
+        0.12822,
+        -4.00693
+      ],
+      [
+        -0.96255,
+        0.26906,
+        -3.94163
+      ],
+      [
+        -0.94933,
+        -0.07239,
+        -5.07816
+      ],
+      [
+        -0.8671,
+        -0.12134,
+        -5.49898
+      ],
+      [
+        -0.80822,
+        0.80413,
+        -4.09445
+      ],
+      [
+        -0.76326,
+        -0.17052,
+        -5.81793
+      ],
+      [
+        -0.73037,
+        0.93886,
+        -4.24117
+      ],
+      [
+        -0.66694,
+        0.87919,
+        -4.72835
+      ],
+      [
+        -0.62597,
+        -0.21136,
+        -6.08024
+      ],
+      [
+        -0.58182,
+        0.76848,
+        -5.14761
+      ],
+      [
+        -0.57705,
+        -0.17988,
+        -6.13785
+      ],
+      [
+        -0.49743,
+        0.60699,
+        -5.49514
+      ],
+      [
+        -0.41919,
+        0.41909,
+        -5.79019
+      ],
+      [
+        -0.2923,
+        0.14043,
+        -6.07434
+      ]
+    ],
+    [
+      [
+        -0.64665,
+        0.98819,
+        -4.22734
+      ],
+      [
+        -0.58324,
+        0.92881,
+        -4.71358
+      ],
+      [
+        -0.54793,
+        0.99065,
+        -4.03171
+      ],
+      [
+        -0.49818,
+        0.81804,
+        -5.13295
+      ],
+      [
+        -0.42137,
+        0.97613,
+        -4.30287
+      ],
+      [
+        -0.41301,
+        0.65486,
+        -5.48395
+      ],
+      [
+        -0.33438,
+        0.46645,
+        -5.77983
+      ],
+      [
+        -0.22231,
+        0.16887,
+        -6.14337
+      ],
+      [
+        -0.21044,
+        0.93787,
+        -4.49541
+      ],
+      [
+        0.00034,
+        0.92455,
+        -4.54656
+      ],
+      [
+        0.21124,
+        0.93787,
+        -4.49541
+      ],
+      [
+        0.22311,
+        0.16887,
+        -6.14337
+      ],
+      [
+        0.33518,
+        0.46645,
+        -5.77983
+      ],
+      [
+        0.41381,
+        0.65486,
+        -5.48395
+      ],
+      [
+        0.42217,
+        0.97613,
+        -4.30287
+      ],
+      [
+        0.49898,
+        0.81804,
+        -5.13295
+      ],
+      [
+        0.54872,
+        0.99065,
+        -4.03171
+      ],
+      [
+        0.58403,
+        0.92881,
+        -4.71358
+      ],
+      [
+        0.64745,
+        0.98819,
+        -4.22734
+      ]
+    ],
+    [
+      [
+        -0.9468,
+        0.41009,
+        -3.53452
+      ],
+      [
+        -0.9394,
+        0.41928,
+        -3.70415
+      ],
+      [
+        -0.82589,
+        0.80402,
+        -3.911
+      ],
+      [
+        -0.82286,
+        0.89862,
+        -3.17411
+      ],
+      [
+        -0.788,
+        0.95369,
+        -3.71829
+      ],
+      [
+        -0.7415,
+        0.91474,
+        -3.37783
+      ]
+    ],
+    [
+      [
+        -0.84673,
+        -0.25862,
+        -5.4713
+      ],
+      [
+        -0.745,
+        -0.30685,
+        -5.78344
+      ],
+      [
+        -0.6442,
+        -0.57072,
+        -5.27461
+      ],
+      [
+        -0.61011,
+        -0.34696,
+        -6.0412
+      ],
+      [
+        -0.55526,
+        -0.39273,
+        -6.08647
+      ],
+      [
+        -0.26888,
+        -0.6201,
+        -5.77458
+      ],
+      [
+        -0.25336,
+        -0.68786,
+        -4.85805
+      ],
+      [
+        -0.25336,
+        -0.66963,
+        -5.50556
+      ]
+    ],
+    [
+      [
+        0.74229,
+        0.91474,
+        -3.37783
+      ],
+      [
+        0.7888,
+        0.95369,
+        -3.71829
+      ],
+      [
+        0.82365,
+        0.89862,
+        -3.17411
+      ],
+      [
+        0.82668,
+        0.80402,
+        -3.911
+      ],
+      [
+        0.94019,
+        0.41928,
+        -3.70415
+      ],
+      [
+        0.94759,
+        0.41009,
+        -3.53452
+      ]
+    ],
+    [
+      [
+        0.29309,
+        0.14043,
+        -6.07434
+      ],
+      [
+        0.41998,
+        0.41909,
+        -5.7902
+      ],
+      [
+        0.49822,
+        0.60699,
+        -5.49514
+      ],
+      [
+        0.57784,
+        -0.17988,
+        -6.13785
+      ],
+      [
+        0.58261,
+        0.76848,
+        -5.14761
+      ],
+      [
+        0.62677,
+        -0.21136,
+        -6.08024
+      ],
+      [
+        0.66773,
+        0.87919,
+        -4.72835
+      ],
+      [
+        0.73116,
+        0.93886,
+        -4.24117
+      ],
+      [
+        0.76406,
+        -0.17052,
+        -5.81793
+      ],
+      [
+        0.80901,
+        0.80413,
+        -4.09445
+      ],
+      [
+        0.8679,
+        -0.12134,
+        -5.49898
+      ],
+      [
+        0.95012,
+        -0.07239,
+        -5.07816
+      ],
+      [
+        0.96334,
+        0.26906,
+        -3.94163
+      ],
+      [
+        0.98258,
+        0.12822,
+        -4.00693
+      ],
+      [
+        0.98419,
+        -0.01002,
+        -4.64473
+      ]
+    ],
+    [
+      [
+        0.25416,
+        -0.68786,
+        -4.85805
+      ],
+      [
+        0.25416,
+        -0.66963,
+        -5.50556
+      ],
+      [
+        0.26968,
+        -0.6201,
+        -5.77458
+      ],
+      [
+        0.55605,
+        -0.39273,
+        -6.08647
+      ],
+      [
+        0.61091,
+        -0.34696,
+        -6.0412
+      ],
+      [
+        0.64499,
+        -0.57072,
+        -5.27461
+      ],
+      [
+        0.7458,
+        -0.30685,
+        -5.78344
+      ],
+      [
+        0.84752,
+        -0.25862,
+        -5.4713
+      ]
+    ],
+    [
+      [
+        -0.16584,
+        -0.73205,
+        -4.85864
+      ],
+      [
+        -0.16584,
+        -0.71376,
+        -5.50848
+      ],
+      [
+        0.16664,
+        -0.73205,
+        -4.85864
+      ],
+      [
+        0.16664,
+        -0.71376,
+        -5.50848
+      ]
+    ]
+  ],
+  "glass_boundary_vertex_degrees": {
+    "2": 95
+  },
+  "independent_pose_loader_max_delta": 7.440567202365855e-07,
+  "launch_to_flight_max_delta": 0.0,
+  "independent_pose_tolerance": 1e-06,
+  "source_unchanged": true,
+  "all_channel_bindings_valid": true,
+  "earlier_audit_phase_dimensions": [
+    [
+      9.504027770440128,
+      5.032826072684841,
+      15.04859264692885
+    ],
+    [
+      9.504027770440128,
+      5.032826072684841,
+      15.04859264692885
+    ],
+    [
+      9.504027770440128,
+      5.032826072684841,
+      15.04859264692885
+    ],
+    [
+      9.504027770440128,
+      5.032826072684841,
+      15.04859264692885
+    ],
+    [
+      9.504027770440128,
+      5.032826072684841,
+      15.04859264692885
+    ]
+  ],
+  "caveats": [
+    "Current installed mod, not authenticated retail.",
+    "Case-normalized part bindings; old general sheets may show wrong wing state.",
+    "Offline renders do not emulate glass/envmap or validate back-face culling or collisions."
+  ]
+}

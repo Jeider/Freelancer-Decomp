@@ -26,11 +26,11 @@ unique embedded filenames and mesh IDs. Native Common.dll/ReadFile SUR load pass
 Source convex-plane imperfections are retained with measured tolerance, as in
 Valensia. In-game visual/animation confirmation remains the user's restart check.
 
-One minimal rollback under out/terraform_mega/rollback, 1.96 MiB excluding the
+One minimal rollback under out/stations/terraform_mega/rollback, 1.96 MiB excluding the
 small source snapshots already retained in the game. Generated staging removed
 after installation and byte comparison. No timestamped/full-tree backups.
 
 Tools: terraform_mega.py (initial build, refuses installed marker),
 install_terraform_mega.py (validation / --apply). Native validation reuses
-check_valensia_mega_native.py with valensia_mega.OUT set to out/terraform_mega.
-Reports and installed hashes: out/terraform_mega/*.json.
+check_valensia_mega_native.py with valensia_mega.OUT set to out/stations/terraform_mega.
+Reports and installed hashes: out/stations/terraform_mega/*.json.

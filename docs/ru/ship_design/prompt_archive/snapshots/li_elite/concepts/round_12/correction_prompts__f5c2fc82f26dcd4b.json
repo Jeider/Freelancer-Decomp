@@ -1,0 +1,40 @@
+{
+  "round": "round_12",
+  "tool": "built-in image_gen",
+  "corrections": [
+    {
+      "id": "L53_cargo_inset_01",
+      "variant": "L53",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L53_initial.png",
+      "reason": "Open cargo inset has unequal/inconsistent door extents.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L53_initial.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "prompt": "Use case: precise-object-edit. Edit the FIRST image, concept sheet L53. Change ONLY its small drawing labelled CARGO OPEN. Preserve all other views, large illustration, cockpit, exact wing count of TWO leaves per side, hull, pylon shapes, spoiler, engines, colors and sheet composition.\n\nThe SECOND image is the real native paired cargo mechanism reference. In the CARGO OPEN inset depict the EXACT L53 hull shown in the big main illustration, with its two SOLID OBELISK SIDE MASSES FIXED in their same closed-state position. Their tops, decorative outer faces, shoulders and spoiler MUST NOT swing up or become doors. Between these fixed masses is the recessed cargo opening.\n\nShow TWO MATCHING long narrow rectangular hatch leaves, one along each LEFT/RIGHT long edge of that opening, hinged about FORE-AFT axes. Their length must match the full rectangular hatch seen closed in the main/TOP views. Both leaves are raised outward/upward by about a right angle, showing plain dark native cargo-metal INNER faces with modest panel framing. They are relatively THIN inner panels distinct from the thick surrounding fixed red/ochre hull. Each leaf runs from the SAME front rim to the SAME rear rim; the front and rear cargo bulkheads remain low and fixed. No transverse front-hinged flap, short half-door, extra door, raised entire pylon, decorated wing-shaped hatch or floating part. The middle reveals the cargo floor and interior walls. Do not enlarge the cargo opening or change the main silhouette. Place the doors with clear conceptual separation from the solid side masses; do not claim an exploded view. Keep the main geometry and native artwork completely unchanged. Return the full sheet with only the CARGO OPEN inset clarified.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L53_sheet.png",
+      "generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-166e2b92-3bc0-44d3-9712-8e8274edad29.png",
+      "visual_result": "CARGO OPEN now shows two similar long plain inner panels along the two longitudinal sides, with fixed outer pylons. Exact hinge/clearance geometry is still unverified."
+    },
+    {
+      "id": "L56_cargo_inset_01",
+      "variant": "L56",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L56_initial.png",
+      "reason": "Open cargo inset appears to raise decorated pieces of the fixed side pylons as doors.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L56_initial.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "prompt": "Use case: precise-object-edit. Edit the FIRST image, concept sheet L56. Change ONLY its small drawing labelled CARGO OPEN. Preserve all other views, large illustration, cockpit, exact wing count of TWO leaves per side, hull, pylon shapes, spoiler, engines, colors and sheet composition.\n\nThe SECOND image is the real native paired cargo mechanism reference. In the CARGO OPEN inset depict the EXACT L56 hull shown in the big main illustration, with its two SOLID OBELISK SIDE MASSES FIXED in their same closed-state position. Their tops, decorative outer faces, shoulders and spoiler MUST NOT swing up or become doors. Between these fixed masses is the recessed cargo opening.\n\nShow TWO MATCHING long narrow rectangular hatch leaves, one along each LEFT/RIGHT long edge of that opening, hinged about FORE-AFT axes. Their length must match the full rectangular hatch seen closed in the main/TOP views. Both leaves are raised outward/upward by about a right angle, showing plain dark native cargo-metal INNER faces with modest panel framing. They are relatively THIN inner panels distinct from the thick surrounding fixed red/ochre hull. Each leaf runs from the SAME front rim to the SAME rear rim; the front and rear cargo bulkheads remain low and fixed. No transverse front-hinged flap, short half-door, extra door, raised entire pylon, decorated wing-shaped hatch or floating part. The middle reveals the cargo floor and interior walls. Do not enlarge the cargo opening or change the main silhouette. Place the doors with clear conceptual separation from the solid side masses; do not claim an exploded view. Keep the main geometry and native artwork completely unchanged. Return the full sheet with only the CARGO OPEN inset clarified.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L56_sheet.png",
+      "generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-5d088ff4-649a-435f-b768-6caab6b4bd51.png",
+      "visual_result": "CARGO OPEN now depicts two plain inner longitudinal hatch panels separately from the fixed decorated side masses. The overall sheet and two-leaf design remain recognizable; exact trajectory and pixel identity outside the inset are not asserted."
+    }
+  ]
+}

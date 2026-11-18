@@ -124,6 +124,8 @@ namespace Iids
     static const char RPDrawEx[] = "RP9_IRPDrawEx";
     static const char RPSurfaceContext[] = "RP9_IRPSurfaceContext_v1";
     static const char RPRoomMaterials[] = "RP9_IRPRoomMaterials_v1";
+    static const char RPRoomMaterialCache[] = "RP9_IRPRoomMaterialCache_v1";
+    static const char RPCharacterQuality[] = "RP9_IRPCharacterQuality_v1";
     static const char RPRoomShadows[] = "RP9_IRPRoomShadows_v2";
     static const char RPSurfaceShader[] = "RP9_IRPSurfaceShader_v1";
     static const char RPCodeBeam[] = "RP9_IRPCodeBeam_v2";

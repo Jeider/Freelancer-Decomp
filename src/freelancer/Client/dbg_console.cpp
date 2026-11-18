@@ -9,6 +9,7 @@
 #include "hud_tilt.h"
 #include "player_action_counters.h"
 #include "dbg_console.h"
+#include "menu_sound_arch.h"
 
 #ifdef FREELANCER_DBG_OPTIONS
 
@@ -133,6 +134,22 @@ namespace
         }
         Printf("TimeScale = %g%s", static_cast<double>(GetClientTimeScale()),
                SinglePlayer() ? "" : " (single player only)");
+    }
+
+    void CmdAudioTimeScale(char const* Args)
+    {
+        if (*Args != '\0')
+        {
+            if (strcmp(Args, "0") != 0 && strcmp(Args, "1") != 0)
+            {
+                Printf("Usage: AudioTimeScale 0|1");
+                return;
+            }
+            if (!SetClientAudioTimeScaleEnabled(*Args == '1'))
+                Printf("AudioTimeScale requires the port SoundManager.dll extension.");
+        }
+        Printf("AudioTimeScale = %d (experimental; TimeScale < 1, single player)",
+               GetClientAudioTimeScaleEnabled() ? 1 : 0);
     }
 
     void CmdTime(char const*)
@@ -720,6 +737,7 @@ namespace
         {"help", "h", "list the commands", &CmdHelp},
         {"hud_tilt", nullptr, "[0..50] desktop HUD panel angle", &CmdHudTilt},
         {"TimeScale", "ts", "[scale] slow down / speed up the single-player game (1 = normal)", &CmdTimeScale},
+        {"AudioTimeScale", "ats", "[0|1] experimental sound slowdown; off by default", &CmdAudioTimeScale},
         {"time", nullptr, "seconds since the start", &CmdTime},
         {"max_fps", "fps", "[fps] the frame-rate cap", &CmdMaxFps},
         {"lines", nullptr, "[2..40] visible console lines", &CmdLines},

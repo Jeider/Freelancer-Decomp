@@ -4,6 +4,7 @@
 #include "TrainCourier.h"
 #include "train_courier_hud.h"
 #include "player_ship_transfer.h"
+#include "train_evacuation.h"
 #ifdef FREELANCER_RPG_WORLD
 #include "MissionScript.h"
 #include "MissionAct.h"
@@ -13,11 +14,13 @@
 #include "Gcs.h"
 #include "RpgDialog.h"
 #include "DockQueues.h"
+#include "FactionProps.h"
 #include "common_id.h"
 #include "common_ini.h"
 #include "common_server.h"
 #include "common_universe.h"
 #include "common_misc.h"
+#include "port_config.h"
 #include "server_cobject.h"
 #include "train_courier_bridge.h"
 #include "train_courier_state.h"
@@ -37,7 +40,7 @@ struct Point {
     std::vector<std::string> commodities;
     std::vector<std::string> demand;
     std::map<std::string,int> prices;
-    unsigned baseId=0,systemId=0,faction=0,name=0;
+    unsigned baseId=0,systemId=0,faction=0,name=0,employer=0;
     bool freightHub=false,largePlanet=false,refinery=false;
     Vector position{};Matrix orientation{1,0,0, 0,1,0, 0,0,1};
 };
@@ -59,7 +62,9 @@ struct Config {
     float timerX=.275f,timerY=-.16f;
     unsigned title=0,board=0,pickup=0,deliver=0,park=0,question=0,voice=0,launch=0,recover=0;
     unsigned missionTitle=0,cargoName=0;
-    bool audio=false,repositionAudio=false;
+    bool audio=false,repositionAudio=false,evacuationAudio=false,composedAudio=false;
+    unsigned voiceRu=0,voiceEn=0;
+    std::map<unsigned,std::map<unsigned,bool>> unvoicedCargo;
     unsigned pickupFrom=0;
     float boardingCommDelay=3.f,boardingCommDelayMax=5.f;
     bool load() {
@@ -99,13 +104,27 @@ struct Config {
             else if(reader.is_value("launch_ids"))launch=reader.get_value_int(0);
             else if(reader.is_value("recover_ids"))recover=reader.get_value_int(0);
             else if(reader.is_value("voice"))voice=CreateID(reader.get_value_string());
+            else if(reader.is_value("voice_ru"))voiceRu=CreateID(reader.get_value_string());
+            else if(reader.is_value("voice_en"))voiceEn=CreateID(reader.get_value_string());
+            else if(reader.is_value("composed_audio"))composedAudio=reader.get_value_bool(0);
+            else if(reader.is_value("unvoiced_cargo")) {
+                unsigned speaker=CreateID(reader.get_value_string(0));
+                unvoicedCargo[speaker][CreateID(reader.get_value_string(1))]=true;
+            }
             else if(reader.is_value("audio_enabled"))audio=reader.get_value_bool(0);
             else if(reader.is_value("reposition_audio_enabled"))repositionAudio=reader.get_value_bool(0);
+            else if(reader.is_value("evacuation_audio_enabled"))evacuationAudio=reader.get_value_bool(0);
             else if(reader.is_value("pickup_from_ids"))pickupFrom=reader.get_value_int(0);
             else if(reader.is_value("boarding_comm_delay"))boardingCommDelay=float(reader.get_value_float(0));
             else if(reader.is_value("boarding_comm_delay_max"))boardingCommDelayMax=float(reader.get_value_float(0));
         }
         reader.close();
+        // Follow the voice-over setting (including -voice), just like the bar.
+        // Old single-voice configurations keep their original fallback.
+        char const* language=PortVoice();
+        if(!std::strcmp(language,"ru") && voiceRu)voice=voiceRu;
+        else if(!std::strcmp(language,"en") && voiceEn)voice=voiceEn;
+        composedAudio=composedAudio || voice==CreateID("atc_leg_m01_new");
         if(!OpenContentDataIni("Missions\\TrainCourier\\catalog.ini",&reader))return false;
         while(reader.read_header()) {
             if(reader.is_header("CourierPoint") || reader.is_header("CourierParking")) {
@@ -121,6 +140,7 @@ struct Config {
                     else if(reader.is_value("demand"))p.demand.push_back(reader.get_value_string());
                     else if(reader.is_value("supply_price")){std::string n=reader.get_value_string(0);p.prices[n]=reader.get_value_int(1);}
                     else if(reader.is_value("faction"))pub::Reputation::GetReputationGroup(p.faction,reader.get_value_string());
+                    else if(reader.is_value("employer"))pub::Reputation::GetReputationGroup(p.employer,reader.get_value_string());
                     else if(reader.is_value("name_ids"))p.name=reader.get_value_int(0);
                     else if(reader.is_value("freight_hub"))p.freightHub=reader.get_value_bool(0);
                     else if(reader.is_value("large_planet"))p.largePlanet=reader.get_value_bool(0);
@@ -233,9 +253,14 @@ class CourierMission final : public FMissionScript {
     float remaining=-1.f,expectedSeconds=0.f;
     unsigned proseIds=0,lostPods=0;
     int quotedReward=0,lossCharge=0;
+    #include "TrainCourierEvacuation.inl"
     bool activeOrder() const {return (state.stage==Stage::Pickup || state.stage==Stage::Deliver) && !state.retired;}
     void advanceClock(float dt) {
-        if(activeOrder() && state.pickedUp && std::isfinite(dt) && dt>0)remaining=(std::max)(-604800.f,remaining-dt);
+        if(activeOrder() && state.pickedUp && std::isfinite(dt) && dt>0) {
+            remaining=(std::max)(-604800.f,remaining-dt);
+            if(remaining<=0 && applyCourierReputation(TrainEvacuation::Late))
+                evacuationNotice(TrainEvacuation::LateText,"te_late");
+        }
     }
     std::vector<std::string> goodsFor(Point const& target,unsigned jumps) const {
         std::vector<std::string> goods;
@@ -265,7 +290,7 @@ class CourierMission final : public FMissionScript {
     void describeOrder() {
         if(!proseIds || commodity.empty())return;
         FmtStr prose;prose.begin_mad_lib(proseIds);prose.append_string(destination.name);prose.end_mad_lib();
-        Field_0x68=FmtStr();Field_0x68.begin_mad_lib(config.description);
+        Field_0x68=FmtStr();Field_0x68.begin_mad_lib(employer?TrainEvacuation::OrderWithEmployer:config.description);
         Field_0x68.append_fmt_str(prose);
         Field_0x68.append_string(config.commodityNames[commodity]);
         Field_0x68.append_string(source.name);Field_0x68.append_string(destination.name);
@@ -277,6 +302,12 @@ class CourierMission final : public FMissionScript {
         Field_0x68.append_int(state.reward);
         Field_0x68.append_int(unsigned(expectedSeconds/60));
         Field_0x68.append_int(state.unlockedWagons);Field_0x68.append_int(state.unlockedWagons*100);
+        if(employer) {
+            Field_0x68.append_rep_group(employer);
+            Field_0x68.append_fmt_str(reputationValue(GetFactionEventRate(employer,FactionEventTrainDeliveryLate)));
+            Field_0x68.append_fmt_str(reputationValue(GetFactionEventRate(employer,FactionEventTrainCargoLoss)));
+            Field_0x68.append_fmt_str(reputationValue(GetFactionEventRate(employer,FactionEventTrainLocomotiveLoss)));
+        }
         Field_0x68.end_mad_lib();
         // Reward stays zero: individual orders are paid exactly once at handover.
     }
@@ -342,6 +373,18 @@ class CourierMission final : public FMissionScript {
                     if(spaceTransferComplete)transferInSpace=true;
                 }
                 else if(reader.is_value("failed"))failed=reader.get_value_bool(0);
+                else if(reader.is_value("employer"))employer=reader.get_value_int(0);
+                else if(reader.is_value("evac_phase"))evac.phase=static_cast<TrainEvacuation::Phase>(reader.get_value_int(0));
+                else if(reader.is_value("evac_remaining"))evac.remaining=float(reader.get_value_float(0));
+                else if(reader.is_value("evac_order_events"))evac.orderEvents=reader.get_value_int(0);
+                else if(reader.is_value("evac_locomotive_lost"))evac.locomotiveLost=reader.get_value_bool(0);
+                else if(reader.is_value("evac_warned30"))evac.warned30=reader.get_value_bool(0);
+                else if(reader.is_value("evac_warned10"))evac.warned10=reader.get_value_bool(0);
+                else if(reader.is_value("evac_system"))evacSystem=reader.get_value_int(0);
+                else if(reader.is_value("evac_health"))evacHealth=float(reader.get_value_float(0));
+                else if(reader.is_value("evac_destroy_pending"))evacDestroyPending=reader.get_value_bool(0);
+                else if(reader.is_value("evac_position"))evacPosition={float(reader.get_value_float(0)),float(reader.get_value_float(1)),float(reader.get_value_float(2))};
+                else if(reader.is_value("evac_rotation"))for(int i=0;i<9;++i)(&evacOrientation.E[0][0])[i]=float(reader.get_value_float(i));
                 else if(reader.is_value("commodity"))commodity=reader.get_value_string();
                 else if(reader.is_value("transfer_base"))transferBase=reader.get_value_int(0);
                 else if(reader.is_value("transfer_position"))transferPosition={float(reader.get_value_float(0)),float(reader.get_value_float(1)),float(reader.get_value_float(2))};
@@ -363,7 +406,8 @@ class CourierMission final : public FMissionScript {
             }
             if(!haveSizeProgress && state.paid)state.deliveriesAtSize=1;
             if(!haveCapacity)state.unlockedWagons=state.wagons;
-            if((version!=1 && version!=2) || !state.valid(config.rules) || !std::isfinite(remaining) ||
+            if((version!=1 && version!=2) || !state.valid(config.rules) || !evac.valid() ||
+               !std::isfinite(evacHealth) || evacHealth<=0 || evacHealth>1 || !std::isfinite(remaining) ||
                !std::isfinite(expectedSeconds) || expectedSeconds<0 || expectedSeconds>1814400 ||
                remaining < -604800 || remaining>1814400 ||
                lostPods>state.wagons*2 || quotedReward<0 || lossCharge<0)return false;
@@ -396,12 +440,16 @@ class CourierMission final : public FMissionScript {
         if(cargoPending && (state.stage!=Stage::Pickup || state.pickedUp || state.retired))return false;
         restoreCargo=(state.stage==Stage::Pickup || state.stage==Stage::Deliver) && !state.retired && !cargoPending;
         if(restoreCargo && (!savedCargo.arch || savedCargo.hitpoints<=0))return false;
-        if(restoreCargo && savedCargo.coupled)savedCargo.system=system();
+        if(restoreCargo && savedCargo.coupled && swapped &&
+           evac.phase!=TrainEvacuation::Phase::Away && evac.phase!=TrainEvacuation::Phase::Returning)
+            savedCargo.system=system();
         // Old saves have no travel history: their current contract still gives
         // enough context to avoid immediately returning to its pickup planet.
         if(state.recentBases.empty()) {rememberBase(state,source.base);rememberBase(state,destination.base);}
         if(state.stage==Stage::AwaitContinue)source=destination;
         restoreObjective=true;
+        evacRestore=evac.phase==TrainEvacuation::Phase::Away || evac.phase==TrainEvacuation::Phase::Returning;
+        if(evacRestore){evac.phase=TrainEvacuation::Phase::Away;savedCargo.coupled=0;}
         started=true;pause=1;state.popup=false;
         return request(Operation::Register);
     }
@@ -413,6 +461,13 @@ class CourierMission final : public FMissionScript {
             unsigned(state.stage),state.order,state.wagons,state.distance,source.nickname.c_str(),destination.nickname.c_str(),
             state.pickedUp,state.retired,state.paid,state.reward,swapped);
         std::fprintf(file,"failed = %u\n",failed);
+        std::fprintf(file,"evac_destroy_pending = %u\n",evacDestroyPending);
+        std::fprintf(file,"employer = %u\nevac_phase = %u\nevac_remaining = %.9g\nevac_order_events = %u\nevac_locomotive_lost = %u\n",
+            employer,unsigned(evac.phase),evac.remaining,evac.orderEvents,evac.locomotiveLost);
+        std::fprintf(file,"evac_warned30 = %u\nevac_warned10 = %u\nevac_system = %u\nevac_health = %.9g\nevac_position = %.9g, %.9g, %.9g\nevac_rotation = ",
+            evac.warned30,evac.warned10,evacSystem,evacHealth,evacPosition.x,evacPosition.y,evacPosition.z);
+        for(int i=0;i<9;++i)std::fprintf(file,"%s%.9g",i?", ":"",(&evacOrientation.E[0][0])[i]);
+        std::fputc('\n',file);
         std::fprintf(file,"commodity = %s\n",commodity.c_str());
         std::fprintf(file,"order_remaining = %.9g\nprose_ids = %u\nquoted_reward = %d\nloss_charge = %d\nlost_pods = %u\n",
             remaining,proseIds,quotedReward,lossCharge,lostPods);
@@ -485,6 +540,7 @@ class CourierMission final : public FMissionScript {
     unsigned ship() const {unsigned id=0;pub::Player::GetShip(PlayerId,id);return id;}
     unsigned system() const {unsigned id=0;pub::Player::GetSystem(PlayerId,id);return id;}
     void say(char const* family,Point const* base=nullptr) {
+        if(!std::strncmp(family,"te_",3) && !config.evacuationAudio)return;
         if(!config.audio || !ship())return;
         unsigned ids[16]{};int count=0;
         auto variant=[&](char const* name,char const* suffix) {
@@ -492,9 +548,9 @@ class CourierMission final : public FMissionScript {
             if(!line.Data[0] || count==16)return false;
             ids[count++]=CreateID(line.Data);return true;
         };
-        bool english=config.voice==CreateID("atc_leg_m01_new");
+        bool composed=config.composedAudio;
         bool reposition=!std::strcmp(family,"tc_reposition");
-        if(english && (!std::strcmp(family,"tc_pickup") || !std::strcmp(family,"tc_next") || reposition)) {
+        if(composed && (!std::strcmp(family,"tc_pickup") || !std::strcmp(family,"tc_next") || reposition)) {
             // Same commodity identification as FGcsLineHailTrade: the Good's
             // msg_id_prefix is already a complete clip name. '+' belongs to
             // the surrounding sentence fragments, never to the commodity ID.
@@ -506,17 +562,22 @@ class CourierMission final : public FMissionScript {
                 ids[count++]=CreateID(source.voice.c_str());
                 if(!variant("tc_reposition_empty","-"))return;
             }
-            if(!variant("tc_order","+"))return;
-            ids[count++]=CreateID(cargo.Data);
+            // Incomplete vocabulary still gives a complete destination instruction.
+            // The omitted cargo name remains visible in the mission text.
+            auto missing=config.unvoicedCargo.find(config.voice);
+            if(missing==config.unvoicedCargo.end() || !missing->second.count(CreateID(cargo.Data))) {
+                if(!variant("tc_order","+"))return;
+                ids[count++]=CreateID(cargo.Data);
+            }
             if(!variant("tc_destination","+"))return;
             ids[count++]=CreateID(base->voice.c_str());
             if(!variant("tc_collect","-"))return;
-        } else if(english && (!std::strcmp(family,"tc_depart") || !std::strcmp(family,"tc_park"))) {
+        } else if(composed && (!std::strcmp(family,"tc_depart") || !std::strcmp(family,"tc_park"))) {
             if(!base || base->voice.empty() || !variant(family,"+"))return;
             ids[count++]=CreateID(base->voice.c_str());
         } else {
             if(!variant(family,"-"))return;
-            if(!english && base && !base->voice.empty()) {
+            if(!composed && base && !base->voice.empty()) {
                 ids[count++]=CreateID("tc_destination_name_01+");ids[count++]=CreateID(base->voice.c_str());
                 auto cargoVoice=config.commodityVoices.find(commodity);
                 if(cargoVoice!=config.commodityVoices.end() && !cargoVoice->second.empty()) {
@@ -735,6 +796,7 @@ class CourierMission final : public FMissionScript {
         return true;
     }
     bool next() {
+        evac.orderEvents=0;
         arrivalSpoken=false;
         std::string previousBase=source.base;
         state.pickedUp=state.retired=state.paid=state.popup=false;
@@ -817,7 +879,7 @@ class CourierMission final : public FMissionScript {
         pendingObject=objectiveObject=objectiveName=0;markerDelay=0;NnPath.Reset();
         GetOrCreatePlayer(PlayerId)->ClearObjectives();
         remaining=expectedSeconds;
-        repositionedOrder=state.order && source.base!=previousBase && config.voice==CreateID("atc_leg_m01_new");
+        repositionedOrder=state.order && source.base!=previousBase && config.composedAudio;
         FDUMP(0x100001,"TrainCourier: order=%u wagons=%u distance=%u source=%s destination=%s trailer=%u reward=%d",state.order+1,state.wagons,state.distance,source.nickname.c_str(),destination.nickname.c_str(),trailer,state.reward);
         return true;
     }
@@ -859,8 +921,15 @@ class CourierMission final : public FMissionScript {
     void parking() {
         state.popup=false;state.stage=Stage::Parking;
         unsigned old=trailer;trailer=0;restoreCargo=false;cargoPending=false;jumping=false;
+        bool retired=false;
+        if(old) {
+            // Aborting an accepted job hands its cargo to the same delayed
+            // cleanup queue as delivery/loss. The personal ship is already detached.
+            request(Operation::PrepareEvacuation);
+            retired=request(Operation::Retire,old);
+        }
         request(Operation::Register);
-        if(old)pub::SpaceObj::Destroy(old,DESTROY_NORMAL);
+        if(old && !retired)pub::SpaceObj::Destroy(old,DESTROY_NORMAL);
         selectParking();
     }
     bool selectParking() {
@@ -965,6 +1034,7 @@ class CourierMission final : public FMissionScript {
         if(!ready || !started)return;
         launchObjective();
         advanceClock(dt);
+        if(tickEvacuation(dt))return;
         if(pause>0){pause-=dt;if(pause>0)return;}
         unsigned playerShip=ship();Vector livePos{};Matrix liveRotation{};
         if(!playerShip || pub::SpaceObj::GetLocation(playerShip,livePos,liveRotation)!=0)return;
@@ -1128,13 +1198,41 @@ class CourierMission final : public FMissionScript {
             if(lostPods<state.wagons*2)state.deliveriesAtSize=(std::min)(2u,state.deliveriesAtSize+1);
             state.paid=true;state.stage=Stage::AwaitContinue;
             NnPath.Reset();
-            source=destination;say("tc_paid");pause=6;
+            source=destination;
+            if(evac.orderEvents&(1u<<TrainEvacuation::Late))evacuationNotice(TrainEvacuation::LateDelivered,"te_delivered_late");
+            else say("tc_paid");
+            pause=6;
             FDUMP(0x100001,"TrainCourier: paid order=%u reward=%d; awaiting continuation",state.order+1,state.reward);
         }
     }
 public:
+    void OnMissionFail() override {
+        if(bPendingDestroy)return;
+        failed=true;state.stage=Stage::Failed;NnPath.Reset();
+        auto* player=FindContentPlayerState(PlayerId);
+        if(player && player->GetLiveMission()==ControllerId) {
+            player->SetFlags(0);
+            player->CountRandomMissionFailed(7);
+            FmtStr text;text.begin_mad_lib(0x412);text.end_mad_lib();
+            // DestroyMission uses a type-2 notice. MissionScript's type 0
+            // opens the campaign defeat screen and must never end a courier job.
+            pub::Player::DisplayMissionMessage(PlayerId,text,static_cast<MissionMessageType>(2),false);
+        }
+        for(auto const& npc:NpcObjects)npc.second->SetField1b1(true);
+        DestroyMissionObjects();
+        // EndMission releases this contract; EndLiveMission clears MsnID and
+        // allows a new job immediately. Radio runs independently on the client.
+        FMissionObject::OnMissionFail();
+    }
+    bool reboardAccess(unsigned target) {return canReboard(target);}
+    int evacuation(TrainEvacuation::Command command,TrainEvacuation::Status* out) {return evacuationCommand(command,out);}
     int spaceTransfer(PlayerShipTransfer::Packet* p,int phase) {
         if(!p || !ready || bPendingDestroy || p->player!=PlayerId || p->system!=system())return 0;
+        // Server intercepted LAND, so the ordinary DockComplete cleanup never
+        // ran. Release the old ship's berth before its solar ID can be reused.
+        if(phase==1)FinishShipTransferDocking(p->source);
+        int handled=evacuationTransfer(p,phase);
+        if(handled>=0)return handled;
         if(phase==2) {
             if(p->returning && swapped && state.stage==Stage::TransferOut) {
                 if(auto* s=solar()) {
@@ -1192,8 +1290,12 @@ public:
         return 1;
     }
     bool hud(TrainCourierHud* out) const {
-        if(!out || out->size!=sizeof(*out) || !ready || bPendingDestroy || !activeOrder())return false;
+        if(!out || out->size!=sizeof(*out) || !ready || bPendingDestroy)return false;
+        bool away=evac.phase==TrainEvacuation::Phase::Away || evac.phase==TrainEvacuation::Phase::Returning;
+        if(!activeOrder() && !away)return false;
         out->remaining=remaining;out->caption=remaining>0?config.timerIds:config.overdueIds;
+        if(!activeOrder())out->caption=0;
+        if(away){out->returnRemaining=evac.remaining;out->returnCaption=TrainEvacuation::ReturnTimer;}
         out->x=config.timerX;out->y=config.timerY;return true;
     }
     bool BuildPathObjectives(FSystemInfo* systemInfo,std::list<FNnPathLeg>* legs,
@@ -1241,6 +1343,8 @@ public:
         state.unlockedWagons=state.wagons;
         Field_0x50.begin_mad_lib(config.missionTitle);Field_0x50.end_mad_lib();Reward=0;
         if(restoreReader)ready=readSave(*restoreReader);
+        if(!employer)employer=source.employer;
+        if(proseIds)describeOrder();
         controllers[PlayerId]=this;
     }
     void prepareReload() {
@@ -1272,8 +1376,22 @@ public:
             started=true;
             if(!ready || !request(Operation::Register)){OnMissionFail();return;}
         }
-        if(msg==M::AbortMission && p && p[0]==PlayerId && swapped){parking();return;}
+        if(msg==M::AbortMission && p && p[0]==PlayerId &&
+           (swapped || evac.phase==TrainEvacuation::Phase::Away || evac.phase==TrainEvacuation::Phase::Returning)){
+            if(activeOrder()) {applyCourierReputation(TrainEvacuation::CargoLost);say("te_order_abandoned");}
+            parking();return;
+        }
+        if(msg==M::ObjectDestroyed && p && p[0]==boarding && boarding &&
+           (evac.phase==TrainEvacuation::Phase::Away || evac.phase==TrainEvacuation::Phase::Returning)) {
+            if(p[4]!=0){boarding=0;loseLocomotive(true);return;}
+            boarding=0;evacRestore=true;
+        }
         if(msg==M::ObjectDestroyed && p && p[0]==trailer && trailer && !jumping) {
+            if(p[4]==0 && evac.phase!=TrainEvacuation::Phase::Onboard) {
+                trailer=0;restoreCargo=true;return;
+            }
+            if(activeOrder())applyCourierReputation(TrainEvacuation::CargoLost);
+            say("te_cargo_destroyed");
             lostPods=state.wagons*2;state.reward=0;describeOrder();
             trailer=0;failed=true;parking();return;
         }
@@ -1303,7 +1421,9 @@ public:
             }
             if(state.stage==Stage::TransferOut && p[2]!=boarding)boarding=0;
         }
-        else if(msg==M::PopUpDialog && p[0]==PlayerId)onContinue(p[1]);
+        else if(msg==M::PopUpDialog && p[0]==PlayerId) {
+            if(evacConfirm)answerEvacuation(p[1]);else onContinue(p[1]);
+        }
     }
     void EndMission() override {
         request(Operation::Release);
@@ -1320,6 +1440,16 @@ bool TrainCourierCanStart(unsigned base) {
     Config config;
     return config.load() && boardingPoint(config,base)!=nullptr;
 }
+bool TrainCourierCanReboard(unsigned player,unsigned target) {
+    auto found=controllers.find(player);
+    return pub::SinglePlayer() && found!=controllers.end() && found->second->reboardAccess(target);
+}
+void TrainCourierAccessDenied(unsigned player) {
+    static ULONGLONG next=0;
+    auto now=GetTickCount64();if(now<next)return;next=now+3000;
+    FmtStr text;text.begin_mad_lib(TrainEvacuation::AccessDenied);text.end_mad_lib();
+    pub::Player::DisplayMissionMessage(player,text,static_cast<MissionMessageType>(2),false);
+}
 extern "C" int __cdecl TrainCourierBaseTransfer(unsigned player,unsigned base,int prepare) {
     auto found=controllers.find(player);
     return pub::SinglePlayer() && found!=controllers.end() && found->second->prepareBaseTransfer(base,prepare!=0);
@@ -1332,6 +1462,11 @@ extern "C" int __cdecl TrainCourierShipTransfer(PlayerShipTransfer::Packet* pack
 extern "C" int __cdecl TrainCourierGetHud(unsigned player,TrainCourierHud* out) {
     auto found=controllers.find(player);
     return pub::SinglePlayer() && found!=controllers.end() && found->second->hud(out);
+}
+extern "C" int __cdecl TrainCourierEvacuation(unsigned player,TrainEvacuation::Command command,TrainEvacuation::Status* out) {
+    if(!pub::SinglePlayer() || !out || out->size!=sizeof(*out) || out->version!=1)return 0;
+    auto found=controllers.find(player);
+    return found!=controllers.end()?found->second->evacuation(command,out):0;
 }
 void TrainCourierOnPlayerLoad(unsigned player,INI_Reader* reader) {
     auto old=controllers.find(player);
@@ -1352,10 +1487,13 @@ void TrainCourierOnPlayerLoad(unsigned player,INI_Reader* reader) {
     pub::Controller::_SendMessage(id,pub::Controller::EMessage::MissionStart,nullptr);
 }
 #else
+void TrainCourierAccessDenied(unsigned) {}
+bool TrainCourierCanReboard(unsigned,unsigned) {return false;}
 bool TrainCourierCanStart(unsigned) {return false;}
 extern "C" int __cdecl TrainCourierGetHud(unsigned,TrainCourierHud*) {return 0;}
 extern "C" int __cdecl TrainCourierBaseTransfer(unsigned,unsigned,int) {return 0;}
 extern "C" int __cdecl TrainCourierShipTransfer(PlayerShipTransfer::Packet*,int) {return 0;}
+extern "C" int __cdecl TrainCourierEvacuation(unsigned,TrainEvacuation::Command,TrainEvacuation::Status*) {return 0;}
 IDLL* CreateTrainCourier(char const*,unsigned,void const*) {return nullptr;}
 void TrainCourierOnPlayerLoad(unsigned,INI_Reader*) {}
 #endif

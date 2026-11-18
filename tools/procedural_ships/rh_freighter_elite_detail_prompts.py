@@ -1,0 +1,76 @@
+"""RH freighter D01-D05: restore medium-scale hull depth using finished RH elite lessons."""
+import hashlib
+import json
+from pathlib import Path
+from rh_redesign_paths import TOPIC
+
+OUT = TOPIC / 'rh_freighter/concepts/round_07'
+
+COMMON = '''Use case: precise-object-edit. Make a FULLY DEVELOPED, richly articulated pirate/Junker RH FREIGHTER concept sheet from IMAGE 1. The user REJECTED this prior concept as drastically too simple, even simpler in FORM than the original ship. They now request approximately FOUR TIMES the visible design development and meaningful medium-scale geometric detail. This is a major hull design refinement, not a light weathering pass. The previous minimal-clay-study restrictions on hatches, vents and secondary volumes are SUPERSEDED. Develop about 25-35 deliberate medium-size geometric features across the complete ship instead of the previous handful of primitive slabs, while keeping coherent primary masses. These numbers describe visual intent, not a polygon count. The result must be clearly more sophisticated in actual depth and form than IMAGE 1 even without textures.
+
+REFERENCES AND THEIR AUTHORITY:
+IMAGE 1 is the rejected oversimplified freighter design to refine. It establishes the overall original-like scale, narrow high cargo body, cockpit placement, broad silhouette and wingless mechanism. Its blank slab surfaces and crude undifferentiated blocks are NOT an artistic target. You are explicitly authorized to rework their boundaries, add real depth, compound volumes, useful nested recesses and carefully designed transitions.
+IMAGE 2 is the actual original installed RH pirate freighter. Preserve its identity, mass hierarchy and original physical scale: width 9.465, height 11.463, length 23.722. The source main hull is about 6.3 wide, cockpit glazing about 3.6 wide. Keep a tall, relatively narrow cargo block with a prominent arched raised roof, low forward cabin and twin small aft engine units. A recognizable original freighter ancestor is essential. Do not turn it into a sphere, a fat transport, a fighter or a modern aerodynamic shuttle.
+IMAGE 3 is the IMMUTABLE original FREIGHTER cockpit. Keep this complete module at exactly the same size, placement and geometry: sloping blue upper glazing, its original frame divisions, pale opaque lower face with separate small rectangular blue window slots, original narrow yellow/black trim, lower chin and underside equipment block. Do not add or redesign glazing, armour, bars, cage, visor, or the cockpit shell. The real source cabin will be reused in the future game model. All new design fits around it.
+IMAGES 4 AND 5 are close-up offline renders of the user's near-complete RH PIR ELITE MODEL, not AI art. Use its PROVEN CONSTRUCTION LANGUAGE and level of meaningful depth: recessed red panel fields that fill their geometrical cutouts, thick continuous surfaces around recesses, deep vent pockets with a few broad internal blades, angular closed hatch housings, a central drum face with wide inset slots, carefully fitted neighbouring planes. The actual model uses sharp authored forms and original pirate materials. Transfer this practical hull craftsmanship to the FREIGHTER. These close-ups are NOT a replacement ship silhouette: do not copy the elite's wings, circular wheel, tall open frame, exposed supports, external pylons or other cockpit. In the freighter all new transitions remain closed hull geometry.
+
+REQUIRED DEPTH AND GEOMETRY — approximately 4x the prior concept's development:
+1. HULL CHEEKS AND CYLINDERS: replace the crude flat strip with a designed two- or three-level integral side housing. There are EXACTLY THREE original short closed-ended drums per side, one large middle and two smaller neighbours in ONE row. Give each a stout recessed sliding sleeve, broad faceted mounting collar, a stepped endcap and one inset face field; still plainly the same six drums. No extra row, four-drum layout, wheels or side-facing engines. Keep sufficient visible housing depth and clear lateral withdrawal paths for the source base animation. Fixed surrounding volumes cannot trap the drums.
+2. SIDE WALLS: design several substantial nested rectangular/trapezoidal recesses, two or three actual medium-size access hatches set below the surface, a large cargo-door field, and one deep ventilation pocket with THREE TO FIVE broad inset blades. Use different sizes and functional hierarchy. Recess walls and returns must have visible thickness and connect into the main sealed body. Their red panel inserts fill the recess interior like the successful RH elite implementation. No pasted rectangular decals pretending to be depth.
+3. CARGO HUMP: keep the high narrow arched original roof, defined by broad crisp facets rather than a smooth ball. Develop its roof sectors and flat side face with stepped shell transitions, two or three inset longitudinal service/grille fields, a large shallow inset arch-side panel, and designed front/rear shoulder interfaces. Use the upper third of body height, a genuine raised hump above the shoulder line. Do not flatten it, swell it into a dome, turn it into the elite's exposed circular wheel, or cover it with a separate rib cage. Roof details are cut into or built as closed skin volumes.
+4. FRONT/BELLY: surround the ORIGINAL UNCHANGED cabin attachment with a well-shaped closed forward hull housing, a substantial recessed bay above/behind it, angled shoulder volumes, one or two local service sockets and a developed lower cargo sill. Cabin stays exposed as the original module, without extra armour wrapped around its glazing. Design the belly as a coherent stepped solid shell with a broad inset loading-door panel, purposeful chamfer-like large plane cuts and deeper returns; not an open bridge, ladder or frame.
+5. PROPULSION: develop each original-sized aft engine as a compact multistage faceted housing with a closed shoulder coupling, inset service panel, substantial collar and deep simple exhaust lip. Use only a few broad structural sectors, not rings of tiny turbine fins. TWO engines remain left/right at the same height; in true SIDE they overlap as ONE silhouette, in TOP they separate as TWO. No vertically stacked second engine silhouette and no third engine.
+6. SCAVENGER MODIFICATION: include a few genuinely differently shaped donor shell sections, an offset repair seam between large volumes, one replaced angular hatch housing and restrained asymmetry in fixed covers. Their physical contour and assembly depth identify a ship rebuilt by Junkers. Keep the overall system integrated and usable. Material changes reinforce authored geometry; a paint change alone is insufficient.
+
+DESIGN BALANCE:
+This should be a serious finished spaceship design with primary shape, substantial secondary shaping and selective tertiary information. Allow around half the visible hull to carry meaningful medium-size relief; retain broad connected planes between it. Preserve sharp authored angles. Intricacy comes from depth, layered closed hull transitions and clear functions, not round smoothing or dozens of tiny decorations. Do not remain a blank low-poly block. Do not make each face equally busy. Details need to survive translation into a practical game mesh.
+
+STILL ABSOLUTELY FORBIDDEN:
+NO exposed pipes, hoses, cables or conduit bundles. NO external trusses, diagonal braces, scaffold, cage, hoops, straps, skeleton, open rails or separate structural ribs spanning the hull. The continuous solid walls LEFT BETWEEN recessed fields are normal hull and are allowed. Recessed ventilation blades INSIDE a closed pocket are allowed; these are not an exterior frame. NO wings, thin side plates or fins, no claws/cranes in this set. No geometric rivets, small screw fields, tiny hoses, ornamental handles, endless slats, tiny scattered boxes or bolt-covered applique plates. No global rounded bevels. No built-in guns, barrels or missiles; small empty flush hardpoint pads are fine. No giant containers. All internal cavities must have a solid recessed back rather than revealing an empty ship.
+
+FINISH AND SHEET:
+Refined Freelancer industrial concept art with confident ink edges, controlled marker/gouache shading and clear material separation. Use the ACTUAL pirate material family from the original freighter and completed RH elite: worn pale beige/grey outer hull, muted dark red recessed panel fields, occasional faded olive donor section, dark brown/black cavities, restrained hazard trim. Source rust/fastener imagery may read as FLAT TEXTURE, not added physical fastener geometry. Crisp accurate surfaces and intentional wear, not uniform brown grunge. All large forms should remain legible. Landscape off-white sheet: one large front-side three-quarter view LEFT, true SIDE / FLIGHT upper right nose RIGHT, true TOP / FLIGHT lower right nose UP. Exactly three complete uncropped views. They must depict the SAME detailed physical ship, same hatch placements, recess layout, six cylinders and same-height engine pair. All are in FLIGHT with drums extended. Keep enough space for both technical projections to read. Print only the title specified below and the two view labels.
+
+VARIANT EMPHASIS:
+'''
+
+VARIANTS = [
+ ('D01','S01','Корпус с глубокими нишами','Use the source-like tall block as the foundation, but substantially develop the front angular cuts and long side cheek. A large recessed cargo hatch occupies the lower middle side, flanked by two narrower red service recesses of unequal size. One substantial upper shoulder vent is set deep into a solid angular housing. The hump receives two longitudinal roof recesses and a broad inset side field, while its front shoulder steps into a developed closed forward hatch housing above the original cabin. Three drum sleeves have clear stepped collars and closed inset endcaps. Engines gain two-stage faceted shoulders and broad recessed service covers. Strong depth and precise recess borders should echo the completed RH elite close-ups without any exterior frame.'),
+ ('D02','S02','Многоуровневый клиновидный борт','Develop the existing broad wedge side hull into a sophisticated multilayered closed housing. Carve three different-size trapezoidal access pockets along its sloping lower belt, preserve a deep long horizontal vent channel with only a few broad internal blades, and seat the three sliding drums in distinct stepped collar recesses above it. The wedge front becomes a compound angular shoulder with a recessed hatch and a thick turned-in return meeting the original cabin attachment. Use angular overlap between whole donor housings, not a stack of decorative thin plates. Add meaningful detail on the high faceted hump and engine collars, maintaining a narrow tall original freighter silhouette. This variant is the most aggressive angular industrial conversion.'),
+ ('D03','S03','Ступенчатые грузовые отсеки','Make the two stepped main hull tiers genuinely rich in form: upper tier has two deeply inset broad roof/service fields and three small-but-substantial red access recesses; lower tier includes a developed cargo-door pocket, thick sill, and two asymmetrically shaped adjacent machinery housings. All are CLOSED hull volumes. The six sliding cylinder units have nested polygonal shoulders and a medium-scale inset central face, not a flat polygon pasted on a blank panel. Enrich the front cargo bulkhead behind the untouched cabin with a closed angular hatch housing analogous in craftsmanship to the RH elite tail hatch, but fit it into the freighter body. Retain the angular high hump and finish the twin engine couplings with stepped service volumes.'),
+ ('D04','S04','Сложная донорская сборка','Preserve visibly different fixed port/starboard donor housings and develop both with equally convincing but different medium-scale architecture. One has an oblique recessed maintenance bay, three integrated drum collars and a broad angular cargo-door return; the other uses stepped rectangular inset red panel fields and a deeply seated ventilation pocket. The central hump, hull and native cabin remain coherent. Each donor shell has physical depth, genuine return walls and a clear large seam where it joins the central cargo body. Use different closed faceted outer engine service covers around the same-size engine cores at the same height. This should read as an expert scrapyard reconstruction with many authored forms, not random patches or asymmetry of paint alone.'),
+ ('D05','S05','Проработанный горб и плечи','Develop the faceted high hump and its transition into the solid corner masses to the richest level in the set. Use broad stepped roof-skin sectors with inset service hatches, two deep longitudinal ventilation recesses with a few broad inner blades, and a large faceted recessed field on the arch side. The corner masses remain closed integral bodywork, now containing well-shaped angular access pockets and nested shoulder interfaces; they must never become separate bars or a frame. The lower wall receives a large inset cargo-door assembly and several differently sized red service panels, all seated with real thickness. Three original cylinders per side have substantial polygonal sleeves and stepped endcaps. Enrich the belly, cabin junction and paired engine mounts to match this level so no part remains a crude blank block.'),
+]
+
+
+def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def main():
+    previous=TOPIC/'rh_freighter/concepts/round_06'
+    source=json.loads((previous/'shape_prompts.json').read_text(encoding='utf8'))
+    elite=TOPIC/'rh_elite/prototypes/concept_b'
+    refs=[TOPIC/'rh_freighter/concepts/round_03/references/original_scale_hump.jpg',
+          TOPIC/'rh_freighter/concepts/round_02/references/cockpit_original.jpg',
+          elite/'uv_refinement_01/after_bottom_corner.png',
+          elite/'final_v1/finished_tail.png']
+    variants=[]
+    for label,base,title,direction in VARIANTS:
+        target=previous/f'rh_freighter_{base}_sheet.png'
+        variants.append(dict(id=label,label=label,base_variant=base,title_ru=title,group_ru='Корпусная детализация',
+                             target_image=target.as_posix(),target_sha256=sha(target),
+                             prompt=COMMON+direction+'\nMain title exactly: "RH JUNKER FREIGHTER / '+label+'".'))
+    payload=dict(tool='built-in image_gen',target='rh_freighter_pir',
+                 latest_brief='About four times the meaningful geometric detail versus S01-S05; use implemented RH pirate elite craftsmanship; retain original freighter scale/cabin/hump, angular forms, no exposed pipes/exterior frames.',
+                 source_cmp=source['source_cmp'],source_sha256=source['source_sha256'],
+                 native_flight_dimensions_xyz=source['native_flight_dimensions_xyz'],
+                 elite_cmp=(elite/'final_v1/rh_concept_b.cmp').as_posix(),elite_sha256=sha(elite/'final_v1/rh_concept_b.cmp'),
+                 references=[dict(path=p.as_posix(),sha256=sha(p)) for p in refs],variants=variants)
+    OUT.mkdir(parents=True,exist_ok=True)
+    path=OUT/'prompts.json'
+    if path.exists(): raise FileExistsError(path)
+    path.write_text(json.dumps(payload,ensure_ascii=False,indent=2),encoding='utf8')
+    print(path)
+
+
+if __name__=='__main__':main()

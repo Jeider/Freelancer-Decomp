@@ -1,0 +1,90 @@
+{
+  "generation_mode": "built-in image_gen",
+  "source_cmp": "D:\\Games\\FL_MOD\\DATA\\ships\\rheinland\\rh_pir_fighter\\rh_pir_fighter.cmp",
+  "source_sha256": "039fc5177f5110ca51dc5b4ada40e8f1300c8e5bc0696cb374ee5fc757f7c5eb",
+  "source_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_flight.jpg",
+      "sha256": "74d9b188f50ec6de1807a1b1a390df9b56034b4ae4c8f9ff8061185c4a51ead0"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/pirate_art/ships/rh_fighter_pir/cockpit_reference.jpg",
+      "sha256": "22bc6793a8285e15b0c5a2c035bf6ecd83e365d521ad9a89e5249a8386b478a4"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_baydoor_motion.jpg",
+      "sha256": "628dd5782e6f89ff71ba74d6679a1de2a0bb3c0e4696a7c697b5cb09b6679748"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_wing_motion.jpg",
+      "sha256": "5b032b8bca16f78a18d1c0c58608c52607f4e2b10cfa76f7fdf9f8c4ec175803"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "D01",
+      "title_ru": "Драугр — расколотый венец",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3171f5dd-e270-4f18-b99a-02fc2ff33d92.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_02/rh_fighter_D01_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "rejected_by_user",
+      "sha256": "a0b3ddd4addd118c6bde509a979c1d4a347bf27232172d4cf2a017f2a3153718",
+      "bytes": 2871835,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "role": "rejected_demonic_direction"
+    },
+    {
+      "id": "D02",
+      "title_ru": "Драугр — хищный клин",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-97f45424-089a-41c9-a0f6-32719f558d2b.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_02/rh_fighter_D02_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "rejected_by_user",
+      "sha256": "e18e832047f2a6af31316665bcbc28426e82e3ddf7108a8cca6592a4d24ade1c",
+      "bytes": 2861707,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "role": "rejected_demonic_direction"
+    },
+    {
+      "id": "D01",
+      "revision": "flight_v2",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-0fee1bfd-8482-424b-bcd4-51e522a38d86.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_02/rh_fighter_D01_flight_v2_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "rejected_by_user",
+      "sha256": "fa5cb283e7e878bca5fd1f5db364faca8b41661980b415fbb569bf2b224fd8c8",
+      "bytes": 2583276,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "role": "rejected_demonic_direction"
+    },
+    {
+      "id": "D02",
+      "revision": "flight_v2",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-b555b04d-01a3-4928-9d02-1a2b49b6ffd2.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_02/rh_fighter_D02_flight_v2_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "rejected_by_user",
+      "sha256": "fe3621ed4b4104884752a042426a5456d9f48e34767ae366304cdff9265f44c9",
+      "bytes": 2579798,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "role": "rejected_demonic_direction"
+    }
+  ],
+  "approved_for_modeling": false,
+  "scope": "Two design directions, each corrected once for forward wing sweep. Art only; no new geometry, animation collision proof or installation.",
+  "status": "rejected_by_user",
+  "rejection_reason": "Too evil/demonic. Fully remove demonic nature. Return to Rheinland ship in pirate service with rough repairs and recesses."
+}

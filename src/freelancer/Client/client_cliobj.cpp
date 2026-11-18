@@ -6,6 +6,9 @@
 
 #include "client_cliobj.h"
 #include "tradelane_ring_anim.h"
+#ifdef FREELANCER_RP9
+#include "render_ex.h"
+#endif
 
 #include "common_goods.h"
 #include "common_id.h"
@@ -1000,6 +1003,9 @@ namespace Archetype
                 DALib::MaterialLib->ApplyVerifyGroup(
                     Entry->MaterialId, nullptr, reinterpret_cast<void*>(0x3f800000u));
                 DALib::MaterialLib->ResolveTexturesGroup(Entry->MaterialId, 0.0f);
+#ifdef FREELANCER_RP9
+                RenderEx::PreloadRoomMaterialGroup(Entry->MaterialId);
+#endif
             }
 
             return Entry;
@@ -1051,6 +1057,9 @@ namespace Archetype
             DALib::MaterialLib->ApplyVerifyGroup(
                 Entry->MaterialId, nullptr, reinterpret_cast<void*>(0x3f800000u));
             DALib::MaterialLib->ResolveTexturesGroup(Entry->MaterialId, 0.0f);
+#ifdef FREELANCER_RP9
+            RenderEx::PreloadRoomMaterialGroup(Entry->MaterialId);
+#endif
         }
         return Entry;
     }

@@ -1,0 +1,26 @@
+{
+  "status": "accepted_as_primary_direction",
+  "status_ru": "БЕРЁМ В РАБОТУ — ОСНОВА B04, НАЧИНАЕМ С ELITE",
+  "selected_by": "user",
+  "date": "2026-11-18",
+  "concept_id": "B04",
+  "title_ru": "Ступенчатые корни",
+  "art": "concepts/round_03/bw_family_B04_sheet.png",
+  "art_sha256": "67c3f1866d6091916842be5ed31fd4e5a615c369b8583a48438af79f8a1b6c9a",
+  "handoff": "SELECTED_CONCEPT.md",
+  "user_evidence": "по мне лучший это B04. пометь его как основным. потом будем начинать с ELITE. потому что VHEAVY странно пределался. но тут наверное мы будем делать микс из разных стилей. посмотрим. в общем пойдёт. так что сохрани его как будем брать в работу",
+  "scope": "B04 is the primary family design direction for future work. Start from the ELITE row. This does not approve every ship or every detail on the family sheet.",
+  "primary_model": "bw_pir_elite",
+  "primary_row": "ELITE",
+  "model_status": {
+    "elite": "selected_starting_point_for_future_modeling",
+    "fighter": "family_direction_reference_only",
+    "vheavy_fighter": "not_approved_as_drawn_rework_later"
+  },
+  "mixing_policy": "User anticipates potentially combining styles or solutions from other variants. B04 remains the main reference; no specific combination is selected yet.",
+  "cockpit_policy": "Preserve the original cockpit geometry, shell, glazing, frames, dimensions and placement. Generated cabin deviations are not approved.",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_elite/bw_pir_elite.cmp",
+  "source_sha256": "e04e86fb6a627cc2715ea178b7bc4d6880847d9b0e0c0001a40087503de5cf4e",
+  "persistent_prompt_recipe": "../../../docs/ru/ship_design/prompt_archive/selected/bw_family_B04.json",
+  "implementation_started": false
+}

@@ -8,6 +8,8 @@ void TrainCourierReset(unsigned player=0);
 bool PlayerShipTransferDock(unsigned player, unsigned anchor, unsigned base);
 void PlayerShipTransferReset(unsigned player);
 struct CShip;
+struct CObject;
+bool TrainCourierProtectHull(CObject* object,float& hitpoints);
 bool TrainConsistParkForSystemSwitch(CShip* loco, unsigned& trailer, unsigned& owner, float& hitpoints);
 bool TrainConsistArriveAfterSystemSwitch(CShip* loco, unsigned trailer, unsigned owner, float hitpoints,
     unsigned system, Vector const& position, Matrix const& orientation);

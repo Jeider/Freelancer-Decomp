@@ -1,0 +1,17 @@
+{
+  "corrections": [
+    {
+      "id": "L88",
+      "kind": "single_authoritative_rear_view",
+      "prompt": "Use case: stylized-concept / tightly constrained Freelancer redesign.\nRender ONE full spaceship, ONE LARGE REAR THREE-QUARTER VIEW only. No other views, inset diagrams, collage or comparison ships. Neutral pale grey background; small concept ID. The entire ship fits with margins.\n\nImage 1 L66 is the design authority. Copy ONLY its UPPER RIGHT REAR 3/4 spaceship, including its complete TWO-SECTION substantial mechanical tail, central sloping stern transition, two side engines, broad main hull, restrained Liberty Art Deco side relief and equipment mounting pads. Preserve L66 height, mass, thickness and proportion, approximately +/-10% for this variant. The tail is a REAL integrated mechanical structure, not a little decorated aircraft fin. No broad tiered pedestal, mausoleum, tower or added platforms.\nUse EXACTLY that rear camera: two exhausts near LEFT, cockpit farther RIGHT. The upper tail extends UP-RIGHT TOWARD THE COCKPIT, as in that rear reference. Ignore all other L66 views. Root remains on the STERN BETWEEN ENGINES, behind cargo hatch. Keep lower-to-upper overlap visible, small equipment pads on tail sides, no new pipes or exposed skeleton. Keep original native color treatment. Art Deco/Empire is expressed in hull framed relief, rhythmic angles and coherent form, not ornate sculptural additions.\n\nImage 2 supplies original THREE Defender fan blades per side and original common root, lower-front corner of MAIN BODY after the neck behind collar. Three complete leaves, three separate outer tips: native rear, middle and front plates; middle cannot disappear under two broad plates. Recolor pirate red; only one native weapon pad per fan. Copy original root position, not a hinge on collar or engine. These replace L66's TWO blades.\nImage 3 locks exact original cabin/collar proportions, glazing, shell, three separate angular collar ribs. Keep all unchanged; no enlarged canopy or brow.\n\nPreserve broad L66 hull and pair of engines. The intended CHANGE is only the following tail refinement. No tiny decorative plaque, triangular badge, automotive spoiler, wing redesign, additional engine, horns or large distressed damage.\nVARIANT:\nL88. Faithful control: preserve the whole original L66 REAR construction without any artistic redesign. Full two-section tail, correct integrated sloping stern transition, unchanged proportions and equipment pads. The only shape change is restoring the ORIGINAL THREE complete wing blades per side from image 2. One large rear 3/4 only, no front or side views. Label L88.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    }
+  ]
+}

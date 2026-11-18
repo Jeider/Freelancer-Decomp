@@ -18,6 +18,8 @@ namespace GraphicsSettings
         // Room-only controls. Never change global surface settings here: ships
         // use those same shaders in space. The renderer gates them by room scope.
         int const room=values[Interiors];
+        if (!std::strcmp(key,"character_geometry")) return values[CharacterGeometry]>=2 ? 1.f : 0.f;
+        if (!std::strcmp(key,"character_detail_quality")) return float(values[CharacterGeometry]);
         if (!std::strcmp(key,"character_hair")) return float(values[Hair]);
         if (!std::strcmp(key,"character_hair_motion")) return values[Hair]<2 ? 0.f : values[Hair]==2 ? .55f : 1.f;
         if (!std::strcmp(key,"room_quality")) return float(room);

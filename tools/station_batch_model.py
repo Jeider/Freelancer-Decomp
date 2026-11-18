@@ -14,7 +14,7 @@ CONFIG=json.loads(os.environ['STATION_BATCH_CONFIG'])
 TASK=CONFIG['task']; CLASS=CONFIG['class']; SOURCE_PREFIX=CONFIG['source_prefix']
 ASSET_PREFIX=TASK if len(TASK)<=24 else TASK[:15]+'_'+format(m.utf.crc(TASK),'08x')
 HULL_LIMIT=int(CONFIG.get('max_hulls',1500))
-OUT=m.REPO/'out/station_batch'/TASK
+OUT=m.REPO/'out/stations/station_batch'/TASK
 TEMPLATE=CONFIG['template']; LIVE=CONFIG['instances'][0]['path']
 PREFIX='__'+TASK
 MARK='; BEGIN '+TASK.upper()

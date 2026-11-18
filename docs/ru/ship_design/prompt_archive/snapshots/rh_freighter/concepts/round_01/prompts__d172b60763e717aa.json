@@ -1,0 +1,243 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "source_cmp": "ships/rheinland/rh_pir_freighter/rh_pir_freighter.cmp",
+  "source_sha256": "085e9a5d778922b1aef6ebe70a95ce0d902636177dd1b5cc03a4b6c0ffbc738b",
+  "cockpit_sources": [
+    {
+      "path": "cockpits/rheinland/r_freighter.ini",
+      "sha256": "b4c6423a85d149f0de1daeaf86dc1816d44313eb562b1796d46d39da79baf2a7"
+    }
+  ],
+  "source_mechanism": [
+    {
+      "script": "sc_extend wing",
+      "child": "rh_port_big_btn_lod1",
+      "parent": "rh_port_side_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          1.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        1.0
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        -1.399999976158142,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "rh_port_sml_btn_lod1",
+      "parent": "rh_port_side_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          1.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        1.0
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        -0.699999988079071,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "rh_star_big_btn_lod1",
+      "parent": "rh_star_side_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          1.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        1.0
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        1.399999976158142,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "rh_star_sml_btn_lod1",
+      "parent": "rh_star_side_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          1.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        1.0
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        0.699999988079071,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_01/references/cockpit_original.jpg",
+      "sha256": "c35493f9d57aef5944d6b4368b35215f50ba83b03860768889e31a8305204f3e"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/pirate_art/ships/rh_freighter_pir/flight_reference.jpg",
+      "sha256": "70b9f61ccec1987d2d9663f8d9260cb468fb5a72567bf33b1407555a6b2b5549"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/pirate_art/ships/rh_freighter_pir/materials.jpg",
+      "sha256": "4a129e674bc190f8ffa20df7aecb146ae32604c6c0fb815bf9a88cf65c911d1f"
+    },
+    {
+      "path": "D:/work/ART_SHIP/RH/R - Freighter.jpg",
+      "sha256": "de4496b36e552518de6a3a3ae401bb04ded52fa538e8130edb23681583967ddb"
+    }
+  ],
+  "variants": [
+    {
+      "id": "A",
+      "title_ru": "Ступенчатый грузовой корпус",
+      "prompt": "Use case: stylized-concept. Create ONE new pirate RHEINLAND FREIGHTER design for the game Freelancer, based on the supplied installed rh_pir_freighter. This is a substantial redesign of a player cargo ship, with early-2000s Freelancer industrial design character. It is a freighter with a real large enclosed cargo volume.\n\nINPUT IMAGE ROLES AND PRIORITY:\nImage 1: THE IMMUTABLE ORIGINAL FREIGHTER COCKPIT. Reproduce this exact existing cabin module, its shape, scale and proportions. The cabin is a small low forward head: blunt faceted nose, broad sloped dark blue front glazing, continuous dark blue side glazing, the same frame divisions, flat metal brow, narrow black/yellow trim across the glazing edges, thick pale-grey metal lower chin and original underside equipment block. Preserve the complete opaque cabin shell as well as the glass. Do not invent a pointed nose, bubble canopy, bridge tower or different window arrangement. Do not add extra window bands or enlarge the cabin. Keep the cockpit in its original low forward position; redesign the surrounding structure behind its existing attachment interface. The user will reuse this exact 3D cabin.\nImage 2: current source freighter in deployed FLIGHT configuration. Use its large tall/deep freight body, modest separate forward cabin, curved raised cargo roof, strong horizontal shoulder structure, narrow connections and two chunky cylindrical aft engines as the family anchors. The central body should change substantially in this new concept. This image gives the scale of the tiny cabin relative to the heavy hull.\nImage 3: actual PIRATE exterior textures. Use aged warm pale grey/beige metal, a few dark muted burgundy/red replacement panel fields, dark recesses and restrained yellow/black equipment trim. Keep broad calm surfaces and purposeful panel hierarchy; do not convert texture grain/rust into greebles. Do not repaint the ship bright green, polished black, orange or white-red racing livery.\nImage 4: historical RH freighter form vocabulary ONLY: high freight mass, compact independent forward cabin and compact circular aft engine masses. Do not copy its different cockpit, green paint, weapons or literal panel drawing. Image 1 overrides all other references for the cabin.\n\nDESIGN INVARIANTS:\nKeep the original cabin entirely unchanged; clear Rheinland cargo-ship identity; large physically enclosed cargo volume with a plausible loading hatch; TWO cylindrical main engines at the rear; strong connected structure and complete hull surfaces. Keep bilaterally symmetric primary geometry. Reinterpret the large curved cargo-roof/arching mass and the structural shoulders intelligently. The roof is a cargo-related volume, not the exposed upright fighter disc of RH elite. Do not turn the ship into an enlarged fighter, flat jet, capital ship, locomotive, truck with wheels, or disconnected stack of random boxes.\nShow deployed FLIGHT configuration: short substantial lateral equipment/armour planes stand out on clear paired nested guide or hinge supports. They must be designed to retract/stow close against the sides at a base with real clearance, preserving solid-part dimensions. Use the source's lateral sliding mechanism as the default starting idea. Their travel space must stay clear of the cargo opening, cockpit, engine exhausts and equipment sockets. Do not draw huge thin aircraft wings, stretched solid panels, floating surfaces or geometry passing through the cargo hull. This image is a concept, not proof of the final mechanism.\nDetail the primary shapes, useful joints, recessed panels, real cutouts and inset vents. No geometric rivet fields, spiky pirate ornaments, giant skulls, dense greeble noise or rows of decorative bolt-on ribs. Weapons are separate game assets: show only a few EMPTY flush equipment pads with sockets and clearance. No built-in guns, turrets, barrels, missile racks or firing effects. Avoid uniform rounded bevels that soften the authored shape.\n\nPRESENTATION:\nA polished hand-drawn spaceship concept illustration with crisp dark graphite contours, restrained opaque marker/gouache shading, clear constructed volumes and subtle used-metal texture, like a readable Freelancer design development drawing. Single complete ship on warm off-white paper, neutral even illumination, no environment, stars, dramatic glow, motion blur or cast shadow that obscures shapes. Landscape framing. Front three-quarter view from moderately above, nose to lower right, rear to upper left. Show the whole silhouette, full tiny cockpit, both deployed lateral planes and enough of the rear engines to understand the mass. Leave comfortable white margin. One view and one ship only, no collage, no orthographic insets, no folding-state insets, no annotations or logos. Do not copy source image labels. The only text, small in the upper left, is the variant label stated below.\n\nVARIANT DESIGN:\nAn evolutionary but clearly new stepped freight hull. Shape a tall continuous cargo body with a vaulted upper loading shell, two broad angular shoulder beams and deep integrated lower side lockers. Make the original roof arch less uniform: a long upper crown meets descending stepped front armour behind the unchanged cabin. Integrate short broad lateral deployed equipment planes into the shoulder structure on nested slides. The twin rear engine cylinders remain compact and seat into a purpose-built rear cradle. The overall silhouette is cohesive and substantial, with a few large inset red armour fields and real deep joints. Avoid tracing the original box one-to-one.\nExact variant label: \"RH FREIGHTER / A\"."
+    },
+    {
+      "id": "B",
+      "title_ru": "Грузовой модуль в несущей раме",
+      "prompt": "Use case: stylized-concept. Create ONE new pirate RHEINLAND FREIGHTER design for the game Freelancer, based on the supplied installed rh_pir_freighter. This is a substantial redesign of a player cargo ship, with early-2000s Freelancer industrial design character. It is a freighter with a real large enclosed cargo volume.\n\nINPUT IMAGE ROLES AND PRIORITY:\nImage 1: THE IMMUTABLE ORIGINAL FREIGHTER COCKPIT. Reproduce this exact existing cabin module, its shape, scale and proportions. The cabin is a small low forward head: blunt faceted nose, broad sloped dark blue front glazing, continuous dark blue side glazing, the same frame divisions, flat metal brow, narrow black/yellow trim across the glazing edges, thick pale-grey metal lower chin and original underside equipment block. Preserve the complete opaque cabin shell as well as the glass. Do not invent a pointed nose, bubble canopy, bridge tower or different window arrangement. Do not add extra window bands or enlarge the cabin. Keep the cockpit in its original low forward position; redesign the surrounding structure behind its existing attachment interface. The user will reuse this exact 3D cabin.\nImage 2: current source freighter in deployed FLIGHT configuration. Use its large tall/deep freight body, modest separate forward cabin, curved raised cargo roof, strong horizontal shoulder structure, narrow connections and two chunky cylindrical aft engines as the family anchors. The central body should change substantially in this new concept. This image gives the scale of the tiny cabin relative to the heavy hull.\nImage 3: actual PIRATE exterior textures. Use aged warm pale grey/beige metal, a few dark muted burgundy/red replacement panel fields, dark recesses and restrained yellow/black equipment trim. Keep broad calm surfaces and purposeful panel hierarchy; do not convert texture grain/rust into greebles. Do not repaint the ship bright green, polished black, orange or white-red racing livery.\nImage 4: historical RH freighter form vocabulary ONLY: high freight mass, compact independent forward cabin and compact circular aft engine masses. Do not copy its different cockpit, green paint, weapons or literal panel drawing. Image 1 overrides all other references for the cabin.\n\nDESIGN INVARIANTS:\nKeep the original cabin entirely unchanged; clear Rheinland cargo-ship identity; large physically enclosed cargo volume with a plausible loading hatch; TWO cylindrical main engines at the rear; strong connected structure and complete hull surfaces. Keep bilaterally symmetric primary geometry. Reinterpret the large curved cargo-roof/arching mass and the structural shoulders intelligently. The roof is a cargo-related volume, not the exposed upright fighter disc of RH elite. Do not turn the ship into an enlarged fighter, flat jet, capital ship, locomotive, truck with wheels, or disconnected stack of random boxes.\nShow deployed FLIGHT configuration: short substantial lateral equipment/armour planes stand out on clear paired nested guide or hinge supports. They must be designed to retract/stow close against the sides at a base with real clearance, preserving solid-part dimensions. Use the source's lateral sliding mechanism as the default starting idea. Their travel space must stay clear of the cargo opening, cockpit, engine exhausts and equipment sockets. Do not draw huge thin aircraft wings, stretched solid panels, floating surfaces or geometry passing through the cargo hull. This image is a concept, not proof of the final mechanism.\nDetail the primary shapes, useful joints, recessed panels, real cutouts and inset vents. No geometric rivet fields, spiky pirate ornaments, giant skulls, dense greeble noise or rows of decorative bolt-on ribs. Weapons are separate game assets: show only a few EMPTY flush equipment pads with sockets and clearance. No built-in guns, turrets, barrels, missile racks or firing effects. Avoid uniform rounded bevels that soften the authored shape.\n\nPRESENTATION:\nA polished hand-drawn spaceship concept illustration with crisp dark graphite contours, restrained opaque marker/gouache shading, clear constructed volumes and subtle used-metal texture, like a readable Freelancer design development drawing. Single complete ship on warm off-white paper, neutral even illumination, no environment, stars, dramatic glow, motion blur or cast shadow that obscures shapes. Landscape framing. Front three-quarter view from moderately above, nose to lower right, rear to upper left. Show the whole silhouette, full tiny cockpit, both deployed lateral planes and enough of the rear engines to understand the mass. Leave comfortable white margin. One view and one ship only, no collage, no orthographic insets, no folding-state insets, no annotations or logos. Do not copy source image labels. The only text, small in the upper left, is the variant label stated below.\n\nVARIANT DESIGN:\nBuild an enclosed heavy cargo capsule inside an integrated angular longitudinal load-bearing frame. Two strong upper side bridges and a lower structural bed surround the sealed central freight volume, with large deliberate triangular or trapezoidal openings between the frame and the inset cargo shell. A raised curved central loading cover preserves the freighter family. The original small cockpit projects low from the front. Paired compact rear engine cylinders attach to the real ends of the structural bed. The deployed short side planes extend from guide carriages in the outer frame. The openings expose structure, never an empty open cargo hold. The design is one engineered assembly with few strong members, not a cage of thin pipes or an RH elite circular fighter frame.\nExact variant label: \"RH FREIGHTER / B\"."
+    },
+    {
+      "id": "C",
+      "title_ru": "Продольный дальний грузовик",
+      "prompt": "Use case: stylized-concept. Create ONE new pirate RHEINLAND FREIGHTER design for the game Freelancer, based on the supplied installed rh_pir_freighter. This is a substantial redesign of a player cargo ship, with early-2000s Freelancer industrial design character. It is a freighter with a real large enclosed cargo volume.\n\nINPUT IMAGE ROLES AND PRIORITY:\nImage 1: THE IMMUTABLE ORIGINAL FREIGHTER COCKPIT. Reproduce this exact existing cabin module, its shape, scale and proportions. The cabin is a small low forward head: blunt faceted nose, broad sloped dark blue front glazing, continuous dark blue side glazing, the same frame divisions, flat metal brow, narrow black/yellow trim across the glazing edges, thick pale-grey metal lower chin and original underside equipment block. Preserve the complete opaque cabin shell as well as the glass. Do not invent a pointed nose, bubble canopy, bridge tower or different window arrangement. Do not add extra window bands or enlarge the cabin. Keep the cockpit in its original low forward position; redesign the surrounding structure behind its existing attachment interface. The user will reuse this exact 3D cabin.\nImage 2: current source freighter in deployed FLIGHT configuration. Use its large tall/deep freight body, modest separate forward cabin, curved raised cargo roof, strong horizontal shoulder structure, narrow connections and two chunky cylindrical aft engines as the family anchors. The central body should change substantially in this new concept. This image gives the scale of the tiny cabin relative to the heavy hull.\nImage 3: actual PIRATE exterior textures. Use aged warm pale grey/beige metal, a few dark muted burgundy/red replacement panel fields, dark recesses and restrained yellow/black equipment trim. Keep broad calm surfaces and purposeful panel hierarchy; do not convert texture grain/rust into greebles. Do not repaint the ship bright green, polished black, orange or white-red racing livery.\nImage 4: historical RH freighter form vocabulary ONLY: high freight mass, compact independent forward cabin and compact circular aft engine masses. Do not copy its different cockpit, green paint, weapons or literal panel drawing. Image 1 overrides all other references for the cabin.\n\nDESIGN INVARIANTS:\nKeep the original cabin entirely unchanged; clear Rheinland cargo-ship identity; large physically enclosed cargo volume with a plausible loading hatch; TWO cylindrical main engines at the rear; strong connected structure and complete hull surfaces. Keep bilaterally symmetric primary geometry. Reinterpret the large curved cargo-roof/arching mass and the structural shoulders intelligently. The roof is a cargo-related volume, not the exposed upright fighter disc of RH elite. Do not turn the ship into an enlarged fighter, flat jet, capital ship, locomotive, truck with wheels, or disconnected stack of random boxes.\nShow deployed FLIGHT configuration: short substantial lateral equipment/armour planes stand out on clear paired nested guide or hinge supports. They must be designed to retract/stow close against the sides at a base with real clearance, preserving solid-part dimensions. Use the source's lateral sliding mechanism as the default starting idea. Their travel space must stay clear of the cargo opening, cockpit, engine exhausts and equipment sockets. Do not draw huge thin aircraft wings, stretched solid panels, floating surfaces or geometry passing through the cargo hull. This image is a concept, not proof of the final mechanism.\nDetail the primary shapes, useful joints, recessed panels, real cutouts and inset vents. No geometric rivet fields, spiky pirate ornaments, giant skulls, dense greeble noise or rows of decorative bolt-on ribs. Weapons are separate game assets: show only a few EMPTY flush equipment pads with sockets and clearance. No built-in guns, turrets, barrels, missile racks or firing effects. Avoid uniform rounded bevels that soften the authored shape.\n\nPRESENTATION:\nA polished hand-drawn spaceship concept illustration with crisp dark graphite contours, restrained opaque marker/gouache shading, clear constructed volumes and subtle used-metal texture, like a readable Freelancer design development drawing. Single complete ship on warm off-white paper, neutral even illumination, no environment, stars, dramatic glow, motion blur or cast shadow that obscures shapes. Landscape framing. Front three-quarter view from moderately above, nose to lower right, rear to upper left. Show the whole silhouette, full tiny cockpit, both deployed lateral planes and enough of the rear engines to understand the mass. Leave comfortable white margin. One view and one ship only, no collage, no orthographic insets, no folding-state insets, no annotations or logos. Do not copy source image labels. The only text, small in the upper left, is the variant label stated below.\n\nVARIANT DESIGN:\nExplore a noticeably longer freight layout behind the unchanged original cabin: two successive large enclosed cargo volumes linked into a continuous deep stepped hull. A lower forward freight shoulder transitions to a taller vaulted rear loading housing. Strong longitudinal side sills unify the silhouette, and two aft cylindrical engines sit in compact rear collars. Keep the vertical depth and sculpted arched mass of Rheinland; this must not become a flat container train. Deployed short lateral panels sit at the main shoulders with visible slide travel toward the hull. Use long calm recessed side fields and sparse red replacement panels to express a long-range pirate cargo runner.\nExact variant label: \"RH FREIGHTER / C\"."
+    },
+    {
+      "id": "D",
+      "title_ru": "Компактный бронированный грузовик",
+      "prompt": "Use case: stylized-concept. Create ONE new pirate RHEINLAND FREIGHTER design for the game Freelancer, based on the supplied installed rh_pir_freighter. This is a substantial redesign of a player cargo ship, with early-2000s Freelancer industrial design character. It is a freighter with a real large enclosed cargo volume.\n\nINPUT IMAGE ROLES AND PRIORITY:\nImage 1: THE IMMUTABLE ORIGINAL FREIGHTER COCKPIT. Reproduce this exact existing cabin module, its shape, scale and proportions. The cabin is a small low forward head: blunt faceted nose, broad sloped dark blue front glazing, continuous dark blue side glazing, the same frame divisions, flat metal brow, narrow black/yellow trim across the glazing edges, thick pale-grey metal lower chin and original underside equipment block. Preserve the complete opaque cabin shell as well as the glass. Do not invent a pointed nose, bubble canopy, bridge tower or different window arrangement. Do not add extra window bands or enlarge the cabin. Keep the cockpit in its original low forward position; redesign the surrounding structure behind its existing attachment interface. The user will reuse this exact 3D cabin.\nImage 2: current source freighter in deployed FLIGHT configuration. Use its large tall/deep freight body, modest separate forward cabin, curved raised cargo roof, strong horizontal shoulder structure, narrow connections and two chunky cylindrical aft engines as the family anchors. The central body should change substantially in this new concept. This image gives the scale of the tiny cabin relative to the heavy hull.\nImage 3: actual PIRATE exterior textures. Use aged warm pale grey/beige metal, a few dark muted burgundy/red replacement panel fields, dark recesses and restrained yellow/black equipment trim. Keep broad calm surfaces and purposeful panel hierarchy; do not convert texture grain/rust into greebles. Do not repaint the ship bright green, polished black, orange or white-red racing livery.\nImage 4: historical RH freighter form vocabulary ONLY: high freight mass, compact independent forward cabin and compact circular aft engine masses. Do not copy its different cockpit, green paint, weapons or literal panel drawing. Image 1 overrides all other references for the cabin.\n\nDESIGN INVARIANTS:\nKeep the original cabin entirely unchanged; clear Rheinland cargo-ship identity; large physically enclosed cargo volume with a plausible loading hatch; TWO cylindrical main engines at the rear; strong connected structure and complete hull surfaces. Keep bilaterally symmetric primary geometry. Reinterpret the large curved cargo-roof/arching mass and the structural shoulders intelligently. The roof is a cargo-related volume, not the exposed upright fighter disc of RH elite. Do not turn the ship into an enlarged fighter, flat jet, capital ship, locomotive, truck with wheels, or disconnected stack of random boxes.\nShow deployed FLIGHT configuration: short substantial lateral equipment/armour planes stand out on clear paired nested guide or hinge supports. They must be designed to retract/stow close against the sides at a base with real clearance, preserving solid-part dimensions. Use the source's lateral sliding mechanism as the default starting idea. Their travel space must stay clear of the cargo opening, cockpit, engine exhausts and equipment sockets. Do not draw huge thin aircraft wings, stretched solid panels, floating surfaces or geometry passing through the cargo hull. This image is a concept, not proof of the final mechanism.\nDetail the primary shapes, useful joints, recessed panels, real cutouts and inset vents. No geometric rivet fields, spiky pirate ornaments, giant skulls, dense greeble noise or rows of decorative bolt-on ribs. Weapons are separate game assets: show only a few EMPTY flush equipment pads with sockets and clearance. No built-in guns, turrets, barrels, missile racks or firing effects. Avoid uniform rounded bevels that soften the authored shape.\n\nPRESENTATION:\nA polished hand-drawn spaceship concept illustration with crisp dark graphite contours, restrained opaque marker/gouache shading, clear constructed volumes and subtle used-metal texture, like a readable Freelancer design development drawing. Single complete ship on warm off-white paper, neutral even illumination, no environment, stars, dramatic glow, motion blur or cast shadow that obscures shapes. Landscape framing. Front three-quarter view from moderately above, nose to lower right, rear to upper left. Show the whole silhouette, full tiny cockpit, both deployed lateral planes and enough of the rear engines to understand the mass. Leave comfortable white margin. One view and one ship only, no collage, no orthographic insets, no folding-state insets, no annotations or logos. Do not copy source image labels. The only text, small in the upper left, is the variant label stated below.\n\nVARIANT DESIGN:\nExplore a shorter, broader and deeper freight body. Preserve a visibly small original cockpit and a large usable hold by concentrating the hull into a tall compact vault between two heavy shaped shoulder buttresses. The cargo roof is an angular-sided arch with a broad curved crown; the lower body is a connected armoured wedge with inset cargo/service panels. Recess the twin rear engine collars into a solid rear structure. Short deployed side equipment planes project on robust paired slides below the shoulder line, with an obvious clear route to stow. Armour comes from big coherent volumes and deep recesses, never extra guns or stacked decorative plates. Keep this unmistakably a freight ship rather than a bulky combat fighter.\nExact variant label: \"RH FREIGHTER / D\"."
+    },
+    {
+      "id": "E",
+      "title_ru": "Два грузовых борта и центральный хребет",
+      "prompt": "Use case: stylized-concept. Create ONE new pirate RHEINLAND FREIGHTER design for the game Freelancer, based on the supplied installed rh_pir_freighter. This is a substantial redesign of a player cargo ship, with early-2000s Freelancer industrial design character. It is a freighter with a real large enclosed cargo volume.\n\nINPUT IMAGE ROLES AND PRIORITY:\nImage 1: THE IMMUTABLE ORIGINAL FREIGHTER COCKPIT. Reproduce this exact existing cabin module, its shape, scale and proportions. The cabin is a small low forward head: blunt faceted nose, broad sloped dark blue front glazing, continuous dark blue side glazing, the same frame divisions, flat metal brow, narrow black/yellow trim across the glazing edges, thick pale-grey metal lower chin and original underside equipment block. Preserve the complete opaque cabin shell as well as the glass. Do not invent a pointed nose, bubble canopy, bridge tower or different window arrangement. Do not add extra window bands or enlarge the cabin. Keep the cockpit in its original low forward position; redesign the surrounding structure behind its existing attachment interface. The user will reuse this exact 3D cabin.\nImage 2: current source freighter in deployed FLIGHT configuration. Use its large tall/deep freight body, modest separate forward cabin, curved raised cargo roof, strong horizontal shoulder structure, narrow connections and two chunky cylindrical aft engines as the family anchors. The central body should change substantially in this new concept. This image gives the scale of the tiny cabin relative to the heavy hull.\nImage 3: actual PIRATE exterior textures. Use aged warm pale grey/beige metal, a few dark muted burgundy/red replacement panel fields, dark recesses and restrained yellow/black equipment trim. Keep broad calm surfaces and purposeful panel hierarchy; do not convert texture grain/rust into greebles. Do not repaint the ship bright green, polished black, orange or white-red racing livery.\nImage 4: historical RH freighter form vocabulary ONLY: high freight mass, compact independent forward cabin and compact circular aft engine masses. Do not copy its different cockpit, green paint, weapons or literal panel drawing. Image 1 overrides all other references for the cabin.\n\nDESIGN INVARIANTS:\nKeep the original cabin entirely unchanged; clear Rheinland cargo-ship identity; large physically enclosed cargo volume with a plausible loading hatch; TWO cylindrical main engines at the rear; strong connected structure and complete hull surfaces. Keep bilaterally symmetric primary geometry. Reinterpret the large curved cargo-roof/arching mass and the structural shoulders intelligently. The roof is a cargo-related volume, not the exposed upright fighter disc of RH elite. Do not turn the ship into an enlarged fighter, flat jet, capital ship, locomotive, truck with wheels, or disconnected stack of random boxes.\nShow deployed FLIGHT configuration: short substantial lateral equipment/armour planes stand out on clear paired nested guide or hinge supports. They must be designed to retract/stow close against the sides at a base with real clearance, preserving solid-part dimensions. Use the source's lateral sliding mechanism as the default starting idea. Their travel space must stay clear of the cargo opening, cockpit, engine exhausts and equipment sockets. Do not draw huge thin aircraft wings, stretched solid panels, floating surfaces or geometry passing through the cargo hull. This image is a concept, not proof of the final mechanism.\nDetail the primary shapes, useful joints, recessed panels, real cutouts and inset vents. No geometric rivet fields, spiky pirate ornaments, giant skulls, dense greeble noise or rows of decorative bolt-on ribs. Weapons are separate game assets: show only a few EMPTY flush equipment pads with sockets and clearance. No built-in guns, turrets, barrels, missile racks or firing effects. Avoid uniform rounded bevels that soften the authored shape.\n\nPRESENTATION:\nA polished hand-drawn spaceship concept illustration with crisp dark graphite contours, restrained opaque marker/gouache shading, clear constructed volumes and subtle used-metal texture, like a readable Freelancer design development drawing. Single complete ship on warm off-white paper, neutral even illumination, no environment, stars, dramatic glow, motion blur or cast shadow that obscures shapes. Landscape framing. Front three-quarter view from moderately above, nose to lower right, rear to upper left. Show the whole silhouette, full tiny cockpit, both deployed lateral planes and enough of the rear engines to understand the mass. Leave comfortable white margin. One view and one ship only, no collage, no orthographic insets, no folding-state insets, no annotations or logos. Do not copy source image labels. The only text, small in the upper left, is the variant label stated below.\n\nVARIANT DESIGN:\nExplore a bolder split freight architecture around a strong central longitudinal keel: two substantial sealed side cargo housings form the lower hull, linked structurally by a high continuous arched dorsal loading bridge. Leave clear deep recessed channels between the side housings and the raised bridge; they reveal the composition without opening the hold to space. The unchanged small original cockpit stays at the low front of the central keel. Two cylindrical rear engines align with the aft structural shoulders. Compact deployed lateral planes ride in reinforced guides along the outer shoulders and can withdraw against the hull. The result has an unmistakable tall Rheinland freight profile, authored curved and angular transitions, and large readable negative spaces, not two disconnected containers or a wide airplane.\nExact variant label: \"RH FREIGHTER / E\"."
+    }
+  ]
+}

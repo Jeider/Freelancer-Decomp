@@ -124,11 +124,8 @@ namespace
                     (ChoiceIndex < 0 ? "_l001_vendor.wav" : "_l001_player.wav");
                 return GetFileAttributesA(Audio.c_str()) != INVALID_FILE_ATTRIBUTES;
             };
-            if ((GetFileAttributesA(Full.c_str()) == INVALID_FILE_ATTRIBUTES || !AudioExists(Language.c_str())) && Language != "en") {
-                Language = "en";
-                File = "SCRIPTS\\RPG\\" + SceneGroup + "\\en\\" + Id + ".thn";
-                Full = std::string(PortExeDirectory()) + "..\\DATA\\" + File;
-            }
+            // A missing localized scene stays a text dialogue. Never substitute
+            // another language's performance for the selected voice-over.
             if (GetFileAttributesA(Full.c_str()) == INVALID_FILE_ATTRIBUTES || !AudioExists(Language.c_str())) return false;
             unsigned const Role = ChoiceIndex < 0 ? 0 : 1;
             if (!RoomControlPlayerCharacter(Owner->Room) ||

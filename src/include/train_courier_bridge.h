@@ -4,7 +4,7 @@
 namespace TrainCourier {
 // Private in-process SP bridge. No raw pointers cross the boundary. Every
 // operation validates the player and object ownership on the server.
-enum class Operation : unsigned { Query, Register, Retire, Release, Transfer, ClearTransfer, SuspendCargo, ResumeCargo, Snapshot, Restore, LaunchSolar, IsParkedSolar, ParkedSolar };
+enum class Operation : unsigned { Query, Register, Retire, Release, Transfer, ClearTransfer, SuspendCargo, ResumeCargo, Snapshot, Restore, LaunchSolar, IsParkedSolar, ParkedSolar, PrepareEvacuation, RecoverableSolar };
 struct CargoSnapshot {
     enum { MaxEquipment=128, MaxGroups=64 };
     struct Equipment {unsigned arch=0;int count=0;float health=0;unsigned mounted=0;char hardpoint[64]{};};

@@ -5,19 +5,31 @@
 #include <d3dx9.h>
 #include <cstdio>
 #include <cstdlib>
+#include <cstdarg>
+#include <crtdbg.h>
 #include <algorithm>
 #include <vector>
 static void R(bool ok,const char* m){if(!ok){printf("FAIL: %s\n",m);exit(3);}}
 static void C(HRESULT h){if(FAILED(h)){printf("HRESULT %08lx\n",h);exit(2);}}
+static void __cdecl QuietDump(int,const char* format,...){
+ FILE* f=nullptr;fopen_s(&f,"src/obj/room_materials/gpu_diagnostics.log","a");if(!f)return;
+ va_list args;va_start(args,format);vfprintf(f,format,args);va_end(args);fputc('\n',f);fclose(f);
+}
 struct Handle{IDirect3DTexture9* Texture=nullptr;unsigned long Extra=0;};
+#include "check_cache.h"
 int main(){
  setvbuf(stdout,nullptr,_IONBF,0);SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX|SEM_NOOPENFILEERRORBOX);
+ FDUMP=&QuietDump;_set_abort_behavior(0,_WRITE_ABORT_MSG|_CALL_REPORTFAULT);
+ _CrtSetReportMode(_CRT_WARN,_CRTDBG_MODE_FILE);_CrtSetReportFile(_CRT_WARN,_CRTDBG_FILE_STDERR);
+ _CrtSetReportMode(_CRT_ERROR,_CRTDBG_MODE_FILE);_CrtSetReportFile(_CRT_ERROR,_CRTDBG_FILE_STDERR);
+ _CrtSetReportMode(_CRT_ASSERT,_CRTDBG_MODE_FILE);_CrtSetReportFile(_CRT_ASSERT,_CRTDBG_FILE_STDERR);
  HWND w=CreateWindowA("STATIC","room fixture",WS_POPUP,0,0,64,64,0,0,GetModuleHandle(0),0);
  auto*a=Direct3DCreate9(D3D_SDK_VERSION);IDirect3DDevice9*d=nullptr;
  D3DPRESENT_PARAMETERS pp={};pp.Windowed=1;pp.SwapEffect=D3DSWAPEFFECT_DISCARD;pp.BackBufferWidth=pp.BackBufferHeight=64;pp.BackBufferFormat=D3DFMT_A8R8G8B8;
  C(a->CreateDevice(0,D3DDEVTYPE_HAL,w,D3DCREATE_HARDWARE_VERTEXPROCESSING,&pp,&d));
  auto*p=new FDirectX9();p->Outer_=&p->Inner_;p->Device_=d;p->DeviceReady_=1;auto*e=p->Ex_;
  e->bSurfaceConfigRead=true;e->bSurfaceEnabled=false;e->bRoomRead=true;
+ CheckRoomCache(p,d);
  D3DXMATRIX id;D3DXMatrixIdentity(&id);
  memcpy(p->Transforms_.World.Values,&id,64);memcpy(p->Transforms_.View.Values,&id,64);memcpy(p->Transforms_.Projection.Values,&id,64);
  d->SetTransform(D3DTS_WORLD,&id);d->SetTransform(D3DTS_VIEW,&id);d->SetTransform(D3DTS_PROJECTION,&id);
@@ -49,6 +61,24 @@ int main(){
  auto delta=[&](std::vector<DWORD>const&a,std::vector<DWORD>const&b){unsigned max=0;for(size_t i=0;i<a.size();++i)for(int j=0;j<4;++j)max=(std::max)(max,(unsigned)abs(int((a[i]>>(j*8))&255)-int((b[i]>>(j*8))&255)));return max;};
  auto native=render(false,q,sizeof(V)),modern=render(true,q,sizeof(V));unsigned diff=delta(native,modern);printf("Single-stage baseline delta %u; native %08lx room %08lx\n",diff,native[2080],modern[2080]);R(diff<=2,"native diffuse/emission/alpha baseline");
  // Exercise both real RP9 light submission paths and read back the D3D state.
+ // Ambient-only lamps must not illuminate characters outside their range/cone.
+ // This catches a native face / shader hair mismatch without launching the game.
+ {
+  V patch[4];for(unsigned i=0;i<4;++i){patch[i]=q[i];patch[i].x*=.01f;patch[i].y*=.01f;}
+  D3DLIGHT9 ambientOnly={};ambientOnly.Type=D3DLIGHT_POINT;ambientOnly.Position={0,0,-2};
+  ambientOnly.Ambient={.5f,.4f,.3f,1};ambientOnly.Attenuation0=1;ambientOnly.Range=.5f;
+  for(unsigned test=0;test<4;++test){
+   auto lamp=ambientOnly;
+   if(test==1){lamp.Range=10;lamp.Attenuation0=4;}
+   if(test==2){lamp.Type=D3DLIGHT_SPOT;lamp.Range=10;lamp.Position.x=1;lamp.Direction={0,0,1};lamp.Theta=.1f;lamp.Phi=.2f;lamp.Falloff=1;}
+   if(test==3){lamp.Type=D3DLIGHT_DIRECTIONAL;lamp.Direction={0,0,1};}
+   C(p->SetLight(nullptr,&lamp));C(p->LightManager_.Flush(d));
+   auto a=render(false,patch,sizeof(V)),b=render(true,patch,sizeof(V));
+   printf("Ambient probe %u native=%08lx shader=%08lx delta=%u\n",test,a[2080],b[2080],delta(a,b));
+   R(delta(a,b)<=2,"per-light ambient matches native range/attenuation/cone/directional");
+  }
+  C(p->SetLight(nullptr,&light));C(p->LightManager_.Flush(d));
+ }
  // Sources must stay authored; repeated updates must never narrow the cone again.
  D3DLIGHT9 spot={};spot.Type=D3DLIGHT_SPOT;spot.Position={0,0,-.5f};spot.Direction={0,0,1};
  spot.Diffuse={.6f,.5f,.4f,1};spot.Range=100;spot.Attenuation0=1;spot.Falloff=1;spot.Theta=.7f;spot.Phi=1.2f;
@@ -130,6 +160,23 @@ int main(){
  auto maxHighlight=render(true,q,sizeof(V));
  R((maxHighlight[2080]&255)>(mildHighlight[2080]&255),"maximum clothing increases highlights");
  profile.Skin=-1;profile.Specular=0;
+ // N_CITY rigid architecture, including the native emissive second stage.
+ C(p->SetRoomBase("co_och_01_base"));
+ for(auto name:{"the_n_city","n_city2"}){
+  std::string tex=std::string(name)+".tga";C(p->SetRoomMaterial(name,tex.c_str()));
+  R(e->RoomCurrent && e->RoomFinish==7.f,"N_CITY exact architecture profile");
+  tss(1,D3DTSS_COLOROP,D3DTOP_ADD);
+  auto city=render(true,q,sizeof(V));
+  R(e->RoomCurrent->Texture!=nullptr,"N_CITY normal map loads on GPU");
+  R(city[2080]!=0xff000000,"N_CITY emissive two-stage shader draws");
+ }
+ C(p->SetRoomMaterial("the_n_city","wrong.tga"));R(!e->RoomCurrent,"N_CITY texture guard");
+ C(p->SetRoomBase("li01_01_base"));C(p->SetRoomMaterial("the_n_city","the_n_city.tga"));
+ R(!e->RoomCurrent && e->RoomFinish==0,"N_CITY finish cannot leak to another base after visit");
+ C(p->SetRoomBase("co_och_01_base"));C(p->SetRoomMaterial("the_land","nomad_land_v2_1"));
+ R(e->RoomFinish!=7.f,"N_CITY terrain excluded from architecture finish");
+ C(p->SetRoomBase(""));C(p->SetRoomMaterial("fixture","base"));tss(1,D3DTSS_COLOROP,D3DTOP_MODULATE2X);
+ puts("PASS: N_CITY architecture, emissive stage, maps and base isolation");
  // Existing indexed palette: four weights, identity transforms then translated bone 1.
  profile.Skin=-.25f; // Animated clothing, not the rigid environment profile.
  struct SV{float x,y,z,w0,w1,w2;DWORD bones;float nx,ny,nz,u,v,u1,v1;};SV sq[4];
@@ -138,6 +185,39 @@ int main(){
  fvf=D3DFVF_XYZB4|D3DFVF_LASTBETA_UBYTE4|D3DFVF_NORMAL|D3DFVF_TEX2;p->StreamCache_.Fvf=fvf;C(d->SetFVF(fvf));
  rs(D3DRS_INDEXEDVERTEXBLENDENABLE,1);rs(D3DRS_VERTEXBLEND,D3DVBF_3WEIGHTS);
  auto skinned=render(true,sq,sizeof(SV));R(skinned[32*64+57]!=0xff000000 && skinned[32*64+10]==0xff000000,"skinned palette translation preserved");
+ // Same shared material at near/fade/far quality. No profile/cache mutation.
+ IRPCharacterQuality* quality=nullptr;
+ R(p->QueryInterface(Iids::RPCharacterQuality,(void**)&quality)>=0 && quality,"optional character quality interface");
+ R(quality->CharacterQualityPass()==1,"room colour quality scope");
+ auto* qualityProfile=e->RoomCurrent;auto* qualityMap=qualityProfile->Texture;
+ float oldStrength=quality->SetCharacterQuality(.5f);R(oldStrength==1,"initial quality strength");
+ auto halfQuality=render(true,sq,sizeof(SV));
+ for(size_t i=0;i<halfQuality.size();++i)R((halfQuality[i]>>24)==(skinned[i]>>24),"dynamic palette alpha preserved");
+ float constants[4];C(d->BeginScene());R(p->ExRoomMaterialBegin(),"fade shader route");
+ C(d->GetPixelShaderConstantF(63,constants,1));R(constants[0]==.5f,"draw-local strength uploaded");p->ExSurfaceEnd();C(d->EndScene());
+ quality->SetCharacterQuality(0);
+ DWORD depthWrite=0;C(d->GetRenderState(D3DRS_ZWRITEENABLE,&depthWrite));
+ R(!p->ExSurfaceBegin(),"far character fully bypasses custom shaders");
+ DWORD depthAfter=0;C(d->GetRenderState(D3DRS_ZWRITEENABLE,&depthAfter));R(depthWrite==depthAfter,"native depth writes preserved");
+ R(e->RoomCurrent==qualityProfile && qualityProfile->Texture==qualityMap,"far actor preserves shared profile and warmed map");
+ quality->SetCharacterQuality(oldStrength);auto nearAgain=render(true,sq,sizeof(SV));
+ R(nearAgain==skinned,"near actor after far actor is bit-exact");
+ quality->Release();
+ C(p->SetRoomMaterial("alien_nomad_body","alien_nomad_body.tga"));
+ R(e->RoomCurrent && e->RoomFinish==6.f,"Nomad exact material selects alien route");
+ e->bRoomBrick=true;
+ auto alienSkin=render(true,sq,sizeof(SV));
+ R(e->RoomCurrent->Texture!=nullptr,"Nomad authored surface map loaded");
+ p->SetCharacterQuality(0);R(!p->ExSurfaceBegin(),"far alien keeps native route");p->SetCharacterQuality(1);
+ R(alienSkin[32*64+57]!=0xff000000 && alienSkin[32*64+10]==0xff000000,"Nomad preserves indexed skinning in masonry rooms");
+ rs(D3DRS_ALPHABLENDENABLE,1);
+ R(p->ExRoomMaterialBegin(),"Nomad accepts native DFM alpha blend");p->ExSurfaceEnd();
+ rs(D3DRS_ALPHABLENDENABLE,0);e->bRoomBrick=false;
+ C(p->SetRoomMaterial("alien_nomad_body","wrong.tga"));
+ R(e->RoomFinish!=6.f,"Nomad requires exact atlas; no alien finish leakage");
+ C(p->SetRoomMaterialFrame(0));C(p->SetRoomMaterial("alien_nomad_body","alien_nomad_body.tga"));
+ R(!p->ExRoomMaterialBegin(),"Nomad effect excluded outside room scope");C(p->SetRoomMaterialFrame(1));
+ puts("PASS: Nomad map, palette, alpha, material isolation and room scope");
  C(p->SetRoomMaterial("hatcher_hair_v1","hatcher_hair_v1.tga"));
  R(e->RoomCurrent && e->RoomFinish==5.4f,"dedicated hair selected without face profile");
  e->bRoomBrick=true;
@@ -147,6 +227,15 @@ int main(){
  rs(D3DRS_INDEXEDVERTEXBLENDENABLE,0);rs(D3DRS_VERTEXBLEND,D3DVBF_DISABLE);p->StreamCache_.Fvf=D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_TEX2;C(d->SetFVF(p->StreamCache_.Fvf));
  V hairQ[4];for(int i=0;i<4;++i){hairQ[i]=q[i];hairQ[i].u*=.025f;hairQ[i].v*=.025f;}
  auto hairLit=render(true,hairQ,sizeof(V));
+ p->SetCharacterQuality(.5f);auto halfHair=render(true,hairQ,sizeof(V));
+ p->SetCharacterQuality(.001f);auto almostNativeHair=render(true,hairQ,sizeof(V));
+ p->SetCharacterQuality(0);R(!p->ExSurfaceBegin(),"far CPU-skinned hair bypasses effects");
+ auto nativeHair=render(false,hairQ,sizeof(V));p->SetCharacterQuality(1);
+ unsigned fadeDelta=delta(almostNativeHair,nativeHair);printf("Character fade-to-native delta %u\n",fadeDelta);
+ R(fadeDelta<=3,"effect fade approaches native material without alpha/depth change");
+ for(size_t i=0;i<halfHair.size();++i)R((halfHair[i]>>24)==(hairLit[i]>>24),"CPU hair fade preserves alpha");
+ R(delta(halfHair,hairLit)>0,"middle strength changes pixels");
+ auto hairNearAgain=render(true,hairQ,sizeof(V));R(hairNearAgain==hairLit,"hair scope restoration exact");
  e->RoomFinish=0;auto hairPlain=render(true,hairQ,sizeof(V));e->RoomFinish=5.4f;
  R(delta(hairLit,hairPlain)>2,"hair shader changes real GPU pixels");
  for(size_t i=0;i<hairLit.size();++i)R((hairLit[i]>>24)==(hairPlain[i]>>24),"hair preserves alpha");
@@ -340,6 +429,10 @@ int main(){
  auto headPixels=silhouette(true,false,false,false,true);
  auto bodyPixels=silhouette(true,false,false,false,true,true);
  R(bodyPixels>headPixels+20,"separate skinned body expands shadow beyond head");
+ p->SetCharacterQuality(0);
+ auto farBodyShadow=silhouette(true,false,false,false,true,true);
+ R(farBodyShadow==bodyPixels,"far character keeps full silhouette shadow coverage");
+ p->SetCharacterQuality(1);
  silhouette(false,false,true,false,true); // real DFM path: CPU-skinned XYZ + alpha blend
  silhouette(false,false,true,true,true); // same with precomposed modelview
  silhouette(false,false,true,false,true,false,true); // alpha holes remain clear

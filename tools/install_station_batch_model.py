@@ -70,7 +70,7 @@ def main():
     size=sum(len(raw) for name,raw in before.items() if raw is not None and name not in aliases)
     print('PASS: install validation;',len(payload),'files; one rollback set',round(size/1048576,2),'MiB',flush=True)
     if not args.apply:return
-    rollback=m.REPO/'out/station_batch/rollback';rollback.mkdir(parents=True,exist_ok=True)
+    rollback=m.REPO/'out/stations/station_batch/rollback';rollback.mkdir(parents=True,exist_ok=True)
     transaction=rollback/'transaction.json'
     records=json.loads(transaction.read_text()) if transaction.exists() else {}
     previous_records=dict(records)

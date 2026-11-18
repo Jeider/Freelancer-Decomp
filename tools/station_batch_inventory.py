@@ -4,7 +4,7 @@ from collections import defaultdict
 import valensia_mega as m
 from check_valensia_mega import templates
 
-OUT=m.REPO/'out/station_batch'
+OUT=m.REPO/'out/stations/station_batch'
 
 def inventory():
     py=m.GAME/'Assets/Pythonlancer'

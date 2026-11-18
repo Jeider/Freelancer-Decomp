@@ -5,7 +5,7 @@ import valensia_mega as m
 from check_valensia_mega import templates
 from sync_story_dev import generator_static,semantic,split_dev
 
-out=m.REPO/'out/station_batch';latest={};rows=[];failures=[]
+out=m.REPO/'out/stations/station_batch';latest={};rows=[];failures=[]
 for path in sorted(out.glob('*/installed.json'),key=lambda p:p.stat().st_mtime_ns):
     installed=json.loads(path.read_text());latest.update(installed['hashes'])
     manifest_path=path.parent/'manifest.json';manifest=json.loads(manifest_path.read_text());config=manifest['config']

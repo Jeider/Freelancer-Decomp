@@ -141,6 +141,13 @@ GENRESULT DACOM_API FDirectX9::SetRoomBase(char const* Nickname)
     if (!E)
         return GR_GENERIC;
     std::string Raw = Nickname != nullptr ? LowerString(Nickname) : std::string();
+    if (E->bRoomBaseRead && E->RoomBaseInput == Raw)
+    {
+        E->bRoomBrick = E->bRoomBaseBrick;
+        return GR_OK;
+    }
+    E->bRoomBaseRead = true;
+    E->RoomBaseInput = Raw;
     std::string RoomFile;
     size_t Sep = Raw.find('|');
     if (Sep != std::string::npos)
@@ -191,6 +198,7 @@ GENRESULT DACOM_API FDirectX9::SetRoomBase(char const* Nickname)
             }
         }
     }
+    E->bRoomBaseBrick = E->bRoomBrick;
     {
         char LogPath[MAX_PATH] = {};
         if (GetEnvironmentVariableA("LOCALAPPDATA", LogPath, MAX_PATH))
@@ -206,17 +214,14 @@ GENRESULT DACOM_API FDirectX9::SetRoomBase(char const* Nickname)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FDirectX9::SetRoomMaterialFrame(unsigned long Enabled)
+void FDirectX9::ExRoomMaterialRead()
 {
-    auto* E = Ex_; if (!E) return GR_GENERIC;
-    ExFlushSurfaceInstances(); ExSurfaceEnd(); ExSurfaceRelease();
-    E->RoomCurrent = nullptr; E->bRoomFrame = Enabled != 0; if (!Enabled) E->bRoomProp = false;
-    if (!Enabled && Device_) Rp9SetTexture(Device_,14,nullptr);
-    if (Enabled && !E->bRoomRead)
+    auto* E = Ex_; if (!E) return;
+    if (!E->bRoomRead)
     {
         E->bRoomRead = true;
         E->bRoomEnabled = ReadShadowSetting("room_materials", 1, 0, 1) > .5f;
-        if (!E->bRoomEnabled) return GR_OK;
+        if (!E->bRoomEnabled) return;
         FILE* File = fopen(RoomDataPath("profiles.txt").c_str(), "rb");
         if (File)
         {
@@ -254,11 +259,22 @@ GENRESULT DACOM_API FDirectX9::SetRoomMaterialFrame(unsigned long Enabled)
         ExLogf(kExFdumpNotice, "NOTICE", __LINE__, "room finishes: %u rules",
             (unsigned)GRoomFinishRules.size());
     }
+}
+
+GENRESULT DACOM_API FDirectX9::SetRoomMaterialFrame(unsigned long Enabled)
+{
+    auto* E = Ex_; if (!E) return GR_GENERIC;
+    ExFlushSurfaceInstances(); ExSurfaceEnd(); ExSurfaceRelease();
+    E->RoomCurrent = nullptr; E->bRoomFrame = Enabled != 0; if (!Enabled) E->bRoomProp = false;
+    if (!Enabled && Device_) Rp9SetTexture(Device_,14,nullptr);
+    if (Enabled) ExRoomMaterialRead();
     if (Enabled)
     {
         E->bRoomPaletteUnsupported = false;
         ++E->RoomFrame;
-        if ((E->RoomFrame % 120) == 0)
+        // Older clients retain their bounded frame cache. A visit owns all its maps,
+        // including characters outside the camera, until its last room is destroyed.
+        if (E->RoomCacheOwners.empty() && (E->RoomFrame % 120) == 0)
             for (auto& Item : E->RoomProfiles)
                 if (Item.second.Texture && E->RoomFrame - Item.second.LastFrame > 120)
                 { Item.second.Texture->Release(); Item.second.Texture = nullptr; Item.second.Tried = false; }
@@ -345,6 +361,29 @@ GENRESULT DACOM_API FDirectX9::SetRoomMaterial(const char* Name, const char* Tex
         if(Found!=Profiles.end()) E->ShipNormalCurrent=Found->second;
     }
     if (!E->bRoomFrame || !E->bRoomEnabled || !Name) return GR_OK;
+    // N_CITY architecture on the user's Nomad test base; no shared terrain,
+    // smoke or unrelated bases inherit this finish.
+    if (E->RoomBase=="co_och_01_base" && Texture &&
+        ((_stricmp(Name,"the_n_city")==0 && _stricmp(Texture,"the_n_city.tga")==0) ||
+         (_stricmp(Name,"n_city2")==0 && _stricmp(Texture,"n_city2.tga")==0)))
+    {
+        const std::string Key=LowerString(Name);
+        auto& City=E->RoomProfiles[Key+"|"+LowerString(Texture)];
+        if(City.Map.empty()){City.Map="nomad_city_"+Key+".png";City.Tried=false;}
+        City.Normal=.65f;City.Roughness=.36f;City.Specular=.85f;City.Skin=0;
+        E->RoomCurrent=&City;E->RoomFinish=7.f;return GR_OK;
+    }
+    if(_stricmp(Name,"the_n_city")==0 || _stricmp(Name,"n_city2")==0)
+    { E->RoomFinish=0;return GR_OK; }
+    // This atlas belongs only to the integrated Nomad body, never human skin.
+    if (Texture && _stricmp(Name,"alien_nomad_body")==0 && _stricmp(Texture,"alien_nomad_body.tga")==0)
+    {
+        auto& Alien=E->RoomProfiles["alien_nomad_body|alien_nomad_body.tga"];
+        if (Alien.Map.empty()) { Alien.Map="alien_nomad_surface.png"; Alien.Tried=false; }
+        Alien.Normal=.65f; Alien.Roughness=.36f; Alien.Specular=.85f; Alien.Skin=0;
+        E->RoomCurrent=&Alien; E->RoomFinish=6.f;
+        return GR_OK;
+    }
     // Exact authored hair-only groups; never activate on a shared face atlas.
     if (Texture && (_strnicmp(Name,"short_hair_",11)==0 ||
                     _strnicmp(Name,"hero_hair_",10)==0 ||
@@ -468,6 +507,119 @@ void FDirectX9::ExRoomMaterialRelease()
     if (E->RoomAoPs) E->RoomAoPs->Release(); E->RoomAoPs = nullptr;
     E->bRoomAoFailed = false;
     E->RoomCurrent = nullptr; E->bRoomFrame = E->bRoomFailed = false;
+    E->RoomPreloadedMaterials.clear();
+}
+
+GENRESULT DACOM_API FDirectX9::BeginRoomMaterialCache(void* Owner, const char* Base)
+{
+    auto* E = Ex_;
+    if (!E || !Owner) return GR_GENERIC;
+    E->RoomCacheOwners[Owner] = Base ? LowerString(Base) : std::string();
+    ExRoomMaterialRead();
+    return GR_OK;
+}
+
+GENRESULT DACOM_API FDirectX9::EndRoomMaterialCache(void* Owner)
+{
+    auto* E = Ex_; if (!E) return GR_GENERIC;
+    if (!E->RoomCacheOwners.erase(Owner) || !E->RoomCacheOwners.empty()) return GR_OK;
+    // Keep compiled shaders; release textures and failed-load entries for the next visit.
+    for (auto& Item : E->RoomProfiles)
+    {
+        if (Item.second.Texture) Item.second.Texture->Release();
+        Item.second.Texture = nullptr; Item.second.Tried = false;
+    }
+    E->RoomPreloadedMaterials.clear();
+    E->bRoomBaseRead = false;
+    return GR_OK;
+}
+
+bool FDirectX9::ExRoomMaterialPrepare(bool Skin)
+{
+    auto* E = Ex_;
+    if (!E || !Device_ || E->bRoomFailed) return false;
+    if (!E->RoomVs || !E->RoomPs)
+        if (!ExCompileShaderPair("room_material.hlsl", &E->RoomVs, &E->RoomPs, "VSMain", "PSMain"))
+        { E->bRoomFailed = true; return false; }
+    if (Skin && !E->RoomSkinVs)
+    {
+        IDirect3DPixelShader9* Ps = nullptr;
+        bool Ok = ExCompileShaderPair("room_material.hlsl", &E->RoomSkinVs, &Ps, "VSSkin", "PSMain");
+        if (Ps) Ps->Release();
+        if (!Ok) return false;
+    }
+    return true;
+}
+
+void FDirectX9::ExRoomMaterialLoad()
+{
+    auto* E = Ex_;
+    if (!E || !Device_ || !E->RoomCurrent) return;
+    auto& P = *E->RoomCurrent;
+    P.LastFrame = E->RoomFrame;
+    if (P.Tried || P.Map.empty()) return;
+    // Different authored material names may use the same generated map.
+    for (auto& Item : E->RoomProfiles)
+        if (&Item.second != &P && Item.second.Tried && Item.second.Map == P.Map)
+        {
+            P.Tried = true; P.Texture = Item.second.Texture;
+            if (P.Texture) P.Texture->AddRef();
+            return;
+        }
+    RuntimeHitchScope Hitch("room_texture", P.Map.c_str());
+    P.Tried = true;
+    ++E->RoomTextureLoads;
+    D3DXCreateTextureFromFileExA(Device_, RoomDataPath(P.Map.c_str()).c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
+        D3DX_DEFAULT, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_FILTER_NONE, 0, nullptr, nullptr, &P.Texture);
+    if (P.Texture) P.Texture->PreLoad();
+    else ExLogf(kExFdumpWarning,"WARNING",__LINE__,"room map unavailable: %s; native material retained",P.Map.c_str());
+}
+
+GENRESULT DACOM_API FDirectX9::PreloadRoomMaterial(const char* Name, const char* Texture)
+{
+    auto* E = Ex_;
+    if (!E || !Device_ || !Name || !Texture || !E->bRoomEnabled || E->RoomCacheOwners.empty()) return GR_OK;
+    // Selection is shared with rendering, but loading must not alter the active draw.
+    const auto Current = E->RoomCurrent;
+    const auto ShipCurrent = E->ShipNormalCurrent;
+    const auto Fallback = E->PropFallback;
+    const auto Base = E->RoomBase, Detail = E->RoomDetail;
+    const float Finish = E->RoomFinish;
+    const bool Frame = E->bRoomFrame, Prop = E->bRoomProp, Brick = E->bRoomBrick;
+    const bool BrickDraw = E->bRoomBrickDraw, Masonry = E->bRoomMasonry, Breton = E->bRoomBretonRelief;
+    E->bRoomFrame = true; E->bRoomProp = false;
+    for (const auto& Owner : E->RoomCacheOwners)
+    {
+        const std::string Key = Owner.second + "|" + LowerString(std::string(Name) + "|" + Texture);
+        if (!E->RoomPreloadedMaterials.insert(Key).second) continue;
+        E->RoomBase = Owner.second; E->bRoomBrick = false;
+        SetRoomMaterial(Name, Texture);
+        if (E->RoomCurrent && E->RoomCurrent->Skin <= .5f)
+        {
+            ExRoomMaterialPrepare(true);
+            ExRoomMaterialLoad();
+        }
+    }
+    E->RoomCurrent = Current; E->ShipNormalCurrent = ShipCurrent; E->PropFallback = Fallback;
+    E->RoomBase = Base; E->RoomDetail = Detail; E->RoomFinish = Finish;
+    E->bRoomFrame = Frame; E->bRoomProp = Prop; E->bRoomBrick = Brick;
+    E->bRoomBrickDraw = BrickDraw; E->bRoomMasonry = Masonry; E->bRoomBretonRelief = Breton;
+    return GR_OK;
+}
+
+unsigned long DACOM_API FDirectX9::CharacterQualityPass()
+{
+    static const bool Enabled=ReadShadowSetting("character_dynamic_quality",1,0,1)>.5f;
+    if(!Enabled)return 0;
+    return !Ex_ ? 0ul : Ex_->bShadowDrawing ? 2ul : Ex_->bRoomFrame ? 1ul : 0ul;
+}
+
+float DACOM_API FDirectX9::SetCharacterQuality(float Strength)
+{
+    if (!Ex_) return 1.f;
+    const float Old=Ex_->CharacterQualityStrength;
+    Ex_->CharacterQualityStrength=std::isfinite(Strength) ? (std::max)(0.f,(std::min)(1.f,Strength)) : 1.f;
+    return Old;
 }
 
 bool FDirectX9::ExRoomMaterialBegin()
@@ -491,21 +643,24 @@ bool FDirectX9::ExRoomMaterialBegin()
     if (!E || !Device_ || !E->bRoomFrame || !E->bRoomEnabled || E->bRoomFailed ||
         E->bInPass || E->bShadowDrawing || E->bSurfaceActive) return false;
     if (!E->RoomCurrent || !E->bSurfaceMaterialValid) return false;
+    if (E->CharacterQualityStrength<=0.f) return false;
     // Restore native face shading, including its per-vertex lighting. Merely
     // zeroing the generated normal would retain the new per-pixel facial shading.
     if (E->RoomCurrent->Skin > .5f) return false;
     const bool Hair=E->RoomFinish>=5.f && E->RoomFinish<5.5f && E->RoomCurrent->Skin==.25f;
-    if (!Hair && E->bRoomBrick && E->RoomCurrent->Skin >= -.5f) return false;
+    const bool Alien=E->RoomFinish==6.f || E->RoomFinish==7.f;
+    if (!Hair && !Alien && E->bRoomBrick && E->RoomCurrent->Skin >= -.5f) return false;
     const unsigned Fvf = StreamCache_.Fvf ? StreamCache_.Fvf : StreamCache_.VertexBuffer ? StreamCache_.VertexBuffer->Fvf : 0;
     const unsigned Uvs = (Fvf & D3DFVF_TEXCOUNT_MASK) >> D3DFVF_TEXCOUNT_SHIFT;
     const bool Skin = (Fvf & D3DFVF_POSITION_MASK) == D3DFVF_XYZB4 && (Fvf & D3DFVF_LASTBETA_UBYTE4) &&
                      RenderStates_.GetPending(D3DRS_INDEXEDVERTEXBLENDENABLE) && RenderStates_.GetPending(D3DRS_VERTEXBLEND) == D3DVBF_3WEIGHTS;
-    if (Skin && !Hair && (E->bRoomBrick || E->bRoomBrickDraw || E->RoomCurrent->Skin < -.5f)) return false;
+    if(Skin && E->RoomFinish==7.f)return false;
+    if (Skin && !Hair && !Alien && (E->bRoomBrick || E->bRoomBrickDraw || E->RoomCurrent->Skin < -.5f)) return false;
     const unsigned FvfBody = Fvf;
     if ((!Skin && (FvfBody & D3DFVF_POSITION_MASK) != D3DFVF_XYZ) || !(FvfBody & D3DFVF_NORMAL) ||
         !Uvs || Uvs > 3 || (Fvf & 0xffff0000u) ||
         (RenderStates_.GetPending(D3DRS_ALPHABLENDENABLE) &&
-        !(Hair || (E->RoomFinish > 1.5f && E->RoomFinish < 2.5f)))) return false;
+        !(Hair || Alien || (E->RoomFinish > 1.5f && E->RoomFinish < 2.5f)))) return false;
     if (Skin && E->bRoomPaletteUnsupported) return false;
     // Never reinterpret authored reflection vectors or unusual multipass blends.
     auto Tss = [&](unsigned S, unsigned T, unsigned Default) {
@@ -528,26 +683,9 @@ bool FDirectX9::ExRoomMaterialBegin()
         ++Stages;
     }
     if (!Stages) return false;
-    if (!E->RoomVs || !E->RoomPs)
-        if (!ExCompileShaderPair("room_material.hlsl", &E->RoomVs, &E->RoomPs, "VSMain", "PSMain"))
-        { E->bRoomFailed = true; return false; }
-    if (Skin && !E->RoomSkinVs)
-    {
-        // Compile the same PS too through the shared helper, release the temporary reference.
-        IDirect3DPixelShader9* Ps = nullptr;
-        bool Ok = ExCompileShaderPair("room_material.hlsl", &E->RoomSkinVs, &Ps, "VSSkin", "PSMain");
-        if (Ps) Ps->Release(); if (!Ok) return false;
-    }
+    if (!ExRoomMaterialPrepare(Skin)) return false;
     auto& P = *E->RoomCurrent;
-    P.LastFrame = E->RoomFrame;
-    if (!P.Tried)
-    {
-        RuntimeHitchScope Hitch("room_texture", P.Map.c_str());
-        P.Tried = true;
-        D3DXCreateTextureFromFileExA(Device_, RoomDataPath(P.Map.c_str()).c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
-            D3DX_DEFAULT, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_FILTER_NONE, 0, nullptr, nullptr, &P.Texture);
-        if (!P.Texture) ExLogf(kExFdumpWarning,"WARNING",__LINE__,"room map unavailable: %s; native material retained",P.Map.c_str());
-    }
+    ExRoomMaterialLoad();
     if (!P.Texture && !P.Map.empty() && !E->bRoomBrickDraw) return false;
     float Vs[22*4] = {};
     MulMatrix4(Transforms_.World.Values, Transforms_.View.Values, Vs);
@@ -558,9 +696,10 @@ bool FDirectX9::ExRoomMaterialBegin()
     Vs[80]=(float)Tss(0,D3DTSS_TEXCOORDINDEX,0);Vs[81]=Stages>1 ? (float)Tss(1,D3DTSS_TEXCOORDINDEX,1) : 0;
     Vs[82]=(float)Tss(0,D3DTSS_TEXTURETRANSFORMFLAGS,0);Vs[83]=(float)Tss(1,D3DTSS_TEXTURETRANSFORMFLAGS,0);
     Vs[84]=(Fvf&D3DFVF_DIFFUSE) ? 1.f : 0.f;Vs[85]=(Fvf&D3DFVF_SPECULAR) ? 1.f : 0.f;
-    float Ps[55*4] = {};
+    float Ps[64*4] = {};
     auto Set = [&](unsigned R,float X,float Y,float Z,float W){float* V=Ps+R*4;V[0]=X;V[1]=Y;V[2]=Z;V[3]=W;};
     auto Colour = [&](unsigned R,unsigned C){Set(R,((C>>16)&255)/255.f,((C>>8)&255)/255.f,(C&255)/255.f,((C>>24)&255)/255.f);};
+    Set(63,E->CharacterQualityStrength,0,0,0);
     const auto& Mat=E->SurfaceMaterial;
     memcpy(Ps,&Mat.Diffuse,16);memcpy(Ps+4,&Mat.Ambient,16);memcpy(Ps+8,&Mat.Emissive,16);memcpy(Ps+12,&Mat.Specular,16);
     static const unsigned MaxLights=(unsigned)ReadShadowSetting("room_light_count",8,1,8);
@@ -579,8 +718,8 @@ bool FDirectX9::ExRoomMaterialBegin()
         Ps[36+S*2]=(float)Tss(S,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);Ps[37+S*2]=(float)Tss(S,D3DTSS_ALPHAARG2,D3DTA_CURRENT);
     }
     Colour(10,RenderStates_.GetPending(D3DRS_TEXTUREFACTOR));
-    Set(11,Rp9UserGraphics("room_normal_strength",P.Normal),P.Roughness,
-        Rp9UserGraphics("room_specular_strength",P.Specular),P.Skin);
+    Set(11,Rp9UserGraphics("room_normal_strength",P.Normal)*E->CharacterQualityStrength,P.Roughness,
+        Rp9UserGraphics("room_specular_strength",P.Specular)*E->CharacterQualityStrength,P.Skin);
     Colour(53,RenderStates_.GetPending(D3DRS_AMBIENT));
     memcpy(&M,Transforms_.View.Values,64);
     for (unsigned I=0;I<Count;++I)
@@ -593,13 +732,17 @@ bool FDirectX9::ExRoomMaterialBegin()
         bool S=L.Specular.r>0 || L.Specular.g>0 || L.Specular.b>0;
         Set(R+3,S?L.Specular.r:L.Diffuse.r,S?L.Specular.g:L.Diffuse.g,S?L.Specular.b:L.Diffuse.b,std::cos(L.Phi*.5f));
         Set(R+4,L.Attenuation0,L.Attenuation1,L.Attenuation2,std::cos(L.Theta*.5f));
-        Ps[212]+=L.Ambient.r;Ps[213]+=L.Ambient.g;Ps[214]+=L.Ambient.b;
+        // Per-lamp ambient follows the same range/attenuation/cone as diffuse.
+        // Adding it to global ambient made shader hair glow beside native faces.
+        Set(55+I,L.Ambient.r,L.Ambient.g,L.Ambient.b,0);
     }
     const bool ColourVertex=RenderStates_.GetPending(D3DRS_COLORVERTEX)!=0;
     auto Source=[&](unsigned State){unsigned S=RenderStates_.GetPending(State);return ColourVertex &&
         ((S==D3DMCS_COLOR1 && (Fvf&D3DFVF_DIFFUSE)) || (S==D3DMCS_COLOR2 && (Fvf&D3DFVF_SPECULAR))) ? (float)S : 0.f;};
     Set(52,Source(D3DRS_DIFFUSEMATERIALSOURCE),Source(D3DRS_AMBIENTMATERIALSOURCE),Source(D3DRS_EMISSIVEMATERIALSOURCE),E->bRoomBrickDraw ? (E->bRoomMasonry ? 4.f : 2.f)+(E->bRoomBretonRelief ? 4.f : 0.f) : 0.f);
     Set(54,E->RoomFinish,Skin?1.f:0.f,E->bRoomPolish?(E->bRoomProp?.5f:1.f):0.f,E->bRoomBar?1.f:0.f);
+    // Periodic bounded phase avoids float precision loss after long uptimes.
+    if(Alien) Set(54,E->RoomFinish,Skin?1.f:0.f,0.f,float(GetTickCount64()%8000)*(6.28318530718f/8000.f));
     static const bool Relief=ReadShadowSetting("room_procedural_relief",1,0,1)>.5f;
     static const bool Finish=ReadShadowSetting("room_finish",1,0,1)>.5f;
     if (!Relief) Ps[52*4+3]=0;
@@ -615,7 +758,7 @@ bool FDirectX9::ExRoomMaterialBegin()
         Hr=Rp9SetVertexConstants(Device_,24,Rows,192);
         if(SUCCEEDED(Hr))Hr=Rp9SetVertexConstants(Device_,216,Transforms_.View.Values,4);
     }
-    if(SUCCEEDED(Hr))Hr=Rp9SetPixelConstants(Device_,0,Ps,55);
+    if(SUCCEEDED(Hr))Hr=Rp9SetPixelConstants(Device_,0,Ps,64);
     if(SUCCEEDED(Hr) && P.Texture)Hr=Rp9SetTexture(Device_,14,P.Texture);
     // Match the diffuse address mode for the existing (possibly mirrored) UVs.
     for(unsigned S : {D3DSAMP_ADDRESSU,D3DSAMP_ADDRESSV})

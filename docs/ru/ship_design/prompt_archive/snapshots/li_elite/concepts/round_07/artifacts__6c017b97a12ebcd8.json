@@ -1,0 +1,114 @@
+{
+  "completed": 3,
+  "artifacts": [
+    {
+      "id": "L20",
+      "title_ru": "Наклонная корма",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-d9263f7a-4333-423f-a5cb-7c9d95293c62.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L20_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L20",
+      "correction_history": [
+        {
+          "prompt_file": "correction_prompts.json",
+          "id": "L20",
+          "reason": "В основных видах двигатели вертикальные, а в двух верхних генератор ошибочно сделал их парой слева/справа."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-d9263f7a-4333-423f-a5cb-7c9d95293c62.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Наклонная кормовая пластина растёт из узла двигателей без стоек; кабина ближе к исходной, хотя совпадение геометрии не доказано. Корпус сохраняет преимущественно продольную массу. Исправлены два верхних вида: нижний двигатель скрыт под верхним, ложная боковая пара удалена.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-27942a04-9636-4efc-accd-5e12b17358b8.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L20_initial.png",
+      "sha256": "dd5f068ed51c9a0d7e77f068be9d98284ecfdfbac30e0893d8b8cd9bb8c414d3",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L21",
+      "title_ru": "Раздвоенная корма",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-ecb58709-3819-4b63-93d6-c45eed02aada.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L21_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L21",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-ecb58709-3819-4b63-93d6-c45eed02aada.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Две крупные раздельные кормовые щеки, открытый центр сверху и глубокое тело дают иной силуэт. Нет автомобильной перекладины. Кормовые плоскости получились массивными: это художественный риск кандидата, а не принятая форма. Точность стекла, суставов и малых видов не подтверждена.",
+      "sha256": "8acd6e0edcd9ccdbef2a4c6d7a8e07d37c20e03c2de572cd3e594951d95ef33a",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L22",
+      "title_ru": "Две боковые гондолы",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-fa0eca21-eeaa-42dd-b2e3-1c29166926bb.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L22_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L22",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-fa0eca21-eeaa-42dd-b2e3-1c29166926bb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Два двигателя разнесены по сторонам и соединены с глубоким центральным телом; поднятой поперечной перекладины нет. Заметно иной верхний и кормовой силуэт. Нужны новые посадки/HP двигателей, если выбран. В боковой проекции корпус выглядит ниже, чем в перспективе; точные пропорции и стекло по арту не подтверждены.",
+      "sha256": "22aef0fb91d498feb22ca114de1db0cd00f33ee9ef0f3fed5d68f8026b072415",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_fighter .jpg",
+      "sha256": "4280db67dca7840724c7ff3aaf16440c4f7d76a37fde2ecafaac9b2f3e22fb9f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/libertysheet.jpg",
+      "sha256": "70005163ed2f6856e9a5944422bf29ec3cf8cdfbb8576ada6a4780f331df8fb7"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/fleet_study/fleet_clay.jpg",
+      "sha256": "c84a0829f6f8819521a653c64e76b26da9dc7592101027aa988bdfb55f07b8a7"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

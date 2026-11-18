@@ -32,3 +32,4 @@ EXPORTS
     RpgDialogEscape @24
     RpgDialogGestureGroup @25
     TrainCourierShipTransfer @26
+    TrainCourierEvacuation @27

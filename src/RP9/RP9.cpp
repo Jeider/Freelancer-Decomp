@@ -1337,6 +1337,10 @@ GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
         Face = (IRPSurfaceContext*)(this);
     else if (IidEqual(Iid, Iids::RPRoomMaterials))
         Face = (IRPRoomMaterials*)(this);
+    else if (IidEqual(Iid, Iids::RPRoomMaterialCache))
+        Face = (IRPRoomMaterialCache*)(this);
+    else if (IidEqual(Iid, Iids::RPCharacterQuality))
+        Face = (IRPCharacterQuality*)(this);
     else if (IidEqual(Iid, Iids::RPRoomShadows))
         Face = (IRPRoomShadows*)(this);
     else if (IidEqual(Iid, Iids::RPSurfaceShader))
@@ -1788,35 +1792,47 @@ void FDirectX9::ApplyDeviceCaps(const FRp9Caps8* Caps)
 D3DFORMAT FDirectX9::PickDepthFormat(D3DFORMAT AdapterFormat, D3DFORMAT BackBufferFormat,
                                      int* WantedZ, int* WantedS)
 {
-    const FZFormatRow* Best = nullptr;
-    int BestSDelta = 0x64;
-    int BestZDelta = 0x64;
-    for (unsigned int Index = 0; Index < sizeof(kZTable) / sizeof(kZTable[0]); ++Index)
+    // Prefer a sampleable 24-bit scene depth when available. Some D3D9 providers
+    // (dgVoodoo) also expose D32: the retail "closest bit depth" ranking picked
+    // that first and disabled every effect consuming GetSceneDepth, despite INTZ
+    // being supported. Keep explicit low-depth modes and the ordinary fallback.
+    const bool PreferSampled = *WantedZ >= 24 && ExWantsIntzDepth(AdapterFormat, D3DFMT_D24S8);
+    for (int Pass = PreferSampled ? 0 : 1; Pass < 2; ++Pass)
     {
-        const FZFormatRow* Row = &kZTable[Index];
-        const int ZDelta = *WantedZ - Row->ZBits;
-        const int SDelta = *WantedS - Row->StencilBits;
-        if (SDelta < 0 || ZDelta < 0)
-            continue;
-        if (Best != nullptr && SDelta > BestSDelta)
-            continue;
-        if (D3d_->CheckDeviceFormat(0, D3DDEVTYPE_HAL, AdapterFormat, D3DUSAGE_DEPTHSTENCIL,
-                                    D3DRTYPE_SURFACE, Row->Format) < 0)
-            continue;
-        if (D3d_->CheckDepthStencilMatch(0, D3DDEVTYPE_HAL, AdapterFormat, BackBufferFormat,
-                                         Row->Format) < 0)
-            continue;
-        if (Best != nullptr && SDelta >= BestSDelta && ZDelta >= BestZDelta)
-            continue;
-        Best = Row;
-        BestSDelta = SDelta;
-        BestZDelta = ZDelta;
+        const FZFormatRow* Best = nullptr;
+        int BestSDelta = 0x64;
+        int BestZDelta = 0x64;
+        for (unsigned int Index = 0; Index < sizeof(kZTable) / sizeof(kZTable[0]); ++Index)
+        {
+            const FZFormatRow* Row = &kZTable[Index];
+            if (Pass == 0 && Row->ZBits != 24)
+                continue;
+            const int ZDelta = *WantedZ - Row->ZBits;
+            const int SDelta = *WantedS - Row->StencilBits;
+            if (SDelta < 0 || ZDelta < 0)
+                continue;
+            if (Best != nullptr && SDelta > BestSDelta)
+                continue;
+            if (D3d_->CheckDeviceFormat(0, D3DDEVTYPE_HAL, AdapterFormat, D3DUSAGE_DEPTHSTENCIL,
+                                        D3DRTYPE_SURFACE, Row->Format) < 0)
+                continue;
+            if (D3d_->CheckDepthStencilMatch(0, D3DDEVTYPE_HAL, AdapterFormat, BackBufferFormat,
+                                             Row->Format) < 0)
+                continue;
+            if (Best != nullptr && SDelta >= BestSDelta && ZDelta >= BestZDelta)
+                continue;
+            Best = Row;
+            BestSDelta = SDelta;
+            BestZDelta = ZDelta;
+        }
+        if (Best != nullptr)
+        {
+            *WantedZ = Best->ZBits;
+            *WantedS = Best->StencilBits;
+            return Best->Format;
+        }
     }
-    if (Best == nullptr)
-        return D3DFMT_UNKNOWN;
-    *WantedZ = Best->ZBits;
-    *WantedS = Best->StencilBits;
-    return Best->Format;
+    return D3DFMT_UNKNOWN;
 }
 
 // Keep format-specific capability gates before asking the device.

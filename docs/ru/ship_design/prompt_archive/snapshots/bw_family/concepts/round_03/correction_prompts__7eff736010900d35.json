@@ -1,0 +1,19 @@
+{
+  "topic": "bw_family",
+  "round": "round_03",
+  "status": "complete_for_review",
+  "reason": "B08 vheavy incorrectly filled the two source side voids with blue glazing and omitted the descending outer hull sections.",
+  "variants": [
+    {
+      "id": "B08",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B08_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B06_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_textured.jpg"
+      ],
+      "prompt": "Precise-object edit of IMAGE 1, the entire portrait BW PIRATE — B08 family sheet. Correct ONLY THE VHEAVY ROW at the bottom; keep the FIGHTER and ELITE rows unchanged, the same paper, labels, layout, clipped-diamond wing shapes, dirty grey/orange finish and medium geometric detail.\n\nThe B08 VHEAVY currently has two blue glass-filled shoulder holes and is missing the descending side hull sections. This is a mistake. Restore the actual VHEAVY topology shown by the B06 heavy ship in IMAGE 2: from each upper wing's outer end a broad solid faceted hull section descends outward/downward, then angles inward at the bottom toward the lower engine pod. This creates TWO LARGE OPEN AIR GAPS, one on each side of the central vertical keel. These voids extend vertically from below the upper wings all the way to the lower fuselage level. Pale paper background MUST be clearly visible THROUGH them. They are empty space, not glass windows, not dark blue filled panels, not grilles. No extra glazing except the original cockpit. Do not make small holes merely in the shoulder.\n\nMake the descending outer sections broad and solid, with integrated clipped-diamond facets echoing B08's upper wings; no tubular frame, lattice, rods or thin decorative cage. Keep the open areas dominant, leaving the main central keel and lower engine pod exposed. Provide a slim separation seam where the moving side section approaches the fixed lower pod. Preserve B08's own diamond wing tops and large inset dark top grilles, the nose, cabin, central keel, lower pod design and engine orientation. Image 2 is only a guide to the placement of the tall open gaps and the descending side hull, NOT to replace B08 with B06.\n\nCorrect the large VHEAVY perspective AND its SIDE and TOP drawings consistently. In SIDE the large empty trapezoidal gap extends nearly the full height between the upper and lower hulls. The only engines are one at the back of the upper body and one at the back of the lowermost pod. Do not add another engine under the upper engine.\n\nCabin is fixed, same size and position, with source geometry from IMAGE 3: long sloping polygonal central pane and two original angular side panes. Do not change the cabins in any row or create new windows. Return the complete nine-view B08 family board with only the bottom VHEAVY design corrected.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B08_sheet_r2.png",
+      "generation_status": "generated_for_review"
+    }
+  ]
+}

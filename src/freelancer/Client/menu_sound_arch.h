@@ -9,6 +9,12 @@
 #include "dacom.h"
 #include "sound_archetype.h"
 
+#ifdef FREELANCER_DBG_OPTIONS
+// Experimental, off by default; false if the optional SoundManager export is absent.
+bool SetClientAudioTimeScaleEnabled(bool Enabled);
+bool GetClientAudioTimeScaleEnabled();
+#endif
+
 // Client SoundArch table (SoundArch.cpp). FUN_0042b030 loads [Sound] from
 // freelancer.ini Data sounds=; FUN_0042ae40 looks up by CreateID.
 // FUN_0042b5e0 creates the ISoundManager wav archetype into SmArchId.

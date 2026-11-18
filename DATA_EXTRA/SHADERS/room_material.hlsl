@@ -13,10 +13,18 @@ struct Pixel {
  float4 P:POSITION0; float3 V:TEXCOORD0; float3 N:TEXCOORD1;
  float2 U0:TEXCOORD2; float2 U1:TEXCOORD3; float4 C:COLOR0; float4 S:COLOR1;
 };
+float2 SelectUv(Vertex I,float Channel) {
+ // Native meshes can contain NaNs in unused UV sets (RH shipdealer floor).
+ // SM3 compiles ?: to arithmetic selection: 0 * NaN still poisons valid UVs.
+ // Keep actual branches so only the requested channel contributes.
+ [branch] if(Channel>1.5) return I.U2;
+ [branch] if(Channel>.5) return I.U1;
+ return I.U0;
+}
 Pixel MakeVertex(Vertex I,float3 P,float3 N) {
  Pixel O;O.P=mul(float4(P,1),Projection);O.V=P;O.N=N;
- float2 U0=VertexMode.x>1.5 ? I.U2 : VertexMode.x>.5 ? I.U1 : I.U0;
- float2 U1=VertexMode.y>1.5 ? I.U2 : VertexMode.y>.5 ? I.U1 : I.U0;
+ float2 U0=SelectUv(I,VertexMode.x);
+ float2 U1=SelectUv(I,VertexMode.y);
  O.U0=VertexMode.z>.5 ? mul(float4(U0,1,0),TexMatrix0).xy : U0;
  O.U1=VertexMode.w>.5 ? mul(float4(U1,1,0),TexMatrix1).xy : U1;
  O.C=VertexColour.x>.5 ? I.C : 1;O.S=VertexColour.y>.5 ? I.S : 0;return O;
@@ -38,6 +46,8 @@ float4 Profile:register(c11); // w: -1 interior, -.25 maximum clothing, 0 eyes/l
 struct Light {float4 PosType;float4 DirRange;float4 DiffFalloff;float4 SpecOuter;float4 AttInner;};
 Light Lights[8]:register(c12);
 float4 Sources:register(c52), AmbientLight:register(c53), Finish:register(c54);
+float4 LampAmbient[8]:register(c55);
+float4 CharacterQuality:register(c63);
 float4 Source(float4 Material,float Mode,Pixel I) {return Mode>1.5 ? I.S : Mode>.5 ? I.C : Material;}
 float4 Arg(float Id,float4 T,float4 D,float4 C) {
  float Base=fmod(Id,16);float4 R=Base<.5 ? D : Base<1.5 ? C : Base<2.5 ? T : Factor;
@@ -65,6 +75,9 @@ float3 Perturb(float3 N,float3 P,float2 U,float2 XY) {
 }
 float4 PSMain(Pixel I):COLOR0 {
  float Hair=Finish.x>4.5 && Finish.x<5.5 ? 1 : 0;
+ float Alien=Finish.x>5.5 && Finish.x<6.5 ? 1 : 0;
+ float AlienCity=Finish.x>6.5 && Finish.x<7.5 ? 1 : 0;
+ float AlienSurface=max(Alien,AlienCity);
  float4 B=tex2D(BaseMap,I.U0),T=tex2D(DetailMap,I.U1);
  float4 F=Mode.z>.5 ? tex2D(FinishMap,I.U0) : float4(.5,.5,Profile.y,1);
  // Amplify tangent components with a bounded bend; retain a positive normal Z
@@ -79,6 +92,7 @@ float4 PSMain(Pixel I):COLOR0 {
  float Maximum=max(Interior,Clothing);
  XY*=lerp(lerp(3.0,1.6,SkinProfile),lerp(12.0,3.0,Clothing),Maximum);
  if(Finish.y>.5) XY=(F.xy*2-1)*Profile.x*.08;
+ if(AlienSurface>.5) XY=(F.xy*2-1)*Profile.x;
  // Polished stone and varnished wood read through the highlight, not the relief.
  if(Finish.x>.5 && Finish.x<1.5 && Sources.w<1) XY*=.35;
  if(Finish.x>3.5 && Finish.x<4.5 && Sources.w<1) XY*=.2;
@@ -168,17 +182,20 @@ float4 PSMain(Pixel I):COLOR0 {
  float Room=Finish.z>.75?1:0,Prop=Finish.z>.25 && Finish.z<.75?1:0;
  float Quiet=Room>.5 && Finish.w<.5 && Interior>.5 && Finish.y<.5 ? 1 : 0;
  float SpecRough=Quiet>.5 ? clamp(Rough*.55,.12,.5) : Rough;
+ float Tissue=Alien*smoothstep(.025,.16,B.r-B.g)*smoothstep(.0,.10,B.b-B.g);
+ if(AlienSurface>.5){Rough=clamp(F.b,.22,.68);SpecRough=lerp(Rough,.25,Tissue);}
  // Interior surfaces: 30% more roughness, including the narrower quiet-room lobe.
  // Keep characters/skin on their existing material response.
  if(Interior>.5 && Finish.y<.5){Rough=min(Rough*1.30,.98);SpecRough=min(SpecRough*1.30,.98);}
  float HighlightGain=lerp(lerp(1.5,1.6,SkinProfile),12.0,Clothing)*(Quiet>.5?.55:1)*ReliefGain;
- float4 D=Source(MatDiffuse,Sources.x,I);float3 Diff=0,Spec=0;
+ float4 D=Source(MatDiffuse,Sources.x,I);float3 Diff=0,Spec=0,Ambient=AmbientLight.rgb;
  [loop] for(int K=0;K<8;++K) {
   if(K>=Mode.x)break;Light L=Lights[K];float3 To=L.PosType.xyz-I.V;
   float Dist=length(To);float3 Dir=L.PosType.w>2.5 ? normalize(-L.DirRange.xyz) : To/max(Dist,1e-6);
   float Att=1;
   if(L.PosType.w<2.5){Att=Dist<=L.DirRange.w ? rcp(max(dot(L.AttInner.xyz,float3(1,Dist,Dist*Dist)),1e-6)) : 0;
    if(L.PosType.w>1.5){float Cone=dot(-Dir,normalize(L.DirRange.xyz));Att*=pow(saturate((Cone-L.SpecOuter.w)/max(L.AttInner.w-L.SpecOuter.w,1e-5)),max(L.DiffFalloff.w,1e-6));}}
+  Ambient+=LampAmbient[K].rgb*Att;
   float NdL=dot(N,Dir),NL=saturate(NdL);
   // Restrained wrap approximation, not a screen blur or full physical SSS.
   Diff+=L.DiffFalloff.rgb*Att*lerp(NL.xxx,saturate((NdL+.30)/1.30)*float3(1,.94,.90),Skin*.60);
@@ -195,7 +212,7 @@ float4 PSMain(Pixel I):COLOR0 {
   if(Wood>.5){float3 Bit=normalize(cross(N,Grain));WoodSpec+=L.SpecOuter.rgb*Att*NL*pow(saturate(1-abs(dot(H,Bit))),56);}
  }
  float4 Lit=D;
- if(Mode.y>.5) Lit.rgb=saturate(D.rgb*Diff+Source(MatAmbient,Sources.y,I).rgb*AmbientLight.rgb+Source(MatEmission,Sources.z,I).rgb);
+ if(Mode.y>.5) Lit.rgb=saturate(D.rgb*Diff+Source(MatAmbient,Sources.y,I).rgb*Ambient+Source(MatEmission,Sources.z,I).rgb);
  else Lit=I.C;
  float4 R=Stage(B,Lit,Lit,Ops0,Args.xy);
  if(Mode.w>1.5)R=Stage(T,Lit,R,Ops1,Args.zw);
@@ -229,9 +246,28 @@ float4 PSMain(Pixel I):COLOR0 {
   // Room meshes get a light reflection. Props get a smaller one, not the room coat.
   if(Room>.5 && Interior>.5 && Finish.y<.5) R.rgb+=Fres*float3(.16,.18,.22)*(Quiet>.5?.45:1)*ReliefGain;
   else if(Prop>.5 && Finish.y<.5 && Hair<.5) R.rgb+=Fres*float3(.07,.08,.1)+Spec*float3(.35,.32,.28)*.12;
+ // Cold layered chitin and softer vascular tissue share the authored light rig.
+ // No geometry displacement or screen-space passes; alpha/depth stay native.
+ if(AlienSurface>.5){
+  // User-selected wet coat x10, covering soft tissue as well as armour.
+  // Broader grazing response keeps the sheen visible across curved surfaces.
+  float AlienGlossGain=10*CharacterQuality.x;
+  float Edge=pow(1-NV2,1.8);
+  float3 Coat=lerp(float3(.22,.64,.72),float3(.48,.26,.61),pow(1-NV2,1.5));
+  R.rgb+=AlienGlossGain*min(Spec,.30)*lerp(Coat,float3(.68,.32,.46),Tissue)*.8;
+  R.rgb+=AlienGlossGain*Edge*Coat*.045;
+  float Pulse=.5+.5*sin(Finish.w);
+  R.rgb+=Tissue*B.rgb*float3(.075,.015,.045)*(.7+.3*Pulse)*CharacterQuality.x;
+  // Tiny eye islands disappear in the atlas's coarse normal-map mip levels.
+  // Read the bilinear base-level mask; normals/roughness retain their mip filter.
+  float Eye=0;
+  if(Alien>.5) Eye=smoothstep(.08,.65,tex2Dlod(FinishMap,float4(I.U0,0,0)).a);
+  R.rgb=lerp(R.rgb,R.rgb*.06+float3(1,.62,.055)*(.96+.04*Pulse),Eye*CharacterQuality.x);
+ }
  float Distance=FogColour.w>.5 ? length(I.V) : abs(I.V.z),Visibility=1;
  if(Fog.w>2.5)Visibility=saturate((Fog.y-Distance)/max(Fog.y-Fog.x,.0001));
  else if(Fog.w>1.5)Visibility=exp(-pow(Distance*Fog.z,2));else if(Fog.w>.5)Visibility=exp(-Distance*Fog.z);
  if(Sources.w>1) R.rgb*=lerp(1.0,.42,Groove);
  R.rgb=lerp(FogColour.rgb,R.rgb,Visibility);return R;
 }
+

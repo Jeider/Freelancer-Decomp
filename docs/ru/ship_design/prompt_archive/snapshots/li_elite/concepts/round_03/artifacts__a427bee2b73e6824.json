@@ -1,0 +1,101 @@
+{
+  "completed": 2,
+  "artifacts": [
+    {
+      "id": "L04",
+      "title_ru": "Компактное ядро и широкий веер",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-b85d7dc8-03cc-4844-8220-a5cf740492b8.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_03/li_elite_L04_sheet.png",
+      "status": "rejected_by_user",
+      "user_feedback": "Стало даже хуже. Неудобная перспектива; слишком сложная архитектурная форма, хочется простых геометрических форм.",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L04",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-7f17706c-e5b8-4c99-acf5-59466b0b4105.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_03/li_elite_L04_initial.png",
+      "correction_history": [
+        {
+          "id": "L04_hatch_correction",
+          "prompt_file": "correction_prompts.json",
+          "reason": "First output incorrectly split hatch across the longitudinal axis.",
+          "review": "Corrected final image has two longitudinal doors in perspective and TOP, without an end-to-end split.",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_03/li_elite_L04_sheet.png"
+        }
+      ],
+      "sha256": "aa0e921d828efbcbb2d47d0b17f8757c239636b9c0772f6ac08b616ad6ab7f67",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L05",
+      "title_ru": "Высокий кормовой профиль",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-fd66a39b-c76e-4bd6-8d3f-2ade2ceb864a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_03/li_elite_L05_sheet.png",
+      "status": "rejected_by_user",
+      "user_feedback": "Стало даже хуже. Неудобная перспектива; слишком сложная архитектурная форма, хочется простых геометрических форм.",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L05",
+      "correction_history": [],
+      "sha256": "9a93469d24164a5dbabbe5a9b566e7d466663af779d5500cc554c0c920908268",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_wing_motion.jpg",
+      "sha256": "32e2eaef0b9a3461f148d81586ce8cea80766bf4d3a6c8bf16e43a384898af93"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/fleet_study/fleet_clay.jpg",
+      "sha256": "c84a0829f6f8819521a653c64e76b26da9dc7592101027aa988bdfb55f07b8a7"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_fighter .jpg",
+      "sha256": "4280db67dca7840724c7ff3aaf16440c4f7d76a37fde2ecafaac9b2f3e22fb9f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/fleet_study/fleet_texture.jpg",
+      "sha256": "5879c0de3c98cb59aa7ca3c9941ec05896268f6113b0d5fa30159c417f86a3aa"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/libertysheet.jpg",
+      "sha256": "70005163ed2f6856e9a5944422bf29ec3cf8cdfbb8576ada6a4780f331df8fb7"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_cruiser.jpg",
+      "sha256": "dc2f814a584f633f6331a113ee73b6a937b4efee4bbfc787d43a8761ac7e9ce6"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/freighter new perspective.jpg",
+      "sha256": "567eb73ae65a338643b0a96262be419b8377b8d0e4ec09edff996f5258d3468f"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

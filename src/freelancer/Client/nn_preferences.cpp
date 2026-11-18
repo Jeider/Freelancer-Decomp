@@ -1582,6 +1582,56 @@ namespace
         int Field14;     // +0x14 FUN_005b7010(0) before the call
     };
 
+    // A snapshot for one preferences operation. Reusing it for all 48 candidate
+    // resolutions avoids repeatedly enumerating the driver's complete mode list.
+    // No persistent cache: the next probe/apply sees current device modes again.
+    std::vector<FPipelineDisplayMode> ReadDisplayModeSnapshot()
+    {
+        unsigned int Count = 0;
+        DALib::Pipeline->GetDisplayModeCount(&Count);
+        std::vector<FPipelineDisplayMode> Result;
+        Result.reserve(Count);
+        for (unsigned int Index = 0; Index < Count; ++Index)
+        {
+            FPipelineDisplayMode Mode = {};
+            Mode.Field14 = PixelFormatFromD3D(0);
+            Mode.Format = PixelFormatFromD3D(0);
+            if (DALib::Pipeline->GetDisplayModeEnum(Index, &Mode) == 0)
+                Result.push_back(Mode);
+        }
+        return Result;
+    }
+
+    bool FindVideoModeInSnapshot(DisplaySettings* Out, int Width, int Height, int Bpp,
+                                 std::vector<FPipelineDisplayMode> const& Available)
+    {
+        Out->width = 0;
+        Out->height = 0;
+        for (auto const& Mode : Available)
+        {
+            if (Mode.Format == 1)
+                continue;
+            if (Width != 0 && Width != Mode.Width)
+                continue;
+            if (Height != 0 && Height != Mode.Height)
+                continue;
+            int const ModeBpp = static_cast<int>(PixelFormatGetDesc(Mode.Format)->Bpp);
+            if (Bpp > 0 ? Bpp != ModeBpp : Out->color_bpp != ModeBpp)
+                continue;
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
+            if (Mode.Width * 3 >= Mode.Height * 4)
+#else
+            if (Mode.Width * 3 == Mode.Height * 4)
+#endif
+            {
+                Out->width = Mode.Width;
+                Out->height = Mode.Height;
+                break;
+            }
+        }
+        return Out->width != 0 && Out->height != 0;
+    }
+
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
     // Port-only replacement for the ctor's fixed five resolutions (0x004a982f..0x004a98bc): every
     // device resolution of at least 800x600 that is at least as wide as 4:3, ascending by width,
@@ -1669,45 +1719,8 @@ namespace
 
 bool NnPreferences::FindVideoMode(DisplaySettings* Out, int Width, int Height, int Bpp) const
 {
-    // FUN_004af120 (RET 0x10; this unused): the first 4:3 device mode matching the non-zero
-    // Width / Height and Bpp (Bpp <= 0: Out->color_bpp) lands in Out->width / height.
-    Out->width = 0;
-    Out->height = 0;
-    unsigned int Count = 0;
-    DALib::Pipeline->GetDisplayModeCount(&Count);
-    for (unsigned int Index = 0; Index < Count; ++Index)
-    {
-        // 0x004af164..0x004af179: +0x14 then +0x10 seeded with FUN_005b7010(0).
-        FPipelineDisplayMode Mode;
-        Mode.Field14 = PixelFormatFromD3D(0);
-        Mode.Format = PixelFormatFromD3D(0);
-        if (DALib::Pipeline->GetDisplayModeEnum(Index, &Mode) != 0)
-            continue;
-        if (Mode.Format == 1)
-            continue;
-        if (Width != 0 && Width != Mode.Width)
-            continue;
-        if (Height != 0 && Height != Mode.Height)
-            continue;
-        // 0x004af1b9..0x004af1d1: FUN_005b7030(format)+4 against Bpp (Bpp > 0, JLE signed) or
-        // against Out+0x10.
-        int const ModeBpp = static_cast<int>(PixelFormatGetDesc(Mode.Format)->Bpp);
-        if (Bpp > 0 ? Bpp != ModeBpp : Out->color_bpp != ModeBpp)
-            continue;
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-        // Port-only: any mode at least as wide as 4:3 (16:10, 16:9, ...); the cameras go Hor+.
-        if (Mode.Width * 3 >= Mode.Height * 4)
-#else
-        if (Mode.Width * 3 == Mode.Height * 4)
-#endif
-        {
-            Out->width = Mode.Width;
-            Out->height = Mode.Height;
-            break;
-        }
-    }
-    // 0x004af202..0x004af20e: TEST / JBE on each (unsigned: non-zero).
-    return Out->width != 0 && Out->height != 0;
+    // An actual mode change always rechecks the device, independently of the UI probe.
+    return FindVideoModeInSnapshot(Out, Width, Height, Bpp, ReadDisplayModeSnapshot());
 }
 
 void NnPreferences::LoadKeyList(char const* Path)
@@ -2722,11 +2735,13 @@ void NnPreferences::ProbeModes(int)
     VideoMemory >>= 20;
     bBigVram = static_cast<unsigned char>(VideoMemory >= 0x11);
     ModeCount = 0;
+    auto const Available = ReadDisplayModeSnapshot();
     for (int Index = 0; Index < kPrefVideoModeCount; ++Index)
     {
         CycleIndex[Index] = -1;
         bModeAvail[Index] = static_cast<unsigned char>(
-            FindVideoMode(&Mode, Modes[Index].Width, Modes[Index].Height, Modes[Index].Bpp));
+            FindVideoModeInSnapshot(&Mode, Modes[Index].Width, Modes[Index].Height,
+                                    Modes[Index].Bpp, Available));
         if (bModeAvail[Index] == 0)
             continue;
         // Keep legacy modes available internally for reverting an old 16-bit

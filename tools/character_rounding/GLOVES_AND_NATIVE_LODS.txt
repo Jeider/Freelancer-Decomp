@@ -1,0 +1,87 @@
+ПЕРЧАТКИ И ОСТАВШИЕСЯ ТЕЛА — установлено 17.11.2026
+
+Результат
+82 улучшенных тела и 8 обычных кистей из предыдущего этапа сохранены.
+9 оставшихся тел получили Geometry quality=uint32(1) в MultiLevel:
+benchmarkfemalebody, benchmarkmalebody, pl_male3_peasant_body_hurt,
+robot_body_a/b/c/d/e, worm.
+Их геометрия не изменена: при character_geometry=1 доступны штатные Mesh0+,
+при 0 загрузка начинается со штатного Mesh1. Это реальный упрощённый уровень,
+приблизительно на 20% меньше треугольников. Дубли одинаковой геометрии не добавлены.
+Fractions, Lod Bits и дистанции сохранены. Катсцена с одним запрошенным LOD
+получает выбранный уровень. Старый low_character_lod не пропускает его дважды.
+Enhanced geometry имеет приоритет, если случайно присутствуют оба маркера.
+Неизвестные версии маркера и single-LOD остаются на прежнем пути загрузки.
+torture и alien_nomad_body по-прежнему исключены.
+В bodyparts.ini есть существующая ссылка ku_tenji_body на отсутствующий DFM;
+она не исправлялась и в число обработанных файлов не входит.
+
+Перчатки
+16 вариантов br/li/rh/yel, male/female, left/right:
+Mesh0 — принятая геометрия обычной кисти; Mesh1 — исходная перчатка;
+дальнейшие уровни сдвинуты на один, их содержимое не менялось.
+Обычно 992 треугольника; br_female_left 1072, br_female_right 1068.
+br_female использует женскую геометрию. Остальные female-перчатки в исходнике
+скопированы из мужских: перенос выполнен именно из совпавшего исходника.
+Проверено полное совпадение координат, нормалей, топологии, UV, весов и скелета,
+а не только наличие похожих имён. Перенесены уже проверенные форма и UV кистей.
+Обычные кисти, голографические и роботизированные руки не менялись.
+В li_female_glove_left исправлено неверное имя текстуры: её содержимое совпадает
+с остальными Liberty, но узел ошибочно назывался RHE вместо LIE.
+Пиксели текстур не перерисовывались. Общие имена материалов перчаток сохранены.
+Внутренние .3db получают свежую соль; File name в Cmpnd согласованы.
+Object names, порядок костей, bind-матрицы и hardpoints сохранены.
+
+Материалы и редактирование
+out/character_rounding/gloves/materials содержит отдельные br_gloves.mat,
+li_gloves.mat, rh_gloves.mat, yel_gloves.mat. Это библиотеки исходников,
+отдельные от обычных кистей. Все варианты одной расцветки используют одну MAT.
+В игровых DFM те же Material/Texture libraries встроены: bodypart в Common
+читает mesh, но не material_library. Добавлять такую строку в bodyparts.ini
+бесполезно. Редактирование отдельной MAT требует повторного встраивания в DFM;
+одна лишь замена MAT в папке не меняет установленную игру.
+gloves.py/rebuild — единая точка упаковки MAT в DFM. Хеши рецепта намеренно
+фиксируют проверенную версию; после правок нужно обновить рецепт, перепроверить
+экспорт и подготовить новую транзакцию, а не применять старый installed.json.
+
+В gloves/<name>/hand.blend находятся EDIT и скрытая SOURCE, родной скелет,
+UV, веса, контрольные позы rest/fist/grip/point на кадрах 1/31/61/91.
+geometry_family в source/edited.json.gz фиксирует проверенную исходную кисть.
+original.dfm.gz — исходный актив перчатки для дальнейшего редактирования,
+lods.utf.gz — компактное дерево LOD, lods.utf.json — MAT/соль/ссылки ресурсов.
+index.html показывает до/после и ссылается на Blender и четыре MAT.
+
+Проверки
+check_hands.py --gloves: 16 моделей, границы запястья, нормали, веса, UV,
+сериализация DFM, отсутствие вырожденных и перевёрнутых треугольников.
+review_hands.py --gloves: исходные ANM, конечные координаты/границы,
+сравнение Blender skinning с родными матрицами для четырёх контрольных поз.
+check_hand_blends.py --gloves: 16 повторно открытых файлов, скрытый исходник,
+ссылки текстур, native bind и отсутствие самопересечений в исходной позе.
+check_lod_loader.py: извлечённый из production-кода цикл загрузки,
+native/extra/pair, on/off, bar/cutscene, flags, fractions, cache keys, skin limits.
+Контакты со всеми предметами во всех катсценах здесь не проверены.
+
+Установка
+python -B tools/character_rounding/gloves.py --prepare
+python -B tools/character_rounding/remaining_lods.py
+Подготовка предназначена для исходного состояния; повторный запуск поверх
+установленного Enhanced geometry запрещён. Для редактирования есть original.dfm.gz.
+python -B tools/character_rounding/check_lod_loader.py
+python -B tools/blender_workspace.py --topic character_rounding --script tools/character_rounding/review_hands.py -- --gloves --render
+python -B tools/character_rounding/check_hands.py --gloves
+python -B tools/blender_workspace.py --topic character_rounding --script tools/character_rounding/check_hand_blends.py -- --gloves
+python -B tools/base_neural/build.py --projects Deformable2 --output out/character_rounding/lods/remaining/runtime --enabled 1
+python -B tools/character_rounding/install_extra_lods.py --remaining
+python -B tools/character_rounding/install_extra_lods.py --remaining --apply
+
+Установлены 25 DFM, Deformable2.dll и его PDB в D:/Games/FL_MOD/bin.
+207 остальных DFM проверены по SHA-256, включая прежние 90 улучшенных моделей.
+Все DATA/rollback записи через Pythonlancer DataFolder. Common, клиент и RP9
+не заменялись. При успешной проверке staging/rollback удалены.
+Чек установки: out/character_rounding/lods/remaining/installed.json.
+Для действия переключателя «Детали персонажей» требуется перезапуск.
+Freelancer/FLServer не запускались.
+
+Следующий этап: DISTANCE_QUALITY.txt. Это план снижения эффектов и геометрии
+по размеру персонажа в кадре, с сохранением теней. Он ещё не включён в игру.

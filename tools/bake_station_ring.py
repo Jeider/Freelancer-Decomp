@@ -21,7 +21,7 @@ import bake_compound as bake
 DATA = Path(r'D:\Games\FL_MOD\DATA')
 PART = DATA / 'SOLAR' / 'misc' / 'space_trade_station_part.3db'
 TEMPLATE = Path(r'D:\Games\FL_MOD\Assets\Pythonlancer\templates\dockable\tekagi_megabase.py')
-OUT = ROOT / 'out' / 'bake_compound'
+OUT = ROOT / 'out' / 'stations' / 'bake_compound'
 
 
 def mesh_blob(root):

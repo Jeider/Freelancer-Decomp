@@ -7,7 +7,7 @@ FOLDERS=('valensia_opt','valensia_mega','terraform_mega','potsdam_mega','ulster_
  'corsair_four_docks','losangeles_two_docks','nansei_panel_rotor','odissey_eight_docks','odissey_five_docks')
 def audit_paths(hashes):
     """Keep original validation manifests immutable; apply the verified relocation journal."""
-    journal=ROOT/'out/optimized_stations/installed.json'
+    journal=ROOT/'out/stations/optimized_stations/installed.json'
     if not journal.exists():return hashes
     data=json.loads(journal.read_text())
     result={data['moves'].get(n,n):h for n,h in hashes.items()}

@@ -11,7 +11,7 @@ Preparation (before installing, from the original game files):
   python -B tools/install_valensia.py --apply
 
 The installer verifies source/payload hashes and successful checks. It preserves
-backups in out/valensia_optimization/backups and rolls back a failed transaction.
+backups in out/stations/valensia_optimization/backups and rolls back a failed transaction.
 Do not rebuild from an already optimized solararch.ini; use the preserved inputs.
 Only manifest-listed outputs are installed (older staging files are ignored).
 DATA staging, installation, backup and failure rollback use DataFolder.

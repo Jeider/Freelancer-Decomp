@@ -8,7 +8,7 @@ from check_valensia_mega import templates
 from fix_valensia_towers import decoded, expected
 from terraform_mega import hp_node
 
-OUT=m.REPO/'out/forbes_mega'
+OUT=m.REPO/'out/stations/forbes_mega'
 TEMPLATE='Assets/Pythonlancer/templates/dockable/forbes_megafactory.py'
 LIVE='DATA/UNIVERSE/SYSTEMS_MOD/LI_FORBES/li_for.ini'
 PREFIX='li_for_05'

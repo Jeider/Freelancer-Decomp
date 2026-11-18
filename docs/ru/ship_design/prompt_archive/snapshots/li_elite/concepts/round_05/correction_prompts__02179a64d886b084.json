@@ -1,0 +1,35 @@
+{
+  "tool": "built-in image_gen",
+  "corrections": [
+    {
+      "id": "L08",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L08_initial.png",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L08_initial.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg"
+      ],
+      "prompt": "Use case: precise-object-edit. Correct ONLY THE WING MECHANISM in image 1, preserving the entire concept sheet, its L08 identity, cockpit, hull, rear spoiler, two engines, paint, camera positions and layout.\nImage 1 is the edit target. Image 2 shows the actual native wing geometry in three animation states. Image 3 is the unchanged source cockpit, provided as an identity safeguard.\n\nCRITICAL CORRECTION: the current drawing wrongly shows three small wings attached at three different positions along a long side rail. Replace these with ONE LARGE FOLDING FAN PER SIDE, each made of THREE BROAD OVERLAPPING RIGID LEAVES. All three leaves converge at a compact cluster of pivots NEAR THE FRONT OF THE MAIN HULL, just behind the cockpit collar. Read image 2: the leaves radiate FROM THIS SHARED FORWARD ROOT to different outer tips, making a continuous broad fan area. Each leaf extends inward underneath its neighbor. The connected pivot chain stays concentrated in this forward root, rather than at three separated stations along the flank.\n\nShow this consistently in the large perspective, side and top views. Remove the three separate box hinges along the side rail. Replace them with one compact forward knuckle with a few offset stacked pivot plates; no pipes or decorative rods. In deployed TOP, nose UP, the root is at the upper/front end of each wing fan. From that root, the three whole broad leaves spread sideways and BACKWARD into a single substantial fan, with overlapping diagonal boundaries. A true multi-leaf fan, not three adjacent fingers sticking straight out from the hull. Preserve approximately the same overall deployed span; increase leaf breadth enough for substantial overlap.\nIn STOWED, keep all three same-size leaves; rotate each backward around its front-root pivot so the full leaves overlap and nest along the hull. Do not scale down, remove or telescope them. The body stays the same.\n\nPreserve everything else, including the angular body shape, separate spoiler with air below, separate vertically stacked engines, exact existing cabin, two longitudinal cargo doors and all labels. Keep the clean industrial rendering and current medium level of detail.",
+      "transparent_background": false,
+      "reason": "Replace three separately placed wing hinges with an overlapping fan and a compact forward root; native chained REV mechanics remain the modeling authority.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L08_sheet.png",
+      "generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-d5294b6b-a463-4b56-9eda-e3099555b9e0.png",
+      "visual_result": "Три широких перекрывающихся листа сходятся у переднего корня. Сложенный силуэт показан отдельно; геометрия шарниров и отсутствие пересечений по арту не подтверждены."
+    },
+    {
+      "id": "L09",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L09_initial.png",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L09_initial.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg"
+      ],
+      "prompt": "Use case: precise-object-edit. Correct ONLY THE WING MECHANISM in image 1, preserving the entire concept sheet, its L09 identity, cockpit, hull, rear spoiler, two engines, paint, camera positions and layout.\nImage 1 is the edit target. Image 2 shows the actual native wing geometry in three animation states. Image 3 is the unchanged source cockpit, provided as an identity safeguard.\n\nCRITICAL CORRECTION: the current drawing wrongly shows three small wings attached at three different positions along a long side rail. Replace these with ONE LARGE FOLDING FAN PER SIDE, each made of THREE BROAD OVERLAPPING RIGID LEAVES. All three leaves converge at a compact cluster of pivots NEAR THE FRONT OF THE MAIN HULL, just behind the cockpit collar. Read image 2: the leaves radiate FROM THIS SHARED FORWARD ROOT to different outer tips, making a continuous broad fan area. Each leaf extends inward underneath its neighbor. The connected pivot chain stays concentrated in this forward root, rather than at three separated stations along the flank.\n\nShow this consistently in the large perspective, side and top views. Remove the three separate box hinges along the side rail. Replace them with one compact forward knuckle with a few offset stacked pivot plates; no pipes or decorative rods. In deployed TOP, nose UP, the root is at the upper/front end of each wing fan. From that root, the three whole broad leaves spread sideways and BACKWARD into a single substantial fan, with overlapping diagonal boundaries. A true multi-leaf fan, not three adjacent fingers sticking straight out from the hull. Preserve approximately the same overall deployed span; increase leaf breadth enough for substantial overlap.\nIn STOWED, keep all three same-size leaves; rotate each backward around its front-root pivot so the full leaves overlap and nest along the hull. Do not scale down, remove or telescope them. The body stays the same.\n\nPreserve everything else, including the angular body shape, separate spoiler with air below, separate vertically stacked engines, exact existing cabin, two longitudinal cargo doors and all labels. Keep the clean industrial rendering and current medium level of detail.",
+      "transparent_background": false,
+      "reason": "Replace three separately placed wing hinges with an overlapping fan and a compact forward root; native chained REV mechanics remain the modeling authority.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L09_sheet.png",
+      "generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-fc0f972f-45fd-4c44-b46d-ce2a28a5ad77.png",
+      "visual_result": "Три широких перекрывающихся листа сходятся у переднего корня. Сложенный силуэт показан отдельно; геометрия шарниров и отсутствие пересечений по арту не подтверждены."
+    }
+  ]
+}

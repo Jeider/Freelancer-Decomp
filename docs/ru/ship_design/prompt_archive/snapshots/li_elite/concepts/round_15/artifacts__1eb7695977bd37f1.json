@@ -1,0 +1,121 @@
+{
+  "completed": 2,
+  "artifacts": [
+    {
+      "id": "L63",
+      "title_ru": "Разведённая корма",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-11c5405e-1713-469c-82ad-02fd8f700677.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_15/li_elite_L63_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L63",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-11c5405e-1713-469c-82ad-02fd8f700677.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "verdict": "lateral_engine_layout_candidate_for_user_review",
+        "observations": [
+          "REAR 3/4 clearly shows exactly two horizontally separated polygonal nozzles in compact integrated stern shoulders; the former vertical pair is absent.",
+          "Three collar flanges remain visually prominent and uncovered. Cabin retains native pane arrangement broadly, but proportions across raster views are not exact.",
+          "Center roof is closed, with flush hatch seams; short raised motor shoulders are localized aft rather than forming a full longitudinal trench.",
+          "Two fan leaves per side are legible; STOWED illustrates nesting below the shoulders. Actual leaf shapes/axes/clearance are not numerically validated.",
+          "Rear cap is low and tied to engine shoulders. Surface wear is moderate and the native side decoration ends at plainer motor casings.",
+          "The overall composition is intentionally close to native LI; greater silhouette divergence is concentrated in the stern.",
+          "Extra yellow equipment pads are illustrative and do not authorize new hardpoints."
+        ],
+        "modeling_constraints": [
+          "Use native cabin and collar mesh unchanged.",
+          "New two-engine shoulder arrangement and two-leaf animation require geometry/HP/clearance authoring.",
+          "Keep closed center roof and complete cargo volume; source baydoor sweep is not proven by this sheet."
+        ]
+      },
+      "proposed_mechanism": "Two-leaf rotary fan per side; lateral engine shoulders above its proposed folded corridor.",
+      "shape_reference": "Native LI sources only; no prior AI concepts.",
+      "sha256": "3338cf5bddc9c64ddd364b7334bb73f6032733ee1060a5601e6594425fd0ee38",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L64",
+      "title_ru": "Ступенчатые моторные плечи",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-4b287b08-ea9b-4462-8cd4-35e685d11422.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_15/li_elite_L64_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L64",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-4b287b08-ea9b-4462-8cd4-35e685d11422.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "verdict": "stepped_lateral_engine_shoulders_candidate_for_user_review",
+        "observations": [
+          "REAR 3/4 clearly confirms a horizontal pair of aft polygonal nozzles; their housings are integrated into short raised rear shoulders.",
+          "The step from central flank into engine casings and the lowered body below them gives a stronger change of volume than L63.",
+          "Native three-rib collar is exposed, without the earlier brow. Cabin remains recognizable but raster proportions and contour accuracy are limited.",
+          "The central roof is closed with flush hatch outline. The short gap beneath the aft visor is a local stern clearance, not the rejected full-length center trough.",
+          "Two swept wing leaves per side are apparent; TOP STOWED suggests backward folding, but leaf angles/hidden shape and clearance are not validated.",
+          "TOP is oriented nose-down, unlike L63; all art views remain illustrative rather than measured.",
+          "Extra mounting pads and exact engine hardware shown by the generator are not an approved hardpoint configuration."
+        ],
+        "modeling_constraints": [
+          "Reuse native cabin and collar geometry unchanged.",
+          "New lateral engine layout needs proper nozzle bodies, HPs and structural clearance design.",
+          "Verify wing folding under shoulders and native baydoor clearance in actual geometry."
+        ]
+      },
+      "proposed_mechanism": "Two-leaf rotary fan per side; upper rear motor shoulders and a lower folding corridor.",
+      "shape_reference": "Native LI sources only; no prior AI concepts.",
+      "sha256": "9a51dca37ee5cd8e2a8c97c69432fb23b1d0f66054ac6e414f5d19659846d76b",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite/native_flight.jpg",
+      "sha256": "15f1209b7104ab211e7e66547feb8a5d07134bfba0017b7f36fce057e82b4754"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_aft_components.jpg",
+      "sha256": "0a36f18f42f6263a96bb35514a844d96ce42537fc6a3c93e0ac90af7579c7fa5"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

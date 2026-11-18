@@ -1,0 +1,331 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "status": "Twenty additional three-view Junker freighter concepts ready for user selection; no model implementation",
+  "prompt_file": "prompts.json",
+  "source_cmp": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_freighter/rh_pir_freighter.cmp",
+  "source_sha256": "085e9a5d778922b1aef6ebe70a95ce0d902636177dd1b5cc03a4b6c0ffbc738b",
+  "native_source_dimensions_xyz": [
+    9.464703587623367,
+    11.46253252029419,
+    23.7216694355011
+  ],
+  "artifacts": [
+    {
+      "id": "J01",
+      "label": "J01",
+      "title_ru": "Двойной панцирь",
+      "group_ru": "Броня",
+      "base_variant": "A4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-6be394c8-8599-4193-804e-0e7f15415fda.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J01_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "94a407f1e2b78746ff40f42d6a71d788bf039bb9be41741ce522ed9f2843778b",
+      "bytes": 2539418
+    },
+    {
+      "id": "J02",
+      "label": "J02",
+      "title_ru": "Раздвоенный носовой пояс",
+      "group_ru": "Броня",
+      "base_variant": "C4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-6c9c3657-72f1-4e49-ab3c-a2da47b1e40f.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J02_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "d8a87f1813570d541e44b95a16c7d6e3212d6f2ae31725a219759307a7110d12",
+      "bytes": 2834808
+    },
+    {
+      "id": "J03",
+      "label": "J03",
+      "title_ru": "Тяжёлые скулы",
+      "group_ru": "Броня",
+      "base_variant": "A4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-d1ddf3f6-88ba-4f19-a46b-2a5bda54b205.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J03_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "6c54cda6a7410cb8f179bf527d192f2b63d141676a57cb0f8c9a5373d98b657a",
+      "bytes": 2565043
+    },
+    {
+      "id": "J04",
+      "label": "J04",
+      "title_ru": "Сегментная броня",
+      "group_ru": "Броня",
+      "base_variant": "C4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8cb63590-ea99-43a5-a35f-889412c0f355.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J04_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "f4913d39649ca85d2033120b689b0c73f6fc329d8e7285ef90253b02af7493c4",
+      "bytes": 2842846
+    },
+    {
+      "id": "J05",
+      "label": "J05",
+      "title_ru": "Рваный броневой фартук",
+      "group_ru": "Броня",
+      "base_variant": "E4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-6158be59-7c77-470c-bd45-cf7aefe421fe.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J05_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "1fe54a325db5abf343affdd2b00acc60bd351e24d75cb17e721397bbad7a4731",
+      "bytes": 2677730
+    },
+    {
+      "id": "J06",
+      "label": "J06",
+      "title_ru": "Захваты добытчика",
+      "group_ru": "Утильщики",
+      "base_variant": "B4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-419f758e-d0c3-488a-9fe0-12be3089d1b4.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J06_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "0d6498694177eecefa46eb97269348e6261943475d492e3467828b62ab95498f",
+      "bytes": 2852522
+    },
+    {
+      "id": "J07",
+      "label": "J07",
+      "title_ru": "Бортовые тиски",
+      "group_ru": "Утильщики",
+      "base_variant": "B4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-2190f6b1-17e9-495a-ab80-66bd6ac3332f.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J07_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "ee4338f3313fef41b6be38617e8ea1a9acbe614ffe039437092426bc9470e07b",
+      "bytes": 2777140
+    },
+    {
+      "id": "J08",
+      "label": "J08",
+      "title_ru": "Буксирная рама",
+      "group_ru": "Утильщики",
+      "base_variant": "D4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-68926249-c2b5-4078-a7a5-735c29c87ed0.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J08_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "7c46a50222cb4a2d2065cae3eea28b15fb57af83bbb8c93fbba822ec6b2308b3",
+      "bytes": 2832355
+    },
+    {
+      "id": "J09",
+      "label": "J09",
+      "title_ru": "Рельсовая люлька",
+      "group_ru": "Утильщики",
+      "base_variant": "B4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-e30ce947-0d44-48c4-8127-638df51e8d14.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J09_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "0a145202f88ea0484bd3d44c14a3b6d384840db136afd821ad7d1faa1152fc8b",
+      "bytes": 2875712
+    },
+    {
+      "id": "J10",
+      "label": "J10",
+      "title_ru": "Карман для трофеев",
+      "group_ru": "Утильщики",
+      "base_variant": "E4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3d422221-ea03-497f-9083-a737d70a87f1.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J10_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "ad7d87e4e4ca353cc7fbc0c9cdafaea1a38ba054d6f4597f418de80f9d1f3f42",
+      "bytes": 2703423
+    },
+    {
+      "id": "J11",
+      "label": "J11",
+      "title_ru": "Открытая диагональ",
+      "group_ru": "Каркасы",
+      "base_variant": "D4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-69059a23-1e4a-4909-80d8-d834bc942c3f.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J11_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "7d9ee62bc1194e44d5b5e0586f47d7ae5d9a066e7ab56ef855830ff51cc2beac",
+      "bytes": 2778286
+    },
+    {
+      "id": "J12",
+      "label": "J12",
+      "title_ru": "Стянутый корпус",
+      "group_ru": "Каркасы",
+      "base_variant": "A4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-b7b7a7d4-b4e5-44e3-90fb-03c9d4b4ecde.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J12_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "5a16ff926f6d68e472784483f2ab6e0cc80d187c944d3c0fb0656324f3642817",
+      "bytes": 2504620
+    },
+    {
+      "id": "J13",
+      "label": "J13",
+      "title_ru": "Ломаная ферма",
+      "group_ru": "Каркасы",
+      "base_variant": "D4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f900b952-62af-40de-aa95-e27114cd31aa.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J13_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "1e780498af3ad499cbce311a470a71e47c40d11a81cc17328e5ac063d31e0d7f",
+      "bytes": 2773530
+    },
+    {
+      "id": "J14",
+      "label": "J14",
+      "title_ru": "Двухъярусный борт",
+      "group_ru": "Каркасы",
+      "base_variant": "B4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-362e8698-f9e3-47bb-a112-a4ee72bef6f7.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J14_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "2c74305ae5ea7be3ab8d1a638accb64cabc3071dc670e923076275d981de3a98",
+      "bytes": 2804597
+    },
+    {
+      "id": "J15",
+      "label": "J15",
+      "title_ru": "Оголённая корма",
+      "group_ru": "Каркасы",
+      "base_variant": "D4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-4118d5b2-f779-488a-a880-7bf5005232b2.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J15_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "661db151e15f59face5d8e9121c3a51d413d387810b5bc97c91bc8c34ea54d47",
+      "bytes": 2888089
+    },
+    {
+      "id": "J16",
+      "label": "J16",
+      "title_ru": "Разные плечи",
+      "group_ru": "Донорские сборки",
+      "base_variant": "E4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f5f2a511-239c-4ada-b387-f117427dfad3.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J16_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "f40c6e24b3774ee62170436d07692ea6e2e72e5ec49d53bab4d7868a62a591cb",
+      "bytes": 2672204
+    },
+    {
+      "id": "J17",
+      "label": "J17",
+      "title_ru": "Броневой шрам",
+      "group_ru": "Донорские сборки",
+      "base_variant": "C4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-37c92076-ddc5-4a16-b9a5-51e67355124d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J17_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "553e2a2353f884cab73151688bef36784114a677e061de622613f85e43b9345f",
+      "bytes": 2903828
+    },
+    {
+      "id": "J18",
+      "label": "J18",
+      "title_ru": "Гофрированный горб",
+      "group_ru": "Донорские сборки",
+      "base_variant": "E4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-7a00e324-b32a-41d2-ba3e-b011e33b2357.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J18_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "c079fde6dc53dba910fcc697d61164c732531fcc7681673818570caa6c88e1b3",
+      "bytes": 2411781
+    },
+    {
+      "id": "J19",
+      "label": "J19",
+      "title_ru": "Усиленный хребет",
+      "group_ru": "Донорские сборки",
+      "base_variant": "A4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-4dedc614-aa53-4a2d-8d22-45f86671a414.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J19_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "ed26e4e8f3570e27d8e7367758b6758a6378031682fa736ba96151e54a312596",
+      "bytes": 2503605
+    },
+    {
+      "id": "J20",
+      "label": "J20",
+      "title_ru": "Атаманский грузовик",
+      "group_ru": "Донорские сборки",
+      "base_variant": "C4",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f8f31b67-d2be-422e-94fc-112b7b7a125d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_05/rh_freighter_J20_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "51b02fa4b5175c8c589740821ed4d4bd3e62c21bf4c94a7a790cfc3e47a2a764",
+      "bytes": 2883060
+    }
+  ],
+  "final_j18_correction": "J18_correction.json",
+  "verification": {
+    "twenty_unique_pngs_readable": true,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "source_copy_hashes_equal": true,
+    "input_images_unchanged": true,
+    "installed_cmp_unchanged": true,
+    "readme_links_valid": true,
+    "gallery_twenty_images_and_links_valid": true,
+    "gallery_javascript_syntax": "passed",
+    "helper_python_syntax_valid": true,
+    "visual_review": "All twenty three-view sheets inspected; J18 side engine projection corrected. Concept art only; exact cockpit transfer, projection reconciliation and retraction clearance require later mesh validation."
+  }
+}

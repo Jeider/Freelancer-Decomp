@@ -1,0 +1,2288 @@
+{
+  "source": {
+    "model": "ships/rheinland/rh_pir_fighter/rh_pir_fighter.cmp",
+    "family": "rheinland",
+    "materials": [
+      "ships/rheinland/rh_pir_playerships.mat",
+      "fx/envmapbasic.mat"
+    ],
+    "aliases": [
+      "rh_fighter_pir"
+    ],
+    "classes": [
+      "0"
+    ],
+    "ini": "ships\\shiparch.ini",
+    "sha256": "039fc5177f5110ca51dc5b4ada40e8f1300c8e5bc0696cb374ee5fc757f7c5eb",
+    "triangles": 1211,
+    "material_info": [
+      {
+        "id": 16561195,
+        "name": "weaponplate",
+        "texture": "weaponplate2.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 254424827,
+        "name": "engine_grill01",
+        "texture": "engine_grill01.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 288140076,
+        "name": "pir_r_panel01_2562side",
+        "texture": "pir_r_panel01_256.tga",
+        "kind": "DcDtTwo",
+        "texture_size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "id": 324106763,
+        "name": "pir_r_glass",
+        "texture": "",
+        "kind": "DcDt",
+        "texture_size": null
+      },
+      {
+        "id": 521045444,
+        "name": "pir_r-dark gray",
+        "texture": "",
+        "kind": "DcDt",
+        "texture_size": null
+      },
+      {
+        "id": 529652695,
+        "name": "pir_r_panel01_256D",
+        "texture": "pir_r_panel01_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "id": 3773652537,
+        "name": "pir_r_panel02_2562side",
+        "texture": "pir_r_panel02_256.tga",
+        "kind": "DcDtTwo",
+        "texture_size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "id": 3805656103,
+        "name": "pir_r_panel03_256",
+        "texture": "pir_r_panel03_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "id": 4138378680,
+        "name": "pir_r_panel01_256",
+        "texture": "pir_r_panel01_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "id": 4174083954,
+        "name": "0xf8cb7772",
+        "texture": "",
+        "kind": "MISSING",
+        "texture_size": null
+      },
+      {
+        "id": 4199694152,
+        "name": "pir_r_panel02_256",
+        "texture": "pir_r_panel02_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "material_sources": [
+      {
+        "path": "ships/rheinland/rh_pir_playerships.mat",
+        "sha256": "2cb6201bf30cc6b73189ffc40b19cd913a00a2cf863d286eb84aea13e4652b8f"
+      },
+      {
+        "path": "fx/envmapbasic.mat",
+        "sha256": "7586554f412d0c4cdc5d58ba04121452baf1d6c62efffb3ba864e2cdcfe497be"
+      }
+    ],
+    "constructs": [
+      {
+        "name": "glass_lod1",
+        "parent": "Root",
+        "kind": "fix",
+        "origin": [
+          0.0,
+          -4.336573766750007e-08,
+          1.5448343049229152e-08
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.0,
+            1.0,
+            1.1920928955078125e-07
+          ],
+          [
+            0.0,
+            -1.1920928955078125e-07,
+            1.0
+          ]
+        ]
+      },
+      {
+        "name": "starboard_wing_lod1",
+        "parent": "Root",
+        "kind": "fix",
+        "origin": [
+          0.0,
+          -2.0689568519592285,
+          -1.4597206115722656
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.0,
+            1.0,
+            5.960465188081798e-08
+          ],
+          [
+            0.0,
+            -5.960465188081798e-08,
+            1.0
+          ]
+        ]
+      },
+      {
+        "name": "engine_lod1",
+        "parent": "Root",
+        "kind": "fix",
+        "origin": [
+          0.0,
+          0.7222840189933777,
+          5.347018718719482
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.0,
+            1.0,
+            5.960465188081798e-08
+          ],
+          [
+            0.0,
+            -5.960465188081798e-08,
+            1.0
+          ]
+        ]
+      },
+      {
+        "name": "port_wing_lod1",
+        "parent": "Root",
+        "kind": "fix",
+        "origin": [
+          0.0,
+          -2.0689568519592285,
+          -1.4597206115722656
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.0,
+            1.0,
+            5.960465188081798e-08
+          ],
+          [
+            0.0,
+            -5.960465188081798e-08,
+            1.0
+          ]
+        ]
+      },
+      {
+        "name": "starboard_wing3_lod1",
+        "parent": "starboard_wing2_lod1",
+        "kind": "rev",
+        "origin": [
+          3.9100000858306885,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          [
+            0.5,
+            -0.8660253882408142,
+            0.0
+          ],
+          [
+            0.8660253882408142,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "limits": [
+          0.0,
+          1.5707963705062866
+        ]
+      },
+      {
+        "name": "port_wing3_lod1",
+        "parent": "port_wing2_lod1",
+        "kind": "rev",
+        "origin": [
+          -3.9100000858306885,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          [
+            0.5,
+            0.8660253882408142,
+            0.0
+          ],
+          [
+            -0.8660253882408142,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "limits": [
+          0.0,
+          1.5707963705062866
+        ]
+      },
+      {
+        "name": "BayDoor_lod1",
+        "parent": "Root",
+        "kind": "pris",
+        "origin": [
+          0.0011725430376827717,
+          0.8907498717308044,
+          -2.170603036880493
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.9961947202682495,
+            0.08715573698282242
+          ],
+          [
+            0.0,
+            -0.08715573698282242,
+            0.9961947202682495
+          ]
+        ],
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          5.343122833068037e-09,
+          0.08715561032295227,
+          0.9961947202682495
+        ],
+        "limits": [
+          0.0,
+          3.369999885559082
+        ]
+      },
+      {
+        "name": "starboard_wing2_lod1",
+        "parent": "starboard_wing_lod1",
+        "kind": "pris",
+        "origin": [
+          -0.44999998807907104,
+          1.5,
+          -0.25
+        ],
+        "rotation": [
+          [
+            0.9063078165054321,
+            0.4226182997226715,
+            0.0
+          ],
+          [
+            -0.4226182997226715,
+            0.9063078165054321,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          1.0,
+          -1.0,
+          -0.5
+        ],
+        "limits": [
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "name": "port_wing2_lod1",
+        "parent": "port_wing_lod1",
+        "kind": "pris",
+        "origin": [
+          0.44999998807907104,
+          1.5,
+          -0.25
+        ],
+        "rotation": [
+          [
+            0.9063078165054321,
+            -0.4226182997226715,
+            0.0
+          ],
+          [
+            0.4226182997226715,
+            0.9063078165054321,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          -1.0,
+          -1.0,
+          -0.5
+        ],
+        "limits": [
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "name": "anim_fix_lod1",
+        "parent": "Root",
+        "kind": "pris",
+        "origin": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "limits": [
+          0.0,
+          1.0
+        ]
+      }
+    ],
+    "wing_channels": [
+      {
+        "script": "sc_extend wing",
+        "child": "starboard_wing3_lod1",
+        "parent": "starboard_wing2_lod1",
+        "count": 2,
+        "interval": -1.0,
+        "flags": 1,
+        "duration": 2.0,
+        "times": [
+          0.0,
+          2.0
+        ],
+        "values": [
+          [
+            1.100000023841858
+          ],
+          [
+            0.0
+          ]
+        ],
+        "minimum": [
+          0.0
+        ],
+        "maximum": [
+          1.100000023841858
+        ],
+        "first": [
+          1.100000023841858
+        ],
+        "last": [
+          0.0
+        ],
+        "monotonic_times": true,
+        "finite": true,
+        "bound_joint": true,
+        "frames_bytes": 16,
+        "expected_bytes": 16,
+        "native_size_valid": true,
+        "extra_floats": [],
+        "joint_kind": "rev",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "degrees": [
+          0.0,
+          63.02535883042839
+        ],
+        "degrees_endpoints": [
+          63.02535883042839,
+          0.0
+        ]
+      },
+      {
+        "script": "sc_extend wing",
+        "child": "port_wing3_lod1",
+        "parent": "port_wing2_lod1",
+        "count": 2,
+        "interval": -1.0,
+        "flags": 1,
+        "duration": 2.0,
+        "times": [
+          0.0,
+          2.0
+        ],
+        "values": [
+          [
+            1.100000023841858
+          ],
+          [
+            0.0
+          ]
+        ],
+        "minimum": [
+          0.0
+        ],
+        "maximum": [
+          1.100000023841858
+        ],
+        "first": [
+          1.100000023841858
+        ],
+        "last": [
+          0.0
+        ],
+        "monotonic_times": true,
+        "finite": true,
+        "bound_joint": true,
+        "frames_bytes": 16,
+        "expected_bytes": 16,
+        "native_size_valid": true,
+        "extra_floats": [],
+        "joint_kind": "rev",
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "degrees": [
+          0.0,
+          63.02535883042839
+        ],
+        "degrees_endpoints": [
+          63.02535883042839,
+          0.0
+        ]
+      },
+      {
+        "script": "sc_extend wing",
+        "child": "starboard_wing2_lod1",
+        "parent": "starboard_wing_lod1",
+        "count": 2,
+        "interval": -1.0,
+        "flags": 1,
+        "duration": 2.0,
+        "times": [
+          0.0,
+          2.0
+        ],
+        "values": [
+          [
+            1.0
+          ],
+          [
+            0.0
+          ]
+        ],
+        "minimum": [
+          0.0
+        ],
+        "maximum": [
+          1.0
+        ],
+        "first": [
+          1.0
+        ],
+        "last": [
+          0.0
+        ],
+        "monotonic_times": true,
+        "finite": true,
+        "bound_joint": true,
+        "frames_bytes": 16,
+        "expected_bytes": 16,
+        "native_size_valid": true,
+        "extra_floats": [],
+        "joint_kind": "pris",
+        "axis": [
+          1.0,
+          -1.0,
+          -0.5
+        ]
+      },
+      {
+        "script": "sc_extend wing",
+        "child": "port_wing2_lod1",
+        "parent": "port_wing_lod1",
+        "count": 2,
+        "interval": -1.0,
+        "flags": 1,
+        "duration": 2.0,
+        "times": [
+          0.0,
+          2.0
+        ],
+        "values": [
+          [
+            1.0
+          ],
+          [
+            0.0
+          ]
+        ],
+        "minimum": [
+          0.0
+        ],
+        "maximum": [
+          1.0
+        ],
+        "first": [
+          1.0
+        ],
+        "last": [
+          0.0
+        ],
+        "monotonic_times": true,
+        "finite": true,
+        "bound_joint": true,
+        "frames_bytes": 16,
+        "expected_bytes": 16,
+        "native_size_valid": true,
+        "extra_floats": [],
+        "joint_kind": "pris",
+        "axis": [
+          -1.0,
+          -1.0,
+          -0.5
+        ]
+      },
+      {
+        "script": "sc_extend wing",
+        "child": "anim_fix_lod1",
+        "parent": "Root",
+        "count": 2,
+        "interval": -1.0,
+        "flags": 1,
+        "duration": 2.0,
+        "times": [
+          0.0,
+          2.0
+        ],
+        "values": [
+          [
+            0.10000000149011612
+          ],
+          [
+            0.0
+          ]
+        ],
+        "minimum": [
+          0.0
+        ],
+        "maximum": [
+          0.10000000149011612
+        ],
+        "first": [
+          0.10000000149011612
+        ],
+        "last": [
+          0.0
+        ],
+        "monotonic_times": true,
+        "finite": true,
+        "bound_joint": true,
+        "frames_bytes": 16,
+        "expected_bytes": 16,
+        "native_size_valid": true,
+        "extra_floats": [],
+        "joint_kind": "pris",
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "wing_duration": 2.0,
+    "launch_to_flight_max_coordinate_delta": 0.0,
+    "phase_dimensions_xyz": [
+      [
+        10.914561765713374,
+        7.125152083068774,
+        13.605639696142067
+      ],
+      [
+        10.706212209927216,
+        6.910887956619263,
+        13.605639696142067
+      ],
+      [
+        10.270994636959035,
+        6.910887956619263,
+        13.605639696142067
+      ],
+      [
+        9.604040672813351,
+        6.910887956619263,
+        13.605639696142067
+      ],
+      [
+        8.717896842446525,
+        6.910887956619263,
+        13.605639696142067
+      ]
+    ],
+    "pose_basis": "wing t=0 flight, t=end dock target per wing_anim.h; not an in-game observation",
+    "reference": "ships/rh_fighter_pir/reference.jpg",
+    "materials_reference": "ships/rh_fighter_pir/materials.jpg",
+    "cockpit_by_alias": {
+      "rh_fighter_pir": {
+        "cockpit": [
+          "cockpits\\rheinland\\r_fighter.ini"
+        ],
+        "pilot_mesh": [
+          "generic_pilot"
+        ],
+        "camera_offset": [
+          "11, 34"
+        ],
+        "camera_angular_acceleration": [
+          "0.050000"
+        ],
+        "camera_horizontal_turn_angle": [
+          "23"
+        ],
+        "camera_vertical_turn_up_angle": [
+          "5"
+        ],
+        "camera_vertical_turn_down_angle": [
+          "30"
+        ],
+        "camera_turn_look_ahead_slerp_amount": [
+          "1.000000"
+        ]
+      }
+    },
+    "cockpit_sources": [
+      {
+        "path": "cockpits/rheinland/r_fighter.ini",
+        "sha256": "d91d3f590efb3b105d2d20a7f62b7a0b8beba2365ebf88d39e27db946ef9f9f4"
+      }
+    ]
+  },
+  "source_path": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_fighter/rh_pir_fighter.cmp",
+  "assets": [
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_fighter/rh_pir_fighter.cmp",
+      "sha256": "039fc5177f5110ca51dc5b4ada40e8f1300c8e5bc0696cb374ee5fc757f7c5eb"
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_playerships.mat",
+      "sha256": "e8b517e7a165dee2bcaa2b022200f44194085c9debd72acf6bcb7f8505218879"
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/fx/envmapbasic.mat",
+      "sha256": "7586554f412d0c4cdc5d58ba04121452baf1d6c62efffb3ba864e2cdcfe497be"
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/cockpits/rheinland/r_fighter.ini",
+      "sha256": "d91d3f590efb3b105d2d20a7f62b7a0b8beba2365ebf88d39e27db946ef9f9f4"
+    },
+    {
+      "path": "H:/FL/EXP/EXTRA_ART/RH/r_fighter01.JPG",
+      "sha256": "80ef571625c74872a3d94347b824cde6e6387ea01fadf1c32eb23929f4cd2239"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "glass_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        0.0,
+        -4.336573766750007e-08,
+        1.5448343049229152e-08
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          1.0,
+          1.1920928955078125e-07
+        ],
+        [
+          0.0,
+          -1.1920928955078125e-07,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "starboard_wing_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        0.0,
+        -2.0689568519592285,
+        -1.4597206115722656
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          1.0,
+          5.960465188081798e-08
+        ],
+        [
+          0.0,
+          -5.960465188081798e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "engine_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        0.0,
+        0.7222840189933777,
+        5.347018718719482
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          1.0,
+          5.960465188081798e-08
+        ],
+        [
+          0.0,
+          -5.960465188081798e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "port_wing_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        0.0,
+        -2.0689568519592285,
+        -1.4597206115722656
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          1.0,
+          5.960465188081798e-08
+        ],
+        [
+          0.0,
+          -5.960465188081798e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "starboard_wing3_lod1",
+      "parent": "starboard_wing2_lod1",
+      "kind": "rev",
+      "origin": [
+        3.9100000858306885,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          0.5,
+          -0.8660253882408142,
+          0.0
+        ],
+        [
+          0.8660253882408142,
+          0.5,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "limits": [
+        0.0,
+        1.5707963705062866
+      ]
+    },
+    {
+      "name": "port_wing3_lod1",
+      "parent": "port_wing2_lod1",
+      "kind": "rev",
+      "origin": [
+        -3.9100000858306885,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          0.5,
+          0.8660253882408142,
+          0.0
+        ],
+        [
+          -0.8660253882408142,
+          0.5,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "limits": [
+        0.0,
+        1.5707963705062866
+      ]
+    },
+    {
+      "name": "BayDoor_lod1",
+      "parent": "Root",
+      "kind": "pris",
+      "origin": [
+        0.0011725430376827717,
+        0.8907498717308044,
+        -2.170603036880493
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.9961947202682495,
+          0.08715573698282242
+        ],
+        [
+          0.0,
+          -0.08715573698282242,
+          0.9961947202682495
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        5.343122833068037e-09,
+        0.08715561032295227,
+        0.9961947202682495
+      ],
+      "limits": [
+        0.0,
+        3.369999885559082
+      ]
+    },
+    {
+      "name": "starboard_wing2_lod1",
+      "parent": "starboard_wing_lod1",
+      "kind": "pris",
+      "origin": [
+        -0.44999998807907104,
+        1.5,
+        -0.25
+      ],
+      "rotation": [
+        [
+          0.9063078165054321,
+          0.4226182997226715,
+          0.0
+        ],
+        [
+          -0.4226182997226715,
+          0.9063078165054321,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        -1.0,
+        -0.5
+      ],
+      "limits": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "port_wing2_lod1",
+      "parent": "port_wing_lod1",
+      "kind": "pris",
+      "origin": [
+        0.44999998807907104,
+        1.5,
+        -0.25
+      ],
+      "rotation": [
+        [
+          0.9063078165054321,
+          -0.4226182997226715,
+          0.0
+        ],
+        [
+          0.4226182997226715,
+          0.9063078165054321,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        -1.0,
+        -1.0,
+        -0.5
+      ],
+      "limits": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "anim_fix_lod1",
+      "parent": "Root",
+      "kind": "pris",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "limits": [
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "channels": [
+    {
+      "script": "sc_end anim",
+      "child": "BayDoor_lod1",
+      "parent": "Root",
+      "count": 2,
+      "interval": 0.03333333507180214,
+      "flags": 1,
+      "duration": 0.03333333507180214,
+      "times": [
+        0.0,
+        0.03333333507180214
+      ],
+      "values": [
+        [
+          3.3653981685638428
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        3.3653981685638428
+      ],
+      "first": [
+        3.3653981685638428
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 8,
+      "expected_bytes": 8,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        5.343122833068037e-09,
+        0.08715561032295227,
+        0.9961947202682495
+      ]
+    },
+    {
+      "script": "sc_open baydoor",
+      "child": "BayDoor_lod1",
+      "parent": "Root",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.133333444595337,
+      "times": [
+        0.0,
+        2.133333444595337
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          3.3653981685638428
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        3.3653981685638428
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        3.3653981685638428
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        5.343122833068037e-09,
+        0.08715561032295227,
+        0.9961947202682495
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "starboard_wing3_lod1",
+      "parent": "starboard_wing2_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          1.100000023841858
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.100000023841858
+      ],
+      "first": [
+        1.100000023841858
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "degrees": [
+        0.0,
+        63.02535883042839
+      ],
+      "degrees_endpoints": [
+        63.02535883042839,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "port_wing3_lod1",
+      "parent": "port_wing2_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          1.100000023841858
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.100000023841858
+      ],
+      "first": [
+        1.100000023841858
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "degrees": [
+        0.0,
+        63.02535883042839
+      ],
+      "degrees_endpoints": [
+        63.02535883042839,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "starboard_wing2_lod1",
+      "parent": "starboard_wing_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          1.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        1.0
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        1.0,
+        -1.0,
+        -0.5
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "port_wing2_lod1",
+      "parent": "port_wing_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          1.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        1.0
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        -1.0,
+        -1.0,
+        -0.5
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "anim_fix_lod1",
+      "parent": "Root",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 2.0,
+      "times": [
+        0.0,
+        2.0
+      ],
+      "values": [
+        [
+          0.10000000149011612
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.10000000149011612
+      ],
+      "first": [
+        0.10000000149011612
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "starboard_wing3_lod1",
+      "parent": "starboard_wing2_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          1.100000023841858
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.100000023841858
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        1.100000023841858
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "degrees": [
+        0.0,
+        63.02535883042839
+      ],
+      "degrees_endpoints": [
+        0.0,
+        63.02535883042839
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "port_wing3_lod1",
+      "parent": "port_wing2_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          1.100000023841858
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.100000023841858
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        1.100000023841858
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "degrees": [
+        0.0,
+        63.02535883042839
+      ],
+      "degrees_endpoints": [
+        0.0,
+        63.02535883042839
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "starboard_wing2_lod1",
+      "parent": "starboard_wing_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          1.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        1.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        1.0,
+        -1.0,
+        -0.5
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "port_wing2_lod1",
+      "parent": "port_wing_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          1.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        1.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        -1.0,
+        -1.0,
+        -0.5
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "anim_fix_lod1",
+      "parent": "Root",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 7.0,
+      "times": [
+        0.0,
+        5.0,
+        7.0
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.10000000149011612
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.10000000149011612
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        0.10000000149011612
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "source_triangles": 1211,
+  "phase_bounds": [
+    {
+      "min": [
+        -5.451019812314886,
+        -3.9798588472899654,
+        -7.237619400024414
+      ],
+      "max": [
+        5.463541953398488,
+        3.1452932357788086,
+        6.3680202961176535
+      ],
+      "dimensions": [
+        10.914561765713374,
+        7.125152083068774,
+        13.605639696142067
+      ]
+    },
+    {
+      "min": [
+        -5.346474879670013,
+        -3.765594720840454,
+        -7.237619400024414
+      ],
+      "max": [
+        5.359737330257204,
+        3.1452932357788086,
+        6.3680202961176535
+      ],
+      "dimensions": [
+        10.706212209927216,
+        6.910887956619263,
+        13.605639696142067
+      ]
+    },
+    {
+      "min": [
+        -5.1289942724153725,
+        -3.765594720840454,
+        -7.237619400024414
+      ],
+      "max": [
+        5.142000364543661,
+        3.1452932357788086,
+        6.3680202961176535
+      ],
+      "dimensions": [
+        10.270994636959035,
+        6.910887956619263,
+        13.605639696142067
+      ]
+    },
+    {
+      "min": [
+        -4.796134170934382,
+        -3.765594720840454,
+        -7.237619400024414
+      ],
+      "max": [
+        4.807906501878969,
+        3.1452932357788086,
+        6.3680202961176535
+      ],
+      "dimensions": [
+        9.604040672813351,
+        6.910887956619263,
+        13.605639696142067
+      ]
+    },
+    {
+      "min": [
+        -4.354121479370571,
+        -3.765594720840454,
+        -7.237619400024414
+      ],
+      "max": [
+        4.363775363075953,
+        3.1452932357788086,
+        6.3680202961176535
+      ],
+      "dimensions": [
+        8.717896842446525,
+        6.910887956619263,
+        13.605639696142067
+      ]
+    }
+  ],
+  "launch_to_flight_max_delta": 0.0,
+  "parts": [
+    {
+      "name": "anim_fix_poly_lod14270595880.3db",
+      "flight": {
+        "min": [
+          0.09790540672838688,
+          -0.0020946264266967773,
+          -0.0018242597579956055
+        ],
+        "max": [
+          0.10209459625184536,
+          0.0020946264266967773,
+          0.0018242597579956055
+        ],
+        "dimensions": [
+          0.004189189523458481,
+          0.004189252853393555,
+          0.003648519515991211
+        ]
+      },
+      "stowed": {
+        "min": [
+          -0.0020945947617292404,
+          -0.0020946264266967773,
+          -0.0018242597579956055
+        ],
+        "max": [
+          0.0020945947617292404,
+          0.0020946264266967773,
+          0.0018242597579956055
+        ],
+        "dimensions": [
+          0.004189189523458481,
+          0.004189252853393555,
+          0.003648519515991211
+        ]
+      }
+    },
+    {
+      "name": "baydoor_pir_lod1020917112833.3db",
+      "flight": {
+        "min": [
+          -0.7081171865575016,
+          0.7403338496359818,
+          -3.889884828008579
+        ],
+        "max": [
+          0.7104623322375119,
+          1.0411660666056033,
+          -0.4513214997378905
+        ],
+        "dimensions": [
+          1.4185795187950134,
+          0.3008322169696215,
+          3.4385633282706882
+        ]
+      },
+      "stowed": {
+        "min": [
+          -0.7081171865575016,
+          0.7403338496359818,
+          -3.889884828008579
+        ],
+        "max": [
+          0.7104623322375119,
+          1.0411660666056033,
+          -0.4513214997378905
+        ],
+        "dimensions": [
+          1.4185795187950134,
+          0.3008322169696215,
+          3.4385633282706882
+        ]
+      }
+    },
+    {
+      "name": "engine_pir_lod1020917112833.3db",
+      "flight": {
+        "min": [
+          -1.25,
+          -1.071158364947176,
+          4.326017322230069
+        ],
+        "max": [
+          1.25,
+          2.51572649128114,
+          6.3680202961176535
+        ],
+        "dimensions": [
+          2.5,
+          3.586884856228316,
+          2.042002973887585
+        ]
+      },
+      "stowed": {
+        "min": [
+          -1.25,
+          -1.071158364947176,
+          4.326017322230069
+        ],
+        "max": [
+          1.25,
+          2.51572649128114,
+          6.3680202961176535
+        ],
+        "dimensions": [
+          2.5,
+          3.586884856228316,
+          2.042002973887585
+        ]
+      }
+    },
+    {
+      "name": "glass_pir_lod1020917112833.3db",
+      "flight": {
+        "min": [
+          -1.3827143907546997,
+          -2.722357842134318,
+          -7.185785908855915
+        ],
+        "max": [
+          1.3827142715454102,
+          -0.2615591510266421,
+          -5.151208830913264
+        ],
+        "dimensions": [
+          2.76542866230011,
+          2.460798691107676,
+          2.034577077942651
+        ]
+      },
+      "stowed": {
+        "min": [
+          -1.3827143907546997,
+          -2.722357842134318,
+          -7.185785908855915
+        ],
+        "max": [
+          1.3827142715454102,
+          -0.2615591510266421,
+          -5.151208830913264
+        ],
+        "dimensions": [
+          2.76542866230011,
+          2.460798691107676,
+          2.034577077942651
+        ]
+      }
+    },
+    {
+      "name": "port_wing2_lod14270595880.3db",
+      "flight": {
+        "min": [
+          -4.140337877600521,
+          -3.3250784173508268,
+          -3.8061798123045723
+        ],
+        "max": [
+          -0.49542815816318364,
+          -1.4657975735709519,
+          0.5488112071778644
+        ],
+        "dimensions": [
+          3.6449097194373374,
+          1.859280843779875,
+          4.354991019482437
+        ]
+      },
+      "stowed": {
+        "min": [
+          -3.1403378776005204,
+          -2.325078387548501,
+          -3.306179871909224
+        ],
+        "max": [
+          0.5045718418368164,
+          -0.46579754376862587,
+          1.0488111475732125
+        ],
+        "dimensions": [
+          3.6449097194373365,
+          1.859280843779875,
+          4.354991019482437
+        ]
+      }
+    },
+    {
+      "name": "port_wing3_lod14270595880.3db",
+      "flight": {
+        "min": [
+          -5.451019812314886,
+          -3.9753993629957933,
+          -4.586861737098506
+        ],
+        "max": [
+          -4.034450558652259,
+          -3.119666245994392,
+          -1.536044231054052
+        ],
+        "dimensions": [
+          1.4165692536626269,
+          0.8557331170014013,
+          3.050817506044454
+        ]
+      },
+      "stowed": {
+        "min": [
+          -4.354121479370571,
+          -2.318144811158243,
+          -4.086861892189796
+        ],
+        "max": [
+          -3.0241141285181583,
+          -1.33168929564539,
+          -1.0360442902444893
+        ],
+        "dimensions": [
+          1.3300073508524126,
+          0.9864555155128529,
+          3.0508176019453064
+        ]
+      }
+    },
+    {
+      "name": "port_wing_poly_lod14270595880.3db",
+      "flight": {
+        "min": [
+          -0.0020945947617292404,
+          -2.0710514784946596,
+          -1.4615448714551107
+        ],
+        "max": [
+          0.0020945947617292404,
+          -2.066862225641266,
+          -1.4578963516894206
+        ],
+        "dimensions": [
+          0.004189189523458481,
+          0.004189252853393555,
+          0.003648519765690139
+        ]
+      },
+      "stowed": {
+        "min": [
+          -0.0020945947617292404,
+          -2.0710514784946596,
+          -1.4615448714551107
+        ],
+        "max": [
+          0.0020945947617292404,
+          -2.066862225641266,
+          -1.4578963516894206
+        ],
+        "dimensions": [
+          0.004189189523458481,
+          0.004189252853393555,
+          0.003648519765690139
+        ]
+      }
+    },
+    {
+      "name": "rh_fighter_pir_lod1020917112833.3db",
+      "flight": {
+        "min": [
+          -2.5,
+          -3.765594720840454,
+          -7.237619400024414
+        ],
+        "max": [
+          2.5,
+          3.1452932357788086,
+          4.958300590515137
+        ],
+        "dimensions": [
+          5.0,
+          6.910887956619263,
+          12.19591999053955
+        ]
+      },
+      "stowed": {
+        "min": [
+          -2.5,
+          -3.765594720840454,
+          -7.237619400024414
+        ],
+        "max": [
+          2.5,
+          3.1452932357788086,
+          4.958300590515137
+        ],
+        "dimensions": [
+          5.0,
+          6.910887956619263,
+          12.19591999053955
+        ]
+      }
+    },
+    {
+      "name": "starboard_wing2_lod14270595880.3db",
+      "flight": {
+        "min": [
+          0.5043958278217745,
+          -3.329259868936907,
+          -3.806178143125303
+        ],
+        "max": [
+          4.158860346805707,
+          -1.4699789709587368,
+          0.5488112074271156
+        ],
+        "dimensions": [
+          3.654464518983932,
+          1.85928089797817,
+          4.354989350552419
+        ]
+      },
+      "stowed": {
+        "min": [
+          -0.4956041721782255,
+          -2.329259839134581,
+          -3.3061782027299547
+        ],
+        "max": [
+          3.158860346805707,
+          -0.4699789411564108,
+          1.0488111478224638
+        ],
+        "dimensions": [
+          3.6544645189839327,
+          1.85928089797817,
+          4.354989350552419
+        ]
+      }
+    },
+    {
+      "name": "starboard_wing3_lod14270595880.3db",
+      "flight": {
+        "min": [
+          4.046974300839817,
+          -3.9798588472899654,
+          -4.586859352646882
+        ],
+        "max": [
+          5.463541953398488,
+          -3.1241241768608226,
+          -1.5360431579047809
+        ],
+        "dimensions": [
+          1.4165676525586717,
+          0.8557346704291429,
+          3.050816194742101
+        ]
+      },
+      "stowed": {
+        "min": [
+          3.0337677591625534,
+          -2.309005592139581,
+          -4.086859508548597
+        ],
+        "max": [
+          4.363775363075953,
+          -1.3225521991220017,
+          -1.0360432179055659
+        ],
+        "dimensions": [
+          1.3300076039133994,
+          0.9864533930175792,
+          3.0508162906430307
+        ]
+      }
+    },
+    {
+      "name": "starboard_wing_poly_lod14270595880.3db",
+      "flight": {
+        "min": [
+          -0.0020945947617292404,
+          -2.0710514784946596,
+          -1.4615448714551107
+        ],
+        "max": [
+          0.0020945947617292404,
+          -2.066862225641266,
+          -1.4578963516894206
+        ],
+        "dimensions": [
+          0.004189189523458481,
+          0.004189252853393555,
+          0.003648519765690139
+        ]
+      },
+      "stowed": {
+        "min": [
+          -0.0020945947617292404,
+          -2.0710514784946596,
+          -1.4615448714551107
+        ],
+        "max": [
+          0.0020945947617292404,
+          -2.066862225641266,
+          -1.4578963516894206
+        ],
+        "dimensions": [
+          0.004189189523458481,
+          0.004189252853393555,
+          0.003648519765690139
+        ]
+      }
+    }
+  ],
+  "runtime_basis": "wing_anim.h: wing t=0 flight, forward to t=2 stowed; common_cship.cpp: bay open forward, close reverse",
+  "binding_note": "Part names lowercased locally for case-insensitive Cmpnd binding.",
+  "limitations": "Offline reconstruction, not runtime capture or collision-clearance proof."
+}

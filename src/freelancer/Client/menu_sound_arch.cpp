@@ -7,6 +7,8 @@
 
 #include "menu_sound_arch.h"
 #include "native_subtitles.h"
+#include "audio_timescale.h"
+#include "globals.h"
 
 #include "perf_options.h"
 
@@ -408,6 +410,8 @@ namespace
     static const unsigned kMixerMaxEntries = 0x80;
     FSoundSource* G_MixerRanked[kMixerMaxEntries] = {}; // DAT_00667a58
     unsigned G_MixerRankedCount = 0;                    // DAT_00667cb8
+
+    #include "audio_timescale.inl"
 
     // Retail returns 0xfffffff9 ("no value") from the ISoundSource getters.
     static const GENRESULT kGrNoValue = static_cast<GENRESULT>(0xfffffff9u);
@@ -1068,12 +1072,15 @@ namespace
         }
         else
             StartTick = Offset;
+        SeekAudioTimeScale(this, Offset);
     }
 
     void __thiscall FSoundSource::Pause()
     {
         if (DALib::Sound == nullptr)
             return;
+        double SlowElapsed;
+        AudioTimeScaleElapsed(this, SlowElapsed);
         Field08 = static_cast<int>(DALib::Sound->GetTickCountSlot());
         DALib::Sound->StopInstanceBuffer(this);
     }
@@ -1082,6 +1089,8 @@ namespace
     {
         if (DALib::Sound == nullptr)
             return;
+        double SlowElapsed;
+        AudioTimeScaleElapsed(this, SlowElapsed);
         if ((Flags & 0x10u) != 0)
         {
             unsigned const Now = DALib::Sound->GetTickCountSlot();
@@ -1290,6 +1299,9 @@ namespace
                 return 0;
             if (Source->Arch->GetSmArchId() != -1)
             {
+                double SlowElapsed;
+                if (AudioTimeScaleElapsed(Source, SlowElapsed))
+                    return SlowElapsed > Source->Slot30() ? 1u : 0u;
                 unsigned const Now = DALib::Sound->GetTickCountSlot();
                 unsigned const Duration = Source->Slot30();
                 unsigned const End = static_cast<unsigned>(Source->StartTick) + Duration;
@@ -1318,6 +1330,7 @@ namespace
             Source->Flags = static_cast<unsigned char>(Source->Flags | 0x10u);
         }
         Source->Flags = static_cast<unsigned char>(Source->Flags | 8u);
+        TrackAudioTimeScale(Source);
     }
 
     void __thiscall FSoundSource::ComputeMixerScore(const float* Listener)
@@ -1750,6 +1763,7 @@ namespace
     // held is released (vt+8).
     void SourceStopLinked(FSoundSource* Source)
     {
+        ForgetAudioTimeScale(Source);
         NativeSubtitles::Stop(Source);
         if ((Source->Flags & 4u) != 0)
         {
@@ -1925,6 +1939,7 @@ namespace
             if (SourceStart(Source, Arch, Offset) != 0)
             {
                 StreamedApplyVolume(Source);
+                ApplyStreamAudioTimeScale(Source);
                 DALib::Streamer->StartStream(Source->StreamHandle);
                 if (DALib::Streamer->QueryStatus(Source->StreamHandle) == 0)
                 {
@@ -2652,6 +2667,22 @@ namespace
     }
 }
 
+#ifdef FREELANCER_DBG_OPTIONS
+bool SetClientAudioTimeScaleEnabled(bool Enabled)
+{
+    if (Enabled && !ConnectAudioTimeScale())
+        return false;
+    G_AudioTimeScaleEnabled = Enabled;
+    TickAudioTimeScale();
+    return true;
+}
+
+bool GetClientAudioTimeScaleEnabled()
+{
+    return G_AudioTimeScaleEnabled;
+}
+#endif
+
 ISoundSource* CreateClientThrusterSound(FClientEquippedObj* Ship)
 {
     // 0x00545535..0x0054554f: FUN_00428f80(0x50) (malloc), null -> null; else
@@ -3372,6 +3403,7 @@ void SetClientSoundListenerObject(void* CameraOrNull)
 
 void TickClientSoundMixer(void* Camera, float DeltaSeconds)
 {
+    TickAudioTimeScale();
     // FUN_00428040 (cdecl Camera, Dt). DAT_00667cb8 = 0 first.
     G_MixerRankedCount = 0;
 
@@ -3519,6 +3551,9 @@ void TickClientSoundMixer(void* Camera, float DeltaSeconds)
             {
                 unsigned const now = paused ? unsigned(Source->Field08) : DALib::Sound->GetTickCountSlot();
                 time = double(now - unsigned(Source->StartTick)) * .001;
+                double SlowElapsed;
+                if (AudioTimeScaleElapsed(Source, SlowElapsed))
+                    time = SlowElapsed * .001;
             }
             NativeSubtitles::Sync(Source, time, started, paused, DeltaSeconds);
         }

@@ -1,0 +1,95 @@
+{
+  "completed": 2,
+  "artifacts": [
+    {
+      "id": "L01",
+      "title_ru": "Ступенчатый корпус",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-25f6889c-1095-4f63-8255-9e582d1a6412.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_01/li_elite_L01_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L01",
+      "sha256": "32220a937560b2a39fd01675fc08185d4626381ed1583ce0c98485e9814aef54",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L02",
+      "title_ru": "Шевронные ниши",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-dc2dd5f5-d052-47f0-aacd-8087f75b8d30.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_01/li_elite_L02_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L02",
+      "sha256": "50117a140fcafc55289838b9bf39660c1c27d8976ab55f42316945f3ab74b8d8",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_shape.jpg",
+      "sha256": "9a4f7728899c84baf5038a205583c134d238de8e82255d59bd289ff59725f924"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_fighter .jpg",
+      "sha256": "4280db67dca7840724c7ff3aaf16440c4f7d76a37fde2ecafaac9b2f3e22fb9f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_wing_motion.jpg",
+      "sha256": "32e2eaef0b9a3461f148d81586ce8cea80766bf4d3a6c8bf16e43a384898af93"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/liberty_family_comparison.jpg",
+      "sha256": "fa831e7c7ad70aab607ef3f0f4268fae6a5c27a28f847c6f7cdc53bbca03d12a"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/libertysheet.jpg",
+      "sha256": "70005163ed2f6856e9a5944422bf29ec3cf8cdfbb8576ada6a4780f331df8fb7"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/freighter new perspective.jpg",
+      "sha256": "567eb73ae65a338643b0a96262be419b8377b8d0e4ec09edff996f5258d3468f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_cruiser.jpg",
+      "sha256": "dc2f814a584f633f6331a113ee73b6a937b4efee4bbfc787d43a8761ac7e9ce6"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_battleship1.jpg",
+      "sha256": "f88784f77b1b15e63b449318d695864868630f28368fc1dd9d6086f8c4459ed0"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_glass_contours.jpg",
+      "sha256": "13628baedfe10b3838116c08e44f34c8723df849cf06a1183abf422ca467203d"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

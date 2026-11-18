@@ -9,6 +9,7 @@ void Create(HUD_Maneuvers*);
 void Release(HUD_Maneuvers*);
 void Update(HUD_Maneuvers*,int behavior);
 bool HasButton(int behavior);
+bool HasEvacuationButton();
 void Layout(HUD_Maneuvers*,int behavior);
 bool IsApproaching();
 void CancelApproach();

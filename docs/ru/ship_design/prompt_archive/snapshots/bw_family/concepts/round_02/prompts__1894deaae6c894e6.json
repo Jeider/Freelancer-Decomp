@@ -1,0 +1,50 @@
+{
+  "topic": "bw_family",
+  "round": "round_02",
+  "gallery_title": "BW pirate — B01 / B02, дубль 2",
+  "requested_count": 2,
+  "tool": "built-in image_gen",
+  "transparent_background": false,
+  "status": "complete_for_review",
+  "referenced_image_paths": [
+    "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_textured.jpg",
+    "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_shape.jpg",
+    "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_glass_contours.jpg"
+  ],
+  "variants": [
+    {
+      "id": "B01_R2",
+      "title_ru": "Клиновидные секции — исходная кабина",
+      "base_variant": "B01",
+      "target_image": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_01/bw_family_B01_sheet.png",
+      "prompt": "Precise object edit. CORRECT THE CABINS ON IMAGE 4. Return the complete three-row family concept sheet with fighter, elite and vheavy, retaining the appealing hull designs from image 4. Header: \"BW PIRATE — B01 / R2\". The cabin is the ONLY design feature to replace. Preserve the noses, wing shapes, stepped hulls, engines, lower keels, large vheavy side openings, colors, lighting, paper, layout, and all three views of each ship.\n\nINPUT PRIORITY:\nImage 1: ORIGINAL GAME CABIN, textured, front three-quarter facing LEFT, top, front and side. This is the authoritative cabin to transplant visually onto the ships.\nImage 2: EXACT SAME native cabin geometry with plain grey hull so the true shape and glass perimeter are unmistakable.\nImage 3: contours extracted from the ORIGINAL glass mesh, three panes total. These are NOT decoration: do not draw cyan outlines on the final art.\nImage 4: the FAMILY BOARD TO EDIT. Its hulls are wanted; its current truck-like windshields are WRONG.\nImage 5: complete original ships for cabin proportion and placement.\n\nMANDATORY SHAPE TRANSFER:\nUse the actual cabin shown in images 1 and 2, including the original broad faceted shell around it. The big central blue-grey pane is a continuous LONG SLOPING FRONT-AND-UPPER pane, rising from the low noseward base towards the high rear crown. It is NOT a small upright rectangular windshield underneath a flat opaque roof. It has the native clipped, multi-sided, tapering contour seen in the TOP view: broad shoulders in its forward area, a longer narrowing rear portion, clipped ends. Copy that perimeter instead of inventing a generic trapezoid. The central pane is long and conspicuous when viewed from ABOVE, not just a little window at the front. Preserve its faceted non-planar slope.\nThere is one separate native angular side pane on each side, with the original heptagonal contour, and broad slanting metal pillars between the central and side panes. Exactly THREE panes around the cabin, unsegmented internally. The front glass continues UP the cabin's sloping crown; do not cover its upper portion with a large metal roof panel. The whole cabin remains a low integrated wedge, not a tall greenhouse. Take its silhouette, glass area, original shell and frame locations directly from images 1/2.\n\nApply this SAME original cabin faithfully to fighter, elite and vheavy, keeping its physical size and original relation to the forebody. Correct the main three-quarter illustration AND the side AND the top study in each row. In every miniature TOP study, show the native long central glass and the two separated side panes, matching reference 1's TOP view. In side view copy the native smooth sequence of angular slopes. Keep the source's blue-grey glass, without new frame bars, roof grid, slit windows, rectangular truck windscreen or generic jet canopy. The user's original cabin must be recognizable immediately. If a local joining panel conflicts, adjust that small joining panel, never redesign the cabin.\n\nDo not copy source rendering artifacts, missing surfaces, yellow hardpoint markers or the source's low-resolution raster texture. Translate the exact geometry and pane shapes into the same painted concept finish as the target. Preserve the rest of the board. One portrait image, all three classes, nine views, no extra reference inset.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_textured.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_shape.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_glass_contours.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_01/bw_family_B01_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/family_comparison.jpg"
+      ],
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_02/bw_family_B01_R2_sheet.png",
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_02/bw_family_B01_R2_sheet.png",
+      "generation_status": "generated_for_review"
+    },
+    {
+      "id": "B02_R2",
+      "title_ru": "Ступенчатые плечи — исходная кабина",
+      "base_variant": "B02",
+      "target_image": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_01/bw_family_B02_sheet.png",
+      "prompt": "Precise object edit. CORRECT THE CABINS ON IMAGE 4. Return the complete three-row family concept sheet with fighter, elite and vheavy, retaining the appealing hull designs from image 4. Header: \"BW PIRATE — B02 / R2\". The cabin is the ONLY design feature to replace. Preserve the noses, wing shapes, stepped hulls, engines, lower keels, large vheavy side openings, colors, lighting, paper, layout, and all three views of each ship.\n\nINPUT PRIORITY:\nImage 1: ORIGINAL GAME CABIN, textured, front three-quarter facing LEFT, top, front and side. This is the authoritative cabin to transplant visually onto the ships.\nImage 2: EXACT SAME native cabin geometry with plain grey hull so the true shape and glass perimeter are unmistakable.\nImage 3: contours extracted from the ORIGINAL glass mesh, three panes total. These are NOT decoration: do not draw cyan outlines on the final art.\nImage 4: the FAMILY BOARD TO EDIT. Its hulls are wanted; its current truck-like windshields are WRONG.\nImage 5: complete original ships for cabin proportion and placement.\n\nMANDATORY SHAPE TRANSFER:\nUse the actual cabin shown in images 1 and 2, including the original broad faceted shell around it. The big central blue-grey pane is a continuous LONG SLOPING FRONT-AND-UPPER pane, rising from the low noseward base towards the high rear crown. It is NOT a small upright rectangular windshield underneath a flat opaque roof. It has the native clipped, multi-sided, tapering contour seen in the TOP view: broad shoulders in its forward area, a longer narrowing rear portion, clipped ends. Copy that perimeter instead of inventing a generic trapezoid. The central pane is long and conspicuous when viewed from ABOVE, not just a little window at the front. Preserve its faceted non-planar slope.\nThere is one separate native angular side pane on each side, with the original heptagonal contour, and broad slanting metal pillars between the central and side panes. Exactly THREE panes around the cabin, unsegmented internally. The front glass continues UP the cabin's sloping crown; do not cover its upper portion with a large metal roof panel. The whole cabin remains a low integrated wedge, not a tall greenhouse. Take its silhouette, glass area, original shell and frame locations directly from images 1/2.\n\nApply this SAME original cabin faithfully to fighter, elite and vheavy, keeping its physical size and original relation to the forebody. Correct the main three-quarter illustration AND the side AND the top study in each row. In every miniature TOP study, show the native long central glass and the two separated side panes, matching reference 1's TOP view. In side view copy the native smooth sequence of angular slopes. Keep the source's blue-grey glass, without new frame bars, roof grid, slit windows, rectangular truck windscreen or generic jet canopy. The user's original cabin must be recognizable immediately. If a local joining panel conflicts, adjust that small joining panel, never redesign the cabin.\n\nDo not copy source rendering artifacts, missing surfaces, yellow hardpoint markers or the source's low-resolution raster texture. Translate the exact geometry and pane shapes into the same painted concept finish as the target. Preserve the rest of the board. One portrait image, all three classes, nine views, no extra reference inset.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_textured.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_shape.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_glass_contours.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_01/bw_family_B02_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/family_comparison.jpg"
+      ],
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_02/bw_family_B02_R2_sheet.png",
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_02/bw_family_B02_R2_sheet.png",
+      "generation_status": "generated_for_review"
+    }
+  ]
+}

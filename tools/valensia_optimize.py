@@ -25,7 +25,7 @@ from train_courier.data_output import data_folder
 
 REPO = Path(__file__).resolve().parents[1]
 GAME = Path('D:/Games/FL_MOD')
-OUT = REPO/'out/valensia_optimization'
+OUT = REPO/'out/stations/valensia_optimization'
 TEMPLATE = 'Assets/Pythonlancer/templates/dockable/valensia.py'
 ORIGINAL_TEMPLATE = 'Assets/Pythonlancer/templates/dockable/valensiaOriginal.py'
 LIVE = 'UNIVERSE/SPECIAL/ORDER_HQ/or_hq.ini'

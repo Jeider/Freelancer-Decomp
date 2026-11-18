@@ -1,0 +1,81 @@
+"""RH freighter form-first art: native references, closed angular hulls, two passes."""
+import hashlib
+import json
+from pathlib import Path
+from rh_redesign_paths import TOPIC
+
+OUT = TOPIC / 'rh_freighter/concepts/round_06'
+
+FORM = '''Use case: stylized-concept. Produce one meticulous three-view SHAPE DESIGN sheet of an authentic PIRATE / JUNKER conversion of the ORIGINAL RHEINLAND FREIGHTER from Freelancer. This is PASS 1: PRIMARY HULL FORMS, clean neutral materials, no surface detailing. The user rejected earlier rounded ball-like designs covered in details, exposed pipes, and exterior frames. They want an interesting angular reinterpretation of the actual original vessel, whose silhouette and big solid forms remain compelling after ALL decorative detail is removed. Use the native reference ship as the starting point. No previous AI concept is supplied or authoritative.
+
+REFERENCE ROLES:
+IMAGE 1: ACTUAL original installed RH pirate freighter in perspective, SIDE and TOP. This is authoritative for scale, mass hierarchy, proportions, cockpit placement and hump. Flight bounds width 9.465, height 11.463, length 23.722. The craft is long, tall and fairly narrow, NOT a broad rounded pod. Main hull width is about 6.3 versus cockpit glazing width about 3.6. Keep approximately the original envelope, source cargo capacity and fixed cabin size. The original already has a powerful compact vertical slab body with a distinctive raised arched roof. Preserve this ancestry. Keep the cabin close to the forward face of the cargo body at its original height, not far out on a long bridge.
+IMAGE 2: EXACT ORIGINAL CABIN, immutable. Keep its complete shell and proportions unchanged: slanted upper blue glass, original glazing divisions, lower pale opaque metal face with separate small rectangular blue window slots, yellow/black trim, original chin and underside block. Keep this one module in its original materials even on this otherwise neutral-grey study. No reshaped windows, wraparound lower glass, new canopy, armour, cage, bars or altered pilot scale. Fit the surrounding hull to this exact cabin.
+IMAGE 3: USER'S HISTORICAL RH FREIGHTER ART. Use its simple bold angular silhouette: high straight-sided cargo block, horizontal shoulders, low forward cabin, prominent FACETED raised hump, separate small aft propulsion modules. Its green livery and sketch cockpit do NOT override images 1 and 2. Capture the original Freelancer industrial design, not a generic modern sci-fi hauler.
+IMAGE 4: ORIGINAL three retractable side cylinders. Exactly THREE short closed-ended faceted drums per side: one large middle, one smaller fore and aft. Keep these as the only three functional lateral bosses, extending from thick SOLID HULL cheeks in flight. Make enough room for them to withdraw against/into their own hull at a base. Do not turn them into wheels, thrusters or weapons. No extra cylinder row.
+
+PRIORITY: AUTHENTIC LARGE ANGULAR VOLUMES.
+Use a handful of designed solid masses with sharp intentional plane changes, deep simple closed-back recesses, blunt wedges, cut corners and stepped hull offsets. The outline and mass relationships must carry the design with every texture and bolt removed. Keep broad surfaces quiet. Whole donor HULL SECTIONS can have different shapes and slightly offset seams, making the conversion look assembled by scavengers. Prefer 5-8 substantial authored shape decisions over many attachments. Keep an enclosed pressure hull. No accumulation of decorative plates on an unchanged round body. No generic smooth egg, ball, capsule, circular armour shell or heavily rounded bevels. Preserve crisp corners and authored facets. Do not exaggerate width or make a giant transport.
+
+HUMP IS REQUIRED, BUT IT MUST NOT SWALLOW THE SHIP:
+Keep the source's raised arched roof above a straight shoulder line, roughly the upper third of overall body height. Interpret this as a NARROW TRANSVERSE EXTRUSION of a polygonal longitudinal arch: flat side faces, and 5-7 broad roof planes ascending over the middle then descending fore and aft. It has clear front/rear slopes and a short crown, not a full-width hemispherical dome. Its width stays inside the relatively narrow central cargo body; its length does not run the entire ship. Preserve a substantial rectilinear cargo body visibly BELOW the hump. It is a CLOSED cargo-roof mass, not an exposed wheel, circular drum, skeletal arch, turbine or circular inset covered in teeth. Keep its profile recognizable as the original freighter's hump even though the new planes are deliberately angular.
+
+EXCLUSIONS, MANDATORY:
+NO exposed pipes, hoses, cable bundles or conduits. NO external frames, trusses, diagonal braces, cages, rails, hoops, straps, scaffold, skeletal engine pylons or exposed load-bearing ribs. Do not fill an open frame with pipes. Engines and cabin connect through SHORT SOLID ENCLOSED hull transitions/couplers, never open bridges. No claws, cranes or long external tools in this set. NO wings, thin side flaps, fins, blades or sails. NO geometric rivets, bolts, vents, slats, grilles, dense seams, dents, rust, scratch texture, random greebles, skull ornaments, handles or scattered tiny boxes. No integrated guns. Empty weapon hardpoints, if needed, are just flush simple surface marks. Mechanically essential source side drums and original cabin are retained; exterior pipework is not.
+
+PROPULSION AND VIEW CONSISTENCY:
+TWO original-sized aft engines, left/right at the SAME HEIGHT. Use compact simple closed faceted collars around their basic round source form and short solid mounts, not giant bells or ribbed turbines. Only ONE overlapping engine silhouette in true SIDE view, two separated engines in TOP. All three views must describe the SAME buildable hull, same six drums, same faceted hump and unchanged cabin. Show all cylinders extended in FLIGHT; do not infer animation arrows or add a docked view. No unsupported floating pieces.
+
+PRESENTATION:
+Landscape sheet: one large front-side 3/4 view left; true SIDE / FLIGHT upper right, nose right; true TOP / FLIGHT lower right, nose up. Exactly three complete views with margins. Clean pale grey matte clay hull with a few darker grey recesses, crisp contour lines and controlled shading to show plane changes. No glossy rendering, texture tricks, ambient dirt, photoreal scenery or distracting shadows. Original cabin retains its reference blue glass and pale shell. White/off-white paper. This should look like an expert game vehicle designer's rigorous massing study, deliberately simple in surface treatment, rich in well-authored primary FORM. Do not print dimensions or descriptive paragraphs. Title specified below.
+
+VARIANT DESIGN:
+'''
+
+FINISH = '''Use case: precise-object-edit. This is PASS 2 of an angular RH Junker freighter concept: MATERIAL AND FACTION treatment of the approved-for-this-pass SHAPE STUDY in IMAGE 1. Preserve that study's primary volumes, silhouette, sharp plane changes, closed hull, original cabin, high narrow faceted hump, six side cylinders, compact same-height engine pair and all three view projections. The shape is the design; surface treatment must serve it. Image 2 is the actual source ship for restrained pirate material colours; image 3 is the immutable original cabin, whose geometry and materials stay unchanged. The study is a working concept, not a user-approved final model.
+
+The user specifically wants an authentic scavenger reinterpretation of the original Freelancer RH freighter, angular and interesting after details are stripped away. Keep large flat authored planes, bold volume transitions and quiet surface areas. Colour broad donor HULL SECTIONS with aged pale beige/grey, muted dark red, a little faded olive and dark recesses. Show a few coarse welded joining lines as flat painted/material marks, slight age variation between donor sections, restrained worn edges and one small ownership stencil on a cargo wall. These are texture suggestions, NOT raised added geometry. Use no more than a few broad material fields; avoid an evenly spaced checkerboard of tiny plates. The pirate conversion must read through its angular hull masses and donor panel contours.
+
+Absolutely NO exposed pipes, hoses, cables, conduits, exterior frames, trusses, diagonal braces, cages, rails, hoops, straps, structural ribs, open engine pylons, cargo claws or cranes. Do not add bolt/rivet fields, dense vents/grilles, louvres, handles, ornamental reinforcements or small mechanical clutter. Do not inflate or round the hull, turn the hump into a giant sphere, bevel all corners, or change the source-sized cabin. Do not add wings or integrated weapons. Keep all cavities simple and closed-backed. Keep cabin and engine joins short, solid and enclosed. Six original retractable side drums stay unobstructed. Paired aft engines remain same-height left/right: one overlapping silhouette in SIDE, two in TOP.
+
+Render as refined Freelancer-era ink/marker industrial spacecraft concept art on off-white paper. Excellent compositional clarity and deliberate plane shading; material wear is restrained, not noisy grunge. Preserve the large perspective left, true side upper right nose right, top lower right nose up, three views only. All parts uncropped. Same ship and same fixed panel breaks in all views. The main title is specified below; labels SIDE / FLIGHT and TOP / FLIGHT only. No text paragraphs. Do not introduce details merely to make the image look more complex.
+
+REVIEW ADJUSTMENTS, IF ANY:
+'''
+
+VARIANTS = [
+ ('S01', 'Срезанный блок', 'Stay CLOSEST to the original tall slab cargo body. Rebuild its front and rear outer corners as two broad oblique cuts, leaving a strong vertical central side plane below a simple narrow faceted roof arch. The cylinder carrier is a solid stepped extrusion of the side hull with blunt diagonal ends, not a bolted-on plate. Add one large rectangular closed-back recess below the carrier and two simple angular notches in the lower outline. Keep a clear horizontal shoulder ledge under the hump, original short cabin offset and compact enclosed engine couplers. The solid angular cuts, narrow hump and deep cargo block define the silhouette; nothing decorative is needed.'),
+ ('S02', 'Клиновидный борт', 'A scavenged broad wedge-shaped side HULL SECTION replaces the original lower side wall. It rises into a heavy forward shoulder BEHIND the unchanged cabin and falls into a cut-back lower aft corner. Keep the whole wedge deep and solid, within source width; it is not a wing, ram or thin armour plate. Exactly three original sliding drums emerge from stepped collar seats in its outer face. The central cargo body and narrow high roof arch remain recognizable, with 5 large roof facets and crisp fore/aft transitions. The opposite side repeats the primary mass for mechanical coherence. Add only one broad horizontal recessed field as a major shape break. Use short enclosed aft engine necks and a direct enclosed cabin junction.'),
+ ('S03', 'Ступенчатый корпус', 'A highly rectilinear salvage rebuild with TWO large offset steps in the cargo-body envelope: a narrower high cargo wall below the faceted hump, and a thick continuous lower side shoulder that carries the three drums. Join these tiers with a broad angled transition and a simple long shallow closed-back recess, never a structural gap or open frame. Shape the front main hull face as a recessed vertical plane with sharply cut lower corners, surrounding the short original cabin joint. One donor hull corner protrudes slightly forward behind the cabin; the opposite aft corner is cut away in a solid stepped fashion. Keep source height/length and narrow width. The rectangular tier offsets should be the main distinguishing geometry.'),
+ ('S04', 'Донорские кожухи', 'Retain the original closed cargo-block proportions, but give the two fixed SIDE HULL HOUSINGS visibly different large contours: one is a blunt slanted donor wedge with a large oblique rear cut, the opposite a stepped rectangular industrial casing with one deep closed-backed recess. Their mass and overall envelopes remain similar, both contain the same three original retractable drums. Make the asymmetry physical and readily legible in TOP, not merely colour. A common narrow high polygonal roof arch unifies the source silhouette. Two compact matching aft engine cores use differently cut solid outer collars, mounted by short enclosed joints at the same height. No exposed engine internals. The original cabin remains unchanged on a short solid neck. Cohesive, closed, angular, authentic scavenger assembly.'),
+ ('S05', 'Гранёный грузовой верх', 'Concentrate the redesign on the TRANSITION between the original high hump and angular cargo hull. Make the narrow roof arch from seven very broad longitudinal-profile planes; below its flat side face, a deep oblique shoulder cut transitions into a tall recessed cargo wall and two stout SOLID corner masses. These are parts of one sealed hull shell, not ribs, posts or a frame around an open void. The fore and aft corner masses have different cut angles, giving a purposeful scavenger donor reconstruction while preserving the original side silhouette. Exactly three sliding drums remain on a continuous mid-height solid hull cheek, their ends clearly separated. The lower cargo outline has one broad angled cut and a large calm hatch plane. No dome, rounded armour shell or decorative strips. Original cabin and original-scale engine pair unchanged.'),
+]
+
+
+def sha(p):
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def main():
+    earlier = json.loads((TOPIC / 'rh_freighter/concepts/round_05/prompts.json').read_text(encoding='utf8'))
+    refs = [TOPIC / 'rh_freighter/concepts/round_03/references/original_scale_hump.jpg',
+            TOPIC / 'rh_freighter/concepts/round_02/references/cockpit_original.jpg',
+            Path('H:/FL/EXP/EXTRA_ART/RH/R - Freighter.jpg'),
+            TOPIC / 'rh_freighter/concepts/round_02/references/side_cylinders_original.jpg']
+    payload = dict(tool='built-in image_gen', target='rh_freighter_pir', stage='shape',
+                   source_cmp=earlier['source_cmp'], source_sha256=earlier['source_sha256'],
+                   native_flight_dimensions_xyz=earlier['native_flight_dimensions_xyz'],
+                   latest_brief='Original ancestry; interesting large angular hull forms; unchanged cabin and source scale; prominent narrow faceted hump; no exposed pipes or exterior frames; two-pass form then material workflow.',
+                   references=[dict(path=p.as_posix(),sha256=sha(p)) for p in refs],
+                   finish_template=FINISH,
+                   variants=[dict(id=i,label=i,title_ru=t,group_ru='Угловатая форма',
+                                  prompt=FORM+d+'\nTitle exactly: "RH FREIGHTER / '+i+' / FORM".') for i,t,d in VARIANTS])
+    OUT.mkdir(parents=True,exist_ok=True)
+    path=OUT / 'shape_prompts.json'
+    if path.exists(): raise FileExistsError(path)
+    path.write_text(json.dumps(payload,ensure_ascii=False,indent=2),encoding='utf8')
+    print(path)
+
+
+if __name__ == '__main__':
+    main()

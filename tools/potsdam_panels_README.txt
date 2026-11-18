@@ -33,7 +33,7 @@ loading, not an in-game ship collision/contact simulation.
 Pythonlancer active template now selects the animated archetype. Generation
 was not run. Prior template: potsdamStaticOriginal.py. Prior system:
 rh_berPanelsOriginal.ini. Original static models remain for old snapshots.
-One minimal rollback set under out/potsdam_panels/rollback, with aliases to
+One minimal rollback set under out/stations/potsdam_panels/rollback, with aliases to
 those snapshots instead of duplicate copies. Staging removed after install.
 Native animation log/stamps, manifests, installed hashes retained in that output.
 

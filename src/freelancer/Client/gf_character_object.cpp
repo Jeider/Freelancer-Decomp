@@ -40,6 +40,7 @@
 #include "common_misc.h"       // malloc_strcpy / malloc_strfree / malloc_wstrcpy / get_projected_bounding_sphere
 #include "common_newchar.h"    // RtcSlider
 #include "common_reputation.h" // CostumeDescriptions, DetailSwitchTable
+#include "character_geometry_lod.h"
 #include "common_server.h"     // IServer
 #include "common_universe.h"   // Universe::get_base (FUN_00445720)
 #include "dacom.h"             // FDUMP, DACOM_CRC
@@ -182,6 +183,8 @@ namespace
                 float const Fraction = static_cast<float>(
                     static_cast<double>(Entries[EntryIndex].Lods[Lod].Fraction) * 100.0);
                 Set->Switch[Index][Lod] = Switch->get_switch_distance(Fraction);
+                if (Lod == 0 && (Entries[EntryIndex].Field08 & CharacterGeometryLod::ExtraLoaded))
+                    Set->Switch[Index][Lod] = CharacterGeometryLod::NearDistance(Set->Switch[Index][Lod]);
                 Set->Tables[Index] = Switch;
             }
             if (Set->Counts[Index] > 0)

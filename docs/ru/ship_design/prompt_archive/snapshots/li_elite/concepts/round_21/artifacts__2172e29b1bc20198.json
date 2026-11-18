@@ -1,0 +1,76 @@
+{
+  "completed": 1,
+  "artifacts": [
+    {
+      "id": "L66_R1",
+      "title_ru": "L66 / R1 · цельная переработка",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-15e4be91-c17b-4210-af8c-3aaaf2e99f46.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_21/li_elite_L66_R1_sheet_corrected.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_R1",
+      "correction_history": [
+        {
+          "id": "L66_R1",
+          "kind": "consistent_forward_tail_across_views",
+          "prompt": "Use case: precise-object-edit. Correct ONE error in this completed full-ship concept sheet: the tail points in opposite directions between views. KEEP THE ENTIRE NEW HULL DESIGN, recessed framed side relief, faceted shoulders, seated engine housings, original cabin/collar, all three wing leaves/roots, colors, cameras, labels and image layout UNCHANGED.\nThe cockpit points RIGHT in EVERY drawing. The UPPER-RIGHT REAR 3/4 already has the CORRECT tail: its two upper sections rise diagonally UP-RIGHT toward the cabin. Preserve that rear drawing EXACTLY.\nIn the UPPER-LEFT FRONT 3/4 and the two lower SIDE drawings, the tail currently leans LEFT over the exhaust, which is wrong. Reverse ONLY the fore-aft silhouette/rake of the two-section tail in those three drawings so BOTH sections rise UP-RIGHT toward the right-hand cockpit, precisely matching the tail geometry already visible in the rear view. The top blunt end must lie to the RIGHT of its attachment center. The long sloping BACK surface rises from left exhaust-side stern up toward the RIGHT-facing top. Keep substantial section thickness, overlapping diagonal seam, equipment flats and original height. Keep the root FIXED at the STERN, at the left end of each ship, behind the cargo hatch; do not translate the whole tail forward to the middle of the roof. Only reorient the rising tail sections and their contiguous stern transition. Do not add a pedestal, small decorative fin or extra parts. In SIDE STOWED keep small nesting only.\nIf needed, adjust just the TOP tail footprint to match the same forward-oriented tail at the stern. All other ship geometry remains as is. This is ONE SINGLE design shown consistently, not alternate tail designs.",
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_21/li_elite_L66_R1_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-15e4be91-c17b-4210-af8c-3aaaf2e99f46.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_21/li_elite_L66_R1_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-15e4be91-c17b-4210-af8c-3aaaf2e99f46.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f86ec04f-1aa5-453c-87da-fce8a057f53d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный дизайн в двух крупных перспективах, профиле, плане и сложенном профиле. Изменены плечи/скосы корпуса, утопленное длинное боковое поле, рамка рельефа и посадка моторных кожухов. Коррекция согласовала хвост к кабине в крупных и боковых видах. Три пера читаются. Точная неизменность стекла, корневых координат и скрытых контуров растровым листом не доказана; native CMP остаётся обязательным источником. TOP не определяет точную форму секций хвоста. Малые различия площадок оборудования/перекрытий не являются утверждёнными HP. Геометрия и clearance не проверялись.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f86ec04f-1aa5-453c-87da-fce8a057f53d.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_21/li_elite_L66_R1_sheet.png",
+      "source_checks": "source_checks.json",
+      "required_wing_leaves_per_side": 3,
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-15e4be91-c17b-4210-af8c-3aaaf2e99f46.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "24ac81196fdddac8d220997aeccd8dbee2d4055de3e751f1b03e2bef73eeb74c",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+      "sha256": "3e1ad54708e23d12fec4151def215150532f2b9e82f576b1a89a2913bcd164e5"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+      "sha256": "10f19223296c933957943c3ae329296e7f62e891ac96a8623ae57e51d464f95b"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/or_elite/native_flight.jpg",
+      "sha256": "aaa0fbe3b324ff3420b21f2cc3fce416df4341f30c157bbf594e6b6283d51366"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_wing_motion.jpg",
+      "sha256": "7059cc57544b79f3aabe3cff0f1d1758e0d16c9de1c62f204831474422736241"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

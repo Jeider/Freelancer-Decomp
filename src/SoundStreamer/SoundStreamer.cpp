@@ -7,6 +7,7 @@
 
 #include "SoundStreamerInternal.h"
 #include "readfile.h"
+#include "audio_timescale.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -25,6 +26,8 @@ namespace
     FSoundStreamer* G_Streamer = nullptr;
     HACMDRIVERID G_FraunhoferDriverId = nullptr;
     HACMDRIVER G_FraunhoferDriver = nullptr;
+
+    #include "audio_timescale.inl"
 
     // FDUMP is DACOM's statically initialised handler (DefaultFdump); retail calls through the
     // import with no null test.
@@ -1840,6 +1843,25 @@ GENRESULT DACOM_API FSoundStreamer::GetPan(void* Handle, long* Out)
         return static_cast<GENRESULT>(0);
     *Out = QueryBufferPan(Stream);
     return static_cast<GENRESULT>(1);
+}
+
+// Optional extension; no new vtable slots, fields, or work on the normal pump path.
+#pragma comment(linker, "/EXPORT:PortSetStreamTimeScaleV1=_PortSetStreamTimeScaleV1")
+extern "C" int __cdecl PortSetStreamTimeScaleV1(void* Handle, float Rate)
+{
+    FSoundStreamer* Owner = G_Streamer;
+    if (!Owner || !Owner->WorkerThread || !Handle)
+        return 0;
+    EnterCriticalSection(&Owner->Lock);
+    FStreamingSound* Found = nullptr;
+    for (auto** It = Owner->ActiveBegin; It != Owner->ActiveEnd; ++It)
+        if (*It == Handle) { Found = *It; break; }
+    if (!Found)
+        for (auto** It = Owner->PendingBegin; It != Owner->PendingEnd; ++It)
+            if (*It == Handle) { Found = *It; break; }
+    bool Ok = Found && SetStreamTimeScale(Owner->DirectSound, Found, Rate);
+    LeaveCriticalSection(&Owner->Lock);
+    return Ok ? 1 : 0;
 }
 
 BOOL WINAPI DllMain(HINSTANCE /*Instance*/, DWORD Reason, LPVOID /*Reserved*/)

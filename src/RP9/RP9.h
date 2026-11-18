@@ -389,7 +389,7 @@ class FDirectX9 final : public IRenderPipeline,
                         // Port-only Direct3D 9 extensions (render/IRenderPipelineEx.h, RP9Ex.cpp).
                         public IRenderPipelineEx,
                         public IRPDrawEx,
-                        public IRPSurfaceShader, public IRPSurfaceContext, public IRPRoomMaterials, public IRPRoomShadows,
+                        public IRPSurfaceShader, public IRPSurfaceContext, public IRPRoomMaterials, public IRPRoomShadows, public IRPRoomMaterialCache, public IRPCharacterQuality,
                         public IRPLocalShadows, public IRPFrameQuality, public IRPColorGrade, public IRPWeaponGlints,
                         public IRPPlanetAtmosphere, public IRPPlanetSurface, public IRPSceneCapture, public IRPCodeBeam, public IRPShipNormals, public IRPRockNormals, public IRPVolumeBeam, public IRPRenderWarmup
 #ifdef FREELANCER_DLSS5
@@ -678,6 +678,14 @@ public:
     GENRESULT DACOM_API SetRoomBase(const char* Nickname) override;
     bool ExRoomMaterialBegin();
     void ExRoomMaterialRelease();
+    void ExRoomMaterialRead();
+    void ExRoomMaterialLoad();
+    bool ExRoomMaterialPrepare(bool Skin);
+    GENRESULT DACOM_API BeginRoomMaterialCache(void* Owner, const char* Base) override;
+    GENRESULT DACOM_API PreloadRoomMaterial(const char* Name, const char* Texture) override;
+    GENRESULT DACOM_API EndRoomMaterialCache(void* Owner) override;
+    unsigned long DACOM_API CharacterQualityPass() override;
+    float DACOM_API SetCharacterQuality(float Strength) override;
     GENRESULT DACOM_API ApplyRoomContactShadows() override;
     GENRESULT DACOM_API BeginRoomShadow(const float* CameraView12, const float* Center3, float Radius,
                                        unsigned long Character = 0) override;

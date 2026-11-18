@@ -19,5 +19,5 @@ for system,path in systems:
         if len(rows)<40:continue
         optimized=any(r.archetype.startswith(('batch_','forbes_mega_','stuttgart_mega_','valensia_','ulster_','pdm_','tfm_','vienna_')) for r in rows)
         result.append(dict(system=system,path=path,prefix=prefix,objects=len(rows),optimized=optimized))
-(m.REPO/'out/station_batch/static_inventory.json').write_text(json.dumps(result,indent=2))
+(m.REPO/'out/stations/station_batch/static_inventory.json').write_text(json.dumps(result,indent=2))
 print(json.dumps(sorted((r for r in result if not r['optimized']),key=lambda x:-x['objects']),indent=2))

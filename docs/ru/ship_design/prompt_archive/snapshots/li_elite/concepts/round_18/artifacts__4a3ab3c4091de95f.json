@@ -1,0 +1,483 @@
+{
+  "completed": 10,
+  "artifacts": [
+    {
+      "id": "L68",
+      "title_ru": "Обратный Анубис · широкая опора",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-29e80075-da39-4422-bc73-2bb313e5829e.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet_corrected_v2.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L68",
+      "correction_history": [
+        {
+          "id": "L68",
+          "kind": "forward_tail_direction",
+          "prompt": "Use case: precise-object-edit. Edit this L68 concept sheet ONLY to reverse the FORE-AFT RAKE OF THE UPPER TAIL in every view. Preserve the existing broad three-step pedestal, original cabin and three-rib collar, hull, engines, native wing-root positions, three folding fan leaves, colors, framing and labels. All noses point LEFT in side/front/back perspectives. The generated tail currently sweeps BACK to the RIGHT. Make the tail sweep FORWARD to the LEFT: top center noticeably LEFT of its lower attachment center, by approximately one third the pedestal length. Both its front and back silhouette edges rise diagonally UP-LEFT. Thus the blunt top is closer to the cockpit than the base. Keep it a thick solid blade with continuous broad support below, no thin hook or point. Rear 3/4 also has nose upper LEFT; tail upper mass must go upper LEFT toward nose, never toward near right exhausts. Apply the same reversed upper geometry in SIDE FLIGHT and SIDE STOWED, TOP and REAR as necessary. Pedestal remains broad and aft of the cargo hatch. Change only upper tail rake and contiguous supporting transition, not pedestal size/location or any other ship part.",
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-781b5359-bc1f-4b4b-a490-184e22377de0.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-781b5359-bc1f-4b4b-a490-184e22377de0.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        },
+        {
+          "id": "L68",
+          "kind": "restore_three_native_wing_leaves_and_symmetric_small_views",
+          "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Restore the EXACT THREE-LEAF wing fan from reference 2: amber REAR, green MIDDLE, blue FRONT are THREE COMPLETE separate triangular plates. Recolor all native pirate red. Show three visibly separate free tips and three broad faces in every open wing, including front-side, rear-side, SIDE FLIGHT and TOP. Not two leaves with three etched lines. Preserve the native single common pivot at the LOWER FRONT EDGE of the MAIN HULL after the short neck behind the collar; no wing on the collar itself. Three plates nest rearward along the flank in SIDE STOWED. Only ONE native equipment pad per entire fan, on the original rear leaf; remove pads from the other leaves. Keep the already-correct forward-raked tail in both LARGE views and side views. Correct ONLY its tiny TOP and straight REAR projections so it lies exactly on the ship centerline, bilaterally symmetric, with no sideways cant. Do not reverse its fore-aft rake.",
+          "refs": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet_corrected.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+          ],
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet_corrected.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-29e80075-da39-4422-bc73-2bb313e5829e.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet_corrected_v2.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-29e80075-da39-4422-bc73-2bb313e5829e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-a38b7836-8ba0-49f4-8d22-dd3d0beae152.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Финальная коррекция восстановила три полных пера с отдельными концами и одной площадкой на веер; нижний передний корень сохранён приблизительно. Широкий трёхступенчатый постамент и верх к кабине читаются. Малые TOP/REAR стали ближе к симметрии, но не являются точными проекциями. Для модели сохранять родные координаты и кокпит из CMP.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-a38b7836-8ba0-49f4-8d22-dd3d0beae152.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet.png",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-29e80075-da39-4422-bc73-2bb313e5829e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "9fcb655dbe2a29685c395d091efe164614543e3fc5296eb980efae3d22f04478",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L69",
+      "title_ru": "Низкое длинное основание",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-a8570e09-5f9b-445a-a59c-2799ddfb8b27.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L69_sheet_corrected.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L69",
+      "correction_history": [
+        {
+          "id": "L69",
+          "kind": "restore_three_native_wing_leaves_and_clear_hatch",
+          "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Restore the EXACT THREE-LEAF wing fan from reference 2: amber REAR, green MIDDLE, blue FRONT are THREE COMPLETE separate triangular plates. Recolor all native pirate red. Show three visibly separate free tips and three broad faces in every open wing, including front-side, rear-side, SIDE FLIGHT and TOP. Not two leaves with three etched lines. Preserve the native single common pivot at the LOWER FRONT EDGE of the MAIN HULL after the short neck behind the collar; no wing on the collar itself. Three plates nest rearward along the flank in SIDE STOWED. Only ONE native equipment pad per entire fan, on the original rear leaf; remove pads from the other leaves. Retain the low long forward-facing tail. Shorten ONLY the FRONT extension of the fixed pedestal to end behind the visible rectangular roof hatch, so the hatch is free. Keep its aft ledge and squat upper tail dimensions. No new roof trench.",
+          "refs": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L69_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+          ],
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L69_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-a8570e09-5f9b-445a-a59c-2799ddfb8b27.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L69_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-a8570e09-5f9b-445a-a59c-2799ddfb8b27.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-67d34c88-e201-42b3-b45c-9b59e16e40b4.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "После коррекции три пера видны в крупных перспективах и профиле, площадки сокращены. В малом TOP среднее перо почти потеряно/перекрыто — использовать крупные виды и исходную CMP. Низкий хвост к кабине и длинная подошва сохранены; переднее укорочение основания недостаточно явное, границу люка нужно решать по реальному sweep.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-67d34c88-e201-42b3-b45c-9b59e16e40b4.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L69_sheet.png",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-a8570e09-5f9b-445a-a59c-2799ddfb8b27.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "2994fd77442088486b00ce2a6db0abcd5ed9f98e4a7f981b26f407bdf4885c51",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L70",
+      "title_ru": "Короткая высокая тумба",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-e2cb5024-730a-4794-8b79-97b460aff533.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L70_sheet_corrected.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L70",
+      "correction_history": [
+        {
+          "id": "L70",
+          "kind": "restore_three_native_wing_leaves",
+          "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Restore the EXACT THREE-LEAF wing fan from reference 2: amber REAR, green MIDDLE, blue FRONT are THREE COMPLETE separate triangular plates. Recolor all native pirate red. Show three visibly separate free tips and three broad faces in every open wing, including front-side, rear-side, SIDE FLIGHT and TOP. Not two leaves with three etched lines. Preserve the native single common pivot at the LOWER FRONT EDGE of the MAIN HULL after the short neck behind the collar; no wing on the collar itself. Three plates nest rearward along the flank in SIDE STOWED. Only ONE native equipment pad per entire fan, on the original rear leaf; remove pads from the other leaves. Do not change the high plinth or the short forward-facing tail above it.",
+          "refs": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L70_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+          ],
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L70_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-e2cb5024-730a-4794-8b79-97b460aff533.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L70_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-e2cb5024-730a-4794-8b79-97b460aff533.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-2be61b73-28d9-4311-9b8c-58bc85545635.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Коррекция восстановила три пера в переднем виде, профиле и плане. Высокая тумба и короткий тупой верх к кабине сохранены. В задней перспективе дополнительные кромки перекрытия выглядят как лишняя пластина; не использовать их для определения числа деталей. Крупное основание — намеренная крайность серии.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-2be61b73-28d9-4311-9b8c-58bc85545635.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L70_sheet.png",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-e2cb5024-730a-4794-8b79-97b460aff533.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "750ea8025c09b7e50cd26d40795d9a6f8261a48aa51109944c7de2621faf338d",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L71",
+      "title_ru": "Боковые опоры постамента",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-d56ac292-6067-4f14-99fa-b72765787826.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L71_sheet_corrected.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L71",
+      "correction_history": [
+        {
+          "id": "L71",
+          "kind": "consistent_forward_tail_rake",
+          "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Change ONLY the UPPER TAIL fore-aft rake and its contiguous support in reference 1. Preserve this variant's pedestal shape. Reference 2 L73 demonstrates the correct DIRECTION ONLY, not a replacement tail shape. The nose is LEFT in front and side views: top center of the tail must be LEFT of its lower root center. Both edges rise UP-LEFT, toward the cockpit. The tail must not sweep back toward the exhausts. Reverse the currently aft-swept blade in FRONT-SIDE and both SIDE views. Match the existing correct forward direction in REAR 3/4 where applicable. Maintain a blunt thick solid blade with substantial continuous support into the developed pedestal, not a narrow hook. TOP and straight REAR remain bilaterally symmetric without sideways lean. Keep all three wing leaves and their roots unchanged.",
+          "refs": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L71_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+          ],
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L71_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-d56ac292-6067-4f14-99fa-b72765787826.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L71_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-d56ac292-6067-4f14-99fa-b72765787826.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-2ebe02f9-4d77-4aa9-a113-417e5872e4a4.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "После коррекции верх хвоста направлен к кабине в передней/задней перспективах и профилях. Широкие боковые опоры и тройное крыло сохранены. Передний свес верхушки заметен, но опирается на массивную нижнюю часть; при следующей работе не превращать его в тонкий крюк.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-2ebe02f9-4d77-4aa9-a113-417e5872e4a4.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L71_sheet.png",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-d56ac292-6067-4f14-99fa-b72765787826.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "7857247ceead228327eceffd3912a2374017b0a7626e07c31a8e4e64a5d4786d",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L72",
+      "title_ru": "Кормовая пятка",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-ec4b3824-1f9d-41ee-abca-f8e9b6c7a170.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet_corrected_v2.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L72",
+      "correction_history": [
+        {
+          "id": "L72",
+          "kind": "consistent_forward_tail_rake",
+          "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Change ONLY the UPPER TAIL fore-aft rake and its contiguous support in reference 1. Preserve this variant's pedestal shape. Reference 2 L73 demonstrates the correct DIRECTION ONLY, not a replacement tail shape. The nose is LEFT in front and side views: top center of the tail must be LEFT of its lower root center. Both edges rise UP-LEFT, toward the cockpit. The tail must not sweep back toward the exhausts. Reverse the currently aft-swept blade in FRONT-SIDE and both SIDE views. Match the existing correct forward direction in REAR 3/4 where applicable. Maintain a blunt thick solid blade with substantial continuous support into the developed pedestal, not a narrow hook. TOP and straight REAR remain bilaterally symmetric without sideways lean. In this sheet REAR 3/4 has cockpit RIGHT: in that view the upper tail must lean RIGHT toward the cockpit, away from the left exhausts. Keep camera unchanged. Keep all three wing leaves and their roots unchanged.",
+          "refs": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+          ],
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-034d246b-e21b-49aa-bd82-2be1bdf5cc7a.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-034d246b-e21b-49aa-bd82-2be1bdf5cc7a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        },
+        {
+          "id": "L72",
+          "kind": "rear_view_only_tail_direction",
+          "prompt": "Use case: precise-object-edit. Change ONLY the upper tail in the UPPER RIGHT drawing labeled REAR 3/4. In that drawing the cockpit is on the FAR RIGHT and exhausts on the LEFT. The upper tail currently leans LEFT over the exhausts; this is WRONG. Reverse just that upper tail so it leans RIGHT toward the cockpit. Its blunt top must lie to the RIGHT of its lower attachment, both edges rising diagonally UP-RIGHT. Keep its broad sculpted pedestal and aft heel exactly where they are. Match the forward-raked geometry already shown correctly in the upper-left FRONT-SIDE and lower SIDE views. Do not change ANY other drawing; do not mirror the whole view; do not move cameras, cabin, wings, engines, base, text or materials. Only reverse upper-tail rake in the upper-right rear perspective.",
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet_corrected.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-ec4b3824-1f9d-41ee-abca-f8e9b6c7a170.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet_corrected_v2.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-ec4b3824-1f9d-41ee-abca-f8e9b6c7a170.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f8399c70-da72-4fea-aadb-c547a146f790.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "После второй локальной правки хвост направлен к кабине и в задней перспективе с носом справа. Сохранены кормовая пятка и три пера. Высота/длина верхушки в заднем виде немного отличается от бокового — это художественное направление, не набор точных проекций.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f8399c70-da72-4fea-aadb-c547a146f790.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet.png",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-ec4b3824-1f9d-41ee-abca-f8e9b6c7a170.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "b418ba825fc39e00f46ae4aa2f32385cb002fc2a95ac348c56be72565c21ba3d",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L73",
+      "title_ru": "Гранёное седло",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3fe46fe8-0418-41de-926e-9fd0b9779715.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L73",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3fe46fe8-0418-41de-926e-9fd0b9779715.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Гранёное широкое седло заметно в плане и сзади; три пера, нижний передний корень и наклон хвоста к кабине читаются. Крупные боковые площадки основания местами визуально заходят над плечами двигателей; при выбранной идее отделить их от кожухов. Крепёж на лишних перьях — артефакт, не схема оборудования.",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3fe46fe8-0418-41de-926e-9fd0b9779715.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "22db5ac191dd554c6db85315ea8486669835534965ec16cb014ca21874137ee3",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L74",
+      "title_ru": "Две крупные ступени",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-8d59bd4d-3a71-4801-99d5-4ab1e9dba03a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L74_sheet_corrected.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L74",
+      "correction_history": [
+        {
+          "id": "L74",
+          "kind": "consistent_forward_tail_rake",
+          "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Change ONLY the UPPER TAIL fore-aft rake and its contiguous support in reference 1. Preserve this variant's pedestal shape. Reference 2 L73 demonstrates the correct DIRECTION ONLY, not a replacement tail shape. The nose is LEFT in front and side views: top center of the tail must be LEFT of its lower root center. Both edges rise UP-LEFT, toward the cockpit. The tail must not sweep back toward the exhausts. Reverse the currently aft-swept blade in FRONT-SIDE and both SIDE views. Match the existing correct forward direction in REAR 3/4 where applicable. Maintain a blunt thick solid blade with substantial continuous support into the developed pedestal, not a narrow hook. TOP and straight REAR remain bilaterally symmetric without sideways lean. Keep all three wing leaves and their roots unchanged.",
+          "refs": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L74_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+          ],
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L74_sheet.png",
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-8d59bd4d-3a71-4801-99d5-4ab1e9dba03a.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L74_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8d59bd4d-3a71-4801-99d5-4ab1e9dba03a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-ffa5e1b9-d0c2-41c4-8aee-ccb8ff270e6f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Наклон верхней секции исправлен к кабине во всех крупных и боковых видах. Две крупные ступени, широкая пятка и три пера сохранены. Крылья в TOP перекрываются сильнее, чем в перспективе; при моделировании опираться на родные три детали и их корневые трансформы.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-ffa5e1b9-d0c2-41c4-8aee-ccb8ff270e6f.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L74_sheet.png",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8d59bd4d-3a71-4801-99d5-4ab1e9dba03a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "9032121ad8821c19344b98ee4be9285e4ac548c3197335ac46cd0cae33744d58",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L75",
+      "title_ru": "Развитая нижняя секция",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-338df337-fa48-4f98-a825-f9250307e8b8.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L75_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L75",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-338df337-fa48-4f98-a825-f9250307e8b8.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Большая нижняя трапециевидная секция и короткая верхняя отличают вариант; верхняя секция смещена к кабине, три пера читаются. Основание очень массивно и может быть избыточным для истребителя — оставить для сравнения крайностей. На листе нельзя отличить фиксированную опору от подвижной нижней секции с инженерной точностью.",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-338df337-fa48-4f98-a825-f9250307e8b8.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "28d1fdc3f1f900d25bce30dbd2a0c3c7d92fa55e9b10cc15ca8418d5d1772b2e",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L76",
+      "title_ru": "Широкая верхняя секция",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-67843688-1457-4bcc-a6e8-0cef9232b409.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L76_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L76",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-67843688-1457-4bcc-a6e8-0cef9232b409.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Широкая продольная верхняя секция с тупым носовым краем, развитое нижнее основание и три пера читаются во всех основных видах. Верх явно выдвинут к кабине. Из-за длинной плоской верхушки вариант ближе к тяжёлому оборудованию; ниша под носовой частью верхушки требует проверки на нежелательный крюк при моделировании.",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-67843688-1457-4bcc-a6e8-0cef9232b409.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "2b5c68c27aa2fc6beb0b58705b1c5ddf1d3abcd2c01b587770b7322445e3344b",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L77",
+      "title_ru": "Замкнутый ступенчатый хвост",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f40e607e-baf1-4df2-85cf-fd69f42d84f8.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L77_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L77",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f40e607e-baf1-4df2-85cf-fd69f42d84f8.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Компактный цельный ступенчатый хвост: широкая нижняя опора, короткая тупая верхушка к кабине, задний диагональный подпор. Тройное крыло читается. От L75 отличается менее высокой и более собранной верхней массой, хотя родство сильное. Количество и положение площадок оборудования между видами плавает; это не утверждённые hardpoints.",
+      "native_wing_root_required": true,
+      "required_wing_leaves_per_side": 3,
+      "source_checks": "source_checks.json",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f40e607e-baf1-4df2-85cf-fd69f42d84f8.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "622119d072490533058960b51aad5b91cff6c1b9a6243da66c7c2c331b1fc29f",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+      "sha256": "3e1ad54708e23d12fec4151def215150532f2b9e82f576b1a89a2913bcd164e5"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+      "sha256": "10f19223296c933957943c3ae329296e7f62e891ac96a8623ae57e51d464f95b"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/or_elite/native_flight.jpg",
+      "sha256": "aaa0fbe3b324ff3420b21f2cc3fce416df4341f30c157bbf594e6b6283d51366"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet_corrected.png",
+      "sha256": "6f2b88d5705d708b0fa226d6d1181cb32e83b6a4ed8da3f884ea49da31af020e"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png",
+      "sha256": "22db5ac191dd554c6db85315ea8486669835534965ec16cb014ca21874137ee3"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_wing_motion.jpg",
+      "sha256": "7059cc57544b79f3aabe3cff0f1d1758e0d16c9de1c62f204831474422736241"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

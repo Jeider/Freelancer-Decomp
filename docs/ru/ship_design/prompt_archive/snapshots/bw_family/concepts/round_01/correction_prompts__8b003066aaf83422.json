@@ -1,0 +1,37 @@
+{
+  "tool": "built-in image_gen",
+  "transparent_background": false,
+  "status": "complete_for_review",
+  "variants": [
+    {
+      "id": "B01",
+      "title_ru": "Клиновидные секции",
+      "target_image": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-32a32b10-8b91-4bb4-b07e-4e8c97fb1c3c.png",
+      "prompt": "Use case: precise-object-edit. Edit reference image 1, the BW PIRATE B01 family board. This is a STRICT COCKPIT IDENTITY CORRECTION. Preserve all three ship designs, board layout, text, colors, nose lengths, wings, engines, keel, open side windows, mechanical details, perspective cameras and side/top studies.\n\nReference 1 is the edit target board.\nReference 2 shows the mandatory ORIGINAL FIGHTER cockpit at large scale, three views.\nReference 3 shows the mandatory ORIGINAL ELITE cockpit at large scale, three views.\nReference 4 shows the mandatory ORIGINAL VHEAVY cockpit at large scale, three views.\nReference 5 shows the actual three ships for cabin size and position. The original native glazing is identical on all three models.\n\nThe existing board's canopy is WRONG: it has become an angular glazed greenhouse with rectangular panes, roof glazing and thin added crossbars. Replace the ENTIRE visible cabin assembly on EACH of the THREE main ship illustrations and its matching SIDE and TOP miniature with the exact compact original cabin appearance from references 2/3/4. Study the native front close-up: ONE broad blue-grey clipped polygonal forward pane set into thick surrounding solid metal, no internal crossbar in that front pane. Study the side close-up: the SIDE pane is a long LOW sloping wedge, sharp toward the nose, in a solid wedge-shaped metal roof/shell. The side profile is shallow and sloping, not an upright box or high glazed tower. In the three-quarter close-up there is one large forward pane and a separate side pane divided by the original broad slanted structural metal pillar; NOT many narrow rectangular glass panels. Keep the SOLID METAL roof and original metal rear surround. No new glass roof, no elongated transparent canopy, no multiple segmented windshield bars, no bright thin grid, no modern jet bubble. Match actual pane perimeter contours instead of treating polygonal glass as permission to invent new glazing.\n\nKeep native cabin dimensions and its integration into the nose. Adjust only the immediate cabin-to-hull transition as needed to fit the original cabin. All unrelated design work must remain as in the target. Repeat the SAME accurate original cabin across fighter, elite and vheavy at consistent physical scale, preserving the individual hull around it. Every main and small view must agree. Warm weathered metal finish may match the board, but the cabin shape, original frame placement and glass outline are fixed by the close-ups.\n\nReturn one corrected complete portrait family sheet, identical composition and design label B01. Do not add an inset cockpit illustration or textual notes. The correction must appear on the actual ships.",
+      "referenced_image_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-32a32b10-8b91-4bb4-b07e-4e8c97fb1c3c.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/fighter/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/elite/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/vheavy_fighter/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/family_comparison.jpg"
+      ],
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_01/bw_family_B01_sheet.png",
+      "generation_status": "generated_for_review"
+    },
+    {
+      "id": "B02",
+      "title_ru": "Ступенчатые плечи",
+      "target_image": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f153468c-b676-4b09-963c-3edb93afb9d2.png",
+      "prompt": "Use case: precise-object-edit. Edit reference image 1, the BW PIRATE B02 family board. This is a STRICT COCKPIT IDENTITY CORRECTION. Preserve all three ship designs, board layout, text, colors, nose lengths, wings, engines, keel, open side windows, mechanical details, perspective cameras and side/top studies.\n\nReference 1 is the edit target board.\nReference 2 shows the mandatory ORIGINAL FIGHTER cockpit at large scale, three views.\nReference 3 shows the mandatory ORIGINAL ELITE cockpit at large scale, three views.\nReference 4 shows the mandatory ORIGINAL VHEAVY cockpit at large scale, three views.\nReference 5 shows the actual three ships for cabin size and position. The original native glazing is identical on all three models.\n\nThe existing board's canopy is WRONG: it has become an angular glazed greenhouse with rectangular panes, roof glazing and thin added crossbars. Replace the ENTIRE visible cabin assembly on EACH of the THREE main ship illustrations and its matching SIDE and TOP miniature with the exact compact original cabin appearance from references 2/3/4. Study the native front close-up: ONE broad blue-grey clipped polygonal forward pane set into thick surrounding solid metal, no internal crossbar in that front pane. Study the side close-up: the SIDE pane is a long LOW sloping wedge, sharp toward the nose, in a solid wedge-shaped metal roof/shell. The side profile is shallow and sloping, not an upright box or high glazed tower. In the three-quarter close-up there is one large forward pane and a separate side pane divided by the original broad slanted structural metal pillar; NOT many narrow rectangular glass panels. Keep the SOLID METAL roof and original metal rear surround. No new glass roof, no elongated transparent canopy, no multiple segmented windshield bars, no bright thin grid, no modern jet bubble. Match actual pane perimeter contours instead of treating polygonal glass as permission to invent new glazing.\n\nKeep native cabin dimensions and its integration into the nose. Adjust only the immediate cabin-to-hull transition as needed to fit the original cabin. All unrelated design work must remain as in the target. Repeat the SAME accurate original cabin across fighter, elite and vheavy at consistent physical scale, preserving the individual hull around it. Every main and small view must agree. Warm weathered metal finish may match the board, but the cabin shape, original frame placement and glass outline are fixed by the close-ups.\n\nReturn one corrected complete portrait family sheet, identical composition and design label B02. Do not add an inset cockpit illustration or textual notes. The correction must appear on the actual ships.",
+      "referenced_image_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f153468c-b676-4b09-963c-3edb93afb9d2.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/fighter/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/elite/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/vheavy_fighter/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/family_comparison.jpg"
+      ],
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_01/bw_family_B02_sheet.png",
+      "generation_status": "generated_for_review"
+    }
+  ]
+}

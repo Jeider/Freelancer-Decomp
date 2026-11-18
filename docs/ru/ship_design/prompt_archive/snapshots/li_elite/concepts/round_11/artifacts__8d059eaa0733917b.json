@@ -1,0 +1,96 @@
+{
+  "completed": 2,
+  "artifacts": [
+    {
+      "id": "L45",
+      "title_ru": "Прямые пилоны и высокая перемычка",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-6f2a8a37-153b-417e-be5d-9e69adcc9e36.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_11/li_elite_L45_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L45",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-6f2a8a37-153b-417e-be5d-9e69adcc9e36.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Основной многоугольный брусок, родная окраска, мотивы, веер и поперечный спойлер узнаваемо сохранены. Две широкие приподнятые боковины образуют пониженный центральный канал, спойлер выше их верха. Верх воротника между боковыми стойками раскрыт; степень нижнего выреза у зелёной отметки в перспективе не доказана — потребуется уточнение на геометрии/крупном фронтальном виде. На CARGO OPEN показан трюм с открытой парой створок, однако это не проверка полной траектории и боковых зазоров. Кабина близка к источнику, но её точный контур нельзя брать с растра; исходный CMP обязателен.",
+      "sha256": "fa6a7be6a0ceaa274d8ff1057f178213eac53e847f9a1c508c5536a35cfa52a5",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L46",
+      "title_ru": "Ступенчатые пилоны и раздвоенный венец",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-1e207dfa-54c5-4241-bf4a-6270a12add0f.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_11/li_elite_L46_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L46",
+      "correction_history": [
+        {
+          "id": "L46_collar_cutouts_01",
+          "prompt_file": "correction_prompts.json",
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-1e207dfa-54c5-4241-bf4a-6270a12add0f.png",
+          "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_11/li_elite_L46_sheet.png"
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-1e207dfa-54c5-4241-bf4a-6270a12add0f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Сохранены многоугольная основа, родные цветовые поля, рисунки веера и вертикальная пара исходных двигателей. Два приподнятых боковых пилона имеют небольшие уступы; над ними — связный поперечный спойлер с двумя поднятыми плечами и пониженным центром. Между пилонами остаётся утопленная площадка/трюм. Внешний воротник раскрыт сверху; после отдельной правки появились небольшие видимые нижние выкусы в контуре фланцев (особенно SIDE), без вырезания кабины. Точность границы относительно зелёной метки ещё требует исходной геометрии. TOP повёрнут носом влево вопреки тексту задания, но показывает требуемую схему. CARGO OPEN — замысел раскрытия, не валидация движения. Растр не заменяет оригинальный кокпит.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-592295a1-af88-4a13-a5ef-d653aa5776cd.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_11/li_elite_L46_initial.png",
+      "sha256": "10fd59771900b45cbdf215cc4d34a665aaa66930421b2b9c63888e8f389fac0f",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/user_obelisk_markup/front.png",
+      "sha256": "8f0260b615705bf9d1c59392a74fcd3d49529925e77967bc285d4621edf2d0d3"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/user_obelisk_markup/perspective.png",
+      "sha256": "20c1cf5171407f83a35e52995946cdba7cc922230c698c0587c3543a09f7e6d5"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+      "sha256": "10f19223296c933957943c3ae329296e7f62e891ac96a8623ae57e51d464f95b"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

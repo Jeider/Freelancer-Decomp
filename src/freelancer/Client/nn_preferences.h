@@ -131,6 +131,7 @@ public:
     void Update() override;
     // slot 13 FUN_004abdb0
     void Draw() override;
+    bool HitTest(float const* Ray) override;
     // slot 19 FUN_004ada40 (RET 4)
     bool MouseEvent(FWin3DMouseEvent const* Event) override;
     // slot 20 FUN_004adac0 (RET 8)

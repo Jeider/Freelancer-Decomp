@@ -8,6 +8,7 @@
 #include "SoundManagerInternal.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 #include "readfile.h"
+#include "audio_timescale.h"
 
 #include <cctype>
 #include <cstdarg>
@@ -27,6 +28,13 @@
 
 namespace
 {
+    PortAudioTimeScaleQuery G_AudioTimeScaleQuery = nullptr;
+
+    bool QueryTimeScale(ISoundSource* Key, PortAudioTimeScaleState& State)
+    {
+        return G_AudioTimeScaleQuery && G_AudioTimeScaleQuery(Key, &State) != 0;
+    }
+
     // DAT_06eeaf0c: initialised by every FSoundManager ctor (06ee1c79), deleted by every dtor
     // (06ee1e09).
     CRITICAL_SECTION G_InstanceLock;
@@ -919,6 +927,8 @@ namespace
         Buffer->Unlock(Ptr1, Bytes1, nullptr, 0);
         return 0;
     }
+
+    #include "audio_timescale.inl"
 
     // FUN_06ee18e0 stdcall RET 4: DS-notify thread. Collect node+0x14 events +
     // DAT_06eeaf70, WFMO; looping wrap SetCurrentPosition(Pad18); else CloseHandle.
@@ -2470,21 +2480,30 @@ unsigned char FSoundManager::MixerApplyInstance(FSoundInstanceNode* Node)
     // every instance node of that archetype from the list (FUN_06ee4740 at 06ee31b1) under
     // the instance lock, so a node the mixer walks always resolves.
     FSoundArchetype* Archetype = LookupArchetype(PlayKey->GetArchId());
-    if ((Node->StatusFlags & 0x20) != 0)
+    PortAudioTimeScaleState Slow;
+    bool const SlowSource = QueryTimeScale(PlayKey, Slow);
+    if ((Node->StatusFlags & 0x20) != 0 ||
+        (SlowSource && (Node->DsCapsFlags & DSBCAPS_CTRLFREQUENCY) != 0))
     {
         // MOVZX word [arch+8]; GetPitch (+0x28), JL skips; ftol(FUN_06ee1670(pitch) * FIMUL
         // int32 rate); clamp unsigned (JBE 100000 / JNC 100).
         const int Rate = static_cast<int>(Archetype->nSamplesPerSec);
-        float Pitch;
-        if (PlayKey->GetPitch(&Pitch) >= 0)
+        float Pitch = 0.f;
+        bool const HasPitch = PlayKey->GetPitch(&Pitch) >= 0;
+        if (HasPitch || SlowSource)
         {
-            unsigned long Frequency = Ftol32(PitchToMultiplier(Pitch) * static_cast<double>(Rate));
+            double Multiplier = HasPitch ? PitchToMultiplier(Pitch) : 1.0;
+            if (SlowSource)
+                Multiplier *= Slow.Rate;
+            unsigned long Frequency = Ftol32(Multiplier * static_cast<double>(Rate));
             if (Frequency > 100000)
                 Frequency = 100000;
             else if (Frequency < 100)
                 Frequency = 100;
             if (Node->Buffer->SetFrequency(Frequency) < 0)
             {
+                if (SlowSource)
+                    G_AudioTimeScaleQuery(PlayKey, nullptr);
                 char Message[0x2000];
                 Fdump(kFdumpWarning, 0xDFD,
                       FormatMessage2000(Message, "SoundMgr:Couldn't set freq to %d.\n",
@@ -2531,6 +2550,9 @@ unsigned char FSoundManager::OneShotAlreadyExpired(ISoundSource* PlayKey)
     const unsigned long DurationMs = ScaledDurationMs(Archetype, PlayKey);
     const unsigned long StartTick = PlayKey->GetStartTick();
     Archetype->Release();
+    PortAudioTimeScaleState Slow;
+    if (QueryTimeScale(PlayKey, Slow))
+        return Slow.ElapsedMs > DurationMs ? 1 : 0;
     return Field4C > (DurationMs + StartTick) ? 1 : 0;
 }
 
@@ -2593,6 +2615,10 @@ unsigned char FSoundManager::MixerSetStartOffset(FSoundInstanceNode* Node)
     if (Archetype == nullptr)
         return 0;
     unsigned long Delta = Field4C - Tick;
+    PortAudioTimeScaleState Slow;
+    bool const SlowSource = QueryTimeScale(PlayKey, Slow);
+    if (SlowSource)
+        Delta = static_cast<unsigned long>(Slow.ElapsedMs);
     if ((Node->StatusFlags & 0x20) != 0)
     {
         // 06ee6bfa: GetPitch (+0x28) into its own slot; 0 -> FUN_06ee1670(pitch), else clear
@@ -2601,7 +2627,7 @@ unsigned char FSoundManager::MixerSetStartOffset(FSoundInstanceNode* Node)
         double Multiplier = 1.0;
         if (PlayKey->GetPitch(&Pitch) == 0)
             Multiplier = PitchToMultiplier(Pitch);
-        else
+        else if (!SlowSource)
             Node->StatusFlags &= ~0x20u;
         Delta = Ftol32(static_cast<double>(static_cast<unsigned long long>(Delta)) * Multiplier);
     }
@@ -2670,7 +2696,21 @@ FSoundInstanceNode* FSoundManager::CreateInstanceFromKey(ISoundSource* PlayKey)
     // 06ee616a: DuplicateSoundBuffer (+0x14)(arch +0x24, &payload+4); JL -> WARNING 0xCDD,
     // Release the archetype, then fall into the 06ee63c6 tail, which (the id is not -1 here)
     // also emits WARNING 0xCE5; return -1.
-    if (DirectSound->DuplicateSoundBuffer(Archetype->Buffer, &Node->Buffer) < 0)
+    PortAudioTimeScaleState Slow;
+    bool const NeedsSlowBuffer = QueryTimeScale(PlayKey, Slow) && Slow.Rate < 1.f;
+    if (NeedsSlowBuffer)
+    {
+        DSBCAPS SlowCaps = {};
+        SlowCaps.dwSize = sizeof(SlowCaps);
+        bool const HasFrequency = Archetype->Buffer->GetCaps(&SlowCaps) >= 0 &&
+                                  (SlowCaps.dwFlags & DSBCAPS_CTRLFREQUENCY) != 0;
+        if (!HasFrequency && !CreateTimeScaleBuffer(DirectSound, Archetype->Buffer, &Node->Buffer))
+        {
+            G_AudioTimeScaleQuery(PlayKey, nullptr);
+            Fdump(kFdumpWarning, 0, "AudioTimeScale: unsupported buffer; using normal rate for this source.\n");
+        }
+    }
+    if (!Node->Buffer && DirectSound->DuplicateSoundBuffer(Archetype->Buffer, &Node->Buffer) < 0)
     {
         Fdump(kFdumpWarning, 0xCDD,
               FormatMessage2000(Message, "SoundMgr:Couldn't duplicate archetype buffer %d.\n", ArchId)); // 06eeabb8
@@ -3665,7 +3705,10 @@ GENRESULT DACOM_API FSoundManager::MixerTick(ISoundListenerPose* ListenerPose)
     while (Node != &G_InstanceSentinel)
     {
         FSoundInstanceNode* Next = Node->Next;
-        if (FindAttached(Node->PlayKey) == nullptr)
+        PortAudioTimeScaleState Slow;
+        bool const Upgrade = (Node->DsCapsFlags & DSBCAPS_CTRLFREQUENCY) == 0 &&
+                             QueryTimeScale(Node->PlayKey, Slow) && Slow.Rate < 1.f;
+        if (FindAttached(Node->PlayKey) == nullptr || Upgrade)
         {
             EnterCriticalSection(&G_InstanceLock);
             UnlinkInstance(Node);
@@ -3979,6 +4022,13 @@ GENRESULT DACOM_API FSoundManager::GetInstanceStatus(int Index, void* Out)
     Dwords[1] = Node->StatusFlags;
     Dwords[2] = Node->DsCapsFlags;
     return GR_OK;
+}
+
+// Explicit extension registration; no new imports or retail vtable slots.
+#pragma comment(linker, "/EXPORT:PortInstallAudioTimeScaleV1=_PortInstallAudioTimeScaleV1")
+extern "C" void __cdecl PortInstallAudioTimeScaleV1(PortAudioTimeScaleQuery Query)
+{
+    G_AudioTimeScaleQuery = Query;
 }
 
 BOOL WINAPI DllMain(HINSTANCE Instance, DWORD Reason, LPVOID /*Reserved*/)

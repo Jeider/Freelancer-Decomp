@@ -1,4 +1,5 @@
 #include "page_customization.h"
+#include "customization_text.h"
 #include "type_select.h"
 #include "nn_static_control.h"
 #include "ui_win_deform.h"
@@ -101,9 +102,9 @@ class CustomizationPage : public Win3D, public EventHandler
     }
     void Rebuild() {
         using namespace PlayerCustomization;
-        BodyName.SetText(Bodies[Draft.Body].Label);
-        HatName.SetText(Hats[Draft.Hat].Label);
-        HelmetName.SetText(Helmets[Draft.Helmet].Label);
+        BodyName.SetText(CustomizationText::Text(Bodies[Draft.Body].Label, Bodies[Draft.Body].EnglishLabel));
+        HatName.SetText(CustomizationText::Text(Hats[Draft.Hat].Label, Hats[Draft.Hat].EnglishLabel));
+        HelmetName.SetText(CustomizationText::Text(Helmets[Draft.Helmet].Label, Helmets[Draft.Helmet].EnglishLabel));
         Costume base = {}, comm = {};
         auto const* descriptions = GetCostumeDescriptions();
         PreviewValid = false;
@@ -126,8 +127,8 @@ class CustomizationPage : public Win3D, public EventHandler
             }
         }
         ApplyButton.bInteractive=PreviewValid ? 1 : 0;
-        Notice.SetText(PreviewValid ? L"\u041e\u0431\u0440\u0430\u0437 \u043f\u0440\u0438\u043c\u0435\u043d\u044f\u0435\u0442\u0441\u044f \u043f\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0435 \u0441\u044e\u0436\u0435\u0442\u043d\u043e\u0439 \u0438\u0433\u0440\u044b" :
-                                     L"\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u043c\u043e\u0434\u0435\u043b\u044c. \u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u0440\u0443\u0433\u043e\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442.");
+        Notice.SetText(PreviewValid ? CustomizationText::Text(L"\u041e\u0431\u0440\u0430\u0437 \u043f\u0440\u0438\u043c\u0435\u043d\u044f\u0435\u0442\u0441\u044f \u043f\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0435 \u0441\u044e\u0436\u0435\u0442\u043d\u043e\u0439 \u0438\u0433\u0440\u044b", L"Applied when you load a story game") :
+                                     CustomizationText::Text(L"\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u043c\u043e\u0434\u0435\u043b\u044c. \u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u0440\u0443\u0433\u043e\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442.", L"Could not load the model. Choose another option."));
     }
     void ShowPortrait(bool show) {
         PortraitOpen=show;
@@ -152,7 +153,7 @@ public:
         case 8: ShowPortrait(false); return true;
         case 9:
             if (PreviewValid && Save(Draft)) Closed=true;
-            else Notice.SetText(L"\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043e\u0431\u0440\u0430\u0437. \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u043d\u0435 \u043f\u0440\u0438\u043c\u0435\u043d\u0435\u043d\u044b.");
+            else Notice.SetText(CustomizationText::Text(L"\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043e\u0431\u0440\u0430\u0437. \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u043d\u0435 \u043f\u0440\u0438\u043c\u0435\u043d\u0435\u043d\u044b.", L"Could not save appearance. Settings were not applied."));
             return true;
         case 10: Closed=true; return true;
         default: return false;
@@ -190,10 +191,10 @@ public:
         Button(BodyRight,&BodyWindow,L">",2,.395f,-.015f);
         Button(HelmetLeft,&PortraitWindow,L"<",5,.015f,.09f);
         Button(HelmetRight,&PortraitWindow,L">",6,.395f,.09f);
-        Button(OpenPortrait,&BodyWindow,L"\u041f\u043e\u0440\u0442\u0440\u0435\u0442 \u0441\u0432\u044f\u0437\u0438",7,.07f,-.17f,.28f);
-        Button(BackToBody,&PortraitWindow,L"\u041a \u043f\u0435\u0440\u0441\u043e\u043d\u0430\u0436\u0443",8,.07f,-.17f,.28f);
-        Button(ApplyButton,this,L"\u041f\u0440\u0438\u043c\u0435\u043d\u0438\u0442\u044c",9,-.37f,-.285f,.28f);
-        Button(CancelButton,this,L"\u041e\u0442\u043c\u0435\u043d\u0430",10,.05f,-.285f,.28f);
+        Button(OpenPortrait,&BodyWindow,CustomizationText::Text(L"\u041f\u043e\u0440\u0442\u0440\u0435\u0442 \u0441\u0432\u044f\u0437\u0438", L"Comm portrait"),7,.07f,-.17f,.28f);
+        Button(BackToBody,&PortraitWindow,CustomizationText::Text(L"\u041a \u043f\u0435\u0440\u0441\u043e\u043d\u0430\u0436\u0443", L"Back to character"),8,.07f,-.17f,.28f);
+        Button(ApplyButton,this,CustomizationText::Text(L"\u041f\u0440\u0438\u043c\u0435\u043d\u0438\u0442\u044c", L"Apply"),9,-.37f,-.285f,.28f);
+        Button(CancelButton,this,CustomizationText::Text(L"\u041e\u0442\u043c\u0435\u043d\u0430", L"Cancel"),10,.05f,-.285f,.28f);
         Notice.SetFont("ButtonText",.8f);
         ShowPortrait(data && *static_cast<bool*>(data)); Rebuild();
         RegisterEvent(0xf); Win3DPushCapture(this); return true;

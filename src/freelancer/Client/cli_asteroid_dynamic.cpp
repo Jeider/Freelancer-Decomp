@@ -7,6 +7,7 @@
 #include "cli_asteroid_dynamic.h"
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h"
+#include "nebula_fog_shape.h"
 #include "port_config.h"
 #include "solar_spheres.h" // SolarSunlitAt
 #include <algorithm>
@@ -1262,7 +1263,7 @@ void CliDynamicAsteroidDraw(FCliDynamicAsteroid* This, FSpaceCamera* Cam,
         // Dynamic rocks bypass DrainBucket: select the material per rock here.
         // Keep every mesh visible; only the distant enhanced shading is omitted.
         if(rockScope.Surface)
-            rockScope.Surface->SetLocalShadowReceiver(SpaceNativeNebulaObject(Go,Cam) ? 256u : 0u);
+            rockScope.Surface->SetLocalShadowReceiver((SpaceNativeNebulaObject(Go,Cam) ? 256u : 0u) | NebulaFogShapeScope());
 #endif
 
         // 0x005263d8..0x005263fd: the field's ambient pass once per frame (FUN_00522700 with

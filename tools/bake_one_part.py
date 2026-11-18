@@ -18,7 +18,7 @@ import train_sur.build as sur
 
 DATA = Path(r'D:\Games\FL_MOD\DATA')
 PART = DATA / 'SOLAR' / 'misc' / 'space_trade_station_part.3db'
-OUT = Path(__file__).resolve().parents[1] / 'out' / 'bake_compound' / 'part.3db'
+OUT = Path(__file__).resolve().parents[1] / 'out' / 'stations' / 'bake_compound' / 'part.3db'
 ROOT_NAME = 'Root'
 LOADOUT = 'space_trade_part_attacher'
 MAX_LEVELS = 8

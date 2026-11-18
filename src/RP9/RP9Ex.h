@@ -118,6 +118,11 @@ struct FRp9ExState
     std::map<std::string, RoomProfile> RoomProfiles;
     RoomProfile* RoomCurrent = nullptr;
     std::string RoomBase;
+    std::string RoomBaseInput;
+    bool bRoomBaseRead = false, bRoomBaseBrick = false;
+    std::map<void*, std::string> RoomCacheOwners;
+    std::set<std::string> RoomPreloadedMaterials;
+    unsigned long RoomTextureLoads = 0; // Includes missing-map attempts; diagnostics/tests.
     std::string RoomDetail;
     float RoomFinish = 0;
     RoomProfile PropFallback;
@@ -157,6 +162,7 @@ struct FRp9ExState
     bool bRoomPaletteUnsupported = false, bRoomAoLogged = false;
     std::set<std::string> RoomLoggedMaps;
     float RoomBones[64][16] = {};
+    float CharacterQualityStrength = 1.f;
     bool bRoomShadowDrawing = false, bRoomShadowFailed = false;
     bool bRoomShadowCharacter = false;
     unsigned RoomShadowDraws = 0;
@@ -349,8 +355,8 @@ struct FRp9ExState
     IDirect3DVertexShader9* SurfaceBoundVs = nullptr;
     IDirect3DPixelShader9* SurfaceBoundPs = nullptr;
     std::map<std::string, IDirect3DPixelShader9*> SurfaceQualityPs;
-    float SurfacePsMirror[107 * 4] = {};
-    bool SurfacePsMirrorValid[107] = {};
+    float SurfacePsMirror[109 * 4] = {};
+    bool SurfacePsMirrorValid[109] = {};
     IDirect3DBaseTexture9* SurfaceSamplerTexture[7] = {};
     unsigned long SurfaceSamplerStates[7][8] = {};
     bool SurfaceSamplerValid[7] = {};
@@ -375,6 +381,7 @@ struct FRp9ExState
     bool bShadowReceiverIsShip = false;
     bool bShadowReceiverIsPlayer = false;
     bool bNativeNebulaObject = false;
+    bool bNebulaFogShape = false;
     bool bShadowAdaptiveQuality = true;
     float ShadowStaticQualityDistance = 500.0f;
     float ShadowShipQualityDistance = 150.0f;

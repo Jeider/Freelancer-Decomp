@@ -15,6 +15,7 @@
 // find FUN_06f52e90) are the std containers of FactionProps.h.
 
 #include "FactionProps.h"
+#include <cmath>
 
 #include "ContentInternal.h"    // OpenContentDataIni, GContentNextUniqueId
 #include "ContentSort.h"        // ContentSort (VC6 std::sort)
@@ -977,9 +978,16 @@ void __cdecl LoadFactionEmpathy(char const* RelativePath)
                     Index = FactionEventRandomMissionFailure;
                 else if (_stricmp(Event, "random_mission_abortion") == 0)
                     Index = FactionEventRandomMissionAbortion;
+                else if (_stricmp(Event, "train_delivery_late") == 0)
+                    Index = FactionEventTrainDeliveryLate;
+                else if (_stricmp(Event, "train_cargo_loss") == 0)
+                    Index = FactionEventTrainCargoLoss;
+                else if (_stricmp(Event, "train_locomotive_loss") == 0)
+                    Index = FactionEventTrainLocomotiveLoss;
                 else
                     continue;
-                Empathy.EventRates[Index] = Reader.get_value_float(1);
+                float rate=Reader.get_value_float(1);
+                Empathy.EventRates[Index] = std::isfinite(rate)?rate:0.f;
             }
         }
 
@@ -1104,6 +1112,7 @@ void __cdecl GetFactionHostileGroups(unsigned int Group, unsigned int* Out, unsi
 // FUN_06f50f90 (06f50f90-06f50fe2).
 float __cdecl GetFactionEventRate(unsigned int Group, int Event)
 {
+    if (Event < 0 || Event >= FactionEventCount) return 0.0f;
     FFactionEmpathyMap::iterator Entry = GFactionEmpathy.find(Group);        // FUN_06fa7200
     if (Entry == GFactionEmpathy.end())
         return 0.0f;

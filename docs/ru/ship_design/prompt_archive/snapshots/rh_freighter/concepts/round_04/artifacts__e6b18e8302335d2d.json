@@ -1,0 +1,94 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "status": "Five structural Junker conversion concepts for user selection; no model implementation",
+  "prompt_file": "prompts.json",
+  "final_a4_correction": "A4_correction.json",
+  "source_cmp": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_freighter/rh_pir_freighter.cmp",
+  "source_sha256": "085e9a5d778922b1aef6ebe70a95ce0d902636177dd1b5cc03a4b6c0ffbc738b",
+  "native_source_dimensions_xyz": [
+    9.464703587623367,
+    11.46253252029419,
+    23.7216694355011
+  ],
+  "artifacts": [
+    {
+      "id": "A",
+      "label": "A4",
+      "title_ru": "Сварной панцирь",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8e48957b-69e3-4274-94cd-e3fe57667f10.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_04/rh_freighter_A4_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "95631d81b1e1aa0fab296834e4e31de05d6bca2f84d65f811c4ce673844f090b",
+      "bytes": 2409059
+    },
+    {
+      "id": "B",
+      "label": "B4",
+      "title_ru": "Сборщик трофеев",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-97069897-636f-4140-9eea-2990c56a7db3.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_04/rh_freighter_B4_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "5cf3a8d83323b69e295713440a21e721154a0ba13e19184ecfd827cd438dec62",
+      "bytes": 2832035
+    },
+    {
+      "id": "C",
+      "label": "C4",
+      "title_ru": "Грузовик налётчиков",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-cbac0ffa-7db8-4c80-8eac-db0934da1fd2.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_04/rh_freighter_C4_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "7be438d253cab70fbded5b03da37fdcb36e8348c1a001c9bc95a91359bb5e611",
+      "bytes": 2947381
+    },
+    {
+      "id": "D",
+      "label": "D4",
+      "title_ru": "Раздетый каркас",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-7f9837b2-c17c-4487-a097-f6c2aa239cdc.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_04/rh_freighter_D4_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "da22de6897e2de8ac9714d7b688d453cf9bd1a1c88371365fb1c2b9e1676c343",
+      "bytes": 2856167
+    },
+    {
+      "id": "E",
+      "label": "E4",
+      "title_ru": "Корабль из доноров",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-d3611d3b-53d3-48fe-8d74-abe5cc9d3a8a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_04/rh_freighter_E4_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "f7031ca6f8016cc8df6dc676817525b87c4c14ad7faaf576780be2103a40329b",
+      "bytes": 2667613
+    }
+  ],
+  "verification": {
+    "five_pngs_readable": true,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "source_copies_hash_equal": true,
+    "input_images_unchanged": true,
+    "installed_cmp_unchanged": true,
+    "readme_links_valid": true,
+    "prompt_generator_syntax_valid": true,
+    "visual_review": "All five sheets inspected; A4 side engine silhouette corrected. Concepts only; exact cockpit transfer and retraction clearance require future mesh validation."
+  }
+}

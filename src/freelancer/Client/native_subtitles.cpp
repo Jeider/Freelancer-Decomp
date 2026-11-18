@@ -134,6 +134,10 @@ void Sync(void* source, double seconds, bool started, bool paused, float dt)
 
 void Draw()
 {
+    // F1 and its settings/load/save dialogs share the modal pause counter.
+    // Keep playback tracked so resuming restores the current subtitle.
+    if (IsClientServerTickPaused()) return;
+
     Playback const* chosen = nullptr;
     std::wstring text;
     // Main dialogue wins over radio chatter; ties select the most recent source.

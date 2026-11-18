@@ -13,6 +13,7 @@ import re
 import sys
 import contextlib
 import math
+from stage_evacuation import EMPLOYERS
 
 ROOT = Path(__file__).resolve().parents[2]
 GAME = Path('D:/Games/FL_MOD')
@@ -273,6 +274,7 @@ def export(core, game, output):
         for p in base['points']:
             ini += ['', '[CourierPoint]', 'nickname = '+p['nickname'], 'base = '+p['base'],
                     'system = '+p['system'], 'faction = '+p['faction'],
+                    'employer = '+EMPLOYERS.get(p['faction'],p['faction']),
                     'freight_hub = '+str(base['freight_hub']).lower(),
                     'large_planet = '+str(base['large_planet']).lower(),
                     'refinery = '+str(base['refinery']).lower(),
@@ -289,6 +291,7 @@ def export(core, game, output):
         base = bases[p['base']]
         ini += ['', '[CourierParking]', 'nickname = '+p['nickname'], 'base = '+p['base'],
                 'system = '+p['system'], 'faction = '+p['faction'],
+                'employer = '+EMPLOYERS.get(p['faction'],p['faction']),
                 'position = '+', '.join(map(str, p['position'])),
                 'rotation = '+', '.join(map(str, p['rotation'])),
                 'name_ids = '+str(base['name_ids']), 'voice_name = '+base['voice_name'],

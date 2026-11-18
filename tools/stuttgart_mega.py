@@ -8,7 +8,7 @@ from check_valensia_mega import templates
 from fix_valensia_towers import decoded, expected
 from terraform_mega import hp_node
 
-OUT=m.REPO/'out/stuttgart_mega'
+OUT=m.REPO/'out/stations/stuttgart_mega'
 TEMPLATE='Assets/Pythonlancer/templates/dockable/stuttgart_megabase.py'
 LIVE='DATA/UNIVERSE/SYSTEMS_MOD/RH_STUTTGART/rh_stut.ini'
 PREFIX='rh_stut_04'

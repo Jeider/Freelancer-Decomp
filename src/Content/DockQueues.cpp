@@ -37,6 +37,7 @@
 #include "server_cobject.h"      // EQInfo, TerminalInfo, ActivateEquipment, GetTerminalInfo
 #ifdef FREELANCER_RPG_WORLD
 #include "train_courier_bridge.h"
+#include "TrainCourier.h"
 #include <windows.h>
 #endif
 
@@ -550,6 +551,26 @@ void __cdecl CancelShipDocking(unsigned int ShipId, unsigned int PassThrough, bo
     }
 }
 
+void FinishShipTransferDocking(unsigned int ShipId)
+{
+    if (!ShipId) return;
+    unsigned int Waiting = 0, Docking = 0;
+    // The source physics object has already been removed. Drop its waiting
+    // requests first so FinishDocking cannot grant it another berth.
+    for (auto It = GDockWaitingShips.begin(); It != GDockWaitingShips.end();)
+    {
+        if (It->ShipId == ShipId) { It = GDockWaitingShips.erase(It); ++Waiting; }
+        else ++It;
+    }
+    for (auto It = GDockingShips.begin(); It != GDockingShips.end();)
+    {
+        if (It->ShipId == ShipId) { FinishDocking(&It); ++Docking; }
+        else ++It;
+    }
+    if (Waiting || Docking)
+        FDUMP(0x100001, "ShipTransfer: released docking source=%u waiting=%u reserved=%u", ShipId, Waiting, Docking);
+}
+
 // FUN_06f67740 (06f67740-06f6777a).
 void __cdecl RelocateShip(unsigned int const* ShipId, unsigned int const* SystemId,
                           Vector const* Position, Matrix const* Orientation)
@@ -875,9 +896,14 @@ int __cdecl CheckDockPermission(std::vector<unsigned int> const* ClassIds, int c
                                 unsigned int const* DockTargetId, int* DockIndex)
 {
     FContentPlayerState* Player = FindContentPlayerStateByShip(ShipId);
+    bool bCourierReturn = false;
 #ifdef FREELANCER_RPG_WORLD
     if (Player != nullptr && pub::SinglePlayer())
     {
+        // Re-entering the player's own live locomotive is not admission to the
+        // employer's station. Authorize from the mission's exact target, grace
+        // timer and hull, then still use the normal berth/approach checks below.
+        bCourierReturn = TrainCourierCanReboard(Player->PlayerId, *DockTargetId);
         HMODULE Server = GetModuleHandleA("Server.dll");
         auto Bridge = Server ? reinterpret_cast<TrainCourier::BridgeFn>(
             GetProcAddress(Server, TrainCourier::BridgeExport)) : nullptr;
@@ -885,11 +911,12 @@ int __cdecl CheckDockPermission(std::vector<unsigned int> const* ClassIds, int c
         Request.player = Player->PlayerId;
         Request.operation = TrainCourier::Operation::IsParkedSolar;
         Request.launchSolar = *DockTargetId;
-        if (Bridge && Bridge(&Request) && Request.result == 1)
+        if (!bCourierReturn && Bridge && Bridge(&Request) && Request.result == 1)
         {
             // Keep the berth for the outgoing Roid_Miner-style launch. Incoming
             // docking is denied even after the courier mission has ended.
             pub::Player::SendNNMessage(Player->PlayerId, pub::GetNicknameId("info_access_denied"));
+            TrainCourierAccessDenied(Player->PlayerId);
             *DockIndex = -1;
             return DOCK_HOST_RESPONSE_1;
         }
@@ -903,9 +930,9 @@ int __cdecl CheckDockPermission(std::vector<unsigned int> const* ClassIds, int c
     bool bLocked = IsGateLockedForShip(*ShipId, *DockTargetId);
     if (bLocked && PORT_PLUGIN_ON("dock_key") && DockKeyUnlocks(*DockTargetId, Player))
         bLocked = false;
-    if (bLocked || (Player != nullptr && !bPlayerMayDock))
+    if (!bCourierReturn && (bLocked || (Player != nullptr && !bPlayerMayDock)))
 #else
-    if (IsGateLockedForShip(*ShipId, *DockTargetId) || (Player != nullptr && !bPlayerMayDock))
+    if (!bCourierReturn && (IsGateLockedForShip(*ShipId, *DockTargetId) || (Player != nullptr && !bPlayerMayDock)))
 #endif
     {
         if (Player != nullptr)
@@ -923,7 +950,7 @@ int __cdecl CheckDockPermission(std::vector<unsigned int> const* ClassIds, int c
 
     unsigned int TargetType = 0;
     pub::SpaceObj::GetType(*DockTargetId, TargetType);
-    if ((TargetType & 0xc40) == 0)
+    if (!bCourierReturn && (TargetType & 0xc40) == 0)
     {
         float Attitude = 1.0f;
         if (*ShipRep != -1)

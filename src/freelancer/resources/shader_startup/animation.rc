@@ -1,0 +1,2 @@
+// Shared by the client and the standalone shader-window demo.
+FREELANCER_SHADER_ANIMATION RCDATA "shader_startup\\junko.frames"

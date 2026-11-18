@@ -78,7 +78,7 @@ def _server_world_field(field, content):
             or getattr(system, 'IS_STORY', False)
             or str(getattr(system, 'NAME', '')).lower() not in _SERVER_ASTEROID_SYSTEMS):
         return content
-    scale = 2 if str(system.NAME).lower() == 'sig8' else 1
+    scale = 2 if str(system.NAME).lower() in ('sig8', 'om15') else 1
     return _convert_server_field(content, _SERVER_ASTEROID_MODELS, scale)
 ''' + end + '\n').replace('\n', newline).encode('ascii')
     if begin.encode() in raw:

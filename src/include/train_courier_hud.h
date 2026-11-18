@@ -5,5 +5,7 @@ struct TrainCourierHud {
     float remaining=0;
     unsigned caption=0;
     float x=.275f,y=-.16f;
+    float returnRemaining=-1;
+    unsigned returnCaption=0;
 };
 using TrainCourierHudFn=int (__cdecl*)(unsigned,TrainCourierHud*);

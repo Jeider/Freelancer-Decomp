@@ -2,7 +2,7 @@
 import os, subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'out/station_docking';OUT.mkdir(exist_ok=True)
+OUT=ROOT/'out/stations/station_docking';OUT.mkdir(parents=True,exist_ok=True)
 def extract(path,signature):
     src=(ROOT/path).read_text();a=src.index(signature);b=src.index('{',a)+1;depth=1
     while depth:depth+=(src[b]=='{')-(src[b]=='}');b+=1

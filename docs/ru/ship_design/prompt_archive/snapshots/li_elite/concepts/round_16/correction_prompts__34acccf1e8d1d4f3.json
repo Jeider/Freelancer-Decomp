@@ -1,0 +1,46 @@
+{
+  "round": "round_16",
+  "corrections": [
+    {
+      "id": "L66",
+      "kind": "correct_stowed_inset",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: precise-object-edit. Edit ONLY the bottom-right inset labeled SIDE (STOWED) in input image 1, the L66 concept sheet. Preserve the main hero, rear view, FRONT, SIDE (FLIGHT), TOP, all body/cockpit/tail design, text, palette and layout elsewhere. The current STOWED wrongly retains the broad spread flight wings. Correct that one inset so BOTH full-size wing leaves on each side rotate BACKWARD around their front-side roots and overlap as a narrow layered packet against the lower flank, below the motor shoulder. Use input 2 L64's TOP (STOWED) solely as a reference for the compact folded wing planform; do not copy its old crossbar or engine-top equipment. Keep leaf sizes and outlines; rotate and occlude them, do not scale down or cut them. In the same STOWED inset, the L66 tail's two full-size moving plates should be slightly more nested/overlapped with a small pivot and a short slide, following the subtle behavior in input 3, the real li_elite2 motion sheet. Keep a substantial upright tail, not a fin lying on the roof. Do not erase either tail leaf or move the upper equipment pad to the lower leaf. Keep tail root, engines, collar and cockpit identical and use the same camera and scale as SIDE (FLIGHT). The main purpose of this edit is to make the small STOWED wing state clearly different from flight while retaining the same ship. Nothing else should be redesigned.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_15/li_elite_L64_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_wing_motion.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "status": "generated",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet.png",
+      "intended_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected.png",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-47bd4a02-8515-4885-8004-225d455994fc.png",
+      "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected.png",
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-47bd4a02-8515-4885-8004-225d455994fc.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "visual_result": "Wing folding became visible but an erroneous third near-side wing leaf appeared; superseded by second correction."
+    },
+    {
+      "id": "L66",
+      "kind": "correct_stowed_leaf_count",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: precise-object-edit. Make ONE tiny localized correction in input image 1, ONLY in the bottom-right view labeled SIDE (STOWED). That small view mistakenly shows THREE stacked near-side wing blades and THREE yellow equipment plates. The correct ship has EXACTLY TWO moving wing blades per side, as shown in the main images. Rebuild only this folded near-side wing packet with EXACTLY TWO full-size overlapping backward-folded blades and EXACTLY TWO yellow equipment plates, one near each blade's rear tip. Remove the erroneous third/lower blade together with its third plate and close the silhouette cleanly. Do not merely erase a plate while leaving three blades. The two remaining blades retain the full length, radial artwork, visible thickness and compact folded position below the hull. Keep tail, tail state, tail mounting pads, engines, collar, cockpit, SIDE STOWED framing, and ALL other views/text/pixels as unchanged as possible. Do not unfold the wings, add a third leaf, or alter the ship design. This corrects an accidental part count, nothing else.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "status": "generated",
+      "input_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected.png",
+      "intended_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-bb77324c-14de-4e88-821b-812a0770d55a.png",
+      "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-bb77324c-14de-4e88-821b-812a0770d55a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "visual_result": "Two folded near-side leaves and two tip pads are visible. Tail stays upright with slight nesting; no geometric clearance validation."
+    }
+  ]
+}
+

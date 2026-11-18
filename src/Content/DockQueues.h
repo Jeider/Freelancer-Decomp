@@ -187,6 +187,10 @@ void __cdecl SetDockEquipment(unsigned int ShipId, bool bOn, bool bFormation, FS
 // the recursive calls (retail passes 0, or a dock target from FUN_06f6c250).
 void __cdecl CancelShipDocking(unsigned int ShipId, unsigned int PassThrough, bool bFormation);
 
+// A committed in-space replacement skips the ordinary DockComplete message.
+// Release the removed source ship's reservations without sending it a cancel.
+void FinishShipTransferDocking(unsigned int ShipId);
+
 // FUN_06f67740 (cdecl): pub::SpaceObj::Relocate; into no system (*SystemId == 0) the ship's
 // docking is cancelled first; then the dock queues are updated (tail jump to FUN_06f6c250).
 void __cdecl RelocateShip(unsigned int const* ShipId, unsigned int const* SystemId,

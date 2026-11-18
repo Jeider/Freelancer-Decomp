@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "nn_mission_message.h"
+#include "train_evacuation.h"
 
 #include "character_select_equip.h" // GetPlayerEquipDescListRetail (FUN_004c4060),
                                     // FindPlayerNonMissionEquipRetail (FUN_004c45d0)
@@ -60,6 +61,7 @@ namespace
     FmtStr G_NnMissionMessageTitle;
     // DAT_00671f98 (static init LAB_0048a050, atexit LAB_0048a0b0 ~FmtStr) -- the text.
     FmtStr G_NnMissionMessageText;
+    bool EvacuationModal=false,EvacuationAnswered=false;
 
     int const kKindScanNotice = 4;
     int const kKindPopUp = 6;
@@ -171,6 +173,12 @@ NeuroNetMissionMessage::NeuroNetMissionMessage()
 
 NeuroNetMissionMessage::~NeuroNetMissionMessage()
 {
+    if(EvacuationModal) {
+        EvacuationModal=false;
+        if(!EvacuationAnswered && G_Server)G_Server->PopUpDialog(GetPlayerConnectionId(),2);
+        G_bNnScreenUp=false;
+        SetClientMouseCursorDrawFlag(SavedCursorDrawFlag);
+    }
     // FUN_0048a440: the vptrs, DAT_00671ff4 = 0; a game this window paused resumes with the
     // cursor flag it saved (FUN_004a7690); then the WinControl dtor (FUN_0059fa50).
     G_NnMissionMessage = nullptr;
@@ -189,6 +197,8 @@ bool NeuroNetMissionMessage::Create(Win3D* NewParent, void* Data)
     // 0x0048a4ce..0x0048a506: the kind; the frame mesh (slot 38) and its half extents
     // (FUN_005a1340).
     Kind = G_NnMissionMessageKind;
+    EvacuationModal=Kind==kKindPopUp && G_NnMissionMessageTitle.MadLibId==TrainEvacuation::Title;
+    EvacuationAnswered=false;
     SetMesh(kFrameMesh, 0);
     WinControlHalfExtentsFromMesh(HalfExtents, &MeshHolder);
 
@@ -196,7 +206,8 @@ bool NeuroNetMissionMessage::Create(Win3D* NewParent, void* Data)
     // (FUN_004a7670, undone by the dtor).
     if (Kind == kKindPopUp)
     {
-        if (!IsPlayerDockedRetail()) // FUN_004c4810
+        if(EvacuationModal)SavedCursorDrawFlag=GetClientMouseCursorDrawFlag();
+        else if (!IsPlayerDockedRetail()) // FUN_004c4810
         {
             SavedCursorDrawFlag = NnModalPauseGame(); // FUN_004a7670
             bPausedGame = 1;
@@ -380,7 +391,18 @@ bool NeuroNetMissionMessage::Create(Win3D* NewParent, void* Data)
     // 0x0048ad12..0x0048ad20: FUN_004b5060 with the window's OWN +0x04 parent, not the one
     // Create was given (the factory is always called with null, so it is a root window); the
     // result is returned once the display list is freed (0x0048ad25..0x0048adce).
-    return Win3D::Create(Parent, Data);
+    bool result=Win3D::Create(Parent, Data);
+    if(EvacuationModal)Win3DSetKeyFocus(this);
+    return result;
+}
+
+bool NeuroNetMissionMessage::KeyEvent(unsigned Key,unsigned char* Modifiers)
+{
+    if(EvacuationModal && (Key==VK_ESCAPE || Key==VK_RETURN)) {
+        if(Modifiers && (*Modifiers&2))SetProperty(0x26,reinterpret_cast<uintptr_t>(NoButton),0);
+        return true;
+    }
+    return WinControl::KeyEvent(Key,Modifiers);
 }
 
 void NeuroNetMissionMessage::Update()
@@ -388,6 +410,15 @@ void NeuroNetMissionMessage::Update()
     // FUN_0048adf0.
     // 0x0048adf4: FUN_005a17b0 (the Win3D child walk).
     Win3D::Update();
+    if(EvacuationModal) {
+        auto module=GetModuleHandleA("Content.dll");
+        auto query=module?reinterpret_cast<TrainEvacuation::Bridge>(GetProcAddress(module,TrainEvacuation::Export)):nullptr;
+        TrainEvacuation::Status status;
+        if(!query || !query(GetPlayerConnectionId(),TrainEvacuation::Command::Query,&status) ||
+           status.phase!=unsigned(TrainEvacuation::Phase::Onboard)) {
+            EvacuationAnswered=true;G_bNnScreenUp=false;Win3DDeleteTree(this);return;
+        }
+    }
 
     // 0x0048adf9..0x0048ae63: unless this window paused the game, another NeuroNet panel or a
     // base-service window takes it down -- a pop-up answers "later" (4) first.
@@ -395,7 +426,10 @@ void NeuroNetMissionMessage::Update()
         (NnMainButtonHasActivePanel() || NavBarHasServiceWindow())) // FUN_0045a470 / FUN_00442720
     {
         if (Kind == kKindPopUp)
-            G_Server->PopUpDialog(GetPlayerConnectionId(), 4);
+        {
+            EvacuationAnswered=true;
+            G_Server->PopUpDialog(GetPlayerConnectionId(), EvacuationModal?2:4);
+        }
         Win3DDeleteTree(this); // children, slot 10, slot 0 with 1
         return;
     }
@@ -467,12 +501,14 @@ intptr_t NeuroNetMissionMessage::SetProperty(int Msg, uintptr_t A, uintptr_t B)
     }
     else if (Clicked == YesButton)
     {
+        EvacuationAnswered=true;
         // 0x0048afe7..0x0048b029
         G_Server->PopUpDialog(GetPlayerConnectionId(), 1);
         G_bNnScreenUp = false;
     }
     else if (Clicked == NoButton)
     {
+        EvacuationAnswered=true;
         // 0x0048b02e..0x0048b072
         G_Server->PopUpDialog(GetPlayerConnectionId(), 2);
         G_bNnScreenUp = false;

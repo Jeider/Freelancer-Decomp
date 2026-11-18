@@ -2129,6 +2129,9 @@ FRoomRuntime* CreateRoomRuntime(RoomData* Room)
     Runtime->BaseId = Room->BaseId;
     Runtime->LocationBase = LookupClientLocationBase(Runtime->BaseId);
     Runtime->Room = Room;
+#ifdef FREELANCER_RP9
+    RenderEx::BeginRoomMaterialCache(Runtime, Runtime->BaseId);
+#endif
     // 0x004496e1..0x004496ec.
     Runtime->MainInstance = kRoomObjectNoInstance;
     Runtime->MainScript = 0xffffffffu;
@@ -2201,6 +2204,9 @@ void DestroyRoomRuntime(FRoomRuntime* Runtime)
     // (UnloadLocationBase, the shutdown walk, and UnloadClientLocationRoomState = FUN_0043a080)
     // test the pointer before the delete.
     delete Runtime;
+#ifdef FREELANCER_RP9
+    RenderEx::EndRoomMaterialCache(Runtime);
+#endif
 }
 
 ICamera* GetRoomRuntimeCamera(FRoomRuntime* Runtime)

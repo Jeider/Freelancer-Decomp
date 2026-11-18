@@ -11,14 +11,23 @@ MSBUILD = Path('C:/Program Files/Microsoft Visual Studio/18/Community/MSBuild/Cu
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--enabled', choices=['0', '1'], default='1')
-    ap.add_argument('--projects', nargs='+', default=['RP9', 'freelancer'], choices=['RP9', 'freelancer'])
+    ap.add_argument('--projects', nargs='+', default=['RP9', 'freelancer'], choices=['RP9', 'freelancer', 'Common', 'Deformable2'])
+    ap.add_argument('--output', type=Path, help='Isolated output directory for another runtime topic')
+    ap.add_argument('--imports', type=Path, help='Override import libraries (e.g. from the installed runtime)')
     a = ap.parse_args()
-    out = ROOT/'out/base_neural'/('on' if a.enabled == '1' else 'off')
+    out = a.output.resolve() if a.output else ROOT/'out/base_neural'/('on' if a.enabled == '1' else 'off')
     binary = out/'bin'
     binary.mkdir(parents=True, exist_ok=True)
     for lib in (ROOT/'bin').glob('*.lib'):
         shutil.copy2(lib, binary/lib.name)
+    if a.imports:
+        for lib in a.imports.glob('*.lib'):
+            shutil.copy2(lib, binary/lib.name)
     env = os.environ.copy()
+    if a.output:
+        temp = out/'temp'
+        temp.mkdir(parents=True, exist_ok=True)
+        env['TEMP'] = env['TMP'] = str(temp)
     env['LIB'] = str(binary)+';'+env.get('LIB', '')
     for project in a.projects:
         obj = out/'obj'/project

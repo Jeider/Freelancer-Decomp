@@ -298,11 +298,23 @@ void TradeLaneVisualDraw(FSpaceCamera* Camera)
     unsigned long W = 0, H = 0;
     IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
     // Ex passes reset the viewport to the full target, even without sampled depth.
-    // The full-size scene copy also provides dimensions on devices without INTZ.
     if (Ex->GetSceneDepth(&Depth) != GR_OK) Depth = nullptr;
     if (!Depth || Ex->GetExTextureSize(Depth, &W, &H) != GR_OK) W = H = 0;
     if ((!W || !H) && G_SceneCopy && Ex->GetExTextureSize(G_SceneCopy, &W, &H) != GR_OK)
         W = H = 0;
+    if (!W || !H)
+    {
+        // Refraction is disabled, so G_SceneCopy normally does not exist. The
+        // pipeline's display dimensions remain available without INTZ (dgVoodoo).
+        // Do not use the camera viewport: it may cover only part of the target.
+        HWND Window = nullptr;
+        int Left = 0, Right = 0, Width = 0, Height = 0;
+        if (Pipe->GetWindow(&Window, &Left, &Right, &Width, &Height) == GR_OK && Width > 0 && Height > 0)
+        {
+            W = static_cast<unsigned long>(Width);
+            H = static_cast<unsigned long>(Height);
+        }
+    }
     // Unknown target dimensions cannot safely preserve a cinematic/sub-view viewport.
     if (!W || !H) return;
     V[28] = float(Vp[2] - Vp[0] + 1) / W; V[29] = float(Vp[3] - Vp[1] + 1) / H;

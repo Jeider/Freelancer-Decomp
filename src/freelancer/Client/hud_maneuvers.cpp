@@ -821,7 +821,7 @@ void HUD_Maneuvers::UpdateTabAndCruise(int BehaviorId)
         Anchor = Buttons[2];
     Anchor->SetProperty(7, reinterpret_cast<uintptr_t>(Offset), 0);
 
-    int const TabVariant = PlayerTrain::HasButton(BehaviorId) ? 2 :
+    int const TabVariant = PlayerTrain::HasEvacuationButton() ? 3 : PlayerTrain::HasButton(BehaviorId) ? 2 :
         PlayerFlightActions::HasButtons(BehaviorId) ? (BehaviorId == 0x13 ? 3 : BehaviorId == 2 ? 2 : 1) : 1;
     if (bTabMeshReset != TabVariant)
     {
@@ -834,7 +834,7 @@ void HUD_Maneuvers::UpdateTabAndCruise(int BehaviorId)
 
     // 0x004d8cd4..0x004d8cff
     Offset[0] = Offset[0] + Offset[0];
-    if (TabVariant == 3) Offset[0] += 0.048f;
+    if (TabVariant == 3) Offset[0] += PlayerTrain::HasEvacuationButton()?0.032f:0.048f;
     else if (TabVariant == 2) Offset[0] += 0.016f;
     Offset[1] = 0.294f;                          // 0x3e966cf5
     Offset[2] = -1.0f;

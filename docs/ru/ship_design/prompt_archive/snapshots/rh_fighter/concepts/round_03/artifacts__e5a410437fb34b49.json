@@ -1,0 +1,95 @@
+{
+  "generation_mode": "built-in image_gen",
+  "direction": "Rheinland field-repaired pirate fighter; circular rear drum; recesses; no demonic elements and no Corsair references",
+  "source_cmp": "D:\\Games\\FL_MOD\\DATA\\ships\\rheinland\\rh_pir_fighter\\rh_pir_fighter.cmp",
+  "source_sha256": "039fc5177f5110ca51dc5b4ada40e8f1300c8e5bc0696cb374ee5fc757f7c5eb",
+  "source_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_flight.jpg",
+      "sha256": "74d9b188f50ec6de1807a1b1a390df9b56034b4ae4c8f9ff8061185c4a51ead0"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/pirate_art/ships/rh_fighter_pir/cockpit_reference.jpg",
+      "sha256": "22bc6793a8285e15b0c5a2c035bf6ecd83e365d521ad9a89e5249a8386b478a4"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q13_sheet.png",
+      "sha256": "c942e0ee8581fa3ee4726eccda200fc8142049544ebda9ec655ab45969fec11b"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_baydoor_motion.jpg",
+      "sha256": "628dd5782e6f89ff71ba74d6679a1de2a0bb3c0e4696a7c697b5cb09b6679748"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_wing_motion.jpg",
+      "sha256": "5b032b8bca16f78a18d1c0c58608c52607f4e2b10cfa76f7fdf9f8c4ec175803"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "R01",
+      "title_ru": "Смещённый центр и серповидная выемка",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-effc34c0-d7dc-41e5-b1a6-696a6d6540e6.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_03/rh_fighter_R01_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "rejected_by_user",
+      "sha256": "3c1cbcc6ba19403bf17035a75911dd52490c69d77960df4aa66dd7293d6c6be2",
+      "bytes": 2625535,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "role": "rejected_heavy_fighter_direction"
+    },
+    {
+      "id": "R02",
+      "title_ru": "Ступенчатый круглый барабан с вырезом",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-b1567fa1-ef1c-4b01-ba97-d06e81531afd.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_03/rh_fighter_R02_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "rejected_by_user",
+      "sha256": "cce38563dfcfc652299659ebd6dc4b9e84ccb82d70abc632a18088d5f2d288c0",
+      "bytes": 2557571,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "role": "rejected_heavy_fighter_direction"
+    },
+    {
+      "id": "R01",
+      "revision": "v2",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-97032331-5f39-4c4c-85c1-25f1afdf7157.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_03/rh_fighter_R01_v2_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "rejected_by_user",
+      "sha256": "9ec78b55017a56d7417cbea3e10ba16b1369e2a5d23a8ad891960ff56b65e630",
+      "bytes": 2445682,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "role": "rejected_heavy_fighter_direction"
+    },
+    {
+      "id": "R02",
+      "revision": "v2",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-97ce370f-b321-414a-b4fa-3c05b62c12d5.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_03/rh_fighter_R02_v2_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "rejected_by_user",
+      "sha256": "7d2b23f37f92fedc2bd834baa7f761c1b035ac25c5594b415c10b845e0022620",
+      "bytes": 2424546,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "role": "rejected_heavy_fighter_direction"
+    }
+  ],
+  "approved_for_modeling": false,
+  "scope": "Two art directions, each corrected once for native fighter cockpit, aft baydoor arrow and side wing projection. No new 3D geometry, animation-clearance verification or installation.",
+  "status": "rejected_by_user",
+  "rejection_reason": "Too heavy for fighter; changed cockpit; enlarged drum. Return to initial F01/F02 and develop wing mounts/lean hull."
+}

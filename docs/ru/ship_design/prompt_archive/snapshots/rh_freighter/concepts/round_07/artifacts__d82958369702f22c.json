@@ -1,0 +1,124 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "status": "Five detailed hull revisions complete using implemented RH elite design lessons; awaiting user selection.",
+  "source_cmp": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_freighter/rh_pir_freighter.cmp",
+  "source_sha256": "085e9a5d778922b1aef6ebe70a95ce0d902636177dd1b5cc03a4b6c0ffbc738b",
+  "elite_cmp": "D:/work/Freelancer-Decomp/out/ship_design/rh_elite/prototypes/concept_b/final_v1/rh_concept_b.cmp",
+  "elite_sha256_at_reference_review": "e7b5c1b503241e513d7e67dafbfcc72d069944cd43518b71dd0b0076e5abadcc",
+  "native_source_dimensions_xyz": [
+    9.464703587623367,
+    11.46253252029419,
+    23.7216694355011
+  ],
+  "prompt_files": [
+    "prompts.json"
+  ],
+  "generation_calls": 5,
+  "gallery_title": "RH Freighter — D01–D05 по опыту RH elite",
+  "gallery_heading": "D01–D05: корпусная детализация",
+  "gallery_intro": "Глубокие ниши, ступенчатые кожухи и врезанные панели по опыту выполненной RH pirate elite. Под каждым листом — ссылка на предыдущую упрощённую версию.",
+  "artifacts": [
+    {
+      "id": "D01",
+      "label": "D01",
+      "base_variant": "S01",
+      "title_ru": "Корпус с глубокими нишами",
+      "group_ru": "Корпусная детализация",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-284d04f8-535d-4797-9125-3017f664a059.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_07/rh_freighter_D01_sheet.png",
+      "comparison_image": "../round_06/rh_freighter_S01_sheet.png",
+      "comparison_label": "Предыдущий упрощённый вариант",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "f523ca0840f49701fe6f36d08fc55705ecfc16cb82184f7e820c5b3c2fb7fbd0",
+      "bytes": 2329754
+    },
+    {
+      "id": "D02",
+      "label": "D02",
+      "base_variant": "S02",
+      "title_ru": "Многоуровневый клиновидный борт",
+      "group_ru": "Корпусная детализация",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-540dda1f-fe28-4e62-aead-d8910b3bfb68.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_07/rh_freighter_D02_sheet.png",
+      "comparison_image": "../round_06/rh_freighter_S02_sheet.png",
+      "comparison_label": "Предыдущий упрощённый вариант",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "5ed6e8ccf1e21886ff5b107fc5bddc03873ea3105e2ac2952e7c39896ef79736",
+      "bytes": 2747568
+    },
+    {
+      "id": "D03",
+      "label": "D03",
+      "base_variant": "S03",
+      "title_ru": "Ступенчатые грузовые отсеки",
+      "group_ru": "Корпусная детализация",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f78d05c0-edae-4307-a37a-4310a4d5bde6.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_07/rh_freighter_D03_sheet.png",
+      "comparison_image": "../round_06/rh_freighter_S03_sheet.png",
+      "comparison_label": "Предыдущий упрощённый вариант",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "456316f27b30e9a3f7bc81bed91128c2ac3a9ac866f955b32e812b885750afff",
+      "bytes": 2756677
+    },
+    {
+      "id": "D04",
+      "label": "D04",
+      "base_variant": "S04",
+      "title_ru": "Сложная донорская сборка",
+      "group_ru": "Корпусная детализация",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-bc5bf873-f5bd-4d72-9bf8-b4c447864b7f.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_07/rh_freighter_D04_sheet.png",
+      "comparison_image": "../round_06/rh_freighter_S04_sheet.png",
+      "comparison_label": "Предыдущий упрощённый вариант",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "74b5ddb8c85809be411e03f6b0c2308d23cc3c7d0cf8d480e26b353eebeee6f6",
+      "bytes": 2454383
+    },
+    {
+      "id": "D05",
+      "label": "D05",
+      "base_variant": "S05",
+      "title_ru": "Проработанный горб и плечи",
+      "group_ru": "Корпусная детализация",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-5a675390-441d-48e1-8577-a4d2bc972852.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_07/rh_freighter_D05_sheet.png",
+      "comparison_image": "../round_06/rh_freighter_S05_sheet.png",
+      "comparison_label": "Предыдущий упрощённый вариант",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "02a2fa9360a6e6d8e48ef68bac3dab680054aa1b1b6745adea28596630d1cc2a",
+      "bytes": 2566595
+    }
+  ],
+  "verification": {
+    "five_unique_pngs_readable": true,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "source_copies_hash_equal": true,
+    "freighter_cmp_unchanged": true,
+    "elite_cmp_unchanged": true,
+    "reference_images_and_prior_concepts_unchanged": true,
+    "readme_links_valid": true,
+    "gallery_five_images_and_five_previous_links": true,
+    "gallery_javascript_syntax": "passed",
+    "python_helpers_syntax_valid": true,
+    "visual_review": "All five viewed. Meaningful medium-size relief developed beyond S series: nested hatches, closed pockets, cylinder sleeves, internal grille blades and stepped housings. No exposed pipe network or exterior truss. Three views retained. Exact metric cockpit preservation and mechanism clearance require future geometry validation."
+  }
+}

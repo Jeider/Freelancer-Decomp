@@ -1,0 +1,23 @@
+{
+  "round": "round_09",
+  "tool": "built-in image_gen",
+  "corrections": [
+    {
+      "id": "L34_engine_projection_01",
+      "variant": "L34",
+      "reason": "The main view and SIDE show vertically stacked engines, but TOP and STOWED incorrectly invent a lateral pair. Correct only the two small projected stern drawings.",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_09/li_elite_L34_initial.png",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_09/li_elite_L34_initial.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "prompt": "Use case: precise-object-edit. Edit the FIRST image, the L34 sheet. The SECOND image is only a reference for the original TWO VERTICALLY STACKED engine arrangement, larger upper engine and smaller longer lower engine. Make ONE extremely localized consistency correction: in the small TOP and STOWED drawings at the bottom center of the first sheet, replace the two SIDE-BY-SIDE rear exhausts with the correct CENTERLINE projection of the vertically stacked engines already shown in the large L34 main view and the small SIDE drawing. Seen from directly above, the larger upper rectangular engine is ONE centered exhaust/housing; the lower narrow engine is hidden behind it or can project a little farther aft on that SAME centerline. Absolutely no left/right split twin exhausts in TOP or STOWED. Keep the main large illustration and SIDE and DETAIL crop unchanged. Preserve every hull contour except the erroneous miniature rear nozzle area, all shallow bas-relief, original cabin, wings, folding depictions, compact hatch, color, composition, labels and sheet dimensions. Do not redesign the ship. The structural reference colors are not a requested paint change. Return the full corrected L34 sheet, with the only changes confined to the two small stern projection areas.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_09/li_elite_L34_sheet.png",
+      "generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-58a3a90f-2dbc-4219-850b-8e9dbf186ce7.png",
+      "visual_result": "TOP and STOWED now show one centered upper engine projection; the erroneous left/right pair is removed. Main view, SIDE and relief composition remain recognizable. This is still conceptual raster projection, not validated engineering geometry."
+    }
+  ]
+}

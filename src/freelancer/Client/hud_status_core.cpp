@@ -9,7 +9,7 @@
 #ifdef FREELANCER_RPG_WORLD
 #include "train_courier_hud.h"
 #include <windows.h>
-namespace { WinControl* CourierTimer=nullptr; }
+namespace { WinControl* CourierTimer=nullptr; WinControl* CourierReturnTimer=nullptr; }
 #endif
 #ifdef FREELANCER_MOD_PLUGINS
 #include "port_plugins.h"     // port-only mod plugins (Invisibility)
@@ -668,7 +668,7 @@ HUD_Status::HUD_Status(INI_Reader& /*Reader*/)
 HUD_Status::~HUD_Status()
 {
 #ifdef FREELANCER_RPG_WORLD
-    CourierTimer=nullptr; // child ownership remains with WinControl
+    CourierTimer=CourierReturnTimer=nullptr; // child ownership remains with WinControl
 #endif
     PlayerTurretHud::Release(this);
     // FUN_004da740: the vptrs put back, then 0x004da799: DAT_00674aa0 = 0. It frees HpRowCache
@@ -862,6 +862,9 @@ bool HUD_Status::Create(Win3D* NewParent, void* Data)
     CourierTimer=CreateTextControl("TrainCourierTimer","HudSmall",TimerPosition,nullptr,
         .22f,.025f,1.f,0,0,0,1);
     CourierTimer->Flags &= 0xfc;
+    CourierReturnTimer=CreateTextControl("TrainCourierReturnTimer","HudSmall",TimerPosition,nullptr,
+        .28f,.025f,1.f,0,0,0,1);
+    CourierReturnTimer->Flags &= 0xfc;
 #endif
     RebuildWeaponList();
 
@@ -1192,16 +1195,21 @@ void HUD_Status::Draw()
         HMODULE content=GetModuleHandleA("Content.dll");
         auto query=content?reinterpret_cast<TrainCourierHudFn>(GetProcAddress(content,"TrainCourierGetHud")):nullptr;
         bool visible=query && query(GetPlayerConnectionId(),&hud)!=0;
-        CourierTimer->Flags=static_cast<unsigned char>((CourierTimer->Flags & ~3u)|(visible?2u:0u));
-        if(visible) {
+        auto drawTimer=[&](WinControl* control,unsigned caption,float remaining,float y) {
+            if(!control)return;
+            bool show=visible && caption;
+            control->Flags=static_cast<unsigned char>((control->Flags & ~3u)|(show?2u:0u));
+            if(!show)return;
             wchar_t label[128]={},text[192]={};
-            GetIdsStringW(hud.caption,label,128);
-            unsigned seconds=static_cast<unsigned>(std::ceil(std::fabs(hud.remaining)));
+            GetIdsStringW(caption,label,128);
+            unsigned seconds=static_cast<unsigned>(std::ceil(std::fabs(remaining)));
             _snwprintf_s(text,_countof(text),_TRUNCATE,L"%s %u:%02u",label,seconds/60,seconds%60);
-            float const position[3]={hud.x,hud.y,0};
-            CourierTimer->SetProperty(6,reinterpret_cast<uintptr_t>(position),0);
-            CourierTimer->SetProperty(0x1d,reinterpret_cast<uintptr_t>(text),_countof(text));
-        }
+            float const position[3]={hud.x,y,0};
+            control->SetProperty(6,reinterpret_cast<uintptr_t>(position),0);
+            control->SetProperty(0x1d,reinterpret_cast<uintptr_t>(text),_countof(text));
+        };
+        drawTimer(CourierTimer,hud.caption,hud.remaining,hud.y);
+        drawTimer(CourierReturnTimer,hud.returnCaption,hud.returnRemaining,hud.y-.03f);
     }
  #endif
     HudTargetBase::Draw();

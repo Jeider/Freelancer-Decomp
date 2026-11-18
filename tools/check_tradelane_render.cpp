@@ -303,6 +303,8 @@ static void CheckCameraStability() {
     PlaneDistance=0;Camera();Params(.3125f);
 }
 int main(int argc,char** argv) {
+    bool noDepthCheck=argc>1&&strcmp(argv[1],"--no-depth")==0;
+    if(noDepthCheck&&argc>2)ShaderSource=argv[2];
     bool qualityCheck=argc>2&&strcmp(argv[1],"--quality")==0;
     if(qualityCheck)PixelEntry=argv[2];
     LegacyDepth=argc>1&&(strcmp(argv[1],"--depth-before")==0||strcmp(argv[1],"--bench-original")==0);SampledDepth=!LegacyDepth;
@@ -324,6 +326,28 @@ int main(int argc,char** argv) {
     Dev->SetRenderState(D3DRS_ALPHATESTENABLE,FALSE);Dev->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
     Dev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_ONE);Dev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
     Dev->SetRenderState(D3DRS_BLENDOP,D3DBLENDOP_ADD);Dev->SetRenderState(D3DRS_LIGHTING,FALSE);
+    if(noDepthCheck) {
+        Size(960,540);SampledDepth=false;WarpEnabled=false;
+        for(char const* entry:{"PSStandard","PSLow","PSMedium","PSMain"}) {
+            PixelEntry=entry;Release(VS);Release(PS);Release(Warp);Release(White);Compile();
+            printf("Without INTZ: %s\n",entry);
+            Camera();Params(.3125f);auto lit=Render();
+            int visible=0;for(DWORD pixel:lit)visible+=(pixel&0xffffff)!=0;
+            Require(visible>1000,"corridor remains visible without sampled depth");
+            Params(.3125f,0);auto off=Render();
+            Require(std::all_of(off.begin(),off.end(),[](DWORD p){return !(p&0xffffff);}),"zero envelope remains invisible without INTZ");
+            Params(.3125f);auto blocked=Render(nullptr,false,true);int leaks=0;
+            for(int y=H/4;y<H*3/4;++y)for(int x=W/4;x<W*3/4;++x)leaks+=(blocked[y*W+x]&0xffffff)!=0;
+            Require(leaks==0,"ordinary depth test protects foreground without INTZ");
+            Camera(.4f,.1f,0,.6f);Params(.3125f);auto bars=Render();leaks=0;visible=0;
+            for(int y=0;y<H;++y)for(int x=0;x<W;++x) {
+                bool pixel=(bars[y*W+x]&0xffffff)!=0;visible+=pixel;
+                if(y<int(H*.2f)-2||y>int(H*.8f)+2)leaks+=pixel;
+            }
+            Require(leaks==0&&visible>1000,"visible fallback stays inside cinematic viewport");
+        }
+        goto cleanup;
+    }
     if(qualityCheck){
         Size(960,540);Camera();Params(.3125f);auto base=Render("quality",true);
         Require(Changes(base,Render(nullptr,true))==0,"quality pause stable");

@@ -2,6 +2,7 @@
 #include "train_courier_bridge.h"
 #include "server_train_courier.h"
 #include "train_courier_state.h"
+#include "train_evacuation.h"
 #include "server_cobject.h"
 #include "../Common/common_train.h"
 #include "common_server.h"
@@ -16,12 +17,14 @@
 #include <cstdio>
 #include <set>
 #include <cstring>
+#include <windows.h>
 
 namespace {
 struct Yard {unsigned revision=0,locomotive=0,trailer=0;bool spawned=false;};
 std::map<unsigned,Yard> yards;
 struct Courier {
     unsigned trailer=0,base=0,system=0,solar=0;
+    unsigned recoverableSolar=0;
     bool transfer=false;
     Vector position{};Matrix orientation{};
     struct Retired {unsigned system;Vector position;};
@@ -108,7 +111,8 @@ CEqObj* parkedSolar(unsigned id) {
     auto* object=Server_LookupLiveObject(id);
     if(!object || !object->Object || object->Object->ObjectClass!=CObject::ClassSolar)return nullptr;
     auto* solar=static_cast<CEqObj*>(object->Object);
-    return solar->get_archetype()->Nickname.Id==CreateID("tc_parked_locomotive")?solar:nullptr;
+    auto arch=solar->get_archetype()->Nickname.Id;
+    return arch==CreateID("tc_parked_locomotive") || arch==CreateID("tc_evacuated_locomotive")?solar:nullptr;
 }
 unsigned spawn(CShip* loco,unsigned player) {
     unsigned system=0;
@@ -235,7 +239,11 @@ extern "C" __declspec(dllexport) int __cdecl TrainCourierBridge(TrainCourier::Pa
     using Op=TrainCourier::Operation;
     p->result=0;
     // Archetype check survives mission teardown and does not depend on ownership.
-    if(p->operation==Op::IsParkedSolar){p->result=parkedSolar(p->launchSolar)?1:0;return 1;}
+    if(p->operation==Op::IsParkedSolar){
+        auto found=couriers.find(p->player);
+        bool recoverable=found!=couriers.end() && found->second.recoverableSolar==p->launchSolar;
+        p->result=parkedSolar(p->launchSolar) && !recoverable?1:0;return 1;
+    }
     if(p->operation==Op::Register) {
         if(!std::isfinite(p->cleanupDistance) || p->cleanupDistance<1000.f)return 1;
         if(p->trailer && (!ship(p->trailer) || !CmnTrain::IsTrailer(ship(p->trailer))))return 1;
@@ -249,7 +257,18 @@ extern "C" __declspec(dllexport) int __cdecl TrainCourierBridge(TrainCourier::Pa
     auto& state=found->second;
     unsigned locoId=0;pub::Player::GetShip(p->player,locoId);
     auto* loco=ship(locoId);
-    if(p->operation==Op::Retire) {
+    if(p->operation==Op::PrepareEvacuation) {
+        if(!loco || !CmnTrain::IsLocomotive(loco) || loco->is_jumping() || loco->is_launching())return 1;
+        if(loco->is_using_tradelane()){loco->request_exit_tradelane();return 1;}
+        if(auto* behavior=loco->get_behavior_interface()) {
+            behavior->cancel_behavior(CancelAll);
+        }
+        loco->set_throttle(0);
+        if(auto* live=Server_LookupLiveObject(locoId))live->slot_50(false,true,0);
+        CmnTrain::CancelCoupling(loco);
+        if(CmnTrain::Trailer(loco) && !CmnTrain::Uncouple(loco))return 1;
+        p->result=!loco->is_cruise_active();
+    } else if(p->operation==Op::Retire) {
         if(p->trailer!=state.trailer || !p->trailer || !ship(p->trailer) ||
            CmnTrain::IsDriven(ship(p->trailer)))return 1;
         auto* tail=ship(p->trailer);
@@ -351,9 +370,17 @@ extern "C" __declspec(dllexport) int __cdecl TrainCourierBridge(TrainCourier::Pa
     } else if(p->operation==Op::ParkedSolar) {
         unsigned solarSystem=0;
         auto* solar=parkedSolar(p->launchSolar);
-        if(!solar || !loco || pub::SpaceObj::GetSystem(p->launchSolar,solarSystem)!=0 ||
-           solarSystem!=currentSystem)return 1;
+        if(!solar || pub::SpaceObj::GetSystem(p->launchSolar,solarSystem)!=0)return 1;
         state.parked.emplace(p->launchSolar,Courier::Retired{solarSystem,solar->WorldPosition});
+        if(state.recoverableSolar==p->launchSolar)state.recoverableSolar=0;
+        p->result=1;
+    } else if(p->operation==Op::RecoverableSolar) {
+        if(!p->launchSolar){state.recoverableSolar=0;p->result=1;return 1;}
+        unsigned solarSystem=0;
+        auto* solar=parkedSolar(p->launchSolar);
+        if(!solar || solar->get_archetype()->Nickname.Id!=CreateID("tc_evacuated_locomotive") ||
+           pub::SpaceObj::GetSystem(p->launchSolar,solarSystem)!=0 || solarSystem!=currentSystem)return 1;
+        state.recoverableSolar=p->launchSolar;
         p->result=1;
     } else if(p->operation==Op::ClearTransfer) {state.transfer=false;p->result=1;}
     else if(p->operation==Op::Query) p->result=1;
@@ -364,6 +391,25 @@ extern "C" __declspec(dllexport) int __cdecl TrainCourierBridge(TrainCourier::Pa
         static_cast<CShip*>(CmnTrain::Trailer(loco))->Id==state.trailer;
     return 1;
 #endif
+}
+
+bool TrainCourierProtectHull(CObject* object,float& hitpoints) {
+#ifdef FREELANCER_RPG_WORLD
+    if(!SinglePlayer() || !object || object->ObjectClass!=CObject::ClassShip ||
+       !CmnTrain::IsLocomotive(object))return false;
+    auto* loco=static_cast<CShip*>(object);
+    float maximum=loco->get_max_hit_pts();
+    if(!loco->OwnerPlayer || !std::isfinite(hitpoints) || !std::isfinite(maximum) ||
+       maximum<=0 || hitpoints>maximum*.05f)return false;
+    auto module=GetModuleHandleA("Content.dll");
+    auto bridge=module?reinterpret_cast<TrainEvacuation::Bridge>(GetProcAddress(module,TrainEvacuation::Export)):nullptr;
+    TrainEvacuation::Status status;status.ship=loco->Id;
+    // Content only latches a request here. Never mutate objects in a damage callback.
+    if(bridge && bridge(loco->OwnerPlayer,TrainEvacuation::Command::Critical,&status)) {
+        hitpoints=maximum*.05f;return true;
+    }
+#endif
+    return false;
 }
 
 bool TrainCourierLaunchPose(unsigned player,Vector& position,Quaternion& orientation,unsigned& solar,int& dockIndex) {

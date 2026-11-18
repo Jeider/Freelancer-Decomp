@@ -1,0 +1,18 @@
+{
+  "tool": "built-in image_gen",
+  "corrections": [
+    {
+      "id": "L20",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L20_initial.png",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L20_initial.png"
+      ],
+      "transparent_background": false,
+      "prompt": "Use case: precise-object-edit. Make a SMALL CONSISTENCY CORRECTION to the two small RIGHT-HAND TOP views in this L20 concept sheet. In the large main image, side view and rear view the engines are already correct: two engines on a VERTICAL CENTERLINE, the upper wider, the lower narrower. Preserve those three views completely.\nIn BOTH the TOP and STOWED small views at the right, remove the incorrect two side-by-side exhausts. Draw ONE centered broad upper engine at the aft end, aligned with the ship centerline. The narrower lower engine is directly underneath and hidden by the upper one in a true top view. There must NOT be a left/right pair. Preserve the aft raked shell and all hull and wing outlines in these top views.\nAlso in these two top views, keep the same raked aft shell as in the main view: its lower edge anchored across the engine collar, upper edge leaning backward. Do not add a car spoiler or new structure.\nChange nothing else: preserve the native capsule cockpit, every other panel, view, color, text, layout, perspective, the three broad fan leaves per side and their stowed arrangement. Do not redesign or change the number of engines. The only correction is consistency of the engine projection in the two small top views.",
+      "reason": "В основных видах двигатели вертикальные, а в двух верхних генератор ошибочно сделал их парой слева/справа.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L20_sheet.png",
+      "generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-d9263f7a-4333-423f-a5cb-7c9d95293c62.png",
+      "visual_result": "В TOP и STOWED теперь одно видимое центральное верхнее сопло; нижний двигатель скрыт. Остальные виды сохраняют вертикальную пару."
+    }
+  ]
+}

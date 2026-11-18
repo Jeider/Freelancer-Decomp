@@ -1,0 +1,70 @@
+{
+  "corrections": [
+    {
+      "id": "L78",
+      "kind": "front_and_side_tail_rake",
+      "prompt": "Use case: precise-object-edit. Keep this entire sheet unchanged EXCEPT the direction of the small fin in the upper-left FRONT-SIDE 3/4 and both bottom SIDE views. In those three views cockpit is LEFT. Mirror ONLY the fin's longitudinal silhouette so its blunt top lies LEFT, closer to the cockpit, relative to the center of its tiny lower socket. Leading edge should be nearly vertical with a mild forward overhang, trailing edge diagonal rising UP-LEFT. Same small fin height, thickness, length, small flush socket, inset border and sunburst. Do not add any base/pedestal or increase volume. The upper-right REAR 3/4 already shows the correct direction toward the RIGHT-hand cockpit: keep it unchanged. Keep cabin, collar, all three wing leaves and their roots, broad hull, engine pods, roof, framing and all other views unchanged. No extra equipment. Only reverse the fin fore-aft in the front and side views.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L78_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L78",
+      "kind": "aft_socket_alignment",
+      "prompt": "Use case: precise-object-edit. Keep the small fin's dimensions, thickness, relief design, tiny socket and the whole ship unchanged: cabin, collar, three wing plates, wing roots, twin engines, hull, materials, cameras, labels. Do not enlarge or redesign the tail, do not add a pedestal. In UPPER LEFT FRONT-SIDE and BOTH bottom SIDE views ONLY, translate the COMPLETE existing fin and its socket BACK along the roof to the AFT end BETWEEN THE ENGINES, immediately before the exhaust plane. Nose is LEFT in these views, so translate fin RIGHT by about one fin chord. Keep same forward-facing orientation and same exact outline. Leave an uninterrupted cargo roof ahead of it. Upper-right REAR view already has correct aft placement, keep it unchanged. Erase old attachment and restore flat roof there. Adjust TOP placement consistently at stern. Do not mirror the fin.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L78_sheet_corrected.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L79",
+      "kind": "forward_low_fin",
+      "prompt": "Use case: precise-object-edit. Keep the small fin's dimensions, thickness, relief design, tiny socket and the whole ship unchanged: cabin, collar, three wing plates, wing roots, twin engines, hull, materials, cameras, labels. Do not enlarge or redesign the tail, do not add a pedestal. Reverse only the fore-aft SILHOUETTE of the little LOW fin, keeping its socket centered at the SAME aft location. In front and SIDE views nose LEFT: high blunt end of fin must be LEFT, and trailing lower end RIGHT. Both long edges should lean slightly LEFT toward cockpit. In upper-right REAR 3/4 cockpit RIGHT: high end RIGHT, lower aft end LEFT. Keep the horizontal fluting and low elongated proportion. The current sheet sweeps the fin aft; make its high end face the cockpit consistently. No movement toward middle of roof.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L79_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L81",
+      "kind": "rear_socket_alignment",
+      "prompt": "Use case: precise-object-edit. Keep the small fin's dimensions, thickness, relief design, tiny socket and the whole ship unchanged: cabin, collar, three wing plates, wing roots, twin engines, hull, materials, cameras, labels. Do not enlarge or redesign the tail, do not add a pedestal. Edit ONLY the UPPER RIGHT REAR 3/4 drawing. The tail is wrongly next to the collar at the far right. REMOVE it there, restore plain roof, and put the SAME small two-overlapping-leaf tail at the STERN on the central narrow socket BETWEEN THE TWO EXHAUSTS, nearer LEFT. Match its aft location in the other five drawings. Its high end must face RIGHT toward the cockpit, its lower trailing edge LEFT toward exhausts. Do not change any other drawing. Do not leave a duplicate tail.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L81_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L83",
+      "kind": "aft_socket_alignment",
+      "prompt": "Use case: precise-object-edit. Keep the small fin's dimensions, thickness, relief design, tiny socket and the whole ship unchanged: cabin, collar, three wing plates, wing roots, twin engines, hull, materials, cameras, labels. Do not enlarge or redesign the tail, do not add a pedestal. In the UPPER LEFT FRONT-SIDE view and BOTH SIDE views, move the complete small triangular tail and its socket toward the REAR (RIGHT), by approximately ONE tail chord, onto the short aft centerline between engine shoulders. Keep fin shape, size, forward/high nose-facing edge and decoration unchanged. It must sit just ahead of exhaust plane, behind the roof hatch. Restore plain roof at old position. Keep upper-right REAR perspective unchanged, it already shows correct stern location. Adjust TOP only to align with this aft root. Do not add structure.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L83_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L85",
+      "kind": "forward_prong_direction",
+      "prompt": "Use case: precise-object-edit. Keep the small fin's dimensions, thickness, relief design, tiny socket and the whole ship unchanged: cabin, collar, three wing plates, wing roots, twin engines, hull, materials, cameras, labels. Do not enlarge or redesign the tail, do not add a pedestal. Correct ONLY the FORE-AFT lean of the two small tail prongs in the UPPER LEFT FRONT-SIDE and BOTH SIDE views. Nose LEFT: tops of BOTH prongs must lean LEFT toward cockpit, not RIGHT toward engines. Mirror only their longitudinal silhouette about the existing root center, keep the split, root location, dimensions and restrained grooves. Upper-right REAR perspective already leans toward the right-hand cockpit: preserve it and all other ship geometry. TOP/straight REAR remain symmetric. No extra prongs.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L85_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    }
+  ]
+}

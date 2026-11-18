@@ -4605,6 +4605,8 @@ static unsigned long PlaybackEvalTyped(FAnimPlayback* Playback, unsigned long Fl
 static unsigned long PlaybackEvalStoredTyped(FAnimPlayback* Playback)
 {
     FTypedChannel* Longest = Playback->LongestTyped;
+    if (Longest == nullptr)
+        return 0xFFFFFFFF;
     const float Start = -2.0f;
     unsigned long Header[7];
     std::memcpy(&Header[0], &Start, sizeof(float));
@@ -4660,7 +4662,9 @@ static void PlaybackSetTypedTime(FAnimPlayback* Playback, float Time)
 // FUN_066129f0 thiscall RET 0: MOV EAX,[this+0x18]; FLD [EAX+0x1C] -- the longest channel's
 static float PlaybackStoredDuration(FAnimPlayback* Playback)
 {
-    return Playback->LongestTyped->Time;
+    // A script can lose every target when a saved ship has both wings destroyed.
+    // Use the same unavailable result as an unknown playback id.
+    return Playback->LongestTyped != nullptr ? Playback->LongestTyped->Time : -1.0f;
 }
 
 // FUN_06611290, thiscall on the track (unused), RET 0xC (FileSystem, Name, Out). No checks.
@@ -4802,6 +4806,12 @@ static unsigned long DACOM_API AnimationPlayScript(FAnimationObject* This, FAnim
     ClonePlaybackTypedChannels(&Record, Entry);
     Record.Script = Script;
     BindPlaybackTracks(&Record, Root, ArgD, ArgE);
+    // Binding deliberately discards tracks whose parts no longer exist. Do not
+    // publish a successful playback handle when none survived: WingAnim and other
+    // clients use that handle to query time and resume the longest bound channel.
+    // The script has not been AddRef'd yet and rejected channels are already freed.
+    if (Record.Typed.empty())
+        return 0xFFFFFFFF;
     std::vector<FTypedChannel*>::iterator Cursor = Record.Typed.begin();
     while (Cursor != Record.Typed.end())
     {

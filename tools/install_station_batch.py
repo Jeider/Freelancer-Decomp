@@ -3,7 +3,7 @@ import argparse,json,os,subprocess,sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'out/station_batch'
+OUT=ROOT/'out/stations/station_batch'
 
 def run(config,script,*args):
     env=dict(os.environ,STATION_BATCH_CONFIG=json.dumps(config))

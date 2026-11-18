@@ -1,0 +1,84 @@
+{
+  "completed": 1,
+  "artifacts": [
+    {
+      "id": "L67",
+      "title_ru": "L66: тройной веер и хвост к носу",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-13083775-89ff-4dfa-89ea-8adecde88c92.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet_corrected.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L67",
+      "correction_history": [
+        {
+          "prompt_file": "correction_prompts.json",
+          "kind": "rear_view_tail_orientation",
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-13083775-89ff-4dfa-89ea-8adecde88c92.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet_corrected.png"
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-13083775-89ff-4dfa-89ea-8adecde88c92.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "verdict": "three_leaf_forward_tail_revision_for_review",
+        "observations": [
+          "Three distinct fan leaves per side are visible in the hero, TOP and stowed wing packet.",
+          "Tail upper tip leans toward the cockpit in both side views and hero. Initial rear perspective contradicted this; local correction reverses the rear-view tail toward its right-hand cockpit.",
+          "A large rear three-quarter view and a straight REAR projection are included.",
+          "The L66 body, two lateral engines, closed roof and exposed three-rib collar remain recognizable.",
+          "The generator placed additional yellow pads on the wing leaves despite native reference constraints; these are not approved hardpoints and the actual native equipment distribution remains authoritative.",
+          "Forward tail sweep places part of the upper structure over the aft roof in projection. Cargo-door, equipment and reversed-tail motion clearance remain unvalidated.",
+          "Exact wing contour fidelity, canopy proportions, tail dimensions and pad placement differ between raster views. Do not substitute these drawings for native cockpit or a checked motion model."
+        ]
+      },
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-1688b737-070e-45ae-9c12-085c13062b4e.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet.png",
+      "base_id": "L66",
+      "wing_leaf_count": 3,
+      "tail_orientation": "Forward toward the cockpit; aft central root preserved in concept.",
+      "sha256": "db021c451458155b33a132ee07e31cb3a679d140361cb14fdb9fa1b23bf80490",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+      "sha256": "3e1ad54708e23d12fec4151def215150532f2b9e82f576b1a89a2913bcd164e5"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_wing_motion.jpg",
+      "sha256": "7059cc57544b79f3aabe3cff0f1d1758e0d16c9de1c62f204831474422736241"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

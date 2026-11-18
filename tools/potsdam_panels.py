@@ -10,7 +10,7 @@ from fix_valensia_towers import decoded,expected
 from terraform_mega import hp_node
 
 m=p.m
-OUT=m.REPO/'out/potsdam_panels'
+OUT=m.REPO/'out/stations/potsdam_panels'
 NAME='pdm_top_rotating'
 CLIP='Sc_potsdam_solar_rotation'
 PERIOD=90.0

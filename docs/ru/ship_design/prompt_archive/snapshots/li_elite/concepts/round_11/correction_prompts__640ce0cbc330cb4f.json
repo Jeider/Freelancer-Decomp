@@ -1,0 +1,24 @@
+{
+  "round": "round_11",
+  "tool": "built-in image_gen",
+  "corrections": [
+    {
+      "id": "L46_collar_cutouts_01",
+      "variant": "L46",
+      "reason": "Clarify the lower collar removal shown in the owner's green markup; the first generation clearly opens the upper collar but leaves lower cutouts ambiguous.",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_11/li_elite_L46_initial.png",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_11/li_elite_L46_initial.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/user_obelisk_markup/perspective.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "prompt": "Use case: precise-object-edit. Edit the FIRST image, L46 concept sheet. Preserve this ship, original native colors, exact existing cockpit and glazing, two raised longitudinal side pylons, recessed cargo deck and doors, stepped higher rear spoiler, original engines, wings and every view's composition. Make ONE LOCAL GEOMETRY correction to the external COLLAR around/behind the cabin. The SECOND image is the owner's markup: the GREEN area at the LOWER end of the near collar flange means actual material removed. Show a small, clean, visibly empty squared/angled BITE cut out of the exposed LOWER FREE TIP of that EXTERNAL COLLAR FLANGE, immediately behind and outboard of the cabin's side equipment pad, and mirror it on the far collar side. Apply a matching little notch through the stacked external flange rims so the two broad parallel side posts have visibly interrupted lower ends. It is a notch in the external plate outline, not a blind groove, dark paint, extra metal panel or recess in the cabin. In the large perspective, FRONT and SIDE show the appropriate visible notch with background/clear negative space at its mouth and real cut thickness. Keep the broad posts solid and structurally connected to the body; the notches are modest, not holes severing the pillars. The upper collar cross-band is already open in L46: retain that opening. The THIRD image is the immutable cabin reference: do not alter or cut any cockpit shell, pane, frame or equipment pad. This edit touches ONLY the exposed lower collar flange tips. Keep all hull planes, side relief, spoiler outline, cargo open inset and source texture vocabulary unchanged. Do not add green or blue marks. Return the full L46 sheet.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_11/li_elite_L46_sheet.png",
+      "generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-1e207dfa-54c5-4241-bf4a-6270a12add0f.png",
+      "visual_result": "Small open bites now read at the lower external collar flange outline, especially SIDE. The two broad side posts and cabin are retained visually; exact cut registration to the source mesh is not established by the raster. Minor texture/pixel drift outside the edit area remains possible."
+    }
+  ]
+}

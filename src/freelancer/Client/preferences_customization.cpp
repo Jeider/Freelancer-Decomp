@@ -1,5 +1,6 @@
 #include "nn_preferences.h"
 #include "page_customization.h"
+#include "customization_text.h"
 #include "nn_text_control.h"
 #include "wire_controls.h"
 #include "nn_dropdown.h"
@@ -23,16 +24,16 @@ bool NnPreferences::CreateCustomizationGroup()
 #ifdef FREELANCER_DLSS5
     shift-=.035f;
 #endif
-    if(!text("CustomizationGroup",L"\u041a\u0430\u0441\u0442\u043e\u043c\u0438\u0437\u0430\u0446\u0438\u044f",-.14f,-.11f+shift,.5f,"PageHeader")) return false;
+    if(!text("CustomizationGroup",CustomizationText::Text(L"\u041a\u0430\u0441\u0442\u043e\u043c\u0438\u0437\u0430\u0446\u0438\u044f", L"Customization"),-.14f,-.11f+shift,.5f,"PageHeader")) return false;
     for(int i=0;i<2;++i) {
         float const y=-.145f+shift-i*.030f;
-        if(!text(i?"HelmetLabel":"CharacterLabel",i?L"\u0428\u043b\u0435\u043c \u0441\u0432\u044f\u0437\u0438":L"\u041f\u0435\u0440\u0441\u043e\u043d\u0430\u0436",-.11f,y,.27f,"ItemName")) return false;
+        if(!text(i?"HelmetLabel":"CharacterLabel",i?CustomizationText::Text(L"\u0428\u043b\u0435\u043c \u0441\u0432\u044f\u0437\u0438", L"Comm helmet"):CustomizationText::Text(L"\u041f\u0435\u0440\u0441\u043e\u043d\u0430\u0436", L"Character"),-.11f,y,.27f,"ItemName")) return false;
         float at[]={.302f,y-.012f,0},half[]={.121f,.0145f,0};
         auto* button=static_cast<WireButtonControl*>(CreateWireButtonControl(i?"CustomizeHelmet":"CustomizeCharacter","ui_select_item",at,half,0,0,0,0,0xf));
         if(!button) return false;
         button->WireState&=~0x40;
         CustomizationButtons[i]=button;CustomizationWidgets.push_back(button);
-        if(!text(i?"HelmetConfigure":"CharacterConfigure",L"\u041d\u0430\u0441\u0442\u0440\u043e\u0438\u0442\u044c",.245f,y,.18f,"ItemName")) return false;
+        if(!text(i?"HelmetConfigure":"CharacterConfigure",CustomizationText::Text(L"\u041d\u0430\u0441\u0442\u0440\u043e\u0438\u0442\u044c", L"Customize"),.245f,y,.18f,"ItemName")) return false;
     }
     SetCustomizationHidden(true);return true;
 }

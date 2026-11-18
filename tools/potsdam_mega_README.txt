@@ -28,9 +28,9 @@ Removed nicknames appear only as definitions in inactive rh_mod/rh_ber_tracks/
 rh_ber_3d variants, with no external references found in DATA ini/thn files.
 Dock approach and visual behavior still need the player's in-game check.
 
-One minimal rollback in out/potsdam_mega/rollback (1.96 MiB plus retained
+One minimal rollback in out/stations/potsdam_mega/rollback (1.96 MiB plus retained
 Original snapshots); stage payload removed after byte-verified installation.
-Manifest/checks/native log/installed hashes retained under out/potsdam_mega.
+Manifest/checks/native log/installed hashes retained under out/stations/potsdam_mega.
 Build: python -B tools/potsdam_mega.py (initial migration only).
 Native check: set valensia_mega.OUT to potsdam_mega.OUT, then import
 check_valensia_mega_native. Install: tools/install_potsdam_mega.py --apply.

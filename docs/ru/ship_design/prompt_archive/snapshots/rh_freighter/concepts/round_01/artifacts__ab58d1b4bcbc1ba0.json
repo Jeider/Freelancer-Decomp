@@ -1,0 +1,64 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "prompt_file": "prompts.json",
+  "status": "Rejected by user; all five project PNGs and original generated PNGs deleted; see deletion.json",
+  "artifacts": [
+    {
+      "id": "A",
+      "title_ru": "Ступенчатый грузовой корпус",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-c3c3c47d-cf95-461d-8f9f-3a01eb6a36f4.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_01/rh_freighter_A.png",
+      "sha256": "8cec55598fe3f0dff33c61d49bc228f6a9f16bc739d7f37b84c6127a00c8b68f",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "B",
+      "title_ru": "Грузовой модуль в несущей раме",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-0c2f92d9-62fe-4455-b5ea-89e63afd6cbd.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_01/rh_freighter_B.png",
+      "sha256": "bf3e912a505415a19749184b627aec9f995919ee1a71977707a94ed3220f21d4",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "C",
+      "title_ru": "Продольный дальний грузовик",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-fc8a22df-35e4-4d6a-887a-cb7e54d7e570.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_01/rh_freighter_C.png",
+      "sha256": "5dadee53753e34e08f7e27e00bd3f08fedad78e5fe058df8a1c084a7a94b6d74",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "D",
+      "title_ru": "Компактный бронированный грузовик",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8093354a-1fd8-4280-bdc7-efd0f0d50b13.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_01/rh_freighter_D.png",
+      "sha256": "249e0cdf0cd8d1244df78f60071e8ebb2d5250e5cbc695e8d45574cec7f4e850",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "E",
+      "title_ru": "Два грузовых борта и центральный хребет",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8827a27f-cc6a-4532-a45c-af1332f3ff3d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_01/rh_freighter_E.png",
+      "sha256": "b365b78eb886216d16f40d0c069819b179e7f5d13b91f68ebb3f072fec289141",
+      "size": [
+        1536,
+        1024
+      ]
+    }
+  ],
+  "verification": "All 5 PNG copies match generated originals; input reference and source CMP hashes unchanged; document links checked."
+}

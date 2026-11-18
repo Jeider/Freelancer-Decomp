@@ -1,0 +1,111 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "status": "Stopped explicitly by user after nine delivered results; superseded by two P01/P02 samples",
+  "source_cmp": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_freighter/rh_pir_freighter.cmp",
+  "source_sha256": "085e9a5d778922b1aef6ebe70a95ce0d902636177dd1b5cc03a4b6c0ffbc738b",
+  "native_flight_dimensions_xyz": [
+    9.464703587623367,
+    11.46253252029419,
+    23.7216694355011
+  ],
+  "prompt_files": [
+    "prompts.json"
+  ],
+  "gallery_title": "RH Freighter ? ????????????? M-?????",
+  "gallery_heading": "M01?M09: ????????????? ?????",
+  "gallery_intro": "????? ?????? ?????????? ?????????. ???????????? ?????? ??????? ??????? ??????????? ? ?????????? ?????. ?????????? ???????? ? P01/P02 ? round_09.",
+  "artifacts": [
+    {
+      "id": "M01",
+      "label": "M01",
+      "base_variant": "D01",
+      "title_ru": "РЎРєРѕС€РµРЅРЅС‹Рµ С‚РѕСЂС†С‹",
+      "group_ru": "РљР»РёРЅРѕРІРёРґРЅС‹Рµ РєРѕСЂРїСѓСЃР°",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-ff8532ac-b88a-4f2f-a6af-ab70d0ff38a1.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M01_sheet.png",
+      "comparison_image": "../round_07/rh_freighter_D01_sheet.png",
+      "comparison_label": "РџСЂРµРґС‹РґСѓС‰РёР№ РЅР°СЃС‹С‰РµРЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ D01"
+    },
+    {
+      "id": "M02",
+      "label": "M02",
+      "base_variant": "D02",
+      "title_ru": "Р’С‹СЃРѕРєРѕРµ РїРµСЂРµРґРЅРµРµ РїР»РµС‡Рѕ",
+      "group_ru": "РљР»РёРЅРѕРІРёРґРЅС‹Рµ РєРѕСЂРїСѓСЃР°",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-a7c4760e-9028-4eff-93a8-3c1015b8c176.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M02_sheet.png",
+      "comparison_image": "../round_07/rh_freighter_D02_sheet.png",
+      "comparison_label": "РџСЂРµРґС‹РґСѓС‰РёР№ РЅР°СЃС‹С‰РµРЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ D02"
+    },
+    {
+      "id": "M03",
+      "label": "M03",
+      "base_variant": "D03",
+      "title_ru": "РўСЏР¶С‘Р»Р°СЏ РєРѕСЂРјР°",
+      "group_ru": "РљР»РёРЅРѕРІРёРґРЅС‹Рµ РєРѕСЂРїСѓСЃР°",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-0b185bd3-95d3-4443-9322-daac4dffcb4c.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M03_sheet.png",
+      "comparison_image": "../round_07/rh_freighter_D03_sheet.png",
+      "comparison_label": "РџСЂРµРґС‹РґСѓС‰РёР№ РЅР°СЃС‹С‰РµРЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ D03"
+    },
+    {
+      "id": "M04",
+      "label": "M04",
+      "base_variant": "D02",
+      "title_ru": "РЎСЂРµР·Р°РЅРЅРѕРµ РґРЅРёС‰Рµ",
+      "group_ru": "РљР»РёРЅРѕРІРёРґРЅС‹Рµ РєРѕСЂРїСѓСЃР°",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-df8d5c46-ca40-4b98-ad8d-1aca0e07b15e.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M04_sheet.png",
+      "comparison_image": "../round_07/rh_freighter_D02_sheet.png",
+      "comparison_label": "РџСЂРµРґС‹РґСѓС‰РёР№ РЅР°СЃС‹С‰РµРЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ D02"
+    },
+    {
+      "id": "M05",
+      "label": "M05",
+      "base_variant": "D05",
+      "title_ru": "Р›РѕРјР°РЅР°СЏ Р»РёРЅРёСЏ РїР»РµС‡Р°",
+      "group_ru": "РљР»РёРЅРѕРІРёРґРЅС‹Рµ РєРѕСЂРїСѓСЃР°",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-fd1bd184-d0a2-4bd9-bc4b-d7c49261eb8a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M05_sheet.png",
+      "comparison_image": "../round_07/rh_freighter_D05_sheet.png",
+      "comparison_label": "РџСЂРµРґС‹РґСѓС‰РёР№ РЅР°СЃС‹С‰РµРЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ D05"
+    },
+    {
+      "id": "M06",
+      "label": "M06",
+      "title_ru": "Р”РІР° РєРѕСЂРїСѓСЃРЅС‹С… СЏСЂСѓСЃР°",
+      "group_ru": "РЎС‚СѓРїРµРЅС‡Р°С‚С‹Рµ РєРѕСЂРїСѓСЃР°",
+      "base_variant": "D03",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-4d4fa736-1101-4a6f-8a64-4847cedd888b.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M06_sheet.png"
+    },
+    {
+      "id": "M07",
+      "label": "M07",
+      "title_ru": "РЈС‚РѕРїР»РµРЅРЅР°СЏ РЅРѕСЃРѕРІР°СЏ СЃС‚РµРЅРєР°",
+      "group_ru": "РЎС‚СѓРїРµРЅС‡Р°С‚С‹Рµ РєРѕСЂРїСѓСЃР°",
+      "base_variant": "D01",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-20d2fe7d-b7d0-488a-a6cf-d9b48fc532e3.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M07_sheet.png"
+    },
+    {
+      "id": "M08",
+      "label": "M08",
+      "title_ru": "РљРѕСЂРјРѕРІРѕР№ СѓСЃС‚СѓРї",
+      "group_ru": "РЎС‚СѓРїРµРЅС‡Р°С‚С‹Рµ РєРѕСЂРїСѓСЃР°",
+      "base_variant": "D04",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-64b2edcc-7c96-40ad-8c85-9d0369f19f2d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M08_sheet.png"
+    },
+    {
+      "id": "M09",
+      "label": "M09",
+      "title_ru": "РЎРјРµС‰С‘РЅРЅС‹Рµ Р±РѕРєРѕРІС‹Рµ РѕР±СЉС‘РјС‹",
+      "group_ru": "РЎС‚СѓРїРµРЅС‡Р°С‚С‹Рµ РєРѕСЂРїСѓСЃР°",
+      "base_variant": "D04",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-bd0ff071-861d-49ca-8546-363a3b816ad6.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M09_sheet.png"
+    }
+  ]
+}

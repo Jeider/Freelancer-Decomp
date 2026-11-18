@@ -1,0 +1,310 @@
+{
+  "completed": 10,
+  "artifacts": [
+    {
+      "id": "L47",
+      "title_ru": "Пилоны за воротником",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-402b7587-5aac-40c6-a2cd-5b9e8d3cc4cd.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L47_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L47",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-402b7587-5aac-40c6-a2cd-5b9e8d3cc4cd.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Нативный трёхпластинчатый воротник остаётся самостоятельным; за ним видна низкая площадка, затем начинаются наклонные передние грани длинных пилонов. Утопленный трюм и более высокий поперечный спойлер сохранены. Пилоны визуально всё ещё близки к воротнику, но больше не заменяют его. Три листа читаются на TOP; полный ход створок и крыльев не проверен. Кабина должна переиспользоваться из CMP.",
+      "wing_leaf_count": 3,
+      "sha256": "3b6806b84088bd3320ec3fe67200961d0cafd32641c4dfe1ab6aa8424b817f84",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L48",
+      "title_ru": "Короткие кормовые пилоны",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-82bffab9-bd67-4183-acbb-179257d6f294.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L48_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L48",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-82bffab9-bd67-4183-acbb-179257d6f294.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Пилоны сосредоточены у кормы, передняя половина палубы низкая и открытая; воротник самостоятельный. Спойлер получил более широкий центральный мотив. Отличие от L47 видно в профиле, при сохранении исходного нижнего бруска. В CARGO OPEN передние скаты местами выглядят длиннее основного вида, поэтому inset задаёт принцип, а не точную геометрию. Три листа веера и исходная кабина остаются опорой.",
+      "wing_leaf_count": 3,
+      "sha256": "2ad9ae85ab6573b87f79a0a02b519c78eb87e42bd5fb17341bf2f4514885a67b",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L49",
+      "title_ru": "Средние монолиты",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-8946356a-b22d-486d-8c0d-f1b024c86c65.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L49_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L49",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8946356a-b22d-486d-8c0d-f1b024c86c65.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Вместо длинных стенок — два средних усечённых возвышения с низкими участками до и после них. Основной вид и TOP сохраняют пару по сторонам трюма. На малом SIDE видны оба возвышения со смещением, то есть это не строгая ортографическая проекция; нельзя переносить их продольное смещение в модель. Открытый трюм показан с двумя створками. Кабина и три листа опираются на источник.",
+      "wing_leaf_count": 3,
+      "sha256": "ce6d32bd7a1df7abf1a4fbdc688872d51112130c0f0ab0f33cdee0e7b2cb538d",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L50",
+      "title_ru": "Пилоны с наклоном вперёд",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-cc2e7bd6-3598-4b9e-a9ce-d3ec672bd44a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L50_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L50",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-cc2e7bd6-3598-4b9e-a9ce-d3ec672bd44a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Верхние линии боковин слегка понижаются к корме; спойлер имеет неглубокий шеврон в плане. Внешний воротник получил открытые участки. При этом наклон пилонов вперёд выражен слабее задания, а их начала вновь приблизились к воротнику: итог ближе к вариации длинных бортов L45, чем к отдельной короткой схеме. Этот недостаток сохранён в оценке. Родная основа, три листа, утопленный трюм и вертикальные двигатели остаются узнаваемыми.",
+      "wing_leaf_count": 3,
+      "sha256": "1ffb2c171d7e1da7f9b72199d512edaddedcbb98d04ab1eb7b446fc55c2fe3fd",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L51",
+      "title_ru": "Пилоны с наклоном назад",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-4ca2b7a0-7fb4-431f-a6cb-78e64a405574.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L51_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L51",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-4ca2b7a0-7fb4-431f-a6cb-78e64a405574.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Длинные верхние боковины поднимаются к корме, спойлер получил пониженный центр и высокие плечи. Наклон и ступени различимы, но генератор вновь приблизил передние основания к воротнику и не сохранил заданный отчётливый промежуток. По силуэту это близкий родственник L45/L50, не самостоятельная новая компоновка. Эта инерция послужила причиной убрать ИИ-референс для L52–L56. Родные три листа, центральный трюм и двигатели сохранены по принципу.",
+      "wing_leaf_count": 3,
+      "sha256": "f959a154a6e072a9231ff68aece69e85a2e6133595532877a33a7ee1ea831e02",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L52",
+      "title_ru": "Расходящийся верх",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-54f0ea9f-feb5-47fd-b396-2db7ea231f8f.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L52_sheet.png",
+      "status": "selected_as_iteration_base",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L52",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-54f0ea9f-feb5-47fd-b396-2db7ea231f8f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "После удаления ИИ-образца получились более низкие задние клиновидные боковины; в TOP их верх расходится к корме, а нижний родной брусок сохраняется. Декор ближе к плоской родной росписи. Большая перспектива усиливает размер кабины по сравнению с малыми видами: это не новые пропорции кокпита, его нужно брать из CMP. Виды раскрытого трюма показывают две продольные створки; зазоры не валидированы.",
+      "wing_leaf_count": 3,
+      "user_selected_for": "further_concept_iteration_only",
+      "next_round": "round_13",
+      "user_feedback_after_generation": "Взять L52, менять спойлер и крылья в пределах примера or_elite; отказаться от бессмысленных вырезов. Далее предложена тонкая трактовка пиратского анти-ампира.",
+      "sha256": "7e3e0de370bca44c09e3d80e4d81e430a33df30ac810f193e618b582ae1fda02",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L53",
+      "title_ru": "Сходящиеся плечи · два листа",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-166e2b92-3bc0-44d3-9712-8e8274edad29.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L53_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L53",
+      "correction_history": [
+        {
+          "id": "L53_cargo_inset_01",
+          "prompt_file": "correction_prompts.json",
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-166e2b92-3bc0-44d3-9712-8e8274edad29.png",
+          "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L53_sheet.png"
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-166e2b92-3bc0-44d3-9712-8e8274edad29.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Видны два широких листа веера на сторону, исходная вертикальная пара двигателей и длинные боковины с более широкими передними плечами. Схождение к корме читается на TOP, хотя пилоны получились длиннее и ближе к воротнику, чем требовалось. Центральная площадка остаётся ниже бортов. Первоначальный CARGO OPEN имеет несогласованную длину/положение створок и требует отдельной правки. Дополнительные площадки на крыше/створках не являются назначенными hardpoint и не должны автоматически переноситься в модель. Новая двухлистная механика не проверена. После локальной коррекции inset показывает две сопоставимые длинные створки с тёмными внутренними поверхностями; внешние пилоны остаются на месте. Это исправление схемы изображения, не проверка анимации.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-80083a09-12e3-4392-bee3-04c9ee836de7.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L53_initial.png",
+      "wing_leaf_count": 2,
+      "sha256": "79a9b2af8e9fd7d25f7b8238599f5abc6e639da8e271ac2b9b520ca0a1a9ffb1",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L54",
+      "title_ru": "Двухступенчатые борта",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-df2ba68f-4308-4526-bf65-dc0175bc775d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L54_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L54",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-df2ba68f-4308-4526-bf65-dc0175bc775d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Два коротких верхних яруса над длинными низкими боковыми основаниями хорошо читаются; передняя половина остаётся низкой, воротник самостоятельный. Спойлер имеет широкое невысокое центральное завершение. Это родственник коротких кормовых пилонов L48, с более явным двухуровневым переходом. Три листа веера и две продольные открытые створки показаны; точная кабина и полный ход механизмов остаются задачей исходной геометрии.",
+      "wing_leaf_count": 3,
+      "sha256": "facfaf56e584512a1baba040b6752ba7db2f91f46c4fcf92f9f69a6f1d780319",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L55",
+      "title_ru": "Уступы и кормовой козырёк",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-dee54999-36bc-40c1-bc5f-63d2bf5537dd.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L55_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L55",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-dee54999-36bc-40c1-bc5f-63d2bf5537dd.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Крупные уступы в передних углах боковин и наклонный кормовой козырёк дают отличимый профиль. Воротник самостоятельный; низкий промежуток перед пилонами виден лучше на SIDE. Родной брусок и трёхлистные веера сохраняются по схеме. Изображение кормовых двигателей/оборудования упрощено и не должно заменять исходные формы CMP. CARGO OPEN передаёт две продольные створки, не доказанную траекторию.",
+      "wing_leaf_count": 3,
+      "sha256": "a44c497662e4195381fffb3d5e08de0a38bced2f24b35a6204c32a5a88149fb7",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L56",
+      "title_ru": "Пилоны, связанные с кормой · два листа",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-5d088ff4-649a-435f-b768-6caab6b4bd51.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L56_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L56",
+      "correction_history": [
+        {
+          "id": "L56_cargo_inset_01",
+          "prompt_file": "correction_prompts.json",
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-5d088ff4-649a-435f-b768-6caab6b4bd51.png",
+          "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L56_sheet.png"
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-5d088ff4-649a-435f-b768-6caab6b4bd51.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Два листа на сторону подтверждаются на основном виде и TOP. Пилоны плавно поднимаются к наружным плечам кормового спойлера, а отдельный исходный воротник читается особенно на SIDE/TOP. Нижняя основа сохраняет родной многоугольный объём. Первый CARGO OPEN смешивает украшенные верхние части пилонов с подвижными створками, поэтому нужен локальный пересмотр inset. Форма двигателей и кабины в перспективе условна: точные исходные узлы не заменяются рисунком. После локальной правки inset поднимает две тонкие внутренние створки, а украшенные боковины остаются неподвижными. Проверка траектории и исходной оболочки ещё не выполнена.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-7e29bc74-85f6-4573-bdcc-23d6e33ed892.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L56_initial.png",
+      "wing_leaf_count": 2,
+      "sha256": "b37b95c606f24fa5bc7090747165d24e70608fa77b11719702fef168c1633a17",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_11/li_elite_L45_sheet.png",
+      "sha256": "fa6a7be6a0ceaa274d8ff1057f178213eac53e847f9a1c508c5536a35cfa52a5"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_11/li_elite_L46_sheet.png",
+      "sha256": "10fd59771900b45cbdf215cc4d34a665aaa66930421b2b9c63888e8f389fac0f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/user_obelisk_markup/front.png",
+      "sha256": "8f0260b615705bf9d1c59392a74fcd3d49529925e77967bc285d4621edf2d0d3"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/user_obelisk_markup/perspective.png",
+      "sha256": "20c1cf5171407f83a35e52995946cdba7cc922230c698c0587c3543a09f7e6d5"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+      "sha256": "10f19223296c933957943c3ae329296e7f62e891ac96a8623ae57e51d464f95b"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

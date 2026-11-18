@@ -31,7 +31,7 @@ def main():
         path=REPO/'out'/task/'installed.json'
         data=json.loads(path.read_text());manifests[task]=len(data['hashes'])
         latest.update(data['hashes'])
-    for path in sorted((REPO/'out/station_batch').glob('*/installed.json'),key=lambda p:p.stat().st_mtime_ns):
+    for path in sorted((REPO/'out/stations/station_batch').glob('*/installed.json'),key=lambda p:p.stat().st_mtime_ns):
         data=json.loads(path.read_text());manifests[path.parent.name]=len(data['hashes'])
         latest.update(data['hashes'])
     from optimized_station_paths import audit_paths

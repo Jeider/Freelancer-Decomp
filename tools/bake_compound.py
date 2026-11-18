@@ -624,7 +624,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data', type=Path, default=Path(r'D:\Games\FL_MOD\DATA'))
     parser.add_argument('--template', type=Path)
-    parser.add_argument('--output', type=Path, default=ROOT / 'out' / 'bake_compound')
+    parser.add_argument('--output', type=Path, default=ROOT / 'out' / 'stations' / 'bake_compound')
     parser.add_argument('--name', default='baked')
     args = parser.parse_args()
     if args.template:

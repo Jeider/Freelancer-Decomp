@@ -1,0 +1,17 @@
+{
+  "status": "accepted_for_modeling",
+  "status_ru": "БЕРЁМ В РАБОТУ",
+  "selected_by": "user",
+  "date": "2026-11-17",
+  "concept_id": "F14",
+  "title_ru": "Утопленное основание",
+  "ship_name": "Драугр",
+  "art": "concepts/round_05/rh_fighter_F14_sheet.png",
+  "art_sha256": "ef46c4874aa9fac3eeb0e396bea5164d1561d100926422908e38efdfd16381f2",
+  "handoff": "SELECTED_CONCEPT.md",
+  "user_evidence": "f14 берём в работу. пометь это. не забывай сохранять все успешные промпты даже если мы удалим этот опыт. и у freighter и у fighter",
+  "scope": "Concept selected; downstream modeling is separate. No model changes or installation.",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_fighter/rh_pir_fighter.cmp",
+  "source_sha256": "039fc5177f5110ca51dc5b4ada40e8f1300c8e5bc0696cb374ee5fc757f7c5eb",
+  "persistent_prompt_recipe": "../../../docs/ru/ship_design/prompt_archive/selected/rh_fighter_F14.json"
+}

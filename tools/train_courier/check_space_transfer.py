@@ -14,7 +14,7 @@ def main():
     compiler, env = compiler_env()
     out = ROOT / 'src/obj/train_courier/rpg1/bin'
     # Match the Common import library used to link this server. No live writes.
-    shutil.copy2(ROOT / 'out/base_neural/on/bin/Common.dll', out / 'Common.dll')
+    shutil.copy2(Path('D:/Games/FL_MOD/bin/Common.dll'), out / 'Common.dll')
     env['PATH'] = str(ROOT / 'bin') + ';' + env['PATH']
     source = ROOT / 'tools/train_courier/check_space_transfer.cpp'
     command = [str(compiler / 'cl.exe'), '/nologo', '/std:c++17', '/W4', '/EHsc', '/MD',

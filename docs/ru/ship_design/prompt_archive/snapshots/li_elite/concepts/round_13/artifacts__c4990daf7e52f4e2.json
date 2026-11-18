@@ -1,0 +1,124 @@
+{
+  "completed": 2,
+  "artifacts": [
+    {
+      "id": "L57",
+      "title_ru": "Тяжёлый венец и сдержанный веер",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-a97a66db-d075-4fcb-88cd-65ba96b67587.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_13/li_elite_L57_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L57",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-a97a66db-d075-4fcb-88cd-65ba96b67587.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "verdict": "usable_shape_candidate_with_projection_and_mechanism_limits",
+        "observations": [
+          "L52-style paired raised side volumes, recessed central cargo field and Liberty red/ochre panel language remain recognizable.",
+          "Aft crosspiece is materially deeper and heavier, with inward-closing ends and a restrained fan relief under its border; this is the principal accepted prompt response, not user approval.",
+          "Broad clipped wing outline differs from the previous narrow native fan, but the intended two overlapping leaves are not clearly separated in every view.",
+          "STOWED is an illustrative folded silhouette, not proof of rotary hinge clearance or consistent leaf shapes.",
+          "Hero perspective exaggerates cockpit size. The native cabin reference DOES contain stepped collar flanges; SIDE/TOP soften and round those source flanges, so their exact contours must come from the native CMP, not the raster. Glazing is broadly recognizable but not proven identical.",
+          "Two vertical aft engine apertures are suggested in the side view; no third Order engine is requested.",
+          "SIDE and TOP contain perspective, so these are concept supporting views rather than measured orthographic drawings."
+        ],
+        "modeling_constraints": [
+          "Reuse native LI cockpit geometry unchanged.",
+          "Keep L52 main hull/cargo layout as the iteration base.",
+          "Validate two-leaf rotation, aft crown/cargo sweep clearance and actual hardpoint ownership separately before modeling."
+        ]
+      },
+      "iteration_base": "L52",
+      "proposed_mechanism": "Proposed two-leaf rotary fan per side; original LI rotation principle, new leaves/hinges not validated.",
+      "sha256": "9e1a3d4c2e5526856a10b23f85ab02f155b40eaa3ad16e21b31d12d9feab8061",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L58",
+      "title_ru": "Наклонный штандарт и вложенные плоскости",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-aebaa873-fcab-43e2-b7e1-3712e8851908.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_13/li_elite_L58_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L58",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-aebaa873-fcab-43e2-b7e1-3712e8851908.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "verdict": "usable_distinct_shape_candidate_with_projection_and_mechanism_limits",
+        "observations": [
+          "The L52 main body and recessed cargo field remain, while the transverse spoiler becomes a raked dorsal crest on a transverse plinth.",
+          "Broad clipped continuous wings and bounded linear ornament give a distinct Order-influenced silhouette while keeping LI palette, fan relief and two vertically stacked aft engine faces.",
+          "The crest is the bolder of these proposals and needs user review for Liberty character and acceptable height.",
+          "STOWED retains wing orientation with reduced span, suggesting telescopic nesting. It does not demonstrate two mechanically complete slider stages or exact nesting depths.",
+          "Native collar flanges are rounded into ring-like contours in supporting views; glazing proportions also vary with the view. Reuse native cabin geometry unchanged rather than reconstructing it from this sheet.",
+          "SIDE and TOP are not measured orthographic projections; engine positions in TOP are perspectivally displaced."
+        ],
+        "modeling_constraints": [
+          "Reuse native LI cockpit geometry unchanged.",
+          "Keep L52 main hull/cargo as iteration base and two vertical engines.",
+          "If selected, validate new two-stage sliding-wing joints, cabin/hull clearance and dorsal crest clearance from the moving hatch separately."
+        ]
+      },
+      "iteration_base": "L52",
+      "proposed_mechanism": "Proposed Order-style two active prismatic stages per side plus root fairing; independent of L57 rotary proposal.",
+      "sha256": "507b98d79d786083aa1ff7f1b7b987a33278b463d97ee3f2ac949d0555d78c79",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_12/li_elite_L52_sheet.png",
+      "sha256": "7e3e0de370bca44c09e3d80e4d81e430a33df30ac810f193e618b582ae1fda02"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/or_elite/native_flight.jpg",
+      "sha256": "aaa0fbe3b324ff3420b21f2cc3fce416df4341f30c157bbf594e6b6283d51366"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/or_elite/native_wing_motion.jpg",
+      "sha256": "7970a6f60ebf10148fe2a3cbcb0945ae84191ecdc732e24d80af688a5a9cc875"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

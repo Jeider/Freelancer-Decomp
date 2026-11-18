@@ -1,0 +1,365 @@
+{
+  "completed": 10,
+  "artifacts": [
+    {
+      "id": "L23",
+      "title_ru": "Цилиндр и клин",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-ef245317-ce07-4eeb-a9fa-335083278459.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L23_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L23",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-ef245317-ce07-4eeb-a9fa-335083278459.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Округлое продольное ядро и наклонный нижний клин читаются как крупные формы; люк компактный и не задаёт весь верх. Веер широкий, двигатели вертикальные. Корень веера выглядит смещённым назад относительно исходника; кинематика и контуры кабины требуют проверки в модели.",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "0ad9e53b79b969d21b174eb4d0beecd75a3234dcde1606c020e88155d0714c92",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L24",
+      "title_ru": "Дисковые корни",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-2408bec3-9214-46c0-bc4f-b2fe8b90cbb3.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L24_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L24",
+      "correction_history": [
+        {
+          "prompt_file": "correction_prompts.json",
+          "id": "L24",
+          "reason": "Устранить ложную боковую пару двигателей в TOP/STOWED, сохранив вертикальную пару из SIDE/REAR."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-2408bec3-9214-46c0-bc4f-b2fe8b90cbb3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Круглые корневые корпуса противопоставлены прямому клиновидному борту; люк небольшой. Диски крупнее задания. После локальной правки TOP/STOWED показывают один центральный верхний двигатель вместо ложной боковой пары. Кабина в главной перспективе преувеличена относительно малого бокового вида.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-d19c6baf-ff6a-4873-8a54-22bea44d6d1d.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L24_initial.png",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "45bff52b585a44722d29df63b15549c4dcd9c0dc80b6d9c8957a83b8c15b63b0",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L25",
+      "title_ru": "Срезанный овал",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-562b03a7-5168-4e8d-81c1-7666bcd1e878.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L25_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L25",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-562b03a7-5168-4e8d-81c1-7666bcd1e878.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Цельное овальное тело с крупными косыми срезами и округлой кормовой посадкой. Компактный люк оставляет большую часть крыши спокойной. Верхний вид согласуется с вертикальными двигателями. В главной перспективе корпус выглядит массивнее, чем в профиле; точные пропорции кабины и складывание не проверены.",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "fc7cafd71766aeb209e20a9d62bddf7c825c15de76d26ca0ef7efd1c3fae9e1f",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L26",
+      "title_ru": "Серповидная корма",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-9bcbb7a5-5621-4809-8371-48302eca31d2.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L26_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L26",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-9bcbb7a5-5621-4809-8371-48302eca31d2.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Прямой корпус переходит в две широкие изогнутые кормовые поверхности; люк компактен. Силуэт отличается от цельного овала L25. Кормовые поверхности высокие и выразительные, могут оказаться чрезмерными по вкусу пользователя. TOP схематичен, но двигатели находятся на общей продольной оси; кинематика не подтверждена.",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "2dd6e98e72144da099f77cf0086548a8353d40aca691dea9eb9cf0c08491a752",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L27",
+      "title_ru": "Две короткие гондолы",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-85e47444-6900-42c5-9f5b-db2496036d88.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L27_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L27",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-85e47444-6900-42c5-9f5b-db2496036d88.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Две короткие округлые гондолы по сторонам выраженно отделены от узкого угловатого ядра; люк небольшой. Общий силуэт легче, чем L25/L26, но профиль получился довольно низким. Главная перспектива условно показывает фронтальные раструбы; направление тяги и совпадение видов нельзя переносить в модель без проверки.",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "562237eccd836d2cc74b9ee420385e833e921dee7431e8731ec0de718b534f0c",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L28",
+      "title_ru": "Поперечный барабан",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-79f0153e-baaf-40f9-8470-6d89bc9befeb.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L28_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L28",
+      "correction_history": [
+        {
+          "prompt_file": "correction_prompts.json",
+          "id": "L28",
+          "reason": "Перенести корень веера с кормового барабана к передней части корпуса и восстановить раскрытие назад/в стороны и складывание назад."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-79f0153e-baaf-40f9-8470-6d89bc9befeb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Поперечный барабан меняет распределение массы; люк небольшой. После отдельной правки передние корни веера восстановлены, листы раскрываются назад/в стороны и показаны сложенными вдоль корпуса. Барабан остаётся неподвижной частью. Реальные зазоры под ним и цепочка суставов требуют проверки в модели.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-08960258-9d5e-4ee7-9cfd-f473b9c99ffa.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L28_initial.png",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "e31dcb52f51a31aa8b6a6c643a2d0ca3b030f3d2192bd7cbe46fac67a3f59982",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L29",
+      "title_ru": "Дуга над килем",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-b53bb990-c61d-44b8-8711-90ccf4fdd404.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L29_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L29",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-b53bb990-c61d-44b8-8711-90ccf4fdd404.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Глубокая угловатая нижняя часть и изогнутая кормовая оболочка дают контраст прямой/дуги; люк мал. Сохраняется полнота корпуса. На малых верхних видах деление люка показано поперечно: это не указание менять продольную парную схему при моделировании. Веер и верхняя проекция двигателей читаются согласованнее.",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "6bb75515ee38c6a9142abf1f51de7ae52d402ddc53eacd7f97996ae7303ed489",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L30",
+      "title_ru": "Круглая ниша",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-b356c0be-0868-4c24-9098-cc5054705754.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L30_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L30",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-b356c0be-0868-4c24-9098-cc5054705754.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Крупная дуговая выемка раскрывает округлое внутреннее ядро внутри прямолинейного корпуса; контраст формы читается. Люк компактный, парный продольный шов виден сверху. Веер имеет передний корень; точность последовательной кинематики и исходной кабины не доказана артами.",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "d0a2cd3f8f7d6772bc868d70a4488de3696a6295d84bd4147c76701b5fe0c45d",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L31",
+      "title_ru": "Палуба и четверти цилиндра",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-c5433ab7-3c03-4979-b93e-588ec38f087a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L31_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L31",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-c5433ab7-3c03-4979-b93e-588ec38f087a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Плоский верх и округлые длинные борта плавно переходят в боковые двигательные посадки. Корма без отдельной высокой плоскости; люк компактен. Верхний и кормовой виды согласуют боковую пару двигателей. В ближней перспективе носовая кабина кажется крупнее, чем на технических видах; её геометрия остаётся исходной для модели.",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "877718c16b08e3817f81a2cfcd094c8645eef20e8a9e0679c87eb33847565d7a",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L32",
+      "title_ru": "Кольцевой перехват",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-5f9a71b4-1ba3-418f-98c8-6d3728c5fd04.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L32_sheet.png",
+      "status": "revision_required",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L32",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-5f9a71b4-1ba3-418f-98c8-6d3728c5fd04.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Кольцевой перехват делит передний клиновидный объём и короткую двигательную часть; кормовой киль имеет дуговой край. Люк небольшой. Корневые детали листов заметно разнесены по длине: исходную последовательную цепочку REV нельзя считать воспроизведённой без переработки. Родная кабина для модели остаётся обязательной.",
+      "user_feedback_after_generation": {
+        "date": "2026-11-18",
+        "scope": "series",
+        "user_text": "для этого корабля такие круглости не подзодят. я больше про элементы декора. это ровная коробка. декорированная интересными элементами. эдакими барельефами. это не корабль, а произведение искусства. стиль ампир, стиль арт деко. фильм метрополис. вот всё такое",
+        "interpretation": "Round hull volumes do not fit this ship; retain straight boxlike primary planes and place curved motifs in shallow decorative relief.",
+        "followup": "round_09"
+      },
+      "sha256": "e47d5998dcc1ec7e6de1cafc87fe400c69b6eb50c2b6b6c798db9e0b60f666eb",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/libertysheet.jpg",
+      "sha256": "70005163ed2f6856e9a5944422bf29ec3cf8cdfbb8576ada6a4780f331df8fb7"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_cruiser.jpg",
+      "sha256": "dc2f814a584f633f6331a113ee73b6a937b4efee4bbfc787d43a8761ac7e9ce6"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_fighter .jpg",
+      "sha256": "4280db67dca7840724c7ff3aaf16440c4f7d76a37fde2ecafaac9b2f3e22fb9f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L20_sheet.png",
+      "sha256": "dd5f068ed51c9a0d7e77f068be9d98284ecfdfbac30e0893d8b8cd9bb8c414d3"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L21_sheet.png",
+      "sha256": "8acd6e0edcd9ccdbef2a4c6d7a8e07d37c20e03c2de572cd3e594951d95ef33a"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_07/li_elite_L22_sheet.png",
+      "sha256": "22aef0fb91d498feb22ca114de1db0cd00f33ee9ef0f3fed5d68f8026b072415"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

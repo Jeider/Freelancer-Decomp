@@ -1,0 +1,50 @@
+Эполеты Райхмана и Дитриха — локальный проход 18.11.2026
+
+Состояние: установлены по запросу пользователя; out/character_rounding/epaulettes/installed.json.
+Установлены только два DFM; рантайм и настройки качества не менялись.
+После проверки хешей удалены установочные DFM, временные резервные DFM и
+скомпилированные mesh0.utf.gz. JSON, Blender, генераторы и превью сохранены.
+Каталог: out/character_rounding/epaulettes/; сравнения: index.html.
+Тела: rh_reichman_body и rh_deidrich_body; привязки подтверждены в story/actors.py,
+DATA/CHARACTERS/bodyparts.ini и costumes.ini. Исходники — текущие установленные DFM.
+
+Область: золотые плечевые накладки, их наружные кромки и совпадающие вершины
+крепления к ткани. Без новых орнаментов и материалов. Ноги, рукава и наручи
+сохранены. Райхман: 2100 → 2100; Дитрих: 1644 → 2100 треугольников всего тела.
+Потолок — прежние 2000 и уже добавленные 100 для начала наручей.
+
+Исходный Mesh1 даёт контрольную форму и поле нормалей для кривых поверхностей.
+У Райхмана используются существующие локальные сегменты, у Дитриха добавляются
+только рёбра с заметным отклонением кривой от прямой. Согласованная геометрия
+на UV/материальных швах. Существующее поле нормалей сохранено; для новых вершин
+оно интерполируется. Аналитические нормали отдельных патчей давали видимые швы
+в диагностическом рендере и исключены из результата.
+
+Mesh1 и следующие уровни, Fractions, Enhanced geometry, скелет, материалы,
+текстуры и семантические имена костей сохраняются. При экспорте обновляются
+только приватные имена .3db и соответствующие ссылки Cmpnd/File name.
+Соль и соответствия записываются в native_validation.json.
+
+Исторический порядок подготовки из корня репозитория (требует исходников,
+совпадающих с source.json; установленные DFM уже содержат результат этого прохода):
+  python -B tools/character_rounding/epaulettes.py --audit
+  python -B tools/character_rounding/epaulettes.py
+  python -B tools/character_rounding/epaulettes_export.py
+  python -B tools/character_rounding/check_epaulettes.py
+  python -B tools/blender_workspace.py --topic character_rounding --script tools/character_rounding/epaulettes_preview.py
+  python -B tools/blender_workspace.py --topic character_rounding --script tools/character_rounding/epaulettes_preview.py -- --culling-only
+  python -B tools/character_rounding/epaulettes_gallery.py
+
+Редактируемые файлы: <имя>/epaulettes.blend; before.json.gz / after.json.gz.
+Blender содержит группы весов костей и UV0, без анимационного рига. Материалы
+ссылаются на существующие общие экспорты текстур; дополнительные полные копии
+текстур не создаются. ARCHIVE скрыт в viewport и render, сохранение проверяется
+повторным открытием. Рабочие DFM: D:/Games/FL_MOD/DATA/CHARACTERS/BODIES/.
+stage/DATA/CHARACTERS/BODIES/ очищен после установки. Отчёты подготовки сохраняют
+исторические пути staging; installed.json содержит актуальные пути и хеши.
+
+Проверки: round-trip DFM, сохранение остальных LOD и негеометрических данных,
+индексы, нормали, веса, исходные UV, отсутствие новых вырожденных/перевёрнутых
+граней, правильных пересечений поверхностей и расхождений швов при синтетических
+преобразованиях костей. Это не проверка катсцен или игрового освещения.
+Старые установщики contours_2k/bracer_starts поверх схемы extra LOD не запускать.

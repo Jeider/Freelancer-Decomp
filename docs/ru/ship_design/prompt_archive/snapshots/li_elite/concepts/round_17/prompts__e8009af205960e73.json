@@ -1,0 +1,65 @@
+{
+  "topic": "li_elite",
+  "round": "round_17",
+  "created": "2026-11-18",
+  "tool": "built-in image_gen",
+  "transparent_background": false,
+  "requested_count": 1,
+  "status": "revision_required",
+  "referenced_image_paths": [
+    "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+    "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+    "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+    "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+    "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_wing_motion.jpg"
+  ],
+  "analysis_reference_paths": [
+    "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg"
+  ],
+  "variants": [
+    {
+      "id": "L67",
+      "title_ru": "L66: тройной веер и хвост к носу",
+      "base_id": "L66",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_wing_motion.jpg"
+      ],
+      "prompt": "Use case: precise-object-edit. Create ONE revised concept sheet, L67, from the supplied L66. The owner prefers L66 and requests ONLY these design changes: restore the ORIGINAL THREE-LEAF FOLDING WINGS and REVERSE THE TAIL'S FORE-AFT ORIENTATION so it points FORWARD toward the cockpit. Preserve the positively reviewed body and rear engine layout.\n\nINPUT ROLES:\n1. L66 is the edit target. Keep its broad connected rear shoulders, TWO horizontally separated polygonal engines, collar, cabin, closed flat roof, maintained pirate red/ochre materials, and compound tail construction. The owner especially likes the forms visible in its REAR 3/4 view. Preserve that tail's authored surfaces, thicknesses and equipment mounts as you reverse its direction. Do not reinstate the transverse engine-top crossbar or equipment on motor tops.\n2. Native LI cabin and three rib collar are immutable. Preserve exact shell, pane boundaries, proportions and rib shapes. Do not reproduce AI cabin exaggerations.\n3. Native LI ship: restore its ORDINARY THREE-SECTION fan wings, including pointed triangular contours, native radial artwork and the original equipment-plate distribution. Only wing geometry/style comes from here; retain L66's new engines and body.\n4. Native colored wing-motion sheet: three FULL-SIZE rotating leaves per side, with actual overlap and front-side roots, folding backward/inward alongside the hull. Ignore its display colors and original spoiler.\n5. Real li_elite2 motion: reference ONLY for a compound tail's small overlapping slide/pivot. Our new tail is now reversed in fore-aft orientation. Do not copy the old aft sweep, old hull, original vertical engine arrangement or a long tail root over the hatch.\n\nCRITICAL TAIL DIRECTION:\nThe ship's FRONT is its cockpit. The REAR is the two engine nozzles. Turn the L66 tail assembly's fore-aft orientation around at its same centerline aft root, approximately as a 180-degree turn about the tail's vertical axis. It must become a FORWARD-LEANING tail, with its top projecting TOWARD THE COCKPIT. Preserve the same stepped two-leaf structure and mounting areas, not an unrelated triangular fin.\nIn a SIDE view with nose on the LEFT: the old L66 tail rises diagonally toward the RIGHT; the revised L67 tail MUST rise diagonally toward the LEFT. Its top tip/upper cap sits LEFT of the lower tail-root center. Its compact fixed root remains near the stern between the engines. Do not reverse the whole ship or merely move the camera. Make this forward sweep unmistakable in BOTH large perspectives and SIDE FLIGHT / SIDE STOWED.\nKeep the tail's two moving full-size sections and compact fixed root. In stowed state they overlap a little more via modest pivot/short slide; tail stays upright. The reversed motion is a proposed redesign, not a verified reuse of the source joints. Tail and equipment pads do not vanish, change count or migrate onto the engines. Keep the root and motion aft of the closed cargo hatch; no long forward tail foot crossing the roof or obscuring the collar.\n\nWINGS:\nEXACTLY THREE original-style movable fan leaves on EACH side, six moving wing leaves total, rather than L66's two. Three separate tapered angular plates with individual pointed tips and visible overlap. Native ray artwork on each leaf, ordinary LI shape and span. Use the native mounting-plate arrangement; do not invent an extra large weapon mount for every leaf. In flight show three leaves clearly; in SIDE STOWED the SAME three full-size leaves rotate back and overlap beneath the rear motor shoulder. Never shrink them or draw a solid delta with painted lines. The native geometry references control wing shape over the AI base.\n\nOTHER INVARIANTS:\nOriginal cockpit and open three-rib collar; L66 engine shoulders and TWO horizontal nozzles; no crossbar; closed flat roof with flush hatch seams, no central trench or raised obelisk walls; restrained native low relief and mild wear; no new pipes, frame, armor stacks, spikes, scars or flags. Equipment remains on the new central tail. Main purpose is one coherent L66 revision, not another independently invented ship.\n\nPRESENTATION:\nClear light-grey sheet with one large front-side 3/4 nose LEFT and one large REAR 3/4. The rear view is a required useful design view, not a tiny thumbnail. Lower row: SIDE FLIGHT (nose LEFT), TOP, straight REAR, SIDE STOWED (nose LEFT). Matched side cameras and scale; same forward tail, three-leaf wings, engines and mounting pads in all views. Rear views clearly show both nozzles and the central tail. Use only labels L67 / FRONT-SIDE 3/4 / REAR 3/4 / SIDE FLIGHT / TOP / REAR / SIDE STOWED. No extra title prose.",
+      "mechanism": "Restore native three-leaf rotary fan; fore-aft-reversed compound tail still requires new motion/clearance validation.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet_corrected.png",
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet_corrected.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet.png",
+      "initial_generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-1688b737-070e-45ae-9c12-085c13062b4e.png",
+      "correction_prompt_file": "correction_prompts.json",
+      "generation_status": "generated_for_review",
+      "review_status": "revision_required",
+      "visual_review": {
+        "inspected": true,
+        "verdict": "three_leaf_forward_tail_revision_for_review",
+        "observations": [
+          "Three distinct fan leaves per side are visible in the hero, TOP and stowed wing packet.",
+          "Tail upper tip leans toward the cockpit in both side views and hero. Initial rear perspective contradicted this; local correction reverses the rear-view tail toward its right-hand cockpit.",
+          "A large rear three-quarter view and a straight REAR projection are included.",
+          "The L66 body, two lateral engines, closed roof and exposed three-rib collar remain recognizable.",
+          "The generator placed additional yellow pads on the wing leaves despite native reference constraints; these are not approved hardpoints and the actual native equipment distribution remains authoritative.",
+          "Forward tail sweep places part of the upper structure over the aft roof in projection. Cargo-door, equipment and reversed-tail motion clearance remain unvalidated.",
+          "Exact wing contour fidelity, canopy proportions, tail dimensions and pad placement differ between raster views. Do not substitute these drawings for native cockpit or a checked motion model."
+        ]
+      }
+    }
+  ],
+  "user_direction_exact": "66 мне нравится больше, н ооствь крыло обычным тройным. и да - старайся впредь делать вид сзади, это полезно. только учти - надо сделать так чтобыхвост смотрел вперёд, а не назад. то ест задний вид выглядит лучше, чем тот, где хвост идёт вперёд",
+  "interpretation": "L66 preferred for further refinement, not approved model. Fore-aft reversal interpreted explicitly in commentary as upper tail leaning toward cockpit with root at stern; preserve favored rear-view tail geometry. Restore original three-leaf wings. Rear views required in future sheets.",
+  "approved_for_modeling": false,
+  "parameters": {
+    "transparent_background": false,
+    "quality_steps": "Not exposed by built-in tool."
+  },
+  "completed_count": 1,
+  "successful_generation_calls": 2,
+  "correction_calls": 1
+}

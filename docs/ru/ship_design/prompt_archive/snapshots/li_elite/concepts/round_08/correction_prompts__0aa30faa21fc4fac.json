@@ -1,0 +1,32 @@
+{
+  "tool": "built-in image_gen",
+  "corrections": [
+    {
+      "id": "L24",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L24_initial.png",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L24_initial.png"
+      ],
+      "transparent_background": false,
+      "reason": "Устранить ложную боковую пару двигателей в TOP/STOWED, сохранив вертикальную пару из SIDE/REAR.",
+      "prompt": "Use case: precise-object-edit. Correct ONLY the engine projection in the two small right-hand views TOP and STOWED on this L24 sheet. The large perspective, SIDE and REAR show the intended TWO VERTICALLY STACKED engines; keep those three views completely unchanged.\n\nIn each of the two top views, remove the incorrect pair of side-by-side nozzles. Show ONE centered upper engine at the aft end on the ship's fore-aft centerline. The lower engine is directly below and hidden by the upper in true top view; only a narrow centered rear extension may show if necessary. Do not depict two side-by-side barrels. Retain the existing stern skin and side cheek outlines.\n\nChange nothing else: preserve the compact small paired hatch, circular wing-root housings, full-size three-leaf fan and its stowed pose, original cabin, hull shape, colors, labels and sheet layout. Do not add a spoiler or redesign the ship. This is only a consistency fix in two small top projections.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L24_sheet.png",
+      "generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-2408bec3-9214-46c0-bc4f-b2fe8b90cbb3.png",
+      "visual_result": "Круглые корневые корпуса противопоставлены прямому клиновидному борту; люк небольшой. Диски крупнее задания. После локальной правки TOP/STOWED показывают один центральный верхний двигатель вместо ложной боковой пары. Кабина в главной перспективе преувеличена относительно малого бокового вида."
+    },
+    {
+      "id": "L28",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L28_initial.png",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L28_initial.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg"
+      ],
+      "transparent_background": false,
+      "reason": "Перенести корень веера с кормового барабана к передней части корпуса и восстановить раскрытие назад/в стороны и складывание назад.",
+      "prompt": "Use case: precise-object-edit. Correct ONLY the wing mechanism and blade placement in image 1, the L28 concept sheet. Image 2 shows the authoritative FRONT-ROOTED THREE-LEAF FAN motion. Keep L28's main hull, transverse rear barrel, cockpit, engines, small hatch, paint and layout unchanged.\n\nImage 1 currently makes the rear transverse drum a wing hinge, causing the leaves to fan FORWARD. That is the error. The rear drum is a FIXED HULL MASS, not the wing pivot. Detach the wing blades from that rear drum. Move the compact chained wing pivot cluster to the FRONT of the main body, just behind the cockpit coupling, one per side, using short solid integrated saddles. No rods.\nEach side has exactly THREE BROAD OVERLAPPING FULL-SIZE leaves. From the compact forward pivot, leaves radiate SIDEWAYS AND BACKWARD, creating a wide fan continuous area. Their inner portions overlap beneath one another. Outer tips and trailing edges lie behind the front root. Match the topology of image 2 while keeping L28's broad angular blade design and roughly the same overall span.\nIn TOP STOWED, rotate the same leaves BACKWARD around the forward root so they overlap along the lower hull and pass BELOW the fixed rear barrel. They do not hinge from the barrel, point forward, telescope or shrink. Leave a visible plausible gap below the barrel for their nested package.\n\nApply this consistently in the large perspective, SIDE, TOP, REAR and STOWED. Preserve the rear transverse cylinder exactly in its current place as the defining L28 body feature. Keep two vertically stacked engines and a single centerline projection in TOP. The cabin remains unchanged. Only change the wing attachment, leaf orientation and corresponding stowed pose; no new car spoiler, decorative frame or extra wing leaves.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L28_sheet.png",
+      "generation_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-79f0153e-baaf-40f9-8470-6d89bc9befeb.png",
+      "visual_result": "Поперечный барабан меняет распределение массы; люк небольшой. После отдельной правки передние корни веера восстановлены, листы раскрываются назад/в стороны и показаны сложенными вдоль корпуса. Барабан остаётся неподвижной частью. Реальные зазоры под ним и цепочка суставов требуют проверки в модели."
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "completed": 4,
+  "artifacts": [
+    {
+      "id": "L59",
+      "title_ru": "Косой гребень и двойной веер",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-df4bdf90-3fce-452d-aef7-e4ad548a7a84.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_14/li_elite_L59_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L59",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-df4bdf90-3fce-452d-aef7-e4ad548a7a84.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "scope": "Generated sheet inspected in conversation; shape is not accepted by user.",
+        "flat_roof": "Central trench removed in these sheets.",
+        "wings": "Two visible moving-leaf proposal per side; raster stowed views do not validate actual joints or clearance.",
+        "limitations": "Cabin, equipment and engine projections remain approximate; immutable cabin must come from source CMP."
+      },
+      "user_feedback": "Последняя серия остановлена пользователем: совсем не то. Сохраняется как история, не основа моделирования.",
+      "sha256": "0469596a737c52e4240e16f1756cce8cd1b24bd8e1f6e1958ce684e285035925",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L60",
+      "title_ru": "Поперечный щит и ступенчатые лопасти",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-2bde9314-7cdb-49a2-9182-141baea91c6e.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_14/li_elite_L60_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L60",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-2bde9314-7cdb-49a2-9182-141baea91c6e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "scope": "Generated sheet inspected in conversation; shape is not accepted by user.",
+        "flat_roof": "Central trench removed in these sheets.",
+        "wings": "Two visible moving-leaf proposal per side; raster stowed views do not validate actual joints or clearance.",
+        "limitations": "Cabin, equipment and engine projections remain approximate; immutable cabin must come from source CMP."
+      },
+      "user_feedback": "Последняя серия остановлена пользователем: совсем не то. Сохраняется как история, не основа моделирования.",
+      "sha256": "dec09af5a71fd1097c04c552bcf3056b463bbfc6b7a2d72b76a4a6babff8ef2b",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L61",
+      "title_ru": "Ступенчатый гребень и верхний козырёк",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-61bfe018-f59f-41e3-9607-74a4797cfbff.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_14/li_elite_L61_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L61",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-61bfe018-f59f-41e3-9607-74a4797cfbff.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "scope": "Generated sheet inspected in conversation; shape is not accepted by user.",
+        "flat_roof": "Central trench removed in these sheets.",
+        "wings": "Two visible moving-leaf proposal per side; raster stowed views do not validate actual joints or clearance.",
+        "limitations": "Cabin, equipment and engine projections remain approximate; immutable cabin must come from source CMP."
+      },
+      "user_feedback": "Последняя серия остановлена пользователем: совсем не то. Сохраняется как история, не основа моделирования.",
+      "sha256": "38e5a46e1eb78f243b5005b47c33d47ad770094ad689b2ec5cb06c9c53d31e1a",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L62",
+      "title_ru": "Двойной хвост и стреловидные секции",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-35d57d51-e1b5-41c0-b64d-9b354acb88be.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_14/li_elite_L62_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L62",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-35d57d51-e1b5-41c0-b64d-9b354acb88be.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "scope": "Generated sheet inspected in conversation; shape is not accepted by user.",
+        "flat_roof": "Central trench removed in these sheets.",
+        "wings": "Two visible moving-leaf proposal per side; raster stowed views do not validate actual joints or clearance.",
+        "limitations": "Cabin, equipment and engine projections remain approximate; immutable cabin must come from source CMP."
+      },
+      "user_feedback": "Последняя серия остановлена пользователем: совсем не то. Сохраняется как история, не основа моделирования.",
+      "sha256": "42c75f3a8199fee039ba5a3c78ae2b67d4a38101bb1110a7a4197e3777c4a073",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_13/li_elite_L58_sheet.png",
+      "sha256": "507b98d79d786083aa1ff7f1b7b987a33278b463d97ee3f2ac949d0555d78c79"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_14/li_elite_L59_sheet.png",
+      "sha256": "0469596a737c52e4240e16f1756cce8cd1b24bd8e1f6e1958ce684e285035925"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/or_elite/native_flight.jpg",
+      "sha256": "aaa0fbe3b324ff3420b21f2cc3fce416df4341f30c157bbf594e6b6283d51366"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

@@ -43,6 +43,9 @@
 #include "common_misc.h"      // ICamera
 #include "common_server.h"    // IServer (G_Server, CommComplete vt+0xfc)
 #include "soundmanager.h"     // ISoundSource
+#ifdef FREELANCER_RPG_WORLD
+#include "train_evacuation_audio.h"
+#endif
 
 #include "DALib.h"
 #include "dacom.h"
@@ -307,6 +310,71 @@ bool FCommInbox::Pop(FCommMessage* Out)
     return true;
 }
 
+#ifdef FREELANCER_RPG_WORLD
+static TrainEvacuationAudio::Kind EvacuationCommKind(FCommMessage const& msg)
+{
+    using namespace TrainEvacuationAudio;
+    if(msg.Sender!=0 || msg.VoiceId!=CreateID("atc_leg_m01_new"))return Other;
+    for(int i=0;i<msg.TextCount;++i) {
+        Kind const kind=classify(msg.TextIds[i],CreateID);
+        if(kind!=Other)return kind;
+    }
+    return Other;
+}
+
+static TrainEvacuationAudio::Kind ActiveEvacuationCommKind(FCommSlot const* slot)
+{
+    if(!slot->bActive || !slot->Channel)return TrainEvacuationAudio::Other;
+    FCommMessage active;
+    active.Sender=slot->Channel->CompleteSender;
+    active.VoiceId=CreateID("atc_leg_m01_new");
+    active.TextCount=0;
+    auto* profile=LookupClientVoice(active.VoiceId);
+    for(auto const& line:slot->Channel->Lines) {
+        if(active.TextCount==16)break;
+        if(profile && profile->FindMessage(line.MsgId)==line.Msg)
+            active.TextIds[active.TextCount++]=line.MsgId;
+    }
+    return EvacuationCommKind(active);
+}
+
+static void PruneEvacuationComms(FCommMessage const& incoming, FCommInbox* inbox)
+{
+    using namespace TrainEvacuationAudio;
+    Kind const next=EvacuationCommKind(incoming);
+    if(next<=Courier || inbox!=&G_CommInboxPlayer)return;
+    // Remove obsolete pending reports before checking the inbox capacity. A
+    // transfer changes the receiver ID, so old and new personal ships match.
+    FCommMessage cancelled[kCommInboxCapacity];unsigned count=0,kept=0;
+    for(unsigned i=0;i<inbox->Count;++i) {
+        Kind const old=EvacuationCommKind(inbox->Records[i]);
+        if(supersedes(next,old))
+            CommCopyMessage(&cancelled[count++],&inbox->Records[i]);
+        else {
+            CommCopyMessage(&inbox->Records[kept],&inbox->Records[i]);
+            // A surviving rescue report still addresses the player after the
+            // ship ID changes; preserve its talking-head/own-ship routing.
+            if(old>Courier)inbox->Records[kept].Receiver=incoming.Receiver;
+            ++kept;
+        }
+    }
+    inbox->Count=kept;
+    for(unsigned i=0;i<count;++i) {
+        cancelled[i].Result=CommResult::CANCELLED;
+        HUD_Receiver::CommCancelled(&cancelled[i]);
+    }
+    auto* hud=static_cast<HUD_Receiver*>(GetHudCommInstance());
+    if(!hud)return;
+    for(auto* slot : {&hud->SlotA,&hud->SlotB}) {
+        if(slot->Inbox!=inbox || !slot->bActive || !slot->Channel)continue;
+        if(supersedes(next,ActiveEvacuationCommKind(slot))) {
+            slot->Channel->Cancel();
+            slot->bActive=slot->bDeferred=0;slot->Priority=0;
+        }
+    }
+}
+#endif
+
 void ClientSendComm(unsigned PlayerId, unsigned Sender, unsigned Receiver, unsigned VoiceId,
                     Costume const& SenderCostume, unsigned CaptionIds, unsigned const* TextIds,
                     int TextCount, unsigned PermutationIds, float Linger, bool bUnused)
@@ -349,6 +417,9 @@ void ClientSendComm(unsigned PlayerId, unsigned Sender, unsigned Receiver, unsig
         Inbox = &G_CommInboxPlayer;
     }
 
+#ifdef FREELANCER_RPG_WORLD
+    PruneEvacuationComms(Record, Inbox);
+#endif
     if (Inbox->Count >= kCommInboxCapacity)
     {
         FDUMP(0x100002, "%s(%d) : *** WARNING: %s", kRadioH, 0x7c,
@@ -1925,6 +1996,17 @@ void HUD_Receiver::UpdateSlot(FCommSlot* Slot, float Dt)
     {
         return;
     }
+#ifdef FREELANCER_RPG_WORLD
+    // The retail negative-priority conflict rule discards a later courier line
+    // even when both belong to one sequence (intro/order, rescue/clear/loss).
+    // Obsolete reports were pruned on arrival; retain the remaining sequence.
+    if(!bFinished && Slot->Inbox==&G_CommInboxPlayer &&
+       EvacuationCommKind(Head)!=TrainEvacuationAudio::Other &&
+       ActiveEvacuationCommKind(Slot)!=TrainEvacuationAudio::Other) {
+        Slot->bDeferred=1;
+        return;
+    }
+#endif
     int const Best = MaxVoicePriority(&Head); // inlined
 
     // 0x004ce5b0..0x004ce689: a negative-priority head drops itself when something higher is

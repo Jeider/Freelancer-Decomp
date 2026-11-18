@@ -1,0 +1,102 @@
+{
+  "generation_mode": "built-in image_gen",
+  "direction": "F01/F02 development, RH elite concept A fore-aft-axis drum orientation and two engines; different wing mounts; native fighter cockpit and no larger drum volume",
+  "source_cmp": "D:\\Games\\FL_MOD\\DATA\\ships\\rheinland\\rh_pir_fighter\\rh_pir_fighter.cmp",
+  "source_sha256": "039fc5177f5110ca51dc5b4ada40e8f1300c8e5bc0696cb374ee5fc757f7c5eb",
+  "source_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_flight.jpg",
+      "sha256": "74d9b188f50ec6de1807a1b1a390df9b56034b4ae4c8f9ff8061185c4a51ead0"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/pirate_art/ships/rh_fighter_pir/cockpit_reference.jpg",
+      "sha256": "22bc6793a8285e15b0c5a2c035bf6ecd83e365d521ad9a89e5249a8386b478a4"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_elite/concepts/rh_concept_A.png",
+      "sha256": "59ff904de280ce0be4d1c8cfbbd3d26c1d613eac00464d92b3ee01549cfc4c47"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_01/rh_fighter_F01_sheet.png",
+      "sha256": "d3351424afa7f195834c7f9492910530f8ea2b4fcbb3844b7c0c0eca12b0406c"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_baydoor_motion.jpg",
+      "sha256": "628dd5782e6f89ff71ba74d6679a1de2a0bb3c0e4696a7c697b5cb09b6679748"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_01/rh_fighter_F02_sheet.png",
+      "sha256": "cb1028bb74c2ddaaa27f078fdbaf93a8f31a95d768a3d86c85cf2cf108fcc4d7"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "F03",
+      "title_ru": "Поперечный барабан и крылья в направляющих",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-d356fb93-7d6f-4aca-93d0-14fe741998de.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_04/rh_fighter_F03_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "sha256": "c480398a983f6d6354b4bc4c39ae8870e171baeef1bb9030b68b9337450bf7f5",
+      "bytes": 2202853,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true,
+      "role": "superseded_projection"
+    },
+    {
+      "id": "F04",
+      "title_ru": "Поперечный барабан и короткие опоры крыла",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-092885ba-1d03-4293-a131-8beebdd4ff16.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_04/rh_fighter_F04_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "sha256": "63cd370ba5612c1f187783df1460c326f62b65686ba501209f51ed3f4cf45318",
+      "bytes": 2267330,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true,
+      "role": "superseded_projection"
+    },
+    {
+      "id": "F03",
+      "revision": "v2",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-15a308ce-fdbe-43b9-aeec-22c6e8cb3a80.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_04/rh_fighter_F03_v2_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "sha256": "b319ad9b002decd962d7269c51e139ac37422b85691cfe901e753562bf61184f",
+      "bytes": 2146066,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true,
+      "role": "current_review_sheet"
+    },
+    {
+      "id": "F04",
+      "revision": "v2",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3307e780-4dbc-4214-8123-7ad391f4a67a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_04/rh_fighter_F04_v2_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "sha256": "8dc77aab954611fe00861aa70f10dff795a698bd95636e9a867f377d7f07528f",
+      "bytes": 2204358,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true,
+      "role": "current_review_sheet"
+    }
+  ],
+  "approved_for_modeling": false,
+  "native_vs_proposed": "Native fighter has one axial engine and sideways circular drum. Proposed concepts intentionally reorient fixed drum by 90 degrees and use two engines. Source assets and animations are not edited.",
+  "scope": "Concept art only, two directions and one projection correction each. Exact cockpit geometry, 3D drum volume and collision clearance are not proven by raster images."
+}

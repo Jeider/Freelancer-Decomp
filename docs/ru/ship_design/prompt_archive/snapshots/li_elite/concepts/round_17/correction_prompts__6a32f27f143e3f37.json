@@ -1,0 +1,25 @@
+{
+  "round": "round_17",
+  "corrections": [
+    {
+      "id": "L67",
+      "kind": "rear_view_tail_orientation",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: precise-object-edit. Correct ONLY the TAIL in the upper-right REAR 3/4 view of the supplied L67 sheet. Every other view and all hull/cockpit/wing/engine geometry must stay as unchanged as possible. The upper-right tail is currently facing the wrong direction and contradicts the correct upper-left hero and the two correct SIDE views. In the upper-right view, the COCKPIT IS AT THE FAR RIGHT, and the TWO EXHAUST NOZZLES ARE AT THE LEFT. Therefore this ship's FORWARD-SWEPT TAIL MUST LEAN TO THE RIGHT toward that cockpit. Reorient the complete two-leaf tail on its same central aft pedestal so its UPPER TIP AND CAP PROJECT RIGHTWARD, toward the cockpit, not leftward toward the exhausts. The current upper-left overhang of that tail must disappear and become an upper-right overhang. The tail-root footprint stays between the engines in the same location. Preserve its two stepped overlapping moving plates, thickness, moderate height, equipment pads and native red material, while rotating their orientation to match the CORRECT FORWARD LEAN already visible in SIDE FLIGHT (nose left, tail leans left). Keep all other five views, labels, perspectives, background and body details unchanged. Do not mirror or rotate the whole ship, move the engine housings, revert wings to two leaves, or alter any other view. This is solely a viewpoint-consistency correction of the upper-right tail.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "status": "generated",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet.png",
+      "intended_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet_corrected.png",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-13083775-89ff-4dfa-89ea-8adecde88c92.png",
+      "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet_corrected.png",
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-13083775-89ff-4dfa-89ea-8adecde88c92.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "visual_result": "Rear-view tail now leans toward its right-hand cockpit, matching the forward orientation in side/hero views; pixel-perfect preservation is not claimed."
+    }
+  ]
+}
+

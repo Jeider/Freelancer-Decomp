@@ -510,6 +510,10 @@ namespace
         // 0x0043a055: FUN_0044aca0 -- the room's scene scripts. 0x0043a05a: FUN_00442060 -- the
         // "NavBar" window found or created and told the room was entered.
         RoomControlPlayScenes(Entry->Runtime);
+#ifdef FREELANCER_RP9
+        // Includes cached bodies/accessories that did not go through a fresh asset load.
+        RenderEx::PreloadRoomMaterialGroup(0);
+#endif
         NavBarEnsure();
     }
 

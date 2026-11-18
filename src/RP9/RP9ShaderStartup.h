@@ -1,5 +1,6 @@
 #pragma once
 #include "RP9ShaderManifest.h"
+#include "RP9ShaderStartupWindow.h"
 #include <atomic>
 #include <thread>
 #include <algorithm>
@@ -37,7 +38,7 @@ inline bool Prepare(const std::vector<FJob>& Jobs, const std::string& Directory,
         });
         while(Done.load()<Jobs.size()) {
             if(!Progress(Cached.load(),(unsigned)Jobs.size())) {Cancel=true;break;}
-            Sleep(30);
+            Sleep(10);
         }
     } catch(...) {Cancel=true;}
     for(auto& Worker:Workers) Worker.join();
@@ -60,70 +61,6 @@ inline HRESULT Validate(IDirect3DDevice9* Device, const FJob& Job, const Result&
     }
     return Hr;
 }
-
-class Window {
-    HWND Handle=nullptr, Label=nullptr;
-    bool Cancelled=false;
-    bool Russian=false;
-    ULONGLONG Started=GetTickCount64();
-    static LRESULT CALLBACK Proc(HWND H,UINT M,WPARAM W,LPARAM L) {
-        auto* Self=reinterpret_cast<Window*>(GetWindowLongPtrW(H,GWLP_USERDATA));
-        if(M==WM_NCCREATE) {
-            Self=static_cast<Window*>(reinterpret_cast<CREATESTRUCTW*>(L)->lpCreateParams);
-            SetWindowLongPtrW(H,GWLP_USERDATA,reinterpret_cast<LONG_PTR>(Self));
-        }
-        if(M==WM_MOUSEACTIVATE) return MA_NOACTIVATE;
-        if(M==WM_CLOSE && Self) {
-            Self->Cancelled=true;
-            SetWindowTextW(Self->Label,Self->Russian ? L"\u041e\u0442\u043c\u0435\u043d\u0430. \u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435 \u043a\u043e\u043c\u043f\u0438\u043b\u044f\u0442\u043e\u0440\u043e\u0432..." : L"Cancelling. Waiting for active shader compilers...");
-            return 0;
-        }
-        return DefWindowProcW(H,M,W,L);
-    }
-public:
-    Window() {
-        char Path[MAX_PATH]={},Language[16]={};
-        DWORD Length=GetModuleFileNameA(nullptr,Path,MAX_PATH);
-        if(char* Slash=Length && Length<MAX_PATH ? strrchr(Path,'\\') : nullptr) {
-            strcpy(Slash+1,"port.ini");
-            GetPrivateProfileStringA("Language","language","",Language,sizeof(Language),Path);
-        }
-        if(const char* Switch=strstr(GetCommandLineA(),"-lang"))
-            strncpy(Language,Switch[5]?Switch+6:"",2);
-        Russian=_strnicmp(Language,"ru",2)==0;
-        WNDCLASSW C={}; C.lpfnWndProc=Proc; C.hInstance=GetModuleHandleW(nullptr);
-        C.hCursor=LoadCursor(nullptr,IDC_ARROW);C.hbrBackground=(HBRUSH)(COLOR_WINDOW+1);
-        C.lpszClassName=L"FreelancerShaderStartup";
-        RegisterClassW(&C);
-        Handle=CreateWindowExW(WS_EX_TOPMOST|WS_EX_NOACTIVATE,C.lpszClassName,L"Freelancer - Preparing shaders",
-            WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU,CW_USEDEFAULT,CW_USEDEFAULT,560,140,
-            nullptr,nullptr,C.hInstance,this);
-        Label=CreateWindowW(L"STATIC",L"Checking required shaders and persistent cache...",
-            WS_CHILD|WS_VISIBLE,20,25,510,70,Handle,nullptr,C.hInstance,nullptr);
-        ShowWindow(Handle,SW_SHOWNOACTIVATE);UpdateWindow(Handle);
-    }
-    ~Window() {if(Handle) DestroyWindow(Handle);}
-    bool Update(unsigned Done,unsigned Total) {
-        if(!Handle || !Label) return false;
-        wchar_t Text[256];
-        swprintf_s(Text,Russian ? L"\u041a\u044d\u0448\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u0448\u0435\u0439\u0434\u0435\u0440\u043e\u0432: %u / %u\n\u0418\u0433\u0440\u0430 \u0437\u0430\u043f\u0443\u0441\u0442\u0438\u0442\u0441\u044f \u043f\u043e\u0441\u043b\u0435 \u043f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u043a\u0438." : L"Preparing shader cache: %u / %u\nThe game starts only after all shaders are ready.",Done,Total);
-        if(!Cancelled) SetWindowTextW(Label,Text);
-        if(!Cancelled) {
-            wchar_t Status[128];
-            swprintf_s(Status,L"Freelancer - Preparing shaders (%llu s)",(GetTickCount64()-Started)/1000);
-            SetWindowTextW(Handle,Status);
-        }
-        MSG M;
-        // Filter queued game messages. Sent activation messages can still run here;
-        // the caller must finish this gate before creating device-dependent resources.
-        while(PeekMessageW(&M,Handle,0,0,PM_REMOVE)) {
-            if(M.message==WM_QUIT) {Cancelled=true;PostQuitMessage((int)M.wParam);break;}
-            TranslateMessage(&M);DispatchMessageW(&M);
-        }
-        return !Cancelled;
-    }
-    HWND Get() const {return Handle;}
-};
 
 inline HRESULT Run(IDirect3DDevice9* Device,
     const std::function<void(const std::string&)>& Log) {

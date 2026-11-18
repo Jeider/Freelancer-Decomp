@@ -20,6 +20,7 @@ def function(text,name):
 
 PREFIX=r'''
 #include "train_courier_state.h"
+#include "train_evacuation.h"
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -59,6 +60,7 @@ struct ActNnPath {
     explicit ActNnPath(CourierMission* m):Mission(m){} bool Execute();
 };
 struct CourierMission {
+    TrainEvacuation::State evac;
     Config config;State state;Point source,destination;std::string commodity;
     bool returnImmediately=false,repositionedOrder=false,cargoPending=false,continueSpoken=false;float pause=0;unsigned PlayerId=1,trailer=0,spawned=0,pathStarts=0;
     std::string spoken;MissionPlayer player;

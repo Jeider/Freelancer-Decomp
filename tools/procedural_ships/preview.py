@@ -60,13 +60,22 @@ def render(scene, materials, center, radius, camera, size=650, mode='clay'):
 
 
 def export_obj(path,scene,materials):
+    import io
     used=sorted({g['material'] for g in scene})
+    exported_textures=set()
     with path.with_suffix('.mtl').open('w',encoding='ascii') as f:
         for key in used:
             m=materials[key];f.write(f"newmtl mat_{key:x}\nKd {' '.join(str(float(x)) for x in m['colour'])}\n")
             if m['image'] is not None:
                 name=m['texture'].rsplit('.',1)[0]+'.png'
-                m['image'].save(path.parent/name)
+                if name not in exported_textures:
+                    target=path.parent/name
+                    image_bytes=io.BytesIO();m['image'].save(image_bytes,format='PNG')
+                    data=image_bytes.getvalue()
+                    # Keep identical atlases in place, including while a review
+                    # tool has mapped them. Geometry changes do not change PNGs.
+                    if not target.exists() or target.read_bytes()!=data:target.write_bytes(data)
+                    exported_textures.add(name)
                 f.write('map_Kd '+name+'\n')
     with path.open('w',encoding='ascii') as f:
         f.write('# Construct zero pose. Exported for inspection only.\nmtllib '+path.with_suffix('.mtl').name+'\n')

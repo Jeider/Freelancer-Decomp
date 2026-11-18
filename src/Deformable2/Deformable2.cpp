@@ -7,6 +7,9 @@
 #include "Deformable2.h"
 #include "EyeMaterial.h"     // RegisterEyeMaterialFactory (FUN_065fdfd0)
 #include "HairMotion.h"
+#include "character_geometry_lod.h"
+#include "character_quality.h"
+#include "render/IRPRoomMaterials.h"
 #include "common_misc.h"   // ICamera (GetViewTransform +0x40, ClassifySphere +0x3C)
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
@@ -25,12 +28,34 @@
 struct FHairMeshMotion { std::vector<float> Weights; unsigned Bone=0; };
 static std::map<FDeformMesh*,FHairMeshMotion> G_HairMeshes;
 static std::map<FLodHolder*,HairMotion::State> G_HairStates;
-static float HairMotionStrength()
+static float CharacterRenderValue(char const* key, float fallback)
 {
     using Query=float(__cdecl*)(const char*,float);
     static Query query=nullptr;
     if(!query){HMODULE common=GetModuleHandleA("Common.dll");if(common)query=(Query)GetProcAddress(common,"PortGraphicsRenderValue");}
-    return query ? query("character_hair_motion",1.f) : 1.f;
+    return query ? query(key,fallback) : fallback;
+}
+static float HairMotionStrength() { return CharacterRenderValue("character_hair_motion",1.f); }
+
+struct FCharacterPartQuality { int Native[8]={}; int Requested=0; };
+struct FCharacterViewQuality { ICamera* Camera=nullptr; CharacterQuality::State State; };
+struct FCharacterInstanceQuality {
+    std::vector<FCharacterPartQuality> Parts;
+    FCharacterViewQuality Views[2]; unsigned NextView=0; int AppliedTier=0;
+};
+static std::map<FDeformInstance*,FCharacterInstanceQuality> G_CharacterQuality;
+static IRPCharacterQuality* G_QualityPipeline=nullptr;
+static void RecordCharacterLod(FDeformInstance* instance,int part,int loaded,bool enhanced,unsigned physical)
+{
+    G_CharacterQuality.find(instance)->second.Parts[part].Native[loaded]=enhanced ? int(physical)-1 : int(physical);
+}
+static int QualityRequested(FDeformInstance* instance,int part,int requested)
+{
+    auto it=G_CharacterQuality.find(instance);
+    if(it==G_CharacterQuality.end())return requested;
+    auto& q=it->second;auto& p=q.Parts[part];p.Requested=requested;
+    int tier=G_QualityPipeline && G_QualityPipeline->CharacterQualityPass()!=0 ? q.AppliedTier : 0;
+    return CharacterQuality::Pick(requested,instance->PartArray[part].MeshCount,p.Native,tier);
 }
 
 namespace
@@ -4676,6 +4701,7 @@ static void BindEyeMaterials(IMaterialLibrary* MaterialLib)
 // FUN_065f1df0: Release Pipeline / MatLib / IB / VB only (listing order).
 static void ReleaseRenderCaches()
 {
+    ReleaseInterface(G_QualityPipeline);
     ReleaseInterface(G_Pipeline);
     ReleaseInterface(G_MaterialLibrary);
     ReleaseInterface(G_IndexBuffer);
@@ -5024,6 +5050,7 @@ static bool ConnectInstanceParts(FDeformInstance* Instance, int* Parts, void* Ar
     Instance->UserAt18 = (IChannelSink*)Arg3;
     Instance->UserAt1C = Arg4;
     Instance->PartCount = Parts[0];
+    G_CharacterQuality[Instance].Parts.resize(Instance->PartCount);
     int* Block = (int*)new unsigned char[(size_t)Instance->PartCount * sizeof(FDeformPart) + 4];
     *Block = Instance->PartCount;
     FDeformPart* Array = (FDeformPart*)(Block + 1);
@@ -5098,6 +5125,9 @@ static bool ConnectInstanceParts(FDeformInstance* Instance, int* Parts, void* Ar
             {
                 float Fractions[8];
                 int LodCap = 0;
+                bool Enhanced = false;
+                bool NativeQuality = false;
+                Entry->Field08 = 0;
                 if (RootFs->OpenNode("MultiLevel") != 0)
                 {
                     unsigned int Wanted = 8;
@@ -5116,12 +5146,40 @@ static bool ConnectInstanceParts(FDeformInstance* Instance, int* Parts, void* Ar
                         LodCap = (int)Wanted;
                         RootFs->CloseFile((unsigned long)Handle);
                     }
+                    FFileSystemDesc ExtraDesc;
+                    FillFileDesc(&ExtraDesc, "Enhanced geometry");
+                    const int Extra = RootFs->OpenByDesc(&ExtraDesc);
+                    if (Extra != -1)
+                    {
+                        unsigned Version = 0;
+                        unsigned long Got = 0;
+                        RootFs->Read((unsigned long)Extra, &Version, sizeof(Version), &Got, 0);
+                        Enhanced = Got == sizeof(Version) && Version == CharacterGeometryLod::MarkerVersion && LodCap >= 2;
+                        RootFs->CloseFile((unsigned long)Extra);
+                    }
+                    // Existing native LOD pair: no inserted mesh or shifted bone masks.
+                    FFileSystemDesc QualityDesc;
+                    FillFileDesc(&QualityDesc, "Geometry quality");
+                    const int Quality = RootFs->OpenByDesc(&QualityDesc);
+                    if (Quality != -1)
+                    {
+                        unsigned Version = 0;
+                        unsigned long Got = 0;
+                        RootFs->Read((unsigned long)Quality, &Version, sizeof(Version), &Got, 0);
+                        NativeQuality = Got == sizeof(Version) && Version == CharacterGeometryLod::MarkerVersion && LodCap >= 2;
+                        RootFs->CloseFile((unsigned long)Quality);
+                    }
                 }
                 else
                 {
                     LodCap = 1;
                     Fractions[0] = 1.0f;
                 }
+                const bool QualityControlled = Enhanced || NativeQuality;
+                const unsigned FirstLod = CharacterGeometryLod::First(Enhanced,
+                    !QualityControlled || CharacterRenderValue("character_geometry",1.f) != 0.f, Entry->Flags, NativeQuality);
+                if (QualityControlled)
+                    LodCap -= (int)FirstLod;
                 if (LodCap > Entry->LodCount)
                     LodCap = Entry->LodCount;
 
@@ -5142,10 +5200,8 @@ static bool ConnectInstanceParts(FDeformInstance* Instance, int* Parts, void* Ar
                         unsigned int LodIndex = 0;
                         for (;;)
                         {
-                            bool bSkip = false;
-                            if (LodIndex == 0)
-                                bSkip = (Entry->Flags & 2) == 2;
-                            else if ((Entry->Flags & 1) == 1)
+                            const bool bSkip = LodIndex < FirstLod;
+                            if (LodIndex >= 8 || ((Entry->Flags & 1) && LodIndex > (QualityControlled ? FirstLod : 0u)))
                                 break;
                             if (!bSkip)
                             {
@@ -5159,12 +5215,15 @@ static bool ConnectInstanceParts(FDeformInstance* Instance, int* Parts, void* Ar
                                 {
                                     Dot[0] = (char)('0' + LodIndex);
                                     const unsigned char bFlag70 =
-                                        (LodIndex < Entry->LodLimit) ? 1 : 0;
+                                        (CharacterGeometryLod::NativeIndex(Enhanced,LodIndex) < Entry->LodLimit) ? 1 : 0;
                                     FDeformMesh* Mesh = LoadDeformMesh(Holder, MeshFs, BaseName, bFlag70);
                                     if (Mesh != nullptr)
                                     {
                                         Loaded[LoadedCount] = Mesh;
                                         Entry->Lods[LoadedCount].Fraction = Fractions[LodIndex];
+                                        RecordCharacterLod(Instance,PartIndex,LoadedCount,Enhanced,LodIndex);
+                                        if (Enhanced && LodIndex == 0)
+                                            Entry->Field08 = CharacterGeometryLod::ExtraLoaded;
                                         LoadedCount += 1;
                                         bFull = LoadedCount >= LodCap;
                                     }
@@ -5239,6 +5298,7 @@ static bool ConnectInstanceParts(FDeformInstance* Instance, int* Parts, void* Ar
 // FUN_065f3ed0 (thiscall on the instance), 065f3ed0..3fc5.
 static void TeardownInstance(FDeformInstance* Instance)
 {
+    G_CharacterQuality.erase(Instance);
     FIkListNode* Node = Instance->ListHead;
     while (Node != nullptr)
     {
@@ -5463,6 +5523,8 @@ static GENRESULT DACOM_API DeformableDestroy(FDeformable* /*This*/, FDeformInsta
 
 static unsigned char PartBoundSphere(FDeformPart* Part, float* OutRadius, float* OutCenter);
 
+#include "CharacterQuality.inl"
+
 // FUN_065f4070 (thiscall on the instance, RET 0x14: Unused, Camera, OutLod, RenderArg,
 static void DrawInstanceParts(FDeformInstance* Instance, void* /*Unused*/, ICamera* Camera,
                               int* OutLod, void* RenderArg, unsigned long Flags)
@@ -5470,6 +5532,7 @@ static void DrawInstanceParts(FDeformInstance* Instance, void* /*Unused*/, ICame
     *OutLod = 0;
     if (Instance->PartCount <= 0)
         return;
+    FCharacterQualityScope QualityScope(Instance,Camera);
     static_assert(sizeof(ICamera*) == sizeof(float), "the radius shares the camera's slot");
     float Radius = 0.0f;
     std::memcpy(&Radius, &Camera, sizeof(Radius));
@@ -5572,6 +5635,7 @@ static GENRESULT DACOM_API EngineInitialize(void* /*EngineThis*/)
     if (!QueryRequired(G_System, Iids::RenderPipeline8B, (void**)(&G_Pipeline), 0xCC,
                        "Deform: Initialize: Unable to acquire IID_IRenderPipeline, unable to continue."))
         return GR_GENERIC;
+    G_Pipeline->QueryInterface(Iids::RPCharacterQuality,(void**)(&G_QualityPipeline));
     if (!QueryRequired(G_System, Iids::MaterialLibrary, (void**)(&G_MaterialLibrary),
                        0xD2,
                        "Deform: Initialize: Unable to acquire IID_IMaterialLibrary, unable to continue."))
@@ -5776,7 +5840,7 @@ GENRESULT DACOM_API FDeformable::SetLod(void* Instance, float Dt, int* LodIds) /
     while (Index < DeformInstance->PartCount)
     {
         bChanged = (unsigned char)(
-            bChanged | SelectPartLod(&DeformInstance->PartArray[Index], LodIds[Index]));
+            bChanged | SelectPartLod(&DeformInstance->PartArray[Index], QualityRequested(DeformInstance,Index,LodIds[Index])));
         Index += 1;
     }
     if (bChanged != 0)

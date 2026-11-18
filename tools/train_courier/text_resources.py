@@ -26,7 +26,8 @@ TEXTS['en'] += ['We need a train driver. Choose your starting train; each delive
                 'Start with 2 wagons.', 'Start with 10 wagons.', 'Start with 20 wagons.', 'Not now.']
 
 from order_texts import rows as order_rows
-for key,number,ru,en in order_rows():
+from evacuation_texts import rows as evacuation_rows
+for key,number,ru,en in order_rows()+evacuation_rows():
     RESOURCE_KEYS.append(key);TEXT_IDS[key]=number
     TEXTS['ru'].append(ru);TEXTS['en'].append(en)
 

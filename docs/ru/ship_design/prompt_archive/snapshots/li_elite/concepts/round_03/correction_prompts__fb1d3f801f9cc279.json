@@ -1,0 +1,20 @@
+{
+  "topic": "li_elite",
+  "round": "round_03",
+  "corrections": [
+    {
+      "id": "L04_hatch_correction",
+      "target_concept": "L04",
+      "tool": "built-in image_gen",
+      "transparent_background": false,
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_03/li_elite_L04_initial.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg"
+      ],
+      "prompt": "Use case: precise-object-edit. Image 1 is the finished L04 concept sheet to edit. Image 2 is a technical reference for the original two longitudinal cargo doors.\nChange ONLY the subdivision of the central top cargo hatch, consistently in all three drawings on sheet 1. Preserve the ship's entire silhouette, cockpit and every window, wing shape and size, body volume, tail, engines, colors, shading, text, layout and all other details exactly.\nThe hatch must be TWO LONG PARALLEL DOORS SIDE BY SIDE, each running from the front to the back of the ship. The dividing seam runs along the LONG CENTERLINE of the ship. They hinge on the two outer long edges and open outward.\nSpecific TOP drawing, lower right: its nose points LEFT. The hatch rectangle is horizontal. Split it with a HORIZONTAL line through its middle, into an upper long narrow rectangle and a lower long narrow rectangle, both pointing left-to-right. REMOVE the current VERTICAL dividing seam which incorrectly makes a front lid and rear lid.\nIn the large perspective, replace the two short end-to-end lids by two parallel long lids meeting on the fore-aft centerline. In SIDE, show a continuous long near-side door profile, without a transverse break between a front and rear lid.\nDo not redesign or simplify any part of the ship. Do not change its height, cabin, wings, engines or tail. Do not draw the doors open. Keep the exact header \"LI PIR ELITE — L04\", SIDE and TOP. Return the complete original landscape sheet with just this hatch correction.",
+      "status": "generated_and_visually_checked",
+      "source_output": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-b85d7dc8-03cc-4844-8220-a5cf740492b8.png",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_03/li_elite_L04_sheet.png"
+    }
+  ]
+}

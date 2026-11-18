@@ -118,7 +118,8 @@ void __cdecl Collect(char const* Name,void* Context)
     if(!Name) return;
     auto& S=*static_cast<FState*>(Context);
     if(_stricmp(Name,"HpHeadLight")==0) {S.Nose=Name;return;}
-    if(!ShipWarpTrailName(Name)||S.Trails.size()>=32) return;
+    // Hyperjump keeps its bow effect, but does not attach contrails to the ship.
+    if(S.Jump||!ShipWarpTrailName(Name)||S.Trails.size()>=32) return;
     for(auto const& Trail:S.Trails) if(_stricmp(Name,Trail.Name.c_str())==0) return;
     FTrail Trail;Trail.Name=Name;S.Trails.push_back(Trail);
 }
@@ -371,9 +372,9 @@ void ShipWarpVisualDraw(FSpaceCamera* Camera,FClientShipGameobj* TunnelShip)
                 // Build the original full path: the shader crops the lane tail so its
                 // knots, taper and refraction keep their original spatial scale.
                 float Longest=S.Radius*8;
-                unsigned Count=T.History.Path(Head,Back,S.Jump?S.Radius*14:0,Longest,Path);
+                unsigned Count=T.History.Path(Head,Back,0,Longest,Path);
                 BuildShipWarpTrail(G_Vertices,Path,Count,{Eye[0],Eye[1],Eye[2]},
-                    (std::max)(.35f,(std::min)(3.f,S.Radius*.045f))*(S.Jump?1.f:.7f),
+                    (std::max)(.35f,(std::min)(3.f,S.Radius*.045f))*.7f,
                     S.Clock.Time,TrailIndex*.173f);
             }
             ++TrailIndex;

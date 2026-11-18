@@ -45,6 +45,7 @@ float4 FadeZoneRow[3] : register(c20);
 float4 SimpleFogColour : register(c23); // fog colour; w = close ice sky behind existing scatter
 float4 ExclusionCoreHaze : register(c24); // rgb interior colour, w extinction / metre
 float4 ExclusionCoreSphere : register(c25); // camera-relative faded skip centre, radius squared
+float4 ObjectDepthRepair : register(c26); // x enable, y raymarch outer bound squared
 
 float4 ApplyExclusionCoreHaze(float4 Value, float Distance)
 {
@@ -214,7 +215,70 @@ float4 PSComposite(float2 TexCoord : TEXCOORD0) : COLOR0
     }
     if (Diff.w < Best)
     {
+        Best = Diff.w;
         BestUv = Uv11;
+    }
+    // Small fading meshes have holes in their coverage mask. All four nearest
+    // low-res rays can hit the background, even though this full-res pixel is a
+    // real object. Never use the opaque cloud behind it when a nearby ray reached
+    // the same surface. Sky pixels and already-matched samples keep their exact
+    // previous path; the underlying density/light field is not altered.
+    [branch] if (ObjectDepthRepair.x > 0.5 && Best > Upsample.z &&
+                 tex2Dlod(SceneDepth, float4(TexCoord, 0, 0)).r < 1.0)
+    {
+        float Score = 1.0e20;
+        [unroll] for (int Y = -2; Y <= 3; ++Y)
+        [unroll] for (int X = -2; X <= 3; ++X)
+        {
+            float2 Uv = clamp((Base + float2(X + 0.5, Y + 0.5)) * LowSize.zw,
+                              LowSize.zw * 0.5, 1.0 - LowSize.zw * 0.5);
+            float Error = abs(MarchedDepthAt(Uv) - Depth) / max(Depth, 1.0e-3);
+            float2 Offset = Uv * LowSize.xy - (Low + 0.5);
+            float Candidate = Error + dot(Offset, Offset) * 0.0001;
+            if (Error <= Upsample.z && Candidate < Score)
+            {
+                BestUv = Uv;
+                Score = Candidate;
+            }
+        }
+        [branch] if (Score > 1.0e19)
+        {
+            // A subpixel mesh may be absent from the low-res buffer altogether.
+            // Approximate the PREFIX of this ray's optical depth, not the entire
+            // cloud behind the surface. This uses the existing integrated light
+            // and transmission, with no new fog colour/density. Prefer a real
+            // matching ray whenever one exists (above).
+            float4 Value = tex2Dlod(Volume, float4(BestUv, 0, 0));
+            float2 ViewUv = (TexCoord - ViewRect.xy) / ViewRect.zw;
+            float2 ViewXY = float2(ViewUv.x * 2 - 1, 1 - ViewUv.y * 2) * ProjInv.xy;
+            float3 Ray = ViewXY.x * CamRow[0].xyz + ViewXY.y * CamRow[1].xyz - CamRow[2].xyz;
+            float RayLength = length(Ray);
+            float3 Dir = Ray / RayLength;
+            float2 Span = NebulaZoneSpan(Dir, FadeZoneCentre.xyz, FadeZoneRow[0].xyz,
+                FadeZoneRow[1].xyz, FadeZoneRow[2].xyz, ObjectDepthRepair.y);
+            float Start = max(Span.x, 0.0);
+            if (ExclusionCoreSphere.w > 0.0)
+            {
+                float B = dot(Dir, ExclusionCoreSphere.xyz);
+                float D = B * B - dot(ExclusionCoreSphere.xyz, ExclusionCoreSphere.xyz) + ExclusionCoreSphere.w;
+                Start = max(Start, B + sqrt(max(D, 0.0)));
+            }
+            float Device = tex2Dlod(SceneDepth, float4(NebulaDepthSampleUv(BestUv, Upsample.xy), 0, 0)).r;
+            float End = min(Span.y, Device < 1.0 ? RPExLinearDepth(Device, ProjZ) * RayLength : 1.0e30);
+            [unroll] for (int I = 0; I < 4; ++I)
+            {
+                float B = dot(Dir, FarSphere[I].xyz);
+                float D = B * B - FarSphere[I].w;
+                float Hit = B - sqrt(max(D, 0.0));
+                if (FarSphere[I].w < 1.0e29 && D >= 0.0 && Hit > 0.0)
+                    End = min(End, Hit);
+            }
+            float Fraction = saturate((Depth * RayLength - Start) / max(End - Start, 1.0e-3));
+            float T = exp(log(max(Value.a, 1.0e-6)) * Fraction);
+            Value.rgb *= (1.0 - T) / max(1.0 - Value.a, 1.0e-6);
+            Value.a = T;
+            return FinishVolume(Value, TexCoord);
+        }
     }
     return FinishVolume(tex2Dlod(Volume, float4(BestUv, 0.0, 0.0)), TexCoord);
 }

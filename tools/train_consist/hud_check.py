@@ -45,9 +45,12 @@ struct HUD_Maneuvers{
 };
 namespace PlayerTrain{
 HUD_Maneuvers* panel;WinControl* button;
+WinControl* evacuationButton;bool evacuationVisible=false,evacuationAvailable=false;
+bool HasEvacuationButton(){return evacuationVisible;}
 bool bridge(){return true;}
 bool HasButton(int);
-void Update(HUD_Maneuvers*,int current){button->SetProperty(1,HasButton(current)?0:1,0);}
+void Update(HUD_Maneuvers*,int current){button->SetProperty(1,HasButton(current)?0:1,0);
+ evacuationVisible=HasButton(current)&&evacuationAvailable;evacuationButton->SetProperty(1,!evacuationVisible,0);}
 }
 namespace PlayerFlightActions{
 enum Kind{SpiralClockwise,ReverseTurn,ReverseStrafe,GotoWeave,Count,None};
@@ -62,7 +65,8 @@ code+='namespace PlayerTrain{\n'+extract(train,'bool HasButton(')+extract(train,
 code+=extract(hud,'void HUD_Maneuvers::UpdateTabAndCruise(')
 code+=r'''
 int main(){
-    WinControl anchors[4],tab,cruise,coupling,extras[4];HUD_Maneuvers hud;
+    WinControl anchors[4],tab,cruise,coupling,evacuate,extras[4];HUD_Maneuvers hud;
+    PlayerTrain::evacuationButton=&evacuate;
     for(int i=0;i<4;++i){anchors[i].pos[0]=-.06f+.04f*i;hud.Buttons[i]=&anchors[i];PlayerFlightActions::buttons[i]=&extras[i];}
     hud.Tab=&tab;hud.CruiseButton=&cruise;PlayerTrain::panel=PlayerFlightActions::panel=&hud;PlayerTrain::button=&coupling;
     hud.UpdateTabAndCruise(0x13);assert(hud.bTabMeshReset==3 && coupling.hidden);
@@ -80,6 +84,14 @@ int main(){
         hud.UpdateTabAndCruise(mode);assert(std::abs(coupling.pos[0]-anchor-.032f)<1e-6);
     }
     for(int mode:{7,10,-1}){hud.UpdateTabAndCruise(mode);assert(coupling.hidden);for(auto& e:extras)assert(e.hidden);}
+    PlayerTrain::evacuationAvailable=true;
+    for(int mode:{0x13,2}){
+        hud.UpdateTabAndCruise(mode);assert(hud.bTabMeshReset==3 && !evacuate.hidden);
+        float anchor=anchors[mode==2?1:0].pos[0]*2;
+        assert(std::abs(cruise.pos[0]-anchor)<1e-6 && std::abs(coupling.pos[0]-anchor-.032f)<1e-6);
+        assert(std::abs(evacuate.pos[0]-anchor-.064f)<1e-6);
+        hud.UpdateTabAndCruise(mode);assert(std::abs(evacuate.pos[0]-anchor-.064f)<1e-6);
+    }
     isTrain=false;extra=true;hud.UpdateTabAndCruise(0x13);assert(hud.bTabMeshReset==3 && !extras[0].hidden);
     puts("PASS: fighter actions, capital cruise-only bar, train cruise/coupling pair, F2, hiding and ship/mode transitions");
 }

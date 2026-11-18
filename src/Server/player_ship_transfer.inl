@@ -125,6 +125,13 @@ extern "C" __declspec(dllexport) int __cdecl PlayerShipTransferBridge(PlayerShip
     PlayerSlot* slot = nullptr;
     if (!ValidPlayer(p->player, slot)) return 1;
     auto& t = GSpaceTransfer;
+    if (p->operation == Operation::ClearLocomotive) {
+        if (t.state.blocksSave() && (t.request.purpose!=Purpose::Reboard || t.state.phase==Phase::Committed)) return 1;
+        auto& records=GCaches[slot->client_id].Ships;
+        for(auto it=records.begin();it!=records.end();)
+            if(_stricmp(it->Name,"train_courier_locomotive")==0)it=records.erase(it);else ++it;
+        p->result=1;return 1;
+    }
     if (p->operation == Operation::QueueReturn) {
         if (!t.clientReady) { p->result = -1; return 1; }
         p->returning = true; p->result = QueueSpaceTransfer(*p) ? 1 : 0; return 1;
@@ -150,9 +157,13 @@ extern "C" __declspec(dllexport) int __cdecl PlayerShipTransferBridge(PlayerShip
     if (p->operation == Operation::Prepare) {
         if (t.state.phase != Phase::Preparing || slot->ship_object_id != t.state.source ||
             slot->system_id != t.state.system || !SpaceTransferAllowed(*slot, old)) return 1;
+        auto authorize=SpaceTransferMission();
+        if(!authorize || !authorize(&t.request,0))return 1;
         CShipCreateInfo info;
         CShipCreateInfo_Fill(&info, old);
-        Snapshot(*slot, "train_courier_ship", t.original);
+        bool const evacuating=t.request.purpose==Purpose::Evacuate || t.request.purpose==Purpose::Emergency;
+        bool const reboarding=t.request.purpose==Purpose::Reboard;
+        Snapshot(*slot, evacuating?"train_courier_locomotive":"train_courier_ship", t.original);
         t.original.RelativeHealth = old->get_hit_pts() / old->get_max_hit_pts();
         t.original.Groups = info.CollisionGroups;
         t.original.Equipment.Items.clear();
@@ -164,6 +175,14 @@ extern "C" __declspec(dllexport) int __cdecl PlayerShipTransferBridge(PlayerShip
         if (t.request.returning) {
             if (!saved || saved->Parking) return 1;
             target = *saved;
+            if(evacuating)t.request.locomotiveHealth=t.original.RelativeHealth;
+        } else if(reboarding) {
+            auto* locomotive=FindByName(cache,"train_courier_locomotive");
+            if(saved || !locomotive || locomotive->Parking ||
+               !std::isfinite(t.request.locomotiveHealth) || t.request.locomotiveHealth<=.05f ||
+               t.request.locomotiveHealth>1.f)return 1;
+            target=*locomotive;
+            target.RelativeHealth=(std::min)(target.RelativeHealth,t.request.locomotiveHealth);
         } else {
             // Never overwrite the original ship on a retried boarding request.
             if (saved) return 1;
@@ -185,6 +204,11 @@ extern "C" __declspec(dllexport) int __cdecl PlayerShipTransferBridge(PlayerShip
             for (auto it = t.committedCache.begin(); it != t.committedCache.end(); ++it)
                 if (_stricmp(it->Name, "train_courier_ship") == 0) { t.committedCache.erase(it); break; }
         } else t.committedCache.push_back(t.original);
+        if(evacuating || reboarding) {
+            for(auto it=t.committedCache.begin();it!=t.committedCache.end();)
+                if(_stricmp(it->Name,"train_courier_locomotive")==0)it=t.committedCache.erase(it);else ++it;
+            if(evacuating)t.committedCache.push_back(t.original);
+        }
         t.slotData = target;
         if (!t.state.ready(p->generation, p->player, id)) return 1;
         t.request.ship = target; t.request.target = id;
@@ -193,10 +217,20 @@ extern "C" __declspec(dllexport) int __cdecl PlayerShipTransferBridge(PlayerShip
     if (p->operation == Operation::Commit) {
         if (t.state.phase != Phase::Ready || slot->ship_object_id != t.state.source ||
             slot->system_id != t.state.system || !SpaceTransferAllowed(*slot, old)) return 1;
+        // The minute can expire or the parked hull can be destroyed while a
+        // candidate is prepared. Reauthorize before changing either identity.
+        if(t.request.purpose==Purpose::Reboard) {
+            auto callback=SpaceTransferMission();
+            if(!callback || !callback(&t.request,0))return 1;
+        }
         auto* candidate = static_cast<CShip*>(CObject::Find(t.state.target, CObject::ClassShip));
         auto* system = SysDB_LookupSystem(t.state.system);
         if (!candidate || !system || candidate->OwnerPlayer != p->player ||
             candidate->get_archetype()->get_id() != t.request.ship.ShipArchetype) return 1;
+        if(t.request.purpose==Purpose::Reboard) {
+            t.request.ship.RelativeHealth=(std::min)(t.request.ship.RelativeHealth,t.request.locomotiveHealth);
+            candidate->set_hit_pts(t.request.ship.RelativeHealth*candidate->get_max_hit_pts());
+        }
         if (t.request.returning && !SpaceTransferClear(*system, *candidate, t.state.source, t.request.anchor)) return 1;
         FShipCreateRequest req;
         CShipCreateInfo_Fill(&req, candidate);
@@ -214,6 +248,7 @@ extern "C" __declspec(dllexport) int __cdecl PlayerShipTransferBridge(PlayerShip
         slot->collision_groups.swap(t.slotData.Groups);
         slot->weapon_group_name.swap(t.slotData.WeaponGroups);
         GCaches[slot->client_id].Ships.swap(t.committedCache);
+        p->ship.RelativeHealth=t.request.ship.RelativeHealth;
         p->result = 1; return 1;
     }
     if (p->operation == Operation::Finish) {

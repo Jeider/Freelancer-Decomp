@@ -20,6 +20,7 @@ float4 Remap : register(c5);         // viewport remap: Sx, Sy, Bx, By (the pass
 float4 Lod : register(c6);           // far plane, pixels per unit at depth 1, min_pixels, 1 - 2^-22
 float4 Range : register(c7);         // start, 1 / start_fade, far_dist - far_fade, 1 / far_fade
 float4 RockPass : register(c8);      // x 0 solid / 1 soft, y solid_pixels
+float4 MeshFogCull : register(c9);  // near, end, enabled (local nebula mesh trial)
 
 struct RockVertex
 {
@@ -102,6 +103,9 @@ float RockHash(float Seed, float K)
 }
 
 float4 Relief : register(c8);        // x relief strength (far_rocks_relief; 0 = off)
+float4 MeshFog : register(c9);       // near, end, enabled, form contrast
+float4 MeshFogColour : register(c10);// rgb fog, rim strength
+float4 MeshFogLight : register(c11); // toward sun, view space
 
 // Procedural rock relief, arithmetic only (no texture, no extra binding): lumps at three scales and a
 // network of dark cracks as an analytic height field. Returns the height's gradient at P (rock-plane
@@ -136,7 +140,7 @@ struct MeshInterp
     float4 Position : POSITION0;
     float2 Uv : TEXCOORD0;
     float3 Normal : TEXCOORD1;
-    float3 FadeJitterSolid : TEXCOORD2;
+    float4 FadeJitterSolid : TEXCOORD2; // fade, brightness, solid, local depth coverage
     float3 ToEye : TEXCOORD3;
 };
 // Shared by mesh debris and the resolved asteroid impostors. The unlit hemisphere
@@ -165,14 +169,16 @@ MeshInterp VSMesh(MeshVertex In)
     float Dist = length(Centre);
     float Fade = smoothstep(0.0, 1.0, saturate((Dist - Range.x) * Range.y)) *
                  smoothstep(0.0, 1.0, saturate(1.0 - (Dist - Range.z) * Range.w));
+    if(RockPass.w>.5) Fade*=In.Colour.g;
+    if(MeshFogCull.z>.5 && Depth-In.CentreRadius.w>=MeshFogCull.y) Fade=0;
     float PxRadius = In.CentreRadius.w * Lod.y / max(Depth, 1.0);
     Fade *= smoothstep(0.0, Lod.z, PxRadius); // fade subpixel geometry; never inflate it into a quad
-    float Solid = Fade >= 0.999 ? 1.0 : 0.0;
+    float Solid = RockPass.w > .5 || Fade >= 0.999 ? 1.0 : 0.0;
     Out.Position = float4(0.0, 0.0, -2.0, 1.0);
     Out.Uv = In.Uv;
     float3 Normal = MeshRotate(In.Normal, In.Rotation);
     Out.Normal = float3(dot(Normal, ViewRow[0].xyz), dot(Normal, ViewRow[1].xyz), dot(Normal, ViewRow[2].xyz));
-    Out.FadeJitterSolid = float3(Fade, In.Colour.r, Solid);
+    Out.FadeJitterSolid = float4(Fade, In.Colour.r, Solid, RockPass.w);
     Out.ToEye = float3(0.0, 0.0, 1.0);
     [branch] if (Depth + In.CentreRadius.w >= 1.0 && Fade >= 1.0 / 255.0 && Solid != RockPass.x)
     {
@@ -186,7 +192,18 @@ MeshInterp VSMesh(MeshVertex In)
     }
     return Out;
 }
-float4 PSMesh(MeshInterp In) : COLOR0
+// Ordered 8x8 coverage, fixed in screen space with no frame/time randomization.
+// Colour and scene depth use the SAME surviving samples, including during fades.
+float MeshCoverageThreshold(float2 Pixel)
+{
+    float2 P = floor(Pixel);
+    float2 B0 = fmod(P, 2.0), B1 = fmod(floor(P * .5), 2.0), B2 = fmod(floor(P * .25), 2.0);
+    float A = 2 * abs(B0.x - B0.y) + B0.y;
+    float B = 2 * abs(B1.x - B1.y) + B1.y;
+    float C = 2 * abs(B2.x - B2.y) + B2.y;
+    return (16 * A + 4 * B + C + .5) / 64.0;
+}
+float4 PSMesh(MeshInterp In, float2 Pixel : VPOS) : COLOR0
 {
     float4 Sample = tex2D(RockTex0, In.Uv);
     float3 V = normalize(In.ToEye);
@@ -220,7 +237,21 @@ float4 PSMesh(MeshInterp In) : COLOR0
                     (1.0 - 0.35 * ReliefCrack * ReliefW);
     float3 Colour = Albedo * lerp(0.85, 1.1, In.FadeJitterSolid.y) *
                     (AmbientLight.rgb + SunLight.rgb * Light);
+    if(MeshFog.z>.5)
+    {
+        float Keep=saturate((MeshFog.y-In.ToEye.z)/max(MeshFog.y-MeshFog.x,.001));
+        clip(Keep-.001);
+        float Facing=saturate((dot(N,MeshFogLight.xyz)+.35)/1.35);
+        float Rim=1-saturate(dot(N,V));Rim=Rim*Rim*Rim*Facing;
+        float3 FogColour=MeshFogColour.rgb*(1+4*Keep*(1-Keep)*(MeshFog.w*(2*Facing-1)+MeshFogColour.w*Rim));
+        Colour=lerp(FogColour,Colour,Keep);
+    }
     float Alpha = lerp(1.0, Sample.a, TexTint[0].w) * In.FadeJitterSolid.x;
+    if (In.FadeJitterSolid.w > .5)
+    {
+        clip(Alpha - MeshCoverageThreshold(Pixel));
+        return float4(saturate(Colour), 1.0);
+    }
     if (In.FadeJitterSolid.z > 0.5) clip(Alpha - 0.5);
     return float4(saturate(Colour), Alpha);
 }

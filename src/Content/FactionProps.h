@@ -240,13 +240,17 @@ enum EFactionEmpathyEvent
     FactionEventObjectDestruction = 0,
     FactionEventRandomMissionSuccess = 1,
     FactionEventRandomMissionFailure = 2,
-    FactionEventRandomMissionAbortion = 3
+    FactionEventRandomMissionAbortion = 3,
+    FactionEventTrainDeliveryLate = 4,
+    FactionEventTrainCargoLoss = 5,
+    FactionEventTrainLocomotiveLoss = 6,
+    FactionEventCount = 7
 };
 
 struct FFactionEmpathy
 {
     std::vector<FFactionEmpathyRate> EmpathyRates;  // +0x00, ascending Rate
-    float EventRates[4];                            // +0x10 EFactionEmpathyEvent
+    float EventRates[FactionEventCount]{}; // First four retail slots retain their indices.
 };
 
 typedef std::map<unsigned int, FFactionEmpathy> FFactionEmpathyMap;

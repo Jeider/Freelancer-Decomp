@@ -1,0 +1,16 @@
+{
+  "status": "accepted_for_modeling",
+  "status_ru": "БЕРЁМ В РАБОТУ",
+  "selected_by": "user",
+  "date": "2026-11-17",
+  "concept_id": "Q13",
+  "title_ru": "Диагональная замена борта",
+  "art": "concepts/round_10/rh_freighter_Q13_sheet.png",
+  "art_sha256": "c942e0ee8581fa3ee4726eccda200fc8142049544ebda9ec655ab45969fec11b",
+  "handoff": "SELECTED_CONCEPT.md",
+  "user_evidence": "мне нравится Q13 ... запишем ... как \"берем в работу\" ... этим будет заниматься другим агенты. ты у нас концепт дизайнер",
+  "scope": "Concept selected; downstream agents handle modeling. No geometry or installation performed by concept task.",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_freighter/rh_pir_freighter.cmp",
+  "source_sha256": "085e9a5d778922b1aef6ebe70a95ce0d902636177dd1b5cc03a4b6c0ffbc738b",
+  "persistent_prompt_recipe": "../../../docs/ru/ship_design/prompt_archive/selected/rh_freighter_Q13.json"
+}

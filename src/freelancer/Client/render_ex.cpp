@@ -40,12 +40,16 @@
 #include "render/IRenderPipelineEx.h"
 #include "render/IRPFrameQuality.h"
 #include "render/IRPRoomMaterials.h"
+#include "render/shading.h"
+#include "common_universe.h"
+#include "runtime_hitch_log.h"
 #include "perf_options.h"
 #include "port_config.h"
 
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <set>
 #include <windows.h>
 
 namespace
@@ -72,6 +76,7 @@ namespace
 
     IRenderPipelineEx* GPipelineEx = nullptr;
     IRPDrawEx* GDrawEx = nullptr;
+    std::set<void*> GRoomMaterialOwners;
     IFileSystem* GExtraData = nullptr;
     FRenderExSettings GSettings = {false, 0.0f};
     FRPExProgram* GDepthProgram = nullptr;
@@ -397,6 +402,7 @@ void RenderEx::Startup()
 
 void RenderEx::Shutdown()
 {
+    while (!GRoomMaterialOwners.empty()) EndRoomMaterialCache(*GRoomMaterialOwners.begin());
 #ifdef FREELANCER_DLSS5
     BaseNeural::Stop();
 #endif
@@ -504,6 +510,72 @@ void RenderEx::RoomMaterialFrame(bool Enabled, char const* BaseNick)
         if (Enabled)
             Room->SetRoomBase(BaseNick);
         Room->Release();
+    }
+}
+
+void RenderEx::BeginRoomMaterialCache(void* Owner, unsigned BaseId)
+{
+    if (!Owner || !IsAvailable()) return;
+    IRPRoomMaterialCache* Cache = nullptr;
+    if (DALib::Pipeline->QueryInterface(Iids::RPRoomMaterialCache,
+        reinterpret_cast<void**>(&Cache)) < 0 || !Cache) return;
+    const auto* Base = Universe::get_base(BaseId);
+    if (Cache->BeginRoomMaterialCache(Owner, Base ? Base->GetNickname() : "") >= 0)
+        GRoomMaterialOwners.insert(Owner);
+    Cache->Release();
+}
+
+void RenderEx::PreloadRoomMaterialGroup(unsigned long GroupId)
+{
+    if (GRoomMaterialOwners.empty() || !IsAvailable() || !DALib::MaterialLib || GroupId == ~0ul) return;
+    IRPRoomMaterialCache* Cache = nullptr;
+    if (DALib::Pipeline->QueryInterface(Iids::RPRoomMaterialCache,
+        reinterpret_cast<void**>(&Cache)) < 0 || !Cache) return;
+    RuntimeHitchScope Hitch("room_material_preload", "loaded material group");
+    int Count = 0;
+    DALib::MaterialLib->GetGroupMaterialCount(GroupId, &Count);
+    for (int Index = 0; Index < Count; ++Index)
+    {
+        IMaterial* Material = nullptr;
+        if (DALib::MaterialLib->EnumGroupMaterial(GroupId, Index, &Material) < 0 || !Material) continue;
+        char Name[1024] = {};
+        if (Material->GetName(Name, sizeof(Name)) >= 0 && Name[0])
+        {
+            // Use the public descriptor API: batched materials do not expose the
+            // inner schema through GetParameterTable, but forward these methods.
+            unsigned long Parameters = 0;
+            Material->GetParameterCount(&Parameters);
+            for (unsigned long P = 0; P < Parameters; ++P)
+            {
+                FShadingPropertyRecord Record = {};
+                const bool Diffuse = Material->GetParameterDescriptor(P, &Record) >= 0 &&
+                    Record.Name && !_stricmp(Record.Name, "Dt_name");
+                Record.Current.ReleaseOwnedPayload();
+                Record.Default.ReleaseOwnedPayload();
+                Record.Saved.ReleaseOwnedPayload();
+                if (!Diffuse) continue;
+                FShadingPropertyValue Value = {};
+                if (Material->GetParameterValue(P, &Value) >= 0 &&
+                    (Value.Type == 5 || Value.Type == 7) && Value.Payload0)
+                    Cache->PreloadRoomMaterial(Name, reinterpret_cast<const char*>(Value.Payload0));
+                Value.ReleaseOwnedPayload();
+                break;
+            }
+        }
+        Material->Release();
+    }
+    Cache->Release();
+}
+
+void RenderEx::EndRoomMaterialCache(void* Owner)
+{
+    if (!GRoomMaterialOwners.erase(Owner) || !IsAvailable()) return;
+    IRPRoomMaterialCache* Cache = nullptr;
+    if (DALib::Pipeline->QueryInterface(Iids::RPRoomMaterialCache,
+        reinterpret_cast<void**>(&Cache)) >= 0 && Cache)
+    {
+        Cache->EndRoomMaterialCache(Owner);
+        Cache->Release();
     }
 }
 

@@ -20,6 +20,7 @@
 #include "common_fuses.h" // Common.dll owns the vector<unsigned short> instantiation.
 #include "../../Common/common_train.h"
 #include "train_yard_bridge.h"
+#include "train_evacuation.h"
 #include <windows.h>
 #include <cwchar>
 #include <vector>
@@ -29,9 +30,17 @@ namespace PlayerTrain {
 namespace {
 HUD_Maneuvers* panel=nullptr;
 WinControl* button=nullptr;
+WinControl* evacuationButton=nullptr;
+bool evacuationVisible=false;
 TrainYard::Packet status;
 ULONGLONG nextQuery=0;
 int behavior=0;
+int evacuation(TrainEvacuation::Command command,TrainEvacuation::Status& status) {
+    if(!SinglePlayer())return 0;
+    auto module=GetModuleHandleA("Content.dll");
+    auto fn=module?reinterpret_cast<TrainEvacuation::Bridge>(GetProcAddress(module,TrainEvacuation::Export)):nullptr;
+    return fn?fn(GetPlayerConnectionId(),command,&status):0;
+}
 TrainYard::BridgeFn bridge() {
     if(!SinglePlayer())return nullptr;
     auto module=GetModuleHandleW(L"Server.dll");
@@ -51,10 +60,13 @@ void Create(HUD_Maneuvers* hud) {
     button=hud->CreateButtonControl("TrainCoupling","INTERFACE\\HUD\\EXTRA\\hud_train_couple.3db",
         nullptr,"ui_select_item",nullptr,position,nullptr,half,0,1,0,0,0x7f5200,0,0);
     button->SetProperty(1,1,0);
+    evacuationButton=hud->CreateButtonControl("TrainEvacuation","INTERFACE\\HUD\\EXTRA\\hud_train_evacuate.3db",
+        nullptr,"ui_select_item",nullptr,position,nullptr,half,0,1,0,0,0x7f5201,0,0);
+    evacuationButton->SetProperty(1,1,0);evacuationVisible=false;
 }
 void Release(HUD_Maneuvers* hud) {
     if(panel!=hud)return;
-    panel=nullptr;button=nullptr;nextQuery=0;status={};
+    panel=nullptr;button=nullptr;evacuationButton=nullptr;evacuationVisible=false;nextQuery=0;status={};
 }
 bool HasButton(int current) {
     auto* player=static_cast<IObjRW*>(GetPlayerObjRW());
@@ -64,6 +76,7 @@ bool IsApproaching() {
     auto* player=static_cast<IObjRW*>(GetPlayerObjRW());
     return player && CmnTrain::IsCoupling(HudShipOfObjRw(player));
 }
+bool HasEvacuationButton() {return evacuationVisible;}
 void CancelApproach() {
     if(IsApproaching()){request(4);nextQuery=0;}
 }
@@ -71,6 +84,13 @@ void Update(HUD_Maneuvers* hud,int current) {
     if(hud!=panel || !button)return;
     behavior=current;
     bool show=HasButton(current);
+    TrainEvacuation::Status e;
+    evacuationVisible=show && evacuation(TrainEvacuation::Command::Query,e)!=0;
+    if(evacuationButton)evacuationButton->SetProperty(1,evacuationVisible?0:1,0);
+    if(evacuationButton) {
+        auto* control=static_cast<NnButtonControl*>(evacuationButton);
+        control->SetFlags331(static_cast<unsigned char>((control->GetFlags331()&~2u)|(e.available?2u:0u)));
+    }
     button->SetProperty(1,show?0:1,0);
     if(!show)return;
     ULONGLONG now=GetTickCount64();
@@ -87,10 +107,16 @@ void Update(HUD_Maneuvers* hud,int current) {
 void Layout(HUD_Maneuvers* hud,int current) {
     if(hud!=panel || !HasButton(current))return;
     float position[3]{};hud->CruiseButton->SetProperty(7,reinterpret_cast<uintptr_t>(position),0);
-    position[0]-=.016f;hud->CruiseButton->SetProperty(6,reinterpret_cast<uintptr_t>(position),0);
+    position[0]-=evacuationVisible?.032f:.016f;hud->CruiseButton->SetProperty(6,reinterpret_cast<uintptr_t>(position),0);
     position[0]+=.032f;button->SetProperty(6,reinterpret_cast<uintptr_t>(position),0);
+    if(evacuationVisible){position[0]+=.032f;evacuationButton->SetProperty(6,reinterpret_cast<uintptr_t>(position),0);}
 }
 void Tooltip(NnButtonControl* control,FToolTipHoverInfo* info) {
+    if(control==evacuationButton) {
+        bool ru=std::strcmp(PortLanguage(),"ru")==0;
+        auto caption=ru?L"\u042d\u0432\u0430\u043a\u0443\u0430\u0446\u0438\u044f":L"Evacuate";
+        info->CaptionW=_wcsdup(caption);info->CaptionCapacity=unsigned(wcslen(caption)+1);info->AuxField=0;return;
+    }
     if(control!=button)return;
     bool ru=std::strcmp(PortLanguage(),"ru")==0;
     const wchar_t* caption=status.approaching ? (ru?L"\u041e\u0442\u043c\u0435\u043d\u0438\u0442\u044c \u0441\u0446\u0435\u043f\u043a\u0443":L"Cancel coupling") :
@@ -99,6 +125,9 @@ void Tooltip(NnButtonControl* control,FToolTipHoverInfo* info) {
     info->CaptionW=_wcsdup(caption);info->CaptionCapacity=static_cast<unsigned>(wcslen(caption)+1);info->AuxField=0;
 }
 bool Click(unsigned long clicked) {
+    if(evacuationButton && clicked==reinterpret_cast<unsigned long>(evacuationButton)) {
+        TrainEvacuation::Status status;evacuation(TrainEvacuation::Command::Confirm,status);return true;
+    }
     if(!button || clicked!=reinterpret_cast<unsigned long>(button))return false;
     if(!HasButton(behavior))return true;
     if(!request(0))return true;

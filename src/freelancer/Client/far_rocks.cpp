@@ -17,6 +17,9 @@
 #include "game_options.h"
 #include "globals.h"     // GetClientElapsedTime
 #include "nebula_volume.h"
+#include "cli_nebula.h"
+#include "nebula_asteroid_mesh.h"
+#include "nebula_fog_shape.h"
 #include "port_config.h"
 #include "render/IRenderPipeline.h"
 #include "render/IRenderPipelineEx.h"
@@ -57,6 +60,7 @@ namespace
     {
         bool bDebris = false;       // type = debris or mesh: real meshes, not impostors
         bool bDebrisField = false;  // type = debris only: a field of debris, not a mesh asteroid field
+        bool bNebulaLocal = false; // Omega-15 trial: world-fixed cells around the camera
         int Count = 8000;
         float SizeMin = 15.0f;
         float SizeMax = 250.0f;
@@ -134,6 +138,8 @@ namespace
         FFarParams P;
         bool bBuilt = false;
         bool bFailed = false;
+        bool bLocalCellValid = false;
+        int LocalCell[3] = {};
         // Resolved at build.
         double Anchor[3] = {0.0, 0.0, 0.0};
         float MaxRadius = 0.0f;
@@ -215,11 +221,11 @@ namespace
             for (int I = 0; I < F.TexCount; ++I)
             {
                 FMeshBatch& M = F.Meshes[I];
-                if (M.Instances.empty()) continue;
+                if (M.Instances.empty() && !F.P.bNebulaLocal) continue;
                 if (Ex == nullptr || Ex->CreateExVertexBuffer((unsigned long)(M.Vertices.size() * sizeof(FMeshVertex)),
                     M.Vertices.data(), &M.Geometry) != GR_OK ||
-                    Ex->CreateExVertexBuffer((unsigned long)(M.Instances.size() * sizeof(FMeshInstance)),
-                    M.Instances.data(), &M.Placement) != GR_OK)
+                    (!M.Instances.empty() && Ex->CreateExVertexBuffer((unsigned long)(M.Instances.size() * sizeof(FMeshInstance)),
+                    M.Instances.data(), &M.Placement) != GR_OK))
                 { F.bFailed = true; ReleaseVb(F); return; }
             }
             return;
@@ -456,6 +462,15 @@ namespace
         auto const Found = G_Fields.find(Field);
         if (Found != G_Fields.end())
             return Found->second.get();
+        static int const LocalTrial=PortConfigInt("Render","nebula_asteroid_mesh_test",1);
+        static unsigned const TrialZone=CreateID("Zone_om15_ast1_asteroids");
+        if(bCreateAuto && LocalTrial && Field->Zone && Field->Zone->GetId()==TrialZone) {
+            auto& Slot=G_Fields[Field];Slot.reset(new FFarField());
+            auto& P=Slot->P;P.bDebris=true;P.bNebulaLocal=true;P.bReplaceBand=false;
+            P.StartDist=NebulaAsteroidMesh::Near;P.StartFade=NebulaAsteroidMesh::NearFade;
+            P.FarDist=NebulaAsteroidMesh::Far;P.FarFade=NebulaAsteroidMesh::FarFade;
+            P.MinPixels=2.0f;return Slot.get();
+        }
         static int const S_Auto = PortConfigInt("Render", "far_rocks_auto", 0);
         if (!bCreateAuto || S_Auto == 0 || Field->FlagF8 == 0)
             return nullptr;
@@ -469,6 +484,8 @@ namespace
     // under the volume as well.
     bool BlockedByFog(FCliAsteroid const* Field, int Enclosure)
     {
+        auto const It=G_Fields.find(Field);
+        if(It!=G_Fields.end() && It->second->P.bNebulaLocal) return false; // own object fog
         if (Enclosure != 0 && !NebulaVolume::IsActive())
             return true;
         // Retail's nebula lookup at the zone's centre (CliAsteroidUpdate, once).
@@ -735,6 +752,11 @@ namespace
             F.AmbientTint[I] = (std::max)(0.0f, Intensity * Info.Ambient[I]);
         if (F.AmbientTint[0] + F.AmbientTint[1] + F.AmbientTint[2] < 0.001f)
             F.AmbientTint[0] = F.AmbientTint[1] = F.AmbientTint[2] = (std::max)(0.0f, Intensity);
+        if(P.bNebulaLocal) {
+            UpdateLighting(F,0,true);
+            for(int I=0;I<F.TexCount;++I) F.MaxRockRadius=(std::max)(F.MaxRockRadius,F.Meshes[I].SourceRadius*1.4f);
+            return true; // Geometry is shared; placement is filled after the camera is known.
+        }
         UpdateLighting(F, 0, true);
         F.MaxRockRadius = static_cast<float>(SizeMax);
 
@@ -945,6 +967,44 @@ namespace
               static_cast<unsigned long>(GetTickCount() - StartTick), Radii[0], Radii[1], Radii[2],
               Thickness, F.StartDist, F.StartFade,
               TextureNames.c_str());
+        return true;
+    }
+
+    bool UpdateLocalMeshes(FCliAsteroid const* Field,FFarField& F,double const* Camera)
+    {
+        int Cell[3];for(int K=0;K<3;++K) Cell[K]=NebulaAsteroidMesh::Cell(Camera[K]);
+        if(F.bLocalCellValid && !memcmp(Cell,F.LocalCell,sizeof(Cell))) return !F.bFailed;
+        RuntimeHitchScope Hitch("render_prepare","nebula asteroid cells");
+        FCliAsteroidFarInfo Info;
+        if(!CliAsteroidGetFarInfo(Field,&Info)) return false;
+        for(int I=0;I<F.TexCount;++I){F.Meshes[I].Instances.clear();F.Meshes[I].RockIndices.clear();}
+        F.RockCount=0;float Radii[3];ZoneRadii(Info.Zone,Radii);
+        const float Edge=(std::min)(Radii[0],(std::min)(Radii[1],Radii[2]));
+        NebulaAsteroidMesh::Generate(Cell,F.TexCount,[&](NebulaAsteroidMesh::Rock const& R){
+            Vector World{R.position[0],R.position[1],R.position[2]};
+            if(Info.Zone->GetImmersion(World)<=0) return;
+            FMeshBatch& M=F.Meshes[R.model];float Radius=M.SourceRadius*R.scale;
+            for(int E=0;E<Info.ExclusionCount;++E) if(Info.Exclusion[E]->InZone(World,Radius)) return;
+            double Q2=0;
+            for(int K=0;K<3;++K){double Axis[3];ZoneAxis(Info.Zone,K,Axis);double Q=0;
+                for(int A=0;A<3;++A) Q+=(R.position[A]-F.Anchor[A])*Axis[A];
+                Q/=Radii[K];Q2+=Q*Q;}
+            float Fade=float(Clamp01(((1-std::sqrt(Q2))*Edge-Radius)/250.0));
+            if(Fade<=0) return;
+            FMeshInstance Instance={};
+            for(int K=0;K<3;++K) Instance.CentreRadius[K]=float(R.position[K]-F.Anchor[K]);
+            Instance.CentreRadius[3]=Radius;memcpy(Instance.Rotation,R.rotation,sizeof(R.rotation));
+            Instance.Colour=R.colour|(unsigned(Fade*255)<<8);
+            M.Instances.push_back(Instance);M.RockIndices.push_back(F.RockCount++);
+        });
+        auto* Ex=RenderEx::GetPipelineEx();if(!Ex) return false;
+        for(int I=0;I<F.TexCount;++I){auto& M=F.Meshes[I];
+            if(M.Placement){Ex->DestroyExVertexBuffer(M.Placement);M.Placement=nullptr;}
+            if(!M.Instances.empty() && Ex->CreateExVertexBuffer(unsigned(M.Instances.size()*sizeof(FMeshInstance)),M.Instances.data(),&M.Placement)!=GR_OK){
+                F.bFailed=true;return false;}
+        }
+        F.Classes.clear();F.Classes.push_back({F.RockCount,F.MaxRockRadius});
+        memcpy(F.LocalCell,Cell,sizeof(Cell));F.bLocalCellValid=true;
         return true;
     }
 
@@ -1261,6 +1321,7 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
         FFarField& F = *Candidate.Far;
         if (!F.bBuilt || !EnsureProgram(F.P.bDebris))
             continue;
+        if(F.P.bNebulaLocal && !UpdateLocalMeshes(Candidate.Field,F,CamPos)) continue;
         // Reject a whole field before it spends the shared budget. The shader still clips
         // individual quads. Include their corners in the conservative sphere.
         double Centre[3];
@@ -1374,7 +1435,7 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
             // Without a sun the rocks are flat lit: the fill alone, as bright as a lit rock.
             float const Fill = F.bHasSun ? 0.0f : 0.6f;
             float const SunGain = Sun * F.Sunlit * P.Brightness;
-            float Ps[9 * 4];
+            float Ps[12 * 4];
             memset(Ps, 0, sizeof(Ps));
             for (int I = 0; I < F.TexCount; ++I)
             {
@@ -1394,13 +1455,37 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
             // The relief of the rocks' surface (far_rocks_relief, 0 = off): the pixel shader's c8.
             static float const S_Relief = (std::max)(0.0f, (std::min)(3.0f, PortConfigFloat("Render", "far_rocks_relief", 1.0f)));
             Set4(&Ps[32], S_Relief, 0.0f, 0.0f, 0.0f);
-            Ex->SetExPixelConstants(0, Ps, 9);
+            if(P.bNebulaLocal) {
+                // Use the same native fog colour/range as opaque objects. The
+                // decorative cells never occupy the field's exclusion zones.
+                Vector Eye{CamPosF[0],CamPosF[1],CamPosF[2]};float Immersion=0;
+                auto* Nebula=StarSysFindNebula(&Eye,&Immersion,nullptr);
+                if(!Nebula){Vector Centre{float(F.Anchor[0]),float(F.Anchor[1]),float(F.Anchor[2])};
+                    Nebula=StarSysFindNebula(&Centre,&Immersion,nullptr);}
+                if(Nebula && GetGameOption(kGameOptNebula)!=0) {
+                    if(auto* Ambient=Nebula->GetAmbientBytes()) for(int I=0;I<3;++I) Ps[20+I]=Ambient[I]/255.0f;
+                    if(!NebulaVolume::UsesVolumeForObjectSurfaces(Nebula)) {
+                        float Colour[3];Nebula->CopyFogRgb(Colour);
+                        bool Shape=NebulaFogShapeScope()!=0;
+                        Set4(&Ps[36],Nebula->GetFloat2AC(),Nebula->FogNear+Nebula->FogDistance,1,
+                            Shape?PortConfigFloat("Render","nebula_object_fog_shape_strength",.55f):0);
+                        Set4(&Ps[40],Colour[0],Colour[1],Colour[2],Shape?PortConfigFloat("Render","nebula_object_fog_shape_rim",.12f):0);
+                        Set4(&Ps[44],ViewSun[0],ViewSun[1],ViewSun[2],0);
+                    }
+                }
+            }
+            Ex->SetExPixelConstants(0, Ps, 12);
+            Ex->SetExVertexConstants(9,&Ps[36],1);
             // Two passes over the same rocks (the vertex shader keeps one kind per pass): the solid
             // ones with depth written, then the soft dots without it.
-            for (int Kind = 0; Kind < 2; ++Kind)
+            // Local rocks dissolve with stable coverage in one depth-writing pass.
+            // Blending their front/back faces without depth made them change brightness
+            // at the old solid/soft threshold, and hid their depth from the volume.
+            Pipe->SetRenderState(D3DRS_ALPHABLENDENABLE, P.bNebulaLocal ? 0 : 1);
+            for (int Kind = 0; Kind < (P.bNebulaLocal ? 1 : 2); ++Kind)
             {
                 Pipe->SetRenderState(D3DRS_ZWRITEENABLE, Kind == 0 ? 1 : 0);
-                Set4(&V[32], static_cast<float>(Kind), P.SolidPixels, P.bDebris ? 1.0f : 0.0f, 0.0f);
+                Set4(&V[32], static_cast<float>(Kind), P.SolidPixels, P.bDebris ? 1.0f : 0.0f, P.bNebulaLocal ? 1.0f : 0.0f);
                 Ex->SetExVertexConstants(0, V, 9);
                 if (P.bDebris)
                 {

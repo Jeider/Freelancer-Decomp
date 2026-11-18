@@ -1,0 +1,181 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "status": "Five two-pass angular hull concepts complete; source-based shapes without exposed pipes or exterior frames; awaiting user selection.",
+  "source_cmp": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_freighter/rh_pir_freighter.cmp",
+  "source_sha256": "085e9a5d778922b1aef6ebe70a95ce0d902636177dd1b5cc03a4b6c0ffbc738b",
+  "native_source_dimensions_xyz": [
+    9.464703587623367,
+    11.46253252029419,
+    23.7216694355011
+  ],
+  "shape_artifacts": [
+    {
+      "id": "S01",
+      "label": "S01",
+      "title_ru": "Срезанный блок",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-1d2aea26-5075-41d0-85c0-09b4c7c066a7.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/shape/rh_freighter_S01_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "9588a52d466dee89f4b785d498654b92156c82e01a716f65370e1302aafe6222",
+      "bytes": 1642117
+    },
+    {
+      "id": "S02",
+      "label": "S02",
+      "title_ru": "Клиновидный борт",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-eeb95889-a6ca-4766-8e0a-65c21f72660a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/shape/rh_freighter_S02_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "1f1c4dae79ef71b7ad5060cb3b06796bc1df5ec9f433bf4b3a84e16fee3369fb",
+      "bytes": 1533387
+    },
+    {
+      "id": "S03",
+      "label": "S03",
+      "title_ru": "Ступенчатый корпус",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-cb76693c-0260-411f-8bc5-59fef9ac646e.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/shape/rh_freighter_S03_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "5b8f14199f5030d02d30ef8a31d644471870c93c161d83c4e5e1bd8e05f9e8f1",
+      "bytes": 1374898
+    },
+    {
+      "id": "S04",
+      "label": "S04",
+      "title_ru": "Донорские кожухи",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-54c4745f-b567-4c28-8a57-64fef33d1430.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/shape/rh_freighter_S04_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "7ee567dceeaf25e803a243cc1c00df3ea70edc22e74ef719b72b1cca1e570691",
+      "bytes": 1358025
+    },
+    {
+      "id": "S05",
+      "label": "S05",
+      "title_ru": "Гранёный грузовой верх",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-b4311908-a46a-455e-9b69-82327029b925.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/shape/rh_freighter_S05_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "3811e52d757977f1ae9a6442c3f8d7add5a8d1e1921dcfafc36a744d578a7300",
+      "bytes": 1866350
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "S01",
+      "label": "S01",
+      "title_ru": "Срезанный блок",
+      "group_ru": "Угловатая форма",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-9f8550dc-6291-4901-bc64-45f872bba6bb.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/rh_freighter_S01_sheet.png",
+      "shape_image": "shape/rh_freighter_S01_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "e53a7d2852acc9f7eb7989569357c6a814b2bfef0d5ab7fd2ce442ac0d9c2cc8",
+      "bytes": 2156026
+    },
+    {
+      "id": "S02",
+      "label": "S02",
+      "title_ru": "Клиновидный борт",
+      "group_ru": "Угловатая форма",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-a03ecdba-2277-45a4-9f9b-291336274974.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/rh_freighter_S02_sheet.png",
+      "shape_image": "shape/rh_freighter_S02_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "b928594a07d0b11840fdbfb2404a1ca948eb5c91a6a822d1bb03f0f501da98d8",
+      "bytes": 2540966
+    },
+    {
+      "id": "S03",
+      "label": "S03",
+      "title_ru": "Ступенчатый корпус",
+      "group_ru": "Угловатая форма",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-cd3876e2-9f78-4cdf-84a5-e958b636d0cf.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/rh_freighter_S03_sheet.png",
+      "shape_image": "shape/rh_freighter_S03_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "99564bd8946264dc7ac3e823d86e0808c9d013214baf0fdcdfba481982b56c12",
+      "bytes": 2527292
+    },
+    {
+      "id": "S04",
+      "label": "S04",
+      "title_ru": "Донорские кожухи",
+      "group_ru": "Угловатая форма",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-42434d4b-0daa-420b-95b6-6488e4f29c37.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/rh_freighter_S04_sheet.png",
+      "shape_image": "shape/rh_freighter_S04_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "d7707f37accb515071e3640d5c554444b39c5006b621e9fbf3f5a33043fd6062",
+      "bytes": 2366345
+    },
+    {
+      "id": "S05",
+      "label": "S05",
+      "title_ru": "Гранёный грузовой верх",
+      "group_ru": "Угловатая форма",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-49a2de97-11a4-4321-afd1-81b6795a004d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_06/rh_freighter_S05_sheet.png",
+      "shape_image": "shape/rh_freighter_S05_form.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "81c609505745b33ddbd21280a0765a4741146f6dddb8376bfa15c863719811bf",
+      "bytes": 2520993
+    }
+  ],
+  "gallery_title": "RH Freighter — угловатая форма S01–S05",
+  "gallery_heading": "Пять форм без труб и каркаса",
+  "gallery_intro": "S01–S05 · Чистая форма и окраска джанкеров. На каждом листе перспектива, профиль и вид сверху.",
+  "prompt_files": [
+    "shape_prompts.json",
+    "finish_prompts.json"
+  ],
+  "generation_calls": {
+    "shape": 5,
+    "material": 5
+  },
+  "verification": {
+    "ten_unique_pngs_readable": true,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "source_copy_hashes_equal": true,
+    "source_model_and_reference_hashes_unchanged": true,
+    "readme_and_gallery_links_valid": true,
+    "gallery_five_final_and_five_shape_links": true,
+    "python_helpers_syntax_valid": true,
+    "gallery_javascript_syntax": "passed",
+    "visual_review": "Both passes inspected: closed angular hull forms, no visible exposed tube networks or exterior trusses; native-like cabin and faceted hump. Exact cockpit geometry and animation clearance require later mesh work."
+  }
+}

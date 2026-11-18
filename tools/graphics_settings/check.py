@@ -58,9 +58,19 @@ bool G_bSkipMachineWarnings=false;
 struct Option {char Name[32];float Applied=1;} G_Options[kOptionCount];
 struct {int width=1920,height=1080,color_bpp=32,depth_bpp=24;} g_display;
 constexpr unsigned kWin3DPickable=4,kWin3DVisible=2;
+// Narrow geometry stand-in for the engine's ray/AABB helper. The preferences
+// test uses its real HitTest with the same z=-1 plane as the live dialog.
+bool Win3DRayHitsAabbHalfExtents(float const* half,float const* matrix,float const* ray){
+ if(ray[2]==0)return false;
+ float scale=matrix[11]/ray[2];
+ return scale>0 && std::fabs(ray[0]*scale-matrix[9])<=half[0] &&
+  std::fabs(ray[1]*scale-matrix[10])<=half[1];
+}
 unsigned G_NnPaletteArgb_679b94=1,G_NnPaletteArgb_679bb0=2,G_NnPaletteArgb_679ba4=3;
 struct Win3D {virtual ~Win3D()=default;unsigned Flags=2;};
 struct WinControl:Win3D {
+ float Position[3]={},Orientation[9]={1,0,0,0,1,0,0,0,1};
+ virtual bool HitTest(float const*){return false;}
  float position[3]={},anchor[3]={},Offset[3]={},extents[3]={};bool mockHidden=false;
  // Retail controls store their creation coordinates in Offset. SetPosition
  // moves the parent anchor, and drawing/hit testing adds Offset to that anchor.
@@ -84,6 +94,7 @@ struct NnDropdownPopup:WinControl {
 };
 void DrawNnDropdownCaret(WireButtonControl*){}
 struct NnPreferences:WinControl {
+ bool HitTest(float const*)override;
  FPrefMiscCell SubtitleCells[2];bool SubtitlesValue=true,SubtitlesOriginal=true;
  FPrefMiscCell ColorGradeCell;
  int ColorGradeValue=0,ColorGradeOriginal=0;
@@ -131,6 +142,18 @@ void Select(NnPreferences& p,int row,int value){
 int main(int argc,char** argv){
  using namespace GraphicsSettings;
  assert(argc==2);
+ if(!strncmp(argv[1],"char_",5)){
+  bool oldOff=!strcmp(argv[1],"char_off"),newLow=!strcmp(argv[1],"char_low");
+  Write("PerfOptions.ini",oldOff?"[Graphics]\ncharacter_geometry=0\n":newLow?"[Graphics]\ncharacter_geometry=1\ncharacter_detail_quality=1\n":"[Graphics]\ncharacter_geometry=1\n");
+  assert(Get(CharacterGeometry)==(oldOff?0:newLow?1:3));
+  assert(PortGraphicsRenderValue("character_geometry",1)==float(!oldOff && !newLow));
+  int values[Count];for(int i=0;i<Count;++i)values[i]=Default(i);
+  for(int level=0;level<4;++level){values[CharacterGeometry]=level;
+   assert(RenderValue(values,"room_object_shadows",1)==1);
+   assert(RenderValue(values,"room_shadow_resolution",1024)==1024);
+   assert(RenderValue(values,"room_normal_strength",1)==1);}
+  puts("PASS character levels: legacy on/off migration, explicit low wins, shadow/normal quality independent");return 0;
+ }
  if(!strncmp(argv[1],"gpu_",4)){
   char path[MAX_PATH];GetFullPathNameA("PerfOptions.ini",MAX_PATH,path,nullptr);
   bool const first=!strcmp(argv[1],"gpu_first");
@@ -189,6 +212,11 @@ int main(int argc,char** argv){
  PortCharacterPortraitScope(0);assert(PortGraphicsRenderValue("character_hair",3)==0);
  PortCharacterPortraitScope(0);assert(PortGraphicsRenderValue("character_hair",0)==3);
  int all[Count];for(int i=0;i<Count;++i)all[i]=Default(i);
+ all[CharacterGeometry]=0;assert(RenderValue(all,"character_geometry",1)==0);
+ all[CharacterGeometry]=1;assert(RenderValue(all,"character_geometry",0)==0);
+ for(int q=0;q<4;++q){all[CharacterGeometry]=q;assert(RenderValue(all,"character_geometry",0)==float(q>=2));
+  assert(RenderValue(all,"character_detail_quality",0)==q);assert(PresetValue(CharacterGeometry,q)==q);}
+ assert(Maximum(CharacterGeometry)==3 && Default(CharacterGeometry)==3 && !Toggle(CharacterGeometry));
  for(int tier=0;tier<4;++tier){all[Hair]=tier;assert(RenderValue(all,"character_hair",3)==tier);
   assert(RenderValue(all,"character_hair_motion",1)==(tier<2?0.f:tier==2?.55f:1.f));}all[Hair]=Default(Hair);
  all[Shadows]=all[Relief]=all[Highlights]=all[Reflections]=all[Nebulae]=0;
@@ -236,9 +264,21 @@ int main(int argc,char** argv){
  }
  Set(-1,5);Set(Count,5);Set(Shadows,999);assert(!RestartRequired());
  NnPreferences p;assert(p.CreateGraphicsRows());p.SnapshotGraphics();p.SetGraphicsHidden(false);
- for(int i=0;i<Count;++i){auto& c=p.GraphicsCells[i];assert(c.Label->mockHidden==(i==VSync || i==FpsLimit || i==Interiors || i==Hair));
+ p.Offset[2]=-1;
+ auto hit=[&](float x,float y){float ray[3]={x,y,-1};return p.HitTest(ray);};
+ // Text, blank inter-row space and the separator all need a wheel target.
+ assert(hit(-.10f,.15f)&&hit(.02f,.132f)&&hit(.12f,-.18f));
+ assert(!hit(-.30f,.10f)&&!hit(.46f,.10f)); // side navigation / outside panel
+ assert(!hit(.12f,.205f)&&!hit(.12f,-.295f)); // tabs / presets
+ p.bInGame=true;assert(hit(.12f,-.21f));p.bInGame=false;
+ p.bFlipping=true;assert(!hit(.12f,.10f));p.bFlipping=false;
+ p.bConfirmMode=true;assert(!hit(.12f,.10f));p.bConfirmMode=false;
+ p.GraphicsTab=1;assert(!hit(.12f,.10f));p.GraphicsTab=0;
+ p.CurPage=1;assert(!hit(.12f,.10f));p.CurPage=2;
+ p.SetGraphicsHidden(true);assert(!hit(.12f,.10f));p.SetGraphicsHidden(false);
+ for(int i=0;i<Count;++i){auto& c=p.GraphicsCells[i];assert(c.Label->mockHidden==(i==VSync || i==FpsLimit || i==Interiors || i==Hair || i==CharacterGeometry));
   unsigned id=i==TradeLane?PreferenceIds::GraphicsTradeLane:i==Hyperspace?PreferenceIds::GraphicsHyperspace:i==WeaponLights?PreferenceIds::GraphicsWeaponLights:i==Anomalies?PreferenceIds::GraphicsAnomalies:i==Interiors?PreferenceIds::GraphicsInteriors:238251+i;
-  wchar_t expected[32];swprintf_s(expected,L"IDS%u",id);assert(i==Hair ? c.Label->text==L"\u0412\u041e\u041b\u041e\u0421\u042b \u041f\u0415\u0420\u0421\u041e\u041d\u0410\u0416\u0415\u0419" : c.Label->text==expected);
+  wchar_t expected[32];swprintf_s(expected,L"IDS%u",id);assert(i==Hair ? c.Label->text==L"\u0412\u041e\u041b\u041e\u0421\u042b \u041f\u0415\u0420\u0421\u041e\u041d\u0410\u0416\u0415\u0419" : i==CharacterGeometry ? c.Label->text==L"\u0414\u0415\u0422\u0410\u041b\u0418 \u041f\u0415\u0420\u0421\u041e\u041d\u0410\u0416\u0415\u0419" : c.Label->text==expected);
    if(!c.Label->mockHidden)assert(c.Label->position[1]>-.20f && c.Label->position[1]<.18f);
   assert(c.Label->position[0]+c.Label->width<(i==VSync || i==FpsLimit?.181f:.151f));
   assert((c.Toggle!=nullptr)==Toggle(i));assert((c.Choice!=nullptr)!=Toggle(i));
@@ -271,7 +311,9 @@ int main(int argc,char** argv){
  assert(p.GraphicsInteriorSeparator->position[1]-p.GraphicsCells[Interiors].Label->position[1]>.020f);
  assert(p.GraphicsCells[Hyperspace].Choice->position[1]-.0145f-p.GraphicsInteriorSeparator->position[1]>.020f);
  Select(p,Interiors,1);assert(p.GraphicsValues[TradeLane]==0 && p.GraphicsValues[Hyperspace]==3);
- p.GraphicsProperty(0x3e,p.GraphicsScroll,999);assert(p.GraphicsFirstRow==3);
+ p.GraphicsProperty(0x3e,p.GraphicsScroll,999);assert(p.GraphicsFirstRow==4);
+ assert(!p.GraphicsCells[CharacterGeometry].Label->mockHidden);
+ assert(p.GraphicsCells[CharacterGeometry].Label->position[1]>p.GraphicsHint->position[1]+.027f);
  p.GraphicsProperty(0x3e,p.GraphicsScroll,0);assert(p.GraphicsFirstRow==0);
  assert(p.GraphicsInteriorSeparator->mockHidden);
  p.RevertGraphics();
@@ -382,7 +424,7 @@ env=dict(os.environ)
 env['INCLUDE']=';'.join(map(str,[vc/'include']+[sdk/'Include'/version/x for x in ('ucrt','shared','um')]))
 env['LIB']=';'.join(map(str,[vc/'lib/x86']+[sdk/'Lib'/version/x/'x86' for x in ('ucrt','um')]))
 subprocess.run([str(vc/'bin/Hostx64/x86/cl.exe'),'/nologo','/std:c++17','/W4','/WX','/EHsc','/MT',f'/I{root/"src/include"}',f'/I{root/"src/freelancer/Client"}','check.cpp','/Fecheck.exe'],cwd=out,env=env,check=True)
-for mode in ('legacy0','legacy9','legacy10','room_scope','old_effects','quality_effects','exercise','reload'):
+for mode in ('char_on','char_off','char_low','legacy0','legacy9','legacy10','room_scope','old_effects','quality_effects','exercise','reload'):
     subprocess.run([str(out/'check.exe'),mode],cwd=out,check=True)
 for mode in ('gpu_first','gpu_manual','gpu_unknown','gpu_discrete'):
     subprocess.run([str(out/'check.exe'),mode],cwd=out,check=True)

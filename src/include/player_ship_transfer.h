@@ -6,7 +6,8 @@
 // Private in-process API, built with the same CRT as Content/Server/client.
 // Never a network packet. Size/version must match before accessing its C++ fields.
 namespace PlayerShipTransfer {
-enum class Operation : unsigned { Poll, Prepare, Commit, Finish, Cancel, QueueReturn };
+enum class Operation : unsigned { Poll, Prepare, Commit, Finish, Cancel, QueueReturn, ClearLocomotive };
+enum class Purpose : unsigned { Normal, Evacuate, Emergency, Reboard };
 struct Packet {
     unsigned size = sizeof(Packet), version = 1;
     Operation operation = Operation::Poll;
@@ -14,6 +15,8 @@ struct Packet {
     unsigned base = 0; // Dock/skip-animation requests have a base but no solar watcher.
     std::uint64_t generation = 0;
     bool returning = false;
+    Purpose purpose = Purpose::Normal;
+    float locomotiveHealth = 1.f;
     int result = 0;
     Vector position{};
     Matrix orientation{};

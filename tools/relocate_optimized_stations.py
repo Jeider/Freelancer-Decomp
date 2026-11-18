@@ -3,7 +3,7 @@ import argparse,hashlib,json,re,sys
 from pathlib import Path
 from optimized_station_paths import FOLDERS
 ROOT=Path(__file__).resolve().parents[1];GAME=Path('D:/Games/FL_MOD')
-OUT=ROOT/'out/optimized_stations'
+OUT=ROOT/'out/stations/optimized_stations'
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 def folder(root):
     # Load the project's sole DATA writer, without importing its generator.

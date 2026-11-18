@@ -68,6 +68,7 @@
 #include "perf_options.h"
 #if defined(FREELANCER_RP9)
 #include "port_config.h"
+#include "nebula_fog_shape.h"
 #endif
 #ifdef FREELANCER_RP9
 #include "render_ex.h"      // RenderEx::AfterSpaceScene (port-only Direct3D 9 extensions)
@@ -1048,7 +1049,7 @@ namespace
             // Port-only: while the Direct3D 9 volumetric nebula draws this nebula's inside
             // (nebula_volume.cpp) it fogs the object by its depth; the D3D fog stays off (the
             // FUN_00421ed0(0xb60) above). The ambient lerp above is kept.
-            if (!NebulaVolume::ReplacesObjectFog(Nebula))
+            if (!NebulaVolume::UsesVolumeForObjectSurfaces(Nebula))
 #endif
             {
                 float const FogEnd = Nebula->FogFactor(Pos3);
@@ -2562,6 +2563,7 @@ namespace
         size_t const Count = Nodes.size();
 #ifdef FREELANCER_RP9
         IRPLocalShadows* SurfaceScope=G_LocalShadows;
+        unsigned const FogShapeScope=NebulaFogShapeScope();
         IRPShipNormals* ShipNormals=nullptr;
         if(DALib::Pipeline) DALib::Pipeline->QueryInterface(Iids::RPShipNormals,reinterpret_cast<void**>(&ShipNormals));
         IRPRockNormals* RockNormals=nullptr;
@@ -2697,7 +2699,7 @@ namespace
                 if(NativeNebulaObject(Go,AsCamera(Cam)) ||
                     (G_SimplifyNebulaObjects && dynamic_cast<FZItemAsteroidField*>(Nodes[I])))
                     Receiver=256u;
-                SurfaceScope->SetLocalShadowReceiver(Receiver);
+                SurfaceScope->SetLocalShadowReceiver(Receiver | FogShapeScope);
             }
 #endif
 #ifdef FREELANCER_RP9

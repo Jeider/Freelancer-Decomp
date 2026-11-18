@@ -1,0 +1,48 @@
+{
+  "ship": "rh_freighter",
+  "concept_id": "Q13",
+  "title_ru": "Диагональная замена борта",
+  "status": "accepted_for_modeling",
+  "selected_by": "user",
+  "user_evidence": "мне нравится Q13 ... запишем ... как \"берем в работу\" ... этим будет заниматься другим агенты. ты у нас концепт дизайнер",
+  "date": "2026-11-17",
+  "tool": "built-in image_gen",
+  "transparent_background": false,
+  "prompt": "Use case: precise-object-edit. Create ONE NEW THREE-VIEW RH PIRATE JUNKER FREIGHTER concept variant. The user APPROVED the direction and detail level of the P01/P02 sample in image 1 and requests twenty different designs. This is one of them. Preserve that quality, native scale and circular rotating cargo roof, while making the specific structural changes below genuinely visible. Do not just recolour the reference.\n\nREFERENCES: Image 1 is the approved P-series sample for detail density, style and underlying concept. Image 2 is the ACTUAL original freighter for proportions and ancestry. Image 3 shows its actual curved cargo shutter CLOSED, OPENING and OPEN; use it for mechanics, NOT its six-view layout. Image 4 is the IMMUTABLE original FREIGHTER cockpit. Image 5 is the executed pirate elite for well-seated recessed fields and deep closed returns ONLY, not its overall shape.\n\nPIRATE IDENTITY: This is an independent scavenger/Junker ship, not a Rheinland military ship. REMOVE the large Rheinland cross, national flag, faction heraldry and military insignia from the reference design. No national symbols anywhere on the hull, roof or engines. Do not replace them with a different national flag or huge decorative skull. Pirate character must come from major reclaimed hull sections, physically mismatched but fitted donor housings, repaired seams, worn dark red inset panels and restrained irregular paint patches. Sparse small non-heraldic salvage marks are optional. Pale worn metal, muted reclaimed red, occasional olive, dark recesses. Preserve the original cockpit's narrow safety trim.\n\nINVARIANTS:\n1. Reuse the exact original FREIGHTER CABIN appearance from image 4, unchanged size, shape, pane divisions and position: sloping blue upper windshield, pale opaque lower face with separate rectangular blue window slots, narrow yellow-black trim, original chin and equipment block below. No redesigned canopy, visor, armour or smaller cockpit. New hull transitions fit around this existing module.\n2. Original physical dimensions W9.465 H11.463 L23.722; tall narrow cargo body, not a fat transport or tiny runabout. Exactly TWO original-sized aft engines, left/right at same height, short closed solid couplers. SIDE shows one overlapping engine outline; TOP shows two engines.\n3. HIGH CIRCULAR DORSAL HUMP: preserve the source's near-semicircular side outline, radius, height and longitudinal extent. The fixed solid semicircular side cheeks enclose a broad curved shutter spanning BETWEEN them. Shutter has 6-8 broad transverse solid pressed-metal sectors following the ARC, each with optional shallow relief. It rotates AFT AND DOWN about the transverse X axis through about 120 degrees to open the hold. Keep clear curved seams on both sides and a free circular swept path. No fixed plate or grille bridging the movable shutter to hull. Keep all three views CLOSED. Never replace this circular mechanism with a trapezoidal roof box, pyramid, flat cap, turret or exposed spoked wheel. Describe the curved shell with broad crisp facets, retaining its circular silhouette; the lower hull is angular. Fixed closed arc cheeks may have recessed concentric/radial fields, not external hoop frames.\n4. EXACTLY THREE sliding closed-ended faceted cylinders per side: larger middle, smaller front and rear, ONE ROW, six total. All extended in FLIGHT; their sleeves must permit later lateral withdrawal. Symmetrical cylinder positions even when fixed donor housings differ. Thick solid integrated side cheeks, no wings. Do not interpret cylinders as guns, exhausts or landing wheels.\n\nDETAIL LEVEL: Match the approved P-series, which is about 50% richer than the rejected sparse M-series. Maintain a clear hierarchy: four to six authored hull-volume decisions, then meaningful medium-scale details. Per side a substantial recessed cargo hatch with a designed stepped jamb and unequal inset fields; two or three useful service panels; a deep vent pocket with 3-4 broad blades; substantial shaped cylinder sockets and engine joins. A few recessed fields on fixed arc cheeks, broad pressed fields in the curved shutter. Calm contiguous planes between these features. Do not drop to a plain primitive box or inflate to dense D-series microdetail. No numerous repeated mini-hatches, concentric bezel stacks, uniform grids or bolt forests. The executed elite teaches coherent inset fields, closed walls, crisp joins and depth. Wear and small fasteners are painted texture, not geometry.\n\nHARD EXCLUSIONS: no exposed pipes, hoses, cables, external trusses, open frames, braces, cages, skeletal pylons, separate external ribs or bars. No wings, thin fins, claws, cranes or attached guns. No geometric rivets. No generic smoothing/bevel on every sharp hull corner. Every recess has a closed back. Fixed solid semicircular cheek walls are functional bodywork and remain required. Keep upper housing clear of the shutter sweep.\n\nPAGE: exactly THREE full uncropped views of the SAME design: large front-side 3/4 on LEFT, true SIDE / FLIGHT upper RIGHT nose right, true TOP / FLIGHT lower RIGHT nose up. Consistent cabin, high circular roof, cylinder count, engines, hatch locations and proportions across views. All closed cargo / flight extension. Refined Freelancer-era ink and controlled marker/gouache shading on off-white paper, sharp readable planes, restrained wear, no environment, no perspective in technical views. Only the specified title plus SIDE / FLIGHT and TOP / FLIGHT. No extra mini-views, callouts or faction insignia.\n\nSPECIFIC DESIGN: One large replacement lower side section meets the older cargo body along a pronounced diagonal RECESSED junction. Change both adjoining planes and lower contour to make a real structural rebuild, not a painted diagonal or raised beam. Drum housing remains coherent above. One deep angular cargo door and two service fields; source circular shutter untouched in principle.\nTitle exactly: RH JUNKER FREIGHTER / Q13",
+  "prompt_sha256": "263db3b0b1e883947f6b722d1802965b9903f7f88a522704faf29db740aa48cd",
+  "prompt_snapshot": "docs/ru/ship_design/prompt_archive/snapshots/rh_freighter/concepts/round_10/prompts__f992ef113fca9018.json",
+  "references": [
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_09/rh_freighter_P02_sheet.png",
+      "archived_path": "out/ship_design/prompt_archive/assets/46401cfc4f52b7db444fd0b4e17bf0558ea8231ae7c248be44dc7aaaf9ade4ee.png",
+      "sha256": "46401cfc4f52b7db444fd0b4e17bf0558ea8231ae7c248be44dc7aaaf9ade4ee"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_03/references/original_scale_hump.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/149571f3a5e46f8bd2df81074121a7a85c107e37a318016611efcfa8d8b23a83.jpg",
+      "sha256": "149571f3a5e46f8bd2df81074121a7a85c107e37a318016611efcfa8d8b23a83"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/references/baydoor/native_baydoor_motion.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/ecae43ba2c44233477b3b8674b6bf62a314bfa2560ac50226e9ceaaedf0c5e5a.jpg",
+      "sha256": "ecae43ba2c44233477b3b8674b6bf62a314bfa2560ac50226e9ceaaedf0c5e5a"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_02/references/cockpit_original.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/c35493f9d57aef5944d6b4368b35215f50ba83b03860768889e31a8305204f3e.jpg",
+      "sha256": "c35493f9d57aef5944d6b4368b35215f50ba83b03860768889e31a8305204f3e"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_elite/prototypes/concept_b/uv_refinement_01/after_bottom_corner.png",
+      "archived_path": "out/ship_design/prompt_archive/assets/6a5fba0452a129491046e780d4d76b1488959e667da6caddbf3660a088db51f7.png",
+      "sha256": "6a5fba0452a129491046e780d4d76b1488959e667da6caddbf3660a088db51f7"
+    }
+  ],
+  "selected_output": {
+    "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q13_sheet.png",
+    "archived_path": "out/ship_design/prompt_archive/assets/c942e0ee8581fa3ee4726eccda200fc8142049544ebda9ec655ab45969fec11b.png",
+    "sha256": "c942e0ee8581fa3ee4726eccda200fc8142049544ebda9ec655ab45969fec11b"
+  },
+  "replay": "Use the prompt verbatim, resolve archived_path against the repository root, pass references in this exact order. Generation is not deterministic.",
+  "lineage": "All saved historical prompt and correction files for both ships are retained in manifest.json. Referenced intermediate art is retained as assets."
+}

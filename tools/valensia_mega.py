@@ -14,7 +14,7 @@ import generate_station_lods as utf
 import train_sur.build as sur
 
 GAME, REPO = old.GAME, old.REPO
-OUT = REPO/'out/valensia_mega'
+OUT = REPO/'out/stations/valensia_mega'
 MARK = '; BEGIN VALENSIA MEGA'
 
 

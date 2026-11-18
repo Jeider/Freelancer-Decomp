@@ -8,7 +8,7 @@ from check_valensia_mega import templates
 from fix_valensia_towers import decoded, expected
 from terraform_mega import hp_node
 
-OUT=m.REPO/'out/ulster_shortsplit'
+OUT=m.REPO/'out/stations/ulster_shortsplit'
 TEMPLATE='Assets/Pythonlancer/templates/dockable/ulster_megabase.py'
 LIVE='DATA/UNIVERSE/SYSTEMS_MOD/TAU4/tau4.ini'
 PREFIX='br_uls_02'

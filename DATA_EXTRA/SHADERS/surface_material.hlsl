@@ -74,6 +74,8 @@ float4 MaterialSpecular : register(c3); // rgb dielectric F0, w perceptual rough
 float4 Surface : register(c4); // base texture present, vertex colour, env strength, light count
 float4 Fog : register(c5); // start, end, density, mode
 float4 FogColour : register(c6); // rgb, w range fog
+float4 FogShape : register(c107); // normal contrast, restrained rim, native low-cost route
+float4 FogShapeLight : register(c108); // view-space direction toward the key light
 float4 BaseOps : register(c7); // stage0 colour/alpha ops; env transform flag, env colour op
 row_major float4x4 PixelEnvironmentMatrix : register(c8);
 struct SurfaceLight
@@ -326,6 +328,18 @@ float3 SafeNormal(float3 V)
     return V * rsqrt(max(dot(V, V), 1.0e-12));
 }
 
+float3 SurfaceFogColour(float3 N, float3 V, float Transmission)
+{
+    // Reuse the existing unit normal/view vectors. Avoid a second normal and a
+    // dynamic branch: the full SM3 shadow shader is close to its register limit.
+    float Facing = saturate((dot(N, FogShapeLight.xyz) + 0.35) / 1.35);
+    float Rim = 1.0 - saturate(dot(N, V));
+    Rim = Rim * Rim * Rim * Facing;
+    // Preserve extinction and alpha; disappear in clear air and fully opaque fog.
+    float Shape = 4.0 * Transmission * (1.0 - Transmission);
+    return FogColour.rgb * (1.0 + Shape * (FogShape.x * (2.0 * Facing - 1.0) + FogShape.y * Rim));
+}
+
 float GgxDistribution(float NoH, float A2)
 {
     float Denom = NoH * NoH * (A2 - 1.0) + 1.0;
@@ -556,7 +570,7 @@ float4 PSNomad(SurfacePixel In)
     colour+=authoredEmission+MaterialEmission.rgb;
     if(Fog.w>.5){float z=FogColour.w>.5?length(In.ViewPosition):abs(In.ViewPosition.z);
         float keep=Fog.w>2.5?saturate((Fog.y-z)/max(Fog.y-Fog.x,.0001)):(Fog.w>1.5?exp(-pow(z*Fog.z,2)):exp(-z*Fog.z));
-        colour=lerp(FogColour.rgb,colour,keep);}
+        colour=lerp(SurfaceFogColour(N,V,keep),colour,keep);}
     return float4(colour,albedo.a);
 }
 #endif
@@ -945,6 +959,11 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float K = (Roughness + 1.0) * (Roughness + 1.0) * 0.125;
 #endif
     float3 DiffuseLighting = Albedo.rgb * MaterialAmbient.rgb;
+#ifdef SURFACE_LOW_DETAIL
+    // Objects deliberately using native materials in nebulae retain the native
+    // ambient/emissive composition. Do not tint ambient twice by material diffuse.
+    if(FogShape.z>.5) DiffuseLighting=MaterialAmbient.rgb;
+#endif
     float3 Highlights = 0.0;
     float SunFacing = 0.0;
     [loop] for (int I = 0; I < 8; ++I)
@@ -993,10 +1012,10 @@ float4 PSMain(SurfacePixel In) : COLOR0
         // environment/ambient outside this loop; skip only zero-contribution light.
         [branch] if(NoL<=0 || Attenuation<=0) continue;
 #ifdef SURFACE_LOW_DETAIL
-        DiffuseLighting += Attenuation * NoL * Albedo.rgb * Light.DiffuseFalloff.rgb;
+        DiffuseLighting += Attenuation * NoL * (FogShape.z>.5 ? Base.rgb : Albedo.rgb) * Light.DiffuseFalloff.rgb;
         // Medium-distance finish: one Blinn lobe with fixed integer powers.
         // No GGX, derivatives, tangent basis, coat, shadow taps or extra textures.
-        if(HighlightQuality()>0 && BaseOps.w>=0 && Surface.z>0)
+        if(FogShape.z<.5 && HighlightQuality()>0 && BaseOps.w>=0 && Surface.z>0)
         {
             float NoH=saturate(dot(N,SafeNormal(V+L)));
             float H2=NoH*NoH,H4=H2*H2,H8=H4*H4,H16=H8*H8;
@@ -1067,6 +1086,14 @@ float4 PSMain(SurfacePixel In) : COLOR0
 #endif
     }
     Highlights *= 1.0-saturate(CockpitRelief.y);
+#ifdef SURFACE_LOW_DETAIL
+    if(FogShape.z>.5)
+    {
+        DiffuseLighting=saturate(DiffuseLighting+MaterialEmission.rgb);
+        if(BaseOps.x<2.5) DiffuseLighting=T.rgb;
+        else if(BaseOps.x>=3.5) DiffuseLighting*=T.rgb*(BaseOps.x>4.5 ? 2.0 : 1.0);
+    }
+#endif
     float3 R = reflect(-V, N);
     float4 EnvCoord = mul(float4(R, 1.0), PixelEnvironmentMatrix);
 #ifdef SURFACE_ENV_CUBE
@@ -1175,7 +1202,11 @@ float4 PSMain(SurfacePixel In) : COLOR0
         Colour+=WeaponGlow/(1.0+Peak); // bounded, hue-preserving saturation
     }
 #endif
+#ifdef SURFACE_LOW_DETAIL
+    if(FogShape.z<.5) Colour += MaterialEmission.rgb;
+#else
     Colour += MaterialEmission.rgb;
+#endif
     float Alpha=Albedo.a*Environment.a;
     if(Ice) Alpha=1.0; // solid depth-writing hull, including the clear-looking parts
 #ifndef SURFACE_LOW_DETAIL
@@ -1201,7 +1232,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
         float Z = FogColour.w > 0.5 ? length(In.ViewPosition) : abs(In.ViewPosition.z);
         float Keep = Fog.w > 2.5 ? saturate((Fog.y - Z) / max(Fog.y - Fog.x, 1.0e-4)) :
             (Fog.w > 1.5 ? exp(-pow(Z * Fog.z, 2.0)) : exp(-Z * Fog.z));
-        Result.rgb = lerp(FogColour.rgb, Result.rgb, Keep);
+        Result.rgb = lerp(SurfaceFogColour(N, V, Keep), Result.rgb, Keep);
     }
     return Result;
 #endif

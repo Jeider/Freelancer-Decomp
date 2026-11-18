@@ -37,7 +37,7 @@ namespace
                 int value=GraphicsSettings::Default(i);
                 // New setting on an already-profiled integrated adapter: do not
                 // reset other manual choices just to initialize this addition.
-                if ((i==GraphicsSettings::Interiors || i==GraphicsSettings::Hair || i==GraphicsSettings::TradeLane || i==GraphicsSettings::Hyperspace) && gpu.Type==GraphicsAdapter::Integrated) value=0;
+                if ((i==GraphicsSettings::Interiors || i==GraphicsSettings::Hair || i==GraphicsSettings::TradeLane || i==GraphicsSettings::Hyperspace || i==GraphicsSettings::CharacterGeometry) && gpu.Type==GraphicsAdapter::Integrated) value=0;
                 // Migrate existing synchronization/filtering preferences on first run.
                 if (i==GraphicsSettings::VSync) value=GetPrivateProfileIntA("Render","vsync",1,port)!=0;
                 if (i==GraphicsSettings::WeaponLights) value=GetPrivateProfileIntA("Render","weapon_lights",1,port)!=0;
@@ -53,6 +53,13 @@ namespace
                 }
                 char text[64]={};
                 if (path[0]) GetPrivateProfileStringA("Graphics",GraphicsSettings::Key(i),"",text,sizeof(text),path);
+                if (!text[0] && path[0] && i==GraphicsSettings::CharacterGeometry) {
+                    // Distinct persisted key avoids interpreting yesterday's on=1 as low.
+                    char legacy[32]={};
+                    GetPrivateProfileStringA("Graphics","character_geometry","",legacy,sizeof(legacy),path);
+                    if (!std::strcmp(legacy,"0")) strcpy_s(text,"0");
+                    else if (!std::strcmp(legacy,"1")) strcpy_s(text,"3");
+                }
                 if (!text[0] && path[0] && (i==GraphicsSettings::Relief || i==GraphicsSettings::Highlights)) {
                     char legacy[32]={};
                     GetPrivateProfileStringA("Graphics",i==GraphicsSettings::Relief?"relief":"highlights","",legacy,sizeof(legacy),path);

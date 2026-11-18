@@ -1,0 +1,71 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "status": "Two review samples complete; awaiting artistic selection",
+  "gallery_title": "RH Freighter вЂ” P01 Рё P02: РїРѕРІРѕСЂРѕС‚РЅР°СЏ Р°СЂРєР°",
+  "gallery_heading": "Р”РІР° РїСЂРѕР±РЅРёРєР°: РєСЂСѓРіРѕРІР°СЏ Р°СЂРєР° Рё Р±РѕР»СЊС€Рµ РґРµС‚Р°Р»РµР№",
+  "gallery_intro": "P01 вЂ” Р±Р»РёР¶Рµ Рє РёСЃС…РѕРґРЅРѕРјСѓ РіСЂСѓР·РѕРІРёРєСѓ; P02 вЂ” Р±РѕР»РµРµ СЃС‚СѓРїРµРЅС‡Р°С‚С‹Рµ РґРѕРЅРѕСЂСЃРєРёРµ РєРѕР¶СѓС…Рё. Р”РµС‚Р°Р»РёР·Р°С†РёСЏ РїСЂРёРјРµСЂРЅРѕ РЅР° 50% РІС‹С€Рµ M-СЃРµСЂРёРё. РќР° РѕР±РѕРёС… Р»РёСЃС‚Р°С… РїРµСЂСЃРїРµРєС‚РёРІР°, РїСЂРѕС„РёР»СЊ Рё РІРёРґ СЃРІРµСЂС…Сѓ; С‚СЂСЋРј Р·Р°РєСЂС‹С‚, С†РёР»РёРЅРґСЂС‹ РІС‹РґРІРёРЅСѓС‚С‹.",
+  "prompt_files": [
+    "prompts.json"
+  ],
+  "source_cmp": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_freighter/rh_pir_freighter.cmp",
+  "source_sha256": "085e9a5d778922b1aef6ebe70a95ce0d902636177dd1b5cc03a4b6c0ffbc738b",
+  "mechanism_audit": "../../references/baydoor/audit.json",
+  "artifacts": [
+    {
+      "id": "P01",
+      "title_ru": "Р РѕРґРЅР°СЏ Р°СЂРєР° Рё СѓРіР»РѕРІР°С‚С‹Р№ С‚СЂСЋРј",
+      "group_ru": "РџСЂРѕРІРµСЂРєР° РіРѕСЂР±Р° Рё РїР»РѕС‚РЅРѕСЃС‚Рё",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-c6bd26aa-485e-4cdb-a909-68b1eb0783de.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_09/rh_freighter_P01_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "1a32ca1c9f6694377a59d2af00ab646ea40fc5c80d4d8e2a091e033d6bd984c2",
+      "bytes": 2569916
+    },
+    {
+      "id": "P02",
+      "title_ru": "Р”РѕРЅРѕСЂСЃРєРёРµ РїР»РµС‡Рё РІРѕРєСЂСѓРі РїРѕРІРѕСЂРѕС‚РЅРѕР№ Р°СЂРєРё",
+      "group_ru": "РџСЂРѕРІРµСЂРєР° РіРѕСЂР±Р° Рё РїР»РѕС‚РЅРѕСЃС‚Рё",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-874f130e-c360-4f05-bf13-04df565b36b0.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_09/rh_freighter_P02_sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "46401cfc4f52b7db444fd0b4e17bf0558ea8231ae7c248be44dc7aaaf9ade4ee",
+      "bytes": 2508149
+    }
+  ],
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_03/references/original_scale_hump.jpg",
+      "sha256": "149571f3a5e46f8bd2df81074121a7a85c107e37a318016611efcfa8d8b23a83"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/references/baydoor/native_baydoor_motion.jpg",
+      "sha256": "ecae43ba2c44233477b3b8674b6bf62a314bfa2560ac50226e9ceaaedf0c5e5a"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_02/references/cockpit_original.jpg",
+      "sha256": "c35493f9d57aef5944d6b4368b35215f50ba83b03860768889e31a8305204f3e"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_elite/prototypes/concept_b/uv_refinement_01/after_bottom_corner.png",
+      "sha256": "6a5fba0452a129491046e780d4d76b1488959e667da6caddbf3660a088db51f7"
+    },
+    {
+      "path": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-bd0ff071-861d-49ca-8546-363a3b816ad6.png",
+      "sha256": "b2290b267e500a58d4d98b2b359cc1e756d90f109f8fdd99cb5f41d65f615950",
+      "workspace_copy": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_08/rh_freighter_M09_sheet.png"
+    }
+  ],
+  "verification": {
+    "images": 2,
+    "visual_review": "Both inspected: circular shutter arch, three views, 3 cylinders per side and twin rear engines. Medium details increased relative to M09.",
+    "new_geometry_or_installation": false,
+    "limitations": "Concepts are not metric orthographic drawings or verified animation clearance. Original cabin must be reused unchanged in 3D."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "tool": "built-in image_gen",
+  "corrections": [
+    {
+      "id": "L24",
+      "edit_target": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L24_initial.png",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_08/li_elite_L24_initial.png"
+      ],
+      "transparent_background": false,
+      "reason": "Устранить ложную боковую пару двигателей в TOP/STOWED, сохранив вертикальную пару из SIDE/REAR.",
+      "prompt": "Use case: precise-object-edit. Correct ONLY the engine projection in the two small right-hand views TOP and STOWED on this L24 sheet. The large perspective, SIDE and REAR show the intended TWO VERTICALLY STACKED engines; keep those three views completely unchanged.\n\nIn each of the two top views, remove the incorrect pair of side-by-side nozzles. Show ONE centered upper engine at the aft end on the ship's fore-aft centerline. The lower engine is directly below and hidden by the upper in true top view; only a narrow centered rear extension may show if necessary. Do not depict two side-by-side barrels. Retain the existing stern skin and side cheek outlines.\n\nChange nothing else: preserve the compact small paired hatch, circular wing-root housings, full-size three-leaf fan and its stowed pose, original cabin, hull shape, colors, labels and sheet layout. Do not add a spoiler or redesign the ship. This is only a consistency fix in two small top projections."
+    }
+  ]
+}

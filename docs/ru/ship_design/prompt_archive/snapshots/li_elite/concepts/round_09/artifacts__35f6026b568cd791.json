@@ -1,0 +1,88 @@
+{
+  "completed": 2,
+  "artifacts": [
+    {
+      "id": "L33",
+      "title_ru": "Ступенчатый лучевой рельеф",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-afd05709-f810-4529-906d-f3d62e38f13b.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_09/li_elite_L33_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L33",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-afd05709-f810-4529-906d-f3d62e38f13b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Основная форма прямая, коробчатая; лучевой фриз имеет видимый неглубокий рельеф, ступенчатое обрамление и локальную ремонтную вставку. Три широких листа веера читаются в раскрытом виде; люк компактный. Кабина близка к исходной по типу и рисунку стекла, но в перспективе выглядит несколько вытянутой: её геометрия должна браться из CMP. Малые TOP/STOWED не доказывают кинематику; рисунок швов люка неоднозначен, сохраняется родная схема двух продольных створок. Кормовые прямоугольные двигательные блоки — художественное предложение, не проверенная замена.",
+      "sha256": "f6e52013eb27972999ce7ba9f645b06805c06f1c8527841516b8b4b77527fcad",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L34",
+      "title_ru": "Ампирный фриз",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-58a3a90f-2dbc-4219-850b-8e9dbf186ce7.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_09/li_elite_L34_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L34",
+      "correction_history": [
+        {
+          "id": "L34_engine_projection_01",
+          "prompt_file": "correction_prompts.json",
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-58a3a90f-2dbc-4219-850b-8e9dbf186ce7.png",
+          "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_09/li_elite_L34_sheet.png"
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-58a3a90f-2dbc-4219-850b-8e9dbf186ce7.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Прямой коробчатый корпус и неглубокий фриз: центральный медальон, геометризированные пальметты, ступенчатые рамки, локальные ремонтные панели. Круги находятся на поверхности и не расширяют основные объёмы. Крупный и боковой виды показывают вертикальную пару двигателей; ошибочная боковая пара на TOP/STOWED исправлена отдельной генерацией. Вспомогательные виды не являются точными проекциями. Кабина сохраняет узнаваемый источник, но имеет дрейф формы рам/пропорций: для модели обязателен исходный CMP. Веер показан тремя листами; их толщину, вложение, рельеф в зоне перекрытия и открывание компактного люка нужно проверить при моделировании.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-c320e7c6-9fb2-4923-a1a9-ff9382051f78.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_09/li_elite_L34_initial.png",
+      "sha256": "1ba4145cc92ee36636052343bd4eec1c54b7c2769db6d2e749522cc7977b4236",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+      "sha256": "10f19223296c933957943c3ae329296e7f62e891ac96a8623ae57e51d464f95b"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_fighter .jpg",
+      "sha256": "4280db67dca7840724c7ff3aaf16440c4f7d76a37fde2ecafaac9b2f3e22fb9f"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

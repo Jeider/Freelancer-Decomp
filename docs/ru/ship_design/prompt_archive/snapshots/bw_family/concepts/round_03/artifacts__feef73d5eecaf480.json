@@ -1,0 +1,247 @@
+{
+  "generation_mode": "built-in image_gen",
+  "requested_count": 10,
+  "completed_count": 10,
+  "approved_for_modeling": false,
+  "artifacts": [
+    {
+      "id": "B03",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3a506a3c-092e-4a1c-b74c-8dfbe9258d72.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B03_sheet.png",
+      "base_variant": "B01",
+      "title_ru": "Скошенные плечи",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "prompts.json",
+      "final_prompt_variant": "B03",
+      "approved_for_modeling": false,
+      "sha256": "0960a3dee748d3d4558aabddea2264b8d34085bc94fd81f05f29d4d50ce940e4",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B04",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-39729b3c-3cfc-4cc8-8a1f-63311937ea28.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B04_sheet.png",
+      "base_variant": "B02",
+      "title_ru": "Ступенчатые корни",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "prompts.json",
+      "final_prompt_variant": "B04",
+      "approved_for_modeling": false,
+      "sha256": "67c3f1866d6091916842be5ed31fd4e5a615c369b8583a48438af79f8a1b6c9a",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B05",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-cd81dd4c-dc31-49a4-9d9f-a77565d4c7cb.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B05_sheet.png",
+      "base_variant": "B01",
+      "title_ru": "Ломаная стрела",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "prompts.json",
+      "final_prompt_variant": "B05",
+      "approved_for_modeling": false,
+      "sha256": "a1159433e90414e13732017f089b80671831d562aac894d5baf960894da5ad48",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B06",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-c6a3281e-d067-4cc1-939e-5aacd8705764.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B06_sheet.png",
+      "base_variant": "B02",
+      "title_ru": "Глубокие бортовые ниши",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "prompts.json",
+      "final_prompt_variant": "B06",
+      "approved_for_modeling": false,
+      "sha256": "90f83c710fb8b2619f612122b0ffefec724b499a637b509ed8f927bb4ab05b63",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B07",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-7f8ffbc6-d971-4f1a-bc71-4e117e728958.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B07_sheet.png",
+      "base_variant": "B01",
+      "title_ru": "Короткие клинья",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "prompts.json",
+      "final_prompt_variant": "B07",
+      "approved_for_modeling": false,
+      "sha256": "b1e6745bb3aab8101048ad27e821efad2e0f4a833538f18654e0eb91fa923e99",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B08",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-c61a4cb1-1edb-47e7-b992-c7e118ac905e.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B08_sheet_r2.png",
+      "base_variant": "B02",
+      "title_ru": "Срезанный ромб",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "correction_prompts.json",
+      "final_prompt_variant": "B08",
+      "approved_for_modeling": false,
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B08_sheet.png",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-4df34781-2926-46a4-b488-449b06596449.png",
+      "sha256": "3048d35545a18608741a50e2ba817755472c0b8cb88633660deb1adc700bbbba",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B09",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-a306c0cc-bcab-427e-8dae-35f8c9ea2af5.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B09_sheet.png",
+      "base_variant": "B01",
+      "title_ru": "Уступы кормы",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "prompts.json",
+      "final_prompt_variant": "B09",
+      "approved_for_modeling": false,
+      "sha256": "0fba8710b3e1914287d9f9f3b872acffdb96752dca41ef146f8f68968fd9dd45",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B10",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-00a6d7bd-b54b-4449-a32c-6c8a5a489c6d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B10_sheet.png",
+      "base_variant": "B02",
+      "title_ru": "Разрезанные плоскости",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "prompts.json",
+      "final_prompt_variant": "B10",
+      "approved_for_modeling": false,
+      "sha256": "01e354822f44da8a772eba135fe729f247dcf7d87a10e19a4d702c5ffe3bb1fe",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B11",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-e5e08503-0c3a-4849-a2b5-b260e903876c.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B11_sheet.png",
+      "base_variant": "B01",
+      "title_ru": "Плавники на уступах",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "prompts.json",
+      "final_prompt_variant": "B11",
+      "approved_for_modeling": false,
+      "sha256": "4ffa05dd1af446cd914bd4537c40af8d9698b2a870a0d8a8deb2a5b414e6949e",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B12",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-079f831a-b35f-4cd5-9389-01eb65436c21.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B12_sheet.png",
+      "base_variant": "B02",
+      "title_ru": "Броневые клинья",
+      "generation_mode": "built-in image_gen",
+      "status": "candidate_for_review",
+      "final_prompt_file": "prompts.json",
+      "final_prompt_variant": "B12",
+      "approved_for_modeling": false,
+      "sha256": "11af302aa7eb67720d1d61ad1443c9ad334a3f98d35414d1e38325ecc2c559aa",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_textured.jpg",
+      "sha256": "46f24fff9538e113fd472da30644caf5b4308a9396093b2f408500121e4ef7c6"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_shape.jpg",
+      "sha256": "0d2d868e8e592ad2696e97871e82f6302e22fc6e36e1a25a0028519217085fa2"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/family_comparison.jpg",
+      "sha256": "e7be836413a63c57706337ab69505124c02c1ddb0746ebcc2631f8527bf7aeb9"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_02/bw_family_B01_R2_sheet.png",
+      "sha256": "28d24be14559be9bd1f01aec00c26f5ee3b69b0a11bb880583837cdf14fb92fd"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/bw_elite_original.png",
+      "sha256": "50dd5403b64e5a78c270419ce4d32d25464637725e7a4f10a6a74cd218801719"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_02/bw_family_B02_R2_sheet.png",
+      "sha256": "4736774c3caa4f1b84fed23defbf94003ec2d346c4a5c8a65e3e595dbb4354ea"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B08_sheet.png",
+      "sha256": "c84a4574df469e2b73d7fae7d6877fd6d99966c11714d4110097bb28859b4ce1"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B06_sheet.png",
+      "sha256": "90f83c710fb8b2619f612122b0ffefec724b499a637b509ed8f927bb4ab05b63"
+    }
+  ],
+  "source_models": [
+    {
+      "ship": "fighter",
+      "path": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_fighter/bw_pir_fighter.cmp",
+      "sha256": "5cdebe71fccfb1b243fd64d28604eb5cabedf798121617583a824edba274ea70"
+    },
+    {
+      "ship": "elite",
+      "path": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_elite/bw_pir_elite.cmp",
+      "sha256": "e04e86fb6a627cc2715ea178b7bc4d6880847d9b0e0c0001a40087503de5cf4e"
+    },
+    {
+      "ship": "vheavy_fighter",
+      "path": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_vheavy_fighter/bw_pir_vheavy_fighter.cmp",
+      "sha256": "3e8b827bb6a0a303ac5a9fcd54e2274d0526441d31d4de0c1616d9ae1b183afb"
+    }
+  ],
+  "source_models_unchanged": true,
+  "prompt_files": [
+    "prompts.json",
+    "correction_prompts.json"
+  ],
+  "limitations": "Raster studies; source cockpit remains mandatory. New geometry, mechanisms and projection consistency require future model validation."
+}

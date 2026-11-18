@@ -1,0 +1,271 @@
+{
+  "completed": 10,
+  "artifacts": [
+    {
+      "id": "L10",
+      "title_ru": "Клиновидный борт",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-fb2d2ab2-5aaf-47f1-9c0d-19ce3aa13e3e.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L10_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L10",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-fb2d2ab2-5aaf-47f1-9c0d-19ce3aa13e3e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Выраженный диагональный борт и длинная ниша; широкие листы сходятся у переднего корня. Спойлер и оба двигателя разделены. Кокпит близок, рамки толще оригинала; точность кинематики не подтверждена.",
+      "sha256": "f2e7948554c26b6b85b6b63775d1b25485d668f2df388dc862b236a7099f8649",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L11",
+      "title_ru": "Глубокая талия",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-9036daa3-8d7a-42e2-8cd7-564b0c7b7978.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L11_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L11",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-9036daa3-8d7a-42e2-8cd7-564b0c7b7978.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Сужение средней части и массивные кормовые щёки хорошо отличаются от L10. Веер, два двигателя и просвет под спойлером читаются. На главном ракурсе выход верхнего двигателя обращён к зрителю сильнее, чем согласуется с носом: виды условны. Кокпит близок, рамки утолщены.",
+      "sha256": "830b11d269f8a78f49ed44ab2652353e058244cbfd1d33167b05fbf2c3471ccb",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L12",
+      "title_ru": "Кормовые вилки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-68f2cabe-a5b3-4b1f-b6ba-168e3505d396.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L12_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L12",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-68f2cabe-a5b3-4b1f-b6ba-168e3505d396.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Выраженные кормовые вилки и открытое крепление нижнего двигателя; более прямой корпус, широкие срезанные концы веера. Пропорции выходов двигателей между перспективами условны. Кокпит близок, рамки утолщены.",
+      "sha256": "ceaa2203d1047cd9958281bbb557290e54573640470a2d4b39197c15d1d8939a",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L13",
+      "title_ru": "Ступенчатый профиль",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-55d333bf-10e3-4fe1-aa4b-26d182e809f6.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L13_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L13",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-55d333bf-10e3-4fe1-aa4b-26d182e809f6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Один заметный подъём корпуса перед кормой и ступенчатые вырезы на концах листов. Борт более замкнутый, чем L12. Люк имеет продольный шов и заканчивается перед подъёмом. Исходная кабина узнаваема, размеры и кинематика по листу не подтверждены.",
+      "sha256": "a1b6dc122ac3105d43ee958bd523601d8cef91d16deb0f4cbcf9db16723911d6",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L14",
+      "title_ru": "Широкий веер",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-1ad82b0f-29b3-460b-8211-9dfb533d4d38.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L14_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L14",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-1ad82b0f-29b3-460b-8211-9dfb533d4d38.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Самый широкий веер из первых пяти: большие лопатообразные листы со срезанными концами и ромбовидное расширение верха корпуса. Отдельные двигатели и спойлер читаются. Боковой профиль визуально более плоский, чем требуемая полнота исходника; это ограничение кандидата.",
+      "sha256": "ebf8af1ff494f286265af03ea3314ec82431840e4fc77a989f4677668012d95c",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L15",
+      "title_ru": "Выделенная нижняя гондола",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-04a1b25f-63e0-47bb-b1ed-bc50377c5f5b.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L15_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L15",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-04a1b25f-63e0-47bb-b1ed-bc50377c5f5b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Нижняя гондола заметно вытянута и отделена от верхнего двигателя широким просветом; корпус получил крупную многоугольную нишу. Опоры спойлера наклонены. На кормовом виде появляются боковые решётки, не двигатели. Кокпит близок, точность узлов и размеров не подтверждена.",
+      "sha256": "bc9fa03c29073b86b23fb5bcb45686c74141360adfe07d514966f0e0d22c8eb1",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L16",
+      "title_ru": "Обратный спойлер",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-c090ebba-ebb3-4dad-824a-0d3b7fc979fb.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L16_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L16",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-c090ebba-ebb3-4dad-824a-0d3b7fc979fb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Цельный гранёный борт и глубокая треугольная кормовая ниша. Заданная обратная стреловидность спойлера выражена слабо; основное отличие результата — форма борта. Три листа и раздельные двигатели читаются. Кокпит близок, но не точная копия исходного остекления.",
+      "sha256": "5a19664df2a0245923d52a009a1671acd190a51de8504251fa68756c2c1ea5e1",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L17",
+      "title_ru": "Подрезанный киль",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-dbf78256-a957-4910-ae1d-ace377bf8454.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L17_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L17",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-dbf78256-a957-4910-ae1d-ace377bf8454.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полнота корпуса выражена глубоким днищем под передним корнем и длинным диагональным кормовым переходом. Три листа накладываются на этот объём; реальный зазор требует проверки в модели. Спойлер и двигатели отдельные. Кокпит близок, рамки и оболочка имеют отклонения.",
+      "sha256": "5e905d9734f194c6a429c96b438e6e65c04ba354dfe2130b3417d77d5d856003",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L18",
+      "title_ru": "Механические ниши",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-a6d06d45-bec0-4d87-a025-883a5a7f8006.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L18_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L18",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-a6d06d45-bec0-4d87-a025-883a5a7f8006.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Заметная ниша корневого механизма с тремя массивными щеками и открытые посадки двух двигателей. Центральный борт спокойный и цельный. Нарисованные оси шарниров условны и не доказывают исходную последовательную цепочку REV. Кокпит близок, рамки толще оригинала.",
+      "sha256": "917ab2b9ad75efcbd206cc72d52f56f025d24764e18525e7f34a2d506d633de3",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L19",
+      "title_ru": "Гранёный обвод",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-4811e6d7-bb28-405f-b577-ff6af91a1665.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_06/li_elite_L19_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L19",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-4811e6d7-bb28-405f-b577-ff6af91a1665.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Более цельный гранёный корпус с сужением средней части и расширением кормовых плеч. Веер острый и широкий; двигатели разделены, спойлер отдельный. Наиболее спокойный обвод серии, близкий развитию L09. Кокпит узнаваем, но рамки и оболочка не являются точной копией CMP.",
+      "sha256": "a4c1543ceeba8d7112209542b950587b95a9f90fd39215adc32b12392d867350",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L08_sheet.png",
+      "sha256": "3878110e600bd79cf14ecac83f53203ad3bef554cac830b08b9f2a14c95b84ff"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L09_sheet.png",
+      "sha256": "c131287e32f8d80d4641f95b6abaa516ac0dddd929dee7db41772fa61a1c7f9d"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+      "sha256": "10f19223296c933957943c3ae329296e7f62e891ac96a8623ae57e51d464f95b"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_aft_components.jpg",
+      "sha256": "0a36f18f42f6263a96bb35514a844d96ce42537fc6a3c93e0ac90af7579c7fa5"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

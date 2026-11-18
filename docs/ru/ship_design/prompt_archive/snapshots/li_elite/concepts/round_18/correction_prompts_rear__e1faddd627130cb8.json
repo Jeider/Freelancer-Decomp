@@ -1,0 +1,15 @@
+{
+  "corrections": [
+    {
+      "id": "L72",
+      "kind": "rear_view_only_tail_direction",
+      "prompt": "Use case: precise-object-edit. Change ONLY the upper tail in the UPPER RIGHT drawing labeled REAR 3/4. In that drawing the cockpit is on the FAR RIGHT and exhausts on the LEFT. The upper tail currently leans LEFT over the exhausts; this is WRONG. Reverse just that upper tail so it leans RIGHT toward the cockpit. Its blunt top must lie to the RIGHT of its lower attachment, both edges rising diagonally UP-RIGHT. Keep its broad sculpted pedestal and aft heel exactly where they are. Match the forward-raked geometry already shown correctly in the upper-left FRONT-SIDE and lower SIDE views. Do not change ANY other drawing; do not mirror the whole view; do not move cameras, cabin, wings, engines, base, text or materials. Only reverse upper-tail rake in the upper-right rear perspective.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet_corrected.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    }
+  ]
+}

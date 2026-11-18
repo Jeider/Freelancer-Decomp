@@ -3,7 +3,7 @@ import json,re
 import valensia_mega as m
 from sync_story_dev import generator_static,semantic
 
-out=m.REPO/'out/station_batch'
+out=m.REPO/'out/stations/station_batch'
 inventory=json.loads((out/'inventory.json').read_text())
 census=json.loads((out/'static_inventory.json').read_text())
 known={(i['path'].lower(),i['prefix']) for c in inventory['candidates'] for i in c['instances']}

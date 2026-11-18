@@ -2,7 +2,7 @@
 import argparse, hashlib, json, os, shutil
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-GAME=Path('D:/Games/FL_MOD');OUT=ROOT/'out/station_docking'
+GAME=Path('D:/Games/FL_MOD');OUT=ROOT/'out/stations/station_docking'
 BUILD=ROOT/'src/obj/train_courier/rpg1/bin'
 NAMES=('Common.dll','Common.pdb','freelancer.exe','freelancer.pdb')
 SOURCES=('src/Common/common_aiintercept.cpp','src/Common/common_dockbehavior.cpp',
@@ -13,7 +13,7 @@ def main():
  ap=argparse.ArgumentParser();ap.add_argument('--prepare',action='store_true');ap.add_argument('--apply',action='store_true');args=ap.parse_args()
  if args.prepare:
   for name in ('resolver','range'):assert 'PASS ' in (OUT/(name+'.log')).read_text()
-  log=(ROOT/'out/station_batch/batch_cambridge_research/physics_candidate/result.log').read_text()
+  log=(ROOT/'out/stations/station_batch/batch_cambridge_research/physics_candidate/result.log').read_text()
   assert str(BUILD/'Common.dll') in log and 'CLEAR_APPROACHES 8' in log and 'PASS: create, simulate, destroy' in log
   checked={str(p.relative_to(ROOT)):sha(p) for p in [*(BUILD/n for n in NAMES),*(ROOT/n for n in SOURCES),OUT/'resolver.log',OUT/'range.log']}
   (OUT/'validated.json').write_text(json.dumps(dict(checked=checked,before={n:sha(GAME/'bin'/n) for n in NAMES}),indent=2))

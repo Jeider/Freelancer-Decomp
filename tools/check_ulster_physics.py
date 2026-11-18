@@ -15,7 +15,7 @@ cmd=[str(vc/'bin/Hostx64/x86/cl.exe'),'/nologo','/std:c++17','/O2','/MD','/EHsc'
 subprocess.run(cmd,cwd=out,env=env,check=True)
 (out/'check_dacom.ini').write_text('[DACOM]\nIgnoreDACOMEnv = true\nDllPath = '+str(m.GAME/'bin')+'\\\n[Libraries]\nReadFile.dll\nx86math.dll\nEngBase.dll\nsystem.dll\n[System]\n[Engine]\nHardpoint\nAnimation\n')
 legacy='--legacy' in sys.argv
-manifest=json.loads(((m.REPO/'out/ulster_shortbase' if legacy else p.OUT)/'manifest.json').read_text());fixture=[]
+manifest=json.loads(((m.REPO/'out/stations/ulster_shortbase' if legacy else p.OUT)/'manifest.json').read_text());fixture=[]
 folder=m.old.data_folder(m.GAME,p.OUT/'stage')
 for c in manifest['components']:
     if legacy:

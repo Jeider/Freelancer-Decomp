@@ -1,0 +1,68 @@
+{
+  "completed": 1,
+  "artifacts": [
+    {
+      "id": "L03",
+      "title_ru": "Высокая ступенчатая корма",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-90b2f470-dd94-426c-8138-43be611f5f22.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_02/li_elite_L03_sheet.png",
+      "status": "rejected_by_user",
+      "user_feedback": "Силуэт слишком коробчатый и тяжёлый; потерялся стиль Либерти и исходного корабля. Пиратский характер сам по себе не является проблемой.",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L03",
+      "correction_history": [],
+      "sha256": "4be5f266d55efa70b1f4d44e4c040f8ccbed32d717d39848ae0363d311b57e75",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/family_shape.jpg",
+      "sha256": "ec0c9683ebd4eb0818856c9144ab03f6d266121d7c303de40e0d20ca9c5b38de"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/family_textured.jpg",
+      "sha256": "dcaecf9b6e487daa7c13dec59b8b2ef64815ea67ee847e720f980d766254bc3c"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/l_fighter .jpg",
+      "sha256": "4280db67dca7840724c7ff3aaf16440c4f7d76a37fde2ecafaac9b2f3e22fb9f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_wing_motion.jpg",
+      "sha256": "32e2eaef0b9a3461f148d81586ce8cea80766bf4d3a6c8bf16e43a384898af93"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/or_elite/native_wing_motion.jpg",
+      "sha256": "7970a6f60ebf10148fe2a3cbcb0945ae84191ecdc732e24d80af688a5a9cc875"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_wing_motion.jpg",
+      "sha256": "7059cc57544b79f3aabe3cff0f1d1758e0d16c9de1c62f204831474422736241"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

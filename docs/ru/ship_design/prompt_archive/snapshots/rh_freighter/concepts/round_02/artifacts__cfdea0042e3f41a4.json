@@ -1,0 +1,64 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "status": "Final five three-view compact freighter concepts; no wings; integrated hull shoulders with three retractable cylinders per side",
+  "final_prompt_file": "cylinder_revision_prompts.json",
+  "artifacts": [
+    {
+      "id": "A",
+      "title_ru": "Компактный курьер",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-d47aeb5a-f0df-4c89-b591-7d86d47b3ae5.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_02/rh_freighter_A_sheet.png",
+      "sha256": "7069590b3fda82a2a9da14f9927ec7657ad8c6157e6fddeeb5cb0b39332458a7",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "B",
+      "title_ru": "Лёгкая несущая скоба",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-43c28980-05d7-4407-93eb-93eddb1bef46.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_02/rh_freighter_B_sheet.png",
+      "sha256": "663a3b2ea4f69327d9b1155a53bf32dc9cc002a9e3a8c2e79ece6e76f8d23cc3",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "C",
+      "title_ru": "Ступенчатая спина",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-68fe41ac-f5ab-40e9-ad10-8b075849f122.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_02/rh_freighter_C_sheet.png",
+      "sha256": "cfc6e99bab852d53ed2ab878018f5455f09c0f16f18312ed80456af448ef08e8",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "D",
+      "title_ru": "Угловатый развозной грузовик",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-7cbe3b02-3ef2-4577-91fb-9121e6a5d8e3.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_02/rh_freighter_D_sheet.png",
+      "sha256": "a94b4748101a21bf27f89892956a25dba3bc95ee2abe7b4020e5eed1514b657a",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "E",
+      "title_ru": "Грузовой блок на тонкой раме",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-86ff45ae-51e8-4346-943b-c6e8e529a81f.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_02/rh_freighter_E_sheet.png",
+      "sha256": "beb099da75ba242a710a898261106c54ef94eec56ba11901f796306cada9ac79",
+      "size": [
+        1536,
+        1024
+      ]
+    }
+  ],
+  "verification": "Five final PNG copies verified; source CMP/reference hashes unchanged; 10 rejected PNG paths confirmed absent; document links checked."
+}

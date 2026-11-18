@@ -122,6 +122,10 @@ namespace NebulaVolume
     // (Gameobj +0x38) and asteroid fields with contains_fog_zone (CliAsteroidAmbientPass hands
     // it the field controller), so asteroids inside the volume lose their D3D fog too.
     bool ReplacesObjectFog(FNebulaEffect const* Nebula);
+    // Surface-only trial: use the already prepared depth-aware volume for objects
+    // in Omega-15 on medium/high. Unlike ReplacesObjectFog this must NEVER select
+    // background restoration, far planes, visibility queues or cloud replacements.
+    bool UsesVolumeForObjectSurfaces(FNebulaEffect const* Nebula);
     bool ReplacesFogOverlay(FNebulaEffect const* Nebula);
     bool ReplacesClouds(FNebulaEffect const* Nebula);
     // FNebulaEffect::DrawBoltsPass -> NebulaDrawBolts (the exterior billboards, FUN_00507ed0) and

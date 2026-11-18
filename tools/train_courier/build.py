@@ -13,6 +13,7 @@ def main():
     parser.add_argument('--rpg',choices=['0','1'],default='1')
     parser.add_argument('--rebuild',action='store_true',help='Recompile the selected projects from scratch')
     parser.add_argument('--production',action='store_true',help='Shipping build with crash dumps, without hang watchdog/legacy reporters or tick profiling; separate output tree')
+    parser.add_argument('--base-neural',choices=['0','1'],help='Match the installed client optional base NR build profile')
     args=parser.parse_args()
     out=ROOT/'src/obj/train_courier'/('rpg'+args.rpg)
     if args.production:
@@ -34,6 +35,8 @@ def main():
              '/p:FreelancerProduction='+('1' if args.production else '0'),
              '/p:FlASanOutDir='+str(binary),'/p:OutDir='+str(binary)+'/',
              '/p:IntDir='+str(obj)+'/', '/m:4','/nr:false','/v:minimal','/nologo']
+        if args.base_neural is not None:
+            cmd.append('/p:FreelancerDlss5='+args.base_neural)
         with (obj/'build.log').open('wb') as log:
             result=subprocess.run(cmd,cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT)
         if result.returncode:

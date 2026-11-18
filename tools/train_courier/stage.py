@@ -114,13 +114,14 @@ def boarding_objects(game):
             'archetype = tc_boarding_solar\nstring_id = 237055\nbase = tc_rh_biz_base\nposition = '+
             ', '.join(f'{v:.9g}' for v in position)+'\norientation = '+', '.join(f'{v:.9g}' for v in quaternion)+'\n')
 
-def parked_solar(text):
+def parked_solar(text,game=Path('D:/Games/FL_MOD')):
     # Same solid model, berth and miner camera; DockQueues rejects incoming
     # requests by this separate archetype, including after mission completion.
     blocks=[b for b in re.split(r'(?m)(?=^\[)',text)
             if not re.search(r'(?mi)^nickname\s*=\s*tc_parked_locomotive\s*$',b)]
     text=''.join(blocks).rstrip()+'\n'
-    return text+'\n'+replace(section(text,'Solar','tc_boarding_solar'),'nickname','tc_parked_locomotive')
+    from stage_evacuation import evacuated_solar
+    return evacuated_solar(text+'\n'+replace(section(text,'Solar','tc_boarding_solar'),'nickname','tc_parked_locomotive'),game)
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
@@ -273,6 +274,7 @@ def main():
     ids=[TEXT_IDS[key] for key in IDS_KEYS]
     config='[CourierRules]\nfirst_wagons = 2\nmax_wagons = 20\nfirst_distance = 1\ndistance_step = 1\nbase_reward = 2000\nper_wagon_reward = 500\nper_distance_reward = 1000\ndelivery_radius = 250\ndelivery_speed = 2\ncleanup_distance = 25000\n'
     config+='\n[Presentation]\naudio_enabled = false\nvoice = '+voice+'\n'
+    config+='voice_ru = dispatcher01\nvoice_en = atc_leg_m01_new\ncomposed_audio = true\n'
     config+=''.join(f'{key}_ids = {value}\n' for key,value in zip(IDS_KEYS,ids))
     put(prefix+'courier.ini',config)
     stage_launchers(index)

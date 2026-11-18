@@ -12,7 +12,7 @@ def main():
     for name,digest in report['checked'].items():assert sha(ROOT/name)==digest,name+' changed after tests'
     assert 'PASS dump replay' in (OUT/'guarded.log').read_text()
     for task in ('batch_california_tradestation','batch_odissey'):
-        log=(ROOT/'out/station_batch'/task/'physics_candidate/result.log').read_text()
+        log=(ROOT/'out/stations/station_batch'/task/'physics_candidate/result.log').read_text()
         assert 'COMMON '+str(BUILD/'Common.dll') in log and 'PASS: create, simulate, destroy' in log
     names=('Common.dll','Common.pdb');before={n:(GAME/'bin'/n).read_bytes() if (GAME/'bin'/n).exists() else None for n in names}
     baseline_path=ROOT/'out/pythonlancer_preservation/baseline.json';baseline=json.loads(baseline_path.read_text())

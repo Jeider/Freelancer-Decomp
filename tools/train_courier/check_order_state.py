@@ -14,6 +14,7 @@ from build_asf_hq import compiler_env
 PREFIX=r'''
 #include "train_courier_state.h"
 #include "train_courier_hud.h"
+#include "train_evacuation.h"
 #include <cassert>
 #include <cstdio>
 #include <cstring>
@@ -66,6 +67,13 @@ struct Config {
 struct Mission {
     Config config;State state;Point source,destination;std::string commodity="comm_basic_meds";
     unsigned PlayerId=1,trailer=0,transferBase=0;
+    TrainEvacuation::State evac;
+    unsigned employer=0,evacSystem=0,repEvents=0;
+    Vector evacPosition;Matrix evacOrientation;
+    float evacHealth=1;
+    bool evacDestroyPending=false,evacRestore=false,spaceTransferComplete=false,transferInSpace=false;
+    bool applyCourierReputation(TrainEvacuation::RepEvent e){if(!evac.once(e))return false;++repEvents;return true;}
+    void evacuationNotice(unsigned,char const*){}
     bool returnImmediately=false,repositionedOrder=false,cargoPending=false,ready=true,started=true,swapped=false,failed=false,restoreCargo=false,restoreObjective=false,bPendingDestroy=false;
     float pause=0,remaining=-1,expectedSeconds=0;unsigned proseIds=0,lostPods=0,updates=0;
     struct {bool bActive=true;int State=4;unsigned sends=0;void SendObjectives(bool skip,bool launch){assert(skip && !launch);++sends;}} NnPath;
@@ -89,6 +97,7 @@ Mission fresh(unsigned wagons=2){
     m.state.distance=wagons-1;m.state.source=m.source.nickname;m.state.destination=m.destination.nickname;
     m.quotedReward=freightQuote(m.config.rules,wagons,m.state.distance,32);m.state.reward=m.quotedReward;
     m.lossCharge=podLossCharge(m.config.rules,wagons,m.quotedReward,32);m.proseIds=238501;
+    m.swapped=true;
     m.remaining=m.expectedSeconds=m.config.rules.orderSeconds+m.config.rules.wagonSeconds*wagons;
     m.savedCargo.arch=99;m.savedCargo.hitpoints=10500;m.savedCargo.system=1;m.savedCargo.coupled=1;
     for(unsigned i=0;i<wagons*2;++i){
@@ -100,6 +109,21 @@ Mission fresh(unsigned wagons=2){
 void save(Mission& m){FILE* f=std::fopen("state.ini","wb");assert(f);m.save(f);std::fclose(f);}
 Mission blank(){Mission m=fresh();m.savedCargo={};m.remaining=-1;m.expectedSeconds=0;m.state={};m.proseIds=m.lostPods=0;m.quotedReward=m.lossCharge=0;return m;}
 int main(){
+    // The production serializer must preserve the remaining grace period,
+    // employer, damage and once-only penalty markers. Reload cannot restart it.
+    {
+        Mission m=fresh();m.employer=12345;m.evac.left();m.evac.tick(37.25f);
+        m.evac.once(TrainEvacuation::Late);m.evac.warned30=true;
+        m.evacSystem=777;m.evacHealth=.41f;m.savedCargo.coupled=1;m.swapped=false;
+        save(m);INI_Reader input("state.ini");Mission restored=blank();
+        assert(restored.readSave(input));
+        assert(restored.employer==12345 && restored.evac.remaining==22.75f && restored.evacRestore);
+        assert(restored.evacHealth==.41f && !restored.swapped && restored.evac.warned30);
+        assert(!restored.evac.once(TrainEvacuation::Late) && !restored.savedCargo.coupled);
+        assert(restored.savedCargo.system==1); // abandoned freight stays in its original system
+        TrainCourierHud hud;assert(restored.hud(&hud) && hud.returnCaption && hud.caption);
+        assert(hud.returnRemaining==22.75f);
+    }
     for(Stage stage:{Stage::Boarding,Stage::TransferIn}) {
         Mission m=fresh();m.state.stage=stage;m.state.pickedUp=false;m.commodity.clear();
         m.state.destination.clear();m.source.base="ku_ksu_03_base";

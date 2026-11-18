@@ -1801,6 +1801,7 @@ bool FDirectX9::ExSoftBegin()
 {
     FRp9ExState* Ex = Ex_;
     if (Ex && Ex->bRoomFrame && Rp9UserGraphics("room_quality",3)<=0) return false;
+    if (Ex && Ex->bRoomFrame && Ex->CharacterQualityStrength<=0.f) return false;
     if (Ex == nullptr || Ex->bShadowDrawing || Ex->SoftKind == RPExSoftOff || Ex->bInPass || Ex->bSoftCompileFailed ||
         Device_ == nullptr || Ex->SceneDepth.Texture == nullptr || Ex->SceneDepth.Surface == nullptr)
         return false;
@@ -2941,7 +2942,10 @@ bool FDirectX9::ExSurfaceBegin()
 bool FDirectX9::ExSurfaceBeginImpl()
 {
     FRp9ExState* Ex = Ex_;
-    if (Ex && !Ex->bRoomFrame && Ex->bNativeNebulaObject) return false;
+    const bool FogShape=Ex && Ex->bNebulaFogShape && !Ex->bRoomFrame &&
+        RenderStates_.GetPending(kRsFogEnable) && !RenderStates_.GetPending(kRsAlphaBlendEnable);
+    bool NativeFogShape=FogShape && (Ex->bNativeNebulaObject || Ex->SurfaceDistanceTier==2);
+    if (Ex && !Ex->bRoomFrame && Ex->bNativeNebulaObject && !FogShape) return false;
     // Keep room scope even with enhancements off, so fallback cannot select
     // the shared space/ship surface shader instead of the native material.
     if (Ex && Ex->bRoomFrame && Rp9UserGraphics("room_quality",3)<=0) return false;
@@ -2974,7 +2978,7 @@ bool FDirectX9::ExSurfaceBeginImpl()
         Ex->bDysonShader=ReadShadowSetting("dyson_shader",1,0,1,false)>.5f;
         Ex->DysonRelief=ReadShadowSetting("dyson_relief",1.0f,0,2,false);
     }
-    const bool Ice=Ex->SurfaceShader==RPSurfaceIce && Ex->bIceShader;
+    const bool Ice=!NativeFogShape && Ex->SurfaceShader==RPSurfaceIce && Ex->bIceShader;
     // Rock: an object in an IRPRockNormals scope (asteroids, debris, mining asteroids), or any material
     // whose texture is an asteroid texture (SurfaceShader == RPSurfaceRock / RockDebris): the rock parts
     // of a station too. The scope's class wins over the material's.
@@ -2982,24 +2986,24 @@ bool FDirectX9::ExSurfaceBeginImpl()
     const unsigned RockClassNow=Ex->RockClass ? Ex->RockClass :
         (RockProfile ? (Ex->SurfaceShader==RPSurfaceRockDebris ? (unsigned)RPRockDebris : (unsigned)RPRockAsteroid) : 0u);
     if(Ex->SurfaceShader==RPSurfaceDyson && !Ex->bDysonShader) return false;
-    const bool Nomad=(Ex->SurfaceShader==RPSurfaceDyson ? Ex->bDysonShader : Ex->bNomadShader) && IsNomadSurface(Ex->SurfaceShader);
+    const bool Nomad=!NativeFogShape && (Ex->SurfaceShader==RPSurfaceDyson ? Ex->bDysonShader : Ex->bNomadShader) && IsNomadSurface(Ex->SurfaceShader);
     const int BoneIndex=Ex->SurfaceShader>=RPSurfaceLairBone1 && Ex->SurfaceShader<=RPSurfaceLairSkinBone ?
         int(Ex->SurfaceShader-RPSurfaceLairBone1) : -1;
     const bool Dyson=Nomad && Ex->SurfaceShader==RPSurfaceDyson;
     const bool Beast=Nomad && Ex->SurfaceShader==RPSurfaceBeast;
     if(Nomad && Ex->bNomadScopeNative) return false;
     if (!Ex->bSurfaceEnabled || Ex->SurfaceShader == RPSurfaceLegacy ||
-        (Ex->SurfaceDistanceTier==2 && !Ex->bSurfaceCockpit && !Ice && !Nomad && RockClassNow==0))
+        (Ex->SurfaceDistanceTier==2 && !NativeFogShape && !Ex->bSurfaceCockpit && !Ice && !Nomad && RockClassNow==0))
         return false;
     const bool Blended=RenderStates_.GetPending(kRsAlphaBlendEnable)!=0;
     const bool Greenhouse=Ex->SurfaceShader==RPSurfaceGreenhouse && Ex->bGlassShader && Blended;
     const bool Glass=(Ex->bSurfaceGlass && Ex->bGlassShader && Blended) || Greenhouse;
     const bool Cockpit=Ex->bSurfaceCockpit && Ex->bCockpitShader && !Blended;
-    const bool ShipNormals=Ex->bShipNormalScope && Ex->ShipNormalCurrent && Ex->ShipNormalCurrent->Texture &&
+    const bool ShipNormals=!NativeFogShape && Ex->bShipNormalScope && Ex->ShipNormalCurrent && Ex->ShipNormalCurrent->Texture &&
         !Ex->bRoomFrame && !Cockpit && !Glass && !Blended && !Ice && !Nomad;
     // Asteroids and debris (IRPRockNormals): opaque lit materials of the object in scope. Ice and
     // the nomad / lair / dyson profiles keep their own shaders.
-    const bool Rock=RockClassNow!=0 && Ex->RockDetail && !Ex->bShipNormalScope && !Ex->bRoomFrame &&
+    const bool Rock=!NativeFogShape && RockClassNow!=0 && Ex->RockDetail && !Ex->bShipNormalScope && !Ex->bRoomFrame &&
         !Cockpit && !Glass && !Blended && !Ice && !Nomad;
     // Native glass back-face/opaque pass is retained. Only its authored alpha pass
     // receives the glass finish; unrelated transparent materials remain excluded.
@@ -3034,9 +3038,12 @@ bool FDirectX9::ExSurfaceBeginImpl()
             break;
         }
     }
-    const bool PlainShadowReceiver = EnvStage < 0 &&
-        ((Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u) ||
-         (Ex->bWeaponGlintReceiver && Ex->WeaponGlintReceiverMask!=0) || Cockpit || Glass || Ice || Nomad || ShipNormals || Rock);
+    const bool PlainSurfaceEffect = (Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u) ||
+        (Ex->bWeaponGlintReceiver && Ex->WeaponGlintReceiverMask!=0) || Cockpit || Glass || Ice || Nomad || ShipNormals || Rock;
+    const bool PlainShadowReceiver = EnvStage < 0 && (PlainSurfaceEffect || FogShape);
+    // A plain material entering the shader solely for this trial keeps native
+    // lighting, even nearby. Existing enhanced surfaces retain their own finish.
+    NativeFogShape |= FogShape && EnvStage < 0 && !PlainSurfaceEffect;
     // Preserve the author's second detail / illumination layer independently
     // of new relief. Unknown multistage layouts retain the native material.
     const unsigned DetailOp=Tss(1,kTssColorOp,D3DTOP_DISABLE);
@@ -3102,7 +3109,7 @@ bool FDirectX9::ExSurfaceBeginImpl()
 
     // Ice keeps one profile at every distance: mipmaps fade its interior detail
     // continuously instead of switching back to a brighter legacy material.
-    const bool LowDetail=Ex->SurfaceDistanceTier==1 && !Cockpit && !Glass && !Ice && !Nomad && !ShipNormals && !Rock;
+    const bool LowDetail=(NativeFogShape || Ex->SurfaceDistanceTier==1) && !Cockpit && !Glass && !Ice && !Nomad && !ShipNormals && !Rock;
     // rock_shadows = 0: asteroids and debris take no local shadows (no hard ship / hull shadow edge on a
     // rock seen close up); the sun still lights them and the planets' light is unchanged.
     // BEAST uses the inexpensive rock-style finish, without PCSS shadow sampling.
@@ -3236,7 +3243,7 @@ bool FDirectX9::ExSurfaceBeginImpl()
             "organic nomad layers %s",Ex->NomadLayers?"loaded":"missing; native material retained");
     }
     if(Nomad && !Dyson && !Beast && !Ex->NomadLayers) return false;
-    float Ps[107 * 4] = {};
+    float Ps[109 * 4] = {};
     auto Set = [&](unsigned Reg, float X, float Y, float Z, float W) {
         float* D = Ps + Reg * 4; D[0] = X; D[1] = Y; D[2] = Z; D[3] = W;
     };
@@ -3320,6 +3327,24 @@ bool FDirectX9::ExSurfaceBeginImpl()
     Ps[4]+=Mat.Ambient.r*Ex->SurfaceLightAmbient[0];
     Ps[5]+=Mat.Ambient.g*Ex->SurfaceLightAmbient[1];
     Ps[6]+=Mat.Ambient.b*Ex->SurfaceLightAmbient[2];
+
+    // Reuse the strongest directional light in view space. Fog transmission and
+    // authored alpha stay unchanged; only the in-scatter colour receives shape.
+    Set(107,0,0,NativeFogShape?1.f:0.f,0);
+    if(FogShape && FogMode) {
+        int Key=-1;float Brightest=-1;
+        for(unsigned I=0;I<Count;++I) if(Lights[I].Type==D3DLIGHT_DIRECTIONAL) {
+            float Brightness=Lights[I].Diffuse.r+Lights[I].Diffuse.g+Lights[I].Diffuse.b;
+            if(Brightness>Brightest) {Brightest=Brightness;Key=(int)I;}
+        }
+        if(Key>=0) {
+            static float const Strength=ReadShadowSetting("nebula_object_fog_shape_strength",.55f,0,1,false);
+            static float const Rim=ReadShadowSetting("nebula_object_fog_shape_rim",.12f,0,.3f,false);
+            const float* Direction=Ps+(13+Key*5)*4;
+            Set(107,Strength,Rim,NativeFogShape?1.f:0.f,0);
+            Set(108,-Direction[0],-Direction[1],-Direction[2],0);
+        }
+    }
 
     memcpy(Ps+52*4,Ex->ShadowMatrices[0],64); memcpy(Ps+56*4,Ex->ShadowMatrices[1],64);
     // 2: player hull; 3: nearby static surfaces also receive the detailed ship
@@ -3524,6 +3549,7 @@ bool FDirectX9::ExSurfaceBeginImpl()
     Upload(0, 12);
     Upload(12, 40);
     Upload(106, 1);
+    Upload(107, 2);
     if (!LowDetail)
     {
         Upload(52, 25);
@@ -3604,7 +3630,7 @@ bool FDirectX9::ExQueueSurfaceInstance(unsigned long Prim,unsigned int Min,unsig
     auto Append=[&](const void* P,size_t S){Key.append(static_cast<const char*>(P),S);};
     unsigned long Draw[]={Prim,(unsigned long)DeviceBaseVertex_,Min,Vertices,Start,Count,Fvf};
     Append(Draw,sizeof(Draw));Append(&Vb->Gpu,sizeof(Vb->Gpu));Append(&Ib->Gpu,sizeof(Ib->Gpu));
-    Append(Calls.Pc,97*16);Append(Calls.Vc+16,64);Append(Calls.Vc+48,80);
+    Append(Calls.Pc,97*16);Append(Calls.Pc+107*4,2*16);Append(Calls.Vc+16,64);Append(Calls.Vc+48,80);
     Append(Calls.Render,sizeof(Calls.Render));Append(Calls.RenderValid,sizeof(Calls.RenderValid));
     Append(Calls.Textures,4*sizeof(Calls.Textures[0]));Append(Calls.TextureValid,4);
     Append(Calls.Samplers,4*sizeof(Calls.Samplers[0]));Append(Calls.SamplerValid,4*sizeof(Calls.SamplerValid[0]));
@@ -3952,9 +3978,10 @@ GENRESULT DACOM_API FDirectX9::SetLocalShadowReceiver(unsigned long Enabled)
 {
     bool Scope=(Enabled&4u)!=0;
     if(!Scope || !Ex_->bInstanceScope || Ex_->bShadowReceiverIsShip!=((Enabled&2u)!=0) ||
-        Ex_->bNativeNebulaObject!=((Enabled&256u)!=0))
+        Ex_->bNativeNebulaObject!=((Enabled&256u)!=0) || Ex_->bNebulaFogShape!=((Enabled&512u)!=0))
         ExFlushSurfaceInstances();
     Ex_->bNativeNebulaObject=(Enabled&256u)!=0;
+    Ex_->bNebulaFogShape=(Enabled&512u)!=0;
     Ex_->SurfaceDistanceTier=(Enabled&16u) ? 2u : ((Enabled&8u) ? 1u : 0u);
     Ex_->bInstanceScope=Scope;
     Ex_->bShadowReceiver = (Enabled&1u)!=0;
@@ -4383,8 +4410,9 @@ void FDirectX9::ExInitQualityConfig()
     // FXAA damages small interface text, so it is opt-in).
     Ex_->QualityFxaaMode=(unsigned)ReadShadowSetting("fxaa",1,0,2);
     Ex_->QualitySmaaEnabled=Rp9UserGraphics("smaa",1)>0.5f;
-    ExLogf(kExFdumpNotice,"NOTICE",__LINE__,"frame quality: SMAA %s, AF %ux, FXAA %s, MSAA off (INTZ depth)",
-        Ex_->QualitySmaaEnabled ? "1x High before UI" : "off", Ex_->QualityAnisotropy,Ex_->QualityFxaaMode==2 ? "full frame" : Ex_->QualityFxaaMode==1 ? "before HUD" : "off");
+    ExLogf(kExFdumpNotice,"NOTICE",__LINE__,"frame quality: SMAA %s, AF %ux, FXAA %s, MSAA off; sampled depth %s",
+        Ex_->QualitySmaaEnabled ? "1x High before UI" : "off", Ex_->QualityAnisotropy,Ex_->QualityFxaaMode==2 ? "full frame" : Ex_->QualityFxaaMode==1 ? "before HUD" : "off",
+        Ex_->SceneDepth.Texture ? "available" : "unavailable");
 }
 
 GENRESULT DACOM_API FDirectX9::CaptureSceneColor(FRPExTexture* Destination)

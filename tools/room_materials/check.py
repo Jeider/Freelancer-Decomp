@@ -2,6 +2,7 @@
 import os
 import argparse
 import subprocess
+import sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 parser=argparse.ArgumentParser()
@@ -21,6 +22,13 @@ build.write_text('@echo off\ncall "C:/Program Files/Microsoft Visual Studio/18/C
  +f'{objects}/RP9.obj {objects}/RP9Ex.obj {objects}/Mgsdb.obj '
  '/link /LTCG /LIBPATH:bin dacom.lib d3d9.lib ddraw.lib version.lib "C:/DXSDK_Jun10/Lib/x86/d3dx9.lib" '
  '"C:/DXSDK_Jun10/Lib/x86/DxErr.lib" legacy_stdio_definitions.lib user32.lib\n')
-subprocess.run(['cmd','/c',str(build)],cwd=ROOT,check=True)
-env=dict(os.environ,FREELANCER_SHADER_CACHE_DIR=str(OUT/'shader_cache'))
-subprocess.run([str(ROOT/'bin/room_material_check.exe')],cwd=ROOT,env=env,check=True)
+env=dict(os.environ,TEMP=str(OUT),TMP=str(OUT))
+with (OUT/'gpu_build.log').open('wb') as log:
+    built=subprocess.run(['cmd','/c',str(build)],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW)
+if built.returncode:
+    print('GPU build needs investigation; details saved to',OUT/'gpu_build.log');sys.exit(1)
+env.update(FREELANCER_SHADER_CACHE_DIR=str(OUT/'shader_cache'))
+with (OUT/'gpu_result.log').open('wb') as log:
+    result=subprocess.run([str(ROOT/'bin/room_material_check.exe')],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW)
+print('PASS GPU material checks' if not result.returncode else 'GPU check needs investigation; details saved',OUT/'gpu_result.log')
+sys.exit(0 if not result.returncode else 1)

@@ -9,6 +9,7 @@
 #include "color_grade_preferences.h"
 #include "native_subtitles.h"
 #include "ui_scroll.h"
+#include "win3d_engine_submit.h"
 #include <cstring>
 #include <string>
 #ifdef FREELANCER_DLSS5
@@ -38,7 +39,7 @@ namespace
     constexpr int GraphicsOrder[]={GraphicsSettings::Shadows,GraphicsSettings::Relief,GraphicsSettings::Highlights,
         GraphicsSettings::Reflections,GraphicsSettings::Anisotropy,GraphicsSettings::Antialiasing,
         GraphicsSettings::Nebulae,GraphicsSettings::WeaponLights,GraphicsSettings::Anomalies,
-        GraphicsSettings::TradeLane,GraphicsSettings::Hyperspace,-1,GraphicsSettings::Interiors,GraphicsSettings::Hair};
+        GraphicsSettings::TradeLane,GraphicsSettings::Hyperspace,-1,GraphicsSettings::Interiors,GraphicsSettings::Hair,GraphicsSettings::CharacterGeometry};
     // The separator occupies its own scroll row, leaving space on both sides.
     constexpr int GraphicsSeparatorRow=11;
     constexpr int GraphicsRowCount=sizeof(GraphicsOrder)/sizeof(GraphicsOrder[0]);
@@ -66,6 +67,7 @@ namespace
     }
     std::wstring Label(int setting)
     {
+        if(setting==GraphicsSettings::CharacterGeometry)return L"\u0414\u0415\u0422\u0410\u041b\u0418 \u041f\u0415\u0420\u0421\u041e\u041d\u0410\u0416\u0415\u0419";
         if(setting==GraphicsSettings::Hair)return L"\u0412\u041e\u041b\u041e\u0421\u042b \u041f\u0415\u0420\u0421\u041e\u041d\u0410\u0416\u0415\u0419";
         if(setting==GraphicsSettings::TradeLane)return IdText(PreferenceIds::GraphicsTradeLane);
         if(setting==GraphicsSettings::Hyperspace)return IdText(PreferenceIds::GraphicsHyperspace);
@@ -81,7 +83,7 @@ namespace
         if (((setting==Interiors || setting==Relief || setting==Highlights || setting==TradeLane || setting==Hyperspace) && value==0) || (setting==Anomalies && value==1))
             return IdText(PreferenceIds::GraphicsStandard);
         if (Toggle(setting)) return IdText(value ? PreferenceIds::GraphicsOn : PreferenceIds::GraphicsOff);
-        if (setting==Shadows || setting==Nebulae || setting==Anomalies || setting==Interiors || setting==Relief || setting==Highlights || setting==Hair || setting==TradeLane || setting==Hyperspace)
+        if (setting==Shadows || setting==Nebulae || setting==Anomalies || setting==Interiors || setting==Relief || setting==Highlights || setting==Hair || setting==TradeLane || setting==Hyperspace || setting==CharacterGeometry)
         {
             constexpr int ids[]={PreferenceIds::GraphicsOff,PreferenceIds::GraphicsLow,PreferenceIds::GraphicsMedium,PreferenceIds::GraphicsHigh};
             return IdText(ids[value]);
@@ -102,6 +104,27 @@ namespace
         constexpr int ids[]={PreferenceIds::GraphicsOff,PreferenceIds::ColorGradeNatural,PreferenceIds::ColorGradeWarm,PreferenceIds::ColorGradeCool};
         return IdText(ids[preset]);
     }
+}
+
+bool NnPreferences::HitTest(float const* ray)
+{
+    // The dialog's retail hit box has zero extents, and labels deliberately
+    // aren't pickable. Give the list background a hit area so wheel events
+    // reach this owner even between controls. Child controls remain deeper in
+    // Win3DPick and retain priority for buttons, dropdowns and scrollbar drag.
+    if(CurPage==2 && GraphicsTab==0 && GraphicsScroll &&
+       (GraphicsScroll->Flags&kWin3DVisible) && !bFlipping && !bConfirmMode && !bVideoConfirm &&
+       (bInGame || Anim>=0)) {
+        float transform[12];
+        memcpy(transform,Orientation,9*sizeof(float));
+        float const center[3]={.1425f,DetailRowY(0,bInGame!=0)-.183f,0};
+        for(int axis=0;axis<3;++axis)
+            transform[9+axis]=Position[axis]+Offset[axis]+center[0]*Orientation[axis]+
+                center[1]*Orientation[3+axis];
+        float const half[3]={.2875f,.193f,0};
+        if(Win3DRayHitsAabbHalfExtents(half,transform,ray))return true;
+    }
+    return WinControl::HitTest(ray);
 }
 
 bool NnPreferences::CreateGraphicsRows()

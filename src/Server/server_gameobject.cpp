@@ -12,6 +12,7 @@
 
 #include "../include/server_gameobject.h"
 #include "server_asteroid_fields.h"
+#include "server_train_courier.h"
 #ifdef FREELANCER_MOD_PLUGINS
 #include "../include/port_plugins.h" // port-only mod server patches
 #include "../include/common_mod_plugins_api.h"
@@ -883,6 +884,7 @@ bool GameObject::damage_hull(float Amount, DamageList& Damage)
             NewHitPts = Floor * MaxHitPts;
     }
 
+    TrainCourierProtectHull(Object, NewHitPts);
     // .text:06ceedce .. 06ceeddb -- TEST AH,0x44 / JNP: no change, nothing added.
     if (NewHitPts == Current)
         return false;
@@ -1461,6 +1463,11 @@ bool EqObj::is_death_fuse_burning()
 // +0x188 -- .text:06ceb330 (RET 4).
 void EqObj::apply_damage_list(DamageList& Damage)
 {
+    // Also cover directly constructed root-damage lists, not only damage_hull.
+    for(auto& entry:Damage.Entries)if(entry.SubObjId==SUBOBJ_ID_ROOT &&
+        TrainCourierProtectHull(Object,entry.HitPts)) {
+        entry.Fate=DamageEntry::SubObjFate::None;Damage.bDestroyed=false;
+    }
     // .text:06ceb338 .. 06ceb38d -- re-entry is reported, not refused.
     if (is_in_damage_callback())
     {

@@ -227,7 +227,17 @@ void* FEngineCharacterBodyDesc::CreateDeformable()
     }
 
     // 0x004ca405..0x004ca41b: IDeformable slot 5 with this desc.
-    if (DALib::Deform->CreateAlias(&Instance, reinterpret_cast<int*>(this), nullptr, nullptr,
+    // Keep the retail descriptor layout, but load the native chain up front so
+    // distant cutscene actors can change LOD without opening assets during draw.
+    FDeformPartDesc DynamicEntries[8];
+    FDeformLodDesc DynamicLods[8][8] = {};
+    struct { int Count; FDeformPartDesc* Entries; } DynamicTable={Count,DynamicEntries};
+    for(int i=0;i<Count;++i){
+        DynamicEntries[i]=Entries[i];DynamicLods[i][0]=Entries[i].Lods[0];
+        DynamicEntries[i].Lods=DynamicLods[i];DynamicEntries[i].LodCount=8;
+        DynamicEntries[i].Flags&=~1u;
+    }
+    if (DALib::Deform->CreateAlias(&Instance, reinterpret_cast<int*>(&DynamicTable), nullptr, nullptr,
                                    nullptr) != 0)
     {
         FDUMP(0x100002,

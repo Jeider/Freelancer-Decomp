@@ -1,0 +1,95 @@
+{
+  "completed": 2,
+  "artifacts": [
+    {
+      "id": "L08",
+      "title_ru": "Раздельные плечи",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-d5294b6b-a463-4b56-9eda-e3099555b9e0.png",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-613fa0bf-dca9-4e24-bcdd-34b96e830eee.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L08_initial.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L08_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L08",
+      "correction_history": [
+        {
+          "prompt_file": "correction_prompts.json",
+          "id": "L08",
+          "reason": "Передний корень и перекрытие трёх листов вместо отдельных шарниров вдоль борта."
+        }
+      ],
+      "visual_review": "Отдельный спойлер с просветом и два двигателя сохранены в композиции. После правки веер имеет три перекрывающихся листа с компактным передним корнем. Есть полётный и сложенный виды. Остекление близко к референсу; точные контуры кабины, кинематика и размеры не подтверждены растровым артом.",
+      "sha256": "3878110e600bd79cf14ecac83f53203ad3bef554cac830b08b9f2a14c95b84ff",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L09",
+      "title_ru": "Открытая корма",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-fc0f972f-45fd-4c44-b46d-ce2a28a5ad77.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L09_sheet.png",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-553ab42e-5bfa-4bca-b123-98996a0a1e5d.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_05/li_elite_L09_initial.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L09",
+      "correction_history": [
+        {
+          "prompt_file": "correction_prompts.json",
+          "id": "L09",
+          "reason": "Передний корень и перекрытие трёх листов вместо отдельных шарниров вдоль борта."
+        }
+      ],
+      "visual_review": "Отдельный спойлер с просветом и два двигателя сохранены в композиции. После правки веер имеет три перекрывающихся листа с компактным передним корнем. Есть полётный и сложенный виды. Остекление близко к референсу; точные контуры кабины, кинематика и размеры не подтверждены растровым артом.",
+      "sha256": "c131287e32f8d80d4641f95b6abaa516ac0dddd929dee7db41772fa61a1c7f9d",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+      "sha256": "10f19223296c933957943c3ae329296e7f62e891ac96a8623ae57e51d464f95b"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_aft_components.jpg",
+      "sha256": "0a36f18f42f6263a96bb35514a844d96ce42537fc6a3c93e0ac90af7579c7fa5"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_neutral_shape.jpg",
+      "sha256": "20b5763c1a6ec800953a2801fa35cf542dab3307c942295ce8d54bab02bd56ec"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

@@ -1,0 +1,350 @@
+{
+  "completed": 10,
+  "artifacts": [
+    {
+      "id": "L78",
+      "title_ru": "Простой обратный киль",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-50c9716f-5cbb-40fd-ba6c-53b498b5379d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L78_sheet_corrected_v2.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L78",
+      "correction_history": [
+        {
+          "id": "L78",
+          "kind": "front_and_side_tail_rake",
+          "prompt": "Use case: precise-object-edit. Keep this entire sheet unchanged EXCEPT the direction of the small fin in the upper-left FRONT-SIDE 3/4 and both bottom SIDE views. In those three views cockpit is LEFT. Mirror ONLY the fin's longitudinal silhouette so its blunt top lies LEFT, closer to the cockpit, relative to the center of its tiny lower socket. Leading edge should be nearly vertical with a mild forward overhang, trailing edge diagonal rising UP-LEFT. Same small fin height, thickness, length, small flush socket, inset border and sunburst. Do not add any base/pedestal or increase volume. The upper-right REAR 3/4 already shows the correct direction toward the RIGHT-hand cockpit: keep it unchanged. Keep cabin, collar, all three wing leaves and their roots, broad hull, engine pods, roof, framing and all other views unchanged. No extra equipment. Only reverse the fin fore-aft in the front and side views.",
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L78_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-ab9ccc4d-71d1-45af-b292-1562e3291f6d.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L78_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-ab9ccc4d-71d1-45af-b292-1562e3291f6d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        },
+        {
+          "id": "L78",
+          "kind": "aft_socket_alignment",
+          "prompt": "Use case: precise-object-edit. Keep the small fin's dimensions, thickness, relief design, tiny socket and the whole ship unchanged: cabin, collar, three wing plates, wing roots, twin engines, hull, materials, cameras, labels. Do not enlarge or redesign the tail, do not add a pedestal. In UPPER LEFT FRONT-SIDE and BOTH bottom SIDE views ONLY, translate the COMPLETE existing fin and its socket BACK along the roof to the AFT end BETWEEN THE ENGINES, immediately before the exhaust plane. Nose is LEFT in these views, so translate fin RIGHT by about one fin chord. Keep same forward-facing orientation and same exact outline. Leave an uninterrupted cargo roof ahead of it. Upper-right REAR view already has correct aft placement, keep it unchanged. Erase old attachment and restore flat roof there. Adjust TOP placement consistently at stern. Do not mirror the fin.",
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L78_sheet_corrected.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-50c9716f-5cbb-40fd-ba6c-53b498b5379d.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L78_sheet_corrected_v2.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-50c9716f-5cbb-40fd-ba6c-53b498b5379d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-e3c0bd62-3d0d-4428-be20-569dfa107ee6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Итог: обычный небольшой киль с высоким носовым краем, одной низкой кормовой опорой и утопленным веером. Вторая правка вернула посадку к двигателям в переднем/боковых видах. В маленьком TOP хвост показан почти боковым силуэтом — эту проекцию не использовать как чертёж. Основные перспективы пригодны для сравнения массы и декора.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-e3c0bd62-3d0d-4428-be20-569dfa107ee6.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L78_sheet.png",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "319652ff6ee4595d68d4b70463f09179024876c7210501beb44cbc52a4039b7e",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L79",
+      "title_ru": "Низкий вытянутый",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f78d4810-0e33-48d0-b550-87febc9a59d4.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L79_sheet_corrected.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L79",
+      "correction_history": [
+        {
+          "id": "L79",
+          "kind": "forward_low_fin",
+          "prompt": "Use case: precise-object-edit. Keep the small fin's dimensions, thickness, relief design, tiny socket and the whole ship unchanged: cabin, collar, three wing plates, wing roots, twin engines, hull, materials, cameras, labels. Do not enlarge or redesign the tail, do not add a pedestal. Reverse only the fore-aft SILHOUETTE of the little LOW fin, keeping its socket centered at the SAME aft location. In front and SIDE views nose LEFT: high blunt end of fin must be LEFT, and trailing lower end RIGHT. Both long edges should lean slightly LEFT toward cockpit. In upper-right REAR 3/4 cockpit RIGHT: high end RIGHT, lower aft end LEFT. Keep the horizontal fluting and low elongated proportion. The current sheet sweeps the fin aft; make its high end face the cockpit consistently. No movement toward middle of roof.",
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L79_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f78d4810-0e33-48d0-b550-87febc9a59d4.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L79_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f78d4810-0e33-48d0-b550-87febc9a59d4.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-a7e9b26d-6c0c-4d46-abeb-9cb1ac9481dc.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Коррекция согласовала высокий край к кабине. Самый низкий длинный киль серии с горизонтальными углублениями и малым корнем. Малый TOP снова показывает боковое декоративное поле вместо точной тонкой проекции; использовать основные перспективы.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-a7e9b26d-6c0c-4d46-abeb-9cb1ac9481dc.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L79_sheet.png",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "8a36e08a006694c7ffa142525865a5d91bd8738726f4cb564c0ce3f8e4c32f53",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L80",
+      "title_ru": "Высокий узкий",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-b4e69c3a-e551-47dd-a333-5c8b73116bd6.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L80_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L80",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-b4e69c3a-e551-47dd-a333-5c8b73116bd6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Узкий почти вертикальный киль с тремя неглубокими рёбрами, короткая кормовая посадка. Основание малое, корпус доминирует. Наклон к носу слабый; он читается лучше в профиле, чем в передней перспективе. Три пера сохранены, малые виды условны.",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "d9953e59beb52726cd20dc37a8706fb08eda8599a9cbc71166a0acbe4d0d5fc0",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L81",
+      "title_ru": "Две вложенные секции",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-4ef59d0c-a1d0-44b0-9e1f-360bfe428eea.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L81_sheet_corrected.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L81",
+      "correction_history": [
+        {
+          "id": "L81",
+          "kind": "rear_socket_alignment",
+          "prompt": "Use case: precise-object-edit. Keep the small fin's dimensions, thickness, relief design, tiny socket and the whole ship unchanged: cabin, collar, three wing plates, wing roots, twin engines, hull, materials, cameras, labels. Do not enlarge or redesign the tail, do not add a pedestal. Edit ONLY the UPPER RIGHT REAR 3/4 drawing. The tail is wrongly next to the collar at the far right. REMOVE it there, restore plain roof, and put the SAME small two-overlapping-leaf tail at the STERN on the central narrow socket BETWEEN THE TWO EXHAUSTS, nearer LEFT. Match its aft location in the other five drawings. Its high end must face RIGHT toward the cockpit, its lower trailing edge LEFT toward exhausts. Do not change any other drawing. Do not leave a duplicate tail.",
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L81_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-4ef59d0c-a1d0-44b0-9e1f-360bfe428eea.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L81_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-4ef59d0c-a1d0-44b0-9e1f-360bfe428eea.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-fc52c2ee-475c-4545-9309-3f91a3a17682.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Rear socket correction completed before stop; upper fin direction in rear remains inconsistent. Entire direction rejected by user.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-fc52c2ee-475c-4545-9309-3f91a3a17682.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L81_sheet.png",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "4cb85652c542776e4bbfaa3d50c39387dce9777382abcb9aa22b2fab237d053f",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L82",
+      "title_ru": "Ступенчатая кромка",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-5bc01a16-8c5d-44a1-9186-35f2ee6e48a5.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L82_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L82",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-5bc01a16-8c5d-44a1-9186-35f2ee6e48a5.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Тонкий ступенчатый киль с высоким носовым краем, двумя срезами к корме и неглубоким веерным полем. Посадка кормовая, без массивной опоры. Основные ракурсы согласованы по направлению; три пера сохранены. Геометрия хвоста выглядит скорее цельной, её движение пока только замысел.",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "e9747dec1d08d2ab016ebae7468ea66d9823d2c048731f29be833d96a74c7a4f",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L83",
+      "title_ru": "Косой срез вершины",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-0f79c70c-14b1-4848-9f07-3291fab0591c.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L83_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L83",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-0f79c70c-14b1-4848-9f07-3291fab0591c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Простой почти треугольный профиль с косым верхним срезом и неглубокими лучами, малая масса. Посадка в передней перспективе/профиле слишком сдвинута к середине крыши; требуется перенести весь узел к соплам, сохраняя размер.",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "7cfc7f7a365f606d3dca16eb6659bdfcb1d84b8b66f5b9d1e01c4bcd02953a5a",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L84",
+      "title_ru": "Плавный переход в корень",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-49d2ce06-ba5a-43fc-894f-4ad154768a04.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L84_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L84",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-49d2ce06-ba5a-43fc-894f-4ad154768a04.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Обычный небольшой киль с одним коротким расширением у корня и веерным орнаментом. Опора не расползается к двигателям, посадка кормовая. Конструктивное отличие от L78 небольшое: главным образом нижний переход/декор. Три пера и основные пропорции корпуса сохранены.",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "7ea4a9f32b1b58f4514f29c1cd0a17df8e8649f617a11ad77b15e7ffa4604f6c",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L85",
+      "title_ru": "Компактная развилка",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-6cad1e38-bbdb-408d-9df7-72e3b3292e42.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L85_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L85",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-6cad1e38-bbdb-408d-9df7-72e3b3292e42.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Компактная развилка даёт заметно иной силуэт при малой общей массе. Она интерпретирована генератором как две прорези/зубца в разных проекциях, поэтому ось разделения не доказана. Профиль наклоняет зубцы к корме, требуется согласовать направление к кабине.",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "3a8a78220663cdc787c6b1ef592f08cfa474c578f2be828a2a5fa593f7894885",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L86",
+      "title_ru": "Срезанный ромб",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-c625694c-32aa-4b42-86fe-515c22826452.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L86_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L86",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-c625694c-32aa-4b42-86fe-515c22826452.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Низкий срезанный многоугольный профиль, вложенная ступенчатая рамка и небольшой медальон. Масса мала, корень кормовой. Генератор не воспроизвёл буквально ромб: результат ближе к срезанной трапеции. Это самостоятельная декоративная вариация, не крупная смена конструкции.",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "b652e4066a0970c3822eb522af266cac24ee6bb468a819945df562779df5cdfd",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L87",
+      "title_ru": "Короткий прямой хвост",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-0dfea11b-3b5e-4cab-bfaa-f5f6acbfaa1d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L87_sheet.png",
+      "status": "rejected_by_user",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L87",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-0dfea11b-3b5e-4cab-bfaa-f5f6acbfaa1d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Самый спокойный короткий профиль с утопленным полем, тонкой рамкой и небольшой боковой площадкой. Корень кормовой, высокое ребро обращено к кабине; тройные крылья сохранены. Фактически верх получился скошенным сильнее задания, силуэт ближе к трапеции, чем прямоугольнику.",
+      "user_feedback": "User rejected miniature decorative fin direction and explicitly requested a return to L66, especially its rear 3/4 construction.",
+      "sha256": "c9843120d31fdd02524b3b0e88f4bd7bdd5c7149db5e1d6e955444762f17844a",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+      "sha256": "10f19223296c933957943c3ae329296e7f62e891ac96a8623ae57e51d464f95b"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_17/li_elite_L67_sheet_corrected.png",
+      "sha256": "db021c451458155b33a132ee07e31cb3a679d140361cb14fdb9fa1b23bf80490"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/or_elite/native_flight.jpg",
+      "sha256": "aaa0fbe3b324ff3420b21f2cc3fce416df4341f30c157bbf594e6b6283d51366"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_flight.jpg",
+      "sha256": "658e8cb3c8c8583ea931593b59948b2ddb3272ba1c3c597dd48c9a342cd36656"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L78_sheet_corrected.png",
+      "sha256": "cca6ea3256b17073960fabe55964d7eb74fb2dff5eec92222400ef0f82335a28"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L82_sheet.png",
+      "sha256": "e9747dec1d08d2ab016ebae7468ea66d9823d2c048731f29be833d96a74c7a4f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+      "sha256": "3e1ad54708e23d12fec4151def215150532f2b9e82f576b1a89a2913bcd164e5"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

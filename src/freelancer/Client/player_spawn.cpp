@@ -409,6 +409,8 @@ FClientShipGameobj* PreparePlayerShipInSpace(unsigned ArchetypeId, CShip::Create
     return Go;
 }
 
+static void InitializePlayerShipControls(CShip* Ship);
+
 bool BindPreparedPlayerShip(FClientShipGameobj* Go)
 {
     if (!SinglePlayer() || !Go || !Go->Object ||
@@ -418,6 +420,7 @@ bool BindPreparedPlayerShip(FClientShipGameobj* Go)
     G_PlayerCharacterId = Go->get_id();
     G_PlayerShipCharMirror = G_PlayerCharacterId;
     G_PlayerShipWatcher.set(static_cast<Watchable const*>(static_cast<IObjRW*>(Go)));
+    InitializePlayerShipControls(static_cast<CShip*>(Go->Object));
     return true;
 }
 
@@ -481,6 +484,7 @@ bool UpdatePlayerShipTransfer()
         if (p.returning) {
             auto* raw = static_cast<CShip*>(prepared->Object);
             float spacing = raw->get_radius() + previous->Object->get_radius() + 20.f;
+            if(p.purpose==Purpose::Emergency)spacing=(std::max)(spacing,1500.f);
             int axis = attempt / 2;
             if (attempt & 1) spacing = -spacing;
             Vector position = p.position;
@@ -517,6 +521,40 @@ bool UpdatePlayerShipTransfer()
     return true;
 #else
     return false;
+#endif
+}
+
+static void InitializePlayerShipControls(CShip* Ship)
+{
+#ifdef FREELANCER_FLSHARP
+    if (FlsharpFeatureEnabled("flight_controls_fix"))
+    {
+        IBehaviorManager const* const Manager =
+            GetBehaviorManager(static_cast<IObjRW*>(GetPlayerObjRW()));
+        if (Manager != nullptr && Manager->Sys != nullptr)
+        {
+            G_SpaceApp.ThirdPerson.bCameraLevelEnabled = Manager->LevelCameraFlag;
+            HudStatusSetAutoLevelState(Manager->Sys->Thrust.bAutoLevel != 0);
+        }
+        else
+        {
+            G_SpaceApp.ThirdPerson.bCameraLevelEnabled = 1;
+            HudStatusSetAutoLevelState(true);
+        }
+    }
+    ClientObjDb_FlsharpResetUpdates(Ship);
+#endif
+#ifdef FREELANCER_ADOXA
+    // A replacement ship gets a new behavior manager with leveling ON. Apply
+    // the same policy as a normal launch before the camera or mouse uses it.
+    // Otherwise a non-leveling camera drives camera-relative steering with an
+    // obsolete world-up vector, scrambling pitch/yaw after either transfer.
+    if (PORT_PLUGIN_ON("DisableLevelCameraToggle"))
+    {
+        G_SpaceApp.ThirdPerson.bCameraLevelEnabled = 0;
+        if (IBehaviorManager* const Manager = GetBehaviorManager(static_cast<IObjRW*>(GetPlayerObjRW())))
+            Manager->update_level_camera(false);
+    }
 #endif
 }
 
@@ -631,42 +669,9 @@ FClientShipGameobj* SpawnPlayerShip()
     static_cast<IServer*>(GetLocalServerInterface())
         ->PlayerLaunch(G_PlayerCharacterId, G_PlayerConnectionId);
 
-#ifdef FREELANCER_FLSHARP
-    // Port-only (FLSharp flight_controls_fix, on the free at 0x0054b8b9): after loading a game
-    // or launching, the camera's level toggle (third-person camera +0x13c, FLSharp's "rotation
-    // lock") and the HUD's auto-level state (DAT_00612700) can disagree with the new ship's
-    // behaviour, and roll / mouse flight then misbehave. Take both from the behaviour manager
-    // (+0xf9, Sys->Thrust auto level), or their defaults (on) without one.
-    if (FlsharpFeatureEnabled("flight_controls_fix"))
-    {
-        IBehaviorManager const* const Manager =
-            GetBehaviorManager(static_cast<IObjRW*>(GetPlayerObjRW()));
-        if (Manager != nullptr && Manager->Sys != nullptr)
-        {
-            G_SpaceApp.ThirdPerson.bCameraLevelEnabled = Manager->LevelCameraFlag;
-            HudStatusSetAutoLevelState(Manager->Sys->Thrust.bAutoLevel != 0);
-        }
-        else
-        {
-            G_SpaceApp.ThirdPerson.bCameraLevelEnabled = 1;
-            HudStatusSetAutoLevelState(true);
-        }
-    }
-    ClientObjDb_FlsharpResetUpdates(Ship);
-#endif
-#ifdef FREELANCER_ADOXA
-    // Port-only, "Disable level camera toggling" with its 0x005186e3 default: the level camera
-    // stays off for the new ship -- the camera and the behaviour manager (+0xf9), which keeps
-    // re-levelling the ship (and so cancels jflp's roll) while it is on. In the patched exe the
-    // manager learnt the off state from the first press of the (no longer toggling) key; here
-    // it is set at once, after FLSharp's flight_controls_fix copied the manager's default in.
-    if (PORT_PLUGIN_ON("DisableLevelCameraToggle"))
-    {
-        G_SpaceApp.ThirdPerson.bCameraLevelEnabled = 0;
-        if (IBehaviorManager* const LevelManager = GetBehaviorManager(static_cast<IObjRW*>(GetPlayerObjRW())))
-            LevelManager->update_level_camera(false);
-    }
-#endif
+    // FLSharp flight_controls_fix (0x0054b8b9) and adoxa leveling policy must
+    // also run on in-space replacements, which never call SpawnPlayerShip.
+    InitializePlayerShipControls(Ship);
     // 0x0054b877..0x0054b8e1: the locals' destructors (list, vector) run on scope exit.
     return Go;
 }

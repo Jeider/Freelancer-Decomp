@@ -56,6 +56,7 @@
 #include "common_universe.h"
 #include "dacom.h"
 #include "engine_light.h" // the ship light of the lightning (GameLight)
+#include "graphics_settings.h"
 #include "render/IRenderPipeline.h"
 #include "render/IRenderPipelineEx.h"
 
@@ -142,7 +143,7 @@ namespace
     const int kRegAlienVeins = 109; // alien_vein_colour rgb, w alien_veins (strength)
     const int kRegAlienShape = 110; // x 1 / alien_vein_scale_m, y sharpness, z stretch, w pulse phase
     const int kRegAlienMore = 111; // x alien_vein_density (fraction of space with veins)
-    const int kCompositeRegisterCount = 26; // c24 simple interior haze, c25 faded skip sphere
+    const int kCompositeRegisterCount = 27; // c24/25 core haze; c26 sparse object-depth repair
     // Shadow steps grow by this ratio (short near the sample, long toward the light).
     const double kShadowStepGrowth = 1.6;
     // Nebulae drawn per frame at most ([Nebula] max_nebulae is clamped to this).
@@ -200,6 +201,7 @@ namespace
     struct FNebulaVolumeSettings
     {
         float Enabled;
+        float MinimumQuality; // per-profile opt-in; lower settings retain all retail layers
         float RenderInExclusion; // keep the volume running across exclusion boundaries
         float ResolutionScale;
         float StepCount;
@@ -382,6 +384,7 @@ namespace
 
     const FSettingKey kSettingKeys[] = {
         {"enabled", &FNebulaVolumeSettings::Enabled},
+        {"minimum_quality", &FNebulaVolumeSettings::MinimumQuality},
         {"render_in_exclusion", &FNebulaVolumeSettings::RenderInExclusion},
         {"resolution_scale", &FNebulaVolumeSettings::ResolutionScale},
         {"step_count", &FNebulaVolumeSettings::StepCount},
@@ -552,6 +555,7 @@ namespace
     {
         FNebulaVolumeSettings S;
         S.Enabled = 1.0f;
+        S.MinimumQuality = 0.0f;
         S.RenderInExclusion = 1.0f;
         S.ResolutionScale = 0.5f;
         S.StepCount = 96.0f;
@@ -996,6 +1000,8 @@ namespace
         settings.ResolutionScale=PortGraphicsRenderValue("nebula_resolution_scale",settings.ResolutionScale);
         settings.StepCount=PortGraphicsRenderValue("nebula_steps",settings.StepCount);
         settings.ShadowSteps=PortGraphicsRenderValue("nebula_shadow_steps",settings.ShadowSteps);
+        if (GraphicsSettings::Get(GraphicsSettings::Nebulae) < settings.MinimumQuality)
+            settings.Enabled=0.0f;
     }
 
     FNebulaVolumeSettings SettingsFor(FNebulaEffect const* Nebula)
@@ -3142,6 +3148,11 @@ namespace
         VolumeFogColour(Entry.Nebula, S, SimpleFogRgb);
         Set4(&GCompositeConstants[23 * 4], SimpleFogRgb[0], SimpleFogRgb[1], SimpleFogRgb[2],
              S.IceCrystal > 0.5f ? 1.0f : 0.0f);
+        // Only the surface-fog trial, with a prepared foreground volume. Existing
+        // full-volume profiles/background passes retain their original sampling.
+        Set4(&GCompositeConstants[26 * 4], !bIgnoreDepth && S.ReplaceObjectFog <= 0.5f &&
+             NebulaVolume::UsesVolumeForObjectSurfaces(Entry.Nebula) ? 1.0f : 0.0f,
+             RaymarchRegister(kRegHalo)[3], 0, 0);
 
         FRPExSamplerState Point;
         Point.MinMagFilter = RPExFilterPoint;
@@ -3200,8 +3211,10 @@ namespace
         if (bOk)
         {
             bOk = Ex->SetExPixelConstants(0, GRaymarchConstants, kRaymarchRegisterCount) == GR_OK;
-            // Two texels of margin: the composite's bilinear / depth-aware taps at the edge.
-            if (bOk) bOk = DrawVolumeRect(DrawEx, Rect, LowWidth, LowHeight, 2);
+            // The surface repair searches a wider neighbourhood than the normal
+            // bilinear taps. Every candidate must have been marched this frame.
+            const int Pad = GCompositeConstants[26 * 4] > 0.5f ? 4 : 2;
+            if (bOk) bOk = DrawVolumeRect(DrawEx, Rect, LowWidth, LowHeight, Pad);
         }
 
         // Pass 2: composite onto the back buffer, dst = dst * T + tonemap(inscatter)
@@ -4863,6 +4876,24 @@ bool NebulaVolume::ReplacesObjectFog(FNebulaEffect const* Nebula)
     // Strength reaches exactly 1 both double-fogs objects and switches visibility at the edge.
     FVolumeEntry const* const Entry = FindEntry(Nebula);
     return Entry != nullptr && Entry->Settings.ReplaceObjectFog > 0.5f;
+}
+
+bool NebulaVolume::UsesVolumeForObjectSurfaces(FNebulaEffect const* Nebula)
+{
+    if (ReplacesObjectFog(Nebula))
+        return true;
+
+    // The existing volume already integrates light/transmission up to scene depth.
+    // Remove only the preceding flat surface fog, retaining the current cloud
+    // profile, fullscreen veil, lighting and scene-visibility policy byte-for-byte.
+    // SelectFrameEntries clears GEntryCount if depth/shader/target preparation fails.
+    // A far-bucket background volume cannot fog geometry drawn after it.
+    FVolumeEntry const* const Entry = FindEntry(Nebula);
+    static bool const Enabled = PortConfigInt("Render", "nebula_object_volume_test", 1) != 0;
+    static unsigned const System = CreateID("om15");
+    return Entry != nullptr && !Entry->bBackground && Enabled &&
+        GraphicsSettings::Get(GraphicsSettings::Nebulae) >= 2 &&
+        StarSysGetActiveSystemId() == System;
 }
 
 bool NebulaVolume::ReplacesFogOverlay(FNebulaEffect const* Nebula)

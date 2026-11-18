@@ -1,0 +1,337 @@
+{
+  "tool": "built-in image_gen",
+  "target": "rh_freighter_pir",
+  "source_cmp": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_freighter/rh_pir_freighter.cmp",
+  "source_sha256": "085e9a5d778922b1aef6ebe70a95ce0d902636177dd1b5cc03a4b6c0ffbc738b",
+  "status": "20 variants complete",
+  "gallery_title": "RH Junker Freighter — Q01–Q20",
+  "gallery_heading": "Q13 — берём в работу · все 20 вариантов",
+  "gallery_intro": "Пользователь выбрал Q13 для моделирования другими агентами. Выбранный лист отмечен зелёной рамкой. Все двадцать вариантов сохранены; исходная кабина, круговая крышка трюма и плотность деталей P01/P02 остаются основой.",
+  "prompt_files": [
+    "prompts.json"
+  ],
+  "artifacts": [
+    {
+      "id": "Q01",
+      "base_variant": "P01",
+      "title_ru": "Глубокий грузовой борт",
+      "group_ru": "Развитие исходного корпуса",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3f56b30d-4337-4f6e-bfce-7a29103f32a4.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q01_sheet.png",
+      "sha256": "9f59938042676f5a8329ed5df0f20db51afe5d9a14959f01c2885432f78b4501",
+      "bytes": 2501069,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P01_sheet.png",
+      "comparison_label": "Одобренный пробник P01"
+    },
+    {
+      "id": "Q02",
+      "base_variant": "P02",
+      "title_ru": "Высокое переднее плечо",
+      "group_ru": "Развитие исходного корпуса",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-200df821-5976-471c-b9cc-fe73e7119cb9.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q02_sheet.png",
+      "sha256": "ff2056c070d945792b53ff2076878ca5fe1fb4abb780d5a21a6e9694ebd2c5bb",
+      "bytes": 2389824,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q03",
+      "base_variant": "P01",
+      "title_ru": "Собранная тяжёлая корма",
+      "group_ru": "Развитие исходного корпуса",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-04c27367-7e86-439f-9330-f0616d3e71c3.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q03_sheet.png",
+      "sha256": "997f9a9286cd51033dd8a9eb272e61827d97e5ae5a7cbb18f2d17c27faec77bc",
+      "bytes": 2486051,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P01_sheet.png",
+      "comparison_label": "Одобренный пробник P01"
+    },
+    {
+      "id": "Q04",
+      "base_variant": "P02",
+      "title_ru": "Двойной уступ днища",
+      "group_ru": "Развитие исходного корпуса",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-6e159258-664e-4860-8810-8c8c5087811d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q04_sheet.png",
+      "sha256": "8dc047cfaff9453dbf1a7cdf98b93f2b91b772299032c03363eeadf276139672",
+      "bytes": 2402868,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q05",
+      "base_variant": "P01",
+      "title_ru": "Утопленная носовая стенка",
+      "group_ru": "Развитие исходного корпуса",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-339dcee2-c480-47a0-9437-91d96fb3d2f0.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q05_sheet.png",
+      "sha256": "c451879122612fec7d8ebcac9ef89ea1e9fa20c34c5dcd9f1b91be2ae7204c00",
+      "bytes": 2545241,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P01_sheet.png",
+      "comparison_label": "Одобренный пробник P01"
+    },
+    {
+      "id": "Q06",
+      "base_variant": "P02",
+      "title_ru": "Косые торцы корпуса",
+      "group_ru": "Клиновидные переделки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f6830a67-045e-4b2b-a970-c3c82826b7c0.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q06_sheet.png",
+      "sha256": "7c55ab843de4b6dd959615b295e70a2bfe3a821033c359bea648ceb0db87de21",
+      "bytes": 2438185,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q07",
+      "base_variant": "P02",
+      "title_ru": "Клин под цилиндрами",
+      "group_ru": "Клиновидные переделки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-17ae078a-5b87-49ec-9e38-8a7523eaff60.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q07_sheet.png",
+      "sha256": "27b134fbcda071b250ac33d12eb3795eee721d3b4f50b10701e555ebda9eb603",
+      "bytes": 2421207,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q08",
+      "base_variant": "P01",
+      "title_ru": "Ломаное плечо",
+      "group_ru": "Клиновидные переделки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-aca83b71-3aca-42cc-9e0d-5c13dc99d2eb.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q08_sheet.png",
+      "sha256": "d8c92160377186f376b1926251b87a6435387b80d0e5e74039d4114e7c10a29b",
+      "bytes": 2511737,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P01_sheet.png",
+      "comparison_label": "Одобренный пробник P01"
+    },
+    {
+      "id": "Q09",
+      "base_variant": "P02",
+      "title_ru": "Гранёные угловые кожухи",
+      "group_ru": "Клиновидные переделки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-08326aee-5c59-45e2-b86e-9707c7979171.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q09_sheet.png",
+      "sha256": "ee390efab4f80dc6f682521e7d501d34a34e679bf9078579133d453a3bafd355",
+      "bytes": 2439875,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q10",
+      "base_variant": "P01",
+      "title_ru": "Узкий верх и тяжёлый низ",
+      "group_ru": "Клиновидные переделки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f93918ad-ae67-49f7-a651-efd336ed58c8.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q10_sheet.png",
+      "sha256": "ddbfd2a1dc6eb9e1618a58a62a41975ac133571b27a458f4a8024b45883ec668",
+      "bytes": 2565841,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P01_sheet.png",
+      "comparison_label": "Одобренный пробник P01"
+    },
+    {
+      "id": "Q11",
+      "base_variant": "P02",
+      "title_ru": "Разные боковые кожухи",
+      "group_ru": "Донорские сборки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-09a0d296-a6d7-4cb5-b9c1-04f976bace4d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q11_sheet.png",
+      "sha256": "09a06f676345a703546531067f6b4d70d7577badcdfe1c6d7455c4f2a3c9dac5",
+      "bytes": 2430455,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q12",
+      "base_variant": "P01",
+      "title_ru": "Три секции из утиля",
+      "group_ru": "Донорские сборки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-e79a3ed1-af5f-4360-93cd-fab6bcef6dc8.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q12_sheet.png",
+      "sha256": "b57c52267b4815d2790a8d80073b5e1eca76ea117bb409abcb4e5395b7608d5f",
+      "bytes": 2504798,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P01_sheet.png",
+      "comparison_label": "Одобренный пробник P01"
+    },
+    {
+      "id": "Q13",
+      "base_variant": "P02",
+      "title_ru": "Диагональная замена борта",
+      "group_ru": "Донорские сборки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-85540899-cf98-4684-b13d-da232cd93fb9.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q13_sheet.png",
+      "sha256": "c942e0ee8581fa3ee4726eccda200fc8142049544ebda9ec655ab45969fec11b",
+      "bytes": 2466111,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q14",
+      "base_variant": "P01",
+      "title_ru": "Широкая грузовая створка",
+      "group_ru": "Донорские сборки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-2b33a263-3880-4979-9700-6aba875a5f96.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q14_sheet.png",
+      "sha256": "2d388bfd26d124df264142ca67b387d6f8520fb26390e25a73b56b4505f2c9a3",
+      "bytes": 2502152,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P01_sheet.png",
+      "comparison_label": "Одобренный пробник P01"
+    },
+    {
+      "id": "Q15",
+      "base_variant": "P02",
+      "title_ru": "Восстановленный заводской корпус",
+      "group_ru": "Донорские сборки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-39639bc3-b499-4c79-ae38-37b77962c3a6.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q15_sheet.png",
+      "sha256": "8f8b3cc9a1d24d4e133e7da3c6e61576839510bbde9a3051c57cad0b3f9b2fd6",
+      "bytes": 2480300,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q16",
+      "base_variant": "P01",
+      "title_ru": "Ступенчатые щёки арки",
+      "group_ru": "Арка и механические узлы",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-d8082858-3a73-40d7-84a9-6090b00f6189.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q16_sheet.png",
+      "sha256": "1e9709e6467e59922cf94ecab32abb0753f81a73a37b6507835dae73a1aec4cc",
+      "bytes": 2548886,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P01_sheet.png",
+      "comparison_label": "Одобренный пробник P01"
+    },
+    {
+      "id": "Q17",
+      "base_variant": "P02",
+      "title_ru": "Сегментная крышка и скошенный трюм",
+      "group_ru": "Арка и механические узлы",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-9782dd17-f6b6-42fa-a3be-c8d587203c97.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q17_sheet.png",
+      "sha256": "8b6ed86acbac979794572af69c943859e6c0ad4a4159367709247ae4ceab07b5",
+      "bytes": 2398787,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q18",
+      "base_variant": "P01",
+      "title_ru": "Закрытые карманы привода",
+      "group_ru": "Арка и механические узлы",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3c3a46b1-9ba5-4eee-b978-1ee900d6cbda.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q18_sheet.png",
+      "sha256": "530318671626d76d2d68829e8fdb0419e17bce02559aec17a1ffc17ab8e395d6",
+      "bytes": 2490612,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P01_sheet.png",
+      "comparison_label": "Одобренный пробник P01"
+    },
+    {
+      "id": "Q19",
+      "base_variant": "P02",
+      "title_ru": "Собранные двигатель и корма",
+      "group_ru": "Арка и механические узлы",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-82e23243-1ef6-43f0-9b4d-c09b145157a0.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q19_sheet.png",
+      "sha256": "2e4fd78aad5a1481267bcc7614196dd27e20bc64415d33cbf958fcfee5d5e63b",
+      "bytes": 2459647,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    },
+    {
+      "id": "Q20",
+      "base_variant": "P02",
+      "title_ru": "Цельная пиратская переделка",
+      "group_ru": "Арка и механические узлы",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-024ec4d4-c7d3-4728-876a-8dcd7d79e877.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_freighter/concepts/round_10/rh_freighter_Q20_sheet.png",
+      "sha256": "128a102bd5b45e27bb95ae9a379add182cc2f799218452977a20685ba0108c69",
+      "bytes": 2418099,
+      "size": [
+        1536,
+        1024
+      ],
+      "comparison_image": "../round_09/rh_freighter_P02_sheet.png",
+      "comparison_label": "Одобренный пробник P02"
+    }
+  ],
+  "selected_concept": "Q13",
+  "selection_document": "../../SELECTED_CONCEPT.md"
+}

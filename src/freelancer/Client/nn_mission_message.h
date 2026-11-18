@@ -51,6 +51,7 @@ public:
     void Update() override;
     // slot 13 FUN_0048af10
     void Draw() override;
+    bool KeyEvent(unsigned Key,unsigned char* Modifiers) override;
     // slot 42 LAB_0048af30 (RET 0xc) -- 0x26, a button was clicked
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 

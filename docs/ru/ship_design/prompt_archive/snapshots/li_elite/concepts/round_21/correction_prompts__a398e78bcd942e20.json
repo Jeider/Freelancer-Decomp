@@ -1,0 +1,15 @@
+{
+  "corrections": [
+    {
+      "id": "L66_R1",
+      "kind": "consistent_forward_tail_across_views",
+      "prompt": "Use case: precise-object-edit. Correct ONE error in this completed full-ship concept sheet: the tail points in opposite directions between views. KEEP THE ENTIRE NEW HULL DESIGN, recessed framed side relief, faceted shoulders, seated engine housings, original cabin/collar, all three wing leaves/roots, colors, cameras, labels and image layout UNCHANGED.\nThe cockpit points RIGHT in EVERY drawing. The UPPER-RIGHT REAR 3/4 already has the CORRECT tail: its two upper sections rise diagonally UP-RIGHT toward the cabin. Preserve that rear drawing EXACTLY.\nIn the UPPER-LEFT FRONT 3/4 and the two lower SIDE drawings, the tail currently leans LEFT over the exhaust, which is wrong. Reverse ONLY the fore-aft silhouette/rake of the two-section tail in those three drawings so BOTH sections rise UP-RIGHT toward the right-hand cockpit, precisely matching the tail geometry already visible in the rear view. The top blunt end must lie to the RIGHT of its attachment center. The long sloping BACK surface rises from left exhaust-side stern up toward the RIGHT-facing top. Keep substantial section thickness, overlapping diagonal seam, equipment flats and original height. Keep the root FIXED at the STERN, at the left end of each ship, behind the cargo hatch; do not translate the whole tail forward to the middle of the roof. Only reorient the rising tail sections and their contiguous stern transition. Do not add a pedestal, small decorative fin or extra parts. In SIDE STOWED keep small nesting only.\nIf needed, adjust just the TOP tail footprint to match the same forward-oriented tail at the stern. All other ship geometry remains as is. This is ONE SINGLE design shown consistently, not alternate tail designs.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_21/li_elite_L66_R1_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,284 @@
+{
+  "generation_mode": "built-in image_gen",
+  "requested_count": 10,
+  "completed_count": 10,
+  "missing_ids": [],
+  "status": "complete",
+  "approved_for_modeling": true,
+  "selected_concept": "F14",
+  "source_cmp": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_fighter/rh_pir_fighter.cmp",
+  "source_sha256": "039fc5177f5110ca51dc5b4ada40e8f1300c8e5bc0696cb374ee5fc757f7c5eb",
+  "source_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_04/rh_fighter_F03_v2_sheet.png",
+      "sha256": "b319ad9b002decd962d7269c51e139ac37422b85691cfe901e753562bf61184f"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/pirate_art/ships/rh_fighter_pir/cockpit_reference.jpg",
+      "sha256": "22bc6793a8285e15b0c5a2c035bf6ecd83e365d521ad9a89e5249a8386b478a4"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_flight.jpg",
+      "sha256": "74d9b188f50ec6de1807a1b1a390df9b56034b4ae4c8f9ff8061185c4a51ead0"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_baydoor_motion.jpg",
+      "sha256": "628dd5782e6f89ff71ba74d6679a1de2a0bb3c0e4696a7c697b5cb09b6679748"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_wing_motion.jpg",
+      "sha256": "5b032b8bca16f78a18d1c0c58608c52607f4e2b10cfa76f7fdf9f8c4ec175803"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_04/rh_fighter_F04_v2_sheet.png",
+      "sha256": "8dc77aab954611fe00861aa70f10dff795a698bd95636e9a867f377d7f07528f"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "F05",
+      "title_ru": "Продольный паз",
+      "group_ru": "Направляющие",
+      "base_variant": "F03",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3c397a28-5f9f-4246-bcdf-26e7202f9978.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F05_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "aa925fc2b765cbbac94903fb5cfdfb248b595b4b6519c8485b77a6550f528806",
+      "bytes": 2135867,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F06",
+      "title_ru": "Двухступенчатое седло",
+      "group_ru": "Закрытые опоры",
+      "base_variant": "F04",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-293b9409-66e9-4a27-a0de-75fc980b51fe.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F06_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "21dadd0e61340513b794a502a310e608d662ceb54df6f54c57f79195dea4e16e",
+      "bytes": 2180289,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F07",
+      "title_ru": "Врезанный клин",
+      "group_ru": "Направляющие",
+      "base_variant": "F03",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f31ea602-2e38-4c83-b567-347eb6b4e0e9.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F07_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "1e9b9f3049253b0d5c93f50a6a9f50eae62a45128495a7d223e902b3eab33e8f",
+      "bytes": 2134399,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F08",
+      "title_ru": "Нижний опорный узел",
+      "group_ru": "Закрытые опоры",
+      "base_variant": "F04",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-222b1cf7-e68c-43f2-9d67-58cee6fc0614.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F08_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "d6b0bf6bae550952ba105743f42ed95071dae06431e545010fa18c18985ff69c",
+      "bytes": 2166776,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F09",
+      "title_ru": "Кольцевая ниша",
+      "group_ru": "Направляющие",
+      "base_variant": "F03",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-246efb7e-3cd8-41e5-9482-13deceaff001.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F09_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "4acafd302d584870f73a72858e14056957edc3189adc2a240426eba0a35e0110",
+      "bytes": 2148512,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F10",
+      "title_ru": "Плоская опора",
+      "group_ru": "Закрытые опоры",
+      "base_variant": "F04",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-7e9eaf84-c76c-4850-956c-58d4f2860151.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F10_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "9dea5871c93ec21e27da5210b73fc93482d6786e959d2ac04c584f58c9f94266",
+      "bytes": 2171228,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F11",
+      "title_ru": "Передняя каретка",
+      "group_ru": "Направляющие",
+      "base_variant": "F03",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3a160ecf-7082-47fc-bd8a-81d02dfced75.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F11_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "56f860dabf339d73968139d00fce238cd948da8cc584d9f1e6ba70bdaa7cd205",
+      "bytes": 2127884,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F12",
+      "title_ru": "Закрытая вилка",
+      "group_ru": "Закрытые опоры",
+      "base_variant": "F04",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-c1ad50c3-e473-40d0-850c-788c23e7e114.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F12_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "df39aa2df8d51f92027d5717736a9dfe7d5ad8d9cbc99b043b7cef87dd85c80d",
+      "bytes": 2202215,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F13",
+      "title_ru": "Диагональная секция",
+      "group_ru": "Направляющие",
+      "base_variant": "F03",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-0103b84d-d1c3-4591-8c40-6136965c6541.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F13_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "test_concept_not_approved",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "5ee5aa48221e01e8c8af83c864864151694ff7ffaf4da3797a99c73e0011f0f3",
+      "bytes": 2139068,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F14",
+      "title_ru": "Утопленное основание",
+      "group_ru": "Закрытые опоры",
+      "base_variant": "F04",
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8a7ac96f-868f-4dcf-84d2-5baefd775433.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F14_sheet.png",
+      "generation_mode": "built-in image_gen",
+      "status": "accepted_for_modeling",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "ef46c4874aa9fac3eeb0e396bea5164d1561d100926422908e38efdfd16381f2",
+      "bytes": 2200087,
+      "copy_matches_generated": true
+    }
+  ],
+  "prompt_files": [
+    "prompts.json"
+  ],
+  "visual_review": {
+    "method": "Assistant visually inspected all ten full-resolution generated sheets; F07 was opened separately after tool output suppressed its inline image.",
+    "checks_scope": "Illustrative visual consistency only, not dimensional or mechanical certification.",
+    "global_observations": [
+      "All ten have a perspective, side and top flight view.",
+      "All ten show the fore-aft-axis drum edge-on in side and crosswise in top.",
+      "Two compact engines and forward-swept wings remain visible in each concept's principal/plan views.",
+      "Cockpit appearance continues the accepted F03/F04 references; exact native cockpit geometry is mandatory for future modeling.",
+      "No intentional increase of the drum envelope; exact dimensions/volume require 3D checks.",
+      "Baydoor is shown as a separate closed dorsal rectangular lid; illustrations do not prove its rearward clearance."
+    ],
+    "variants": [
+      {
+        "id": "F05",
+        "reviewed": true,
+        "observation_ru": "Два крупных горизонтальных кармана барабана; продольный паз каретки и восходящий нижний контур шеи."
+      },
+      {
+        "id": "F06",
+        "reviewed": true,
+        "observation_ru": "Два вертикальных углубления с ламелями; двухступенчатая опора и фигурный задний край крыла."
+      },
+      {
+        "id": "F07",
+        "reviewed": true,
+        "observation_ru": "Две диагональные ниши барабана; клиновидная посадка крыла и ломаная внутренняя секция."
+      },
+      {
+        "id": "F08",
+        "reviewed": true,
+        "observation_ru": "П-образное утопленное поле барабана; ниже расположенный механизм с закрытыми направляющими."
+      },
+      {
+        "id": "F09",
+        "reviewed": true,
+        "observation_ru": "Кольцевая ниша с секторами разной глубины; вложенные прямоугольные секции крепления."
+      },
+      {
+        "id": "F10",
+        "reviewed": true,
+        "observation_ru": "Неравные поля круглой крышки и нижняя решётка; низкое крепление, почти утопленное в борт."
+      },
+      {
+        "id": "F11",
+        "reviewed": true,
+        "observation_ru": "Полукруглые верхние карманы и нижняя широкая ниша; выдвинутый вперёд узел каретки."
+      },
+      {
+        "id": "F12",
+        "reviewed": true,
+        "observation_ru": "Вертикальное сервисное поле и Г-образные ниши; закрытое ступенчатое крепление."
+      },
+      {
+        "id": "F13",
+        "reviewed": true,
+        "observation_ru": "Диагональная замена борта и неглубокий нижний клин; компактный шарнир и три горизонтальных канала барабана."
+      },
+      {
+        "id": "F14",
+        "reviewed": true,
+        "observation_ru": "Центральное трапециевидное углубление барабана; короткие утопленные кожухи корня крыла."
+      }
+    ],
+    "limitations": [
+      "Joint drawings are stylized; confirm native Pris-to-Rev hierarchy, fore-aft axes and all swept clearances in the eventual model.",
+      "Use the existing cabin mesh/UV/cockpit resources; never remodel its windows from the art.",
+      "Some silhouettes and component lengths differ slightly across views; these remain concept drawings.",
+      "Painted bolts or seams are not a request for modeled rivets."
+    ]
+  },
+  "limitations": "Raster concepts; exact cockpit geometry, drum volume and new animation clearance require future 3D validation."
+}

@@ -1,0 +1,111 @@
+{
+  "corrections": [
+    {
+      "id": "L68",
+      "kind": "forward_tail_direction",
+      "prompt": "Use case: precise-object-edit. Edit this L68 concept sheet ONLY to reverse the FORE-AFT RAKE OF THE UPPER TAIL in every view. Preserve the existing broad three-step pedestal, original cabin and three-rib collar, hull, engines, native wing-root positions, three folding fan leaves, colors, framing and labels. All noses point LEFT in side/front/back perspectives. The generated tail currently sweeps BACK to the RIGHT. Make the tail sweep FORWARD to the LEFT: top center noticeably LEFT of its lower attachment center, by approximately one third the pedestal length. Both its front and back silhouette edges rise diagonally UP-LEFT. Thus the blunt top is closer to the cockpit than the base. Keep it a thick solid blade with continuous broad support below, no thin hook or point. Rear 3/4 also has nose upper LEFT; tail upper mass must go upper LEFT toward nose, never toward near right exhausts. Apply the same reversed upper geometry in SIDE FLIGHT and SIDE STOWED, TOP and REAR as necessary. Pedestal remains broad and aft of the cargo hatch. Change only upper tail rake and contiguous supporting transition, not pedestal size/location or any other ship part.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L68",
+      "kind": "restore_three_native_wing_leaves_and_symmetric_small_views",
+      "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Restore the EXACT THREE-LEAF wing fan from reference 2: amber REAR, green MIDDLE, blue FRONT are THREE COMPLETE separate triangular plates. Recolor all native pirate red. Show three visibly separate free tips and three broad faces in every open wing, including front-side, rear-side, SIDE FLIGHT and TOP. Not two leaves with three etched lines. Preserve the native single common pivot at the LOWER FRONT EDGE of the MAIN HULL after the short neck behind the collar; no wing on the collar itself. Three plates nest rearward along the flank in SIDE STOWED. Only ONE native equipment pad per entire fan, on the original rear leaf; remove pads from the other leaves. Keep the already-correct forward-raked tail in both LARGE views and side views. Correct ONLY its tiny TOP and straight REAR projections so it lies exactly on the ship centerline, bilaterally symmetric, with no sideways cant. Do not reverse its fore-aft rake.",
+      "refs": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet_corrected.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+      ],
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L68_sheet_corrected.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L69",
+      "kind": "restore_three_native_wing_leaves_and_clear_hatch",
+      "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Restore the EXACT THREE-LEAF wing fan from reference 2: amber REAR, green MIDDLE, blue FRONT are THREE COMPLETE separate triangular plates. Recolor all native pirate red. Show three visibly separate free tips and three broad faces in every open wing, including front-side, rear-side, SIDE FLIGHT and TOP. Not two leaves with three etched lines. Preserve the native single common pivot at the LOWER FRONT EDGE of the MAIN HULL after the short neck behind the collar; no wing on the collar itself. Three plates nest rearward along the flank in SIDE STOWED. Only ONE native equipment pad per entire fan, on the original rear leaf; remove pads from the other leaves. Retain the low long forward-facing tail. Shorten ONLY the FRONT extension of the fixed pedestal to end behind the visible rectangular roof hatch, so the hatch is free. Keep its aft ledge and squat upper tail dimensions. No new roof trench.",
+      "refs": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L69_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+      ],
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L69_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L70",
+      "kind": "restore_three_native_wing_leaves",
+      "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Restore the EXACT THREE-LEAF wing fan from reference 2: amber REAR, green MIDDLE, blue FRONT are THREE COMPLETE separate triangular plates. Recolor all native pirate red. Show three visibly separate free tips and three broad faces in every open wing, including front-side, rear-side, SIDE FLIGHT and TOP. Not two leaves with three etched lines. Preserve the native single common pivot at the LOWER FRONT EDGE of the MAIN HULL after the short neck behind the collar; no wing on the collar itself. Three plates nest rearward along the flank in SIDE STOWED. Only ONE native equipment pad per entire fan, on the original rear leaf; remove pads from the other leaves. Do not change the high plinth or the short forward-facing tail above it.",
+      "refs": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L70_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+      ],
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L70_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L71",
+      "kind": "consistent_forward_tail_rake",
+      "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Change ONLY the UPPER TAIL fore-aft rake and its contiguous support in reference 1. Preserve this variant's pedestal shape. Reference 2 L73 demonstrates the correct DIRECTION ONLY, not a replacement tail shape. The nose is LEFT in front and side views: top center of the tail must be LEFT of its lower root center. Both edges rise UP-LEFT, toward the cockpit. The tail must not sweep back toward the exhausts. Reverse the currently aft-swept blade in FRONT-SIDE and both SIDE views. Match the existing correct forward direction in REAR 3/4 where applicable. Maintain a blunt thick solid blade with substantial continuous support into the developed pedestal, not a narrow hook. TOP and straight REAR remain bilaterally symmetric without sideways lean. Keep all three wing leaves and their roots unchanged.",
+      "refs": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L71_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+      ],
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L71_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L72",
+      "kind": "consistent_forward_tail_rake",
+      "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Change ONLY the UPPER TAIL fore-aft rake and its contiguous support in reference 1. Preserve this variant's pedestal shape. Reference 2 L73 demonstrates the correct DIRECTION ONLY, not a replacement tail shape. The nose is LEFT in front and side views: top center of the tail must be LEFT of its lower root center. Both edges rise UP-LEFT, toward the cockpit. The tail must not sweep back toward the exhausts. Reverse the currently aft-swept blade in FRONT-SIDE and both SIDE views. Match the existing correct forward direction in REAR 3/4 where applicable. Maintain a blunt thick solid blade with substantial continuous support into the developed pedestal, not a narrow hook. TOP and straight REAR remain bilaterally symmetric without sideways lean. In this sheet REAR 3/4 has cockpit RIGHT: in that view the upper tail must lean RIGHT toward the cockpit, away from the left exhausts. Keep camera unchanged. Keep all three wing leaves and their roots unchanged.",
+      "refs": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+      ],
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L72_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L74",
+      "kind": "consistent_forward_tail_rake",
+      "prompt": "Use case: precise-object-edit. Keep the existing cabin, three-rib collar, broad hull, twin engine pods, pedestal design, materials, framing, labels and all unrelated details unchanged. Do not redesign the ship. Change ONLY the UPPER TAIL fore-aft rake and its contiguous support in reference 1. Preserve this variant's pedestal shape. Reference 2 L73 demonstrates the correct DIRECTION ONLY, not a replacement tail shape. The nose is LEFT in front and side views: top center of the tail must be LEFT of its lower root center. Both edges rise UP-LEFT, toward the cockpit. The tail must not sweep back toward the exhausts. Reverse the currently aft-swept blade in FRONT-SIDE and both SIDE views. Match the existing correct forward direction in REAR 3/4 where applicable. Maintain a blunt thick solid blade with substantial continuous support into the developed pedestal, not a narrow hook. TOP and straight REAR remain bilaterally symmetric without sideways lean. Keep all three wing leaves and their roots unchanged.",
+      "refs": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L74_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+      ],
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L74_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_18/li_elite_L73_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    }
+  ]
+}
