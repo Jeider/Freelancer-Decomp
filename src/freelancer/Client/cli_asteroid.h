@@ -360,6 +360,8 @@ struct FCliAsteroidFarInfo
     float DynMeshTint[4][3];
 };
 bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out);
+// Radius-aware, untruncated dynamic/billboard exclusions for decorative meshes.
+bool CliAsteroidExcludesLocalMesh(FCliAsteroid const* Field, Vector const& Point, float Radius);
 // Port-only: mesh + diffuse texture name of a dynamic asteroid archetype by nickname (built once, kept).
 bool CliAsteroidGetStandardDynMesh(char const* Nickname, FCliDynamicAsteroidMesh const** OutMesh,
                                    char* OutTexture, size_t TextureSize);

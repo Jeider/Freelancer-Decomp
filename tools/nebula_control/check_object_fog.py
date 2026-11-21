@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'out/graphics_settings/nebula_object_fog'
 BUILD = OUT / 'build'
 PROBE = OUT / 'probe'
+EXTRA_DEFINES = []
 sys.path.insert(0, str(ROOT / 'tools/nebula_control'))
 from build_asf_hq import compiler_env
 
@@ -49,6 +50,7 @@ def main():
         command = [str(compiler / 'cl.exe'), '/nologo', '/EHsc', '/MD', '/O2', '/std:c++17', '/utf-8',
                    '/DRP_DIRECT3D9', '/DFREELANCER_DLSS5', '/D_ITERATOR_DEBUG_LEVEL=1',
                    '/D_CRT_SECURE_NO_WARNINGS', '/DNOMINMAX', '/Isrc/RP9', '/Isrc/include', source,
+                   *EXTRA_DEFINES,
                    '/Fo' + str(PROBE / (name + '.obj')), '/Fe' + str(exe), *objects,
                    '/link', '/LTCG', '/LIBPATH:' + str(ROOT / 'bin'),
                    'd3d9.lib', 'user32.lib', 'gdi32.lib', 'C:/DXSDK_Jun10/Lib/x86/d3dx9.lib', *libs]

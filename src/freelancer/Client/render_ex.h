@@ -54,7 +54,7 @@ namespace RenderEx
     void EndRoomMaterialCache(void* Owner);
     void RoomProp(bool Prop);
     void RoomContactShadows();
-    bool BeginRoomShadow(const float* CameraView12, const float* Center, float Radius, bool Character);
+    bool BeginRoomShadow(const float* CameraView12, const float* Center, float Radius, unsigned long Mode);
     bool EndRoomShadow();
     void NoteSolarSceneDepth(float Near,float Far);
     void DrawSolarRays(float U,float V,float Radius,float Strength,const float* Colour,float Aspect,float SunFrontDistance);

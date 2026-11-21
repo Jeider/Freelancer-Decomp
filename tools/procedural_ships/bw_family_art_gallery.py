@@ -126,6 +126,10 @@ fighter, elite, vheavy_fighter. Нажмите на изображение дл�
     content = content.replace('__OVERVIEW__', ''.join(overview))
     note = (f'{html.escape(selected_id)} — основное направление, берём в работу. '
             'Начинаем с ELITE. VHEAVY на листе не утверждён; возможен будущий микс решений.') if selected_id else ''
+    if not note and selection and pack.get('base_concept') == selection['concept_id']:
+        note = (f'Дополнительные виды выбранного {html.escape(selection["concept_id"])}. '
+                'Основной корабль — ELITE; VHEAVY остаётся эскизом для переработки. '
+                'Новые поверхности представлены для сверки.')
     banner = f'<p class="selection">{note} <a href="../../SELECTED_CONCEPT.md">Карточка выбора</a></p>' if note else ''
     content = content.replace('__SELECTION__', banner)
     content = content.replace('__SELECTION_FOOTER__', note or 'Концепты для обсуждения; направление ещё не выбрано.')

@@ -83,6 +83,7 @@ FObjectProp::FObjectProp(FRoomRuntime* InOwner, FPropData const& Data)
     , Type(0)
     , bDetached(0)
     , bRoomMain(0)
+    , bCastShadow(0)
     , Hardpoints(nullptr)
 {
     // FUN_00445f40. 0x00445f7f..0x00445f89: FUN_00555a40 on +0x4c; 0x00445f9c..0x00445fb7: the

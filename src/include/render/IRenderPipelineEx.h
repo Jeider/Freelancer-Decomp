@@ -226,6 +226,10 @@ struct IRenderPipelineEx : IDAComponent
     virtual GENRESULT DACOM_API CreateExVertexBuffer(unsigned long Bytes, const void* Data,
                                                      FRPExBuffer** Out) = 0;
     virtual GENRESULT DACOM_API DestroyExVertexBuffer(FRPExBuffer* Buffer) = 0;
+    // Update a bounded range without reallocating the buffer. Keeps its CPU
+    // backing consistent for device recreation. Appended: existing slots stable.
+    virtual GENRESULT DACOM_API UpdateExVertexBuffer(FRPExBuffer* Buffer,unsigned long Offset,
+        unsigned long Bytes,const void* Data) = 0;
 };
 
 enum ERPExSoftKind : unsigned long

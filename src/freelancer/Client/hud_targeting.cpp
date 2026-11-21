@@ -151,7 +151,7 @@ bool HUD_Targeting::OwnsContent(HudTarget const* source) const
     return source && Source() == source;
 }
 
-void HUD_Targeting::NormalizeIcon(WinControl* control, int index)
+void HUD_Targeting::NormalizeIcon(WinControl* control, int index, float radius)
 {
     auto* button = static_cast<NnButtonControl*>(control);
     auto& saved = iconSizes[index];
@@ -159,10 +159,9 @@ void HUD_Targeting::NormalizeIcon(WinControl* control, int index)
     saved.originalTile = button->MontageTile;
     std::memcpy(saved.orientation, control->Orientation, sizeof(saved.orientation));
     std::memcpy(saved.half, control->HalfExtents, sizeof(saved.half));
-    float const targetRadius = index == ProjectionCount + 2 ? 0.014f : IconRadius;
+    float const targetRadius = radius > 0.f ? radius : index == ProjectionCount + 2 ? 0.014f : IconRadius;
     control->HalfExtents[0] = control->HalfExtents[1] = targetRadius;
-    // Keep adjacent toolbar hit boxes separate without shrinking the artwork.
-    if (index < ProjectionCount + 2) control->HalfExtents[0] = ButtonStep * 0.5f;
+    if (radius <= 0.f && index < ProjectionCount + 2) control->HalfExtents[0] = ButtonStep * 0.5f;
     control->HalfExtents[2] = 0.0f;
     // A private tile copy keeps the size of other HUD buttons unchanged.
     if (button->MontageTile)
@@ -318,6 +317,13 @@ bool HUD_Targeting::Init()
         nullptr, "ui_window_open", nullptr, openPos, nullptr, slideHalf, 0, 1, 0, 0, HudIds::TargetWindow, 0, 0);
     if (!openButton) return false;
     NormalizeIcon(openButton, ProjectionCount + 2);
+    float const closeHalf[] = {0.014f, 0.014f, 0.0f};
+    float const closePos[] = {center.X + PanelHalfWidth + 0.008f, center.Y + 0.082f, 0.0f};
+    closeButton = CreateButtonControl("TargetingClose", "interface\\NeuroNet\\Inventory\\x.3db",
+        nullptr, "ui_select_item", nullptr, closePos, nullptr, closeHalf, 0, 1, 0, 0,
+        HudIds::TargetClose, 0, 0);
+    if (!closeButton) return false;
+    NormalizeIcon(closeButton, 0, 0.012f);
     SetOffset(0.0f, 0.0f, -1.0f);
     SetPosition(Position);
     background->Flags &= ~kWin3DPickable;
@@ -421,7 +427,6 @@ void HUD_Targeting::UpdateHostButtons()
     }
     windowButton->SetProperty(0xc, windowState.open ? 1 : 0, 0);
 }
-
 bool HUD_Targeting::HostProperty(int msg, uintptr_t a, uintptr_t /*b*/)
 {
     WinControl* button = reinterpret_cast<WinControl*>(a);
@@ -480,6 +485,7 @@ void HUD_Targeting::Draw()
     }
     for (auto* button : projections)
         if (button->Flags & kWin3DVisible) button->Draw();
+    if (closeButton->Flags & kWin3DVisible) closeButton->Draw();
 }
 
 bool HUD_Targeting::HitTest(float const* ray)
@@ -514,11 +520,18 @@ void HUD_Targeting::UpdateButtons()
     }
     openButton->SetProperty(1, visible && ButtonMover::IsActive() ? 0 : 1, 0);
     openButton->Flags &= ~(kWin3DActive | kWin3DPickable);
+    closeButton->SetProperty(1, visible && !collapsed && !IsAnimating() ? 0 : 1, 0);
     UpdateHostButtons();
 }
 
 intptr_t HUD_Targeting::SetProperty(int msg, uintptr_t a, uintptr_t b)
 {
+    if (msg == 0x26 && closeButton && a == reinterpret_cast<uintptr_t>(closeButton) &&
+        CanShow() && !IsAnimating() && !collapsed)
+    {
+        SetWindowOpen(false);
+        return 1;
+    }
     if (msg == 0x26 && CanShow() && !IsAnimating())
     {
         if (!collapsed)

@@ -73,14 +73,20 @@ GENRESULT DACOM_API FDirectX9::BeginRoomShadow(const float* CameraView12, const 
     // A vertical standing body collapses under its head/shoulders at exact zenith.
     // Give characters a modest world-anchored downward slant (~28 degrees),
     // keeping ships vertical. Widen the map to include the complete sheared bounds.
-    const float TiltX=Character ? .45f:0, TiltZ=Character ? .30f:0;
-    const float Half=Radius*(Character ? 1.5f:1.f);
+    // 1: standing body, tilted. 2: flagged prop, vertical like a ship but room
+    // draws have alpha blend on, so they need the coverage test or the whole
+    // mesh is rejected and the floor never darkens.
+    const bool Tilt=Character==1;
+    const float TiltX=Tilt ? .45f:0, TiltZ=Tilt ? .30f:0;
+    const float Half=Radius*(Tilt ? 1.5f:1.f);
     M[0]=1/Half;M[4]=TiltX/Half;M[9]=1/Half;M[5]=TiltZ/Half;M[6]=-1/(2*Radius);
     M[12]=-(Center[0]+TiltX*Center[1])/Half;M[13]=-(Center[2]+TiltZ*Center[1])/Half;
     M[14]=(Center[1]+Radius)/(2*Radius);M[15]=1;
     RoomShadowRouteLog(Character?"begin-character":"begin-object",0,0,0,0,M,E->RoomShadowCamera);
     E->bRoomShadowDrawing=E->bShadowDrawing=true;E->RoomShadowDraws=0;E->bRoomPaletteUnsupported=false;
     E->bRoomShadowCharacter=Character!=0;
+    E->RoomShadowFadeNear=Character==2 ? .05f : 1.2f;
+    E->RoomShadowFadeFar=Character==2 ? 32.f : 4.f;
     Rp9SetTexture(Device_,15,nullptr);
     IDirect3DSurface9* Target=nullptr;Hr=E->RoomShadowMap->GetSurfaceLevel(0,&Target);
     if(SUCCEEDED(Hr))Hr=Device_->SetDepthStencilSurface(nullptr);
@@ -171,7 +177,7 @@ GENRESULT DACOM_API FDirectX9::EndRoomShadow()
     if(SUCCEEDED(Hr) && !E->RoomShadowDraws)Hr=E_FAIL;
     if(SUCCEEDED(Hr))
     {
-        float Params[44]={},Vp[16];
+            float Params[48]={},Vp[16];
         MulMatrix4(E->RoomShadowCamera,E->ShadowSavedTransforms.Projection.Values,Vp);
         D3DXMATRIX M,Inv;memcpy(&M,Vp,64);
         if(D3DXMatrixInverse(&Inv,nullptr,&M))
@@ -183,13 +189,15 @@ GENRESULT DACOM_API FDirectX9::EndRoomShadow()
             Params[36]=(float)V.X;Params[37]=(float)V.Y;Params[38]=(float)V.Width;Params[39]=(float)V.Height;
             D3DSURFACE_DESC MapDesc={};E->RoomShadowMap->GetLevelDesc(0,&MapDesc);
             Params[40]=V.MinZ;Params[41]=V.MaxZ;Params[42]=1.f/MapDesc.Width;Params[43]=.45f;
+            Params[44]=E->RoomShadowFadeNear;Params[45]=E->RoomShadowFadeFar;Params[46]=E->RoomShadowFadeNear<.1f ? .001f : 0.f;
+            if(E->RoomShadowFadeNear<.1f) Params[43]=.7f;
             struct Vertex{float X,Y,Z,W,U,V;};float X=(float)V.X,Y=(float)V.Y,W=(float)V.Width,H=(float)V.Height;
             Vertex Q[]={{X-.5f,Y-.5f,0,1,X*Params[32],Y*Params[33]},
                 {X+W-.5f,Y-.5f,0,1,(X+W)*Params[32],Y*Params[33]},
                 {X-.5f,Y+H-.5f,0,1,X*Params[32],(Y+H)*Params[33]},
                 {X+W-.5f,Y+H-.5f,0,1,(X+W)*Params[32],(Y+H)*Params[33]}};
             Rp9SetVertexShader(Device_,nullptr);Rp9SetFvf(Device_,D3DFVF_XYZRHW|D3DFVF_TEX1);
-            Rp9SetPixelShader(Device_,E->RoomShadowApplyPs);Rp9SetPixelConstants(Device_,0,Params,11);
+            Rp9SetPixelShader(Device_,E->RoomShadowApplyPs);Rp9SetPixelConstants(Device_,0,Params,12);
             Device_->SetTextureStageState(0,D3DTSS_TEXCOORDINDEX,0);Device_->SetTextureStageState(0,D3DTSS_TEXTURETRANSFORMFLAGS,0);
             Rp9SetRenderState(Device_,D3DRS_ZENABLE,FALSE);Rp9SetRenderState(Device_,D3DRS_ZWRITEENABLE,FALSE);
             Rp9SetRenderState(Device_,D3DRS_ALPHATESTENABLE,FALSE);Rp9SetRenderState(Device_,D3DRS_FOGENABLE,FALSE);

@@ -41,7 +41,7 @@ def clip(poly,axis,bound,greater):
     return np.array(out)
 
 
-def atlas_chart(values,family,cell,seed=0,rotate=False,exact=False):
+def atlas_chart(values,family,cell,seed=0,rotate=False,exact=False,min_area=1e-9):
     """Clip source triangles in chart space; interpolate XYZ, never move surface."""
     coords=np.concatenate([co for _,co in values]);origin=coords.min(0)
     if rotate:
@@ -79,7 +79,7 @@ def atlas_chart(values,family,cell,seed=0,rotate=False,exact=False):
                 for k in range(1,len(poly)-1):
                     t=poly[[0,k,k+1],:8].copy()
                     ar=np.linalg.norm(np.cross(t[1,:3]-t[0,:3],t[2,:3]-t[0,:3]))/2
-                    if ar<1e-9:continue
+                    if ar<min_area:continue
                     t[:,3:6]/=np.linalg.norm(t[:,3:6],axis=1)[:,None]
                     result[mid].append(t);area+=ar
                     used[(i,j)]=dict(material=int(mid),scale=float(scale),physical_size=step.tolist(),box=box.tolist())

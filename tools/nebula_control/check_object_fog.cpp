@@ -25,6 +25,9 @@ int main(int argc,char**argv){
  auto*a=Direct3DCreate9(D3D_SDK_VERSION);R(a!=nullptr,"D3D9 available");IDirect3DDevice9*d=nullptr;
  D3DPRESENT_PARAMETERS pp={};pp.Windowed=1;pp.SwapEffect=D3DSWAPEFFECT_DISCARD;
  pp.BackBufferWidth=900;pp.BackBufferHeight=600;pp.BackBufferFormat=D3DFMT_A8R8G8B8;
+#ifdef ASTEROID_SPAWN_CHECK
+ pp.EnableAutoDepthStencil=TRUE;pp.AutoDepthStencilFormat=D3DFMT_D24S8;
+#endif
  C(a->CreateDevice(0,D3DDEVTYPE_HAL,w,D3DCREATE_HARDWARE_VERTEXPROCESSING,&pp,&d));
  auto*p=new FDirectX9();p->Outer_=&p->Inner_;p->Device_=d;p->DeviceReady_=1;auto*e=p->Ex_;
  e->bSurfaceConfigRead=true;e->bSurfaceEnabled=true;
@@ -64,8 +67,31 @@ int main(int argc,char**argv){
   const DWORD before=render(256,false),after=render(768,true);
   printf("Transmission %.1f native=%08lx trial=%08lx delta=%d\n",keep,before,after,delta(before,after));
   R((before>>24)==(after>>24),"authored alpha unchanged");
-  if(keep==.5f)R(delta(before,after)>=5,"partial fog shows form shading");else R(delta(before,after)<=2,"clear and opaque fog endpoints unchanged");
+#ifdef SURFACE_SCATTER_CHECK
+  if(keep==1)R(delta(before,after)<=2,"clear air unchanged");
+  else if(keep==0)R(delta(before,after)>=5,"surface scattering continues past native fog end");
+#else
+  if(keep==.5f)R(delta(before,after)>=5,"partial fog shows form shading");
+  else R(delta(before,after)<=2,"clear and opaque fog endpoints unchanged");
+#endif
  }
+#ifdef SURFACE_SCATTER_CHECK
+ // Subtract two albedos to cancel in-scatter and measure transmission through
+ // the real RP9 material route. Avoid accidental equality at one face/colour.
+ auto setAlbedo=[&](DWORD colour){C(base.Texture->LockRect(0,&lock,0,0));
+  for(int y=0;y<4;++y)for(int x=0;x<4;++x)((DWORD*)((char*)lock.pBits+y*lock.Pitch))[x]=colour;
+  base.Texture->UnlockRect(0);};
+ auto contrast=[&](){setAlbedo(0xbfffffff);DWORD white=render(768,true);setAlbedo(0xbf000000);DWORD black=render(768,true);
+  return float(int((white>>16)&255)-int((black>>16)&255));};
+ rs(D3DRS_FOGSTART,bits(10));rs(D3DRS_FOGEND,bits(11));float reference=contrast();R(reference>50,"albedo test contrast");
+ float previous=1;
+ for(float path:{.2f,.6f,1.f,2.f,4.f}){rs(D3DRS_FOGSTART,bits(0));rs(D3DRS_FOGEND,bits(.5f/path));
+  float measured=contrast()/reference,expected=exp2f(-2*path*path/(path+.35f));
+  R(fabsf(measured-expected)<.025f && measured<previous,"RP9 route follows smooth optical transmission");previous=measured;
+  printf("PASS RP9 surface path %.1f transmission %.4f expected %.4f\n",path,measured,expected);
+ }
+ setAlbedo(0xbfa0c080);
+#endif
  rs(D3DRS_FOGSTART,bits(0));rs(D3DRS_FOGEND,bits(1));
  DWORD lit=0,dark=0;
  for(int side=0;side<2;++side){for(auto&v:q){v.nx=side?-.8f:.8f;v.nz=side?.6f:-.6f;}
@@ -116,5 +142,11 @@ int main(int argc,char**argv){
   RECT rect={col*300+12,row*300+6,(col+1)*300,row*300+30};font->DrawTextA(nullptr,title,-1,&rect,DT_LEFT|DT_NOCLIP,0xffffffff);}
  C(d->EndScene());C(D3DXSaveSurfaceToFileA(argv[1],D3DXIFF_PNG,target,nullptr,nullptr));
  puts("PASS: object fog route, readback, endpoints, alpha, scope, far tier, light transform and fallbacks");
+#ifdef ASTEROID_SPAWN_CHECK
+ #include "asteroid_spawn_cases.inl"
+#endif
+#ifdef ASTEROID_FOG_COVERAGE_CHECK
+ #include "asteroid_fog_coverage_cases.inl"
+#endif
  return 0;
 }

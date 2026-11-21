@@ -29,7 +29,6 @@ class Window {
         RestoreDC(Dc,Saved);
         RECT Visible;
         if(MovieLayout && IntersectRect(&Visible,&Invalid,&MovieRect) && !Movie.Paint(Dc,MovieRect)) {
-            // A drawing failure is also nonfatal: collapse to the normal progress UI.
             Movie.Close();PostMessageW(Handle,WM_APP+1,0,0);
         }
         HBRUSH Track=CreateSolidBrush(RGB(230,234,238));
@@ -130,5 +129,13 @@ public:
     }
     HWND Get() const {return Handle;}
     bool HasAnimation() const {return Movie.Available();}
+    bool Hold(unsigned Milliseconds) {
+        if(!Handle) return false;
+        while(!Cancelled && GetTickCount64()-Started<Milliseconds) {
+            if(!Update(Done,Total)) return false;
+            Sleep(10);
+        }
+        return !Cancelled;
+    }
 };
 }

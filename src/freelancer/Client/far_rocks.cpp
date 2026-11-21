@@ -3,6 +3,9 @@
 // and docs/re/asteroid_far_look.md.
 
 #include "far_rocks.h"
+#include "procedural_asteroid_client.h"
+#include "asteroid_lod_data.h"
+#include "asteroid_lod_policy.h"
 #include "runtime_hitch_log.h"
 
 #ifdef FREELANCER_RP9
@@ -36,6 +39,8 @@
 #include <cstdint>
 #include <cstring>
 #include <map>
+#include <set>
+#include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -117,6 +122,14 @@ namespace
     struct FMeshVertex { float Pos[3], Normal[3], Uv[2]; };
     struct FMeshInstance { float CentreRadius[4], Rotation[4]; uint32_t Colour; };
     static_assert(sizeof(FMeshVertex) == 32 && sizeof(FMeshInstance) == 36, "mesh instance stream layout");
+    struct FMeshLod
+    {
+        std::vector<FMeshVertex> Vertices;
+        std::vector<FMeshInstance> Instances, Scratch;
+        FRPExBuffer* Geometry=nullptr; // level zero uses the source batch geometry
+        FRPExBuffer* Placement=nullptr;
+        size_t Capacity=0;
+    };
     struct FMeshBatch
     {
         float SourceRadius = 0.0f;
@@ -125,6 +138,10 @@ namespace
         std::vector<int> RockIndices; // maps the shared size-class prefix into this model's instances
         FRPExBuffer* Geometry = nullptr;
         FRPExBuffer* Placement = nullptr;
+        size_t PlacementCapacity=0;
+        FMeshLod Lods[3];
+        std::vector<unsigned char> LastLod;
+        unsigned LodCellRevision=0;
     };
 
     struct FClassRange
@@ -140,6 +157,13 @@ namespace
         bool bFailed = false;
         bool bLocalCellValid = false;
         int LocalCell[3] = {};
+        unsigned LocalRevision=0;
+        unsigned LocalMeshRevision=0, LocalCellRevision=0;
+        unsigned LodRevision=~0u;
+        double LodCamera[3]={}, LodPixels=0;
+        unsigned ZoneId=0;
+        struct LocalSlot {int model;size_t index;float position[3];};
+        std::unordered_map<ProceduralAsteroids::Key,LocalSlot> LocalSlots;
         // Resolved at build.
         double Anchor[3] = {0.0, 0.0, 0.0};
         float MaxRadius = 0.0f;
@@ -179,6 +203,8 @@ namespace
     bool G_bProgramTried = false;
     FRPExProgram* G_DebrisProgram = nullptr;
     bool G_bDebrisProgramTried = false;
+    FRPExProgram* G_SimpleProgram=nullptr;
+    bool G_bSimpleProgramTried=false;
 
     // The vertex format of a rock corner (see FRockVertex).
     unsigned long const kRockFvf = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
@@ -194,6 +220,13 @@ namespace
             if (Ex && M.Geometry) Ex->DestroyExVertexBuffer(M.Geometry);
             if (Ex && M.Placement) Ex->DestroyExVertexBuffer(M.Placement);
             M.Geometry = M.Placement = nullptr;
+            M.PlacementCapacity=0;
+            for(auto& L:M.Lods){
+                if(Ex&&L.Geometry)Ex->DestroyExVertexBuffer(L.Geometry);
+                if(Ex&&L.Placement)Ex->DestroyExVertexBuffer(L.Placement);
+                L.Geometry=L.Placement=nullptr;L.Capacity=0;L.Instances.clear();
+            }
+            M.LastLod.clear();
         }
     }
 
@@ -227,6 +260,12 @@ namespace
                     (!M.Instances.empty() && Ex->CreateExVertexBuffer((unsigned long)(M.Instances.size() * sizeof(FMeshInstance)),
                     M.Instances.data(), &M.Placement) != GR_OK))
                 { F.bFailed = true; ReleaseVb(F); return; }
+                for(int level=1;level<3;++level){
+                    auto& L=M.Lods[level];if(L.Vertices.empty())continue;
+                    // Unavailable optional LODs fall back to the original mesh.
+                    if(Ex->CreateExVertexBuffer(unsigned(L.Vertices.size()*sizeof(FMeshVertex)),L.Vertices.data(),&L.Geometry)!=GR_OK)
+                        L.Geometry=nullptr;
+                }
             }
             return;
         }
@@ -467,7 +506,7 @@ namespace
         if(bCreateAuto && LocalTrial && Field->Zone && Field->Zone->GetId()==TrialZone) {
             auto& Slot=G_Fields[Field];Slot.reset(new FFarField());
             auto& P=Slot->P;P.bDebris=true;P.bNebulaLocal=true;P.bReplaceBand=false;
-            P.StartDist=NebulaAsteroidMesh::Near;P.StartFade=NebulaAsteroidMesh::NearFade;
+            P.StartDist=0;P.StartFade=1;
             P.FarDist=NebulaAsteroidMesh::Far;P.FarFade=NebulaAsteroidMesh::FarFade;
             P.MinPixels=2.0f;return Slot.get();
         }
@@ -624,7 +663,7 @@ namespace
         // over the last Float2C of it, so the rocks start at that sum minus the fade, and come in over
         // start_fade (20% of it) beyond: the two cross-fade, no gap.
         float Start = P.StartDist;
-        if (!(Start > 0.0f))
+        if (!(Start > 0.0f) && !P.bNebulaLocal)
         {
             if (Info.bHasBillboards && Info.BillboardCentre > 0.0f && Info.BillboardRadius > 0.0f)
                 Start = (std::max)(Info.BillboardCentre,
@@ -693,17 +732,29 @@ namespace
                         Lo[K] = (std::min)(Lo[K], Out.Pos[K]); Hi[K] = (std::max)(Hi[K], Out.Pos[K]);
                     }
                 }
+                auto* Simplified=P.bNebulaLocal?AsteroidLodData::Find(M.Vertices.data(),unsigned(M.Vertices.size()*sizeof(FMeshVertex))):nullptr;
                 double Radius2 = 0.0;
                 for (FMeshVertex& V : M.Vertices)
                 {
                     double R2 = 0.0;
-                    for (int K = 0; K < 3; ++K) { V.Pos[K] -= (Lo[K] + Hi[K]) * 0.5f; R2 += V.Pos[K] * V.Pos[K]; }
+                    for (int K = 0; K < 3; ++K) {
+                        // Physical bodies use the authored origin. Recentering a
+                        // procedural mesh would offset its visible collision hull.
+                        if(!P.bNebulaLocal)V.Pos[K] -= (Lo[K] + Hi[K]) * 0.5f;
+                        R2 += V.Pos[K] * V.Pos[K];
+                    }
                     Radius2 = (std::max)(Radius2, R2);
                 }
                 if (!(Radius2 > 1.e-8)) return false;
                 float const InvRadius = static_cast<float>(1.0 / std::sqrt(Radius2));
                 M.SourceRadius = static_cast<float>(std::sqrt(Radius2));
                 for (FMeshVertex& V : M.Vertices) for (float& X : V.Pos) X *= InvRadius;
+                if(Simplified)for(int level=1;level<3;++level){
+                    auto const& S=Simplified->levels[level-1];auto& Vertices=M.Lods[level].Vertices;
+                    static_assert(sizeof(AsteroidLodData::Vertex)==sizeof(FMeshVertex),"LOD vertex layout");
+                    Vertices.resize(S.count);std::memcpy(Vertices.data(),S.vertices,S.count*sizeof(FMeshVertex));
+                    for(auto& V:Vertices)for(float& X:V.Pos)X*=InvRadius;
+                }
                 if (!TextureRefLoad(&F.Tex[F.TexCount], Info.DynMeshTexture[I])) return false;
                 for (int C = 0; C < 3; ++C)
                     F.TexTint[F.TexCount][C] = P.bColor ? P.ColorA[C] : Info.DynMeshTint[I][C];
@@ -970,43 +1021,8 @@ namespace
         return true;
     }
 
-    bool UpdateLocalMeshes(FCliAsteroid const* Field,FFarField& F,double const* Camera)
-    {
-        int Cell[3];for(int K=0;K<3;++K) Cell[K]=NebulaAsteroidMesh::Cell(Camera[K]);
-        if(F.bLocalCellValid && !memcmp(Cell,F.LocalCell,sizeof(Cell))) return !F.bFailed;
-        RuntimeHitchScope Hitch("render_prepare","nebula asteroid cells");
-        FCliAsteroidFarInfo Info;
-        if(!CliAsteroidGetFarInfo(Field,&Info)) return false;
-        for(int I=0;I<F.TexCount;++I){F.Meshes[I].Instances.clear();F.Meshes[I].RockIndices.clear();}
-        F.RockCount=0;float Radii[3];ZoneRadii(Info.Zone,Radii);
-        const float Edge=(std::min)(Radii[0],(std::min)(Radii[1],Radii[2]));
-        NebulaAsteroidMesh::Generate(Cell,F.TexCount,[&](NebulaAsteroidMesh::Rock const& R){
-            Vector World{R.position[0],R.position[1],R.position[2]};
-            if(Info.Zone->GetImmersion(World)<=0) return;
-            FMeshBatch& M=F.Meshes[R.model];float Radius=M.SourceRadius*R.scale;
-            for(int E=0;E<Info.ExclusionCount;++E) if(Info.Exclusion[E]->InZone(World,Radius)) return;
-            double Q2=0;
-            for(int K=0;K<3;++K){double Axis[3];ZoneAxis(Info.Zone,K,Axis);double Q=0;
-                for(int A=0;A<3;++A) Q+=(R.position[A]-F.Anchor[A])*Axis[A];
-                Q/=Radii[K];Q2+=Q*Q;}
-            float Fade=float(Clamp01(((1-std::sqrt(Q2))*Edge-Radius)/250.0));
-            if(Fade<=0) return;
-            FMeshInstance Instance={};
-            for(int K=0;K<3;++K) Instance.CentreRadius[K]=float(R.position[K]-F.Anchor[K]);
-            Instance.CentreRadius[3]=Radius;memcpy(Instance.Rotation,R.rotation,sizeof(R.rotation));
-            Instance.Colour=R.colour|(unsigned(Fade*255)<<8);
-            M.Instances.push_back(Instance);M.RockIndices.push_back(F.RockCount++);
-        });
-        auto* Ex=RenderEx::GetPipelineEx();if(!Ex) return false;
-        for(int I=0;I<F.TexCount;++I){auto& M=F.Meshes[I];
-            if(M.Placement){Ex->DestroyExVertexBuffer(M.Placement);M.Placement=nullptr;}
-            if(!M.Instances.empty() && Ex->CreateExVertexBuffer(unsigned(M.Instances.size()*sizeof(FMeshInstance)),M.Instances.data(),&M.Placement)!=GR_OK){
-                F.bFailed=true;return false;}
-        }
-        F.Classes.clear();F.Classes.push_back({F.RockCount,F.MaxRockRadius});
-        memcpy(F.LocalCell,Cell,sizeof(Cell));F.bLocalCellValid=true;
-        return true;
-    }
+    #include "procedural_asteroid_mesh.inl"
+#include "asteroid_lod_batches.inl"
 
     // One field found by the visit, with its distance.
     struct FCandidate
@@ -1020,6 +1036,7 @@ namespace
     {
         double Cam[3];
         int Enclosure;
+        FarRocksPass Pass;
         std::vector<FCandidate>* Out;
     };
 
@@ -1030,6 +1047,9 @@ namespace
             return;
         FFarField* const Far = EntryFor(Field, true);
         if (Far == nullptr || Far->bFailed || BlockedByFog(Field, Visit->Enclosure))
+            return;
+        const bool LocalPass = Far->P.bNebulaLocal && Visit->Enclosure != 0;
+        if (LocalPass != (Visit->Pass == FarRocksPass::LocalObjects))
             return;
         Vector const& Pos = Field->Zone->GetPos();
         double const Dx = Visit->Cam[0] - Pos.x, Dy = Visit->Cam[1] - Pos.y, Dz = Visit->Cam[2] - Pos.z;
@@ -1078,6 +1098,21 @@ namespace
             Program = nullptr;
         }
         return Program != nullptr;
+    }
+
+    bool UseSimple(FFarField const& F)
+    {
+        // Cheap distant proxies remain cheap when nearby physics is enabled.
+        // Native bodies draw separately with the full rock material.
+        if(!F.P.bNebulaLocal)return false;
+        if(!G_SimpleProgram&&!G_bSimpleProgramTried){
+            auto* Ex=RenderEx::GetPipelineEx();if(!Ex)return false;
+            G_bSimpleProgramTried=true;
+            if(Ex->CreateExProgram(RenderEx::GetExtraData(),"SHADERS\\asteroid_simple.hlsl","VSLite","PSLite",&G_SimpleProgram)!=GR_OK){
+                if(G_SimpleProgram)Ex->DestroyExProgram(G_SimpleProgram);G_SimpleProgram=nullptr;
+            }
+        }
+        return G_SimpleProgram!=nullptr;
     }
 
     // Pending fields keep their band until their vertices and shader are ready.
@@ -1188,6 +1223,7 @@ void FarRocksForget(FCliAsteroid const* Field)
     auto const Found = G_Fields.find(Field);
     if (Found == G_Fields.end())
         return;
+    ProceduralAsteroidClientRenderer(Found->second->ZoneId,false);
     ReleaseVb(*Found->second);
     ReleaseTextures(*Found->second);
     G_Fields.erase(Found);
@@ -1221,8 +1257,11 @@ void FarRocksShutdown()
         Ex->DestroyExProgram(G_DebrisProgram);
     G_DebrisProgram = nullptr;
     G_bDebrisProgramTried = false;
+    if(Ex&&G_SimpleProgram)Ex->DestroyExProgram(G_SimpleProgram);
+    G_SimpleProgram=nullptr;G_bSimpleProgramTried=false;
     for (auto& Entry : G_Fields)
     {
+        ProceduralAsteroidClientRenderer(Entry.second->ZoneId,false);
         ReleaseVb(*Entry.second);
         ReleaseTextures(*Entry.second);
     }
@@ -1239,13 +1278,16 @@ void FarRocksPrepareSystem()
         FBuildVisit Visit = {};
         BuildPending(Field, &Visit);
         auto* Far = EntryFor(Field, false);
-        if (Far && Far->bBuilt && !Far->bFailed) EnsureProgram(Far->P.bDebris);
+        if (Far && Far->bBuilt && !Far->bFailed) {EnsureProgram(Far->P.bDebris);UseSimple(*Far);}
     }, nullptr);
 }
 
-void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
+bool FarRocksProceduralAvailable(){return GatesPass();}
+
+void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure, FarRocksPass DrawPass)
 {
     RuntimeHitchScope Hitch("render_phase", "FarRocks");
+    if(DrawPass==FarRocksPass::Background)ProceduralAsteroidClientTick(StarSysGetActiveSystemId());
     if (Cam == nullptr || DALib::Pipeline == nullptr || !GatesPass())
         return;
     // Fields only take part when one has [FarRocks] or the auto switch can give one a default.
@@ -1254,9 +1296,15 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
         return;
     static int const S_MaxTotal = PortConfigInt("Render", "far_rocks_max_total", 24000);
     static unsigned S_Frame = 0;
-    ++S_Frame;
+    static int S_RemainingRocks = 0;
+    if (DrawPass == FarRocksPass::Background)
+    {
+        ++S_Frame;
+        S_RemainingRocks = (std::max)(0, S_MaxTotal);
+    }
 
     // Every field is built as soon as it is known, within a time budget a frame.
+    if (DrawPass == FarRocksPass::Background)
     {
         static double S_BuildTotalMs = 0.0;
         static int S_BuiltTotal = 0;
@@ -1302,7 +1350,7 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
     // The fields in reach, the nearest first.
     static std::vector<FCandidate> S_Fields;
     S_Fields.clear();
-    FVisit Visit = {{CamPos[0], CamPos[1], CamPos[2]}, Enclosure, &S_Fields};
+    FVisit Visit = {{CamPos[0], CamPos[1], CamPos[2]}, Enclosure, DrawPass, &S_Fields};
     CliAsteroidForEach(&Collect, &Visit);
     if (S_Fields.empty())
         return;
@@ -1320,8 +1368,13 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
     {
         FFarField& F = *Candidate.Far;
         if (!F.bBuilt || !EnsureProgram(F.P.bDebris))
+        {
+            if(F.P.bNebulaLocal)ProceduralAsteroidClientRenderer(F.ZoneId,false);
             continue;
-        if(F.P.bNebulaLocal && !UpdateLocalMeshes(Candidate.Field,F,CamPos)) continue;
+        }
+        if(F.P.bNebulaLocal && (!UpdateLocalMeshes(Candidate.Field,F,CamPos)||!PrepareLocalLods(F,CamPos,PxPerUnit))){
+            ProceduralAsteroidClientRenderer(F.ZoneId,false);continue;
+        }
         // Reject a whole field before it spends the shared budget. The shader still clips
         // individual quads. Include their corners in the conservative sphere.
         double Centre[3];
@@ -1358,15 +1411,18 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
     if (Draws.empty())
         return;
     // Share an overloaded budget proportionally instead of dropping all later fields.
-    int Remaining = (std::max)(0, S_MaxTotal);
+    int Remaining = S_RemainingRocks;
     for (FDraw& Item : Draws)
     {
         int const Want = Item.Rocks;
-        Item.Rocks = Requested > Remaining ? static_cast<int>(static_cast<long long>(Want) * Remaining / Requested)
+        // Procedural proxies are the authoritative field visual, including its
+        // collidable bodies. Never drop a prefix of those to share decoration budget.
+        Item.Rocks = !Item.Far->P.bNebulaLocal && Requested > Remaining ? static_cast<int>(static_cast<long long>(Want) * Remaining / Requested)
                                           : Want;
         Requested -= Want;
-        Remaining -= Item.Rocks;
+        Remaining = (std::max)(0,Remaining-Item.Rocks);
     }
+    S_RemainingRocks = Remaining;
 
     // Camera-independent vertex constants.
     float V[9 * 4];
@@ -1396,7 +1452,10 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
     // Solid silhouettes write depth; small or fading fragments only alpha blend.
     FRPExPassDesc Pass = {nullptr, RPExPassKeepDepth, 0};
     if (Ex->BeginExPass(&Pass) != GR_OK)
+    {
+        for(auto const& Item:Draws)if(Item.Far->P.bNebulaLocal)ProceduralAsteroidClientRenderer(Item.Far->ZoneId,false);
         return;
+    }
     {
         Pipe->SetRenderState(D3DRS_ZENABLE, 1);
         // Depth written: a nearer rock hides a farther one (blended without it they showed
@@ -1413,8 +1472,12 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
         {
             FFarField& F = *Item.Far;
             FFarParams const& P = F.P;
-            if (Item.Rocks == 0 || Ex->BindExProgram(P.bDebris ? G_DebrisProgram : G_Program) != GR_OK)
+            bool const Simple=UseSimple(F);
+            if (Item.Rocks == 0 || Ex->BindExProgram(Simple?G_SimpleProgram:P.bDebris ? G_DebrisProgram : G_Program) != GR_OK)
+            {
+                if(P.bNebulaLocal)ProceduralAsteroidClientRenderer(F.ZoneId,false);
                 continue;
+            }
             ERPExAddress const Address = RPExAddressWrap;
             FRPExSamplerState const Sampler = {RPExFilterLinear, RPExMipLinear, Address, Address, Address};
             UpdateLighting(F, S_Frame, false);
@@ -1460,14 +1523,14 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
                 // decorative cells never occupy the field's exclusion zones.
                 Vector Eye{CamPosF[0],CamPosF[1],CamPosF[2]};float Immersion=0;
                 auto* Nebula=StarSysFindNebula(&Eye,&Immersion,nullptr);
-                if(!Nebula){Vector Centre{float(F.Anchor[0]),float(F.Anchor[1]),float(F.Anchor[2])};
-                    Nebula=StarSysFindNebula(&Centre,&Immersion,nullptr);}
-                if(Nebula && GetGameOption(kGameOptNebula)!=0) {
+                if(Nebula && Immersion>0 && GetGameOption(kGameOptNebula)!=0) {
                     if(auto* Ambient=Nebula->GetAmbientBytes()) for(int I=0;I<3;++I) Ps[20+I]=Ambient[I]/255.0f;
-                    if(!NebulaVolume::UsesVolumeForObjectSurfaces(Nebula)) {
+                    bool Shape=NebulaFogShapeScope()!=0;
+                    if(Shape || !NebulaVolume::UsesVolumeForObjectSurfaces(Nebula)) {
                         float Colour[3];Nebula->CopyFogRgb(Colour);
-                        bool Shape=NebulaFogShapeScope()!=0;
-                        Set4(&Ps[36],Nebula->GetFloat2AC(),Nebula->FogNear+Nebula->FogDistance,1,
+                        // FogFactor expands the range inside authored clear zones.
+                        // Mode 2 is surface scattering, without the legacy hard cut.
+                        Set4(&Ps[36],Nebula->GetFloat2AC(),Nebula->FogFactor(CamPosF),Shape?2.f:1.f,
                             Shape?PortConfigFloat("Render","nebula_object_fog_shape_strength",.55f):0);
                         Set4(&Ps[40],Colour[0],Colour[1],Colour[2],Shape?PortConfigFloat("Render","nebula_object_fog_shape_rim",.12f):0);
                         Set4(&Ps[44],ViewSun[0],ViewSun[1],ViewSun[2],0);
@@ -1476,6 +1539,10 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
             }
             Ex->SetExPixelConstants(0, Ps, 12);
             Ex->SetExVertexConstants(9,&Ps[36],1);
+            float SpinAngle=ProceduralAsteroidClientClock()*ProceduralAsteroids::SpinRate*.5f;
+            float Spin[4]={std::sin(SpinAngle),std::cos(SpinAngle),P.bNebulaLocal?1.f:0.f,0};
+            Ex->SetExVertexConstants(10,Spin,1);
+            if(Simple)Ex->SetExVertexConstants(11,&Ps[20],3);
             // Two passes over the same rocks (the vertex shader keeps one kind per pass): the solid
             // ones with depth written, then the soft dots without it.
             // Local rocks dissolve with stable coverage in one depth-writing pass.
@@ -1497,9 +1564,22 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
                         if (!Count) continue;
                         Ex->SetExPixelConstants(0, &Ps[I * 4], 1);
                         Ex->BindExPipelineTexture(0, TexShapeGetGpuHandle(&F.Tex[I], 0), &Sampler);
+                        if(P.bNebulaLocal){
+                            for(int level=0;level<3;++level){
+                                auto const& L=M.Lods[level];if(L.Instances.empty())continue;
+                                if(DrawEx->DrawExMeshInstances(level?L.Geometry:M.Geometry,L.Placement,
+                                    unsigned(level?L.Vertices.size():M.Vertices.size()),0,unsigned(L.Instances.size()))!=GR_OK){
+                                    F.bFailed=true;ProceduralAsteroidClientRenderer(F.ZoneId,false);
+                                }
+                            }
+                            continue;
+                        }
                         if (DrawEx->DrawExMeshInstances(M.Geometry, M.Placement,
                             static_cast<unsigned long>(M.Vertices.size()), 0, Count) != GR_OK)
+                        {
                             F.bFailed = true; // restore the original layers next frame if the GPU refuses
+                            if(P.bNebulaLocal)ProceduralAsteroidClientRenderer(F.ZoneId,false);
+                        }
                     }
                     continue;
                 }
@@ -1533,11 +1613,12 @@ void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure)
 
 #else
 
+bool FarRocksProceduralAvailable(){return false;}
 void FarRocksParseSection(FCliAsteroid*, INI_Reader&) {}
 void FarRocksForget(FCliAsteroid const*) {}
 bool FarRocksReplacesBand(FCliAsteroid const*) { return false; }
 bool FarRocksReplacesBillboards(FCliAsteroid const*) { return false; }
-void FarRocksDrawAll(ICamera*, float, int) {}
+void FarRocksDrawAll(ICamera*, float, int, FarRocksPass) {}
 void FarRocksPrepareSystem() {}
 void FarRocksShutdown() {}
 

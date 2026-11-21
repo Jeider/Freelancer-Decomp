@@ -246,6 +246,14 @@ bool HUD_Health::Init()
     if (!repairDroidButton) return false;
     NormalizeIcon(repairDroidButton, 15, 0.014f);
     repairDroidButton->SetProperty(0x36, 0, 0);
+    float const closeHalf[] = {0.014f, 0.014f, 0.0f};
+    float const closePos[] = {center.X - PanelHalfWidth - 0.008f, center.Y + 0.082f, 0.0f};
+    closeButton = CreateButtonControl("HealthClose", "interface\\NeuroNet\\Inventory\\x.3db",
+        nullptr, "ui_select_item", nullptr, closePos, nullptr, closeHalf, 0, 1, 0, 0,
+        HudIds::HealthClose, 0, 0);
+    if (!closeButton) return false;
+    NormalizeIcon(closeButton, 1, 0.012f);
+    closeButton->HalfExtents[0] = closeButton->HalfExtents[1] = 0.012f;
     float const reservePos[] = {droidPos[0] - 0.017f, droidPos[1] - 0.018f, 0};
     repairDroidReserveText = CreateTextControl("HealthRepairDroidReserve", "SubHeader", reservePos, nullptr,
         0.034f, 0.018f, 1, 0, 1, 0, 1);
@@ -483,6 +491,7 @@ void HUD_Health::OnMoveFinished()
 void HUD_Health::UpdateVisibility()
 {
     bExpanded = CanShow() && open && !IsAnimating();
+    closeButton->SetProperty(1, bExpanded ? 0 : 1, 0);
     slideIcon->SetProperty(1, CanShow() && ButtonMover::IsActive() ? 0 : 1, 0);
     slideIcon->Flags &= ~(kWin3DPickable | kWin3DActive);
     bool const wing = WingAnimAvailable();
@@ -620,6 +629,7 @@ void HUD_Health::Draw()
     if (cloakTimerText->Flags & kWin3DVisible) cloakTimerText->Draw();
     if (repairDroidButton->Flags & kWin3DVisible) repairDroidButton->Draw();
     if (repairDroidReserveText->Flags & kWin3DVisible) repairDroidReserveText->Draw();
+    if (closeButton->Flags & kWin3DVisible) closeButton->Draw();
 }
 
 bool HUD_Health::HitTest(float const* ray)
@@ -643,6 +653,12 @@ bool HUD_Health::MouseEvent(FWin3DMouseEvent const* event)
 
 intptr_t HUD_Health::SetProperty(int msg, uintptr_t a, uintptr_t b)
 {
+    if (msg == 0x26 && closeButton && a == reinterpret_cast<uintptr_t>(closeButton) &&
+        CanShow() && open && !IsAnimating())
+    {
+        SetWindowOpen(false);
+        return 1;
+    }
     if (msg == 0x26 && CanShow() && open && !IsAnimating())
     {
         if (a == reinterpret_cast<uintptr_t>(repairDroidButton))

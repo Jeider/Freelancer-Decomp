@@ -8,7 +8,7 @@
 namespace NebulaAsteroidMesh
 {
     constexpr double CellSize=1000.0;
-    constexpr float Near=900.0f, NearFade=800.0f, Far=4200.0f, FarFade=900.0f;
+    constexpr float Near=900.0f, NearFade=800.0f, Far=6000.0f, FarFade=1500.0f;
     constexpr int PerCell=6;
     inline uint64_t Hash(uint64_t x) {
         x+=0x9e3779b97f4a7c15ull;x=(x^(x>>30))*0xbf58476d1ce4e5b9ull;
@@ -17,6 +17,16 @@ namespace NebulaAsteroidMesh
     inline double Unit(uint64_t& h) {h=Hash(h);return double(h>>40)/16777216.0;}
     inline int Cell(double x) {return int(std::floor(x/CellSize));}
     struct Rock {float position[3],scale,rotation[4];int model;unsigned colour;};
+    // Use all authored dynamic/billboard exclusions, independent of observer
+    // proximity caches and the legacy far-field snapshot's 16-zone limit.
+    template<class Iterator, class Point> bool IsExcluded(Iterator begin, Iterator end, Point const& point, float radius) {
+        for(auto it=begin;it!=end;++it) {
+            auto const* zone=*it;
+            if(zone && zone->ZonePtr && (zone->bExcludeDynamicAsteroids || zone->bExcludeBillboards) &&
+               zone->ZonePtr->InZone(point,radius)) return true;
+        }
+        return false;
+    }
     template<class Emit> void Generate(int const* cell,int models,Emit emit) {
         if(models<=0)return;
         const double centre[3]={(cell[0]+.5)*CellSize,(cell[1]+.5)*CellSize,(cell[2]+.5)*CellSize};

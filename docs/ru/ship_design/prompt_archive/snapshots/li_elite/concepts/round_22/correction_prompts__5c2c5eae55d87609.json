@@ -1,0 +1,28 @@
+{
+  "corrections": [
+    {
+      "id": "L66_E07_equipment_cleanup",
+      "variant_id": "L66_E07",
+      "kind": "remove_extra_wing_equipment_only",
+      "prompt": "Use case: precise-object-edit. Make ONE tiny cleanup to this finished full spacecraft design sheet, L66 / E07. Keep the ENTIRE image, all five views, the exact ship shapes, hull, tail, engines, cabin, three collar ribs, three fan-wing blades per side, colors and text unchanged. In the UPPER-LEFT FRONT 3/4 view only, there are two yellow equipment pads on the visible three-leaf wing fan. DELETE the extra small yellow equipment pad near the far LEFT tip of the TOPMOST visible wing leaf. Fill that small location with the same intact red wing surface and panel lines. KEEP the yellow equipment pad on the bottom/rightmost visible wing leaf near its pointed end. Keep the other four drawings exactly unchanged. This is just removal of that one duplicate yellow pad, not a redesign, not another view, not a change to wing shapes or count.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E07_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    },
+    {
+      "id": "L66_E09_equipment_cleanup",
+      "variant_id": "L66_E09",
+      "kind": "remove_motor_equipment_only",
+      "prompt": "Use case: precise-object-edit. Make ONE narrow cleanup throughout this completed L66 / E09 full spacecraft sheet. PRESERVE the entire spacecraft design, continuous sculpted hull belts, recessed side relief, engine housing shapes, two-section forward-pointing tail, cockpit, three collar ribs, ordinary three-leaf wings, their roots, all five views, composition, title and materials. REMOVE ONLY the yellow square equipment pads that have been placed on the OUTER SIDES/TOPS OF THE TWO LONG ENGINE HOUSINGS at the rear. These housings are the long red pods immediately in front of each exhaust nozzle. Replace each unwanted engine pad with intact matching red panel skin; keep the exact underlying housing shape. Apply this consistently in FRONT 3/4, REAR 3/4, SIDE FLIGHT, TOP and SIDE STOWED wherever an engine-housing pad is visible. KEEP ALL yellow equipment pads on the central raised TAIL, on the cabin/collar, and the single native equipment pad on each wing fan. Equipment should be carried by the tail, not the engine housings. Do not remove engine exhaust yellow rims. Do not redraw any ship geometry or change silhouettes. No other changes.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E09_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      }
+    }
+  ]
+}

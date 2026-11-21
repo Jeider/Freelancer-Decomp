@@ -1578,6 +1578,7 @@ void HudTarget::Update()
             LabelRefreshTimer = kOne;
         }
         ShownMode = Mode;
+        ContactListButton->SetProperty(1, 1, 0);
         Win3D::Update();
         ButtonMover::Update();
         ButtonScaler::Update();

@@ -33,9 +33,8 @@ struct SurfacePixel
     float3 Normal : TEXCOORD1;
     float2 Uv : TEXCOORD2;
     float4 Colour : COLOR0;
-#if defined(SURFACE_NOMAD) || defined(SURFACE_ROCK)
+    // Native-distance materials can retain the authored second texture too.
     float4 DetailUv : TEXCOORD3;
-#endif
 };
 SurfacePixel VSMain(SurfaceVertex In)
 {
@@ -53,9 +52,7 @@ SurfacePixel VSMain(SurfaceVertex In)
     Out.ViewPosition = P.xyz;
     Out.Uv = VertexModes.y > 1.5 ? In.Uv2 : (VertexModes.y > 0.5 ? In.Uv1 : In.Uv0);
     Out.Colour = VertexModes.x > 0.5 ? In.Colour : float4(1.0, 1.0, 1.0, 1.0);
-#ifdef SURFACE_NOMAD
     Out.DetailUv=float4(VertexModes.w>1.5?In.Uv1:In.Uv0,VertexModes.w>2.5?In.Uv2:In.Uv0);
-#endif
     return Out;
 }
 
@@ -335,9 +332,36 @@ float3 SurfaceFogColour(float3 N, float3 V, float Transmission)
     float Facing = saturate((dot(N, FogShapeLight.xyz) + 0.35) / 1.35);
     float Rim = 1.0 - saturate(dot(N, V));
     Rim = Rim * Rim * Rim * Facing;
-    // Preserve extinction and alpha; disappear in clear air and fully opaque fog.
-    float Shape = 4.0 * Transmission * (1.0 - Transmission);
+    // Preserve broad form after fine albedo contrast has faded. Both still
+    // vanish in clear air and at infinite optical depth. Authored alpha is kept.
+    float Form = sqrt(Transmission);
+    float Shape = 4.0 * Form * (1.0 - Form);
     return FogColour.rgb * (1.0 + Shape * (FogShape.x * (2.0 * Facing - 1.0) + FogShape.y * Rim));
+}
+
+float SurfaceFogPathTransmission(float3 Position)
+{
+    // FogShape is scoped to opaque Omega-15 objects on medium/high settings.
+    // No new raymarch, noise, texture sample or sky/cloud modification.
+    [branch] if(FogShape.x>0)
+    {
+        float Path=max(0,(length(Position)-Fog.x)/max(Fog.y-Fog.x,1.0e-4));
+        return exp2(-2*Path*Path/(Path+.35));
+    }
+    float Z = FogColour.w > 0.5 ? length(Position) : abs(Position.z);
+    return Fog.w > 2.5 ? saturate((Fog.y - Z) / max(Fog.y - Fog.x, 1.0e-4)) :
+        (Fog.w > 1.5 ? exp(-pow(Z * Fog.z, 2.0)) : exp(-Z * Fog.z));
+}
+
+float SurfaceFogTransmission(float3 Position)
+{
+    float Keep=SurfaceFogPathTransmission(Position);
+#ifdef SURFACE_PIXEL_COVERAGE
+    // Coverage carries the remaining extinction. Surviving samples retain
+    // material contrast instead of becoming an opaque fog-coloured silhouette.
+    Keep=max(Keep,ObjectCoverage.y);
+#endif
+    return Keep;
 }
 
 float GgxDistribution(float NoH, float A2)
@@ -568,8 +592,7 @@ float4 PSNomad(SurfacePixel In)
     float pulse=.75+.25*sin(IceStyle.w*.39269908+originalUv.x*9+originalUv.y*6);
     if(Skin) colour+=float3(.10,.32,.22)*reliefMap.a*IceStyle.z*pulse;
     colour+=authoredEmission+MaterialEmission.rgb;
-    if(Fog.w>.5){float z=FogColour.w>.5?length(In.ViewPosition):abs(In.ViewPosition.z);
-        float keep=Fog.w>2.5?saturate((Fog.y-z)/max(Fog.y-Fog.x,.0001)):(Fog.w>1.5?exp(-pow(z*Fog.z,2)):exp(-z*Fog.z));
+    if(Fog.w>.5){float keep=SurfaceFogTransmission(In.ViewPosition);
         colour=lerp(SurfaceFogColour(N,V,keep),colour,keep);}
     return float4(colour,albedo.a);
 }
@@ -610,6 +633,8 @@ float4 RockStyle : register(c102);  // detail strength, fade start, fade end, ti
 float4 RockStyle2 : register(c103); // macro strength, scrap (1) / rock (0), radius in metres, finish gain
 float4 RockStyle3 : register(c104); // deepest parallax shift in metres (0 = none)
 float4 RockLod : register(c105); // quality limits in metres: full, no macro relief, large lumps only, simplest (RockStyle.y: out)
+#endif
+#if defined(SURFACE_ROCK) || defined(SURFACE_LOW_DETAIL)
 // The material's own stage 1 (an asteroid's detail map: MODULATE2X over the base): the same
 // registers the nomad shader reads, c97 mode and c98..101 the texture transform, s1 the texture.
 sampler2D NomadDetail : register(s1);
@@ -624,7 +649,9 @@ float4 RockApplyDetail(SurfacePixel In,float4 Albedo,float2 Uv,float2 Ux,float2 
     else if(DetailModes.y>0.5) {DUv=In.DetailUv.xy;Gx=DDx.xy;Gy=DDy.xy;}
     if(DetailModes.z>0.5)
     {
-        DUv=mul(float4(DUv,0,1),DetailMatrix).xy;
+        // Native COUNT2 extends a two-component texture coordinate with (1,0).
+        // Translation therefore lives in the third matrix row, not the fourth.
+        DUv=mul(float4(DUv,1,0),DetailMatrix).xy;
         Gx=mul(float4(Gx,0,0),DetailMatrix).xy;
         Gy=mul(float4(Gy,0,0),DetailMatrix).xy;
     }
@@ -636,6 +663,8 @@ float4 RockApplyDetail(SurfacePixel In,float4 Albedo,float2 Uv,float2 Ux,float2 
     Albedo.a*=Detail.a;
     return Albedo;
 }
+#endif
+#ifdef SURFACE_ROCK
 static const float3 RockLuma=float3(0.299,0.587,0.114);
 // Height of the rock at a UV: 1 = the crest, 0 = the floor of a recess. Dark texture and the detail
 // map's low parts are deep; a negative macro strength (rock_pits) turns it inside out.
@@ -1092,6 +1121,12 @@ float4 PSMain(SurfacePixel In) : COLOR0
         DiffuseLighting=saturate(DiffuseLighting+MaterialEmission.rgb);
         if(BaseOps.x<2.5) DiffuseLighting=T.rgb;
         else if(BaseOps.x>=3.5) DiffuseLighting*=T.rgb*(BaseOps.x>4.5 ? 2.0 : 1.0);
+        // Match the native stage order: light + emission, base texture, then
+        // the authored detail texture. This cheap path needs no rock relief.
+        float4 Detailed=RockApplyDetail(In,float4(DiffuseLighting,Albedo.a),In.Uv,
+            ddx(In.Uv),ddy(In.Uv),ddx(In.DetailUv),ddy(In.DetailUv));
+        DiffuseLighting=Detailed.rgb;
+        Albedo.a=Detailed.a;
     }
 #endif
     float3 R = reflect(-V, N);
@@ -1229,9 +1264,7 @@ float4 PSMain(SurfacePixel In) : COLOR0
     float4 Result = float4(Colour, Alpha);
     if (Fog.w > 0.5)
     {
-        float Z = FogColour.w > 0.5 ? length(In.ViewPosition) : abs(In.ViewPosition.z);
-        float Keep = Fog.w > 2.5 ? saturate((Fog.y - Z) / max(Fog.y - Fog.x, 1.0e-4)) :
-            (Fog.w > 1.5 ? exp(-pow(Z * Fog.z, 2.0)) : exp(-Z * Fog.z));
+        float Keep = SurfaceFogTransmission(In.ViewPosition);
         Result.rgb = lerp(SurfaceFogColour(N, V, Keep), Result.rgb, Keep);
     }
     return Result;

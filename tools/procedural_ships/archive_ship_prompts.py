@@ -14,7 +14,10 @@ REPO = Path(__file__).resolve().parents[2]
 TOPIC = REPO / 'out/ship_design'
 DOCS = REPO / 'docs/ru/ship_design/prompt_archive'
 ASSETS = TOPIC / 'prompt_archive/assets'
-SHIPS = ('rh_freighter', 'rh_fighter', 'bw_family', 'li_elite')
+SHIPS = ('rh_freighter', 'rh_fighter', 'bw_family', 'li_elite', 'bh_family')
+SELECTION_FOLDERS = {ship: ship for ship in SHIPS}
+SELECTION_FOLDERS['bw_freighter'] = 'bw_family/freighter'
+SELECTION_FOLDERS['bh_freighter'] = 'bh_family/freighter'
 IMAGE_SUFFIXES = {'.png', '.jpg', '.jpeg', '.webp'}
 
 
@@ -105,8 +108,8 @@ def main():
                 if not image.is_file():
                     raise FileNotFoundError('Missing prompt reference: ' + str(image))
                 image_paths.add(image.resolve())
-    for ship in SHIPS:
-        selection = TOPIC / ship / 'selection.json'
+    for relative_folder in SELECTION_FOLDERS.values():
+        selection = TOPIC / relative_folder / 'selection.json'
         if selection.exists():
             image_paths.add((selection.parent / load(selection)['art']).resolve())
     required = sum(p.stat().st_size for p in image_paths)
@@ -145,8 +148,8 @@ def main():
 
     for path in prompt_paths:
         snapshot(path, 'prompts')
-    for ship in SHIPS:
-        folder = TOPIC / ship
+    for ship, relative_folder in SELECTION_FOLDERS.items():
+        folder = TOPIC / relative_folder
         context = set(folder.rglob('artifacts.json')) | set(folder.rglob('README.md'))
         context |= {folder / 'selection.json', folder / 'SELECTED_CONCEPT.md', folder / 'source_audit.json'}
         for path in sorted(p for p in context if p.is_file()):
@@ -182,11 +185,16 @@ def main():
             lineage='All saved historical prompt and correction files for both ships are '
                     'retained in manifest.json. Referenced intermediate art is retained as assets.',
         )
+        if 'rear_view' in selection:
+            recipe['rear_view_selection'] = selection['rear_view']
+        if 'view_supplement' in selection:
+            recipe['view_supplement'] = selection['view_supplement']
         key = ship + '_' + selection['concept_id']
         if 'primary_model' in selection:
             recipe['selection_scope'] = {k: selection[k] for k in (
                 'scope', 'primary_model', 'primary_row', 'model_status',
-                'mixing_policy', 'cockpit_policy', 'implementation_started'
+                'mixing_policy', 'cockpit_policy', 'implementation_started',
+                'variant', 'role_assignment', 'alternative_concepts', 'latest_user_evidence'
             ) if k in selection}
             recipe['lineage'] = ('All saved historical prompts, correction files and '
                                  'referenced intermediate art are retained in manifest.json.')

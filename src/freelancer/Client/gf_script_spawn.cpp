@@ -39,10 +39,21 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 namespace
 {
+    // Local copy. Do not export this from Common.dll: Server.dll imports that DLL by ordinal.
+    bool ThornUserCastShadow(IScriptEngine* Engine, int Index)
+    {
+        char const* const Value = ThornGetUserString(Engine, Index, "cast_shadow");
+        if (Value == nullptr)
+            return false;
+        if (Value[0] == '0' || Value[0] == 'N' || Value[0] == 'n' ||
+            _stricmp(Value, "false") == 0 || _stricmp(Value, "off") == 0 || _stricmp(Value, "no") == 0)
+            return false;
+        return true;
+    }
+
     // 0x005cc32c -- the file name every FDUMP of this unit passes.
     char const* const GScriptFile = "E:\\FL\\Scratch\\Source\\Client\\Gf\\Script.cpp";
 
@@ -684,6 +695,7 @@ void FGfScript::ResolveCompoundTarget(int Index, FRoomObject** OutObject, long* 
     Data.Loadout = Loadout != nullptr ? Loadout : "";
 
     FObjectProp* const Prop = new FObjectProp(Room, Data);
+    Prop->bCastShadow = ThornUserCastShadow(Engine, Index) ? 1 : 0;
     *OutObject = Prop;
     *OutInstance = static_cast<long>(reinterpret_cast<intptr_t>(Prop->GetEngineInstance()));
     *OutAnimScript = reinterpret_cast<void*>(static_cast<uintptr_t>(Prop->GetMainScript()));

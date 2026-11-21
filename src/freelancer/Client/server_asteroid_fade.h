@@ -23,4 +23,8 @@ inline float Opacity(void const* object) {
     float t = it->second / Duration;
     return t*t*(3.0f-2.0f*t);
 }
+inline unsigned SurfaceScope(void const* object) {
+    float opacity=Opacity(object);
+    return opacity<1.0f ? 1024u|(unsigned(opacity*255.0f)<<16) : 0u;
+}
 }

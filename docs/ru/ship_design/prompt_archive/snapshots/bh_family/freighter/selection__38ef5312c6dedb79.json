@@ -1,0 +1,48 @@
+{
+  "status": "accepted_as_selected_concept",
+  "status_ru": "БЕРЁМ В РАБОТУ",
+  "selected_by": "user",
+  "date": "2026-11-19",
+  "concept_id": "BHF20",
+  "title_ru": "Плоскоголовый грузовик",
+  "art": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF20_sheet.png",
+  "art_sha256": "237ef9ebe5b865e9f1df0d3a7b44b3b3b84683177bb32c0986d8e5a479cafcab",
+  "handoff": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/freighter/SELECTED_CONCEPT.md",
+  "user_evidence": "BHF20 очень неплох. берём его",
+  "scope": "BHF20 remains the initial selected concept; BHF29 is retained as an alternative. Assignment of BHF20/BHF29 to regular versus pirate BH freighters is undecided.",
+  "primary_model": "bh_freighter",
+  "variant": "regular_pirate_assignment_undecided",
+  "model_status": "selected_concept_for_future_modeling",
+  "cockpit_policy": "Only native glazing and immediate frame are immutable. LI freighter is the named visual authority; integrate the original geometry into the new bow. Fighter pylon and old surrounding head are not mandatory.",
+  "prompt_file": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/prompts.json",
+  "actual_call": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/BHF20.json",
+  "persistent_prompt_recipe": "D:/work/Freelancer-Decomp/docs/ru/ship_design/prompt_archive/selected/bh_freighter_BHF20.json",
+  "approved_for_future_modeling": true,
+  "implementation_started": false,
+  "installation_authorized": false,
+  "role_assignment": {
+    "status": "undecided",
+    "regular": null,
+    "pirate": null,
+    "candidate_ids": [
+      "BHF20",
+      "BHF29"
+    ]
+  },
+  "alternative_concepts": [
+    {
+      "concept_id": "BHF29",
+      "status": "retained_alternative",
+      "status_ru": "АЛЬТЕРНАТИВА",
+      "selected_by": "user",
+      "title_ru": "Платакс — высокий грузовой щит",
+      "art": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF29_sheet.png",
+      "art_sha256": "3042cbb95c01427eaef72f6180d0e9af7ece56e220223a464900c9172dfe9a07",
+      "prompt_file": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/prompts.json",
+      "actual_call": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/BHF29.json",
+      "role": "undecided_regular_or_pirate",
+      "user_evidence": "и 29 ещё запиши как альтернативу. я пока не решил какой возьмём для пиратов, какой для обычных"
+    }
+  ],
+  "latest_user_evidence": "и 29 ещё запиши как альтернативу. я пока не решил какой возьмём для пиратов, какой для обычных"
+}

@@ -1,0 +1,65 @@
+{
+  "topic": "bw_family",
+  "ship": "bw_pir_freighter",
+  "round": "round_05",
+  "status": "candidate_for_user_review",
+  "selected_id": null,
+  "gallery": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/index.html",
+  "outputs": [
+    {
+      "id": "BF01",
+      "title_ru": "Ступенчатый грузовой корпус",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-dddb9410-4453-4108-8206-27510d661d5d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "parameters": {
+        "transparent_background": false
+      },
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-dddb9410-4453-4108-8206-27510d661d5d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "9aea9c4c16cc8e502286a880eeac0dbf853ba89d324542b6d58082953625722f",
+      "size": [
+        1536,
+        1024
+      ],
+      "copy_matches_tool_output": true
+    },
+    {
+      "id": "BF02",
+      "title_ru": "Скошенные грузовые щёки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-907424e6-ac1e-412f-8c12-cb541d599b7b.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF02_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "parameters": {
+        "transparent_background": false
+      },
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-907424e6-ac1e-412f-8c12-cb541d599b7b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "a6d0034daa97e2848a65083d4f5ec8933cc7138e4521479c9c11ac61e92ee11f",
+      "size": [
+        1536,
+        1024
+      ],
+      "copy_matches_tool_output": true
+    },
+    {
+      "id": "BF01_C1",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-99658021-918c-403e-b8fc-c4daccfd8b0c.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet_corrected.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "parameters": {
+        "transparent_background": false
+      },
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-99658021-918c-403e-b8fc-c4daccfd8b0c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "af46f79b330f1c89c4ba719202e494868cd58d3da0212c439b1e24b20e3b033d",
+      "size": [
+        1536,
+        1024
+      ],
+      "copy_matches_tool_output": true
+    }
+  ]
+}

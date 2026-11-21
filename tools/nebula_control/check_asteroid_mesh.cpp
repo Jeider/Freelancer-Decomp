@@ -11,6 +11,9 @@
 #include "RP9MeshInstances.h"
 #include "RP9ShaderManifest.h"
 #include "../../src/freelancer/Client/nebula_asteroid_mesh.h"
+#ifdef ASTEROID_HANDOFF_CHECK
+#include "../../src/include/procedural_asteroids.h"
+#endif
 static void Require(bool v,char const*s){if(!v){printf("FAIL %s\n",s);exit(3);}}
 static void Check(HRESULT h){if(FAILED(h)){printf("HRESULT %08lx\n",h);exit(2);}}
 static void Set(float*p,int i,float a,float b,float c,float d){p+=i*4;p[0]=a;p[1]=b;p[2]=c;p[3]=d;}
@@ -28,12 +31,15 @@ int main(int argc,char**argv){
  NebulaAsteroidMesh::Generate(next,3,[&](auto const&r){moved.push_back(r);});
  auto identity=[](auto const&r){return std::string((char const*)&r,sizeof(r));};
  std::set<std::string> oldSet,newSet;for(auto const&r:rocks)oldSet.insert(identity(r));for(auto const&r:moved)newSet.insert(identity(r));
- Require(NebulaAsteroidMesh::Cell(-.1)==-1,"negative coordinate cells");Require(rocks.size()<8192 && rocks.size()>1000,"bounded dense population");
+ Require(NebulaAsteroidMesh::Cell(-.1)==-1,"negative coordinate cells");Require(rocks.size()<24000 && rocks.size()>1000,"population fits shared render budget");
  unsigned stable=0;
  for(auto const&r:rocks){double d2=0;for(int k=0;k<3;++k){double d=r.position[k]-(k==0?31000.0:(k==1?500.0:20500.0));d2+=d*d;}
-  if(d2<4350.0*4350.0){Require(newSet.count(identity(r))!=0,"cell crossing retains visible rocks");++stable;}
+  if(d2<std::pow(NebulaAsteroidMesh::Far+128.0,2)){Require(newSet.count(identity(r))!=0,"cell crossing retains visible rocks");++stable;}
   double norm=0;for(float v:r.rotation)norm+=v*v;Require(std::abs(norm-1)<.00001,"unit world orientation");}
  printf("PASS world-fixed grid: %zu residents, %u overlap identities, %.3f ms generation\n",rocks.size(),stable,buildMs);
+#ifdef ASTEROID_SURFACE_SCATTER_CHECK
+ #include "asteroid_exclusion_cases.inl"
+#endif
  auto*api=Direct3DCreate9(D3D_SDK_VERSION);Require(api!=nullptr,"D3D9");IDirect3DDevice9*d=nullptr;
  HWND w=CreateWindowA("STATIC","asteroid mesh probe",WS_POPUP,0,0,1920,1080,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
  D3DPRESENT_PARAMETERS pp={};pp.Windowed=1;pp.SwapEffect=D3DSWAPEFFECT_DISCARD;pp.BackBufferWidth=1920;pp.BackBufferHeight=1080;
@@ -60,7 +66,7 @@ int main(int argc,char**argv){
   triangles+=unsigned(m.data.size())*m.vertices/3;
   Check(d->CreateVertexBuffer(unsigned(m.data.size()*sizeof(Instance)),0,0,D3DPOOL_MANAGED,&m.instances,nullptr));Upload(m.instances,m.data.data(),unsigned(m.data.size()*sizeof(Instance)));
  }
- float v[40]={},p[48]={};Set(v,0,30500,500,20500,0);Set(v,1,1,0,0,0);Set(v,2,0,1,0,0);Set(v,3,0,0,1,0);
+ float v[44]={},p[48]={};Set(v,10,0,1,0,0);Set(v,0,30500,500,20500,0);Set(v,1,1,0,0,0);Set(v,2,0,1,0,0);Set(v,3,0,0,1,0);
  Set(v,4,1080.f/1920,1,5000.f/4999,-5000.f/4999);Set(v,5,1,1,0,0);Set(v,6,5000,540,2,1-1.f/4194304);
  Set(v,7,NebulaAsteroidMesh::Near,1/NebulaAsteroidMesh::NearFade,NebulaAsteroidMesh::Far-NebulaAsteroidMesh::FarFade,1/NebulaAsteroidMesh::FarFade);
  Set(v,9,200,2700,1,.55f);Set(p,0,1,1,1,1);Set(p,5,80/255.f,40/255.f,0,0);Set(p,6,1,120/255.f,50/255.f,0);
@@ -71,7 +77,7 @@ int main(int argc,char**argv){
  FRp9MeshInstances renderer;IDirect3DSurface9*target=nullptr,*read=nullptr;Check(d->GetRenderTarget(0,&target));Check(d->CreateOffscreenPlainSurface(1920,1080,D3DFMT_A8R8G8B8,D3DPOOL_SYSTEMMEM,&read,nullptr));
  const DWORD background=0xff965a14;
  bool local=true;
- auto draw=[&](bool single){Check(d->SetPixelShaderConstantF(0,p,12));Check(d->SetRenderState(D3DRS_ALPHABLENDENABLE,local?0:1));for(int pass=0;pass<(local?1:2);++pass){Set(v,8,float(pass),5,1,local?1.f:0.f);Check(d->SetVertexShaderConstantF(0,v,10));Check(d->SetRenderState(D3DRS_ZWRITEENABLE,pass==0));
+ auto draw=[&](bool single){Check(d->SetPixelShaderConstantF(0,p,12));Check(d->SetRenderState(D3DRS_ALPHABLENDENABLE,local?0:1));for(int pass=0;pass<(local?1:2);++pass){Set(v,8,float(pass),5,1,local?1.f:0.f);Check(d->SetVertexShaderConstantF(0,v,11));Check(d->SetRenderState(D3DRS_ZWRITEENABLE,pass==0));
   for(int i=0;i<(single?1:3);++i){auto&m=models[i];Check(d->SetTexture(0,m.texture));Check(renderer.Draw(d,m.mesh,m.instances,m.vertices,0,single?1:unsigned(m.data.size())));}}};
  auto pixels=[&](){Check(d->GetRenderTargetData(target,read));D3DLOCKED_RECT l;Check(read->LockRect(&l,nullptr,D3DLOCK_READONLY));unsigned n=0;
   for(int y=0;y<1080;++y)for(int x=0;x<1920;++x)if((((DWORD*)((char*)l.pBits+y*l.Pitch))[x]&0xffffff)!=(background&0xffffff))++n;read->UnlockRect();return n;};
@@ -105,6 +111,9 @@ int main(int argc,char**argv){
  Require(previousCount>2000,"large source mesh fade fixture");puts("PASS stable monotonic fade, solid-threshold continuity, depth coverage and repeated frames");
  local=false;Check(d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,background,1,0));Check(d->BeginScene());draw(true);Check(d->EndScene());Require(pixels()>2000,"ordinary two-pass mesh path retained");local=true;
  Upload(models[0].instances,models[0].data.data(),unsigned(models[0].data.size()*sizeof(Instance)));p[38]=v[38]=1;
+#ifdef ASTEROID_SURFACE_SCATTER_CHECK
+ p[38]=v[38]=2; // Benchmark the real new route across the complete six-kilometre reach.
+#endif
  Check(d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,background,0,0));Check(d->BeginScene());draw(false);Check(d->EndScene());Require(pixels()==0,"foreground depth occludes far meshes");
  IDirect3DQuery9 *start=nullptr,*end=nullptr,*freq=nullptr,*disjoint=nullptr;
  Check(d->CreateQuery(D3DQUERYTYPE_TIMESTAMP,&start));Check(d->CreateQuery(D3DQUERYTYPE_TIMESTAMP,&end));Check(d->CreateQuery(D3DQUERYTYPE_TIMESTAMPFREQ,&freq));Check(d->CreateQuery(D3DQUERYTYPE_TIMESTAMPDISJOINT,&disjoint));
@@ -116,5 +125,17 @@ int main(int argc,char**argv){
  printf("PASS GPU: %zu instances, %u triangles/pass, %u changed pixels; one pass at 1920x1080 median %.3f ms p95 %.3f ms\n",rocks.size(),triangles,visible,times[times.size()/2],times[(times.size()-1)*95/100]);
  // Last argument is the preview path; the nine asset arguments precede it.
  Check(D3DXSaveSurfaceToFileA(argv[12],D3DXIFF_PNG,target,nullptr,nullptr));
+#ifdef ASTEROID_OVERLAY_ORDER_CHECK
+ #include "asteroid_draw_order_cases.inl"
+#endif
+#ifdef ASTEROID_PHYSICAL_ORDER_CHECK
+ #include "asteroid_physical_order_cases.inl"
+#endif
+#ifdef ASTEROID_SURFACE_SCATTER_CHECK
+ #include "asteroid_surface_scatter_cases.inl"
+#endif
+#ifdef ASTEROID_HANDOFF_CHECK
+ #include "asteroid_handoff_gpu_cases.inl"
+#endif
  return 0;
 }

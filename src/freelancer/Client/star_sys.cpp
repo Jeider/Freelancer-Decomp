@@ -8,6 +8,7 @@
 // freelancer.exe .text 0x00552b60..0x00555760. See star_sys.h for the globals map.
 
 #include "star_sys.h"
+#include "procedural_asteroid_client.h"
 
 #include "cli_asteroid.h"
 #include "cli_nebula.h"
@@ -887,6 +888,7 @@ unsigned char const* StarSysAmbientColor()
 
 void StarSysEnter(unsigned SystemId)
 {
+    ProceduralAsteroidClientEnter(SystemId);
     // FUN_005545a0.
     RefreshLoadingProgress();
     G_System = Universe::get_system(SystemId);

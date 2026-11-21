@@ -165,6 +165,7 @@ struct FRp9ExState
     float CharacterQualityStrength = 1.f;
     bool bRoomShadowDrawing = false, bRoomShadowFailed = false;
     bool bRoomShadowCharacter = false;
+    float RoomShadowFadeNear = 1.2f, RoomShadowFadeFar = 4.f;
     unsigned RoomShadowDraws = 0;
     IDirect3DTexture9* RoomShadowMap = nullptr;
     IDirect3DSurface9* RoomShadowDepth = nullptr;
@@ -355,8 +356,8 @@ struct FRp9ExState
     IDirect3DVertexShader9* SurfaceBoundVs = nullptr;
     IDirect3DPixelShader9* SurfaceBoundPs = nullptr;
     std::map<std::string, IDirect3DPixelShader9*> SurfaceQualityPs;
-    float SurfacePsMirror[109 * 4] = {};
-    bool SurfacePsMirrorValid[109] = {};
+    float SurfacePsMirror[110 * 4] = {};
+    bool SurfacePsMirrorValid[110] = {};
     IDirect3DBaseTexture9* SurfaceSamplerTexture[7] = {};
     unsigned long SurfaceSamplerStates[7][8] = {};
     bool SurfaceSamplerValid[7] = {};
@@ -382,6 +383,8 @@ struct FRp9ExState
     bool bShadowReceiverIsPlayer = false;
     bool bNativeNebulaObject = false;
     bool bNebulaFogShape = false;
+    bool bNebulaFogSolar = false;
+    float SurfaceSpawnCoverage = -1.0f; // negative = no spawn scope
     bool bShadowAdaptiveQuality = true;
     float ShadowStaticQualityDistance = 500.0f;
     float ShadowShipQualityDistance = 150.0f;

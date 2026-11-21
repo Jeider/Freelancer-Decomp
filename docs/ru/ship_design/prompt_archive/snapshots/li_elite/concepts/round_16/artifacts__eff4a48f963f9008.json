@@ -1,0 +1,150 @@
+{
+  "completed": 2,
+  "artifacts": [
+    {
+      "id": "L65",
+      "title_ru": "Центральный ступенчатый хвост",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-38734333-d4b8-4063-92f3-a2788de90f6a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L65_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L65",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-38734333-d4b8-4063-92f3-a2788de90f6a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "verdict": "fixed_tail_equipment_layout_candidate",
+        "observations": [
+          "L63 engine shoulders, twin lateral nozzles, two-leaf wings and exposed native-style collar remain recognizable.",
+          "Transverse spoiler across the engine housings is removed; motor tops are individually closed and free of former equipment sockets.",
+          "Central stepped aft tail carries visibly distinct mounting faces and a small upper pad. These are proposed mounting surfaces, not assigned equipment or HPs.",
+          "Matched SIDE states keep the fixed tail essentially unchanged while illustrating wing folding.",
+          "Closed roof remains; the tail begins near the rear hatch end, but actual baydoor sweep clearance is not validated.",
+          "Exact mounting-face count/orientation and cabin contours vary across the perspectives; the original cabin and actual mounting geometry must govern modeling."
+        ]
+      },
+      "base_id": "L63",
+      "proposed_mechanism": "Tail fixed; two-leaf wings retain proposed backward folding. Equipment pads on central tail, not motor caps.",
+      "sha256": "24acf04b3cef29126a744e6381a949a02c22b5a1ab9696f5d93dd13acca11060",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66",
+      "title_ru": "Складной составной хвост",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-bb77324c-14de-4e88-821b-812a0770d55a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+      "status": "accepted_for_modeling",
+      "approved_for_modeling": true,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66",
+      "correction_history": [
+        {
+          "prompt_file": "correction_prompts.json",
+          "id": "L66",
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-47bd4a02-8515-4885-8004-225d455994fc.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected.png"
+        },
+        {
+          "prompt_file": "correction_prompts.json",
+          "kind": "correct_stowed_leaf_count",
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-bb77324c-14de-4e88-821b-812a0770d55a.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png"
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-bb77324c-14de-4e88-821b-812a0770d55a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": {
+        "inspected": true,
+        "verdict": "folding_compound_tail_candidate_with_corrected_stowed_inset",
+        "observations": [
+          "The L64 body, side engines, collar and closed roof are preserved in broad form; transverse engine-top spoiler is removed.",
+          "Two nested tail leaves above a central fixed root carry mounting pads; engine caps are plain and not used for these rear equipment mounts.",
+          "Original SIDE STOWED mistakenly retained deployed wings. First local correction folded them but introduced a third near-side leaf; the second correction restores exactly two visible folded leaves and two tip pads.",
+          "Tail remains upright in stowed state with slightly increased overlap, consistent with the small-motion source principle rather than a 90-degree lay-down.",
+          "Raster states do not prove exact hinge/slide trajectory, mounting ownership or installed-equipment clearance.",
+          "Base appears to start near the hatch's aft edge; actual cargo sweep needs geometry validation.",
+          "Tail mounting count/orientation and cockpit proportions vary somewhat between projections. Local image edits also altered some texture detail outside the target inset; pixel-perfect preservation is not claimed."
+        ]
+      },
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-d4220289-28b6-4b50-b87c-7ca995b0166e.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet.png",
+      "base_id": "L64",
+      "proposed_mechanism": "Proposed fixed central tail root plus two nested moving leaves using combined small rotations/slides inspired by LI elite2; exact new clearance unvalidated.",
+      "user_direction_status": "preferred_for_revision",
+      "user_selected_for": "further_concept_refinement_only",
+      "next_round": "round_17",
+      "user_feedback": "L66 нравится больше. Вернуть обычные тройные крылья; направить хвост вперёд к кабине; показывать задние виды далее.",
+      "sha256": "3e1ad54708e23d12fec4151def215150532f2b9e82f576b1a89a2913bcd164e5",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true,
+      "approval_scope": "Original round_16 L66 selected as concept basis for future work, with later mandatory overrides. No new modeling or generation now; no approval of an implemented model or installation.",
+      "mandatory_overrides": [
+        "Use ordinary THREE Defender wing leaves per side despite the two-leaf historical L66 sheet and prompts.",
+        "Keep native lower-front main-hull wing roots behind the neck, not collar or engines.",
+        "Tail upper sections point FORWARD toward cockpit while root stays aft; rear 3/4 governs contradictory front/side views.",
+        "Preserve original cockpit and collar; keep closed flat roof and functional upper cargo doors.",
+        "Rear equipment on useful tail faces, not motor housings; no giant pedestal or tiny decorative fin."
+      ]
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_15/li_elite_L63_sheet.png",
+      "sha256": "3338cf5bddc9c64ddd364b7334bb73f6032733ee1060a5601e6594425fd0ee38"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/or_elite/native_flight.jpg",
+      "sha256": "aaa0fbe3b324ff3420b21f2cc3fce416df4341f30c157bbf594e6b6283d51366"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_15/li_elite_L64_sheet.png",
+      "sha256": "9a51dca37ee5cd8e2a8c97c69432fb23b1d0f66054ac6e414f5d19659846d76b"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_flight.jpg",
+      "sha256": "11300ed016031a6b2e25f8d07cab1bc460288408d94d063de78ad6938c0c03e0"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_wing_motion.jpg",
+      "sha256": "7059cc57544b79f3aabe3cff0f1d1758e0d16c9de1c62f204831474422736241"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_colored_motion.jpg",
+      "sha256": "6ecda76f92bd4f0a54c72048be9bf4fa6d58761ee4f700402a659c1f8d94a41f"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation.",
+  "selected_concepts": [
+    "L66"
+  ],
+  "selection_file": "../../selection.json",
+  "approval_scope": "Only the L66 concept is selected, with mandatory overrides; L65 and any implemented mesh are not approved."
+}

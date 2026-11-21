@@ -7,6 +7,7 @@
 #include "client_objdb.h"
 
 #include "client_gameobj.h"
+#include "procedural_asteroid_client.h"
 #include "client_tick_profile.h" // Port-only owner-requested collision profiling
 #include "runtime_hitch_log.h"
 #include "common_archetype.h"
@@ -519,6 +520,7 @@ void ClientObjDb_UpdateAll(float Dt)
             CSimple* Simple = NarrowSimple(Go);
             if (!Simple || !IsServerAsteroidType(Simple->TypeBits)) continue;
             Go->update(Dt);
+            if(!ProceduralAsteroidClientSpatialUpdate(Go,Simple->WorldPosition,Simple->Radius))continue;
             Spatial->Remove(static_cast<IObjRW*>(Go));
             FSpatialEntry Entry;
             Entry.Object = static_cast<IObjRW*>(Go);

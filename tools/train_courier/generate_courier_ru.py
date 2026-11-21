@@ -53,6 +53,11 @@ def references():
             shutil.copyfile(existing, target)
             old = folder / 'manifest.json'
             old = json.loads(old.read_text(encoding='utf-8')).get(name, {}) if old.exists() else {}
+            provenance = existing.with_suffix('.json')
+            if provenance.exists():
+                canonical = json.loads(provenance.read_text(encoding='utf-8'))
+                if canonical.get('sha256') == sha(target):
+                    old = canonical
             transcript = old.get('text') if old.get('sha256') == sha(target) else transcribe(target)['text']
             sources = old.get('sources', []) if old.get('sha256') == sha(target) else []
             if not sources:
@@ -70,6 +75,8 @@ def references():
             transcript = ' '.join(text for _, text in parts)
         result[name] = {'path': str(target), 'text': transcript, 'sha256': sha(target),
                         'sources': sources, **inspect(target)}
+        if existing.exists() and old.get('approved_generation'):
+            result[name]['approved_generation'] = old['approved_generation']
     save(folder / 'manifest.json', result)
     return result
 
@@ -141,6 +148,14 @@ def main():
         steps = args.steps if args.steps is not None else old.get('num_step')
         if steps is not None:
             form['num_step'] = str(steps)
+        if row['actor'] == 'MaleDispatcher' and row['bank'] in ('radio', 'evacuation'):
+            form.update(ref.get('approved_generation', {}))
+            form['text'] = row['text'].replace('!', '.')
+            if args.seed is not None:
+                form['seed'] = str(args.seed)
+            if args.steps is not None:
+                form['num_step'] = str(args.steps)
+            steps = int(form['num_step']) if 'num_step' in form else steps
         # Very short isolated nouns need a sentence boundary in the TTS prompt.
         # Keep UI/source text unchanged; punctuation is not spoken.
         if row['bank'] == 'vocabulary':

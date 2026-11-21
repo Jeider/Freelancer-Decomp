@@ -4,6 +4,7 @@ All generated DATA goes through DataFolder to an explicit offline root. Source
 files and live DATA are never updated by this tool.
 """
 import hashlib
+import difflib
 import json
 from pathlib import Path
 import re
@@ -15,6 +16,7 @@ ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/'out/ship_design/rh_elite/rh_pir_elite/tail_rim/release'
 PY=Path('D:/Games/FL_MOD/Assets/Pythonlancer')
 ASSETS=OUT/'assets'
+TEMPLATE=Path('templates/hardcoded_inis/shiparch/simples/pir_nmd.ini')
 
 
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -26,7 +28,29 @@ def main():
     from managers.jinja_manager import JinjaTemplateManager
     from managers.shiparch import ShiparchManagerV2
     from tools.data_folder import DataFolder
-    from jinja2 import FileSystemLoader
+    from jinja2 import FileSystemLoader,ChoiceLoader
+
+    # Overlay only five pirate damage ranges. Retail/nomad instances use this
+    # same template and must retain their original settings exactly.
+    original=(PY/TEMPLATE).read_text(encoding='utf8')
+    chunks=re.split(r'(?m)(?=^\[)',original)
+    changed=[]
+    for i,block in enumerate(chunks):
+        match=re.search(r'^nickname = rh\{\{ prefix \}\}_elite_dmg_(port_wing|starboard_wing|tail|portengine|starengine)_cap$',block,re.M)
+        if not match:continue
+        assert 'LODranges = 0, 1000, 2000' in block
+        chunks[i]=block.replace('LODranges = 0, 1000, 2000',
+            "LODranges = {% if prefix == '_pir' %}0, 180, 550, 10000{% else %}0, 1000, 2000{% endif %}")
+        changed.append(match[1])
+    assert len(changed)==5
+    staged=''.join(chunks)
+    target=OUT/'pythonlancer'/TEMPLATE
+    target.parent.mkdir(parents=True,exist_ok=True)
+    target.write_text(staged,encoding='utf8',newline='\n')
+    patch=''.join(difflib.unified_diff(original.splitlines(True),staged.splitlines(True),
+                                     fromfile='a/'+TEMPLATE.as_posix(),tofile='b/'+TEMPLATE.as_posix()))
+    (OUT/'pythonlancer.patch').write_text(patch,encoding='utf8',newline='\n')
+    (OUT/'pythonlancer_source_changes.json').write_text(json.dumps({TEMPLATE.as_posix():dict(before=sha(PY/TEMPLATE),after=sha(target))},indent=2)+'\n')
 
     core=SimpleNamespace(write=False,build_folder=None,misc_equip=None)
     core.ids=IDsManager(core);core.tpl_manager=JinjaTemplateManager()
@@ -40,6 +64,12 @@ def main():
         assert result.is_relative_to(offline),('Live DATA writes forbidden',result)
         return result
     DataFolder.data_path=guarded
+    manager=ShiparchManagerV2(core)
+    for ship in manager.ships:ship.used=True
+    baseline=manager.get_shiparch_content()
+    core.ids=IDsManager(core)
+    core.tpl_manager.environment.loader=ChoiceLoader([FileSystemLoader(str(OUT/'pythonlancer/templates')),FileSystemLoader(str(PY/'templates'))])
+    core.tpl_manager.environment.cache.clear()
     manager=ShiparchManagerV2(core)
     for ship in manager.ships:ship.used=True
     content=manager.get_shiparch_content()
@@ -80,8 +110,20 @@ def main():
         sv=values(simples[simple]);filename='rh_pir_elite_dmg_'+zone+'.3db'
         assert sv['da_archetype'][0].lower()==(r'ships\rheinland\rh_pir_elite'+'\\'+filename).lower(), (simple,sv['da_archetype'],filename)
         assert r'ships\rheinland\rh_pir_playerships.mat' in [v.lower() for v in sv['material_library']]
+        assert sv['lodranges']==['0, 180, 550, 10000']
         assert (ASSETS/filename).exists()
         simpleblocks.append(simples[simple]);report.append(dict(object=v['obj'][0],dmg_hp=hp,simple=simple,file=filename))
+    ab=re.split(r'(?m)(?=^\[)',baseline)
+    assert len(ab)==len(blocks)
+    changed_blocks=[]
+    for a,c in zip(ab,blocks):
+        va,vc=values(a),values(c)
+        if va==vc:continue
+        nickname=vc['nickname'][0]
+        assert nickname in {row['simple'] for row in report}, (nickname,{k:(va[k],vc.get(k)) for k in va if va[k]!=vc.get(k)})
+        assert set(k for k in va if va[k]!=vc.get(k))=={'lodranges'}
+        changed_blocks.append(nickname)
+    assert len(changed_blocks)==5
     manifest=json.loads((ASSETS/'manifest.json').read_text())
     payload={}
     for filename,info in manifest['files'].items():
@@ -92,20 +134,22 @@ def main():
     folder.sync_rh_pir_elite(payload)
     for relative,blob in payload.items():assert folder.data_path(relative).read_bytes()==blob
     folder.sync_data_file('SHIPS/shiparch.ini',content)
-    (OUT/'shiparch_review.ini').write_text('; Generated review only; existing V2 bindings already match.\n\n'+ship+''.join(groups)+''.join(simpleblocks),encoding='utf8')
+    (OUT/'shiparch_review.ini').write_text('; Generated review only; five pirate damage LOD ranges updated.\n\n'+ship+''.join(groups)+''.join(simpleblocks),encoding='utf8')
     # Do not keep another redundant set of binaries after this staging test.
     # Exact individually verified paths only; the original assets remain.
     for relative in payload:folder.remove_data_file(relative)
     guard=json.loads((OUT/'sources.json').read_text())['files']
     assert all(sha(Path(p))==h for p,h in guard.items())
     result=dict(ships_rendered=len(manager.ships),target='rh_elite_pir',bindings=report,
-                existing_sources_already_match=True,source_changes_required=False,
-                balance_and_lod_ranges_unchanged=True,asset_api_verified=len(payload),
+                damage_bindings_already_match=True,source_changes_required=True,
+                source_patch_applied=False,changed_simple_lodranges=changed_blocks,
+                ship_balance_and_lod_ranges_unchanged=True,all_other_generated_sections_unchanged=True,asset_api_verified=len(payload),
                 redundant_staged_binaries_removed=True,game_DATA_unchanged=True,
                 generated_shiparch=str(folder.data_path('SHIPS/shiparch.ini')),
                 cmp_sha256=manifest['files']['rh_pir_elite.cmp']['sha256'])
     (OUT/'pythonlancer_check.json').write_text(json.dumps(result,indent=2)+'\n')
-    print('PYTHONLANCER: current five bindings resolve; 12 assets checked through isolated DataFolder; no source edits needed',flush=True)
+    assert sha(PY/TEMPLATE)==json.loads((OUT/'pythonlancer_source_changes.json').read_text())[TEMPLATE.as_posix()]['before']
+    print('PYTHONLANCER: five pirate damage LOD ranges staged; all other sections identical; isolated DataFolder verified',flush=True)
 
 
 if __name__=='__main__':main()

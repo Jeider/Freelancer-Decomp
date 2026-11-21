@@ -1,0 +1,76 @@
+{
+  "ship": "bh_freighter",
+  "concept_id": "BHF20",
+  "title_ru": "Плоскоголовый грузовик",
+  "status": "accepted_as_selected_concept",
+  "selected_by": "user",
+  "user_evidence": "BHF20 очень неплох. берём его",
+  "date": "2026-11-19",
+  "tool": "built-in image_gen",
+  "transparent_background": false,
+  "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nFLATHEAD / LOW BROAD BOW WITH HIGH AFT HOLD. Very low wide truncated-spade prow, native glazing smoothly fitted into its central upper surface, then a narrowed mechanical neck rising into a tall blunt cargo body. Forward section width is large but shallow; aft hold is narrower and much deeper. No vertical nose pod. TWO engines flank the high aft hold, partly buried into solid side shoulders with short exposed collars. A small central stern recess remains closed. Short articulated side plates near the neck are swept backward, contrasting with the broad forward bow. Style: rugged freight tug, heavy bevelled corners, low cool-grey front armour and darker teal vertical cargo walls. No whiskers, monster jaw, large side fan or cathedral ribs.\n\nTitle exactly: \"BH FREIGHTER / BHF20\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+  "prompt_sha256": "775d6b97b4bc6c68358c403f6ee94ddd4a29e947ebb58b416c69919698986367",
+  "prompt_snapshot": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/prompts__edac194328b955bd.json",
+  "references": [
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4.jpg",
+      "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e.jpg",
+      "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c.jpg",
+      "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b.jpg",
+      "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+    }
+  ],
+  "selected_output": {
+    "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF20_sheet.png",
+    "archived_path": "out/ship_design/prompt_archive/assets/237ef9ebe5b865e9f1df0d3a7b44b3b3b84683177bb32c0986d8e5a479cafcab.png",
+    "sha256": "237ef9ebe5b865e9f1df0d3a7b44b3b3b84683177bb32c0986d8e5a479cafcab"
+  },
+  "replay": "Use the prompt verbatim, resolve archived_path against the repository root, pass references in this exact order. Generation is not deterministic.",
+  "lineage": "All saved historical prompts, correction files and referenced intermediate art are retained in manifest.json.",
+  "selection_scope": {
+    "scope": "BHF20 remains the initial selected concept; BHF29 is retained as an alternative. Assignment of BHF20/BHF29 to regular versus pirate BH freighters is undecided.",
+    "primary_model": "bh_freighter",
+    "model_status": "selected_concept_for_future_modeling",
+    "cockpit_policy": "Only native glazing and immediate frame are immutable. LI freighter is the named visual authority; integrate the original geometry into the new bow. Fighter pylon and old surrounding head are not mandatory.",
+    "implementation_started": false,
+    "variant": "regular_pirate_assignment_undecided",
+    "role_assignment": {
+      "status": "undecided",
+      "regular": null,
+      "pirate": null,
+      "candidate_ids": [
+        "BHF20",
+        "BHF29"
+      ]
+    },
+    "alternative_concepts": [
+      {
+        "concept_id": "BHF29",
+        "status": "retained_alternative",
+        "status_ru": "АЛЬТЕРНАТИВА",
+        "selected_by": "user",
+        "title_ru": "Платакс — высокий грузовой щит",
+        "art": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF29_sheet.png",
+        "art_sha256": "3042cbb95c01427eaef72f6180d0e9af7ece56e220223a464900c9172dfe9a07",
+        "prompt_file": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/prompts.json",
+        "actual_call": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/BHF29.json",
+        "role": "undecided_regular_or_pirate",
+        "user_evidence": "и 29 ещё запиши как альтернативу. я пока не решил какой возьмём для пиратов, какой для обычных"
+      }
+    ],
+    "latest_user_evidence": "и 29 ещё запиши как альтернативу. я пока не решил какой возьмём для пиратов, какой для обычных"
+  }
+}

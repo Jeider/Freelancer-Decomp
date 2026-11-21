@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-19",
+  "topic": "bh_family",
+  "scope": "pirate_fighter_family",
+  "selected_id": null,
+  "outputs": [
+    {
+      "id": "BHP01",
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/concepts/round_01/bh_pirate_BHP01_family.png",
+      "sha256": "8ba43a09b06907a4e72dc25b6255ea8c10547c32a45b9f98d450e0f91abcbb90",
+      "size": [
+        1536,
+        1024
+      ],
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-c04a0892-31fd-4cb9-a05d-de4727f078f9.png",
+      "copy_matches_tool_output": true
+    },
+    {
+      "id": "BHP02",
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/concepts/round_01/bh_pirate_BHP02_family.png",
+      "sha256": "4a4383d29598359acc8136a32a3e76064aa9933593584a27df05887797043492",
+      "size": [
+        1536,
+        1024
+      ],
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-e004bac7-510a-4c4a-b286-989431b14d2c.png",
+      "copy_matches_tool_output": true
+    },
+    {
+      "id": "BHP02_C01",
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/concepts/round_01/bh_pirate_BHP02_C01_family.png",
+      "sha256": "ae90f43884454943aa66bcffe04be210360957cb4fb8411c7ca8338ec009fbf3",
+      "size": [
+        1536,
+        1024
+      ],
+      "source": "C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-4face6fd-e293-4ce6-83b6-9cc66df69d4a.png",
+      "copy_matches_tool_output": true
+    }
+  ],
+  "source_checks": [
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/bounty_hunter/bh_fighter/bh_fighter.cmp",
+      "sha256": "66322940bd7ec0c2eaf68ff015de5a22b2d79964419fa21770a63e780b3ecb07",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/liberty/li_playerships.mat",
+      "sha256": "3977b98d4f55ccb9625fe0e8d3bf3b90d0609b3ec968277cff895c69631deeb8",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/fx/envmapbasic.mat",
+      "sha256": "7586554f412d0c4cdc5d58ba04121452baf1d6c62efffb3ba864e2cdcfe497be",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/cockpits/liberty/bh_fighter.ini",
+      "sha256": "39b9a69f0ff1ebe6b16ae2b3b23b3e339afdad89b7c96ae191636211737111b6",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/bounty_hunter/bh_pir_elite/bh_pir_elite.cmp",
+      "sha256": "04e69c7da9010d8e24486d7d99bb9c64dc4a8832d1b2be56b2c2fdd683019ed0",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_playerships.mat",
+      "sha256": "1192ea02af7a53162a43de11807e739a9d02ad0ebcd7d2db04b1fc072b7fa400",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/fx/envmapbasic.mat",
+      "sha256": "7586554f412d0c4cdc5d58ba04121452baf1d6c62efffb3ba864e2cdcfe497be",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/cockpits/liberty/bh_elite.ini",
+      "sha256": "ad41aa04d691d204d00f8c962f5d7f90d5f7652cc9d43a28474e94a4ebeeaf76",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/bounty_hunter/bh_pir_vheavy_fighter/bh_pir_vheavy_fighter.cmp",
+      "sha256": "1ed0638c39d472a4787703fc06d707643f36e2d5026e4d879e70ae73d701d61d",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_playerships.mat",
+      "sha256": "1192ea02af7a53162a43de11807e739a9d02ad0ebcd7d2db04b1fc072b7fa400",
+      "unchanged": true
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/cockpits/liberty/bh_elite2.ini",
+      "sha256": "ad41aa04d691d204d00f8c962f5d7f90d5f7652cc9d43a28474e94a4ebeeaf76",
+      "unchanged": true
+    }
+  ],
+  "model_changed": false,
+  "installed": false
+}

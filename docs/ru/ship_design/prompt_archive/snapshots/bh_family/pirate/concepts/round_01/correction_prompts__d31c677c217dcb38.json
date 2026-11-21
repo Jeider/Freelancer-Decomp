@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-19",
+  "tool": "built-in image_gen",
+  "variants": [
+    {
+      "id": "BHP02_C01",
+      "base_variant": "BHP02",
+      "title_ru": "Разнесённая корма — согласование профиля",
+      "prompt": "Use case: precise-object-edit.\nEdit the supplied BH PIRATE FAMILY / BHP02 design sheet. Preserve the three family designs, warm ivory/ochre/brown palette, original BH cockpit glazing and frames, page layout, nine drawings, text, wings and fins. The FRONT 3/4 and REAR 3/4 drawings are the approved design anchors: ELITE and VHEAVY have TWO ENGINES SIDE BY SIDE at the SAME HEIGHT. They must stay that way.\nCorrect ONLY the right-hand SIDE drawings for ELITE (middle row) and VHEAVY (bottom row). They incorrectly depict the two exhausts stacked vertically. In a true side view, the far engine of a horizontal side-by-side pair is hidden behind the near engine. Draw ONE visible engine housing and ONE visible aft exhaust profile centered at the same hull height as shown by the matching rear 3/4. Remove the erroneous lower engine and close its former area with the existing compact underside hull/keel skin. Do not add or relocate fins, alter the bow, make the ship taller or change the two-engine count in the rear views.\nMake the right-hand SIDE drawings orthographic side profiles. Retain the wing's correct side silhouette, hull recesses, panel design and glass boundaries. Do not reinterpret these as entirely new ships. Leave the FIGHTER row unchanged (one engine). Leave all six large front/rear drawings unchanged. Keep title BH PIRATE FAMILY / BHP02 exactly. No extra annotation.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/concepts/round_01/bh_pirate_BHP02_family.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/concepts/round_01/bh_pirate_BHP02_C01_family.png",
+      "generated_output_sha256": "ae90f43884454943aa66bcffe04be210360957cb4fb8411c7ca8338ec009fbf3",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/concepts/round_01/bh_pirate_BHP02_family.png",
+          "sha256": "4a4383d29598359acc8136a32a3e76064aa9933593584a27df05887797043492"
+        }
+      ],
+      "generation_status": "generated_for_review"
+    }
+  ]
+}

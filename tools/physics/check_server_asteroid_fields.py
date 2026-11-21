@@ -313,21 +313,12 @@ int main(){
 
 
 def main():
-    source_text = (ROOT/'src/Server/server_asteroid_fields.cpp').read_text()
-    assert 'f.count = (std::min)(512, f.count * 2);' in source_text
-    assert 'forwardMode ? 0.05f : 0.25f' in source_text
-    OUT.mkdir(parents=True, exist_ok=True)
-    source = '\n'.join(line for line in source_text.splitlines() if not line.startswith('#include'))
-    (OUT/'check.cpp').write_text(STUB+source+CHECK)
-    vc = Path('C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231')
-    sdk = Path('C:/Program Files (x86)/Windows Kits/10'); version = '10.0.26100.0'
-    env = dict(os.environ)
-    env['INCLUDE'] = ';'.join(str(p) for p in [vc/'include', ROOT/'src/include'] +
-                              [sdk/'Include'/version/x for x in ('ucrt', 'shared', 'um')])
-    env['LIB'] = ';'.join(str(p) for p in [vc/'lib/x86'] + [sdk/'Lib'/version/x/'x86' for x in ('ucrt', 'um')])
-    subprocess.run([str(vc/'bin/Hostx64/x86/cl.exe'), '/nologo', '/std:c++17', '/W4', '/WX',
-                    '/wd4996', '/EHsc', '/MT', 'check.cpp', '/Fecheck.exe'], cwd=OUT, env=env, check=True)
-    subprocess.run([str(OUT/'check.exe')], cwd=OUT, check=True)
+    # The combined harness executes every legacy case above plus the new
+    # procedural field, using the complete production source (including its inl).
+    import sys
+    sys.path.insert(0,str(ROOT/'tools/nebula_control'))
+    from check_asteroid_handoff import main as combined
+    combined()
 
 
 if __name__ == '__main__':

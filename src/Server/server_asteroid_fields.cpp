@@ -1,4 +1,9 @@
 #include "server_asteroid_fields.h"
+#include "../include/procedural_asteroids.h"
+#include "../include/common_server.h"
+#include "../include/common_goods.h"
+#include "../include/rpc_iclient.h"
+#include <windows.h>
 #include "../include/server_sysdb.h"
 #include "../include/server_gameobject.h"
 #include "../include/server_createinfo.h"
@@ -15,6 +20,7 @@
 #include "../include/DALib.h"
 #include "../include/dacom.h"
 #include "../include/runtime_hitch_log.h"
+#include "../include/port_config.h"
 #include <algorithm>
 #include <cmath>
 #include <random>
@@ -22,6 +28,8 @@
 #include <vector>
 #include <map>
 #include <memory>
+
+extern IChatClient* g_pChatClientInterface;
 
 namespace {
 struct Field {
@@ -410,6 +418,8 @@ void UpdatePlayerFields(StarSystem& system, std::vector<Vector> const& players, 
     }
 }
 
+#include "server_procedural_asteroids.inl"
+
 void LoadField(StarSystem& system, char const* file, Universe::IZone const& zone, int& budget) {
     char path[1024];
     GetFileSysPath(path, file, DALib::Data);
@@ -462,6 +472,7 @@ void LoadField(StarSystem& system, char const* file, Universe::IZone const& zone
     // Common tests named loot zones before the field-wide fallback.
     std::stable_partition(lootZones.begin(), lootZones.end(),
         [&](Universe::IZone const* candidate) { return candidate != &zone; });
+    if(Proc::Load(system,zone,fields,exclusions,lootZones))return;
     for (auto field : fields) {
         if (!field.fromPlayer) { Populate(system, zone, field, exclusions, budget); continue; }
         field.offset = (std::min)(field.offset, field.radius*(field.forwardFormation ? 0.9f : 0.7f));
@@ -479,6 +490,7 @@ void LoadField(StarSystem& system, char const* file, Universe::IZone const& zone
 }
 
 void OnServerAsteroidKilled(StarSystem& system, unsigned id, Vector const& position) {
+    if(Proc::Killed(system,id,position))return;
     auto found = Populations.find(&system);
     if (found == Populations.end()) return;
     for (auto& field : found->second.fields) {
@@ -536,7 +548,7 @@ void LoadServerAsteroidFields(StarSystem& system) {
 }
 
 void UpdateServerAsteroidFields(StarSystem& system, float dt) {
-    if (Populations.find(&system) == Populations.end()) return;
+    if (Populations.find(&system) == Populations.end() && Proc::Worlds.find(system.SystemInfo->GetId())==Proc::Worlds.end()) return;
     RuntimeHitchScope Hitch("asteroids", "server population");
     std::vector<Vector> players;
     std::vector<Vector> velocities;
@@ -551,13 +563,30 @@ void UpdateServerAsteroidFields(StarSystem& system, float dt) {
         }
     }
     UpdatePlayerFields(system, players, dt, velocities, playerIds);
+    Proc::Update(system,players,dt);
 }
 
 void UnloadServerAsteroidFields(StarSystem& system) {
+    Proc::Unload(system);
     Populations.erase(&system);
 }
 
 float ServerAsteroidViewRadius(StarSystem& system) {
     auto found = Populations.find(&system);
-    return found == Populations.end() ? 0.0f : found->second.viewRadius;
+    float result=found == Populations.end() ? 0.0f : found->second.viewRadius;
+    if(Proc::Worlds.count(system.SystemInfo->GetId()))result=(std::max)(result,ProceduralAsteroids::Suspend+200);
+    return result;
+}
+
+void ServerProceduralAsteroidRequest(unsigned player,unsigned size,void const* data){Proc::Request(player,size,data);}
+void ResetServerProceduralAsteroids(){
+    // A save can be loaded while a system is still resident. Keep its recipe,
+    // but remove the previous world's bodies and damage/death history.
+    for(auto& world:Proc::Worlds){auto& f=world.second;
+        for(auto& item:f.states)if(item.second.body.id){
+            auto* obj=Proc::Body(item.second);if(obj&&!obj->is_destroyed())obj->destroy(0,0);
+        }
+        f.states.clear();f.subscribers.clear();f.anchors.clear();f.candidates.clear();
+        f.epoch=++Proc::Epoch;f.revision=0;f.clock=f.lastClock=0;
+    }
 }

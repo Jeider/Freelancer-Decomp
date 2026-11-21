@@ -12,6 +12,9 @@ import sys
 ROOT=Path(__file__).resolve().parents[2]
 OUT=ROOT/'out/graphics_settings/nebula_asteroid_mesh'
 PROBE=OUT/'probe'
+EXTRA_SOURCES=[]
+EXTRA_DEFINES=[]
+KEEP_ORIGIN=False
 DATA=Path('D:/Games/FL_MOD/DATA')
 sys.path[:0]=[str(ROOT/'tools'),str(ROOT/'tools/nebula_control')]
 from repair_panel_normals import leaves,triangles
@@ -27,7 +30,7 @@ def main():
     env['INCLUDE']=';'.join(p for p in env['INCLUDE'].split(';') if 'DXSDK' not in p.upper())+';C:/DXSDK_Jun10/Include'
     env['PATH']=str(ROOT/'bin')+';D:/Games/FL_MOD/bin;'+env['PATH']
     env['TEMP']=env['TMP']=str(PROBE)
-    sources=['src/freelancer/Client/far_rocks.cpp','src/freelancer/Client/nebula_asteroid_mesh.h','DATA_EXTRA/SHADERS/far_rocks.hlsl']
+    sources=['src/freelancer/Client/far_rocks.cpp','src/freelancer/Client/nebula_asteroid_mesh.h','DATA_EXTRA/SHADERS/far_rocks.hlsl',*EXTRA_SOURCES]
     before={p:digest(ROOT/p) for p in sources}
     assets={}
     material=DATA/'SOLAR/ASTEROIDS_MOD/om15/ast_om15.mat'
@@ -46,6 +49,7 @@ def main():
         texture=next(b for n,_,b in library+nodes if n.lower().endswith('/'+texture_name.lower()+'/mips') or n.lower().endswith('/'+texture_name.lower()+'/mip0'))
         vertices=[list(struct.unpack('<8f',v)) for v in groups[0]]
         centre=[(min(v[k] for v in vertices)+max(v[k] for v in vertices))/2 for k in range(3)]
+        if KEEP_ORIGIN:centre=[0,0,0]
         radius=max(math.dist(v[:3],centre) for v in vertices)
         for v in vertices:
             v[:3]=[(v[k]-centre[k])/radius for k in range(3)]
@@ -56,7 +60,7 @@ def main():
         models.append(dict(name=path.name,triangles=len(vertices)//3,radius=radius,texture=texture_name))
     exe=PROBE/'check.exe'
     command=[str(compiler/'cl.exe'),'/nologo','/EHsc','/MD','/O2','/std:c++17','/utf-8','/DNOMINMAX','/D_CRT_SECURE_NO_WARNINGS','/Isrc/RP9',
-             'tools/nebula_control/check_asteroid_mesh.cpp','/Fo'+str(PROBE/'check.obj'),'/Fe'+str(exe),
+             *EXTRA_DEFINES,'tools/nebula_control/check_asteroid_mesh.cpp','/Fo'+str(PROBE/'check.obj'),'/Fe'+str(exe),
              '/link','d3d9.lib','user32.lib','C:/DXSDK_Jun10/Lib/x86/d3dx9.lib']
     for name,cmd in [('build',command),('result',[str(exe),str(ROOT/'DATA_EXTRA/SHADERS')+'/',str(PROBE/'cache'),*arguments,str(OUT/'preview.png')])]:
         log=OUT/(name+'.log')

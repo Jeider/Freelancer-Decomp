@@ -266,7 +266,7 @@ def clean_feature_wire(blob,mesh_crc,angle=35):
     return S.pack('<II4H',16,mesh_crc,0,len(set(flat)),len(flat),len(points))+np.array(flat,'<u2').tobytes()
 
 
-def write_geometry(nodes,levels):
+def write_geometry(nodes,levels,min_cross_area=1e-8):
     lib=mesh.child(nodes[0],'VMeshLibrary');lib.children=[]
     for file in component_map(nodes):
         part=mesh.child(nodes[0],file);ml=mesh.child(part,'MultiLevel')
@@ -275,7 +275,7 @@ def write_geometry(nodes,levels):
             groups=[]
             for g in merge(parts[file]):
                 p=g['corners'][...,:3].astype('<f4').astype(float)
-                keep=np.linalg.norm(np.cross(p[:,1]-p[:,0],p[:,2]-p[:,0]),axis=1)>1e-8
+                keep=np.linalg.norm(np.cross(p[:,1]-p[:,0],p[:,2]-p[:,0]),axis=1)>min_cross_area
                 if keep.any():groups.append(dict(g,corners=g['corners'][keep]))
             blob,v=mesh.pack(groups)
             name='rh_b_final_'+hashlib.sha256((file+str(level)).encode()+blob).hexdigest()[:20]+'.vms'

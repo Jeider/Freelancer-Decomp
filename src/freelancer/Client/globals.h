@@ -112,7 +112,7 @@ bool ApplyDisplayCmdlineOverrides(DisplaySettings* Mode, const FClientCommandLin
 
 HWND CreateGameWindow(const char* class_name, DisplaySettings* display, const char* title);
 // FUN_00424870 -- record the surface size/mode and restyle + resize the window for it.
-void ApplyGameWindowLayout(HWND Hwnd, bool bFullscreen, unsigned Width, unsigned Height);
+void ApplyGameWindowLayout(HWND Hwnd, bool bFullscreen, unsigned Width, unsigned Height, bool bShow = true);
 
 // RenderMgr.cpp state.
 extern HWND G_RenderMgrWindow;          // DAT_006679f4 -- the game window (FUN_004246e0)

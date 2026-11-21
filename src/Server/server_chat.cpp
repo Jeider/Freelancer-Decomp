@@ -23,6 +23,8 @@
 //      a red "<message too big>"), re-encodes;
 //   5. routes on the target CHAT_ID: private, universe, system, local, group.
 #include "../include/common_server.h"
+#include "server_asteroid_fields.h"
+#include "procedural_asteroids.h"
 #include "../include/common_server_playerdb.h"
 #include "../include/common_text.h"
 #include "../include/common_reputation.h"   // Reputation::Vibe::GetName
@@ -562,6 +564,10 @@ static bool __cdecl ChatCommand_Group(FChatCommandContext* Ctx, std::vector<std:
 // ---------------------------------------------------------------------------
 void Server_SubmitChat(CHAT_ID Sender, unsigned long Size, const void* Data, CHAT_ID Target, int SystemId)
 {
+    if (Target.Id == ProceduralAsteroids::Channel) {
+        if ((Sender.Id & 0xffff0000u) == 0) ServerProceduralAsteroidRequest(Sender.Id,Size,Data);
+        return;
+    }
     if (Target.Id == BasePresence::Channel) {
         // The RPC layer replaces Sender with the authenticated client id.
         if ((Sender.Id & 0xffff0000u) == 0) RouteBasePresence(Sender.Id, Size, Data);

@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-19",
+  "tool": "built-in image_gen",
+  "variants": [
+    {
+      "id": "BHF01_C01",
+      "base_variant": "BHF01",
+      "title_ru": "BHF01 — согласование ракурсов",
+      "prompt": "Edit the FIRST supplied concept sheet only. This is a narrowly targeted mechanical continuity correction, NOT a new design. Preserve the BHF01 identity, entire cabin shape and scale, complete hull silhouette and massing, panels, colour palette, all five views, title \"BH FREIGHTER / BHF01\", sheet layout and studio presentation. Reference 2 is the immutable original BH cabin and reference 3 is only native BH context; do not replace the new cargo hull with the native fighter.\n\nREQUIRED CORRECTION: Remove the spurious SECOND ventral keel under the aft collar in REAR 3/4. The only ventral keel is under the forward cargo-body/wing-root area, matching FRONT 3/4 and SIDE. Keep the aft collar lower contour compact and closed with no blade hanging below it. There is only one dorsal fin above the forward collar and one ventral keel below the forward cargo body.\n\nVerify that FRONT 3/4, REAR 3/4, SIDE, TOP and REAR describe the same physical ship. Both large perspectives show the complete ship, uncut. The true orthographic TOP view must look down on the deck: the single vertical dorsal fin is edge-on, not a broad side-facing blade. The two side wings lie horizontally; maintain the intended wing position and plan outline. Exactly TWO engines stacked vertically on the centre plane, not side-by-side; do not add another engine. Existing lower exhaust is modestly forward of upper. Keep the rounded original BH cabin with its original central pane and oval side panes, no new glazing divisions. Keep closed cargo roof leaves behind the fin. No extra decorative fins, frameworks, pipes, guns, greebles or new fittings. Neutral light warm-grey background. The task is to correct the named contradiction while preserving the developed design.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF01_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "reason": "Visual inspection found a fin-count or longitudinal placement mismatch between projections; retain the initial output as historical evidence.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF01_C01_sheet.png",
+      "generated_output_sha256": "54688b9156d08a4a5eef0014e47dfed20d922414e8bf50285c836b1169603635",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF01_sheet.png",
+          "sha256": "9b8378cd8d6398064ddc227107d805ccac6cfdd38f6e112ba2f3c99092c8a059"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/cockpit_reference.jpg",
+          "sha256": "44510122b0cce0ee94ada489927b1247699b0f87629c0901120d1cb470eb97fe"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/native_flight.jpg",
+          "sha256": "634000d5a2e631a8ce6b1b2581e8d7e3e5c2afaea69cd101ab10df55c25804d6"
+        }
+      ]
+    },
+    {
+      "id": "BHF03_C01",
+      "base_variant": "BHF03",
+      "title_ru": "BHF03 — согласование ракурсов",
+      "prompt": "Edit the FIRST supplied concept sheet only. This is a narrowly targeted mechanical continuity correction, NOT a new design. Preserve the BHF03 identity, entire cabin shape and scale, complete hull silhouette and massing, panels, colour palette, all five views, title \"BH FREIGHTER / BHF03\", sheet layout and studio presentation. Reference 2 is the immutable original BH cabin and reference 3 is only native BH context; do not replace the new cargo hull with the native fighter.\n\nREQUIRED CORRECTION: The enormous added AFT dorsal fin is a continuity error. DELETE the entire rear dorsal fin above the engines in FRONT 3/4 and REAR 3/4; restore the low uninterrupted roof and compact stern shoulder there. There is exactly ONE dorsal fin, immediately behind the cockpit at the FORWARD end, AHEAD of the two roof hatch leaves. Show that SAME forward dorsal fin in FRONT 3/4, REAR 3/4 and SIDE. Keep the original deep cargo belly and the small single rear ventral keel. Do not move the cargo belly mass upward.\n\nVerify that FRONT 3/4, REAR 3/4, SIDE, TOP and REAR describe the same physical ship. Both large perspectives show the complete ship, uncut. The true orthographic TOP view must look down on the deck: the single vertical dorsal fin is edge-on, not a broad side-facing blade. The two side wings lie horizontally; maintain the intended wing position and plan outline. Exactly TWO engines stacked vertically on the centre plane, not side-by-side; do not add another engine. Existing lower exhaust is modestly forward of upper. Keep the rounded original BH cabin with its original central pane and oval side panes, no new glazing divisions. Keep closed cargo roof leaves behind the fin. No extra decorative fins, frameworks, pipes, guns, greebles or new fittings. Neutral light warm-grey background. The task is to correct the named contradiction while preserving the developed design.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF03_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "reason": "Visual inspection found a fin-count or longitudinal placement mismatch between projections; retain the initial output as historical evidence.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF03_C01_sheet.png",
+      "generated_output_sha256": "73fc2241a2b3b9a5c9c421301e709079f50b588c790e1637a6e513677304c1a4",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF03_sheet.png",
+          "sha256": "e3068651e9d3d1649263b38caeaf3d640feb90d8e45f8b67ea3410bc03d30da4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/cockpit_reference.jpg",
+          "sha256": "44510122b0cce0ee94ada489927b1247699b0f87629c0901120d1cb470eb97fe"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/native_flight.jpg",
+          "sha256": "634000d5a2e631a8ce6b1b2581e8d7e3e5c2afaea69cd101ab10df55c25804d6"
+        }
+      ]
+    },
+    {
+      "id": "BHF04_C01",
+      "base_variant": "BHF04",
+      "title_ru": "BHF04 — согласование ракурсов",
+      "prompt": "Edit the FIRST supplied concept sheet only. This is a narrowly targeted mechanical continuity correction, NOT a new design. Preserve the BHF04 identity, entire cabin shape and scale, complete hull silhouette and massing, panels, colour palette, all five views, title \"BH FREIGHTER / BHF04\", sheet layout and studio presentation. Reference 2 is the immutable original BH cabin and reference 3 is only native BH context; do not replace the new cargo hull with the native fighter.\n\nREQUIRED CORRECTION: The dorsal fin moved to the stern in REAR 3/4 by mistake. Move it back to its correct position immediately BEHIND THE COCKPIT and AHEAD of the two roof hatch leaves, as shown in FRONT 3/4, SIDE and TOP. On the rear perspective, the visible roof sequence from the distant nose toward the near engines must be cockpit, single dorsal fin, both roof hatch leaves, low stern shoulder, engines. No dorsal blade anywhere near the engines. Exactly one dorsal fin and one ventral keel. Keep the wide paired integrated cargo cheeks and tiny forward-pointing wing tips unchanged.\n\nVerify that FRONT 3/4, REAR 3/4, SIDE, TOP and REAR describe the same physical ship. Both large perspectives show the complete ship, uncut. The true orthographic TOP view must look down on the deck: the single vertical dorsal fin is edge-on, not a broad side-facing blade. The two side wings lie horizontally; maintain the intended wing position and plan outline. Exactly TWO engines stacked vertically on the centre plane, not side-by-side; do not add another engine. Existing lower exhaust is modestly forward of upper. Keep the rounded original BH cabin with its original central pane and oval side panes, no new glazing divisions. Keep closed cargo roof leaves behind the fin. No extra decorative fins, frameworks, pipes, guns, greebles or new fittings. Neutral light warm-grey background. The task is to correct the named contradiction while preserving the developed design.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF04_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "reason": "Visual inspection found a fin-count or longitudinal placement mismatch between projections; retain the initial output as historical evidence.",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF04_C01_sheet.png",
+      "generated_output_sha256": "d3707cf5e5ea0fb19df15e0004633ea1c217c0de561a925ccbf71419c87d05d8",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF04_sheet.png",
+          "sha256": "810d19cb2b1ab82ec5a5c4125441cd8fd45323a3956a0b88d63d42c13b90da0b"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/cockpit_reference.jpg",
+          "sha256": "44510122b0cce0ee94ada489927b1247699b0f87629c0901120d1cb470eb97fe"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/native_flight.jpg",
+          "sha256": "634000d5a2e631a8ce6b1b2581e8d7e3e5c2afaea69cd101ab10df55c25804d6"
+        }
+      ]
+    }
+  ]
+}

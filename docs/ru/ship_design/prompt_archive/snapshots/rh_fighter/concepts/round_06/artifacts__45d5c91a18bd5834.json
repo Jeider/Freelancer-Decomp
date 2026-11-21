@@ -1,0 +1,154 @@
+{
+  "generation_mode": "built-in image_gen",
+  "requested_count": 4,
+  "completed_count": 4,
+  "missing_ids": [],
+  "status": "complete",
+  "approved_for_modeling": false,
+  "selected_concept": null,
+  "source_cmp": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_fighter/rh_pir_fighter.cmp",
+  "source_sha256": "039fc5177f5110ca51dc5b4ada40e8f1300c8e5bc0696cb374ee5fc757f7c5eb",
+  "source_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F14_sheet.png",
+      "sha256": "ef46c4874aa9fac3eeb0e396bea5164d1561d100926422908e38efdfd16381f2"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/pirate_art/ships/rh_fighter_pir/cockpit_reference.jpg",
+      "sha256": "22bc6793a8285e15b0c5a2c035bf6ecd83e365d521ad9a89e5249a8386b478a4"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "F14_R01",
+      "title_ru": "Утопленный сервисный щит",
+      "group_ru": "Корма выбранного F14",
+      "base_variant": "F14",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-cd6ecc83-5281-41a7-be1d-4217d7a78858.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_06/rh_fighter_F14_R01_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "F14_R01",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-cd6ecc83-5281-41a7-be1d-4217d7a78858.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Показана именно задняя сторона диска: передняя трапециевидная решётка сохранена только в отдельном переднем ракурсе. Три крупных панели, замкнутый утопленный контур, два сопла и нижняя центральная ниша читаются. Весь корабль помещён в rear 3/4. Посадка двигателя/объём барабана и неизменность кабины по пикселям не измерены; малый передний вид — интерпретация, исходный F14 остаётся главным.",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "d46acc4bc07f3e2fe3ce25cb408ca32103badd5657980fbc510f6254a67e57df",
+      "bytes": 2220455,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F14_R02",
+      "title_ru": "Парные глубокие ниши",
+      "group_ru": "Корма выбранного F14",
+      "base_variant": "F14",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-4f97229a-eaef-4d6b-9ed0-a0ddea5712ec.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_06/rh_fighter_F14_R02_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "F14_R02",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-4f97229a-eaef-4d6b-9ed0-a0ddea5712ec.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Задняя оболочка с двумя крупными закрытыми углублениями и широкой плоской центральной перемычкой. В нишах читается тёмная подложка и две широкие ступени; открытой фермы нет. Два нижних сопла и центральный приёмный карман показаны в обоих задних видах. Передняя трапециевидная решётка остаётся в FRONT REFERENCE. Точность габаритов, кабины и хода крышки требует будущей 3D-проверки.",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "cbb692dd79464b7891d2889a9af6fda4ed726754a33246d7d8e2fc04e4b73ed9",
+      "bytes": 2250280,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F14_R03",
+      "title_ru": "Поперечная техническая ниша",
+      "group_ru": "Корма выбранного F14",
+      "base_variant": "F14",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-a730fa7f-a547-43c4-a820-691ba02688ee.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_06/rh_fighter_F14_R03_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "F14_R03",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-a730fa7f-a547-43c4-a820-691ba02688ee.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Корма с широкой поперечной нишей и тремя глубокими горизонтальными каналами. Верхняя оболочка разделена на два крупных поля; отдельные двигатели и нижний карман читаются. Оба задних вида согласованы по общему устройству; передняя узкая трапециевидная решётка отличается от новой задней. Кабина в малом FRONT REFERENCE слегка стилизована, её новая геометрия не предлагается. Пропорции и зазоры требуют проверки по исходному F14/native CMP.",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "e92a90be22c3679aadcd6e36c1dea9b247592f8f99d3beeea665c3780cf9f733",
+      "bytes": 2214085,
+      "copy_matches_generated": true
+    },
+    {
+      "id": "F14_R04",
+      "title_ru": "Составная ремонтная оболочка",
+      "group_ru": "Корма выбранного F14",
+      "base_variant": "F14",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-e3cc859d-d8ed-4a30-9b8a-6f4149d4a683.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_06/rh_fighter_F14_R04_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "F14_R04",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-e3cc859d-d8ed-4a30-9b8a-6f4149d4a683.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Три неравные замкнутые секции задней оболочки, неглубокие поля и маленькая центральная сервисная ниша. Самый спокойный вариант по глубине рельефа, с акцентом на донорскую обшивку. Круглый контур, два нижних сопла и центральный карман читаются. В задних рисунках крыло визуально более горизонтально, чем в исходном F14: это не разрешение менять его полётную геометрию. Передний inset и кабина остаются приблизительной перерисовкой, исходные арт/CMP приоритетны.",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "0af3dee36a83d73c4b464ada1d304911015c13c009eb6023ad7a349b2c9d3f3d",
+      "bytes": 2239483,
+      "copy_matches_generated": true
+    }
+  ],
+  "prompt_files": [
+    "prompts.json"
+  ],
+  "visual_review": {
+    "reviews": [
+      {
+        "id": "F14_R01",
+        "review": "Показана именно задняя сторона диска: передняя трапециевидная решётка сохранена только в отдельном переднем ракурсе. Три крупных панели, замкнутый утопленный контур, два сопла и нижняя центральная ниша читаются. Весь корабль помещён в rear 3/4. Посадка двигателя/объём барабана и неизменность кабины по пикселям не измерены; малый передний вид — интерпретация, исходный F14 остаётся главным."
+      },
+      {
+        "id": "F14_R02",
+        "review": "Задняя оболочка с двумя крупными закрытыми углублениями и широкой плоской центральной перемычкой. В нишах читается тёмная подложка и две широкие ступени; открытой фермы нет. Два нижних сопла и центральный приёмный карман показаны в обоих задних видах. Передняя трапециевидная решётка остаётся в FRONT REFERENCE. Точность габаритов, кабины и хода крышки требует будущей 3D-проверки."
+      },
+      {
+        "id": "F14_R03",
+        "review": "Корма с широкой поперечной нишей и тремя глубокими горизонтальными каналами. Верхняя оболочка разделена на два крупных поля; отдельные двигатели и нижний карман читаются. Оба задних вида согласованы по общему устройству; передняя узкая трапециевидная решётка отличается от новой задней. Кабина в малом FRONT REFERENCE слегка стилизована, её новая геометрия не предлагается. Пропорции и зазоры требуют проверки по исходному F14/native CMP."
+      },
+      {
+        "id": "F14_R04",
+        "review": "Три неравные замкнутые секции задней оболочки, неглубокие поля и маленькая центральная сервисная ниша. Самый спокойный вариант по глубине рельефа, с акцентом на донорскую обшивку. Круглый контур, два нижних сопла и центральный карман читаются. В задних рисунках крыло визуально более горизонтально, чем в исходном F14: это не разрешение менять его полётную геометрию. Передний inset и кабина остаются приблизительной перерисовкой, исходные арт/CMP приоритетны."
+      }
+    ],
+    "approved_for_modeling": false,
+    "base_selection_unchanged": "F14"
+  },
+  "limitations": "Raster concepts; exact cockpit geometry, drum volume and new animation clearance require future 3D validation."
+}

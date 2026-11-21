@@ -1,0 +1,40 @@
+{
+  "status": "accepted_for_modeling",
+  "status_ru": "БЕРЁМ В РАБОТУ — L66; ПОИСК АРТОВ ОСТАНОВЛЕН",
+  "selected_by": "user",
+  "date": "2026-11-18",
+  "concept_id": "L66",
+  "title_ru": "Складной составной хвост",
+  "art": "concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+  "art_sha256": "3e1ad54708e23d12fec4151def215150532f2b9e82f576b1a89a2913bcd164e5",
+  "handoff": "SELECTED_CONCEPT.md",
+  "user_evidence": "ух, ничего хорошего не вышло. фиксируй как L66 как берем в работу и стопаем. сохрани наш опыт в md",
+  "scope": "Original round_16 L66 selected as concept basis for future work, with later mandatory overrides. No new modeling or generation now; no approval of an implemented model or installation. Mandatory overrides: original cabin/collar, ordinary THREE wing leaves and native Defender roots, forward-facing upper tail governed by original rear 3/4, closed flat roof with working cargo doors, equipment on tail instead of engine covers.",
+  "primary_model": "li_pir_elite",
+  "primary_row": "Upper-right REAR 3/4 of the original L66 sheet",
+  "model_status": {
+    "concept": "accepted_for_future_modeling_with_overrides",
+    "model": "not_created_or_approved",
+    "concept_search": "stopped_by_user"
+  },
+  "mixing_policy": "R1 is not selected; E01-E10 are rejected. Do not silently combine later experiments with L66.",
+  "cockpit_policy": "Original li_pir_elite cockpit shell, glazing, frames, size, position, materials and cockpit resources must remain unchanged; native three-rib collar is authoritative.",
+  "implementation_started": false,
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "persistent_prompt_recipe": "../../../docs/ru/ship_design/prompt_archive/selected/li_elite_L66.json",
+  "experience_md": "../../../docs/ru/ship_design/li_elite_concept_lessons.md",
+  "mandatory_overrides": [
+    "Use ordinary THREE Defender wing leaves per side despite the two-leaf historical L66 sheet and prompts.",
+    "Keep native lower-front main-hull wing roots behind the neck, not collar or engines.",
+    "Tail upper sections point FORWARD toward cockpit while root stays aft; rear 3/4 governs contradictory front/side views.",
+    "Preserve original cockpit and collar; keep closed flat roof and functional upper cargo doors.",
+    "Rear equipment on useful tail faces, not motor housings; no giant pedestal or tiny decorative fin."
+  ],
+  "prompt_history": {
+    "initial": "concepts/round_16/prompts.json",
+    "corrections": "concepts/round_16/correction_prompts.json",
+    "actual_outputs": "concepts/round_16/generation_results.json",
+    "warning": "Historical two-leaf corrections retained verbatim; current three-leaf requirement overrides them."
+  }
+}

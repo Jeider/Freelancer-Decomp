@@ -2170,6 +2170,972 @@
       "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/structure_review/README__8df51d907e9c999f.md",
       "sha256": "8df51d907e9c999f89b2f7b1f2af696d113c9d419264055f87f86944ca6e9101",
       "bytes": 25416
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/correction_prompts__5c2c5eae55d87609.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/li_elite/concepts/round_22/correction_prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/correction_prompts__5c2c5eae55d87609.json",
+      "sha256": "5c2c5eae55d8760906481f7e78d38ff9f6fd2484cad45490444383f877e7cb7b",
+      "bytes": 2757
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/prompts__b0595c6630b33810.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/li_elite/concepts/round_22/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/prompts__b0595c6630b33810.json",
+      "sha256": "b0595c6630b33810605dc1cd1551ae0bbcf2c58264405ddf30a1141328c1a029",
+      "bytes": 141420
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/artifacts__162bcc4d2cc382ef.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/concepts/round_22/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/artifacts__162bcc4d2cc382ef.json",
+      "sha256": "162bcc4d2cc382ef7e88d092e4d254a8768e4c32cd68376114ee054af197e24a",
+      "bytes": 29527
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/README__34829496022d1e9e.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/concepts/round_22/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/README__34829496022d1e9e.md",
+      "sha256": "34829496022d1e9e78d1b0eb920d809713dbeef033aa30570e6694c88f44f6f0",
+      "bytes": 7830
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/README__edeb2bb6cea6cf82.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/README__edeb2bb6cea6cf82.md",
+      "sha256": "edeb2bb6cea6cf82aa3824ec4d78f0d75ebffc545aefef809f4221855fd266c1",
+      "bytes": 34295
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/structure_review/README__58731362f43820d2.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/structure_review/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/structure_review/README__58731362f43820d2.md",
+      "sha256": "58731362f43820d25f83a2592d8d8f5483202f935e664b2c86fad1ecc27b0d8e",
+      "bytes": 25497
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_16/prompts__8ad5df823033b8cf.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/li_elite/concepts/round_16/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_16/prompts__8ad5df823033b8cf.json",
+      "sha256": "8ad5df823033b8cf625b9a1254d1c64f1af09f58b534316568a8fe1c19e2d3e8",
+      "bytes": 24005
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_21/prompts__7e8b49dc7e6e4236.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/li_elite/concepts/round_21/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_21/prompts__7e8b49dc7e6e4236.json",
+      "sha256": "7e8b49dc7e6e4236e5795798ea24cf3ad9db5fd4b46db272ffd4df9a08664f07",
+      "bytes": 18312
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/prompts__79443037ba965c01.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/li_elite/concepts/round_22/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/prompts__79443037ba965c01.json",
+      "sha256": "79443037ba965c01f4f90544ac28e380333d75fc00b60ff2c3224cf3342fb2ff",
+      "bytes": 141717
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_16/artifacts__eff4a48f963f9008.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/concepts/round_16/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_16/artifacts__eff4a48f963f9008.json",
+      "sha256": "eff4a48f963f9008abd2cdc7a6a6656a75ede286b5a564d593967b6475ea6524",
+      "bytes": 10210
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_16/README__733c3a6d23cd129e.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/concepts/round_16/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_16/README__733c3a6d23cd129e.md",
+      "sha256": "733c3a6d23cd129e4c2d15abe843a8130958b4f2685b6c869bdcd801a2d89d36",
+      "bytes": 7955
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_21/artifacts__d401f79b3a0df204.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/concepts/round_21/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_21/artifacts__d401f79b3a0df204.json",
+      "sha256": "d401f79b3a0df204d834a07652534b95b0ad155405bcd630c1ab04ab33e8003c",
+      "bytes": 8447
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_21/README__05f89a668aaf8228.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/concepts/round_21/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_21/README__05f89a668aaf8228.md",
+      "sha256": "05f89a668aaf82285948d0f8039a8e08806fd953a27ba5ec5e740814667fb3d1",
+      "bytes": 6028
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/artifacts__2b0233f3e4dbb6f4.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/concepts/round_22/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/artifacts__2b0233f3e4dbb6f4.json",
+      "sha256": "2b0233f3e4dbb6f4ab9e4347e745e34ca144c797be8322db21a6bfa29aa0e208",
+      "bytes": 31343
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/README__111d7a30c9f74cba.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/concepts/round_22/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_22/README__111d7a30c9f74cba.md",
+      "sha256": "111d7a30c9f74cba006f34a2969a294fd002cf5cd5576eb4b830218e12d6fd0e",
+      "bytes": 8367
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/README__34a6a07ed35a89ff.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/README__34a6a07ed35a89ff.md",
+      "sha256": "34a6a07ed35a89ffe2c23bd9eb0cf6e2235c94e77e267d1e8060ea7cff9d3e1c",
+      "bytes": 35287
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/SELECTED_CONCEPT__fbc3b1a0d10c254e.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/SELECTED_CONCEPT__fbc3b1a0d10c254e.md",
+      "sha256": "fbc3b1a0d10c254ea978ab404b67dc1b57d3b0d2e718a73178c2beac9e38ffd3",
+      "bytes": 8602
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/selection__43e9368ef1f7048b.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/selection__43e9368ef1f7048b.json",
+      "sha256": "43e9368ef1f7048b91b60cd9e8c4750ecebb66ea30aa1a2a0f753ed4e437b7e9",
+      "bytes": 2989
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/li_elite/structure_review/README__f432b483bc07e3ec.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/li_elite/structure_review/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/structure_review/README__f432b483bc07e3ec.md",
+      "sha256": "f432b483bc07e3ec5cedb2a24e793b4ba4b6e1cb885c4991a805821aa796a1de",
+      "bytes": 25660
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/prompts__a2774af5d2a23de3.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/rh_fighter/concepts/round_06/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/prompts__a2774af5d2a23de3.json",
+      "sha256": "a2774af5d2a23de327517647efbeee524eaa4d62282d9413d2913fecd72d658d",
+      "bytes": 52990
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/artifacts__45d5c91a18bd5834.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/concepts/round_06/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/artifacts__45d5c91a18bd5834.json",
+      "sha256": "45d5c91a18bd583439d0aabf213c7574a101b3f03322245432f419acc7b3b148",
+      "bytes": 13851
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/README__e163b1e6d29ec5c3.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/concepts/round_06/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/README__e163b1e6d29ec5c3.md",
+      "sha256": "e163b1e6d29ec5c33f37bf0e67e935d4ce190cfd210684e565960c81fb026a4b",
+      "bytes": 7039
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__dbc36a3cdaf0ac0b.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__dbc36a3cdaf0ac0b.md",
+      "sha256": "dbc36a3cdaf0ac0b1ecd47fdd38a4ae925b7cb23ae8dee3313ef7f093ca019f1",
+      "bytes": 9202
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__93485b939cb209ae.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__93485b939cb209ae.md",
+      "sha256": "93485b939cb209ae0dd4205eee0285fb371c9f72eed9cf80971138bca18f503c",
+      "bytes": 8457
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/prompts__3b42a93eba5d9853.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/rh_fighter/concepts/round_06/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/prompts__3b42a93eba5d9853.json",
+      "sha256": "3b42a93eba5d98535a98fcc3e9b2e830d0685ebd7d25f5c4a4e98cb1737b36ab",
+      "bytes": 54505
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/artifacts__07a16271a0c7116e.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/concepts/round_06/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/artifacts__07a16271a0c7116e.json",
+      "sha256": "07a16271a0c7116e7ee81aadc2758ae1aec402843405faf041e3c82fd6b9d832",
+      "bytes": 14226
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/README__3149cc9840cb8ee9.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/concepts/round_06/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/README__3149cc9840cb8ee9.md",
+      "sha256": "3149cc9840cb8ee9e8e6888a48f25ddae841ee4bf05d6a2465c4d7263f95f807",
+      "bytes": 7462
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__f7c4fe8192dfe529.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__f7c4fe8192dfe529.md",
+      "sha256": "f7c4fe8192dfe5291b58394f0ed968ee012a14aa68ccdbeff2b546d8fb5eac8d",
+      "bytes": 9329
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__43a60c3c4eac097c.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__43a60c3c4eac097c.md",
+      "sha256": "43a60c3c4eac097cec5b192eca4f27ca9bcc6b9656d30f0dbf3070085683a27c",
+      "bytes": 9018
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/selection__eeb36babccaee632.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/selection__eeb36babccaee632.json",
+      "sha256": "eeb36babccaee632b980e927dfc191a018a8fe8cd44f6c9ad5eb3a7af1c0faa4",
+      "bytes": 1918
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/prompts__9d56557d64d67d85.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bw_family/concepts/round_04/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/prompts__9d56557d64d67d85.json",
+      "sha256": "9d56557d64d67d85aee2cd3e3979c326b0f18ed968514b3f98cdd8c5c56d3ef0",
+      "bytes": 31252
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/README__9d430100d8716a26.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/concepts/round_06/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_06/README__9d430100d8716a26.md",
+      "sha256": "9d430100d8716a26938b4b61cf2c6bed434441b919817c66b4a2198ec80ec282",
+      "bytes": 8086
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__c88ac52a2fc10983.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__c88ac52a2fc10983.md",
+      "sha256": "c88ac52a2fc10983b359256689f2a1217d994a8455f961c1ec7ce12784745315",
+      "bytes": 9992
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__1e43b6f2b0d7d123.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__1e43b6f2b0d7d123.md",
+      "sha256": "1e43b6f2b0d7d1231c39627b5271e02b08dfdf9dbae60669995d0b6704101a63",
+      "bytes": 10446
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/selection__049c27ebe8230b5b.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/selection__049c27ebe8230b5b.json",
+      "sha256": "049c27ebe8230b5b9fc77acdeaa0fa3d5ce921a7d06260c0727070ae684a8a0a",
+      "bytes": 4199
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/artifacts__e9c3d1ec96fe096d.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_04/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/artifacts__e9c3d1ec96fe096d.json",
+      "sha256": "e9c3d1ec96fe096d05b28e2c60381e238fbd19ffa6e34282c62469cf910fe9f6",
+      "bytes": 7051
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/README__495904c602bb151e.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_04/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/README__495904c602bb151e.md",
+      "sha256": "495904c602bb151e4b31c36b54210a9cb4aaa4ad168fb74bd9454a8b8b61ad7a",
+      "bytes": 7985
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__eb3574ad0d2d3955.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__eb3574ad0d2d3955.md",
+      "sha256": "eb3574ad0d2d39555c87aa170b6c92f606ca553a7781c42e0dfccf03c6cc95fd",
+      "bytes": 18721
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/SELECTED_CONCEPT__22c152bc6cf26d2a.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/SELECTED_CONCEPT__22c152bc6cf26d2a.md",
+      "sha256": "22c152bc6cf26d2a13250ad476976654d8118aadd0d3ff607801536e83245a16",
+      "bytes": 6621
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/selection__10649957e6e10770.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/selection__10649957e6e10770.json",
+      "sha256": "10649957e6e1077051214c9eb42fedd4d6973a081e05468a2220e6ba1e04932a",
+      "bytes": 3037
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/prompts__387da6ad4bfeb5c2.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bw_family/concepts/round_04/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/prompts__387da6ad4bfeb5c2.json",
+      "sha256": "387da6ad4bfeb5c2bd289214c9e3b5bb3b2e723919eeead37eb58d02fc76c843",
+      "bytes": 31382
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f14_01/README__54efec3982960558.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/prototypes/f14_01/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f14_01/README__54efec3982960558.md",
+      "sha256": "54efec39829605589fcbef104cc5851d14c76744864a546b5bf7e189f494c0cc",
+      "bytes": 6656
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__46a105ae99d77522.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__46a105ae99d77522.md",
+      "sha256": "46a105ae99d77522a07d02fb108fd93806b9ffb959aa44b15c240c946bb91184",
+      "bytes": 10298
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/artifacts__e27672ab4c5669d1.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_04/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/artifacts__e27672ab4c5669d1.json",
+      "sha256": "e27672ab4c5669d13cc1fc6214a50d287b2122cc7c88f714917019fd5a16dc87",
+      "bytes": 7234
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/README__2f9db1208dc58f32.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_04/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_04/README__2f9db1208dc58f32.md",
+      "sha256": "2f9db1208dc58f32e892575a61f563576a54b33c63df34324806ee2f77c8d107",
+      "bytes": 8423
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__85fbb80e99f5b10d.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__85fbb80e99f5b10d.md",
+      "sha256": "85fbb80e99f5b10d3906acd1a42e6cccfe164d7570fe67605e809f50978d7ff5",
+      "bytes": 19011
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/SELECTED_CONCEPT__1a5555b85dae4ddf.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/SELECTED_CONCEPT__1a5555b85dae4ddf.md",
+      "sha256": "1a5555b85dae4ddf22507057e74f2cdab4f095a3254a25dc20b8757ba4db34d0",
+      "bytes": 8216
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/selection__fda6bd1a6842eea9.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/selection__fda6bd1a6842eea9.json",
+      "sha256": "fda6bd1a6842eea9a5fbf369022cf276d0feb5ee575cd844fcee58232b098cf8",
+      "bytes": 4037
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_05/correction_prompts__78895ebee05ead0e.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bw_family/concepts/round_05/correction_prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_05/correction_prompts__78895ebee05ead0e.json",
+      "sha256": "78895ebee05ead0e66e4786e09949014768ad26f2b1a743fc948c5846e16de15",
+      "bytes": 4003
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_05/prompts__fb9c2078be88eb54.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bw_family/concepts/round_05/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_05/prompts__fb9c2078be88eb54.json",
+      "sha256": "fb9c2078be88eb54485de678787fe12fcfdc06483c04c2bc5e8e09c7edbb8c68",
+      "bytes": 19711
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f01_body_01/README__699d954838890f82.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/prototypes/f01_body_01/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f01_body_01/README__699d954838890f82.md",
+      "sha256": "699d954838890f82d0ecc4b7033a672a2f587e7ef163b30032931e0808a139d3",
+      "bytes": 7282
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f01_uv_01/README__28c5b1fc7c195e61.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/prototypes/f01_uv_01/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f01_uv_01/README__28c5b1fc7c195e61.md",
+      "sha256": "28c5b1fc7c195e61bebaf29758b5623150b01e67c90e13dbacdc0579575839ca",
+      "bytes": 8881
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f14_02/README__a7bf20bc363fa6d8.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/prototypes/f14_02/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f14_02/README__a7bf20bc363fa6d8.md",
+      "sha256": "a7bf20bc363fa6d8f944368b18b4422b14329eb6ed5acaf2db4b7e9224e67e61",
+      "bytes": 8970
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f14_03/README__f3a0ed85cddc53c8.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/prototypes/f14_03/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f14_03/README__f3a0ed85cddc53c8.md",
+      "sha256": "f3a0ed85cddc53c8c25b93b01d37ec82286156b5e0c6e12bf60bea5c8ca6e8d2",
+      "bytes": 4748
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f14_uv_01/README__e3912ca234482ed3.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/prototypes/f14_uv_01/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f14_uv_01/README__e3912ca234482ed3.md",
+      "sha256": "e3912ca234482ed32483b263043b0fdc2b187a9e20908306444e736266e6349f",
+      "bytes": 7550
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__8309c6ebd29b0903.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__8309c6ebd29b0903.md",
+      "sha256": "8309c6ebd29b0903573ca2fca7651dcdeb8241e5a9bca0473a45f7fdf8d6b7ce",
+      "bytes": 12545
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__4f537c6dc12d1fec.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__4f537c6dc12d1fec.md",
+      "sha256": "4f537c6dc12d1fecba6e9b10e6fe41d4e7139f44b9ff035c5ddf4ac71b8ed8b0",
+      "bytes": 14408
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/selection__fd471edb15256a34.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/selection__fd471edb15256a34.json",
+      "sha256": "fd471edb15256a344c51bc035243e302fe5c7d0169631d8fa008a8fda6650dab",
+      "bytes": 10411
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_05/artifacts__d1d18a5504cb9158.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_05/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_05/artifacts__d1d18a5504cb9158.json",
+      "sha256": "d1d18a5504cb91582438216dcd5d79d2b355ccbd5d6c42d1d6eef9b4f7adac2d",
+      "bytes": 4124
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_05/README__7292151a706bdc76.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_05/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_05/README__7292151a706bdc76.md",
+      "sha256": "7292151a706bdc760368dfcbedf099dd0066509fe4badf07860be2271ba49b3f",
+      "bytes": 4868
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/README__f3cea5c101b08af8.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/freighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/README__f3cea5c101b08af8.md",
+      "sha256": "f3cea5c101b08af8a7e789d46f7a566dcc5dc6cf25a8e82012c1bba2dad64fff",
+      "bytes": 7305
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__dc8e0e6d997441e3.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__dc8e0e6d997441e3.md",
+      "sha256": "dc8e0e6d997441e3845b10e12808af5a3244715c1ba960d2e576a25bd2583690",
+      "bytes": 19515
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_06/prompts__334e92690f716160.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bw_family/concepts/round_06/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_06/prompts__334e92690f716160.json",
+      "sha256": "334e92690f716160664d3c3c0c35d46e16edb608dfd65732c5820321a5f7670a",
+      "bytes": 181366
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f01_uv_02/README__bb743ca5970b35f6.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/prototypes/f01_uv_02/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f01_uv_02/README__bb743ca5970b35f6.md",
+      "sha256": "bb743ca5970b35f6e392af77c6352435ac7aaa9e9736b09f80860257b0a2d9ae",
+      "bytes": 7376
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f01_uv_03/README__8ab01d3f2c6f2bbe.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/prototypes/f01_uv_03/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/prototypes/f01_uv_03/README__8ab01d3f2c6f2bbe.md",
+      "sha256": "8ab01d3f2c6f2bbe0d2d367cae44d201ff2505a26ff867c963ca651b66ade7c1",
+      "bytes": 7410
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__8e7d08f3f7e32afe.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__8e7d08f3f7e32afe.md",
+      "sha256": "8e7d08f3f7e32afea93df92070503caeb3b5e8584d5d69913a9724b51f7df460",
+      "bytes": 13268
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__64cb35baca730dbe.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/SELECTED_CONCEPT__64cb35baca730dbe.md",
+      "sha256": "64cb35baca730dbe635780377471f0c9c30ee5de46a3041863b196fa666e51fd",
+      "bytes": 15089
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/selection__35bd38480f9863bb.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/selection__35bd38480f9863bb.json",
+      "sha256": "35bd38480f9863bbba3ac265a3dcad9bac7f4465f6bb606bb4c6956fa66d2214",
+      "bytes": 14563
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_06/artifacts__1c90ff84188309dc.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_06/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_06/artifacts__1c90ff84188309dc.json",
+      "sha256": "1c90ff84188309dc23488bacb0d36c708735b759d5001a8cb7705076ac6c223f",
+      "bytes": 155452
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_06/README__7cb57eea2a21e18c.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_06/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_06/README__7cb57eea2a21e18c.md",
+      "sha256": "7cb57eea2a21e18c78226b04f75312a8ab842ab2dfff243b2a3596b39a3a65a5",
+      "bytes": 7091
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/README__e57b89ebf48496c1.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/freighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/README__e57b89ebf48496c1.md",
+      "sha256": "e57b89ebf48496c1b13babce858b3b6b23198cb2b4d7b2c9d42b304ebfa860f7",
+      "bytes": 7763
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__6cfd7138691c88de.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__6cfd7138691c88de.md",
+      "sha256": "6cfd7138691c88de5f1fcbef75ae8e3e3e6b50bea96b5899e863768a37c78abe",
+      "bytes": 20143
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/prompts__0fe32f9abfc0dfc3.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bw_family/concepts/round_07/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/prompts__0fe32f9abfc0dfc3.json",
+      "sha256": "0fe32f9abfc0dfc3ca2322293b941da75870c490c1475b754955b0116c0f3359",
+      "bytes": 178442
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__54ba3cc8cb3053ba.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/README__54ba3cc8cb3053ba.md",
+      "sha256": "54ba3cc8cb3053bad5f414083dcc63b7f5a1b0f4542a06cbbaa9694440ffc66a",
+      "bytes": 14080
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__66c6f07a660b2e7f.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/rh_pir_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__66c6f07a660b2e7f.md",
+      "sha256": "66c6f07a660b2e7f2c1c4998e353e52285766f9c0dab248bfddc5073043d0cab",
+      "bytes": 9038
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/artifacts__3629e668d1784f05.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_07/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/artifacts__3629e668d1784f05.json",
+      "sha256": "3629e668d1784f0554aaf97cb696b2ee06f20e66b363cb47d44a1e1c8d81f9a8",
+      "bytes": 164913
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/README__0dd328297c0566f5.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_07/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/README__0dd328297c0566f5.md",
+      "sha256": "0dd328297c0566f5c42455363995c6f912ca9609db1b2765bb867bd2da4afce9",
+      "bytes": 8749
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/README__415a7685d4d6b6c1.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/freighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/README__415a7685d4d6b6c1.md",
+      "sha256": "415a7685d4d6b6c1faaa765ecfeee31647bdb4934c11e4ad7fdcd73949e62a9d",
+      "bytes": 8649
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__b374b1daa160c31a.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__b374b1daa160c31a.md",
+      "sha256": "b374b1daa160c31a5975b4bf1cdcc4be8df13c0bf0622ccd5ee7b27107b3af59",
+      "bytes": 21010
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/prompts__ccb8ac4e95d86710.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bw_family/concepts/round_07/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/prompts__ccb8ac4e95d86710.json",
+      "sha256": "ccb8ac4e95d86710cb0aca762c26d9e6c67da7144b56888ccda4c07cd8756719",
+      "bytes": 179498
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/artifacts__b7f6fe830ab7a863.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_07/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/artifacts__b7f6fe830ab7a863.json",
+      "sha256": "b7f6fe830ab7a8632029880c8bcf8fb61cb850227d9e178805c075809eb3b16f",
+      "bytes": 164914
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/README__64498530a654c728.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/concepts/round_07/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_07/README__64498530a654c728.md",
+      "sha256": "64498530a654c72849b97275de4e825437fb0a99e22cce5e638c594a1d8525c4",
+      "bytes": 9086
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/README__446c67c3da79efb1.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/freighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/README__446c67c3da79efb1.md",
+      "sha256": "446c67c3da79efb1222080d12b131944ecb2414d275612e5625a556150725582",
+      "bytes": 9129
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__0efb62cf4e48f883.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__0efb62cf4e48f883.md",
+      "sha256": "0efb62cf4e48f883ea27ac7892d9976e54ae25542e45f1d677e6869a2060ad61",
+      "bytes": 21519
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/SELECTED_CONCEPT__be1dcc81bee96ef4.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/freighter/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/SELECTED_CONCEPT__be1dcc81bee96ef4.md",
+      "sha256": "be1dcc81bee96ef421ba8bf1b356e88df470827a236e49ff1ad6cb3533e3dc7d",
+      "bytes": 6338
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/selection__ed40a517ae067ad4.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/freighter/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/selection__ed40a517ae067ad4.json",
+      "sha256": "ed40a517ae067ad4fb67237ee3031a4f97613f752751574d0af2faf8938508f0",
+      "bytes": 1965
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/source_audit__7379e0e56bb8b38f.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/freighter/source_audit.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/freighter/source_audit__7379e0e56bb8b38f.json",
+      "sha256": "7379e0e56bb8b38fcccc46579f1f59e20a3178bbfd5d189c27eaf36b126c4752",
+      "bytes": 38516
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_01/correction_prompts__33821c0e2d6a66fa.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/concepts/round_01/correction_prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_01/correction_prompts__33821c0e2d6a66fa.json",
+      "sha256": "33821c0e2d6a66fa229152b803a34bdd8746de7b8aaf1b95058218c08f3e6382",
+      "bytes": 10858
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_01/prompts__3ff1421476091b91.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/concepts/round_01/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_01/prompts__3ff1421476091b91.json",
+      "sha256": "3ff1421476091b9113a9b8c43b601914db94d6376707779904d10afed3db5b86",
+      "bytes": 59081
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__15f81eaa25813a57.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/rh_pir_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__15f81eaa25813a57.md",
+      "sha256": "15f81eaa25813a57c7cc5280744fb50da87dbc91073b0a1290085c2509c2e040",
+      "bytes": 11964
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_01/artifacts__70dba0ae57b586a3.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_01/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_01/artifacts__70dba0ae57b586a3.json",
+      "sha256": "70dba0ae57b586a3e850273facb7280d5e487c49e8a56d030b98138b508f710c",
+      "bytes": 58099
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_01/README__1c122cc96d81d76b.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_01/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_01/README__1c122cc96d81d76b.md",
+      "sha256": "1c122cc96d81d76bef8cc2cc0764001ed4166568d40a4e623fb7cca3ac9588b2",
+      "bytes": 9465
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/elite/README__742a1834e0442b06.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/elite/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/elite/README__742a1834e0442b06.md",
+      "sha256": "742a1834e0442b0671542e236a52ad5410ce6917c18f899815c84a3c523ae6d2",
+      "bytes": 963
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/fighter/README__14e68bd728fe1ea9.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/fighter/README__14e68bd728fe1ea9.md",
+      "sha256": "14e68bd728fe1ea97e8efbcaed2cd118db0e549d19f66ed22cb833f64873f508",
+      "bytes": 968
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__b9c16ec4a709c13f.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__b9c16ec4a709c13f.md",
+      "sha256": "b9c16ec4a709c13f5f55012d841c41f872d81054e3f763ca523bfab11cbdadaf",
+      "bytes": 15510
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/vheavy_fighter/README__ae3467bf0f8b27bb.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/vheavy_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/vheavy_fighter/README__ae3467bf0f8b27bb.md",
+      "sha256": "ae3467bf0f8b27bb33aa2ec9ca81fe74b071328664b80a8b0109ec5452e0af6f",
+      "bytes": 982
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_02/correction_prompts__889eda640e1b7f55.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/concepts/round_02/correction_prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_02/correction_prompts__889eda640e1b7f55.json",
+      "sha256": "889eda640e1b7f557f351644a3ba8b69354a66a4cefbf54b4c6bea1c744d4fae",
+      "bytes": 14601
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_02/prompts__0b0db1fb94bc7362.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/concepts/round_02/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_02/prompts__0b0db1fb94bc7362.json",
+      "sha256": "0b0db1fb94bc7362be3c2da3389a2c2dcc4ffa1f8a60dbc63c533372e28d6a5a",
+      "bytes": 45276
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__8bd322b59dd7a393.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/rh_pir_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__8bd322b59dd7a393.md",
+      "sha256": "8bd322b59dd7a39364e000387f18f003d8b90bceb88ae01cad3e6399c4a55a9a",
+      "bytes": 13063
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_02/artifacts__0aefa59975f62cf9.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_02/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_02/artifacts__0aefa59975f62cf9.json",
+      "sha256": "0aefa59975f62cf9413c25d55941e44ba19102fcf9a25104342c6085cb107395",
+      "bytes": 54008
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_02/README__ffae0b982783cf3d.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_02/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_02/README__ffae0b982783cf3d.md",
+      "sha256": "ffae0b982783cf3d027114e93e53ba5386731ff8aee5e4b05b330b790362dc99",
+      "bytes": 8364
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__43d28fc96199e218.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__43d28fc96199e218.md",
+      "sha256": "43d28fc96199e218e88755cf4b8456d6e45f112076cd61360e44bb4584c7edb7",
+      "bytes": 17483
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/correction_prompts__1b5f01e3cf69c0df.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/correction_prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/correction_prompts__1b5f01e3cf69c0df.json",
+      "sha256": "1b5f01e3cf69c0dfa4dedfdb4eb61c2749c19aa4a8cd331762c82d8e7aed328d",
+      "bytes": 11935
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/prompts__bc5ba43378fd647b.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/prompts__bc5ba43378fd647b.json",
+      "sha256": "bc5ba43378fd647bd857c2ead1392a5cbb96bdf47524c8ff5e3dd4f0c42f4805",
+      "bytes": 171318
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__2b709e17606aab1a.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/rh_pir_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__2b709e17606aab1a.md",
+      "sha256": "2b709e17606aab1adc9391d721ae08e6c69c33f6e21b86a045a3f82174f4a91b",
+      "bytes": 14722
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/artifacts__6673c1733a39f24b.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/artifacts__6673c1733a39f24b.json",
+      "sha256": "6673c1733a39f24b0542b14203307502b88332807792ece421876fd6f2dcce3e",
+      "bytes": 170956
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/README__dd5f88904d83a113.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/README__dd5f88904d83a113.md",
+      "sha256": "dd5f88904d83a113d7c14a4e2909ceab3edecb55ed7fd07632ed83c83a0cf62d",
+      "bytes": 12394
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__91e2b6f9676e0b29.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__91e2b6f9676e0b29.md",
+      "sha256": "91e2b6f9676e0b29052b2ac76be11f80910c7c6610221f88616c26ee8adfcff7",
+      "bytes": 18634
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/prompts__e90fda8bf62d1167.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/prompts__e90fda8bf62d1167.json",
+      "sha256": "e90fda8bf62d11670e8514f0a145e1078382c127d881cd7148c23eff9bbe38d9",
+      "bytes": 171499
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__69c93d657da4f3ea.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/rh_pir_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__69c93d657da4f3ea.md",
+      "sha256": "69c93d657da4f3ea53d13471e4a3a4dd1d6dacfc5bd86dcd30b61b781ce0d6a5",
+      "bytes": 15539
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/README__adb57c611fbcc208.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/README__adb57c611fbcc208.md",
+      "sha256": "adb57c611fbcc208474b902aab1e7d1c5cb33f162cf2cc5b0ddf670b5cedf667",
+      "bytes": 12897
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__eac472575dfd6c0d.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__eac472575dfd6c0d.md",
+      "sha256": "eac472575dfd6c0d90fc760a8892ee8df1d985a191d462006a5014affae34aa4",
+      "bytes": 19103
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/freighter/SELECTED_CONCEPT__f779b6a3a1319908.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/freighter/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/freighter/SELECTED_CONCEPT__f779b6a3a1319908.md",
+      "sha256": "f779b6a3a13199080624821666b82066a22ef94662f5204dfada688b98abca4c",
+      "bytes": 4233
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/freighter/selection__a47b08faa8a05445.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/freighter/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/freighter/selection__a47b08faa8a05445.json",
+      "sha256": "a47b08faa8a05445b4adbe36dfd5b8aa5e9649497248432f81e32522d8abda9d",
+      "bytes": 1521
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/prompts__b013a69a887d1de8.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/prompts__b013a69a887d1de8.json",
+      "sha256": "b013a69a887d1de8bd9ed72a41ae63df00cc38aceab5e6f4b8916e0715509fff",
+      "bytes": 171509
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/artifacts__de97104d050289ff.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/artifacts__de97104d050289ff.json",
+      "sha256": "de97104d050289ff50d42aceeb64711fdd73878f8dcef1b00aff485ec7d5100f",
+      "bytes": 170969
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/prompts__edac194328b955bd.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/prompts__edac194328b955bd.json",
+      "sha256": "edac194328b955bd95362e663e9d041be161d7d749db4fa92d115780c84b5887",
+      "bytes": 171967
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/artifacts__12203431d8bfde46.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/artifacts__12203431d8bfde46.json",
+      "sha256": "12203431d8bfde468df5fdfa0f55517adedad5a57b5f3b9f15f35fe0652dc6d7",
+      "bytes": 171391
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/README__3d768f95bb0d5c87.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/concepts/round_03/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/concepts/round_03/README__3d768f95bb0d5c87.md",
+      "sha256": "3d768f95bb0d5c870e5e6697a447eebf2f4d12f026d5ebdf0e0cee1b4dc87737",
+      "bytes": 13146
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__253604889ac3df8f.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__253604889ac3df8f.md",
+      "sha256": "253604889ac3df8f230d072197b4fe56da22e03ca6b0e2c764eaa114431407b0",
+      "bytes": 19219
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/freighter/SELECTED_CONCEPT__88b2805d7bba500a.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/freighter/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/freighter/SELECTED_CONCEPT__88b2805d7bba500a.md",
+      "sha256": "88b2805d7bba500a8ad9c80afa8194f3e6384f35e8b60592b638b3b9de6ce834",
+      "bytes": 5561
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/freighter/selection__38ef5312c6dedb79.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/freighter/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/freighter/selection__38ef5312c6dedb79.json",
+      "sha256": "38ef5312c6dedb792086b57d258f4a161885de473eaf2d4071b090ab34d05323",
+      "bytes": 2905
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/concepts/round_01/correction_prompts__d31c677c217dcb38.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/pirate/concepts/round_01/correction_prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/concepts/round_01/correction_prompts__d31c677c217dcb38.json",
+      "sha256": "d31c677c217dcb380778c43d315d4322c8884979f97a8116368f57f73cd81860",
+      "bytes": 2479
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/concepts/round_01/prompts__eb0294a0821be34c.json": {
+      "kind": "prompts",
+      "original_path": "out/ship_design/bh_family/pirate/concepts/round_01/prompts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/concepts/round_01/prompts__eb0294a0821be34c.json",
+      "sha256": "eb0294a0821be34c6b36df42bf7965b3b540a4c7ae0c812bef25ae8e50012dbf",
+      "bytes": 20353
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_freighter/rh_pir_freighter/exhaust_alignment/README__ab3583aa7b8de6ec.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_freighter/rh_pir_freighter/exhaust_alignment/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_freighter/rh_pir_freighter/exhaust_alignment/README__ab3583aa7b8de6ec.md",
+      "sha256": "ab3583aa7b8de6ecec8867b4b9ac2b80d4a1ffb0dd1b5b700be36dd915df8a04",
+      "bytes": 1925
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_freighter/rh_pir_freighter/hold_repair/README__b3096894b98a2977.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_freighter/rh_pir_freighter/hold_repair/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_freighter/rh_pir_freighter/hold_repair/README__b3096894b98a2977.md",
+      "sha256": "b3096894b98a2977217911516fd8e1286954a903bbc26530faec0982764b62f1",
+      "bytes": 11808
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/exhaust_alignment/README__3abbd1681254eb2d.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/rh_pir_fighter/exhaust_alignment/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/exhaust_alignment/README__3abbd1681254eb2d.md",
+      "sha256": "3abbd1681254eb2dca3487d3aaa452c0d5a6c49270dee473801903f112480f9a",
+      "bytes": 1897
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__c447f001bf43181f.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/rh_fighter/rh_pir_fighter/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/rh_pir_fighter/README__c447f001bf43181f.md",
+      "sha256": "c447f001bf43181f2dc93960222f62e0ba1017b2f010586f3182e83e6efa6b4c",
+      "bytes": 16154
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/concepts/round_01/artifacts__75b1d1f9116468f1.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/pirate/concepts/round_01/artifacts.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/concepts/round_01/artifacts__75b1d1f9116468f1.json",
+      "sha256": "75b1d1f9116468f198bf1a32112efd7c82152c45e808051843b96d81be811990",
+      "bytes": 3892
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/concepts/round_01/README__f1552d00624ead3c.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/pirate/concepts/round_01/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/concepts/round_01/README__f1552d00624ead3c.md",
+      "sha256": "f1552d00624ead3cd8facb5f398b97f3b2e9ad0cff2290001b08e6330a3801b6",
+      "bytes": 2641
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/README__25410d5865cb2448.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/pirate/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/pirate/README__25410d5865cb2448.md",
+      "sha256": "25410d5865cb24483b202026a392a1822e6d581f9db69f325b1058ff5a4ae76f",
+      "bytes": 6351
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__87ef6c92363cf448.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bh_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bh_family/README__87ef6c92363cf448.md",
+      "sha256": "87ef6c92363cf448adbbe2b709c701a6a7de61b4093b45878d68628c3a323ccc",
+      "bytes": 19575
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/elite/prototypes/b04_01/README__9f90b33ed22a8cb5.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/elite/prototypes/b04_01/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/elite/prototypes/b04_01/README__9f90b33ed22a8cb5.md",
+      "sha256": "9f90b33ed22a8cb554cc009052d13ef140feb3231e47f291ec0b3ca49105d1e8",
+      "bytes": 2151
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/elite/prototypes/b04_02/README__75411335dc9a689c.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/elite/prototypes/b04_02/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/elite/prototypes/b04_02/README__75411335dc9a689c.md",
+      "sha256": "75411335dc9a689c85b374a3d585979ff8c1276dbf26af64df48fe517787cde7",
+      "bytes": 1915
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/elite/README__60a081985a7cc50d.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/elite/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/elite/README__60a081985a7cc50d.md",
+      "sha256": "60a081985a7cc50dd182e3f1fcb2232bb07d35a9e1fd2255116587f5703acbd7",
+      "bytes": 4407
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__070c01c776d6dd66.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/README.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/README__070c01c776d6dd66.md",
+      "sha256": "070c01c776d6dd664d876c85f31c8d322a892864e8642c1dac16451cf1096290",
+      "bytes": 22203
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/SELECTED_CONCEPT__2fb732d5a47a4cff.md": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/SELECTED_CONCEPT.md",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/SELECTED_CONCEPT__2fb732d5a47a4cff.md",
+      "sha256": "2fb732d5a47a4cffaf4b4b8974640232d91bdad5eaa90240e9e2c46c0348615a",
+      "bytes": 8564
+    },
+    "docs/ru/ship_design/prompt_archive/snapshots/bw_family/selection__b5b118aff9afed89.json": {
+      "kind": "context",
+      "original_path": "out/ship_design/bw_family/selection.json",
+      "archived_path": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/selection__b5b118aff9afed89.json",
+      "sha256": "b5b118aff9afed8904990dcb5e5ac92992a1e874b9a56467d200310688ae7827",
+      "bytes": 4459
     }
   },
   "assets": {
@@ -2975,7 +3941,9 @@
       "sha256": "567eb73ae65a338643b0a96262be419b8377b8d0e4ec09edff996f5258d3468f",
       "bytes": 381020,
       "original_paths": [
-        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/freighter new perspective.jpg"
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/freighter new perspective.jpg",
+        "D:/work/ART_SHIP/LI/freighter new perspective.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter_original.jpg"
       ]
     },
     "f88784f77b1b15e63b449318d695864868630f28368fc1dd9d6086f8c4459ed0": {
@@ -4195,6 +5163,1000 @@
         "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-fc52c2ee-475c-4545-9309-3f91a3a17682.png",
         "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_19/li_elite_L81_sheet.png"
       ]
+    },
+    "bc7e66a0a656170228919c33d8ece4db1d8ba00b0f82508fad3853184ca423ab": {
+      "archived_path": "out/ship_design/prompt_archive/assets/bc7e66a0a656170228919c33d8ece4db1d8ba00b0f82508fad3853184ca423ab.png",
+      "sha256": "bc7e66a0a656170228919c33d8ece4db1d8ba00b0f82508fad3853184ca423ab",
+      "bytes": 2134131,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-0bc262e2-799d-481a-8d23-4ce29c577b0d.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E03_sheet.png"
+      ]
+    },
+    "9771a7ad88a042dbf2e3a09f45b66f3f854be6bc2874732655bb488266d6fd84": {
+      "archived_path": "out/ship_design/prompt_archive/assets/9771a7ad88a042dbf2e3a09f45b66f3f854be6bc2874732655bb488266d6fd84.png",
+      "sha256": "9771a7ad88a042dbf2e3a09f45b66f3f854be6bc2874732655bb488266d6fd84",
+      "bytes": 2125687,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-1b19a8d8-984e-4288-bb63-57e861112906.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E10_sheet.png"
+      ]
+    },
+    "1ffecacfaa18b7fa4d3cd68442969a244d5e87614207733c8dfaf323152abee4": {
+      "archived_path": "out/ship_design/prompt_archive/assets/1ffecacfaa18b7fa4d3cd68442969a244d5e87614207733c8dfaf323152abee4.png",
+      "sha256": "1ffecacfaa18b7fa4d3cd68442969a244d5e87614207733c8dfaf323152abee4",
+      "bytes": 2107769,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-32b9ba46-f67f-4e12-a513-458e4fc8f008.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E05_sheet.png"
+      ]
+    },
+    "39872467e330de4246d07afa8bd498f42e59ce892893280e1f0e847de40b97e8": {
+      "archived_path": "out/ship_design/prompt_archive/assets/39872467e330de4246d07afa8bd498f42e59ce892893280e1f0e847de40b97e8.png",
+      "sha256": "39872467e330de4246d07afa8bd498f42e59ce892893280e1f0e847de40b97e8",
+      "bytes": 2022543,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3be4ad32-028b-4e27-8dcb-b6cca43121d1.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E09_sheet_corrected.png"
+      ]
+    },
+    "1fcd482e5e37391c0b938b28986844e5f4076f0a50aeb60b86feaf0ba6813a40": {
+      "archived_path": "out/ship_design/prompt_archive/assets/1fcd482e5e37391c0b938b28986844e5f4076f0a50aeb60b86feaf0ba6813a40.png",
+      "sha256": "1fcd482e5e37391c0b938b28986844e5f4076f0a50aeb60b86feaf0ba6813a40",
+      "bytes": 2047184,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3f7c9360-f994-4a07-a33e-ba08ad86c784.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E07_sheet_corrected.png"
+      ]
+    },
+    "9adefe7516dfbc1a1e1a018c8dcb847564960b35c624156ff19a9f9a23e5b2dd": {
+      "archived_path": "out/ship_design/prompt_archive/assets/9adefe7516dfbc1a1e1a018c8dcb847564960b35c624156ff19a9f9a23e5b2dd.png",
+      "sha256": "9adefe7516dfbc1a1e1a018c8dcb847564960b35c624156ff19a9f9a23e5b2dd",
+      "bytes": 2079919,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-6179793e-a1eb-4a41-9cc3-1603bcc84fa4.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E08_sheet.png"
+      ]
+    },
+    "811e4cf0fdec61df44693a9158b3325e748357a76ca06b4f2b110b2d74225b7e": {
+      "archived_path": "out/ship_design/prompt_archive/assets/811e4cf0fdec61df44693a9158b3325e748357a76ca06b4f2b110b2d74225b7e.png",
+      "sha256": "811e4cf0fdec61df44693a9158b3325e748357a76ca06b4f2b110b2d74225b7e",
+      "bytes": 2094249,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-8356a585-e246-4480-bca6-37ec405bff14.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E02_sheet.png"
+      ]
+    },
+    "b5e5be9714d4a69fe079fe80534a2554cb2f3dc7413a556958d4e249b543d84e": {
+      "archived_path": "out/ship_design/prompt_archive/assets/b5e5be9714d4a69fe079fe80534a2554cb2f3dc7413a556958d4e249b543d84e.png",
+      "sha256": "b5e5be9714d4a69fe079fe80534a2554cb2f3dc7413a556958d4e249b543d84e",
+      "bytes": 2065242,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-8d19eb22-564b-4bfc-b465-106e5aef414b.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E01_sheet.png"
+      ]
+    },
+    "addcc7d9c90d21275d56b7420db903468a449daccb75fc3e92d722f25192c0e0": {
+      "archived_path": "out/ship_design/prompt_archive/assets/addcc7d9c90d21275d56b7420db903468a449daccb75fc3e92d722f25192c0e0.png",
+      "sha256": "addcc7d9c90d21275d56b7420db903468a449daccb75fc3e92d722f25192c0e0",
+      "bytes": 2098929,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-ab6d51d6-c340-49fc-b863-adf3771e1c0b.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E06_sheet.png"
+      ]
+    },
+    "8c9ded6843ea0de0169617d6a844c1181d4327c2b235dc1288a4e45e500e818f": {
+      "archived_path": "out/ship_design/prompt_archive/assets/8c9ded6843ea0de0169617d6a844c1181d4327c2b235dc1288a4e45e500e818f.png",
+      "sha256": "8c9ded6843ea0de0169617d6a844c1181d4327c2b235dc1288a4e45e500e818f",
+      "bytes": 2058433,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-cc544d5f-8267-46aa-ade7-2b3575a2cb1a.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E04_sheet.png"
+      ]
+    },
+    "c3f2c624f194b8f7ed3f834af901279b5a8127d9f74ed1be48002da1cf73fb27": {
+      "archived_path": "out/ship_design/prompt_archive/assets/c3f2c624f194b8f7ed3f834af901279b5a8127d9f74ed1be48002da1cf73fb27.png",
+      "sha256": "c3f2c624f194b8f7ed3f834af901279b5a8127d9f74ed1be48002da1cf73fb27",
+      "bytes": 2122683,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-cf39069d-7333-402e-8837-dcdfbbf8571d.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E07_sheet.png"
+      ]
+    },
+    "bb341ca11249f8ce55b99cea9a6529fcf0786271be6ad3c58ed386604abb6adb": {
+      "archived_path": "out/ship_design/prompt_archive/assets/bb341ca11249f8ce55b99cea9a6529fcf0786271be6ad3c58ed386604abb6adb.png",
+      "sha256": "bb341ca11249f8ce55b99cea9a6529fcf0786271be6ad3c58ed386604abb6adb",
+      "bytes": 2090220,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-e46c34a6-004c-4289-b5e3-a6d931be8955.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E09_sheet.png"
+      ]
+    },
+    "cbb692dd79464b7891d2889a9af6fda4ed726754a33246d7d8e2fc04e4b73ed9": {
+      "archived_path": "out/ship_design/prompt_archive/assets/cbb692dd79464b7891d2889a9af6fda4ed726754a33246d7d8e2fc04e4b73ed9.png",
+      "sha256": "cbb692dd79464b7891d2889a9af6fda4ed726754a33246d7d8e2fc04e4b73ed9",
+      "bytes": 2250280,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-4f97229a-eaef-4d6b-9ed0-a0ddea5712ec.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_06/rh_fighter_F14_R02_sheet.png"
+      ]
+    },
+    "e92a90be22c3679aadcd6e36c1dea9b247592f8f99d3beeea665c3780cf9f733": {
+      "archived_path": "out/ship_design/prompt_archive/assets/e92a90be22c3679aadcd6e36c1dea9b247592f8f99d3beeea665c3780cf9f733.png",
+      "sha256": "e92a90be22c3679aadcd6e36c1dea9b247592f8f99d3beeea665c3780cf9f733",
+      "bytes": 2214085,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-a730fa7f-a547-43c4-a820-691ba02688ee.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_06/rh_fighter_F14_R03_sheet.png"
+      ]
+    },
+    "d46acc4bc07f3e2fe3ce25cb408ca32103badd5657980fbc510f6254a67e57df": {
+      "archived_path": "out/ship_design/prompt_archive/assets/d46acc4bc07f3e2fe3ce25cb408ca32103badd5657980fbc510f6254a67e57df.png",
+      "sha256": "d46acc4bc07f3e2fe3ce25cb408ca32103badd5657980fbc510f6254a67e57df",
+      "bytes": 2220455,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-cd6ecc83-5281-41a7-be1d-4217d7a78858.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_06/rh_fighter_F14_R01_sheet.png"
+      ]
+    },
+    "0af3dee36a83d73c4b464ada1d304911015c13c009eb6023ad7a349b2c9d3f3d": {
+      "archived_path": "out/ship_design/prompt_archive/assets/0af3dee36a83d73c4b464ada1d304911015c13c009eb6023ad7a349b2c9d3f3d.png",
+      "sha256": "0af3dee36a83d73c4b464ada1d304911015c13c009eb6023ad7a349b2c9d3f3d",
+      "bytes": 2239483,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-e3cc859d-d8ed-4a30-9b8a-6f4149d4a683.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_06/rh_fighter_F14_R04_sheet.png"
+      ]
+    },
+    "65d09efdc9b7b83946162a4794a212e00ab4e48cfa485c0c0c7a6de82c4c1687": {
+      "archived_path": "out/ship_design/prompt_archive/assets/65d09efdc9b7b83946162a4794a212e00ab4e48cfa485c0c0c7a6de82c4c1687.png",
+      "sha256": "65d09efdc9b7b83946162a4794a212e00ab4e48cfa485c0c0c7a6de82c4c1687",
+      "bytes": 2622512,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-61ef7c04-f56d-45bc-b092-6ab5de7a3d6f.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_A_sheet.png"
+      ]
+    },
+    "f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851": {
+      "archived_path": "out/ship_design/prompt_archive/assets/f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851.png",
+      "sha256": "f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851",
+      "bytes": 2628302,
+      "original_paths": [
+        "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f5e50f91-f813-48b8-9fc7-9e45baea37be.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_B_sheet.png"
+      ]
+    },
+    "956931e90b369c8dc5d0985cb2c1c27991767f4b82f3560043b67ce588d047da": {
+      "archived_path": "out/ship_design/prompt_archive/assets/956931e90b369c8dc5d0985cb2c1c27991767f4b82f3560043b67ce588d047da.jpg",
+      "sha256": "956931e90b369c8dc5d0985cb2c1c27991767f4b82f3560043b67ce588d047da",
+      "bytes": 221127,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/elite/native_flight.jpg"
+      ]
+    },
+    "9aea9c4c16cc8e502286a880eeac0dbf853ba89d324542b6d58082953625722f": {
+      "archived_path": "out/ship_design/prompt_archive/assets/9aea9c4c16cc8e502286a880eeac0dbf853ba89d324542b6d58082953625722f.png",
+      "sha256": "9aea9c4c16cc8e502286a880eeac0dbf853ba89d324542b6d58082953625722f",
+      "bytes": 2091849,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet.png"
+      ]
+    },
+    "af46f79b330f1c89c4ba719202e494868cd58d3da0212c439b1e24b20e3b033d": {
+      "archived_path": "out/ship_design/prompt_archive/assets/af46f79b330f1c89c4ba719202e494868cd58d3da0212c439b1e24b20e3b033d.png",
+      "sha256": "af46f79b330f1c89c4ba719202e494868cd58d3da0212c439b1e24b20e3b033d",
+      "bytes": 2069494,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet_corrected.png"
+      ]
+    },
+    "a6d0034daa97e2848a65083d4f5ec8933cc7138e4521479c9c11ac61e92ee11f": {
+      "archived_path": "out/ship_design/prompt_archive/assets/a6d0034daa97e2848a65083d4f5ec8933cc7138e4521479c9c11ac61e92ee11f.png",
+      "sha256": "a6d0034daa97e2848a65083d4f5ec8933cc7138e4521479c9c11ac61e92ee11f",
+      "bytes": 2130963,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF02_sheet.png"
+      ]
+    },
+    "f19cd023e0f63c09ad519b4f4acb0898b1f4a3a6483bb4506260e4384d77b8fd": {
+      "archived_path": "out/ship_design/prompt_archive/assets/f19cd023e0f63c09ad519b4f4acb0898b1f4a3a6483bb4506260e4384d77b8fd.jpg",
+      "sha256": "f19cd023e0f63c09ad519b4f4acb0898b1f4a3a6483bb4506260e4384d77b8fd",
+      "bytes": 714660,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/cockpit_reference.jpg"
+      ]
+    },
+    "f5f411011c46e1585eeae35a38d402186827adc9651b65d91ead7c978cb697dc": {
+      "archived_path": "out/ship_design/prompt_archive/assets/f5f411011c46e1585eeae35a38d402186827adc9651b65d91ead7c978cb697dc.jpg",
+      "sha256": "f5f411011c46e1585eeae35a38d402186827adc9651b65d91ead7c978cb697dc",
+      "bytes": 348777,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_flight.jpg"
+      ]
+    },
+    "e6f4f6562251f94c830c72e0d53290a89e5086c4ae8248a7e89c59c44658dcd4": {
+      "archived_path": "out/ship_design/prompt_archive/assets/e6f4f6562251f94c830c72e0d53290a89e5086c4ae8248a7e89c59c44658dcd4.jpg",
+      "sha256": "e6f4f6562251f94c830c72e0d53290a89e5086c4ae8248a7e89c59c44658dcd4",
+      "bytes": 171136,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_shape.jpg"
+      ]
+    },
+    "8a762b5d14f77ccd12e2b9293dd07f6605bf8336337fac836244bc5d983bddaa": {
+      "archived_path": "out/ship_design/prompt_archive/assets/8a762b5d14f77ccd12e2b9293dd07f6605bf8336337fac836244bc5d983bddaa.png",
+      "sha256": "8a762b5d14f77ccd12e2b9293dd07f6605bf8336337fac836244bc5d983bddaa",
+      "bytes": 2095702,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF03_sheet.png"
+      ]
+    },
+    "23a157346177c0581b4bca7c219dd1d831c50242614f2563a62935739a25eb34": {
+      "archived_path": "out/ship_design/prompt_archive/assets/23a157346177c0581b4bca7c219dd1d831c50242614f2563a62935739a25eb34.png",
+      "sha256": "23a157346177c0581b4bca7c219dd1d831c50242614f2563a62935739a25eb34",
+      "bytes": 2114086,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF04_sheet.png"
+      ]
+    },
+    "2c5baf6020c37254cc0260f96670935ee138a5712277621b76af0cf9bb1dc64f": {
+      "archived_path": "out/ship_design/prompt_archive/assets/2c5baf6020c37254cc0260f96670935ee138a5712277621b76af0cf9bb1dc64f.png",
+      "sha256": "2c5baf6020c37254cc0260f96670935ee138a5712277621b76af0cf9bb1dc64f",
+      "bytes": 2121178,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF05_sheet.png"
+      ]
+    },
+    "8654985ae2f5b2fed7f2d567b9fbd2fbb999cae31c8898c7465977512f15c686": {
+      "archived_path": "out/ship_design/prompt_archive/assets/8654985ae2f5b2fed7f2d567b9fbd2fbb999cae31c8898c7465977512f15c686.png",
+      "sha256": "8654985ae2f5b2fed7f2d567b9fbd2fbb999cae31c8898c7465977512f15c686",
+      "bytes": 2079706,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF06_sheet.png"
+      ]
+    },
+    "a186bca842f20a5393ce1604400f7a64d1fdd6e54b750af3da4f9ff30afbffd3": {
+      "archived_path": "out/ship_design/prompt_archive/assets/a186bca842f20a5393ce1604400f7a64d1fdd6e54b750af3da4f9ff30afbffd3.png",
+      "sha256": "a186bca842f20a5393ce1604400f7a64d1fdd6e54b750af3da4f9ff30afbffd3",
+      "bytes": 2085643,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF07_sheet.png"
+      ]
+    },
+    "55f57d33ec670ffadfbff362ec452db184458f8f0a15f5fdd73fd33909a643d8": {
+      "archived_path": "out/ship_design/prompt_archive/assets/55f57d33ec670ffadfbff362ec452db184458f8f0a15f5fdd73fd33909a643d8.png",
+      "sha256": "55f57d33ec670ffadfbff362ec452db184458f8f0a15f5fdd73fd33909a643d8",
+      "bytes": 2079067,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF08_sheet.png"
+      ]
+    },
+    "7569648c8d707b746d8a871f5b3f2a98ff5206f955b60bfba191fbda2f9ee564": {
+      "archived_path": "out/ship_design/prompt_archive/assets/7569648c8d707b746d8a871f5b3f2a98ff5206f955b60bfba191fbda2f9ee564.png",
+      "sha256": "7569648c8d707b746d8a871f5b3f2a98ff5206f955b60bfba191fbda2f9ee564",
+      "bytes": 2157530,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF09_sheet.png"
+      ]
+    },
+    "53a796d665615cc9ad6d3a3a58e006c7c4772f30192a48694f60fb3a2257835f": {
+      "archived_path": "out/ship_design/prompt_archive/assets/53a796d665615cc9ad6d3a3a58e006c7c4772f30192a48694f60fb3a2257835f.png",
+      "sha256": "53a796d665615cc9ad6d3a3a58e006c7c4772f30192a48694f60fb3a2257835f",
+      "bytes": 2089564,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF10_sheet.png"
+      ]
+    },
+    "e3fa4ecee81fabbd5b50c68fb6c4cb52d59bf8659ecbe9bccb4c9c4e2bb5c71e": {
+      "archived_path": "out/ship_design/prompt_archive/assets/e3fa4ecee81fabbd5b50c68fb6c4cb52d59bf8659ecbe9bccb4c9c4e2bb5c71e.png",
+      "sha256": "e3fa4ecee81fabbd5b50c68fb6c4cb52d59bf8659ecbe9bccb4c9c4e2bb5c71e",
+      "bytes": 2130267,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF11_sheet.png"
+      ]
+    },
+    "25c2290ffe69a1227e5596e00835b8b26bc6b8650c12c3f90dff8d127974d8cd": {
+      "archived_path": "out/ship_design/prompt_archive/assets/25c2290ffe69a1227e5596e00835b8b26bc6b8650c12c3f90dff8d127974d8cd.png",
+      "sha256": "25c2290ffe69a1227e5596e00835b8b26bc6b8650c12c3f90dff8d127974d8cd",
+      "bytes": 2136801,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF12_sheet.png"
+      ]
+    },
+    "f68323aa2898b2528d75468407fb2e7b394c2339a1deceec69be1f884ee068ec": {
+      "archived_path": "out/ship_design/prompt_archive/assets/f68323aa2898b2528d75468407fb2e7b394c2339a1deceec69be1f884ee068ec.png",
+      "sha256": "f68323aa2898b2528d75468407fb2e7b394c2339a1deceec69be1f884ee068ec",
+      "bytes": 2095483,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF13_sheet.png"
+      ]
+    },
+    "38d3f1eb540ce10026527c2190cc2298d24116ac2659aeed5bde3100ff677e1a": {
+      "archived_path": "out/ship_design/prompt_archive/assets/38d3f1eb540ce10026527c2190cc2298d24116ac2659aeed5bde3100ff677e1a.png",
+      "sha256": "38d3f1eb540ce10026527c2190cc2298d24116ac2659aeed5bde3100ff677e1a",
+      "bytes": 2146994,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF14_sheet.png"
+      ]
+    },
+    "a314358e673c85cbff84dfac42b53d48dc639d87d7bb9f5fc4b6eada5891b930": {
+      "archived_path": "out/ship_design/prompt_archive/assets/a314358e673c85cbff84dfac42b53d48dc639d87d7bb9f5fc4b6eada5891b930.png",
+      "sha256": "a314358e673c85cbff84dfac42b53d48dc639d87d7bb9f5fc4b6eada5891b930",
+      "bytes": 2095112,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF15_sheet.png"
+      ]
+    },
+    "4bbbcb3555c1be6289d0d7f564ed58b3f0ee855a5c830afa63430cc3a621fea0": {
+      "archived_path": "out/ship_design/prompt_archive/assets/4bbbcb3555c1be6289d0d7f564ed58b3f0ee855a5c830afa63430cc3a621fea0.png",
+      "sha256": "4bbbcb3555c1be6289d0d7f564ed58b3f0ee855a5c830afa63430cc3a621fea0",
+      "bytes": 2126068,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF16_sheet.png"
+      ]
+    },
+    "2ae5d47f968bc0b14a1adf43ea4c6dc1863fb0539e75c03fd642642bca5a49bd": {
+      "archived_path": "out/ship_design/prompt_archive/assets/2ae5d47f968bc0b14a1adf43ea4c6dc1863fb0539e75c03fd642642bca5a49bd.png",
+      "sha256": "2ae5d47f968bc0b14a1adf43ea4c6dc1863fb0539e75c03fd642642bca5a49bd",
+      "bytes": 2098564,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF17_sheet.png"
+      ]
+    },
+    "662202f080d1cd36423ffccfcbe6430a6a91b38eb952770b1384df25ae514c54": {
+      "archived_path": "out/ship_design/prompt_archive/assets/662202f080d1cd36423ffccfcbe6430a6a91b38eb952770b1384df25ae514c54.png",
+      "sha256": "662202f080d1cd36423ffccfcbe6430a6a91b38eb952770b1384df25ae514c54",
+      "bytes": 2130987,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF18_sheet.png"
+      ]
+    },
+    "455c3ede0763ae341b88de916884526b10a90026b8999b9e83a4d9b81e4018db": {
+      "archived_path": "out/ship_design/prompt_archive/assets/455c3ede0763ae341b88de916884526b10a90026b8999b9e83a4d9b81e4018db.png",
+      "sha256": "455c3ede0763ae341b88de916884526b10a90026b8999b9e83a4d9b81e4018db",
+      "bytes": 2123414,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF19_sheet.png"
+      ]
+    },
+    "ab426997d45be4e982de391e1ce9360dea3318c07c286b2c412a074f121e02ed": {
+      "archived_path": "out/ship_design/prompt_archive/assets/ab426997d45be4e982de391e1ce9360dea3318c07c286b2c412a074f121e02ed.png",
+      "sha256": "ab426997d45be4e982de391e1ce9360dea3318c07c286b2c412a074f121e02ed",
+      "bytes": 2104509,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF20_sheet.png"
+      ]
+    },
+    "171a431ed7d8d091f2c4bbc5263a4f0baad2609512a98b45fad4d0f7953110fd": {
+      "archived_path": "out/ship_design/prompt_archive/assets/171a431ed7d8d091f2c4bbc5263a4f0baad2609512a98b45fad4d0f7953110fd.png",
+      "sha256": "171a431ed7d8d091f2c4bbc5263a4f0baad2609512a98b45fad4d0f7953110fd",
+      "bytes": 2130069,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF21_sheet.png"
+      ]
+    },
+    "9057bf3d15040d605fabeec31c0883a180e833f9fbe01439db43ea98e012f31a": {
+      "archived_path": "out/ship_design/prompt_archive/assets/9057bf3d15040d605fabeec31c0883a180e833f9fbe01439db43ea98e012f31a.png",
+      "sha256": "9057bf3d15040d605fabeec31c0883a180e833f9fbe01439db43ea98e012f31a",
+      "bytes": 2098944,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_06/bw_freighter_BF22_sheet.png"
+      ]
+    },
+    "9bda6e13916cc62883262ffad863b9ca0f5ff70149b577de346f53eac7353fc2": {
+      "archived_path": "out/ship_design/prompt_archive/assets/9bda6e13916cc62883262ffad863b9ca0f5ff70149b577de346f53eac7353fc2.png",
+      "sha256": "9bda6e13916cc62883262ffad863b9ca0f5ff70149b577de346f53eac7353fc2",
+      "bytes": 2084822,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF23_sheet.png"
+      ]
+    },
+    "0c5a5d7703242ce01d1635747c6dc14f761666e43bff62212981a563264db65b": {
+      "archived_path": "out/ship_design/prompt_archive/assets/0c5a5d7703242ce01d1635747c6dc14f761666e43bff62212981a563264db65b.png",
+      "sha256": "0c5a5d7703242ce01d1635747c6dc14f761666e43bff62212981a563264db65b",
+      "bytes": 2095931,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF24_sheet.png"
+      ]
+    },
+    "4c4fa2fd41d839968f6acec60f902075222e41e237bf537b0179adf5dd2b874b": {
+      "archived_path": "out/ship_design/prompt_archive/assets/4c4fa2fd41d839968f6acec60f902075222e41e237bf537b0179adf5dd2b874b.png",
+      "sha256": "4c4fa2fd41d839968f6acec60f902075222e41e237bf537b0179adf5dd2b874b",
+      "bytes": 2049386,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF25_sheet.png"
+      ]
+    },
+    "93a10788cc86a3dc4baa29b3c9382ef3d84054e5f15df299e6038a3f5807bc3d": {
+      "archived_path": "out/ship_design/prompt_archive/assets/93a10788cc86a3dc4baa29b3c9382ef3d84054e5f15df299e6038a3f5807bc3d.png",
+      "sha256": "93a10788cc86a3dc4baa29b3c9382ef3d84054e5f15df299e6038a3f5807bc3d",
+      "bytes": 2057957,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF26_sheet.png"
+      ]
+    },
+    "6450a43d76fe159e3593f35039eeacf2dd1cd64277529d5c1ad16ce6b60d736a": {
+      "archived_path": "out/ship_design/prompt_archive/assets/6450a43d76fe159e3593f35039eeacf2dd1cd64277529d5c1ad16ce6b60d736a.png",
+      "sha256": "6450a43d76fe159e3593f35039eeacf2dd1cd64277529d5c1ad16ce6b60d736a",
+      "bytes": 2066038,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF27_sheet.png"
+      ]
+    },
+    "ee0968a1b31fdeac3847937e4ddb964693c33238d30334260f4c8916b2e10d51": {
+      "archived_path": "out/ship_design/prompt_archive/assets/ee0968a1b31fdeac3847937e4ddb964693c33238d30334260f4c8916b2e10d51.png",
+      "sha256": "ee0968a1b31fdeac3847937e4ddb964693c33238d30334260f4c8916b2e10d51",
+      "bytes": 2091136,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF28_sheet.png"
+      ]
+    },
+    "a418e2e5c73d93631e79e6a37c2c17dfbce42b0ebee157f8890b7010d4446c98": {
+      "archived_path": "out/ship_design/prompt_archive/assets/a418e2e5c73d93631e79e6a37c2c17dfbce42b0ebee157f8890b7010d4446c98.png",
+      "sha256": "a418e2e5c73d93631e79e6a37c2c17dfbce42b0ebee157f8890b7010d4446c98",
+      "bytes": 2089739,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF29_sheet.png"
+      ]
+    },
+    "0fb7a25b5f3cdbd0fe919f8db57f5f7e3eeffb80c0cb311b72ef4b2e75e473b0": {
+      "archived_path": "out/ship_design/prompt_archive/assets/0fb7a25b5f3cdbd0fe919f8db57f5f7e3eeffb80c0cb311b72ef4b2e75e473b0.png",
+      "sha256": "0fb7a25b5f3cdbd0fe919f8db57f5f7e3eeffb80c0cb311b72ef4b2e75e473b0",
+      "bytes": 2091154,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF30_sheet.png"
+      ]
+    },
+    "4b3cc992b7a5d781b36f5857f505dd8baddd24ca8dc480c21c5ace31ed855a56": {
+      "archived_path": "out/ship_design/prompt_archive/assets/4b3cc992b7a5d781b36f5857f505dd8baddd24ca8dc480c21c5ace31ed855a56.png",
+      "sha256": "4b3cc992b7a5d781b36f5857f505dd8baddd24ca8dc480c21c5ace31ed855a56",
+      "bytes": 2086560,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF31_sheet.png"
+      ]
+    },
+    "b17e08d6e78761c864ae0942028fe7966d081539fad1f755329154782537d19b": {
+      "archived_path": "out/ship_design/prompt_archive/assets/b17e08d6e78761c864ae0942028fe7966d081539fad1f755329154782537d19b.png",
+      "sha256": "b17e08d6e78761c864ae0942028fe7966d081539fad1f755329154782537d19b",
+      "bytes": 2071696,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF32_sheet.png"
+      ]
+    },
+    "061cad8e5a8ead03bacfc3790ae46db39c4a1068bc6be54da877cf83656fd7d0": {
+      "archived_path": "out/ship_design/prompt_archive/assets/061cad8e5a8ead03bacfc3790ae46db39c4a1068bc6be54da877cf83656fd7d0.png",
+      "sha256": "061cad8e5a8ead03bacfc3790ae46db39c4a1068bc6be54da877cf83656fd7d0",
+      "bytes": 2075944,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF33_sheet.png"
+      ]
+    },
+    "1e88abf623cea448115ad22bc5da6ca9b6334acd9d1f088639cc1f6819b6994f": {
+      "archived_path": "out/ship_design/prompt_archive/assets/1e88abf623cea448115ad22bc5da6ca9b6334acd9d1f088639cc1f6819b6994f.png",
+      "sha256": "1e88abf623cea448115ad22bc5da6ca9b6334acd9d1f088639cc1f6819b6994f",
+      "bytes": 2093464,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF34_sheet.png"
+      ]
+    },
+    "08dc52260661cfc8a3f99384649f6497282904741e3003e64bb1cebced71a73a": {
+      "archived_path": "out/ship_design/prompt_archive/assets/08dc52260661cfc8a3f99384649f6497282904741e3003e64bb1cebced71a73a.png",
+      "sha256": "08dc52260661cfc8a3f99384649f6497282904741e3003e64bb1cebced71a73a",
+      "bytes": 2046403,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF35_sheet.png"
+      ]
+    },
+    "2ad0fb271f496adba255e9a6185be8494de9c045b70ebbf57501b3d6e9cb0882": {
+      "archived_path": "out/ship_design/prompt_archive/assets/2ad0fb271f496adba255e9a6185be8494de9c045b70ebbf57501b3d6e9cb0882.png",
+      "sha256": "2ad0fb271f496adba255e9a6185be8494de9c045b70ebbf57501b3d6e9cb0882",
+      "bytes": 2077540,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF36_sheet.png"
+      ]
+    },
+    "a62dc43ebee8c8bdd5892af6da0d1fb821b0007f7bf02b13e531638c5e3abeb8": {
+      "archived_path": "out/ship_design/prompt_archive/assets/a62dc43ebee8c8bdd5892af6da0d1fb821b0007f7bf02b13e531638c5e3abeb8.png",
+      "sha256": "a62dc43ebee8c8bdd5892af6da0d1fb821b0007f7bf02b13e531638c5e3abeb8",
+      "bytes": 2087070,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF37_sheet.png"
+      ]
+    },
+    "b44552e142e6d4804d764b74767dddf517ed620cf95b64707b3ea262c585dd1c": {
+      "archived_path": "out/ship_design/prompt_archive/assets/b44552e142e6d4804d764b74767dddf517ed620cf95b64707b3ea262c585dd1c.png",
+      "sha256": "b44552e142e6d4804d764b74767dddf517ed620cf95b64707b3ea262c585dd1c",
+      "bytes": 2082094,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF38_sheet.png"
+      ]
+    },
+    "cb6ddf8903bd72944545f64e353182f139ae726beacf17f14995cc4613b153fd": {
+      "archived_path": "out/ship_design/prompt_archive/assets/cb6ddf8903bd72944545f64e353182f139ae726beacf17f14995cc4613b153fd.png",
+      "sha256": "cb6ddf8903bd72944545f64e353182f139ae726beacf17f14995cc4613b153fd",
+      "bytes": 2076177,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF39_sheet.png"
+      ]
+    },
+    "5d3c9efc139add9aa669714f3d48d72a0d45eac86fedee353f9ea81de53886d1": {
+      "archived_path": "out/ship_design/prompt_archive/assets/5d3c9efc139add9aa669714f3d48d72a0d45eac86fedee353f9ea81de53886d1.png",
+      "sha256": "5d3c9efc139add9aa669714f3d48d72a0d45eac86fedee353f9ea81de53886d1",
+      "bytes": 2058915,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF40_sheet.png"
+      ]
+    },
+    "b5e1569db12ecf8d5b90dbf0c1ea0b35b9979b886bd8ba87521eb3ffa5340d74": {
+      "archived_path": "out/ship_design/prompt_archive/assets/b5e1569db12ecf8d5b90dbf0c1ea0b35b9979b886bd8ba87521eb3ffa5340d74.png",
+      "sha256": "b5e1569db12ecf8d5b90dbf0c1ea0b35b9979b886bd8ba87521eb3ffa5340d74",
+      "bytes": 2085680,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF41_sheet.png"
+      ]
+    },
+    "11eb41334ba23e00eb7ef1027e19b1dfcdc53be6882d7c31dcc42050ca24ca6a": {
+      "archived_path": "out/ship_design/prompt_archive/assets/11eb41334ba23e00eb7ef1027e19b1dfcdc53be6882d7c31dcc42050ca24ca6a.png",
+      "sha256": "11eb41334ba23e00eb7ef1027e19b1dfcdc53be6882d7c31dcc42050ca24ca6a",
+      "bytes": 2077695,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_07/bw_freighter_BF42_sheet.png"
+      ]
+    },
+    "54688b9156d08a4a5eef0014e47dfed20d922414e8bf50285c836b1169603635": {
+      "archived_path": "out/ship_design/prompt_archive/assets/54688b9156d08a4a5eef0014e47dfed20d922414e8bf50285c836b1169603635.png",
+      "sha256": "54688b9156d08a4a5eef0014e47dfed20d922414e8bf50285c836b1169603635",
+      "bytes": 2167122,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF01_C01_sheet.png"
+      ]
+    },
+    "9b8378cd8d6398064ddc227107d805ccac6cfdd38f6e112ba2f3c99092c8a059": {
+      "archived_path": "out/ship_design/prompt_archive/assets/9b8378cd8d6398064ddc227107d805ccac6cfdd38f6e112ba2f3c99092c8a059.png",
+      "sha256": "9b8378cd8d6398064ddc227107d805ccac6cfdd38f6e112ba2f3c99092c8a059",
+      "bytes": 2285236,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF01_sheet.png"
+      ]
+    },
+    "a783b23cf62c3fcea5013e575b9504ce6203e52b8562d6f52b2a42c8b2b09b24": {
+      "archived_path": "out/ship_design/prompt_archive/assets/a783b23cf62c3fcea5013e575b9504ce6203e52b8562d6f52b2a42c8b2b09b24.png",
+      "sha256": "a783b23cf62c3fcea5013e575b9504ce6203e52b8562d6f52b2a42c8b2b09b24",
+      "bytes": 2098615,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF02_sheet.png"
+      ]
+    },
+    "73fc2241a2b3b9a5c9c421301e709079f50b588c790e1637a6e513677304c1a4": {
+      "archived_path": "out/ship_design/prompt_archive/assets/73fc2241a2b3b9a5c9c421301e709079f50b588c790e1637a6e513677304c1a4.png",
+      "sha256": "73fc2241a2b3b9a5c9c421301e709079f50b588c790e1637a6e513677304c1a4",
+      "bytes": 2136696,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF03_C01_sheet.png"
+      ]
+    },
+    "e3068651e9d3d1649263b38caeaf3d640feb90d8e45f8b67ea3410bc03d30da4": {
+      "archived_path": "out/ship_design/prompt_archive/assets/e3068651e9d3d1649263b38caeaf3d640feb90d8e45f8b67ea3410bc03d30da4.png",
+      "sha256": "e3068651e9d3d1649263b38caeaf3d640feb90d8e45f8b67ea3410bc03d30da4",
+      "bytes": 2283511,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF03_sheet.png"
+      ]
+    },
+    "d3707cf5e5ea0fb19df15e0004633ea1c217c0de561a925ccbf71419c87d05d8": {
+      "archived_path": "out/ship_design/prompt_archive/assets/d3707cf5e5ea0fb19df15e0004633ea1c217c0de561a925ccbf71419c87d05d8.png",
+      "sha256": "d3707cf5e5ea0fb19df15e0004633ea1c217c0de561a925ccbf71419c87d05d8",
+      "bytes": 2178340,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF04_C01_sheet.png"
+      ]
+    },
+    "810d19cb2b1ab82ec5a5c4125441cd8fd45323a3956a0b88d63d42c13b90da0b": {
+      "archived_path": "out/ship_design/prompt_archive/assets/810d19cb2b1ab82ec5a5c4125441cd8fd45323a3956a0b88d63d42c13b90da0b.png",
+      "sha256": "810d19cb2b1ab82ec5a5c4125441cd8fd45323a3956a0b88d63d42c13b90da0b",
+      "bytes": 2285550,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF04_sheet.png"
+      ]
+    },
+    "3ea0da73b3a34e2d085ec1c7fb30ce2095f2a4dda2159130b37cc48624d99b15": {
+      "archived_path": "out/ship_design/prompt_archive/assets/3ea0da73b3a34e2d085ec1c7fb30ce2095f2a4dda2159130b37cc48624d99b15.png",
+      "sha256": "3ea0da73b3a34e2d085ec1c7fb30ce2095f2a4dda2159130b37cc48624d99b15",
+      "bytes": 2160125,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_01/bh_freighter_BHF05_sheet.png"
+      ]
+    },
+    "44510122b0cce0ee94ada489927b1247699b0f87629c0901120d1cb470eb97fe": {
+      "archived_path": "out/ship_design/prompt_archive/assets/44510122b0cce0ee94ada489927b1247699b0f87629c0901120d1cb470eb97fe.jpg",
+      "sha256": "44510122b0cce0ee94ada489927b1247699b0f87629c0901120d1cb470eb97fe",
+      "bytes": 222649,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/cockpit_reference.jpg"
+      ]
+    },
+    "634000d5a2e631a8ce6b1b2581e8d7e3e5c2afaea69cd101ab10df55c25804d6": {
+      "archived_path": "out/ship_design/prompt_archive/assets/634000d5a2e631a8ce6b1b2581e8d7e3e5c2afaea69cd101ab10df55c25804d6.jpg",
+      "sha256": "634000d5a2e631a8ce6b1b2581e8d7e3e5c2afaea69cd101ab10df55c25804d6",
+      "bytes": 189571,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/elite/native_flight.jpg"
+      ]
+    },
+    "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b": {
+      "archived_path": "out/ship_design/prompt_archive/assets/6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b.jpg",
+      "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b",
+      "bytes": 178110,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ]
+    },
+    "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e": {
+      "archived_path": "out/ship_design/prompt_archive/assets/2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e.jpg",
+      "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e",
+      "bytes": 158259,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg"
+      ]
+    },
+    "eba6939f2a2ac6f44c001168cdf0cae79eb81ce503f2815061c5259a002df060": {
+      "archived_path": "out/ship_design/prompt_archive/assets/eba6939f2a2ac6f44c001168cdf0cae79eb81ce503f2815061c5259a002df060.png",
+      "sha256": "eba6939f2a2ac6f44c001168cdf0cae79eb81ce503f2815061c5259a002df060",
+      "bytes": 1998364,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF06_C01_sheet.png"
+      ]
+    },
+    "80bae8109f7b2fe8ff652accd723d03205195159ec6eecd934d0abd8656fcb33": {
+      "archived_path": "out/ship_design/prompt_archive/assets/80bae8109f7b2fe8ff652accd723d03205195159ec6eecd934d0abd8656fcb33.png",
+      "sha256": "80bae8109f7b2fe8ff652accd723d03205195159ec6eecd934d0abd8656fcb33",
+      "bytes": 2061111,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF06_sheet.png"
+      ]
+    },
+    "93ba0416e561a79c04acc406f8293b2ddfb0e50d4be2cf4e513113b91b7698ff": {
+      "archived_path": "out/ship_design/prompt_archive/assets/93ba0416e561a79c04acc406f8293b2ddfb0e50d4be2cf4e513113b91b7698ff.png",
+      "sha256": "93ba0416e561a79c04acc406f8293b2ddfb0e50d4be2cf4e513113b91b7698ff",
+      "bytes": 2101463,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF07_C01_sheet.png"
+      ]
+    },
+    "af39b4a436aa15dc058537a1babe91c8ed933517b81f2f79791f02734ffeced7": {
+      "archived_path": "out/ship_design/prompt_archive/assets/af39b4a436aa15dc058537a1babe91c8ed933517b81f2f79791f02734ffeced7.png",
+      "sha256": "af39b4a436aa15dc058537a1babe91c8ed933517b81f2f79791f02734ffeced7",
+      "bytes": 2175135,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF07_sheet.png"
+      ]
+    },
+    "db76cf3025422e8346403848add1fb17550b7eaeb3bbbace8a71550082f99535": {
+      "archived_path": "out/ship_design/prompt_archive/assets/db76cf3025422e8346403848add1fb17550b7eaeb3bbbace8a71550082f99535.png",
+      "sha256": "db76cf3025422e8346403848add1fb17550b7eaeb3bbbace8a71550082f99535",
+      "bytes": 1995611,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF08_sheet.png"
+      ]
+    },
+    "9f503fbd6a8666f699b27d6a3ef497f1e9a10bfa6ca4cf33a716b76b59a0677d": {
+      "archived_path": "out/ship_design/prompt_archive/assets/9f503fbd6a8666f699b27d6a3ef497f1e9a10bfa6ca4cf33a716b76b59a0677d.png",
+      "sha256": "9f503fbd6a8666f699b27d6a3ef497f1e9a10bfa6ca4cf33a716b76b59a0677d",
+      "bytes": 2013393,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF09_C01_sheet.png"
+      ]
+    },
+    "fa579e2b3c391ce7a311af68e5a3f26c554b3b4d34e2866d999ed5da765b4821": {
+      "archived_path": "out/ship_design/prompt_archive/assets/fa579e2b3c391ce7a311af68e5a3f26c554b3b4d34e2866d999ed5da765b4821.png",
+      "sha256": "fa579e2b3c391ce7a311af68e5a3f26c554b3b4d34e2866d999ed5da765b4821",
+      "bytes": 1990632,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF09_sheet.png"
+      ]
+    },
+    "61582e3ec4820015dac87128815f188a3218527cf12ae87093b93690cd85fbbf": {
+      "archived_path": "out/ship_design/prompt_archive/assets/61582e3ec4820015dac87128815f188a3218527cf12ae87093b93690cd85fbbf.png",
+      "sha256": "61582e3ec4820015dac87128815f188a3218527cf12ae87093b93690cd85fbbf",
+      "bytes": 2069764,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF10_C01_sheet.png"
+      ]
+    },
+    "a1838ce39e42cf385c26bca74fbe7e0dc5184257d4237f55062c8138a86adbca": {
+      "archived_path": "out/ship_design/prompt_archive/assets/a1838ce39e42cf385c26bca74fbe7e0dc5184257d4237f55062c8138a86adbca.png",
+      "sha256": "a1838ce39e42cf385c26bca74fbe7e0dc5184257d4237f55062c8138a86adbca",
+      "bytes": 2144161,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF10_sheet.png"
+      ]
+    },
+    "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c": {
+      "archived_path": "out/ship_design/prompt_archive/assets/2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c.jpg",
+      "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c",
+      "bytes": 421152,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg"
+      ]
+    },
+    "845ebd407a9f878772d7f534a5cc39aa5c32a9ebf8c6381909e3da49180b6998": {
+      "archived_path": "out/ship_design/prompt_archive/assets/845ebd407a9f878772d7f534a5cc39aa5c32a9ebf8c6381909e3da49180b6998.jpg",
+      "sha256": "845ebd407a9f878772d7f534a5cc39aa5c32a9ebf8c6381909e3da49180b6998",
+      "bytes": 109182,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_frame.jpg"
+      ]
+    },
+    "9addf89e854e07481a241b22e8732eecfd188c0d75607dc6e7a2e030378ff9d9": {
+      "archived_path": "out/ship_design/prompt_archive/assets/9addf89e854e07481a241b22e8732eecfd188c0d75607dc6e7a2e030378ff9d9.jpg",
+      "sha256": "9addf89e854e07481a241b22e8732eecfd188c0d75607dc6e7a2e030378ff9d9",
+      "bytes": 66292,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_only.jpg"
+      ]
+    },
+    "cb2321020ecb3024eb9eef1ed0df774205baafcd64bfb86ef93c231974829eb7": {
+      "archived_path": "out/ship_design/prompt_archive/assets/cb2321020ecb3024eb9eef1ed0df774205baafcd64bfb86ef93c231974829eb7.png",
+      "sha256": "cb2321020ecb3024eb9eef1ed0df774205baafcd64bfb86ef93c231974829eb7",
+      "bytes": 2047576,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF11_C01_sheet.png"
+      ]
+    },
+    "df275256947b9b60e5b126ab4a656cd60638c4c4289dcf6a04b4bbb67de4fad8": {
+      "archived_path": "out/ship_design/prompt_archive/assets/df275256947b9b60e5b126ab4a656cd60638c4c4289dcf6a04b4bbb67de4fad8.png",
+      "sha256": "df275256947b9b60e5b126ab4a656cd60638c4c4289dcf6a04b4bbb67de4fad8",
+      "bytes": 1954696,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF11_sheet.png"
+      ]
+    },
+    "18c928172a90d44501a9fbe7c76dba0a08e631089273e4a52cc6db11e555aef1": {
+      "archived_path": "out/ship_design/prompt_archive/assets/18c928172a90d44501a9fbe7c76dba0a08e631089273e4a52cc6db11e555aef1.png",
+      "sha256": "18c928172a90d44501a9fbe7c76dba0a08e631089273e4a52cc6db11e555aef1",
+      "bytes": 2013797,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF12_C01_sheet.png"
+      ]
+    },
+    "837726be703a86e547591bfa30396f6e2398c655d90150ce5df830c9c8c0e17c": {
+      "archived_path": "out/ship_design/prompt_archive/assets/837726be703a86e547591bfa30396f6e2398c655d90150ce5df830c9c8c0e17c.png",
+      "sha256": "837726be703a86e547591bfa30396f6e2398c655d90150ce5df830c9c8c0e17c",
+      "bytes": 1981444,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF12_sheet.png"
+      ]
+    },
+    "27baa15340715eaf8a23f7694ae69fcd2080c54086c1b234ab97c425ff94992d": {
+      "archived_path": "out/ship_design/prompt_archive/assets/27baa15340715eaf8a23f7694ae69fcd2080c54086c1b234ab97c425ff94992d.png",
+      "sha256": "27baa15340715eaf8a23f7694ae69fcd2080c54086c1b234ab97c425ff94992d",
+      "bytes": 1846549,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF13_sheet.png"
+      ]
+    },
+    "d46e46d75ad13663256b4d3de9b4abdaeb36190d8322304f014262f18b0ff761": {
+      "archived_path": "out/ship_design/prompt_archive/assets/d46e46d75ad13663256b4d3de9b4abdaeb36190d8322304f014262f18b0ff761.png",
+      "sha256": "d46e46d75ad13663256b4d3de9b4abdaeb36190d8322304f014262f18b0ff761",
+      "bytes": 1862943,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF14_sheet.png"
+      ]
+    },
+    "6220cc5485e9118c0daf63de2e2d8e104b0681fba7a0f9653c4480eaa5db9482": {
+      "archived_path": "out/ship_design/prompt_archive/assets/6220cc5485e9118c0daf63de2e2d8e104b0681fba7a0f9653c4480eaa5db9482.png",
+      "sha256": "6220cc5485e9118c0daf63de2e2d8e104b0681fba7a0f9653c4480eaa5db9482",
+      "bytes": 2236299,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF15_sheet.png"
+      ]
+    },
+    "f240218e5a0238d30bcfd39ccc8dabb3fbb6eb775f661051304b1cb1a6aec47e": {
+      "archived_path": "out/ship_design/prompt_archive/assets/f240218e5a0238d30bcfd39ccc8dabb3fbb6eb775f661051304b1cb1a6aec47e.png",
+      "sha256": "f240218e5a0238d30bcfd39ccc8dabb3fbb6eb775f661051304b1cb1a6aec47e",
+      "bytes": 2039336,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF16_sheet.png"
+      ]
+    },
+    "46e293450f317140d559684b3f90dfb5e1639fd72a875d5444a58efc1e26c65e": {
+      "archived_path": "out/ship_design/prompt_archive/assets/46e293450f317140d559684b3f90dfb5e1639fd72a875d5444a58efc1e26c65e.png",
+      "sha256": "46e293450f317140d559684b3f90dfb5e1639fd72a875d5444a58efc1e26c65e",
+      "bytes": 2045328,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF17_sheet.png"
+      ]
+    },
+    "359d108c93cc8132c304b6fd59001412352d1675d0b66ae84d53fac14a6099dc": {
+      "archived_path": "out/ship_design/prompt_archive/assets/359d108c93cc8132c304b6fd59001412352d1675d0b66ae84d53fac14a6099dc.png",
+      "sha256": "359d108c93cc8132c304b6fd59001412352d1675d0b66ae84d53fac14a6099dc",
+      "bytes": 2159775,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF18_sheet.png"
+      ]
+    },
+    "dff5bed3418d81a775ed8b5cfbf070c2528b9ecc40fba04fede7656818898308": {
+      "archived_path": "out/ship_design/prompt_archive/assets/dff5bed3418d81a775ed8b5cfbf070c2528b9ecc40fba04fede7656818898308.png",
+      "sha256": "dff5bed3418d81a775ed8b5cfbf070c2528b9ecc40fba04fede7656818898308",
+      "bytes": 2102569,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF19_sheet.png"
+      ]
+    },
+    "237ef9ebe5b865e9f1df0d3a7b44b3b3b84683177bb32c0986d8e5a479cafcab": {
+      "archived_path": "out/ship_design/prompt_archive/assets/237ef9ebe5b865e9f1df0d3a7b44b3b3b84683177bb32c0986d8e5a479cafcab.png",
+      "sha256": "237ef9ebe5b865e9f1df0d3a7b44b3b3b84683177bb32c0986d8e5a479cafcab",
+      "bytes": 2097073,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF20_sheet.png"
+      ]
+    },
+    "e7ec8c7acc5937e91e0de0e021d28ff93c97cb596ef863aa18af921f8c3d7794": {
+      "archived_path": "out/ship_design/prompt_archive/assets/e7ec8c7acc5937e91e0de0e021d28ff93c97cb596ef863aa18af921f8c3d7794.png",
+      "sha256": "e7ec8c7acc5937e91e0de0e021d28ff93c97cb596ef863aa18af921f8c3d7794",
+      "bytes": 2150582,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF21_C01_sheet.png"
+      ]
+    },
+    "dda29d38239eb4257a80196e089c26ec60dbb045a49a1184690cacf5c0672393": {
+      "archived_path": "out/ship_design/prompt_archive/assets/dda29d38239eb4257a80196e089c26ec60dbb045a49a1184690cacf5c0672393.png",
+      "sha256": "dda29d38239eb4257a80196e089c26ec60dbb045a49a1184690cacf5c0672393",
+      "bytes": 2198436,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF21_sheet.png"
+      ]
+    },
+    "d8f291b8371bebff4441281ab4025d487f8f9542572142c409ac7b930585944d": {
+      "archived_path": "out/ship_design/prompt_archive/assets/d8f291b8371bebff4441281ab4025d487f8f9542572142c409ac7b930585944d.png",
+      "sha256": "d8f291b8371bebff4441281ab4025d487f8f9542572142c409ac7b930585944d",
+      "bytes": 2151966,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF22_C01_sheet.png"
+      ]
+    },
+    "c29704ceae3d64801dcfc05dea012b46a2bb180f7a5623b5e7a32f73e515f562": {
+      "archived_path": "out/ship_design/prompt_archive/assets/c29704ceae3d64801dcfc05dea012b46a2bb180f7a5623b5e7a32f73e515f562.png",
+      "sha256": "c29704ceae3d64801dcfc05dea012b46a2bb180f7a5623b5e7a32f73e515f562",
+      "bytes": 2124125,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF22_sheet.png"
+      ]
+    },
+    "7daed266f18abb1faadfa770ce3c76177ef2a33e9d421682a15ab8b454cf5094": {
+      "archived_path": "out/ship_design/prompt_archive/assets/7daed266f18abb1faadfa770ce3c76177ef2a33e9d421682a15ab8b454cf5094.png",
+      "sha256": "7daed266f18abb1faadfa770ce3c76177ef2a33e9d421682a15ab8b454cf5094",
+      "bytes": 2123438,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF23_C01_sheet.png"
+      ]
+    },
+    "0e255556f5f96c5697743160e1f16ffed3f8395681c0af456ea0ff9f64f0a503": {
+      "archived_path": "out/ship_design/prompt_archive/assets/0e255556f5f96c5697743160e1f16ffed3f8395681c0af456ea0ff9f64f0a503.png",
+      "sha256": "0e255556f5f96c5697743160e1f16ffed3f8395681c0af456ea0ff9f64f0a503",
+      "bytes": 2183420,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF23_sheet.png"
+      ]
+    },
+    "3f75df431b55539013a8078fcffe60393304f78d4564049efedb62420f6990c3": {
+      "archived_path": "out/ship_design/prompt_archive/assets/3f75df431b55539013a8078fcffe60393304f78d4564049efedb62420f6990c3.png",
+      "sha256": "3f75df431b55539013a8078fcffe60393304f78d4564049efedb62420f6990c3",
+      "bytes": 1980168,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF24_sheet.png"
+      ]
+    },
+    "77748311fa3a4ece46d0f198a48fbc2865bff0a6fb2c931341702636d6db31d8": {
+      "archived_path": "out/ship_design/prompt_archive/assets/77748311fa3a4ece46d0f198a48fbc2865bff0a6fb2c931341702636d6db31d8.png",
+      "sha256": "77748311fa3a4ece46d0f198a48fbc2865bff0a6fb2c931341702636d6db31d8",
+      "bytes": 1921131,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF25_sheet.png"
+      ]
+    },
+    "6cfd49c4be6de01c1f87f26f89b2dbb3f8454811ce8faa9c480bdb5ec375c828": {
+      "archived_path": "out/ship_design/prompt_archive/assets/6cfd49c4be6de01c1f87f26f89b2dbb3f8454811ce8faa9c480bdb5ec375c828.png",
+      "sha256": "6cfd49c4be6de01c1f87f26f89b2dbb3f8454811ce8faa9c480bdb5ec375c828",
+      "bytes": 2165051,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF26_sheet.png"
+      ]
+    },
+    "78282395a652eed179a162fce4864d6a089f9e95696341f8bc4d2251aa68a705": {
+      "archived_path": "out/ship_design/prompt_archive/assets/78282395a652eed179a162fce4864d6a089f9e95696341f8bc4d2251aa68a705.png",
+      "sha256": "78282395a652eed179a162fce4864d6a089f9e95696341f8bc4d2251aa68a705",
+      "bytes": 1841486,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF27_sheet.png"
+      ]
+    },
+    "86e89313f8192ca7267bd436f938ce0abef693e21bb21db8a25e5b083a58b5ab": {
+      "archived_path": "out/ship_design/prompt_archive/assets/86e89313f8192ca7267bd436f938ce0abef693e21bb21db8a25e5b083a58b5ab.png",
+      "sha256": "86e89313f8192ca7267bd436f938ce0abef693e21bb21db8a25e5b083a58b5ab",
+      "bytes": 2207700,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF28_sheet.png"
+      ]
+    },
+    "3042cbb95c01427eaef72f6180d0e9af7ece56e220223a464900c9172dfe9a07": {
+      "archived_path": "out/ship_design/prompt_archive/assets/3042cbb95c01427eaef72f6180d0e9af7ece56e220223a464900c9172dfe9a07.png",
+      "sha256": "3042cbb95c01427eaef72f6180d0e9af7ece56e220223a464900c9172dfe9a07",
+      "bytes": 2169346,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF29_sheet.png"
+      ]
+    },
+    "5ad64d03738e093614ab8124f7c11a6b64eeab6d5321e7e41a88272e602634c7": {
+      "archived_path": "out/ship_design/prompt_archive/assets/5ad64d03738e093614ab8124f7c11a6b64eeab6d5321e7e41a88272e602634c7.png",
+      "sha256": "5ad64d03738e093614ab8124f7c11a6b64eeab6d5321e7e41a88272e602634c7",
+      "bytes": 1961512,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF30_sheet.png"
+      ]
+    },
+    "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4": {
+      "archived_path": "out/ship_design/prompt_archive/assets/0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4.jpg",
+      "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4",
+      "bytes": 122146,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg"
+      ]
+    },
+    "15ad62109971a10f8dff0edb2d863b052dea4f4d591eab77e6ea91107e348e08": {
+      "archived_path": "out/ship_design/prompt_archive/assets/15ad62109971a10f8dff0edb2d863b052dea4f4d591eab77e6ea91107e348e08.jpg",
+      "sha256": "15ad62109971a10f8dff0edb2d863b052dea4f4d591eab77e6ea91107e348e08",
+      "bytes": 69174,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_only.jpg"
+      ]
+    },
+    "8ba43a09b06907a4e72dc25b6255ea8c10547c32a45b9f98d450e0f91abcbb90": {
+      "archived_path": "out/ship_design/prompt_archive/assets/8ba43a09b06907a4e72dc25b6255ea8c10547c32a45b9f98d450e0f91abcbb90.png",
+      "sha256": "8ba43a09b06907a4e72dc25b6255ea8c10547c32a45b9f98d450e0f91abcbb90",
+      "bytes": 2010645,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/concepts/round_01/bh_pirate_BHP01_family.png"
+      ]
+    },
+    "ae90f43884454943aa66bcffe04be210360957cb4fb8411c7ca8338ec009fbf3": {
+      "archived_path": "out/ship_design/prompt_archive/assets/ae90f43884454943aa66bcffe04be210360957cb4fb8411c7ca8338ec009fbf3.png",
+      "sha256": "ae90f43884454943aa66bcffe04be210360957cb4fb8411c7ca8338ec009fbf3",
+      "bytes": 1982638,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/concepts/round_01/bh_pirate_BHP02_C01_family.png"
+      ]
+    },
+    "4a4383d29598359acc8136a32a3e76064aa9933593584a27df05887797043492": {
+      "archived_path": "out/ship_design/prompt_archive/assets/4a4383d29598359acc8136a32a3e76064aa9933593584a27df05887797043492.png",
+      "sha256": "4a4383d29598359acc8136a32a3e76064aa9933593584a27df05887797043492",
+      "bytes": 2048935,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/concepts/round_01/bh_pirate_BHP02_family.png"
+      ]
+    },
+    "6b0fdf4ffd44be84536c7494bf719b8419f9b09145a1bb68d8757e064bffe300": {
+      "archived_path": "out/ship_design/prompt_archive/assets/6b0fdf4ffd44be84536c7494bf719b8419f9b09145a1bb68d8757e064bffe300.jpg",
+      "sha256": "6b0fdf4ffd44be84536c7494bf719b8419f9b09145a1bb68d8757e064bffe300",
+      "bytes": 290667,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/references/elite/cockpit_reference.jpg"
+      ]
+    },
+    "4cb66596cbb58e70f76a80f155d454cd30ab88450530e1a76c772674105d6ce2": {
+      "archived_path": "out/ship_design/prompt_archive/assets/4cb66596cbb58e70f76a80f155d454cd30ab88450530e1a76c772674105d6ce2.jpg",
+      "sha256": "4cb66596cbb58e70f76a80f155d454cd30ab88450530e1a76c772674105d6ce2",
+      "bytes": 238224,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/references/elite/native_flight.jpg"
+      ]
+    },
+    "37665ade279fa25773b2871701f27c58e2e468af770dd898077878344ce1f64e": {
+      "archived_path": "out/ship_design/prompt_archive/assets/37665ade279fa25773b2871701f27c58e2e468af770dd898077878344ce1f64e.jpg",
+      "sha256": "37665ade279fa25773b2871701f27c58e2e468af770dd898077878344ce1f64e",
+      "bytes": 363395,
+      "original_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/pirate/references/family_comparison.jpg"
+      ]
     }
   },
   "selected_recipes": {
@@ -4204,11 +6166,23 @@
     },
     "rh_fighter_F14": {
       "archived_path": "docs/ru/ship_design/prompt_archive/selected/rh_fighter_F14.json",
-      "sha256": "50d475a6e9ab77d1b87111a6dd93d9aabc59a462aa59d84f4be411f8b8149a3c"
+      "sha256": "936a19bfb1f965bb7a883697fd594111394f3a95f4068d28e1331e131ecaedbc"
     },
     "bw_family_B04": {
       "archived_path": "docs/ru/ship_design/prompt_archive/selected/bw_family_B04.json",
-      "sha256": "f89d3ce736858415e54d9e05ca3933970f2518f81f94d1e64d51f0f41288418d"
+      "sha256": "8a17f1e698987060c30732fe78159fad9d4d6b1c2e910f105b40ae943cc14e9d"
+    },
+    "li_elite_L66": {
+      "archived_path": "docs/ru/ship_design/prompt_archive/selected/li_elite_L66.json",
+      "sha256": "54f5bf76856bf5e77ffa67000311d21e8510003f54f28f215cfa2f916d317464"
+    },
+    "bw_freighter_BF28": {
+      "archived_path": "docs/ru/ship_design/prompt_archive/selected/bw_freighter_BF28.json",
+      "sha256": "07a26f4e364bdda8267e93673c3c4171f723e3f8445807133f7adb4cc842c462"
+    },
+    "bh_freighter_BHF20": {
+      "archived_path": "docs/ru/ship_design/prompt_archive/selected/bh_freighter_BHF20.json",
+      "sha256": "a0ee7985ffcd3d1cb168d8715d16fcb681d58213c835855542c9a755bea88c59"
     }
   },
   "retention": "Keep all snapshots and asset hashes even if experiments are deleted. Historical prompts are not all artistically approved."

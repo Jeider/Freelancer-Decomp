@@ -719,6 +719,30 @@ GENRESULT DACOM_API FMaterialBatcher::SetBinSortKind(unsigned long Index, void* 
 
 GENRESULT DACOM_API FMaterialBatcher::SetBinOrder(unsigned long Index, long Key)
 {
+    // Index 2 parks the already queued room glass so a prop shadow can flush
+    // only the records it just submitted. Not a new export.
+    if (Index == 2)
+    {
+        static std::map<IMaterial*, std::list<FBatchQueuedRecord>> Held;
+        static unsigned long HeldCount = 0;
+        static bool Holding = false;
+        if (Key == 1 && !Holding)
+        {
+            Held.swap(Bins[1]->Queue);
+            HeldCount = Bins[1]->RecordCount;
+            Bins[1]->RecordCount = 0;
+            Holding = true;
+        }
+        else if (Key == 0 && Holding)
+        {
+            Bins[1]->Queue.swap(Held);
+            Bins[1]->RecordCount = HeldCount;
+            Held.clear();
+            HeldCount = 0;
+            Holding = false;
+        }
+        return GR_OK;
+    }
     if (Index >= 2)
         return (GENRESULT)-1;
 

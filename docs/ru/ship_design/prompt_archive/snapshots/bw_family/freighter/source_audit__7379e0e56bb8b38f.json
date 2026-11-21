@@ -1,0 +1,1767 @@
+{
+  "alias": "bw_freighter_pir",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_freighter/bw_pir_freighter.cmp",
+  "source_sha256": "97c65194f3667e2ec7cf00258f518fd57b643239f06c74c836e8a11d38115e8a",
+  "archetype": {
+    "nickname": [
+      "bw_freighter_pir"
+    ],
+    "ship_class": [
+      "2"
+    ],
+    "ids_name": [
+      "110502"
+    ],
+    "ids_info": [
+      "110503"
+    ],
+    "ids_info1": [
+      "110504"
+    ],
+    "ids_info2": [
+      "110505"
+    ],
+    "ids_info3": [
+      "110506"
+    ],
+    "shield_link": [
+      "bw_freighter_shield01, HpMount, HpShield01"
+    ],
+    "mass": [
+      "105"
+    ],
+    "hold_size": [
+      "69"
+    ],
+    "strafe_force": [
+      "20000"
+    ],
+    "strafe_power_usage": [
+      "6"
+    ],
+    "nanobot_limit": [
+      "12"
+    ],
+    "shield_battery_limit": [
+      "12"
+    ],
+    "hit_pts": [
+      "2300"
+    ],
+    "fuse": [
+      "intermed_damage_smallship01, 0.000000, 690.0",
+      "intermed_damage_smallship02, 0.000000, 460.0",
+      "intermed_damage_smallship03, 0.000000, 230.0"
+    ],
+    "hp_type": [
+      "hp_gun_special_1, HpWeapon02, HpWeapon03, HpTurret02, HpTurret03, HpTurret04, HpTurret05",
+      "hp_gun_special_2, HpWeapon02, HpWeapon03, HpTurret02, HpTurret03, HpTurret04, HpTurret05",
+      "hp_gun_special_3, HpWeapon02, HpWeapon03, HpTurret02, HpTurret03, HpTurret04, HpTurret05",
+      "hp_gun_special_4, HpWeapon02, HpWeapon03",
+      "hp_freighter_shield_special_1, HpShield01",
+      "hp_freighter_shield_special_2, HpShield01",
+      "hp_freighter_shield_special_3, HpShield01",
+      "hp_freighter_shield_special_4, HpShield01",
+      "hp_freighter_engine_special_1, HpDrive01",
+      "hp_freighter_engine_special_2, HpDrive01",
+      "hp_freighter_engine_special_3, HpDrive01",
+      "hp_freighter_engine_special_4, HpDrive01",
+      "hp_freighter_power_special_1, HpPower01",
+      "hp_freighter_power_special_2, HpPower01",
+      "hp_freighter_power_special_3, HpPower01",
+      "hp_freighter_power_special_4, HpPower01",
+      "hp_thruster_special_1, HpThruster01, HpThruster02",
+      "hp_thruster_special_2, HpThruster01, HpThruster02",
+      "hp_thruster_special_3, HpThruster01, HpThruster02",
+      "hp_thruster_special_4, HpThruster01, HpThruster02",
+      "hp_mine_dropper, HpMine01",
+      "hp_countermeasure_dropper, HpCM01"
+    ],
+    "equipment_slot": [
+      "HpHardware01, hardware, 1"
+    ],
+    "lodranges": [
+      "0, 1000, 5000, 10000"
+    ],
+    "msg_id_prefix": [
+      "gcs_refer_shiparch_borf"
+    ],
+    "mission_property": [
+      "can_use_berths"
+    ],
+    "type": [
+      "FREIGHTER"
+    ],
+    "da_archetype": [
+      "ships\\border_world\\bw_pir_freighter\\bw_pir_freighter.cmp"
+    ],
+    "material_library": [
+      "ships\\border_world\\bw_pir_ships.mat",
+      "fx\\envmapbasic.mat"
+    ],
+    "envmap_material": [
+      "envmapship"
+    ],
+    "cockpit": [
+      "cockpits\\corsair\\bw_freighter.ini"
+    ],
+    "pilot_mesh": [
+      "generic_pilot"
+    ],
+    "linear_drag": [
+      "1.000000"
+    ],
+    "max_bank_angle": [
+      "1"
+    ],
+    "camera_offset": [
+      "10, 49"
+    ],
+    "camera_angular_acceleration": [
+      "0.035000"
+    ],
+    "camera_horizontal_turn_angle": [
+      "20"
+    ],
+    "camera_vertical_turn_up_angle": [
+      "5"
+    ],
+    "camera_vertical_turn_down_angle": [
+      "20"
+    ],
+    "camera_turn_look_ahead_slerp_amount": [
+      "1.000000"
+    ],
+    "explosion_arch": [
+      "explosion_li"
+    ],
+    "surface_hit_effects": [
+      "0, small_hull_hit_light01, small_hull_hit_light02, small_hull_hit_light03",
+      "150, small_hull_hit_medium01, small_hull_hit_medium02, small_hull_hit_medium03",
+      "300, small_hull_hit_heavy01, small_hull_hit_heavy02, small_hull_hit_heavy03"
+    ],
+    "nudge_force": [
+      "30000.000000"
+    ],
+    "bay_door_anim": [
+      "Sc_open baydoor"
+    ],
+    "bay_doors_open_snd": [
+      "cargo_doors_open"
+    ],
+    "bay_doors_close_snd": [
+      "cargo_doors_close"
+    ],
+    "hp_bay_surface": [
+      "HpBayDoor01"
+    ],
+    "hp_bay_external": [
+      "HpBayDoor02"
+    ],
+    "hp_tractor_source": [
+      "HpTractor_Source"
+    ],
+    "num_exhaust_nozzles": [
+      "3"
+    ],
+    "steering_torque": [
+      "54000.000000, 54000.000000, 54000.000000"
+    ],
+    "angular_drag": [
+      "60000.000000, 60000.000000, 60000.000000"
+    ],
+    "rotation_inertia": [
+      "16800.000000, 16800.000000, 16800.000000"
+    ],
+    "source_ini": "ships\\shiparch.ini"
+  },
+  "assets": [
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_freighter/bw_pir_freighter.cmp",
+      "sha256": "97c65194f3667e2ec7cf00258f518fd57b643239f06c74c836e8a11d38115e8a"
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_ships.mat",
+      "sha256": "8c607d874b7062d0744f03d067530895d4c79b20d0a25b2f899a61db3c94bc0a"
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/fx/envmapbasic.mat",
+      "sha256": "7586554f412d0c4cdc5d58ba04121452baf1d6c62efffb3ba864e2cdcfe497be"
+    },
+    {
+      "path": "D:/Games/FL_MOD/DATA/cockpits/corsair/bw_freighter.ini",
+      "sha256": "9320e67ef86b0f10932a560aa73ec823bb4764bdf0498a794f5d51f2b0de66c1"
+    }
+  ],
+  "disk_free_before": 82264477696,
+  "constructs": [
+    {
+      "name": "bw_port_wing_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        -5.1450700759887695,
+        1.0938818454742432,
+        1.728086233139038
+      ],
+      "rotation": [
+        [
+          1.0,
+          -1.1394679688692122e-07,
+          -6.245891626122102e-08
+        ],
+        [
+          1.1394679688692122e-07,
+          1.0,
+          -1.1902076835212938e-07
+        ],
+        [
+          6.245893047207574e-08,
+          1.1902076124670202e-07,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "bw_star_wing_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        5.161889553070068,
+        1.0938835144042969,
+        1.7280857563018799
+      ],
+      "rotation": [
+        [
+          1.0,
+          -1.4901171851988693e-08,
+          3.330671456155634e-16
+        ],
+        [
+          1.4901171851988693e-08,
+          1.0,
+          -4.470348713425665e-08
+        ],
+        [
+          3.330671985551226e-16,
+          4.470348713425665e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "bw_star_eng_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        3.6537461280822754,
+        -2.5815999507904053,
+        1.4820711612701416
+      ],
+      "rotation": [
+        [
+          1.0,
+          -1.4901171851988693e-08,
+          3.330671456155634e-16
+        ],
+        [
+          1.4901171851988693e-08,
+          1.0,
+          -4.470348713425665e-08
+        ],
+        [
+          3.330671985551226e-16,
+          4.470348713425665e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "bw_glass_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        -0.012647628784179688,
+        -0.027214467525482178,
+        -9.285409927368164
+      ],
+      "rotation": [
+        [
+          1.0,
+          7.062401152779785e-08,
+          -4.3381959358157474e-08
+        ],
+        [
+          -7.062401152779785e-08,
+          1.0,
+          7.212661046196445e-08
+        ],
+        [
+          4.338196291087115e-08,
+          -7.212661046196445e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "bw_port_eng_lod1",
+      "parent": "Root",
+      "kind": "fix",
+      "origin": [
+        -3.6653590202331543,
+        -2.5816001892089844,
+        1.482072114944458
+      ],
+      "rotation": [
+        [
+          1.0,
+          -5.8387328749631706e-08,
+          -9.589490446160198e-08
+        ],
+        [
+          5.8387328749631706e-08,
+          1.0,
+          1.3183687030959845e-08
+        ],
+        [
+          9.589490446160198e-08,
+          -1.3183692360030363e-08,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "baydoor01_lod1",
+      "parent": "Root",
+      "kind": "rev",
+      "origin": [
+        1.961080551147461,
+        4.101235389709473,
+        0.0904533863067627
+      ],
+      "rotation": [
+        [
+          1.7881392011531716e-07,
+          -1.685874195800352e-07,
+          1.0
+        ],
+        [
+          -3.127225056687166e-08,
+          1.0,
+          1.685874195800352e-07
+        ],
+        [
+          -1.0,
+          -3.127227898858109e-08,
+          1.7881392011531716e-07
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        6.828376797329838e-08,
+        -5.845091077816278e-09,
+        -1.0
+      ],
+      "limits": [
+        0.0,
+        0.7853899598121643
+      ]
+    },
+    {
+      "name": "baydoor02_lod1",
+      "parent": "Root",
+      "kind": "rev",
+      "origin": [
+        -1.9619576930999756,
+        4.101233005523682,
+        0.0904543399810791
+      ],
+      "rotation": [
+        [
+          5.960465188081798e-08,
+          0.0,
+          -1.0
+        ],
+        [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.0,
+          5.960465188081798e-08
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        8.657980998805215e-08,
+        -4.1433534647694614e-07,
+        1.0
+      ],
+      "limits": [
+        0.0,
+        0.7853899598121643
+      ]
+    },
+    {
+      "name": "bw_boards_lod1",
+      "parent": "Root",
+      "kind": "pris",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "limits": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "bw_port_wing2_lod1",
+      "parent": "bw_port_wing_lod1",
+      "kind": "pris",
+      "origin": [
+        2.5,
+        0.10000000149011612,
+        1.0
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        -2.5,
+        -0.10000000149011612,
+        -1.0
+      ],
+      "limits": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "bw_star_wing2_lod1",
+      "parent": "bw_star_wing_lod1",
+      "kind": "pris",
+      "origin": [
+        -2.5,
+        0.10000000149011612,
+        1.0
+      ],
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        2.5,
+        -0.10000000149011612,
+        -1.0
+      ],
+      "limits": [
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "channels": [
+    {
+      "script": "sc_open baydoor",
+      "child": "baydoor01_lod1",
+      "parent": "Root",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 3.3333334922790527,
+      "times": [
+        0.0,
+        3.3333334922790527
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.7853899598121643
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.7853899598121643
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        0.7853899598121643
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        6.828376797329838e-08,
+        -5.845091077816278e-09,
+        -1.0
+      ],
+      "degrees": [
+        0.0,
+        44.999529969186355
+      ],
+      "degrees_endpoints": [
+        0.0,
+        44.999529969186355
+      ]
+    },
+    {
+      "script": "sc_open baydoor",
+      "child": "baydoor02_lod1",
+      "parent": "Root",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 3.3333334922790527,
+      "times": [
+        0.0,
+        3.3333334922790527
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.7853899598121643
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        0.7853899598121643
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        0.7853899598121643
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "rev",
+      "axis": [
+        8.657980998805215e-08,
+        -4.1433534647694614e-07,
+        1.0
+      ],
+      "degrees": [
+        0.0,
+        44.999529969186355
+      ],
+      "degrees_endpoints": [
+        0.0,
+        44.999529969186355
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "bw_port_wing2_lod1",
+      "parent": "bw_port_wing_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 1.5,
+      "times": [
+        0.0,
+        1.5
+      ],
+      "values": [
+        [
+          1.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        1.0
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        -2.5,
+        -0.10000000149011612,
+        -1.0
+      ]
+    },
+    {
+      "script": "sc_extend wing",
+      "child": "bw_star_wing2_lod1",
+      "parent": "bw_star_wing_lod1",
+      "count": 2,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 1.5,
+      "times": [
+        0.0,
+        1.5
+      ],
+      "values": [
+        [
+          1.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        1.0
+      ],
+      "last": [
+        0.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 16,
+      "expected_bytes": 16,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        2.5,
+        -0.10000000149011612,
+        -1.0
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "bw_port_wing2_lod1",
+      "parent": "bw_port_wing_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 6.5,
+      "times": [
+        0.0,
+        5.0,
+        6.5
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          1.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        1.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        -2.5,
+        -0.10000000149011612,
+        -1.0
+      ]
+    },
+    {
+      "script": "sc_launch extend",
+      "child": "bw_star_wing2_lod1",
+      "parent": "bw_star_wing_lod1",
+      "count": 3,
+      "interval": -1.0,
+      "flags": 1,
+      "duration": 6.5,
+      "times": [
+        0.0,
+        5.0,
+        6.5
+      ],
+      "values": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          1.0
+        ]
+      ],
+      "minimum": [
+        0.0
+      ],
+      "maximum": [
+        1.0
+      ],
+      "first": [
+        0.0
+      ],
+      "last": [
+        1.0
+      ],
+      "monotonic_times": true,
+      "finite": true,
+      "bound_joint": true,
+      "frames_bytes": 24,
+      "expected_bytes": 24,
+      "native_size_valid": true,
+      "extra_floats": [],
+      "joint_kind": "pris",
+      "axis": [
+        2.5,
+        -0.10000000149011612,
+        -1.0
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "file": "baydoor01_pir_lod1030109103849.3db",
+      "object": "baydoor01_lod1",
+      "flight": {
+        "min": [
+          -0.005808361665037953,
+          4.101883758874838,
+          -2.345990181019898
+        ],
+        "max": [
+          1.961115187852732,
+          5.863086562640418,
+          2.4754497576070666
+        ],
+        "dimensions": [
+          1.96692354951777,
+          1.7612028037655802,
+          4.821439938626964
+        ]
+      },
+      "stowed": {
+        "min": [
+          -0.005808361665037953,
+          4.101883758874838,
+          -2.345990181019898
+        ],
+        "max": [
+          1.961115187852732,
+          5.863086562640418,
+          2.4754497576070666
+        ],
+        "dimensions": [
+          1.96692354951777,
+          1.7612028037655802,
+          4.821439938626964
+        ]
+      },
+      "center_delta_stow": [
+        0.0,
+        4.440892098500626e-16,
+        0.0
+      ]
+    },
+    {
+      "file": "baydoor02_pir_lod1030109103849.3db",
+      "object": "baydoor02_lod1",
+      "flight": {
+        "min": [
+          -1.9621661265858252,
+          4.101884629926644,
+          -2.3459888670533937
+        ],
+        "max": [
+          -0.005808092057809633,
+          5.863087773323059,
+          2.475452109287047
+        ],
+        "dimensions": [
+          1.9563580345280156,
+          1.7612031433964148,
+          4.82144097634044
+        ]
+      },
+      "stowed": {
+        "min": [
+          -1.9621661265858252,
+          4.101884629926644,
+          -2.3459888670533937
+        ],
+        "max": [
+          -0.005808092057809633,
+          5.863087773323059,
+          2.475452109287047
+        ],
+        "dimensions": [
+          1.9563580345280156,
+          1.7612031433964148,
+          4.82144097634044
+        ]
+      },
+      "center_delta_stow": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "file": "bw_boards_pir_lod1030109103849.3db",
+      "object": "bw_boards_lod1",
+      "flight": {
+        "min": [
+          -3.375075340270996,
+          0.4658670425415039,
+          0.025452880188822746
+        ],
+        "max": [
+          3.3803822994232178,
+          1.721898078918457,
+          5.068605422973633
+        ],
+        "dimensions": [
+          6.755457639694214,
+          1.2560310363769531,
+          5.04315254278481
+        ]
+      },
+      "stowed": {
+        "min": [
+          -3.375075340270996,
+          0.4658670425415039,
+          0.025452880188822746
+        ],
+        "max": [
+          3.3803822994232178,
+          1.721898078918457,
+          5.068605422973633
+        ],
+        "dimensions": [
+          6.755457639694214,
+          1.2560310363769531,
+          5.04315254278481
+        ]
+      },
+      "center_delta_stow": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "file": "bw_freighter_pir_lod1030109103849.3db",
+      "object": "root",
+      "flight": {
+        "min": [
+          -3.394857883453369,
+          -5.621437072753906,
+          -17.617877960205078
+        ],
+        "max": [
+          3.3803820610046387,
+          6.0383381843566895,
+          11.110098838806152
+        ],
+        "dimensions": [
+          6.775239944458008,
+          11.659775257110596,
+          28.72797679901123
+        ]
+      },
+      "stowed": {
+        "min": [
+          -3.394857883453369,
+          -5.621437072753906,
+          -17.617877960205078
+        ],
+        "max": [
+          3.3803820610046387,
+          6.0383381843566895,
+          11.110098838806152
+        ],
+        "dimensions": [
+          6.775239944458008,
+          11.659775257110596,
+          28.72797679901123
+        ]
+      },
+      "center_delta_stow": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "file": "bw_glass_pir_lod1030109103849.3db",
+      "object": "bw_glass_lod1",
+      "flight": {
+        "min": [
+          -1.197328173180563,
+          1.4890086534462306,
+          -14.461672903251559
+        ],
+        "max": [
+          1.1840412983694413,
+          2.375985463634969,
+          -12.268660208670294
+        ],
+        "dimensions": [
+          2.3813694715500042,
+          0.8869768101887385,
+          2.193012694581265
+        ]
+      },
+      "stowed": {
+        "min": [
+          -1.197328173180563,
+          1.4890086534462306,
+          -14.461672903251559
+        ],
+        "max": [
+          1.1840412983694413,
+          2.375985463634969,
+          -12.268660208670294
+        ],
+        "dimensions": [
+          2.3813694715500042,
+          0.8869768101887385,
+          2.193012694581265
+        ]
+      },
+      "center_delta_stow": [
+        0.0,
+        0.0,
+        8.881784197001252e-16
+      ]
+    },
+    {
+      "file": "bw_port_eng_pir_lod1030109103849.3db",
+      "object": "bw_port_eng_lod1",
+      "flight": {
+        "min": [
+          -4.828228278926962,
+          -3.8505720122615523,
+          -1.0294372548516249
+        ],
+        "max": [
+          -2.5024889837478455,
+          -1.31262938890718,
+          3.9935795713194486
+        ],
+        "dimensions": [
+          2.3257392951791163,
+          2.5379426233543723,
+          5.023016826171073
+        ]
+      },
+      "stowed": {
+        "min": [
+          -4.828228278926962,
+          -3.8505720122615523,
+          -1.0294372548516249
+        ],
+        "max": [
+          -2.5024889837478455,
+          -1.31262938890718,
+          3.9935795713194486
+        ],
+        "dimensions": [
+          2.3257392951791163,
+          2.5379426233543723,
+          5.023016826171073
+        ]
+      },
+      "center_delta_stow": [
+        0.0,
+        -2.220446049250313e-16,
+        0.0
+      ]
+    },
+    {
+      "file": "bw_port_wing2_pir_lod1030109103849.3db",
+      "object": "bw_port_wing2_lod1",
+      "flight": {
+        "min": [
+          -6.917072714291548,
+          0.46586702964259674,
+          0.02545351447617361
+        ],
+        "max": [
+          -3.3730676352652673,
+          1.72189812579053,
+          5.068604893142172
+        ],
+        "dimensions": [
+          3.5440050790262805,
+          1.2560310961479333,
+          5.043151378665999
+        ]
+      },
+      "stowed": {
+        "min": [
+          -4.417072788145145,
+          0.5658671969789367,
+          1.025453682525576
+        ],
+        "max": [
+          -0.8730677091188634,
+          1.82189829312687,
+          6.068605061191575
+        ],
+        "dimensions": [
+          3.5440050790262814,
+          1.2560310961479333,
+          5.043151378665999
+        ]
+      },
+      "center_delta_stow": [
+        2.499999926146403,
+        0.10000016733633998,
+        1.0000001680494028
+      ]
+    },
+    {
+      "file": "bw_port_wing_pir_lod1030109103849.3db",
+      "object": "bw_port_wing_lod1",
+      "flight": {
+        "min": [
+          -5.145070077687381,
+          1.0813818393369397,
+          1.6780862309062197
+        ],
+        "max": [
+          -5.145070071441489,
+          1.1063818516115467,
+          1.7780862323963376
+        ],
+        "dimensions": [
+          6.245891803757786e-09,
+          0.02500001227460702,
+          0.1000000014901179
+        ]
+      },
+      "stowed": {
+        "min": [
+          -5.145070077687381,
+          1.0813818393369397,
+          1.6780862309062197
+        ],
+        "max": [
+          -5.145070071441489,
+          1.1063818516115467,
+          1.7780862323963376
+        ],
+        "dimensions": [
+          6.245891803757786e-09,
+          0.02500001227460702,
+          0.1000000014901179
+        ]
+      },
+      "center_delta_stow": [
+        -4.440892098500626e-16,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "file": "bw_star_eng_pir_lod1030109103849.3db",
+      "object": "bw_star_eng_lod1",
+      "flight": {
+        "min": [
+          2.490877619151436,
+          -3.8505712577934466,
+          -1.029436798912064
+        ],
+        "max": [
+          4.816616525923194,
+          -1.3126281988443238,
+          3.99358059590773
+        ],
+        "dimensions": [
+          2.3257389067717575,
+          2.5379430589491228,
+          5.023017394819794
+        ]
+      },
+      "stowed": {
+        "min": [
+          2.490877619151436,
+          -3.8505712577934466,
+          -1.029436798912064
+        ],
+        "max": [
+          4.816616525923194,
+          -1.3126281988443238,
+          3.99358059590773
+        ],
+        "dimensions": [
+          2.3257389067717575,
+          2.5379430589491228,
+          5.023017394819794
+        ]
+      },
+      "center_delta_stow": [
+        0.0,
+        2.220446049250313e-16,
+        0.0
+      ]
+    },
+    {
+      "file": "bw_star_wing2_pir_lod1030109103849.3db",
+      "object": "bw_star_wing2_lod1",
+      "flight": {
+        "min": [
+          3.375291576564088,
+          0.4658670324279792,
+          0.02545288032357962
+        ],
+        "max": [
+          6.933891901790843,
+          1.7218980688050383,
+          5.0686052126294765
+        ],
+        "dimensions": [
+          3.558600325226755,
+          1.256031036377059,
+          5.043152332305897
+        ]
+      },
+      "stowed": {
+        "min": [
+          0.8752915750739709,
+          0.5658669519616786,
+          1.0254528847939273
+        ],
+        "max": [
+          4.4338919003007256,
+          1.8218979883387376,
+          6.068605217099824
+        ],
+        "dimensions": [
+          3.5586003252267546,
+          1.256031036377059,
+          5.043152332305897
+        ]
+      },
+      "center_delta_stow": [
+        -2.500000001490117,
+        0.09999991953369924,
+        1.0000000044703476
+      ]
+    },
+    {
+      "file": "bw_star_wing_pir_lod1030109103849.3db",
+      "object": "bw_star_wing_lod1",
+      "flight": {
+        "min": [
+          5.161889552883804,
+          1.0813835119828579,
+          1.6780857549980281
+        ],
+        "max": [
+          5.161889553256333,
+          1.1063835168257359,
+          1.7780857564881443
+        ],
+        "dimensions": [
+          3.7252867457482353e-10,
+          0.02500000484287801,
+          0.10000000149011612
+        ]
+      },
+      "stowed": {
+        "min": [
+          5.161889552883804,
+          1.0813835119828579,
+          1.6780857549980281
+        ],
+        "max": [
+          5.161889553256333,
+          1.1063835168257359,
+          1.7780857564881443
+        ],
+        "dimensions": [
+          3.7252867457482353e-10,
+          0.02500000484287801,
+          0.10000000149011612
+        ]
+      },
+      "center_delta_stow": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "phase_bounds": [
+    {
+      "min": [
+        -6.917072714291548,
+        -5.621437072753906,
+        -17.617877960205078
+      ],
+      "max": [
+        6.933891901790843,
+        6.0383381843566895,
+        11.110098838806152
+      ],
+      "dimensions": [
+        13.85096461608239,
+        11.659775257110596,
+        28.72797679901123
+      ]
+    },
+    {
+      "min": [
+        -6.2920727327549475,
+        -5.621437072753906,
+        -17.617877960205078
+      ],
+      "max": [
+        6.308891901418313,
+        6.0383381843566895,
+        11.110098838806152
+      ],
+      "dimensions": [
+        12.60096463417326,
+        11.659775257110596,
+        28.72797679901123
+      ]
+    },
+    {
+      "min": [
+        -5.667072751218346,
+        -5.621437072753906,
+        -17.617877960205078
+      ],
+      "max": [
+        5.683891901045785,
+        6.0383381843566895,
+        11.110098838806152
+      ],
+      "dimensions": [
+        11.350964652264132,
+        11.659775257110596,
+        28.72797679901123
+      ]
+    },
+    {
+      "min": [
+        -5.145070077687381,
+        -5.621437072753906,
+        -17.617877960205078
+      ],
+      "max": [
+        5.161889553256333,
+        6.0383381843566895,
+        11.110098838806152
+      ],
+      "dimensions": [
+        10.306959630943712,
+        11.659775257110596,
+        28.72797679901123
+      ]
+    },
+    {
+      "min": [
+        -5.145070077687381,
+        -5.621437072753906,
+        -17.617877960205078
+      ],
+      "max": [
+        5.161889553256333,
+        6.0383381843566895,
+        11.110098838806152
+      ],
+      "dimensions": [
+        10.306959630943712,
+        11.659775257110596,
+        28.72797679901123
+      ]
+    }
+  ],
+  "wing_times": [
+    0.0,
+    0.375,
+    0.75,
+    1.125,
+    1.5
+  ],
+  "door_phase_bounds": [
+    {
+      "min": [
+        -1.9621661265858252,
+        4.101883758874838,
+        -2.345990181019898
+      ],
+      "max": [
+        1.961115187852732,
+        5.863087773323059,
+        2.475452109287047
+      ],
+      "dimensions": [
+        3.923281314438557,
+        1.7612040144482215,
+        4.821442290306946
+      ]
+    },
+    {
+      "min": [
+        -1.962289434797936,
+        4.101831387199093,
+        -2.3459901810111545
+      ],
+      "max": [
+        1.96124100572829,
+        6.212950794802916,
+        2.4754522451877112
+      ],
+      "dimensions": [
+        3.923530440526226,
+        2.111119407603823,
+        4.821442426198866
+      ]
+    },
+    {
+      "min": [
+        -1.9623999866928978,
+        4.101755111503545,
+        -2.345990181002158
+      ],
+      "max": [
+        1.9613606512943567,
+        6.4816646785753225,
+        2.4754523939434665
+      ],
+      "dimensions": [
+        3.9237606379872547,
+        2.3799095670717776,
+        4.821442574945625
+      ]
+    },
+    {
+      "min": [
+        -1.962493533911851,
+        4.101658734011167,
+        -2.3459901809932533
+      ],
+      "max": [
+        1.9614695267346678,
+        6.658901905129872,
+        2.4754525086323094
+      ],
+      "dimensions": [
+        3.9239630606465186,
+        2.5572431711187047,
+        4.821442689625563
+      ]
+    },
+    {
+      "min": [
+        -2.31338621598543,
+        4.101545958377819,
+        -2.345990180984783
+      ],
+      "max": [
+        2.3123639236141664,
+        6.737851489073906,
+        2.475452584846904
+      ],
+      "dimensions": [
+        4.625750139599596,
+        2.636305530696087,
+        4.821442765831687
+      ]
+    }
+  ],
+  "cockpit_glazing_bounds": {
+    "min": [
+      -1.197328173180563,
+      1.4890086534462306,
+      -14.461672903251559
+    ],
+    "max": [
+      1.1840412983694413,
+      2.375985463634969,
+      -12.268660208670294
+    ],
+    "dimensions": [
+      2.3813694715500042,
+      0.8869768101887385,
+      2.193012694581265
+    ]
+  },
+  "source_stats": {
+    "sha256": "97c65194f3667e2ec7cf00258f518fd57b643239f06c74c836e8a11d38115e8a",
+    "bytes": 230688,
+    "triangles": 1082,
+    "parts": [
+      {
+        "name": "baydoor01_pir_lod1030109103849.3db",
+        "triangles": 4,
+        "materials": [
+          "pir_bw_panel2side"
+        ]
+      },
+      {
+        "name": "baydoor02_pir_lod1030109103849.3db",
+        "triangles": 4,
+        "materials": [
+          "pir_bw_panel2side"
+        ]
+      },
+      {
+        "name": "bw_freighter_pir_lod1030109103849.3db",
+        "triangles": 742,
+        "materials": [
+          "pir_bw_engine",
+          "pir_bw_panel_128",
+          "pir_bw_panel_128D",
+          "pir_bw_panel_256",
+          "pir_bw_panel_256D",
+          "pir_bw_panel2sideD",
+          "weaponplate2"
+        ]
+      },
+      {
+        "name": "bw_glass_pir_lod1030109103849.3db",
+        "triangles": 18,
+        "materials": [
+          "pir_bw_glass"
+        ]
+      },
+      {
+        "name": "bw_port_eng_pir_lod1030109103849.3db",
+        "triangles": 114,
+        "materials": [
+          "pir_bw_engine",
+          "pir_bw_panel_256D",
+          "pir_bw_panel_256",
+          "pir_bw_panel2sideD",
+          "engine_128",
+          "engine_grill01"
+        ]
+      },
+      {
+        "name": "bw_port_wing_pir_lod1030109103849.3db",
+        "triangles": 1,
+        "materials": [
+          "0x19647c51"
+        ]
+      },
+      {
+        "name": "bw_star_eng_pir_lod1030109103849.3db",
+        "triangles": 114,
+        "materials": [
+          "pir_bw_engine",
+          "pir_bw_panel_256D",
+          "pir_bw_panel_256",
+          "pir_bw_panel2sideD",
+          "engine_128",
+          "engine_grill01"
+        ]
+      },
+      {
+        "name": "bw_star_wing_pir_lod1030109103849.3db",
+        "triangles": 1,
+        "materials": [
+          "0x19647c51"
+        ]
+      },
+      {
+        "name": "bw_boards_pir_lod1030109103849.3db",
+        "triangles": 32,
+        "materials": [
+          "pir_bw_panel_256"
+        ]
+      },
+      {
+        "name": "bw_port_wing2_pir_lod1030109103849.3db",
+        "triangles": 26,
+        "materials": [
+          "pir_bw_panel_256",
+          "weaponplate2"
+        ]
+      },
+      {
+        "name": "bw_star_wing2_pir_lod1030109103849.3db",
+        "triangles": 26,
+        "materials": [
+          "pir_bw_panel_256",
+          "weaponplate2"
+        ]
+      }
+    ],
+    "lod_parts": {
+      "level0": 10,
+      "level1": 10,
+      "level2": 10,
+      "level3": 5
+    },
+    "bounds": [
+      [
+        -5.145070077687381,
+        -5.621437072753906,
+        -17.617877960205078
+      ],
+      [
+        5.161889553256333,
+        6.0383381843566895,
+        11.110098838806152
+      ]
+    ],
+    "dimensions": [
+      10.306959630943712,
+      11.659775257110596,
+      28.72797679901123
+    ],
+    "material_info": [
+      {
+        "id": 3526781,
+        "name": "pir_bw_panel_256",
+        "texture": "pir_bw_panel_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 55347487,
+        "name": "engine_128",
+        "texture": "engine_128.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 96856615,
+        "name": "pir_bw_engine",
+        "texture": "pir_bw_engine.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 194699124,
+        "name": "pir_bw_panel2sideD",
+        "texture": "pir_bw_panel_256.tga",
+        "kind": "DcDtTwo",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 254424827,
+        "name": "engine_grill01",
+        "texture": "engine_grill01.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 363114746,
+        "name": "pir_bw_panel_128D",
+        "texture": "pir_bw_panel_128.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 426015825,
+        "name": "0x19647c51",
+        "texture": "",
+        "kind": "MISSING",
+        "texture_size": null
+      },
+      {
+        "id": 517756900,
+        "name": "pir_bw_panel_128",
+        "texture": "pir_bw_panel_128.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 4057568012,
+        "name": "pir_bw_panel2side",
+        "texture": "pir_bw_panel_256.tga",
+        "kind": "DcDtTwo",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 4066996893,
+        "name": "pir_bw_panel_256D",
+        "texture": "pir_bw_panel_256.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 4067015673,
+        "name": "weaponplate2",
+        "texture": "weaponplate2.tga",
+        "kind": "DcDt",
+        "texture_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "id": 4276108270,
+        "name": "pir_bw_glass",
+        "texture": "",
+        "kind": "DcDtOcOt",
+        "texture_size": null
+      }
+    ],
+    "hardpoint_count": 55,
+    "animation_leaves": 24,
+    "warnings": []
+  },
+  "launch_to_flight_max_delta": 0.0,
+  "independent_pose_loader_max_delta": 1.4144241333724494e-13,
+  "all_bindings_valid": true,
+  "source_unchanged": true,
+  "caveats": [
+    "Installed mod, not authenticated retail.",
+    "Offline software render, not in-game, no future-model collision proof.",
+    "Cabin includes surrounding original hull, not only separate glass part."
+  ]
+}

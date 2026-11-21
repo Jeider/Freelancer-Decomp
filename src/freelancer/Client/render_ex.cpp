@@ -621,12 +621,12 @@ void RenderEx::ColorGradeScene()
     {grade->ApplyColorGrade(unsigned(preset));grade->Release();}
 }
 
-bool RenderEx::BeginRoomShadow(const float* CameraView12, const float* Center, float Radius, bool Character)
+bool RenderEx::BeginRoomShadow(const float* CameraView12, const float* Center, float Radius, unsigned long Mode)
 {
     if(!IsAvailable())return false;
     IRPRoomShadows* Room=nullptr;bool Ok=false;
     if(DALib::Pipeline->QueryInterface(Iids::RPRoomShadows,reinterpret_cast<void**>(&Room))>=0 && Room)
-    {Ok=Room->BeginRoomShadow(CameraView12,Center,Radius,Character ? 1 : 0)>=0;Room->Release();}
+    {Ok=Room->BeginRoomShadow(CameraView12,Center,Radius,Mode)>=0;Room->Release();}
     return Ok;
 }
 

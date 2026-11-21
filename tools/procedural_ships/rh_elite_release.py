@@ -260,6 +260,11 @@ def previews():
     from preview import render
     ns=r.load(ASSETS/'rh_pir_elite.cmp')[1]
     mats=f.audit.material_table([r.MAT,r.ENV])
+    material_info=json.loads((SOURCE/'input.json').read_text())['materials']
+    cache=OUT/'tool_cache';cache.mkdir(exist_ok=True)
+    imagepath=cache/'rh_b_projection_lod.png';mats[ATLAS]['image'].save(imagepath)
+    material_info[str(ATLAS)]=dict(name=mats[ATLAS]['name'],colour=mats[ATLAS]['colour'][:3],image=str(imagepath),texture=mats[ATLAS]['texture'])
+    save('review_materials.json',material_info)
     def shot(gs,cam,center,radius,size):
         front=[]
         for g in gs:
@@ -292,5 +297,27 @@ def previews():
     print('PREVIEWS READY from exported CMP/3DB, all levels and damage',flush=True)
 
 
+def finalize():
+    manifest=load('export.json')
+    digest=f.digest(ASSETS/'rh_pir_elite.cmp')
+    for name in ('validation.json','blender_check.json','pythonlancer_check.json','review_data.json'):
+        assert load(name)['cmp_sha256']==digest,name
+    assert f.digest(OUT/'rh_pir_elite_release.blend')==load('blender_check.json')['blend_sha256']
+    assert all(f.digest(ASSETS/name)==entry['sha256'] for name,entry in manifest['files'].items())
+    guard=load('sources.json')['files']
+    assert all(f.digest(Path(name))==expected for name,expected in guard.items())
+    changes=load('pythonlancer_source_changes.json')
+    for relative,entry in changes.items():
+        assert f.digest(PY/relative)==entry['before']
+        assert f.digest(OUT/'pythonlancer'/relative)==entry['after']
+    refs=['README.md','pythonlancer.patch','shiparch_review.ini','rh_pir_elite_release.blend',
+          'lod_comparison.png','damage_lods.png','validation.json','blender_check.json','pythonlancer_check.json']
+    save('handoff.json',dict(cmp_sha256=digest,ready_for_manual_installation=True,installed=False,
+        pythonlancer_patch_applied=False,files=manifest['files'],
+        review_files={name:f.digest(OUT/name) for name in refs},source_changes=changes,
+        new_mat_files=0,source_and_live_files_unchanged=True))
+    print('HANDOFF READY: 12 assets, three LODs, five damage groups, source patch; no live writes',flush=True)
+
+
 if __name__ == '__main__':
-    {'prepare':prepare,'export':export,'check':check,'previews':previews}[sys.argv[1]]()
+    {'prepare':prepare,'export':export,'check':check,'previews':previews,'finalize':finalize}[sys.argv[1]]()

@@ -8,8 +8,12 @@ import sys
 
 root = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--client-only', action='store_true')
+targets = parser.add_mutually_exclusive_group()
+targets.add_argument('--client-only', action='store_true')
+targets.add_argument('--renderer-only', action='store_true')
+targets.add_argument('--server-only', action='store_true')
 parser.add_argument('--common', action='store_true')
+parser.add_argument('--server', action='store_true', help='Also build Server in the same isolated output')
 parser.add_argument('--build-dir', type=Path, default=root / 'out/shader_startup/build')
 options = parser.parse_args()
 build = options.build_dir.resolve()
@@ -30,9 +34,11 @@ shutil.copy2(import_installed.OUT / 'Common.lib', binary / 'Common.lib')
 msbuild = 'C:/Program Files/Microsoft Visual Studio/18/Community/MSBuild/Current/Bin/MSBuild.exe'
 env = dict(os.environ)
 env['LIB'] = str(binary) + ';' + env.get('LIB', '')
-projects = ('freelancer',) if options.client_only else ('RP9', 'freelancer')
+projects = ('Server',) if options.server_only else ('freelancer',) if options.client_only else ('RP9',) if options.renderer_only else ('RP9', 'freelancer')
 if options.common:
     projects = ('Common', *projects)
+if options.server and not options.server_only:
+    projects = ('Server', *projects)
 for project in projects:
     obj = build / 'obj' / project
     obj.mkdir(parents=True, exist_ok=True)

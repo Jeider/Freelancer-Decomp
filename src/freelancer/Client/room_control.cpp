@@ -785,6 +785,7 @@ static void RoomControlLoadProps(FRoomRuntime* Runtime)
         Prop->Layer = Record->Layer;
         Prop->RenderMode = static_cast<int>(Record->RenderType);
         Prop->Flag14 = Record->bRunningLights ? 1 : 0;
+        Prop->bCastShadow = Record->bCastShadow ? 1 : 0;
         // 0x0044a272..0x0044a2a6: the main prop's slot-6 instance and script table +0x0c.
         if (Record->bRoomMain)
         {
@@ -2642,6 +2643,53 @@ void RoomControlLightObject(FRoomRuntime* Room, FRoomObject* Object)
     ApplyObjectLighting(Room, Object);
 }
 
+#ifdef FREELANCER_RP9
+static bool RoomInstanceShadowBounds(void* Instance, float* Center, float* Radius)
+{
+    float* const Transform = DALib::Engine->GetInstanceTransform(Instance);
+    if (Transform == nullptr)
+        return false;
+    void* const Archetype = DALib::Engine->GetInstanceArchetype(Instance);
+    if (Archetype == nullptr || Archetype == kRoomObjectNoInstance)
+        return false;
+    float Bounds[6] = {};
+    int const Result = DALib::Renderer->GetBounds(Archetype, 1.f, Bounds);
+    DALib::Engine->ReleaseHandle(Archetype);
+    if (Result < 0)
+    {
+        Center[0] = Transform[9];
+        Center[1] = Transform[10];
+        Center[2] = Transform[11];
+        *Radius = 2.5f;
+        return true;
+    }
+    // Bounds are maxX,minX,maxY,minY,maxZ,minZ. Transform every corner so compound
+    // offsets and scaled showroom models stay inside the shadow map.
+    float Low[3] = {FLT_MAX, FLT_MAX, FLT_MAX};
+    float High[3] = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+    for (unsigned Corner = 0; Corner < 8; ++Corner)
+        for (unsigned Axis = 0; Axis < 3; ++Axis)
+        {
+            float P = Transform[9 + Axis];
+            for (unsigned K = 0; K < 3; ++K)
+                P += Bounds[K * 2 + ((Corner >> K) & 1)] * Transform[Axis * 3 + K];
+            Low[Axis] = (std::min)(Low[Axis], P);
+            High[Axis] = (std::max)(High[Axis], P);
+        }
+    *Radius = 0;
+    for (unsigned Axis = 0; Axis < 3; ++Axis)
+    {
+        Center[Axis] = (Low[Axis] + High[Axis]) * .5f;
+        *Radius = (std::max)(*Radius, (High[Axis] - Low[Axis]) * .5f);
+    }
+    if (*Radius < 0.5f)
+        *Radius = 0.5f;
+    if (*Radius > 6.f)
+        *Radius = 6.f;
+    return true;
+}
+#endif
+
 void RoomControlDraw(FRoomRuntime* Runtime)
 {
     VisibleDraw::Reset();
@@ -2691,8 +2739,12 @@ void RoomControlDraw(FRoomRuntime* Runtime)
     for (; LayerIt != Layers.end(); ++LayerIt)
     {
         ForEachRoomObjectInLayer(Runtime, static_cast<unsigned char>(*LayerIt), [Runtime, SeparateCharacters, &DeferredCharacters](FRoomObject* Object) {
+            FObjectProp* const Prop = dynamic_cast<FObjectProp*>(Object);
+            bool const PropShadow = Prop != nullptr && Prop->bCastShadow != 0 && Prop->bDetached == 0 &&
+                                    Prop->bRoomMain == 0;
             if (SeparateCharacters && (dynamic_cast<FCharacterObject*>(Object) != nullptr ||
-                dynamic_cast<FObjectShip*>(Object) != nullptr || dynamic_cast<FDealerShipObject*>(Object) != nullptr))
+                dynamic_cast<FObjectShip*>(Object) != nullptr || dynamic_cast<FDealerShipObject*>(Object) != nullptr ||
+                PropShadow))
             {
                 DeferredCharacters.push_back(Object);
                 return;
@@ -2727,6 +2779,7 @@ void RoomControlDraw(FRoomRuntime* Runtime)
         float Center[3]={},Radius=0;
         void* Instance=Object->GetEngineInstance();
         if(!Instance || Instance==kRoomObjectNoInstance)continue;
+        auto* Prop=dynamic_cast<FObjectProp*>(Object);
         if(Character)
         {
             if(GetGameOption(kGameOptObjectsGroup)==0 || GetGameOption(kGameOptCharacters)==0 ||
@@ -2734,35 +2787,28 @@ void RoomControlDraw(FRoomRuntime* Runtime)
             DALib::Deform->GetBoundSphere(Character->Lod.Instance,&Radius,Center);
             if(!MiscUtilSphereInView(Runtime->Camera,Center,Radius))continue;
         }
+        else if(Prop)
+        {
+            if(Prop->bCastShadow==0 || Prop->bDetached!=0 || Prop->bVisible==0 ||
+               GetGameOption(kGameOptObjectsGroup)==0)continue;
+            if(!RoomInstanceShadowBounds(Instance,Center,&Radius))continue;
+        }
         else
         {
             if(auto* Ship=dynamic_cast<FObjectShip*>(Object))
                 if(!Ship->bShadow || GetGameOption(kGameOptObjectsGroup)==0 || GetGameOption(kGameOptShips)==0 ||
                    GetGameOption(kGameOptLikePetal)!=0)continue;
             if(auto* Ship=dynamic_cast<FDealerShipObject*>(Object))if(!Ship->bShadow)continue;
-            float* Transform=DALib::Engine->GetInstanceTransform(Instance);if(!Transform)continue;
-            void* Archetype=DALib::Engine->GetInstanceArchetype(Instance);
-            if(!Archetype || Archetype==kRoomObjectNoInstance)continue;
-            float Bounds[6]={};int Result=DALib::Renderer->GetBounds(Archetype,1.f,Bounds);
-            DALib::Engine->ReleaseHandle(Archetype);if(Result<0)continue;
-            // Bounds are maxX,minX,maxY,minY,maxZ,minZ. Transform every corner
-            // to include compound offsets and scaled showroom models.
-            float Low[3]={FLT_MAX,FLT_MAX,FLT_MAX},High[3]={-FLT_MAX,-FLT_MAX,-FLT_MAX};
-            for(unsigned Corner=0;Corner<8;++Corner)
-            for(unsigned Axis=0;Axis<3;++Axis)
-            {
-                float P=Transform[9+Axis];
-                for(unsigned K=0;K<3;++K)P+=Bounds[K*2+((Corner>>K)&1)]*Transform[Axis*3+K];
-                Low[Axis]=(std::min)(Low[Axis],P);High[Axis]=(std::max)(High[Axis],P);
-            }
-            for(unsigned Axis=0;Axis<3;++Axis){Center[Axis]=(Low[Axis]+High[Axis])*.5f;Radius=(std::max)(Radius,(High[Axis]-Low[Axis])*.5f);}
+            if(!RoomInstanceShadowBounds(Instance,Center,&Radius))continue;
         }
-        if(!RenderEx::BeginRoomShadow(Runtime->Camera->GetViewTransform(),Center,Radius,Character!=nullptr))continue;
+        unsigned long ShadowMode=Character ? 1u : (Prop ? 2u : 0u);
+        if(!RenderEx::BeginRoomShadow(Runtime->Camera->GetViewTransform(),Center,Radius,ShadowMode))continue;
         G_RoomSilhouettePass=true;
         // Submit shadow geometry immediately, without consuming the pending
         // room transparency or adding shadow-view records to its queue.
         // Disabling bin 1 preserves its records; RP9 rejects blended casters.
         if(DALib::MaterialBatcher)DALib::MaterialBatcher->SetBinOrder(1,-1);
+        if(Prop && DALib::MaterialBatcher)DALib::MaterialBatcher->SetBinOrder(2,1);
         RoomBatcherTagObject(Runtime,Object);
         if(Character)Character->DrawShadowGeometry(Runtime->Camera);
         else RoomControlDrawObject(Runtime,Object);
@@ -2770,6 +2816,8 @@ void RoomControlDraw(FRoomRuntime* Runtime)
         if(DALib::MaterialBatcher)
         {
             DALib::MaterialBatcher->FlushBin(0,1);
+            if(Prop)DALib::MaterialBatcher->FlushBin(1,1);
+            if(Prop)DALib::MaterialBatcher->SetBinOrder(2,0);
             DALib::MaterialBatcher->SetBinOrder(1,1);
         }
         G_RoomSilhouettePass=false;

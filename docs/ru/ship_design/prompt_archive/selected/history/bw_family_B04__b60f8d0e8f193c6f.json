@@ -1,0 +1,98 @@
+{
+  "ship": "bw_family",
+  "concept_id": "B04",
+  "title_ru": "Ступенчатые корни",
+  "status": "accepted_as_primary_direction",
+  "selected_by": "user",
+  "user_evidence": "по мне лучший это B04. пометь его как основным. потом будем начинать с ELITE. потому что VHEAVY странно пределался. но тут наверное мы будем делать микс из разных стилей. посмотрим. в общем пойдёт. так что сохрани его как будем брать в работу",
+  "date": "2026-11-18",
+  "tool": "built-in image_gen",
+  "transparent_background": false,
+  "prompt": "Use case: stylized-concept. Create one polished Freelancer (2003) Border World pirate SHIP FAMILY design sheet. This is a new hull variation in the already explored visual direction, not a repaint of the baseline.\n\nREFERENCE PRIORITY: Image 1 is the actual native cockpit in four views and Image 2 the same exact geometry with neutral hull surfaces. These two are the highest authority for the complete cabin. Image 3 shows the three original installed ships in flight and orthographic views at the same unit scale; use their proportions and class structure. Image 4 is the previous painted family sheet: borrow its presentation, medium detail and coherent construction, but change the main hull, wing and keel shapes according to the specific variation below. Its imperfect cockpit must NOT override images 1/2. Image 5 is the historical bw_elite artwork for the long angular forebody and industrial vertical layout only; DO NOT copy its different greenhouse cockpit, poles, flag, guns or skeletal supports.\n\nLAYOUT: A clean portrait concept sheet, warm pale paper, exactly THREE horizontal rows titled FIGHTER, ELITE, VHEAVY. Each row shows one large front three-quarter view pointing LEFT, plus smaller true SIDE and TOP views of the SAME design at the right. Nine ship images total, no other alternatives or scene props. Ship tips fully visible. Simple dark labels SIDE and TOP. Use consistent camera, soft neutral lighting, sharp readable silhouette, painterly game production concept finish. Accurate and detailed enough for a modeller to understand volume. No hero scene or blurry atmosphere.\n\nCABIN LOCK: Transplant the original low faceted cockpit shown in references 1/2, with its own shell, frames, scale and mounting point. It has exactly three glazing panes: a broad elongated polygonal central blue-grey pane continuously rising up the sloping cabin crown, plus two separate angular side panes and the original broad slanted pillars. Copy the native boundaries in top, side and perspective; do not invent a rectangular windshield under a metal roof, a jet bubble, roof grid or tall greenhouse. Preserve the same cabin size on all three classes. Design the hull AROUND the existing cabin. Leave a recognizable long slender pointed nose ahead of it.\n\nFAMILY AND MECHANICS: FIGHTER is low, wide, nimble, one upper axial engine, no deep ventral keel. ELITE shares the same upper architecture but adds one central deep vertical keel, a second lower engine pod and small lower wings; exactly two aft-facing engines stacked vertically. VHEAVY shares elite's length and height and is only about five percent wider, with two large open side windows bounded by broad integral faceted wing/hull sections. Retain the source openings without adding a thin rod frame, tubular cage or lattices. Show flight-deployed wings. Native wings retract inward on short slides; show recessed root sockets and believable clear joints, not rotor hinges. Vheavy outer wing sections must not be visibly welded to the fixed lower engine pod; use a contained separation seam where they meet. Two closed upper baydoor leaves directly behind the cabin and before the main engine must remain clear to swing outward/up; no bridge or fixed armor over them. A front grille is an intake, never a forward-facing exhaust.\n\nFORM AND FINISH: Make changes visibly about large and medium geometry: coherent stepped volumes, cutouts, inset grilles, structural transitions and strong negative spaces. Same medium detail level as image 4, crisp angular forms, neither plain boxes nor a ball covered in greebles. Dirty warm grey metal, muted rusty orange patches, dark recesses, a few well-integrated repair sections. Wear supports the shape; no noise blanket. No exposed tubes, wire bundles, modeled rivets, antenna forest, decorative external frames, skulls, flags, horns or demonic features. No RHS cylindrical drum. Do not turn any member into a transport or capital ship. Keep all three members recognizably one design family.\n\nSPECIFIC VARIATION:\nSTEPPED WING SADDLES. Build a conspicuous two-level recessed saddle where each wing enters the upper hull; long rectangular guide sockets are cut into the hull, flanked by broad load-bearing slopes. Wings have an almost straight leading edge and two purposeful steps on their trailing edge, without a sawblade pattern. Short blunt shoulder blocks stop behind the cabin instead of surrounding the glass. Give elite an offset stepped side contour on its single central keel, with a large recessed trapezoidal field. Vheavy uses two offset angular bends in each integral outer hull section and wide rectangular negative spaces. Squat mechanical authority, not more mass or a boxy freighter.\n\nHeader text exactly: \"BW PIRATE — B04\". Produce ONE family sheet; the variant must be recognizable by its silhouette and negative-space layout, not just surface weathering.",
+  "prompt_sha256": "1798e92e6323702f49d634e6766245379483c4b8ca01bc0cae3309b9c8a38029",
+  "prompt_snapshot": "docs/ru/ship_design/prompt_archive/snapshots/bw_family/concepts/round_03/prompts__51a057a5fa7ee13e.json",
+  "references": [
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_textured.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/46f24fff9538e113fd472da30644caf5b4308a9396093b2f408500121e4ef7c6.jpg",
+      "sha256": "46f24fff9538e113fd472da30644caf5b4308a9396093b2f408500121e4ef7c6"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_shape.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/0d2d868e8e592ad2696e97871e82f6302e22fc6e36e1a25a0028519217085fa2.jpg",
+      "sha256": "0d2d868e8e592ad2696e97871e82f6302e22fc6e36e1a25a0028519217085fa2"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/family_comparison.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/e7be836413a63c57706337ab69505124c02c1ddb0746ebcc2631f8527bf7aeb9.jpg",
+      "sha256": "e7be836413a63c57706337ab69505124c02c1ddb0746ebcc2631f8527bf7aeb9"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_02/bw_family_B02_R2_sheet.png",
+      "archived_path": "out/ship_design/prompt_archive/assets/4736774c3caa4f1b84fed23defbf94003ec2d346c4a5c8a65e3e595dbb4354ea.png",
+      "sha256": "4736774c3caa4f1b84fed23defbf94003ec2d346c4a5c8a65e3e595dbb4354ea"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/bw_elite_original.png",
+      "archived_path": "out/ship_design/prompt_archive/assets/50dd5403b64e5a78c270419ce4d32d25464637725e7a4f10a6a74cd218801719.png",
+      "sha256": "50dd5403b64e5a78c270419ce4d32d25464637725e7a4f10a6a74cd218801719"
+    }
+  ],
+  "selected_output": {
+    "original_path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B04_sheet.png",
+    "archived_path": "out/ship_design/prompt_archive/assets/67c3f1866d6091916842be5ed31fd4e5a615c369b8583a48438af79f8a1b6c9a.png",
+    "sha256": "67c3f1866d6091916842be5ed31fd4e5a615c369b8583a48438af79f8a1b6c9a"
+  },
+  "replay": "Use the prompt verbatim, resolve archived_path against the repository root, pass references in this exact order. Generation is not deterministic.",
+  "lineage": "All saved historical prompts, correction files and referenced intermediate art are retained in manifest.json.",
+  "rear_view_selection": {
+    "concept_id": "B04_VIEWS_B",
+    "title_ru": "Задние ракурсы и днище B04",
+    "status": "accepted_as_rear_reference",
+    "selected_by": "user",
+    "date": "2026-11-18",
+    "user_evidence": "пойдет. сохрани rear в md, мы им восопльзуемся",
+    "art": "concepts/round_04/bw_family_B04_VIEWS_B_sheet.png",
+    "art_sha256": "f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851",
+    "handoff": "SELECTED_CONCEPT.md",
+    "scope": "Use rear engine seats, stepped stern shoulders, central web rear surfaces and belly as reference. Original B04 still defines whole-ship/front form, native cockpit stays unchanged. Start with ELITE; earlier VHEAVY redesign remains separate."
+  },
+  "view_supplement": {
+    "status": "rear_reference_accepted",
+    "date": "2026-11-18",
+    "user_evidence": "обнови так же арты семейства bw_elite. чтобы были со всех стороны - то есть сзади тоже. на выбранном арте",
+    "sheets": [
+      {
+        "id": "B04_VIEWS_A",
+        "role": "front_3q_side_top",
+        "art": "concepts/round_04/bw_family_B04_VIEWS_A_sheet.png",
+        "sha256": "65d09efdc9b7b83946162a4794a212e00ab4e48cfa485c0c0c7a6de82c4c1687"
+      },
+      {
+        "id": "B04_VIEWS_B",
+        "role": "rear_3q_rear_bottom",
+        "art": "concepts/round_04/bw_family_B04_VIEWS_B_sheet.png",
+        "sha256": "f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851",
+        "status": "accepted_as_rear_reference",
+        "selected_by": "user",
+        "accepted_date": "2026-11-18",
+        "user_evidence": "пойдет. сохрани rear в md, мы им восопльзуемся"
+      }
+    ],
+    "scope": "Complementary views of the selected B04 family. Original B04 remains primary. Start with ELITE; VHEAVY remains unapproved as drawn. No new cabin or model approval.",
+    "prompt_file": "concepts/round_04/prompts.json"
+  },
+  "selection_scope": {
+    "scope": "B04 is the primary family design direction for future work. Start from the ELITE row. This does not approve every ship or every detail on the family sheet.",
+    "primary_model": "bw_pir_elite",
+    "primary_row": "ELITE",
+    "model_status": {
+      "elite": "selected_starting_point_for_future_modeling",
+      "fighter": "family_direction_reference_only",
+      "vheavy_fighter": "not_approved_as_drawn_rework_later"
+    },
+    "mixing_policy": "User anticipates potentially combining styles or solutions from other variants. B04 remains the main reference; no specific combination is selected yet.",
+    "cockpit_policy": "Preserve the original cockpit geometry, shell, glazing, frames, dimensions and placement. Generated cabin deviations are not approved.",
+    "implementation_started": false
+  }
+}

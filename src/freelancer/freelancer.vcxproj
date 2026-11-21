@@ -427,6 +427,7 @@
     <ClCompile Include="Client\port_crash_dump.cpp" />
     <ClCompile Include="Client\solar_spheres.cpp" />
     <ClCompile Include="Client\far_rocks.cpp" />
+    <ClCompile Include="Client\procedural_asteroid_client.cpp" />
     <ClCompile Include="Client\field_dust.cpp" />
     <ClCompile Include="Client\space_haze.cpp" />
     <ClCompile Include="Client\space_layers.cpp" />

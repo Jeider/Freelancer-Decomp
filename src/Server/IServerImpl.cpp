@@ -297,6 +297,7 @@ bool IServerImpl::Startup(const SStartupInfo& info) {
     }
 
 void IServerImpl::Shutdown() {
+    ResetServerProceduralAsteroids();
 #ifdef FREELANCER_EQUIPMENT_SLOTS
     PendingEquipmentHull.clear();
 #endif
@@ -3341,6 +3342,7 @@ extern "C" int __cdecl Server_ControllerDispatch(unsigned int Flid, pub::Control
                                                  const void* MsgData) {
     RefreshLoadingProgress();
     if ((Flid & 0x3fffffff) == 0) {
+        if(MsgId==pub::Controller::EMessage::LoadGame)ResetServerProceduralAsteroids();
 #ifdef FREELANCER_RPG_WORLD
         if(MsgId==pub::Controller::EMessage::LoadGame)TrainCourierReset();
         else if(MsgId==pub::Controller::EMessage::PlayerLogout && MsgData)

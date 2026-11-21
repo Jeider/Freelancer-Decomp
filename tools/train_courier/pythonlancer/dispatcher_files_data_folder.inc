@@ -15,7 +15,9 @@
             raise ValueError('Both voice registries are required')
         for voice in voices:
             manifest=json.loads(files[f'AUDIO/MOD/{voice}/manifest.json'])
-            for row in [*manifest['recordings'].values(),*manifest['archive_leaves']]:
+            # Only playable recordings are required. Historical archive entries
+            # are optional provenance, not inputs to subsequent compilations.
+            for row in manifest['recordings'].values():
                 target=row['file']
                 raw=files.get(target)
                 if raw is None:raw=self.data_path(target).read_bytes()

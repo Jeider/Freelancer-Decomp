@@ -1,0 +1,61 @@
+{
+  "ship": "li_elite",
+  "concept_id": "L66",
+  "title_ru": "Складной составной хвост",
+  "status": "accepted_for_modeling",
+  "selected_by": "user",
+  "user_evidence": "ух, ничего хорошего не вышло. фиксируй как L66 как берем в работу и стопаем. сохрани наш опыт в md",
+  "date": "2026-11-18",
+  "tool": "built-in image_gen",
+  "transparent_background": false,
+  "prompt": "Use case: precise-object-edit / functional tail redesign.\nCreate ONE revised li_pir_elite concept sheet from the positively reviewed base artwork. The owner likes its basic body, collar, horizontally separated engines and foldable two-leaf wings. NOW REMOVE THE ENTIRE TRANSVERSE SPOILER/CROSSBAR ABOVE THE TWO ENGINES and replace it with a purpose-designed CENTERLINE TAIL for EQUIPMENT MOUNTS. This is not another styling change to the old crossbar.\n\nINPUT 1 is the BASE SHIP TO PRESERVE, except its crossbar and rear equipment placement.\nINPUT 2 is the immutable real native LI cockpit and collar. It overrides projection inaccuracies in the AI base: same cabin shell, glass boundaries, pane frames, proportions and the original three sharp collar ribs. Keep collar fully visible; no brow, hood or enlarged canopy.\nOther input roles are specified with the variant below.\n\nPRESERVE:\nThe base's integrated broad rear engine shoulders, TWO horizontally separated aft-facing polygonal nozzles, central body proportions, CLOSED FLAT ROOF with flush baydoor seams, native red-brown/ochre panels and restrained Liberty fan artwork. Preserve the two distinct folding wing leaves on EACH side, their front-side roots and backward/inward nesting below the engine shoulders. No third engine or return to a vertical stack. No new center roof trench, obelisks, long side walls, aircraft bubble cockpit, exposed pipes or skeleton.\n\nTAIL / EQUIPMENT PURPOSE:\nCompletely remove the long left-to-right cap connecting the engine shoulders. Both motor tops become individual plain service housings, without yellow equipment pads or mounting sockets on their upper caps. Remove former rear equipment sockets from these motor-top surfaces; keep unrelated native cockpit and wing mounts.\nThe NEW tail is a solid, compact, longitudinal centerline structure, attached to the central rear bulkhead BETWEEN the left and right engine housings and BEHIND the cargo-door footprint. It is not supported by a transverse beam over the engines. Its main equipment mounting faces are above the CENTRAL fuselage line, laterally inboard of both nozzles, not directly above either engine.\nDesign deliberate locally thick FLAT mounting faces with visible native small metallic hardpoint plates: two opposed lateral/rearward flats on the tail, plus one small upper inclined pad with useful clearance. These three illustrative pads move to a clear location on the tail. Show them without installed guns, missiles, antennas or bulky modules. They are concept mounting areas, not a new approved loadout or an engineering validation. Avoid covering the mounting face with ornament; a plain functional pad matters more than a decorative fin.\nLeave readable physical separation between the pads, cargo door sweep, side wings and engine service housings. No equipment directly behind a nozzle. The new tail can rise modestly, following Order / LI elite2, but must remain proportionate and not become a cathedral mast. Functional integrated geometry, few strong angular planes; controlled native relief only.\n\nCARGO CONSTRAINT:\nNative LI pirate has two long upper doors opening outward/upward. Keep the new tail base and all motion aft of those doors. DO NOT copy LI elite2's long forward tail foot, since that source has no active equivalent baydoor animation. Show the central hatch CLOSED and FLUSH, with no sunken channel. Do not use the new tail as a decorative lid over the cargo hatch.\n\nMATERIAL:\nThe same maintained pirate Liberty finish, only restrained wear and a few subtle replacement panels. No wreck damage, major rust, chains, skulls, flags, gothic decoration or shiny gilding. Preserve the dominant ribbed collar and original body: the new tail supports useful equipment placement.\n\nSHEET:\nLight grey background. Large long-lens front-side three-quarter, nose LEFT, showing original collar, new tail side and ordinary-size cabin. Medium REAR THREE-QUARTER clearly shows two lateral engines, NO transverse crossbar, and new central tail/mount locations. Smaller FRONT, SIDE FLIGHT, TOP, SIDE STOWED. Same geometry across views. The SIDE pair must use matching scale/camera so tail movement (or the absence of tail motion in the fixed variant) is credible. Wing leaves in STOWED overlap without shrinking. Clear labels only ID and view names.\nVARIANT:\nL66 — FOLDING COMPOUND CENTERLINE TAIL, developed from L64.\nInput 3 is real li_elite2: reference for a layered moving tail carrying equipment. Input 4 shows its actual motion: two sections translate a SHORT distance and rotate a SMALL amount to overlap. It does NOT collapse flat to the deck. Do not invent a 90-degree fold. Input 5 is the native LI cargo-door sweep that must stay clear; do not copy li_elite2's long tail foot over that region.\nReplace L64's crossbar with a short fixed solid central stern root and TWO distinct overlapping polygonal tail leaves above it. In SIDE FLIGHT the first leaf rises as a swept broad trapezoid; a narrower second leaf extends above/behind it with a sharply clipped tip and a strong stepped rear contour. Make real overlap thickness and compact enclosed joint housings legible. No open framework or elongated hinge rods. Keep total height moderate, at most about the original Order tail's relative height.\nPut the paired lateral mounting faces on the FIRST moving leaf, near its thick rear third, and one small upper pad on the SECOND leaf. The same pads remain rigidly attached to those same leaves in each state. This follows the useful idea of li_elite2, where CM/mine mounts belong to its middle moving spoiler and a turret mount to the upper moving section; do not depict actual equipment here.\nIn SIDE STOWED the TWO FULL-SIZE tail leaves make a modest pivot and short diagonal translation into greater overlap; the rear contour becomes shorter/less spread, and a substantial upright tail remains. Native reference motion is small: about 2 degrees and 9.74 degrees plus short slides, not a complete lay-down. Do not shrink, erase, telescope the whole leaf into nothing, or move the pads to the hull. Two-leaf side wings also fold as in the base, independently.\nLocate the short tail root entirely behind the flush hatch between the motor housings; keep both motor tops empty of equipment pads and no crossbar. Preserve L64 body/engines/collar/wing contours. Label L66.",
+  "prompt_sha256": "b1be2f30803db9d3544ccf14cc337eefab814c63c87a87e3c6093174ef4d80f7",
+  "prompt_snapshot": "docs/ru/ship_design/prompt_archive/snapshots/li_elite/concepts/round_16/prompts__8ad5df823033b8cf.json",
+  "references": [
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_15/li_elite_L64_sheet.png",
+      "archived_path": "out/ship_design/prompt_archive/assets/9a51dca37ee5cd8e2a8c97c69432fb23b1d0f66054ac6e414f5d19659846d76b.png",
+      "sha256": "9a51dca37ee5cd8e2a8c97c69432fb23b1d0f66054ac6e414f5d19659846d76b"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_flight.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/11300ed016031a6b2e25f8d07cab1bc460288408d94d063de78ad6938c0c03e0.jpg",
+      "sha256": "11300ed016031a6b2e25f8d07cab1bc460288408d94d063de78ad6938c0c03e0"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/comparison/li_elite2/native_wing_motion.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/7059cc57544b79f3aabe3cff0f1d1758e0d16c9de1c62f204831474422736241.jpg",
+      "sha256": "7059cc57544b79f3aabe3cff0f1d1758e0d16c9de1c62f204831474422736241"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_baydoor_motion.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140.jpg",
+      "sha256": "98f7945f4d63c61aef57e729ddda0263c17734d3501a13b90e924abd4b502140"
+    }
+  ],
+  "selected_output": {
+    "original_path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_16/li_elite_L66_sheet_corrected_v2.png",
+    "archived_path": "out/ship_design/prompt_archive/assets/3e1ad54708e23d12fec4151def215150532f2b9e82f576b1a89a2913bcd164e5.png",
+    "sha256": "3e1ad54708e23d12fec4151def215150532f2b9e82f576b1a89a2913bcd164e5"
+  },
+  "replay": "Use the prompt verbatim, resolve archived_path against the repository root, pass references in this exact order. Generation is not deterministic.",
+  "lineage": "All saved historical prompts, correction files and referenced intermediate art are retained in manifest.json.",
+  "selection_scope": {
+    "scope": "Original round_16 L66 selected as concept basis for future work, with later mandatory overrides. No new modeling or generation now; no approval of an implemented model or installation. Mandatory overrides: original cabin/collar, ordinary THREE wing leaves and native Defender roots, forward-facing upper tail governed by original rear 3/4, closed flat roof with working cargo doors, equipment on tail instead of engine covers.",
+    "primary_model": "li_pir_elite",
+    "primary_row": "Upper-right REAR 3/4 of the original L66 sheet",
+    "model_status": {
+      "concept": "accepted_for_future_modeling_with_overrides",
+      "model": "not_created_or_approved",
+      "concept_search": "stopped_by_user"
+    },
+    "mixing_policy": "R1 is not selected; E01-E10 are rejected. Do not silently combine later experiments with L66.",
+    "cockpit_policy": "Original li_pir_elite cockpit shell, glazing, frames, size, position, materials and cockpit resources must remain unchanged; native three-rib collar is authoritative.",
+    "implementation_started": false
+  }
+}

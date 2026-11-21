@@ -24,6 +24,7 @@
 #include "far_rocks.h"     // FarRocksParseSection / FarRocksForget / FarRocksReplacesBand (port-only)
 #include "field_dust.h"    // FieldDustParseSection / FieldDustForget (port-only)
 #include "nebula_volume.h" // port-only Direct3D 9 nebula composite
+#include "nebula_asteroid_mesh.h"
 #include "asteroid_frustum.h"
 #include "render/IRPSurfaceShader.h"
 #include "render/IRPRockNormals.h"
@@ -72,6 +73,10 @@ struct FCliAsteroidExclusionInline
     }
 
 #ifdef FREELANCER_RP9
+    static bool ExcludesLocalMesh(Exclusion::AsteroidExclusionZoneMgr const* Mgr, Vector const& Point, float Radius)
+    {
+        return Mgr && NebulaAsteroidMesh::IsExcluded(Mgr->Begin, Mgr->End, Point, Radius);
+    }
     // Port-only (far rocks): the zones of the manager, up to Max, none of them null.
     static int GetZones(Exclusion::AsteroidExclusionZoneMgr const* Mgr, Universe::IZone const** Out, int Max)
     {
@@ -2205,6 +2210,11 @@ bool CliAsteroidGetFarInfo(FCliAsteroid const* Field, FCliAsteroidFarInfo* Out)
     Out->bFogZone = Field->FlagD3 != 0;
     Out->ExclusionCount = FCliAsteroidExclusionInline::GetZones(Field->ExclusionMgr, Out->Exclusion, 16);
     return true;
+}
+
+bool CliAsteroidExcludesLocalMesh(FCliAsteroid const* Field, Vector const& Point, float Radius)
+{
+    return Field && FCliAsteroidExclusionInline::ExcludesLocalMesh(Field->ExclusionMgr, Point, Radius);
 }
 
 // Port-only: the mesh and the diffuse texture of a dynamic asteroid archetype by nickname, made the way

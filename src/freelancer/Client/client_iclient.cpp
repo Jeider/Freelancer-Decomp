@@ -13,6 +13,7 @@
 // Every slot's retail body is quoted by address.
 
 #include "freelancer_client.h"
+#include "procedural_asteroid_client.h"
 #include "base_walk.h"
 
 #include "best_path.h"                // objective map slots 71 / 72 / 73 (DAT_0067294c)
@@ -712,5 +713,6 @@ void IClientImpl::SendCommonChatMsg(CHAT_ID /*TargetId*/, CHAT_ID SenderId, unsi
 #ifdef FREELANCER_WALK_MODE
     if (BaseWalkReceivePresence(SenderId.Id, static_cast<unsigned>(Size), Data)) return;
 #endif
+    if (ProceduralAsteroidClientReceive(SenderId.Id,static_cast<unsigned>(Size),Data)) return;
     ChatDispatchIncoming(SenderId, Data, static_cast<unsigned>(Size));
 }

@@ -1,0 +1,861 @@
+{
+  "topic": "bh_family",
+  "ship": "bh_freighter",
+  "round": "round_03",
+  "created": "2026-11-19",
+  "requested_count": 20,
+  "status": "concept_selected_for_modeling",
+  "selected_id": "BHF20",
+  "tool": "built-in image_gen",
+  "parameters": {
+    "transparent_background": false
+  },
+  "gallery_title": "BH freighter — 20 рыбных компоновок BHF11–BHF30",
+  "gallery_intro": "Тяжёлые грузовые формы в рыбной теме BH: скаты, молоты, высокие и продольные корпуса. Кокпит встроен в общую конструкцию; референс остекления и рамы — li_freighter. Пилон истребителя необязателен и в этой серии не задаётся.",
+  "user_requests_exact": [
+    "уже лучше. но я хочу чтобы ты поигрался со стилями и формами. сделай 20 более разнообразных картинок. то есть сама идея тяжелой формы учтена. но ты кстати смотри на кокпит li_freightrer. а то ты стал хардпоинт на крыше истребителя использовать как важный элемент. он не важный и оцеиональный. это лишь часть истребителя. поэтому отвяжись от хардпоинта. в общем - пробуй дальше",
+    "точнее там речь не про хардпоинт, а про пилон",
+    "всек-таки посмотри как на том же li_freighetr кокпит является частью идеи корабля. то есть не прям уж надо морду истребителя  вставить. но попробовать вписать. может эдакая повернутая рыба молот и так далее. пробуй. или скат",
+    "bh истребители использую рыбную тему. они названы пиранья, баракуда и рыба-молот (хаммерхед), поэтому это тоже чать сеттинга"
+  ],
+  "cockpit_rule": "LI freighter glazing and immediate frame are the visual authority for this round. Integrate into new hull; no inherited fighter head. Roof pylon optional; omit in this exploration.",
+  "reference_roles": [
+    "Native li_freighter glazing and immediate frame only",
+    "LI freighter cargo construction and cockpit integration",
+    "BH fish-theme form vocabulary, not required assembly",
+    "Regular BW freighter secondary cargo mass reference"
+  ],
+  "variants": [
+    {
+      "id": "BHF11",
+      "title_ru": "Манта — широкий несущий корпус",
+      "design_family": "Скаты",
+      "brief_ru": "Широкий гранёный корпус с утолщённым центром и короткой кормой; кокпит встроен в переднюю кромку.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nMANTA / BROAD LOAD-BEARING BODY. A broad low manta-shaped cargo hull, width about 80% of length and central thickness substantial, with shallow swept front shoulders and a blunt central leading bow. Seat the native glazing directly into that central leading deck, flowing into wide cheeks; no separate long cockpit neck. The cargo body's whole mass spreads sideways, not a narrow tube with giant thin wings. Thick shoulders taper into short articulated outer tips; aft edge contracts to a short central stern with TWO nearby side-by-side engines. No dorsal fin. Two broad upper hatch panels on the thick centre. Style: calm sculpted faceted surfaces with inset mechanical bands and dark undersides, sea-green shoulder fields. Not a flying saucer: distinct angular front, rear and diagonals.\n\nTitle exactly: \"BH FREIGHTER / BHF11\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF11_sheet.png",
+      "generated_output_sha256": "df275256947b9b60e5b126ab4a656cd60638c4c4289dcf6a04b4bbb67de4fad8",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF11_C01_sheet.png",
+      "correction_history": [
+        {
+          "id": "BHF11_C01",
+          "prompt_file": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/correction_prompts.json",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF11_C01_sheet.png"
+        }
+      ]
+    },
+    {
+      "id": "BHF12",
+      "title_ru": "Вертикальная рыба-молот",
+      "design_family": "Молоты",
+      "brief_ru": "Головная секция развёрнута по вертикали; трюм уходит назад от высокого носового объёма.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nVERTICALLY ROTATED HAMMERHEAD BODY. Rotate the hammerhead's broad solid cephalofoil concept 90 degrees into a TALL vertical forward cargo section: a deep narrow front with short thick upper/lower lobes, then a substantial horizontal cargo trunk flowing aft. Keep the small native glazing upright in the upper-front slope of that joined structure; do not rotate the cockpit or recreate the old BH rounded chin. The whole forward section is angular load-bearing cargo hull, not thin dorsal/ventral sails or a literal hammer ornament. High frontal silhouette, narrower than it is tall; large side planes taper into TWO vertically arranged aft engines. Short lateral folding blades attach around the middle of the trunk. Style: severe planar BH industrial plates, strong backed cuts at lobe-to-trunk transitions, restrained pale/teal contrast. No separate tall fin on the glazing.\n\nTitle exactly: \"BH FREIGHTER / BHF12\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF12_sheet.png",
+      "generated_output_sha256": "837726be703a86e547591bfa30396f6e2398c655d90150ce5df830c9c8c0e17c",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF12_C01_sheet.png",
+      "correction_history": [
+        {
+          "id": "BHF12_C01",
+          "prompt_file": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/correction_prompts.json",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF12_C01_sheet.png"
+        }
+      ]
+    },
+    {
+      "id": "BHF13",
+      "title_ru": "Поперечная рыба-молот",
+      "design_family": "Молоты",
+      "brief_ru": "Широкая горизонтальная носовая балка переходит в тяжёлый центральный трюм.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nHORIZONTAL HAMMERHEAD. Wide transverse FORWARD cargo shoulders form a low broad hammerhead bow, smoothly built into a narrower waist and deep elongated central hold. The native glazing is nested in the centre of the upper bow, with broad solid cheeks stretching LEFT and RIGHT, not at the ends. Do not invent eyes at the tips. Head width nearly twice middle-body width, but forebody remains thick and useful. Small folded-capable tip planes terminate the bow shoulders; fixed body tapers through a heavy midsection to ONE central rear engine and a small lower stern blade. Style: blocky working freighter, stout front bevels and sunken panel fields, little decorative ornament. The distinctive front transverse mass, not an enlarged cockpit, is the identity.\n\nTitle exactly: \"BH FREIGHTER / BHF13\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF13_sheet.png",
+      "generated_output_sha256": "27baa15340715eaf8a23f7694ae69fcd2080c54086c1b234ab97c425ff94992d",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF13_sheet.png"
+    },
+    {
+      "id": "BHF14",
+      "title_ru": "Ромбовидный скат",
+      "design_family": "Скаты",
+      "brief_ru": "Толстый ромбовидный трюм и длинная узкая двигательная корма.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nDIAMOND STINGRAY. Thick faceted rhomboid cargo body seen from above: broad midbody corners, pointed but short angular prow, long narrow structural engine tail extending aft from the diamond. The small native glass is recessed into the upper front of the diamond, with continuous prow skin forward of it. This is not a thin delta fighter: generous belly depth across the central diamond and a meaningful cargo deck. Outer midbody corners are short folding panels. The tail is a solid tapered propulsion spine ending in ONE circular engine, not a stinger, weapon or needle. Style: clean long diagonal panel fields, low stepped roof, dark side undercuts, no large dorsal fin. Side silhouette must clearly show deep cargo belly and slender aft beam.\n\nTitle exactly: \"BH FREIGHTER / BHF14\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF14_sheet.png",
+      "generated_output_sha256": "d46e46d75ad13663256b4d3de9b4abdaeb36190d8322304f014262f18b0ff761",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF14_sheet.png"
+    },
+    {
+      "id": "BHF15",
+      "title_ru": "Кузовок — броневой грузовик",
+      "design_family": "Высокие корпуса",
+      "brief_ru": "Короткий многогранный корпус с большим полезным объёмом и компактными боковыми плоскостями.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nARMORED BOXFISH / COMPACT OCTAGONAL WORKHORSE. A short stout cargo body, length only about 1.6 times width, substantial height, chamfered cube-like shell with three large sloped front surfaces flowing around the small native glazing. No long nose and no attached pilot pod. Flattened roof and belly, octagonal section, clearly designed clipped corners and a compact stern taper. FOUR broad backed side recesses total, not a repeated rib cage. Tiny folding pectoral plates attach at low front shoulders. TWO small engines high and low on the stern centreline. Style: robust Liberty-derived panel framing and hefty utility-machine joins, pale raised planes over muted dark teal recesses. No horn-like boxfish projections; biological cue is the substantial polygonal volume.\n\nTitle exactly: \"BH FREIGHTER / BHF15\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF15_sheet.png",
+      "generated_output_sha256": "6220cc5485e9118c0daf63de2e2d8e104b0681fba7a0f9653c4480eaa5db9482",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF15_sheet.png"
+    },
+    {
+      "id": "BHF16",
+      "title_ru": "Луна-рыба — вертикальный трюм",
+      "design_family": "Высокие корпуса",
+      "brief_ru": "Высокий боковой объём с короткими носом и кормой; узкий фронтальный силуэт.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nSUNFISH / TALL COMPRESSED CARGO LOZENGE. Highly distinct tall side silhouette: a broad vertical faceted oval/lozenge cargo body, laterally compressed, with a short bevelled foreface and a short blunt stern. Length and height similar, width much smaller; heavy enclosed volume instead of a flat decorative disc. Native glass fitted into the upper-front quadrant, continuous hull skin flowing around it; no separate head or fighter chin. A short top rear folding plate and a short lower rear plate extend the vertical rhythm, while small lateral stabilizers sit midway. TWO vertically separated rear engine mouths embedded in stern. Style: large polygonal shell panels with a few concentric stepped boundaries, no side wheel motif and no saucer. Explicit cargo hatch on the high back clear of the plate.\n\nTitle exactly: \"BH FREIGHTER / BHF16\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF16_sheet.png",
+      "generated_output_sha256": "f240218e5a0238d30bcfd39ccc8dabb3fbb6eb775f661051304b1cb1a6aec47e",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF16_sheet.png"
+    },
+    {
+      "id": "BHF17",
+      "title_ru": "Осётр — длинный ступенчатый корпус",
+      "design_family": "Продольные формы",
+      "brief_ru": "Вытянутый гранёный корпус, низкий спинной гребень и поджатая корма.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nSTURGEON / LONG ARMORED AXIS. Long heavy faceted body with a broad flattened angular prow, small native glazing fitted into the upper foredeck, a cargo middle of substantial oval-octagonal section and a long contracting stern. Length about three times body width. Three LARGE low roof sections form a restrained dorsal armored ridge well behind the cockpit; no tiny scutes, spikes or a tall sail. A few sloping lateral panels flow into short forward-pointing folding pectoral wings near the front third. ONE large round tail engine, with two short rectangular tail support planes. Style: industrial streamlining, long grey panels, blue-green longitudinal belts, occasional circumferential section changes. No Liberty semicircular side fan; distinguish by controlled lengthwise taper.\n\nTitle exactly: \"BH FREIGHTER / BHF17\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF17_sheet.png",
+      "generated_output_sha256": "46e293450f317140d559684b3f90dfb5e1639fd72a875d5444a58efc1e26c65e",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF17_sheet.png"
+    },
+    {
+      "id": "BHF18",
+      "title_ru": "Скат-бабочка",
+      "design_family": "Скаты",
+      "brief_ru": "Очень широкие плечи, короткая средняя часть и два нижних двигателя.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nBUTTERFLY RAY / WIDE FORWARD SHOULDERS. A thick broad forebody and short deep central cargo mass, with forward-swept shoulder tips and a very short rear body. Width slightly greater than length, but thick shoulder roots and deep belly make it a freighter, not a thin aircraft. Native glazing is embedded at the front centre where two sloping shoulder planes converge, flush framed without a pylon. Only the outer third of each broad shoulder is an articulated folding plane. TWO engine pods are tightly integrated under the rear shoulder roots, visibly separated left/right; no long tail. Style: rounded polygonal leading volume contrasted with sharp clipped tips, clean pale top slabs and dark teal underbody, a few large recessed grilles. Preserve sufficient hold depth in SIDE.\n\nTitle exactly: \"BH FREIGHTER / BHF18\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF18_sheet.png",
+      "generated_output_sha256": "359d108c93cc8132c304b6fd59001412352d1675d0b66ae84d53fac14a6099dc",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF18_sheet.png"
+    },
+    {
+      "id": "BHF19",
+      "title_ru": "Акула-лисица — вытянутая корма",
+      "design_family": "Продольные формы",
+      "brief_ru": "Тяжёлое туловище и поднятый вытянутый верх кормы с местом под оборудование.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nTHRESHER-SHARK PROPORTIONS / RAISED AFT EXTENSION. A substantial elongated cargo body with low broad prow, modest integrated native glazing, widest/deepest around midbody, then a slim stern. One asymmetry ONLY in the vertical side profile: the upper stern forms a long sloping solid continuation extending back and upward, while the lower stern is short. This upper extension is a broad structural equipment/engine housing, not a knife, long decorative fin or exposed framework. ONE engine in the lower main stern, plus ONE smaller engine in the raised aft housing, both rear-facing. Bilateral left/right symmetry. Short folding midbody fins. Style: aggressive but non-pirate BH slab geometry, purposeful upper/lower propulsion offset, calm cargo side panels. No shark teeth, mouths or glazing changes.\n\nTitle exactly: \"BH FREIGHTER / BHF19\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF19_sheet.png",
+      "generated_output_sha256": "dff5bed3418d81a775ed8b5cfbf070c2528b9ecc40fba04fede7656818898308",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF19_sheet.png"
+    },
+    {
+      "id": "BHF20",
+      "title_ru": "Плоскоголовый грузовик",
+      "design_family": "Молоты",
+      "brief_ru": "Низкий широкий нос и высокий задний трюм с утопленными боковыми двигателями.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nFLATHEAD / LOW BROAD BOW WITH HIGH AFT HOLD. Very low wide truncated-spade prow, native glazing smoothly fitted into its central upper surface, then a narrowed mechanical neck rising into a tall blunt cargo body. Forward section width is large but shallow; aft hold is narrower and much deeper. No vertical nose pod. TWO engines flank the high aft hold, partly buried into solid side shoulders with short exposed collars. A small central stern recess remains closed. Short articulated side plates near the neck are swept backward, contrasting with the broad forward bow. Style: rugged freight tug, heavy bevelled corners, low cool-grey front armour and darker teal vertical cargo walls. No whiskers, monster jaw, large side fan or cathedral ribs.\n\nTitle exactly: \"BH FREIGHTER / BHF20\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF20_sheet.png",
+      "generated_output_sha256": "237ef9ebe5b865e9f1df0d3a7b44b3b3b84683177bb32c0986d8e5a479cafcab",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF20_sheet.png"
+    },
+    {
+      "id": "BHF21",
+      "title_ru": "Групер — компактная тяжёлая форма",
+      "design_family": "Высокие корпуса",
+      "brief_ru": "Объёмный передний трюм с коротким носом и суженным двигателем сзади.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nGROUPER / DEEP FRONT-HEAVY CARGO BODY. A bulky faceted body widest and deepest in the FRONT HALF, with very short sloping nose and a rapidly tapering rear half. The small native glazing sits in the upper-forward hull surface and is surrounded by continuous heavy cheeks, not a separate forehead tower. Cargo fills the deep underside; avoid a literal fish mouth or humanoid chin. ONE main central stern engine with TWO much smaller auxiliary rear nozzles immediately below and to its sides; THREE total. Compact folding side fins sit at the widest shoulder, and a very low aft dorsal panel follows the taper. Style: dense, stout working-machine silhouette, large inset octagonal fields and restrained grilles; medium detail. Rounded section is built from deliberate broad facets, never an egg covered in greebles.\n\nTitle exactly: \"BH FREIGHTER / BHF21\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF21_sheet.png",
+      "generated_output_sha256": "dda29d38239eb4257a80196e089c26ec60dbb045a49a1184690cacf5c0672393",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF21_C01_sheet.png",
+      "correction_history": [
+        {
+          "id": "BHF21_C01",
+          "prompt_file": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/correction_prompts.json",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF21_C01_sheet.png"
+        }
+      ]
+    },
+    {
+      "id": "BHF22",
+      "title_ru": "Спинорог — высокий ромб",
+      "design_family": "Высокие корпуса",
+      "brief_ru": "Высокий угловатый ромб с небольшими складными плоскостями сверху и снизу.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nTRIGGERFISH / TALL ANGULAR DIAMOND. Side silhouette is a sharp but heavy rhomboid: a compact sloping nose, high middle cargo back, deep middle belly, both tapering to a short stern. Width moderate, sides broad and planar. Native glass is fitted into a bevelled forward shoulder where roof meets nose, without a raised cockpit housing. A short separate folding blade follows the UPPER rear diagonal; another follows the LOWER rear diagonal, both compact and structurally seated. TWO engines side by side at the narrow stern centre height. Small side pectoral plates only, no broad airplane wings. Style: strongly angular dark teal industrial shell with pale inset panel fields, purposeful stepped transitions, no thin decorative diamond disc and no permanent sail over the cockpit.\n\nTitle exactly: \"BH FREIGHTER / BHF22\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF22_sheet.png",
+      "generated_output_sha256": "c29704ceae3d64801dcfc05dea012b46a2bb180f7a5623b5e7a32f73e515f562",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF22_C01_sheet.png",
+      "correction_history": [
+        {
+          "id": "BHF22_C01",
+          "prompt_file": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/correction_prompts.json",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF22_C01_sheet.png"
+        }
+      ]
+    },
+    {
+      "id": "BHF23",
+      "title_ru": "Электрический скат — плотная капсула",
+      "design_family": "Скаты",
+      "brief_ru": "Широкий овальный многогранник с утолщёнными боками и короткой двигательной шейкой.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nELECTRIC RAY / THICK POLYGONAL CAPSULE. Broad oval-in-plan enclosed cargo hull with angular perimeter segments and slightly bulged integrated side lobes. Body width about 70% of length, deep central and side volume, no clearly separate thin wings. Native glazing sits at the front middle on a low continuous bow saddle, not on a tall cabin block. Two small folding control paddles are recessed into the rear-side perimeter. Short narrow central neck aft supports ONE large exhaust. No dorsal fin at all. Style: restrained streamlined industrial form, two or three long continuous panel bands wrap from top to sides, recessed vent blocks in the lobes, blue-green outer shell with pale long deck strips. Not a flying saucer: directional prow, definite engine tail, sloping belly and rectangular cargo hatch.\n\nTitle exactly: \"BH FREIGHTER / BHF23\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF23_sheet.png",
+      "generated_output_sha256": "0e255556f5f96c5697743160e1f16ffed3f8395681c0af456ea0ff9f64f0a503",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF23_C01_sheet.png",
+      "correction_history": [
+        {
+          "id": "BHF23_C01",
+          "prompt_file": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/correction_prompts.json",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF23_C01_sheet.png"
+        }
+      ]
+    },
+    {
+      "id": "BHF24",
+      "title_ru": "Удильщик — грузовая голова",
+      "design_family": "Высокие корпуса",
+      "brief_ru": "Большой передний грузовой объём и короткая узкая корма без устрашающих деталей.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nANGLERFISH MASSING WITHOUT MONSTER FEATURES. A very large angular FORWARD cargo head blending into a much shorter narrower rear propulsion section. Width and height peak ahead of midbody. Flat sloped foredeck seats the native glazing deep within a continuous broad prow, leaving full glass visible; no detached cockpit pod. Front bottom is a clipped closed cargo hull, no mouth, jaws, teeth, eyes, lure or antenna. Two short triangular pectoral planes originate near the widest cheeks and fold against the body. TWO engines mounted side by side on a compact elevated rear yoke made of solid enclosed hull. Style: thick functional cargo utility craft, dark lower mass, pale angled upper planes, large chamfered rectangular recesses. No large dorsal fin, no ornamental side wheel. The front-heavy mass is the defining feature.\n\nTitle exactly: \"BH FREIGHTER / BHF24\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF24_sheet.png",
+      "generated_output_sha256": "3f75df431b55539013a8078fcffe60393304f78d4564049efedb62420f6990c3",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF24_sheet.png"
+    },
+    {
+      "id": "BHF25",
+      "title_ru": "Парусник — низкий корпус и складной гребень",
+      "design_family": "Продольные формы",
+      "brief_ru": "Невысокий продольный трюм и крупная отдельная складная плоскость над задней частью.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nSAILFISH / LONG LOW CARGO HULL WITH ONE FUNCTIONAL AFT SAIL. Long low but thick freighter body with a broad faceted prow, native glazing cleanly incorporated near its leading deck, and a full-length enclosed cargo core. ONE wide moderately tall angular dorsal plate rises over the AFT HALF on a low longitudinal hinge/pocket, with its front edge well behind the cockpit. This is a deliberately engineered foldable sail plane, not a pylon mounted on the glass, not a huge skyscraper. The bounded cargo hatch lies forward of the sail pocket and has clear sweep. Two small horizontal forward-reaching wing tips at midbody. ONE rear engine at the end of a short stepped stern. Style: classic BH fin geometry reinterpreted on a cargo chassis, graphite-teal sail fields, pale thick hull, broad clean articulated joints. No literal fish sail texture.\n\nTitle exactly: \"BH FREIGHTER / BHF25\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF25_sheet.png",
+      "generated_output_sha256": "77748311fa3a4ece46d0f198a48fbc2865bff0a6fb2c931341702636d6db31d8",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF25_sheet.png"
+    },
+    {
+      "id": "BHF26",
+      "title_ru": "Панцирный скат",
+      "design_family": "Скаты",
+      "brief_ru": "Толстый ступенчатый корпус из трёх крупных клиновидных секций.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nARMORED SKATE / NESTED CHEVRON CARGO SHELL. A wide heavy wedge with three large connected chevron-shaped shell levels from nose to midbody, not many loose armor plates. The small native glass fits into the leading central notch between low broad cheek planes, no forward cockpit neck. Thick side shoulders project diagonally outward, then turn back into a pair of short aft engine shoulders with TWO rear nozzles. Outer corner plates fold; central cargo body stays sealed. Roof's three levels rise modestly toward midbody and drop to stern, each joined by broad structural slopes. No dorsal fins. Style: layered angular BH industrial armor, deep but backed chevron side recesses, alternating broad cool-grey and muted teal facets, no tiny stepped greebles. Clearly more compact and blunt than a delta fighter.\n\nTitle exactly: \"BH FREIGHTER / BHF26\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF26_sheet.png",
+      "generated_output_sha256": "6cfd49c4be6de01c1f87f26f89b2dbb3f8454811ce8faa9c480bdb5ec375c828",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF26_sheet.png"
+    },
+    {
+      "id": "BHF27",
+      "title_ru": "Мурена — ломаная продольная линия",
+      "design_family": "Продольные формы",
+      "brief_ru": "Длинный цельный корпус с пониженным носом, поднятой средней секцией и опущенной кормой.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nMORAY / LONG CONTINUOUS STEPPED BODY. A long thick freighter with a shallow flowing S-profile in SIDE, translated into only three large angular segments of ONE welded hull: low broad prow, raised and deepened cargo middle, then lowered tapering stern. No articulated train, exposed joints or separated containers. Native glazing is embedded into the prow's upper rising transition, canopy crown blending into the following deck without a fighter pylon. Small forward-reaching lateral blades near the raised shoulder. TWO aft nozzles sit horizontally side-by-side at the lowered stern. No large separate dorsal fin. Style: industrial streamlining using long planar ramps and continuous panel strips, sparse mechanical recesses, slightly darker BH teal hull with pale shoulder rails. The gradual stepped centreline must read clearly; maintain useful cargo volume throughout.\n\nTitle exactly: \"BH FREIGHTER / BHF27\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF27_sheet.png",
+      "generated_output_sha256": "78282395a652eed179a162fce4864d6a089f9e95696341f8bc4d2251aa68a705",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF27_sheet.png"
+    },
+    {
+      "id": "BHF28",
+      "title_ru": "Нижний поперечный молот",
+      "design_family": "Молоты",
+      "brief_ru": "Широкая нижняя носовая часть и узкая верхняя линия, переходящая к двигателям.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nLOW INVERTED HAMMERHEAD / BROAD LOWER FOREHULL. Place the hammerhead's transverse mass LOW: a broad thick lower bow cargo section extends left and right below a narrower upper spine. Native glazing is seated in the forward sloped upper spine, and new continuous diagonal cheeks connect it into that lower mass, without a separate head or old round BH chin. Cargo body carries most volume low and forward, narrows toward a raised aft engine deck. TWO vertically stacked nozzles in the elevated narrow stern; lower one slightly forward. Short folding outer caps at the broad lower bow, plus two very small aft stabilizers. Style: angular inverted-T structural section, tall recessed shoulder walls, pale horizontal lower planes and dark upper longitudinal core. No open framework beneath or above the bow.\n\nTitle exactly: \"BH FREIGHTER / BHF28\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF28_sheet.png",
+      "generated_output_sha256": "86e89313f8192ca7267bd436f938ce0abef693e21bb21db8a25e5b083a58b5ab",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF28_sheet.png"
+    },
+    {
+      "id": "BHF29",
+      "title_ru": "Платакс — высокий грузовой щит",
+      "design_family": "Высокие корпуса",
+      "brief_ru": "Высокая прямоугольная середина со срезанными углами и низкими носовой и кормовой секциями.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nSPADEFiSH / TALL CARGO SHIELD WITH LOW PROW AND STERN. A tall broad-side cargo slab, near-rectangular in SIDE with clipped upper corners, sits between a short low prow and a short low stern. It is deep enough laterally for a real hold, not a flat shield or sail. Native glazing integrated into the top-front of the low prow, immediately ahead of the cargo body's diagonal front rise; no pylon overhead. Cargo roof is calm and almost flat. ONE big central engine sits low on the stern with TWO small higher auxiliary exhausts, THREE total. Two stub folding wings at the lower midbody. Style: architectural but utilitarian planar Liberty/BH construction, large calm pale wall fields divided by two bold stepped diagonal recesses, no palace ornament or semicircular fan. Distinct upright middle versus low ends.\n\nTitle exactly: \"BH FREIGHTER / BHF29\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF29_sheet.png",
+      "generated_output_sha256": "3042cbb95c01427eaef72f6180d0e9af7ece56e220223a464900c9172dfe9a07",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF29_sheet.png"
+    },
+    {
+      "id": "BHF30",
+      "title_ru": "Грузовой скат с кормовой площадкой",
+      "design_family": "Скаты",
+      "brief_ru": "Тяжёлая широкая кормовая половина, узкий встроенный нос и два двигателя под задним краем.",
+      "prompt": "Use case: stylized-concept.\nDesign ONE new regular BOUNTY HUNTER PLAYER FREIGHTER for Freelancer (2003), as a complete five-view concept sheet. This series searches widely across HEAVY CARGO SILHOUETTES and different industrial styling treatments. Apply the specific architecture below decisively, rather than producing the same long box with a changed fin.\n\nINPUT REFERENCES:\n1 — Actual LI FREIGHTER glazing and immediate frame, isolated from native geometry. This is the cockpit authority for this round. Preserve its three panes, scale and curvature: broad central shield pane narrowing to a rounded lower-front point and continuing uninterrupted over the crown, plus one rounded oval pane per side. The two original slanting frame strips separate them. NO extra panes, centre split, horizontal crossbar, rectangular windshield or new glazing design. The reference includes some surrounding metal for context; only glazing and immediate frame are fixed.\n2 — Native LI freighter: primary understanding of how a small cockpit is INTEGRATED into a purpose-designed cargo vessel, with usable closed hold, structural section changes, independent mechanisms and engine stern. The exact long rectangular silhouette and side fan ornament are NOT compulsory. Reinterpret the entire ship.\n3 — Native BH family: its fish-based design language, flat angular blades, section changes, forward-reaching tips, deep bodies, mechanical supports and grey/blue-green panel finish. Inspiration, not a torso to copy.\n4 — Regular BW freighter: secondary understanding of thick cargo masses, sloping cheeks and compact player-freighter scale.\n\nUSER'S CORRECTED REQUIREMENTS:\nBH fighters use fish themes: Piranha, Barracuda and Hammerhead. Translate fish ANATOMICAL PROPORTIONS into functional hard-surface freighter architecture. A manta ray, rotated hammerhead, deep-bodied fish etc can inspire load-bearing hull distribution, shoulder width and tail arrangement. Never draw an actual fish, living animal skin, scales, mouth, teeth, eyes, whiskers or literal gills. It remains an engineered Freelancer ship.\nThe existing small cockpit must BELONG to the new bow, as on li_freighter. Integrate its native curved glazing into continuous new prow/deck/shoulder skin. No separate fighter face pasted onto the vessel, no tall old round BH chin or unchanged pilot pod. The new bow may extend forwards, below or sideways beyond the glass, but must not cover it.\nThe fighter's raised PYLON above/behind the cockpit is OPTIONAL, not part of the glazing. Omit that pylon in this design. No inherited yellow-black equipment plinth, pedestal, turret pad, tall support or mandatory fin growing directly from the cockpit crown. Do not confuse this with a rule to remove all functional machinery elsewhere. A clean low continuous crown-to-foredeck junction is wanted.\n\nSHIP DESIGN:\nSubstantial closed cargo volume, clear changes of section, believable connected supports. A player freighter, not a capital ship or a large thin fighter wing. Keep the original small glazing relative to the large hull; plan roughly 26-34 units ship length versus 2.45 units glazing width. Bilateral symmetry unless the architecture explicitly says otherwise. Native glazing stays upright/forward-facing, even if the hammerhead BODY is rotated.\nShort/medium moving outer planes need actual joints and a plausible exterior folding sweep; represent flight pose. A bounded cargo hatch stays closed, clear of fin bases and engine roots. This is a shape study; do not draw unverified animation arrows or label mechanisms as validated. Recesses have backing. Engine mouths visibly face aft. Equipment can be mounted later; no weapons.\nGeometry carries the design: large volumes, long clean facets, deep useful recesses, stepped joints and moderate panel subdivisions. Medium detail comparable to Freelancer. Do not erase the original game's structural richness, but avoid dense tiny greebles/rivets. No exposed pipe forests, cables, decorative open frameworks or cages. No skulls, pirate rust patchwork, demonic spikes, cathedral ornament, modern stealth fighter canopy or passenger windows.\nRegular BH visual world: cool grey metal, muted blue-green / desaturated teal structural regions, dark teal native glass, dark engines. Vary massing and panel treatment as specified. Light operational wear only. Round engine/hinge sections may contrast with angular slabs, but no recurring giant semicircular side wheel unless specifically requested.\n\nSHEET:\nLandscape 3:2 light neutral-grey studio background, crisp shaded industrial concept illustration, readable complete silhouettes. Upper row: LARGE FULL FRONT 3/4 and LARGE FULL REAR 3/4; show the entire craft, all extremities within margins. Lower row: SIDE, true overhead TOP, straight REAR. These are five views of the SAME design, same engine count, wings, fins and cockpit. Overhead means looking down: vertical fins are edge-on. Glazing must stay detailed enough to recognize. No background scene, humans, explosions, isolated tail, arrows, paragraphs or ornamental border.\n\nSPECIFIC ARCHITECTURE AND STYLE:\nREAR-HEAVY FREIGHT RAY / BROAD AFT PLATFORM. Invert the usual manta massing: a narrow but short angular forward prow grows into a very broad thick REAR cargo platform, forming a rear-wide trapezoid in TOP. The native glazing is integrated into the prow, with continuous sloping deck widening aft. The forward bow is not an unchanged BH fighter head. Two short folding lateral plates sit near the forward transition; broad rear corners are fixed cargo hull, not thin wings. TWO rear engines are deeply integrated under the left/right corners of the broad stern edge. No long tail and no dorsal sail. Bounded two-leaf cargo hatch in the rear platform, clear of engines. Style: heavy service freighter with broad deck, pronounced recessed side channels, thick angled skirts, grey deck and teal vertical walls. Cargo depth is obvious in SIDE. No open flatbed or exposed freight.\n\nTitle exactly: \"BH FREIGHTER / BHF30\". Labels: \"FRONT 3/4\", \"REAR 3/4\", \"SIDE\", \"TOP\", \"REAR\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "approved_for_modeling": false,
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF30_sheet.png",
+      "generated_output_sha256": "5ad64d03738e093614ab8124f7c11a6b64eeab6d5321e7e41a88272e602634c7",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_freighter/native_flight.jpg",
+          "sha256": "2bfa6b078bc03412fd2f69d6e7cc9d91ba33eb1adab56d1c24c10ba065444b8e"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/family_comparison.jpg",
+          "sha256": "2b7aef2046b9db1e8dff3aef01d229efdd368820d5fd64fd528fa96739732d4c"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/bw_freighter/native_flight.jpg",
+          "sha256": "6e32d3243f7c232d829d90607953f2221b888855ecb9a80b9839e4da5c28322b"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF30_sheet.png"
+    }
+  ],
+  "selection": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/freighter/selection.json",
+  "selection_user_evidence": "BHF20 очень неплох. берём его",
+  "alternative_ids": [
+    "BHF29"
+  ],
+  "role_assignment": {
+    "status": "undecided",
+    "regular": null,
+    "pirate": null,
+    "candidate_ids": [
+      "BHF20",
+      "BHF29"
+    ]
+  },
+  "variant": "regular_pirate_assignment_undecided",
+  "latest_user_evidence": "и 29 ещё запиши как альтернативу. я пока не решил какой возьмём для пиратов, какой для обычных"
+}

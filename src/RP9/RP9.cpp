@@ -17,6 +17,7 @@
 #include "RP9Ex.h"
 #include "RP9DeviceCallCache.h"
 #include "RP9LightCompatibility.h"
+#include "RP9FogCapture.h"
 #include "Mgsdb.h"
 #include "readfile.h"
 #include "x86math.h"
@@ -3642,6 +3643,10 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
     Present.PresentationInterval = PresentInterval9;
     if (Device_ == nullptr)
     {
+        // Port-only: finish the shader animation before exclusive fullscreen shows this window.
+        Hr = ExPrepareShaderCache();
+        if (Hr < 0)
+            return (GENRESULT)(Hr);
         // 06d08fb8: focus = GetAncestor(hwnd, GA_ROOT); CreateDevice (+0x3c)(adapter, type,
         // focus, +0x124, &pp, &+0x130); failure while a HARDWARE/MIXED bit (0xc0) is set ->
         // swap it for SOFTWARE_VERTEXPROCESSING (0x20) and retry (JMP 06d08fca).
@@ -3835,6 +3840,7 @@ GENRESULT DACOM_API FDirectX9::SwapBuffers()
     ExApplyWindowedGamma(); // port-only: the game's gamma while windowed
     ExDrawWarmupOverlay();
     ExGpuFrameBoundary();
+    Rp9FogCapture::Present(Device_);
     RECT SrcRect;
     RECT DestRect;
     const RECT* Src = nullptr;

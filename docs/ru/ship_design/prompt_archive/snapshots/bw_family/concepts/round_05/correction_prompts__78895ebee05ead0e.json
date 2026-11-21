@@ -1,0 +1,42 @@
+{
+  "topic": "bw_family",
+  "round": "round_05",
+  "variants": [
+    {
+      "id": "BF01_C1",
+      "base_variant": "BF01",
+      "title_ru": "Восстановление исходного масштаба кабины и носа",
+      "prompt": "Edit image 1, the BF01 complete spaceship concept board, with one focused correction in ALL FIVE views: restore the native BW FREIGHTER cabin and forebody from references 2-4. Keep the new cargo hump, recessed stepped flanks, wing saddles, lower keel, three-engine architecture, rear design, material style, composition and labels of image 1 unchanged.\n\nThe first image mistakenly substituted an oversized fighter canopy and elongated spear. Replace ONLY the front nose/cabin/neck assembly with the actual native FREIGHTER assembly:\n- Image 2 is the immutable cockpit close-up; copy its ENTIRE surrounding low angular shell, framing and exactly THREE glass panes. Central elongated pane follows the sloped crown and is visible from above, plus two side panes; no glass crossbar, no new shell shape.\n- Image 3 is the original grey freighter, authority for proportions and placement.\n- Image 4 is the same native freighter textured.\n- Native freighter length is 28.73; glazing length is 2.19, only 7.6% of ship length, width 2.38, height 0.887. Thus the small native cabin is far FORWARD, low on the narrow neck. Do NOT leave the huge BF01 fighter canopy.\n- Only a short narrow solid nose projection about 3 units long precedes the glass. Behind the small cabin there is a LONG solid gently rising narrow neck connecting back to the cargo hump. Transfer length from the exaggerated front spear to this solid neck BEHIND the cabin, preserving total ship length. Keep the forward chin fin in its original location below this front neck; do not stretch it into the main keel.\n- Source front skin and cabin shape are immutable, not opportunities for redesign.\n- Correct top, side and both perspective views consistently; preserve the rear projection and cargo/engine body.\n\nThis is still BF01, not a new ship. All five drawings show one consistent functional freighter. Do not add details elsewhere or reinterpret the native cockpit. Preserve entire uncropped ships and existing clean warm ivory board.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_shape.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_flight.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet_corrected.png",
+      "generated_output_sha256": "af46f79b330f1c89c4ba719202e494868cd58d3da0212c439b1e24b20e3b033d",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet.png",
+          "sha256": "9aea9c4c16cc8e502286a880eeac0dbf853ba89d324542b6d58082953625722f"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/cockpit_reference.jpg",
+          "sha256": "f19cd023e0f63c09ad519b4f4acb0898b1f4a3a6483bb4506260e4384d77b8fd"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_shape.jpg",
+          "sha256": "e6f4f6562251f94c830c72e0d53290a89e5086c4ae8248a7e89c59c44658dcd4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_flight.jpg",
+          "sha256": "f5f411011c46e1585eeae35a38d402186827adc9651b65d91ead7c978cb697dc"
+        }
+      ]
+    }
+  ]
+}

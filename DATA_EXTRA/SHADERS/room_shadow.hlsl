@@ -27,7 +27,7 @@ float4 PSMain(Pixel I):COLOR0 {
 }
 sampler2D SceneDepth:register(s14), Shadow:register(s15);
 row_major float4x4 InvViewProjection:register(c0), ShadowProjection:register(c4);
-float4 Image:register(c8), Viewport:register(c9), Control:register(c10);
+float4 Image:register(c8), Viewport:register(c9), Control:register(c10), Fade:register(c11);
 // Control: minZ,maxZ,map texel size,strength. Projection is world-space.
 float4 ApplyPS(float2 U:TEXCOORD0):COLOR0 {
  float D=tex2D(SceneDepth,U).r;
@@ -43,8 +43,10 @@ float4 ApplyPS(float2 U:TEXCOORD0):COLOR0 {
   float Z=tex2D(Shadow,Q).r, Gap=P.z-Z;
   float K=(X==0 ? 2:1)*(Y==0 ? 2:1);
   // Wider, softer compare. The old 0.0015 edge pops as the showroom camera creeps.
-  float Valid=all(Q>=0) && all(Q<=1) && Z<.9999 && Gap>.012;
-  Blocked+=K*Valid*(1-smoothstep(1.2,4.0,Gap)); Weight+=K;
+  float Fade0=Fade.x>0 ? Fade.x : 1.2, Fade1=Fade.y>Fade0 ? Fade.y : 4;
+  float MinGap=Fade.z>0 ? Fade.z : .012;
+  float Valid=all(Q>=0) && all(Q<=1) && Z<.9999 && Gap>MinGap;
+  Blocked+=K*Valid*(1-smoothstep(Fade0,Fade1,Gap)); Weight+=K;
  }
  return 1-Control.w*Blocked/Weight;
 }

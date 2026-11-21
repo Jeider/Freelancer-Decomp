@@ -549,6 +549,7 @@ RoomPropInfo::RoomPropInfo()
     , Loadout(nullptr)
     , PriorityId(0)
     , bRunningLights(false)
+    , bCastShadow(false)
 {
     // Common.dll.c 0x13510: Category defaults to -1 (0xffffffff) and bFog (+0x3e) defaults
     // to true -- both were wrong here (0 and false respectively) before this fix.
@@ -579,6 +580,7 @@ RoomPropInfo& RoomPropInfo::operator=(RoomPropInfo const& Other)
     Loadout = Other.Loadout;
     PriorityId = Other.PriorityId;
     bRunningLights = Other.bRunningLights;
+    bCastShadow = Other.bCastShadow;
     return *this;
 }
 
@@ -601,6 +603,7 @@ void RoomPropInfo::clear()
     Loadout = nullptr;
     PriorityId = 0;
     bRunningLights = false;
+    bCastShadow = false;
 }
 
 void RoomPropInfo::destroy()

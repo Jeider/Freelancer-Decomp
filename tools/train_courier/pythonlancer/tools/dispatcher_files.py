@@ -172,17 +172,9 @@ def plan(project, folder, ini_files=None):
             old=json.loads(old_manifest.read_text(encoding='utf-8'))
             metadata[voice]['archive_leaves']=old.get('archive_leaves',[])
             metadata[voice]['source_utf_sha256']=old.get('source_utf_sha256')
-        for row in metadata[voice]['archive_leaves']:
-            existing=files.get(row['file'])
-            if existing is not None and digest(existing)!=row['sha256']:
-                # A later manual edit replaces an active line. Preserve its
-                # original UTF take before publishing that new recording.
-                original=folder.data_path(row['file']).read_bytes()
-                if digest(original)!=row['sha256']:raise ValueError('Original audio changed: '+row['file'])
-                target=f"AUDIO/MOD/{voice}/archive/{row['id']}_{row['sha256'][:12]}.wav"
-                files[target]=original;row['file']=target;existing=original
-            if existing is None:existing=folder.data_path(row['file']).read_bytes()
-            if digest(existing)!=row['sha256']:raise ValueError('Original audio changed: '+row['file'])
+        # Historical UTF provenance is informational. Old archive WAVs are not
+        # compilation inputs and may be moved, edited or removed independently.
+        # Newly extracted UTF payloads are still verified by the DATA writer.
         required_missing=[code for code in missing[voice] if code.startswith(('tc_','te_'))]
         if required_missing:raise ValueError('Missing courier recordings: '+', '.join(required_missing))
         metadata[voice]['unrecorded_ids']=missing[voice]

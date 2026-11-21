@@ -562,11 +562,14 @@ bool RenderMgrCreateBuffers(HWND Hwnd, const DisplaySettings* Mode, DisplaySetti
     Local.depth_bpp = -1;
     Local.mode_field00 = -1;
     bool bLaidOut = false;
+    bool bDeferShow = false;
     if (Local.fullscreen != 0)
     {
+        // Size and restyle first, but stay hidden until shader animation has finished.
         ApplyGameWindowLayout(Hwnd, true, static_cast<unsigned>(Local.width),
-                              static_cast<unsigned>(Local.height));
+                              static_cast<unsigned>(Local.height), false);
         bLaidOut = true;
+        bDeferShow = true;
     }
 
     if (Pipeline->CreateBuffers(Hwnd, reinterpret_cast<int*>(&Local), reinterpret_cast<int*>(Out)) !=
@@ -592,6 +595,8 @@ bool RenderMgrCreateBuffers(HWND Hwnd, const DisplaySettings* Mode, DisplaySetti
     if (!bLaidOut)
         ApplyGameWindowLayout(Hwnd, Out->fullscreen != 0, static_cast<unsigned>(Out->width),
                               static_cast<unsigned>(Out->height));
+    else if (bDeferShow)
+        ShowWindow(Hwnd, SW_SHOWNORMAL);
 
     // 0x00424b41: restore the FPU precision the renderer wants if the device changed it.
     const unsigned int Control = _control87(0, 0);

@@ -42,7 +42,7 @@ private:
     void ReconcileVisibility();
     FVector IconHome() const;
     bool IsAnimating() const { return motion != Motion::None; }
-    void NormalizeIcon(WinControl* control, int index);
+    void NormalizeIcon(WinControl* control, int index, float radius = 0.f);
     enum class Motion { None, ClosingScale, ClosingSlide, OpeningSlide, OpeningScale };
     Motion motion = Motion::None;
     struct IconSize
@@ -68,6 +68,7 @@ private:
     WinControl* openButton = nullptr;
     WinControl* windowButton = nullptr;
     WinControl* lockButton = nullptr;
+    WinControl* closeButton = nullptr;
     TargetingWindowState windowState;
     unsigned savedStateRevision = ~0u;
     TargetingProjection projection = TargetingProjection::Vanilla;

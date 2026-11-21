@@ -1,0 +1,104 @@
+{
+  "generation_mode": "built-in image_gen",
+  "requested_count": 2,
+  "completed_count": 2,
+  "approved_for_modeling": false,
+  "artifacts": [
+    {
+      "id": "B04_VIEWS_A",
+      "title_ru": "Передний ракурс, профиль и верх",
+      "base_variant": "B04",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-61ef7c04-f56d-45bc-b092-6ab5de7a3d6f.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_A_sheet.png",
+      "status": "supplement_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "parameters": {
+        "transparent_background": false
+      },
+      "prompt_file": "prompts.json",
+      "prompt_variant": "B04_VIEWS_A",
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-61ef7c04-f56d-45bc-b092-6ab5de7a3d6f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "correction_history": [],
+      "visual_review": "Семейный лист сохраняет исходные силуэты B04 и ступенчатые корни. У ELITE/VHEAVY убран ложный третий торец под верхним двигателем; в профилях остались верхний и нижний двигатели. Центральное стекло видно сверху, однако размер и контур по-прежнему являются стилизованной интерпретацией, а не доказанным совпадением с native CMP. VHEAVY остаётся прежней неутверждённой ветвью; новая форма вместо него не предложена.",
+      "sha256": "65d09efdc9b7b83946162a4794a212e00ab4e48cfa485c0c0c7a6de82c4c1687",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "B04_VIEWS_B",
+      "title_ru": "Задние ракурсы и вид снизу",
+      "base_variant": "B04",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-f5e50f91-f813-48b8-9fc7-9e45baea37be.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_B_sheet.png",
+      "status": "accepted_as_rear_reference",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "parameters": {
+        "transparent_background": false
+      },
+      "prompt_file": "prompts.json",
+      "prompt_variant": "B04_VIEWS_B",
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-f5e50f91-f813-48b8-9fc7-9e45baea37be.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "correction_history": [],
+      "visual_review": "Три ряда семейства действительно показаны сзади: кормовые сопла направлены к наблюдателю, носы уходят вдаль. В обеих задних проекциях FIGHTER имеет один двигатель, ELITE/VHEAVY — два, верхний и нижний. Прямой задний вид сохраняет вертикальную перемычку и две большие пустоты VHEAVY. BOTTOM показывает непрозрачную обшивку днища без синего кабинного стекла, а не повтор TOP. Общие ступенчатые посадки и палитра согласованы с B04/A. Новые кормовые поверхности предложены по арту; абсолютное совпадение кабины, размеров и проекций без 3D не доказано. Вопрос художественной переработки VHEAVY остаётся открытым.",
+      "sha256": "f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "copy_matches_generated": true,
+      "accepted_as_reference": true,
+      "user_evidence": "пойдет. сохрани rear в md, мы им восопльзуемся"
+    }
+  ],
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B04_sheet.png",
+      "sha256": "67c3f1866d6091916842be5ed31fd4e5a615c369b8583a48438af79f8a1b6c9a"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_textured.jpg",
+      "sha256": "46f24fff9538e113fd472da30644caf5b4308a9396093b2f408500121e4ef7c6"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/references/cockpit_lock/native_cockpit_shape.jpg",
+      "sha256": "0d2d868e8e592ad2696e97871e82f6302e22fc6e36e1a25a0028519217085fa2"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/elite/native_flight.jpg",
+      "sha256": "956931e90b369c8dc5d0985cb2c1c27991767f4b82f3560043b67ce588d047da"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_A_sheet.png",
+      "sha256": "65d09efdc9b7b83946162a4794a212e00ab4e48cfa485c0c0c7a6de82c4c1687"
+    }
+  ],
+  "source_models": [
+    {
+      "ship": "fighter",
+      "path": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_fighter/bw_pir_fighter.cmp",
+      "sha256": "5cdebe71fccfb1b243fd64d28604eb5cabedf798121617583a824edba274ea70"
+    },
+    {
+      "ship": "elite",
+      "path": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_elite/bw_pir_elite.cmp",
+      "sha256": "e04e86fb6a627cc2715ea178b7bc4d6880847d9b0e0c0001a40087503de5cf4e"
+    },
+    {
+      "ship": "vheavy_fighter",
+      "path": "D:/Games/FL_MOD/DATA/ships/border_world/bw_pir_vheavy_fighter/bw_pir_vheavy_fighter.cmp",
+      "sha256": "3e8b827bb6a0a303ac5a9fcd54e2274d0526441d31d4de0c1616d9ae1b183afb"
+    }
+  ],
+  "source_models_unchanged": true,
+  "prompt_files": [
+    "prompts.json"
+  ],
+  "selected_direction": null,
+  "limitations": "Raster studies; source cockpit remains mandatory. New geometry, mechanisms and projection consistency require future model validation.",
+  "accepted_reference": "B04_VIEWS_B"
+}

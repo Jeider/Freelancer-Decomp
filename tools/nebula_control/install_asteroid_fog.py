@@ -15,6 +15,10 @@ base.OUT, base.BUILD = OUT, BUILD
 FILES = {'bin/freelancer.exe': BUILD / 'bin/freelancer.exe',
          'bin/freelancer.pdb': BUILD / 'bin/freelancer.pdb',
          'DATA_EXTRA/SHADERS/nebula_composite.hlsl': ROOT / 'DATA_EXTRA/SHADERS/nebula_composite.hlsl'}
+REPORTS = ('checks.json', 'surfaces/checks.json')
+SHADERS = ['nebula_composite.hlsl']
+SCOPE = 'Omega-15 medium/high object volume: sparse-depth sampling only'
+BINARIES = ('freelancer.exe',)
 
 
 def optional(path):
@@ -23,11 +27,11 @@ def optional(path):
 
 def prepare():
     sources, guards, checks = {}, {}, {}
-    for name in ('checks.json', 'surfaces/checks.json'):
+    for name in REPORTS:
         path = OUT / name
         report = json.loads(path.read_text())
         assert report['passed'] and not report['profile_changes']
-        assert report['shader_changes'] == ['nebula_composite.hlsl']
+        assert report['shader_changes'] == SHADERS
         assert base.digest(BUILD / 'bin/freelancer.exe') == report['binary']
         checks[name] = base.digest(path)
         sources.update(report['sources'])
@@ -45,17 +49,19 @@ def prepare():
     guards.update({str(GAME / 'bin' / name): optional(GAME / 'bin' / name)
                    for name in ('RP9.dll', 'RP9.pdb', 'Common.dll', 'Server.dll',
                                 'Content.dll', 'D3D9.dll', 'dgVoodoo.conf', 'port.ini')})
-    dependencies, count = base.verify_imports(('freelancer.exe',))
+    for name in FILES:
+        guards.pop(str(GAME/name),None)
+    dependencies, count = base.verify_imports(BINARIES)
     plan = {'files': {name: {'before': base.digest(GAME / name),
                             'after': base.digest(source)} for name, source in FILES.items()},
             'sources': sources, 'checks': checks, 'guards': guards,
             'dependencies': dependencies, 'verified_imports': count,
             'embedded_bytes': base.verify_resource(BUILD / 'bin/freelancer.exe'),
             'installer': base.digest(Path(__file__)),
-            'scope': 'Omega-15 medium/high object volume: sparse-depth sampling only',
+            'scope': SCOPE,
             'profile_changes': False, 'shader_cache_cleared': False, 'game_launched': False}
     PLAN.write_text(json.dumps(plan, indent=2), encoding='utf-8')
-    print(f'Ready: client + symbols + compositor, {count} verified imports; cloud profiles, raymarch and asteroid assets protected')
+    print(f'Ready: {len(FILES)} files, {count} verified imports; cloud profiles, raymarch and asteroid assets protected')
 
 
 def cleanup_probes():
@@ -67,7 +73,7 @@ def cleanup_probes():
                 base.safe(Path(directory) / child, folder)
             for name in files:
                 path = base.safe(Path(directory) / name, folder)
-                if path.suffix.lower() in ('.exe', '.dll', '.obj', '.bin', '.pdb', '.ilk', '.exp', '.lib'):
+                if path.suffix.lower() in ('.exe', '.dll', '.obj', '.bin', '.pdb', '.ilk', '.exp', '.lib', '.texture'):
                     info = path.stat()
                     candidates.append((path, info.st_size, info.st_mtime_ns))
     removed = 0
@@ -117,7 +123,7 @@ def apply():
     installed.write_text(json.dumps(plan, indent=2), encoding='utf-8')
     plan['removed_build_bytes'] = base.cleanup() + cleanup_probes()
     installed.write_text(json.dumps(plan, indent=2), encoding='utf-8')
-    print(f'Installed and hash-verified 3 files; cloud/content guards unchanged; removed {plan["removed_build_bytes"]/1024**2:.1f} MiB staging/intermediates; no game launch, no cache reset')
+    print(f'Installed and hash-verified {len(FILES)} files; cloud/content guards unchanged; removed {plan["removed_build_bytes"]/1024**2:.1f} MiB staging/intermediates; no game launch, no cache reset')
 
 
 if __name__ == '__main__':

@@ -594,6 +594,8 @@ public:
     GENRESULT DACOM_API CreateExVertexBuffer(unsigned long Bytes, const void* Data,
                                              FRPExBuffer** Out) override;
     GENRESULT DACOM_API DestroyExVertexBuffer(FRPExBuffer* Buffer) override;
+    GENRESULT DACOM_API UpdateExVertexBuffer(FRPExBuffer* Buffer,unsigned long Offset,
+        unsigned long Bytes,const void* Data) override;
 
     // IRPDrawEx (RP9Ex.cpp).
     GENRESULT DACOM_API DrawFullscreenQuad() override;
@@ -610,6 +612,9 @@ public:
     // CreateBuffers, before CreateDevice/Reset: true when the depth buffer becomes an INTZ
     // texture (24-bit depth picked and INTZ supported) instead of the auto depth-stencil.
     bool ExWantsIntzDepth(D3DFORMAT AdapterFormat, D3DFORMAT DepthFormat);
+    // CreateBuffers, before the first CreateDevice: shader cache and its animation, while the
+    // game window is still hidden. A later device reset does not show it again.
+    HRESULT ExPrepareShaderCache();
     // CreateBuffers, after CreateDevice/Reset succeeded: the explicit depth surface (INTZ, or a
     // plain DepthFormat surface when the INTZ texture cannot be created), then every
     // D3DPOOL_DEFAULT Ex resource, and the programs / volumes a device re-creation lost.

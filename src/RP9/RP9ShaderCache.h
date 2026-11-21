@@ -161,7 +161,8 @@ namespace Rp9ShaderCache
 
     inline HRESULT Compile(const std::string& Source,ID3DXInclude* Include,const std::string& Entry,
                            const char* Profile,DWORD Flags,std::vector<unsigned char>* Out,
-                           std::string* Messages,bool* Hit,bool* Stored, bool RequireStored=false)
+                           std::string* Messages,bool* Hit,bool* Stored, bool RequireStored=false,
+                           bool CacheOnly=false)
     {
         *Hit=false;*Stored=false;Messages->clear();
         ID3DXBuffer *Expanded=nullptr,*Errors=nullptr;
@@ -181,6 +182,7 @@ namespace Rp9ShaderCache
         }
         std::string CacheKey=Key(Text,Entry,Profile,Flags);
         if(!CacheKey.empty() && Load(CacheKey,Out)) {*Hit=true;return S_OK;}
+        if(CacheOnly) return S_FALSE;
         ID3DXBuffer* Code=nullptr;
         Hr=D3DXCompileShader(Text.data(),(UINT)Text.size(),nullptr,nullptr,Entry.c_str(),Profile,
                             Flags,&Code,&Errors,nullptr);

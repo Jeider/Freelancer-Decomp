@@ -19,14 +19,14 @@ OUT=HERE.parents[1]/'out/ship_design/rh_elite/prototypes/concept_b/final_v1'
 C=Matrix(((1,0,0),(0,0,-1),(0,1,0)))
 
 
-def mesh_object(entry,name):
+def mesh_object(entry,name,position_decimals=5):
     verts=[];faces=[];uvs=[];normals=[];mats=[];slots=[];lookup={}
     for g in entry['groups']:
         if g['material'] not in slots:slots.append(g['material'])
         for tri in g['corners']:
             face=[]
             for v in tri:
-                key=tuple(round(x,5) for x in v[:3])
+                key=tuple(round(x,position_decimals) for x in v[:3])
                 if key not in lookup:lookup[key]=len(verts);verts.append(C@Vector(v[:3]))
                 face.append(lookup[key]);uvs.append((v[6],1-v[7]));normals.append(C@Vector(v[3:6]))
             faces.append(face);mats.append(slots.index(g['material']))
@@ -42,7 +42,7 @@ def mesh_object(entry,name):
     return obj,slots
 
 
-def groups_from_mesh(me,slots):
+def groups_from_mesh(me,slots,area_epsilon=1e-8):
     me.calc_loop_triangles();by={}
     uv=me.uv_layers.active
     for tri in me.loop_triangles:
@@ -53,7 +53,7 @@ def groups_from_mesh(me,slots):
             t=uv.data[i].uv
             out.append([*p,*n,t.x,1-t.y])
         a,bb,c=[Vector(t[:3]) for t in out]
-        if (bb-a).cross(c-a).length<1e-8:continue
+        if (bb-a).cross(c-a).length<area_epsilon:continue
         by.setdefault(slots[tri.material_index],[]).append(out)
     return [dict(material=m,corners=ts,unused=204) for m,ts in by.items()]
 

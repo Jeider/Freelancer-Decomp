@@ -1,5 +1,29 @@
 Local ship parking (single player)
 
+Russian commandant voice (November 2026)
+--------------------------------------
+Offline authoring and reports: out/ship_parking/audio_ru. The older English
+reports remain at src/obj/ship_parking/commandants. Russian commandants use the
+clean mc_leg_m01 mission-dispatcher recordings; Trent uses his RU campaign voice.
+Every existing voiced commandant keeps its 23-fragment dialogue and local seller.
+Identical RU text/actor/reference/settings reuse one recording. The RU surname
+map is explicit; the repeat greeting no longer says "base Base ...".
+
+tools/ship_parking/audio_ru.py prepares/generates/checks/publishes Assets sources;
+its install-audio action installs WAVs and dialogue INIs through DataFolder.
+It never builds final THNs. After audio installation, the user's separate
+Pythonlancer command is:
+  python -B single.py rpg scenes --all-parking --language ru
+The same --all-parking selector supports prepare and install-audio. The user
+retains control of final scene generation. Do not run the older EN voices action
+to produce RU audio, and do not use its EN scene checks to tune RU timing.
+On 2026-11-19 the user explicitly authorized connecting this batch. All 55 RU
+groups are installed, including 1,265 speech scenes. verify_scenes_ru.py checks
+installed RU files, measured timing and runtime bindings without building scenes;
+--clean-backups removes only this topic's verified scene rollback DATA copies.
+Nine unique recordings with uncommon names remain marked for listening in
+out/ship_parking/audio_ru/manual_review.tsv.
+
 Default: zero owned slots, maximum three per base, 20,000 credits per permanent
 slot. DATA/RPG/ship_parking.ini owns defaults and per-base overrides. Restart the
 game after changing the configuration. A ParkingBase supplies base and seller;

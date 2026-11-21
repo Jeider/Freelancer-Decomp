@@ -1,5 +1,6 @@
 #include "RP9ShaderStartup.h"
 #include <cassert>
+#include <set>
 // Shader/device validation in a hidden window; no startup UI and no game.
 static std::string CacheKey(Rp9Startup::FJob const&job,std::string const&directory){
  Rp9Startup::DirectoryInclude include(directory);ID3DXBuffer*expanded=nullptr,*errors=nullptr;
@@ -18,6 +19,24 @@ int main(int argc,char**argv){
  SetEnvironmentVariableA("FREELANCER_SHADER_CACHE_DIR",argv[2]);
  std::string directory=argv[1],error;std::vector<Rp9Startup::FJob> jobs;
  if(!Rp9Startup::Build(directory,jobs,error)){puts(error.c_str());return 2;}
+#ifdef SURFACE_SCATTER_CHECK
+ // Check affected production variants at every quality, including full shadows.
+ jobs.clear();std::set<std::string> seen;
+ for(int quality=0;quality<=3;++quality){std::vector<Rp9Startup::FJob> batch;
+  if(!Rp9Startup::Build(directory,batch,error,quality,quality,quality))return 2;
+  for(auto const&job:batch)if(job.Name=="surface_material.hlsl" || job.Name=="far_rocks.hlsl")
+   if(seen.insert(job.Text+job.Entry+job.Profile).second)jobs.push_back(job);
+ }
+#endif
+#if defined(ASTEROID_SPAWN_CHECK) && !defined(ASTEROID_FOG_COVERAGE_CHECK)
+ jobs.clear();std::set<std::string> fadeSeen;
+ for(int quality=0;quality<=3;++quality){std::vector<Rp9Startup::FJob> batch;
+  if(!Rp9Startup::Build(directory,batch,error,quality,quality,quality))return 2;
+  for(auto const&job:batch)if(job.Text.find("float4 ObjectCoverage : register(c109)")!=std::string::npos)
+   if(fadeSeen.insert(job.Text+job.Entry+job.Profile).second)jobs.push_back(job);
+ }
+ if(jobs.size()!=56)return 5; // 14 opaque coverage variants at four qualities
+#endif
  auto*api=Direct3DCreate9(D3D_SDK_VERSION);if(!api)return 2;
  HWND window=CreateWindowA("STATIC","fog shader check",WS_POPUP,0,0,32,32,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
  D3DPRESENT_PARAMETERS pp={};pp.Windowed=1;pp.SwapEffect=D3DSWAPEFFECT_DISCARD;pp.hDeviceWindow=window;

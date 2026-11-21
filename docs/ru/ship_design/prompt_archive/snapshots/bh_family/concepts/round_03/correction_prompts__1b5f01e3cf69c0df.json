@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-19",
+  "tool": "built-in image_gen",
+  "variants": [
+    {
+      "id": "BHF11_C01",
+      "base_variant": "BHF11",
+      "title_ru": "BHF11 — согласование ракурсов",
+      "prompt": "Precise-object-edit. Edit only the supplied BHF11 five-view concept sheet. Projection correction ONLY: the TWO rear engines are horizontally SIDE BY SIDE at the same height and fore/aft position, exactly as the large REAR 3/4 and straight REAR already show. Fix the small SIDE projection, which wrongly stacks them vertically. In a true side elevation their silhouettes overlap, so one engine profile is visible; do not invent a second lower engine. Preserve the broad manta body and all other views.\nThis is a local consistency correction, not a redesign. Keep the complete five-view sheet, title BH FREIGHTER / BHF11, framing, scale, all cargo volumes, cockpit integration, colours and medium detail. Do not add a pylon or anything above the cockpit crown. Do not alter the three native glass panes or create extra engines. Keep the original light background and all whole-ship perspectives.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF11_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF11_C01_sheet.png",
+      "generated_output_sha256": "cb2321020ecb3024eb9eef1ed0df774205baafcd64bfb86ef93c231974829eb7",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF11_sheet.png",
+          "sha256": "df275256947b9b60e5b126ab4a656cd60638c4c4289dcf6a04b4bbb67de4fad8"
+        }
+      ]
+    },
+    {
+      "id": "BHF12_C01",
+      "base_variant": "BHF12",
+      "title_ru": "BHF12 — согласование ракурсов",
+      "prompt": "Precise-object-edit. Edit only the supplied BHF12 five-view concept sheet. Projection correction ONLY: the TWO engines are stacked VERTICALLY on the ship centreline, exactly as FRONT 3/4, REAR 3/4, SIDE and REAR show. Fix the TOP projection, which incorrectly places two engines side by side. In a true top-down view the upper hides the lower, so one centered engine silhouette is visible. Preserve the tall vertical hammerhead bow, the entire hull and all other engine views. Also remove the accidental crossbar through the native central glass in the tiny TOP view: it is one uninterrupted central pane.\nThis is a local consistency correction, not a redesign. Keep the complete five-view sheet, title BH FREIGHTER / BHF12, framing, scale, all cargo volumes, cockpit integration, colours and medium detail. Do not add a pylon or anything above the cockpit crown. Do not alter the three native glass panes or create extra engines. Keep the original light background and all whole-ship perspectives.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF12_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF12_C01_sheet.png",
+      "generated_output_sha256": "18c928172a90d44501a9fbe7c76dba0a08e631089273e4a52cc6db11e555aef1",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF12_sheet.png",
+          "sha256": "837726be703a86e547591bfa30396f6e2398c655d90150ce5df830c9c8c0e17c"
+        }
+      ]
+    },
+    {
+      "id": "BHF22_C01",
+      "base_variant": "BHF22",
+      "title_ru": "BHF22 — согласование ракурсов",
+      "prompt": "Precise-object-edit. Edit only the supplied BHF22 five-view concept sheet. Projection correction ONLY: the TWO engines are horizontally SIDE BY SIDE at the SAME HEIGHT, exactly as REAR 3/4 and straight REAR already show. Fix FRONT 3/4 and the small SIDE elevation, which currently make the engines look vertically stacked. The far engine can be partly occluded in the front perspective; a true side elevation shows one overlapping engine profile, not two vertically separated silhouettes. Preserve the deep diamond hull, all folding plates, cockpit and other details. Keep TOP truly overhead: no broad side-on vertical fin in that view.\nThis is a local consistency correction, not a redesign. Keep the complete five-view sheet, title BH FREIGHTER / BHF22, framing, scale, all cargo volumes, cockpit integration, colours and medium detail. Do not add a pylon or anything above the cockpit crown. Do not alter the three native glass panes or create extra engines. Keep the original light background and all whole-ship perspectives.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF22_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF22_C01_sheet.png",
+      "generated_output_sha256": "d8f291b8371bebff4441281ab4025d487f8f9542572142c409ac7b930585944d",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF22_sheet.png",
+          "sha256": "c29704ceae3d64801dcfc05dea012b46a2bb180f7a5623b5e7a32f73e515f562"
+        }
+      ]
+    },
+    {
+      "id": "BHF21_C01",
+      "base_variant": "BHF21",
+      "title_ru": "BHF21 — родное остекление",
+      "prompt": "Precise-object-edit. Edit ONLY the cockpit glazing and its immediate frame on FIRST input, the BHF21 concept sheet. Preserve the hull design, volume distribution, all wings, engine arrangement, surfaces, hatch, palette, entire five-view sheet and title BH FREIGHTER / BHF21. Do not bring back an old fighter head, chin or roof pylon.\nThe current large ROUND front window and fragmented top arrangement are WRONG. Reference 2 shows the exact native LI FREIGHTER glazing and frame; reference 3 shows the exact glass alone. Reproduce THAT geometry as the existing small insert integrated into the current hull. Exactly THREE panes total: one broad central SHIELD-SHAPED pane, broad over the crown and narrowing to a rounded point at its lower front end, uninterrupted from top to front; one rounded oval pane on each SIDE. Two slanted thin native strips separate the central pane from the side panes. There is no centre vertical seam or horizontal crossbar. A side oval MUST NOT become the central front window. TOP sees the uninterrupted upper continuation of the central pane; don't turn the roof into metal between three disconnected front windows. Match these outlines across FRONT 3/4, SIDE and TOP. Keep the current cockpit footprint and continuous new hull skin around it, with no added pylon, weapon pad or equipment plinth on the crown. No changes elsewhere.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF21_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_only.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF21_C01_sheet.png",
+      "generated_output_sha256": "e7ec8c7acc5937e91e0de0e021d28ff93c97cb596ef863aa18af921f8c3d7794",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF21_sheet.png",
+          "sha256": "dda29d38239eb4257a80196e089c26ec60dbb045a49a1184690cacf5c0672393"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_only.jpg",
+          "sha256": "15ad62109971a10f8dff0edb2d863b052dea4f4d591eab77e6ea91107e348e08"
+        }
+      ]
+    },
+    {
+      "id": "BHF23_C01",
+      "base_variant": "BHF23",
+      "title_ru": "BHF23 — родное остекление",
+      "prompt": "Precise-object-edit. Edit ONLY the cockpit glazing and its immediate frame on FIRST input, the BHF23 concept sheet. Preserve the hull design, volume distribution, all wings, engine arrangement, surfaces, hatch, palette, entire five-view sheet and title BH FREIGHTER / BHF23. Do not bring back an old fighter head, chin or roof pylon.\nThe current large ROUND front window and fragmented top arrangement are WRONG. Reference 2 shows the exact native LI FREIGHTER glazing and frame; reference 3 shows the exact glass alone. Reproduce THAT geometry as the existing small insert integrated into the current hull. Exactly THREE panes total: one broad central SHIELD-SHAPED pane, broad over the crown and narrowing to a rounded point at its lower front end, uninterrupted from top to front; one rounded oval pane on each SIDE. Two slanted thin native strips separate the central pane from the side panes. There is no centre vertical seam or horizontal crossbar. A side oval MUST NOT become the central front window. TOP sees the uninterrupted upper continuation of the central pane; don't turn the roof into metal between three disconnected front windows. Match these outlines across FRONT 3/4, SIDE and TOP. Keep the current cockpit footprint and continuous new hull skin around it, with no added pylon, weapon pad or equipment plinth on the crown. No changes elsewhere.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF23_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_only.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF23_C01_sheet.png",
+      "generated_output_sha256": "7daed266f18abb1faadfa770ce3c76177ef2a33e9d421682a15ab8b454cf5094",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_03/bh_freighter_BHF23_sheet.png",
+          "sha256": "0e255556f5f96c5697743160e1f16ffed3f8395681c0af456ea0ff9f64f0a503"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_frame.jpg",
+          "sha256": "0ef3fabfc704590c7bdbc19223cabafae7ca04e8abf75c25d15b50d715d218b4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/li_glazing_only/native_glazing_only.jpg",
+          "sha256": "15ad62109971a10f8dff0edb2d863b052dea4f4d591eab77e6ea91107e348e08"
+        }
+      ]
+    }
+  ]
+}

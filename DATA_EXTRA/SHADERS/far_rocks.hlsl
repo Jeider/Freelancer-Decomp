@@ -103,7 +103,7 @@ float RockHash(float Seed, float K)
 }
 
 float4 Relief : register(c8);        // x relief strength (far_rocks_relief; 0 = off)
-float4 MeshFog : register(c9);       // near, end, enabled, form contrast
+float4 MeshFog : register(c9);       // near, end, mode (0 off / 1 native / 2 surface scatter), form contrast
 float4 MeshFogColour : register(c10);// rgb fog, rim strength
 float4 MeshFogLight : register(c11); // toward sun, view space
 
@@ -161,28 +161,41 @@ float3 MeshRotate(float3 V, float4 Q)
 {
     return V + 2.0 * cross(Q.xyz, cross(Q.xyz, V) + Q.w * V);
 }
+// Blue marks dormant procedural rocks. Active physical poses use blue=0.
+// A shared clock spins cached decorations without rewriting their instances.
+float4 MeshSpin : register(c10); // xy half-angle sin/cos; z decorations-only diagnostic
 MeshInterp VSMesh(MeshVertex In)
 {
     MeshInterp Out;
     float3 Centre = In.CentreRadius.xyz - CamRel.xyz;
     float Depth = -dot(Centre, ViewRow[2].xyz);
     float Dist = length(Centre);
+    bool NoHide=RockPass.w>.5 && MeshSpin.z>.5;
     float Fade = smoothstep(0.0, 1.0, saturate((Dist - Range.x) * Range.y)) *
                  smoothstep(0.0, 1.0, saturate(1.0 - (Dist - Range.z) * Range.w));
     if(RockPass.w>.5) Fade*=In.Colour.g;
-    if(MeshFogCull.z>.5 && Depth-In.CentreRadius.w>=MeshFogCull.y) Fade=0;
+    if(MeshFogCull.z>.5 && MeshFogCull.z<1.5 && Depth-In.CentreRadius.w>=MeshFogCull.y) Fade=0;
     float PxRadius = In.CentreRadius.w * Lod.y / max(Depth, 1.0);
     Fade *= smoothstep(0.0, Lod.z, PxRadius); // fade subpixel geometry; never inflate it into a quad
+    // Diagnostic: keep all opaque samples within the existing 6 km reach.
+    // The finite reach still matches the resident-cell cache; no near/fog/grid fade.
+    if(NoHide) Fade=Dist<=Range.z+1.0/max(Range.w,1.e-6)?1.0:0.0;
     float Solid = RockPass.w > .5 || Fade >= 0.999 ? 1.0 : 0.0;
     Out.Position = float4(0.0, 0.0, -2.0, 1.0);
     Out.Uv = In.Uv;
-    float3 Normal = MeshRotate(In.Normal, In.Rotation);
+    float4 Rotation=In.Rotation;
+    if(RockPass.w>.5 && In.Colour.b>.5){
+        float s=MeshSpin.x,c=MeshSpin.y;
+        Rotation=float4(Rotation.x*c-Rotation.z*s,Rotation.y*c+Rotation.w*s,
+                        Rotation.z*c+Rotation.x*s,Rotation.w*c-Rotation.y*s);
+    }
+    float3 Normal = MeshRotate(In.Normal, Rotation);
     Out.Normal = float3(dot(Normal, ViewRow[0].xyz), dot(Normal, ViewRow[1].xyz), dot(Normal, ViewRow[2].xyz));
-    Out.FadeJitterSolid = float4(Fade, In.Colour.r, Solid, RockPass.w);
+    Out.FadeJitterSolid = float4(Fade, In.Colour.r, Solid, NoHide?2.0:RockPass.w);
     Out.ToEye = float3(0.0, 0.0, 1.0);
     [branch] if (Depth + In.CentreRadius.w >= 1.0 && Fade >= 1.0 / 255.0 && Solid != RockPass.x)
     {
-        float3 Rel = Centre + MeshRotate(In.Position * In.CentreRadius.w, In.Rotation);
+        float3 Rel = Centre + MeshRotate(In.Position * In.CentreRadius.w, Rotation);
         float3 V = float3(dot(Rel, ViewRow[0].xyz), dot(Rel, ViewRow[1].xyz), dot(Rel, ViewRow[2].xyz));
         float D = -V.z;
         Out.ToEye = -V;
@@ -237,16 +250,30 @@ float4 PSMesh(MeshInterp In, float2 Pixel : VPOS) : COLOR0
                     (1.0 - 0.35 * ReliefCrack * ReliefW);
     float3 Colour = Albedo * lerp(0.85, 1.1, In.FadeJitterSolid.y) *
                     (AmbientLight.rgb + SunLight.rgb * Light);
-    if(MeshFog.z>.5)
+    float FogCoverage=1;
+    if(MeshFog.z>.5 && In.FadeJitterSolid.w<1.5)
     {
         float Keep=saturate((MeshFog.y-In.ToEye.z)/max(MeshFog.y-MeshFog.x,.001));
-        clip(Keep-.001);
+        if(MeshFog.z>1.5)
+        {
+            // Smooth optical thickness; the old fog end is a scale, not a
+            // clipping plane. Radial distance avoids fog changing on camera turns.
+            float Path=max(0,(length(In.ToEye)-MeshFog.x)/max(MeshFog.y-MeshFog.x,.001));
+            Keep=exp2(-2*Path*Path/(Path+.35));
+            // Thin the existing depth-writing grid, retaining material contrast
+            // on covered samples. Effective material transmission is still Keep.
+            FogCoverage=Keep/max(Keep,.55);
+            Keep=max(Keep,.55);
+        }
+        else clip(Keep-.001);
         float Facing=saturate((dot(N,MeshFogLight.xyz)+.35)/1.35);
         float Rim=1-saturate(dot(N,V));Rim=Rim*Rim*Rim*Facing;
-        float3 FogColour=MeshFogColour.rgb*(1+4*Keep*(1-Keep)*(MeshFog.w*(2*Facing-1)+MeshFogColour.w*Rim));
+        // Broad normal-based form outlives texture detail, then also disappears.
+        float Form=MeshFog.z>1.5?sqrt(Keep):Keep;
+        float3 FogColour=MeshFogColour.rgb*(1+4*Form*(1-Form)*(MeshFog.w*(2*Facing-1)+MeshFogColour.w*Rim));
         Colour=lerp(FogColour,Colour,Keep);
     }
-    float Alpha = lerp(1.0, Sample.a, TexTint[0].w) * In.FadeJitterSolid.x;
+    float Alpha = lerp(1.0, Sample.a, TexTint[0].w) * In.FadeJitterSolid.x * FogCoverage;
     if (In.FadeJitterSolid.w > .5)
     {
         clip(Alpha - MeshCoverageThreshold(Pixel));

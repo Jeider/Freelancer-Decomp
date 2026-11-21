@@ -1,4 +1,5 @@
 #pragma once
+bool FarRocksProceduralAvailable();
 
 class INI_Reader;
 struct FCliAsteroid;
@@ -26,7 +27,11 @@ bool FarRocksReplacesBand(FCliAsteroid const* Field);
 bool FarRocksReplacesBillboards(FCliAsteroid const* Field);
 // Draws solid and soft rocks of every visible field, with the scene depth bound. Far is the far plane the
 // scene was drawn with, Enclosure the field enclosure state (0 none, 1 partial, 2 inside).
-void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure);
+// Inside a nebula, local meshes belong after its depthless fog cover, alongside
+// opaque objects. The default pass retains the distant/exterior field ordering.
+enum class FarRocksPass { Background, LocalObjects };
+void FarRocksDrawAll(ICamera* Cam, float Far, int Enclosure,
+                    FarRocksPass Pass = FarRocksPass::Background);
 // Build/upload known fields while the system's loading screen is active.
 void FarRocksPrepareSystem();
 // Releases the program and every field's rocks (RenderEx::Shutdown, before the pipeline goes).

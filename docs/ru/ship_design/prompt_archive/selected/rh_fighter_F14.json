@@ -44,5 +44,21 @@
     "sha256": "ef46c4874aa9fac3eeb0e396bea5164d1561d100926422908e38efdfd16381f2"
   },
   "replay": "Use the prompt verbatim, resolve archived_path against the repository root, pass references in this exact order. Generation is not deterministic.",
-  "lineage": "All saved historical prompt and correction files for both ships are retained in manifest.json. Referenced intermediate art is retained as assets."
+  "lineage": "All saved historical prompt and correction files for both ships are retained in manifest.json. Referenced intermediate art is retained as assets.",
+  "rear_view_selection": {
+    "concept_id": "F14_R02",
+    "display_id": "R02",
+    "title_ru": "Парные глубокие ниши",
+    "status": "accepted_for_modeling",
+    "status_ru": "БЕРЁМ В РАБОТУ — ЗАДНИЙ ВИД F14",
+    "selected_by": "user",
+    "date": "2026-11-18",
+    "user_evidence": "запомни что берём R02",
+    "art": "concepts/round_06/rh_fighter_F14_R02_sheet.png",
+    "art_sha256": "cbb692dd79464b7891d2889a9af6fda4ed726754a33246d7d8e2fc04e4b73ed9",
+    "prompt_file": "concepts/round_06/prompts.json",
+    "prompt_variant": "F14_R02",
+    "scope": "Use F14_R02 REAR 3/4 as the primary rear-volume and attachment reference: paired closed recesses, flat central web, two engine seats and receiving pocket. Original F14 defines the forward hull/front drum/wings; native cockpit unchanged. The subsequent 40 percent immersion instruction overrides the illustrated drum and engine heights; see geometry_revision.",
+    "approved_model": false
+  }
 }

@@ -45,17 +45,54 @@
   },
   "replay": "Use the prompt verbatim, resolve archived_path against the repository root, pass references in this exact order. Generation is not deterministic.",
   "lineage": "All saved historical prompts, correction files and referenced intermediate art are retained in manifest.json.",
+  "rear_view_selection": {
+    "concept_id": "B04_VIEWS_B",
+    "title_ru": "Задние ракурсы и днище B04",
+    "status": "accepted_as_rear_reference",
+    "selected_by": "user",
+    "date": "2026-11-18",
+    "user_evidence": "пойдет. сохрани rear в md, мы им восопльзуемся",
+    "art": "concepts/round_04/bw_family_B04_VIEWS_B_sheet.png",
+    "art_sha256": "f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851",
+    "handoff": "SELECTED_CONCEPT.md",
+    "scope": "Use rear engine seats, stepped stern shoulders, central web rear surfaces and belly as reference. Original B04 still defines whole-ship/front form, native cockpit stays unchanged. Start with ELITE; earlier VHEAVY redesign remains separate."
+  },
+  "view_supplement": {
+    "status": "rear_reference_accepted",
+    "date": "2026-11-18",
+    "user_evidence": "обнови так же арты семейства bw_elite. чтобы были со всех стороны - то есть сзади тоже. на выбранном арте",
+    "sheets": [
+      {
+        "id": "B04_VIEWS_A",
+        "role": "front_3q_side_top",
+        "art": "concepts/round_04/bw_family_B04_VIEWS_A_sheet.png",
+        "sha256": "65d09efdc9b7b83946162a4794a212e00ab4e48cfa485c0c0c7a6de82c4c1687"
+      },
+      {
+        "id": "B04_VIEWS_B",
+        "role": "rear_3q_rear_bottom",
+        "art": "concepts/round_04/bw_family_B04_VIEWS_B_sheet.png",
+        "sha256": "f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851",
+        "status": "accepted_as_rear_reference",
+        "selected_by": "user",
+        "accepted_date": "2026-11-18",
+        "user_evidence": "пойдет. сохрани rear в md, мы им восопльзуемся"
+      }
+    ],
+    "scope": "Complementary views of the selected B04 family. Original B04 remains primary. Start with ELITE; VHEAVY remains unapproved as drawn. No new cabin or model approval.",
+    "prompt_file": "concepts/round_04/prompts.json"
+  },
   "selection_scope": {
     "scope": "B04 is the primary family design direction for future work. Start from the ELITE row. This does not approve every ship or every detail on the family sheet.",
     "primary_model": "bw_pir_elite",
     "primary_row": "ELITE",
     "model_status": {
-      "elite": "selected_starting_point_for_future_modeling",
+      "elite": "offline_shape_prototype_b04_02_awaiting_review",
       "fighter": "family_direction_reference_only",
       "vheavy_fighter": "not_approved_as_drawn_rework_later"
     },
     "mixing_policy": "User anticipates potentially combining styles or solutions from other variants. B04 remains the main reference; no specific combination is selected yet.",
     "cockpit_policy": "Preserve the original cockpit geometry, shell, glazing, frames, dimensions and placement. Generated cabin deviations are not approved.",
-    "implementation_started": false
+    "implementation_started": true
   }
 }

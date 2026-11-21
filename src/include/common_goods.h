@@ -346,10 +346,12 @@ struct COMMON_API RoomPropInfo
     char const* Loadout;        // +0x48 "loadout" user property, or ""
     unsigned PriorityId;        // +0x4C CreateID("priority"), 0 without one; RtcSlider gate
     bool bRunningLights;        // +0x50 "running_lights" user property -> RoomObject +0x14
+    bool bCastShadow;           // +0x51 port-only: "cast_shadow" user property; retail padding
 };
 
-// operator= (0x062612b0) block-copies 0x15 dwords.
+// operator= (0x062612b0) block-copies 0x15 dwords. bCastShadow occupies former padding.
 static_assert(sizeof(RoomPropInfo) == 0x54, "RoomPropInfo sizeof 0x54");
+static_assert(offsetof(RoomPropInfo, bCastShadow) == 0x51, "cast_shadow stays in retail padding");
 
 // ExhaustNozzleInfo — engine exhaust nozzle offset.
 struct COMMON_API ExhaustNozzleInfo
@@ -1692,7 +1694,7 @@ private:
                              Csys const& Frame, bool bVisible, bool bLit, bool bFog,
                              bool bRoomMain, unsigned char LightGroup, signed char Layer,
                              unsigned long RenderType, char const* Loadout,
-                             unsigned long PriorityId, bool bRunningLights);
+                             unsigned long PriorityId, bool bRunningLights, bool bCastShadow);
     void add_set_script_Camera(unsigned long Id, Csys const& Frame, char const* Name,
                                ThornCameraProperties const* Props);
     void add_set_script_Setpoint(unsigned long Id, Csys const& Frame, char const* Name,

@@ -62,50 +62,112 @@ inline HRESULT Validate(IDirect3DDevice9* Device, const FJob& Job, const Result&
     return Hr;
 }
 
-inline HRESULT Run(IDirect3DDevice9* Device,
+struct Gate {
+    bool Presented=false;
+    bool Ready=false;
+    HRESULT Status=E_PENDING;
+    std::string Error;
+    std::vector<FJob> Jobs;
+    std::vector<Result> Results;
+};
+inline Gate& StartupGate() { static Gate G; return G; }
+
+inline void ReportBlocked(HWND Owner, const std::string& Error,
     const std::function<void(const std::string&)>& Log) {
-    // Device resets must not open another startup window (activation can itself cause a reset).
-    static bool Ready=false;
-    if(Ready) return S_OK;
-    Window Progress;
-    std::string Error,Directory;
+    Log("Shader startup BLOCKED: "+Error);
+    MessageBoxA(Owner,("The game cannot start because required shaders are not ready.\n\n"+
+        Error+"\n\nSee the RP9 game log for details. Fix the cause and restart; successfully cached shaders are retained.").c_str(),
+        "Freelancer - Shader preparation failed",MB_OK|MB_ICONERROR);
+}
+
+// Animation and disk cache. No device, so this can finish before the game window is shown.
+inline HRESULT Present(const std::function<void(const std::string&)>& Log) {
+    Gate& G=StartupGate();
+    if(G.Ready) return S_OK;
+    if(G.Presented) return G.Status;
+    std::string Directory;
     char Module[MAX_PATH]={};
     DWORD Length=GetModuleFileNameA(nullptr,Module,MAX_PATH);
     char* Slash=strrchr(Module,'\\');
     if(Length && Length<MAX_PATH && Slash) {
         Slash[1]=0;Directory=std::string(Module)+"../DATA_EXTRA/SHADERS/";
     }
-    std::vector<FJob> Jobs;
-    std::vector<Result> Results;
-    HRESULT Status=E_FAIL;
-    if(Directory.empty()) Error="Cannot resolve the game's shader directory.";
-    else if(Build(Directory,Jobs,Error)) {
-        if(!Prepare(Jobs,Directory,Results,[&](unsigned D,unsigned T){return Progress.Update(D,T);}))
-            return HRESULT_FROM_WIN32(ERROR_CANCELLED);
-        Status=S_OK;
-        for(size_t i=0;i<Jobs.size();++i) {
-            auto const& J=Jobs[i];auto const& R=Results[i];
-            HRESULT Hr=Validate(Device,J,R);
-            char Code[32];sprintf_s(Code,"0x%08lx",(unsigned long)Hr);
-            std::string Line=J.Name+" "+J.Entry+" "+J.Profile+": "+
-                (FAILED(R.Hr)?"cache/compile FAILED ":FAILED(Hr)?"GPU rejected shader ":R.Hit?"cache HIT ":"cache stored and verified ")+Code;
-            Log(Line);
-            if(!R.Message.empty()) Log(R.Message);
-            if(FAILED(Hr)) {
-                Status=Hr;
-                if(Error.empty()) Error=Line+"\n"+R.Message;
+    G.Status=E_FAIL;
+    if(Directory.empty()) G.Error="Cannot resolve the game's shader directory.";
+    else if(Build(Directory,G.Jobs,G.Error)) {
+        G.Results.resize(G.Jobs.size());
+        bool NeedsCompile=false;
+        for(size_t i=0;i<G.Jobs.size();++i) {
+            auto& R=G.Results[i];
+            R.Hr=Compile(G.Jobs[i],Directory,R.Code,R.Message,R.Hit,true);
+            if(R.Hr==S_FALSE) NeedsCompile=true;
+            else if(FAILED(R.Hr)) {
+                G.Status=R.Hr;
+                G.Error=R.Message.empty()?"cache/compile FAILED":R.Message;
+                ReportBlocked(nullptr,G.Error,Log);
+                G.Presented=true;
+                return G.Status;
             }
+        }
+        if(!NeedsCompile) {
+            G.Status=S_OK;
+            G.Presented=true;
+            return S_OK;
+        }
+        Window Progress;
+        if(!Prepare(G.Jobs,Directory,G.Results,[&](unsigned D,unsigned T){return Progress.Update(D,T);})) {
+            G.Presented=true;
+            G.Status=HRESULT_FROM_WIN32(ERROR_CANCELLED);
+            return G.Status;
+        }
+        G.Status=S_OK;
+        for(auto const& R: G.Results) if(FAILED(R.Hr)) {
+            G.Status=R.Hr;
+            if(G.Error.empty()) G.Error=R.Message.empty()?"cache/compile FAILED":R.Message;
+            break;
+        }
+        if(FAILED(G.Status)) ReportBlocked(Progress.Get(),G.Error,Log);
+    }
+    if(FAILED(G.Status) && G.Error.size() && !G.Presented)
+        ReportBlocked(nullptr,G.Error,Log);
+    G.Presented=true;
+    return G.Status;
+}
+
+inline HRESULT Run(IDirect3DDevice9* Device,
+    const std::function<void(const std::string&)>& Log) {
+    // Device resets must not open another startup window (activation can itself cause a reset).
+    Gate& G=StartupGate();
+    if(G.Ready) return S_OK;
+    if(!G.Presented) {
+        const HRESULT Shown=Present(Log);
+        if(FAILED(Shown)) return Shown;
+    }
+    if(FAILED(G.Status)) return G.Status;
+    HRESULT Status=S_OK;
+    std::string Error;
+    for(size_t i=0;i<G.Jobs.size();++i) {
+        auto const& J=G.Jobs[i];auto const& R=G.Results[i];
+        HRESULT Hr=Validate(Device,J,R);
+        char Code[32];sprintf_s(Code,"0x%08lx",(unsigned long)Hr);
+        std::string Line=J.Name+" "+J.Entry+" "+J.Profile+": "+
+            (FAILED(R.Hr)?"cache/compile FAILED ":FAILED(Hr)?"GPU rejected shader ":R.Hit?"cache HIT ":"cache stored and verified ")+Code;
+        Log(Line);
+        if(!R.Message.empty()) Log(R.Message);
+        if(FAILED(Hr)) {
+            Status=Hr;
+            if(Error.empty()) Error=Line+"\n"+R.Message;
         }
     }
     if(FAILED(Status)) {
-        Log("Shader startup BLOCKED: "+Error);
-        MessageBoxA(Progress.Get(),("The game cannot start because required shaders are not ready.\n\n"+
-            Error+"\n\nSee the RP9 game log for details. Fix the cause and restart; successfully cached shaders are retained.").c_str(),
-            "Freelancer - Shader preparation failed",MB_OK|MB_ICONERROR);
-    } else {
-        Ready=true;
-        Log("Shader startup READY: every manifest stage is cached and accepted by the current GPU.");
+        ReportBlocked(nullptr,Error,Log);
+        G.Status=Status;
+        return Status;
     }
-    return Status;
+    G.Ready=true;
+    G.Jobs.clear();
+    G.Results.clear();
+    Log("Shader startup READY: every manifest stage is cached and accepted by the current GPU.");
+    return S_OK;
 }
 }

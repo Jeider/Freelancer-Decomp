@@ -63,7 +63,7 @@ HWND CreateGameWindow(const char* class_name, DisplaySettings* display, const ch
 
 // FUN_00424870 (.text:00424870-004249b8), cdecl(hwnd, fullscreen, width, height): records the
 // surface size and mode, then restyles and resizes the window for it.
-void ApplyGameWindowLayout(HWND Hwnd, bool bFullscreen, unsigned Width, unsigned Height)
+void ApplyGameWindowLayout(HWND Hwnd, bool bFullscreen, unsigned Width, unsigned Height, bool bShow)
 {
     G_RenderSurfaceWidth = Width;
     G_RenderSurfaceHeight = Height;
@@ -83,7 +83,8 @@ void ApplyGameWindowLayout(HWND Hwnd, bool bFullscreen, unsigned Width, unsigned
         SetWindowPos(Hwnd, nullptr, 0, 0, 0, 0, 0x27);
         SetWindowPos(Hwnd, HWND_TOPMOST, 0, 0, static_cast<int>(Width), static_cast<int>(Height),
                      0x100);
-        ShowWindow(Hwnd, SW_SHOWNORMAL);
+        if (bShow)
+            ShowWindow(Hwnd, SW_SHOWNORMAL);
         return;
     }
 
@@ -102,7 +103,8 @@ void ApplyGameWindowLayout(HWND Hwnd, bool bFullscreen, unsigned Width, unsigned
     AdjustWindowRectEx(&Frame, Style, bMenu, ExStyle);
     SetWindowPos(Hwnd, HWND_NOTOPMOST, 0, 0, Frame.right - Frame.left, Frame.bottom - Frame.top,
                  0x102);
-    ShowWindow(Hwnd, G_bRenderMgrShuttingDown ? SW_HIDE : SW_SHOWNORMAL);
+    if (bShow)
+        ShowWindow(Hwnd, G_bRenderMgrShuttingDown ? SW_HIDE : SW_SHOWNORMAL);
     InvalidateRect(nullptr, nullptr, TRUE);
 }
 

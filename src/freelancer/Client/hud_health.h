@@ -53,6 +53,7 @@ private:
     HUD_Status* owner = nullptr;
     WinControl* hostButton = nullptr;
     WinControl* lockButton = nullptr;
+    WinControl* closeButton = nullptr;
     WinControl* slideIcon = nullptr;
     WinControl* toolbar[4] = {};
     WinControl* weaponGroups[3] = {};

@@ -1,0 +1,112 @@
+{
+  "topic": "bw_family",
+  "round": "round_05",
+  "created": "2026-11-19",
+  "requested_count": 2,
+  "status": "complete_for_review",
+  "ship": "bw_pir_freighter",
+  "tool": "built-in image_gen",
+  "parameters": {
+    "transparent_background": false
+  },
+  "base_concept": "native bw_pir_freighter; B04 family style only",
+  "user_direction_exact": [
+    "давай пока мы еще готовимся - продолжим работать с bw_family и попробуем спроектировать bw_freighter для пиратов",
+    "есть прототип bw_pir_freighter для этого",
+    "но он конечно просто рескин. я поэтому хочу подумать как нам объединить стиль для более злобненького корабля. ну злое это плохо слово. как обычно - мусорщики"
+  ],
+  "approved_for_modeling": false,
+  "referenced_image_paths": [
+    "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/cockpit_reference.jpg",
+    "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_shape.jpg",
+    "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_flight.jpg",
+    "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B04_sheet.png",
+    "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_B_sheet.png"
+  ],
+  "variants": [
+    {
+      "id": "BF01",
+      "title_ru": "Ступенчатый грузовой корпус",
+      "prompt": "Create a carefully designed production concept sheet for ONE pirate/scavenger Border World FREIGHTER in the visual language of Freelancer (2003). A functional compact player cargo ship, based specifically on the attached native bw_pir_freighter, developed as a member of the selected B04 pirate family. This is a meaningful hull redesign, not merely a reskin and not a fighter with a box attached.\n\nREFERENCE AUTHORITY, ORDER:\n1: Actual FREIGHTER cockpit close-ups. Its entire existing cabin module is immutable: shape of shell, scale, placement, framing, exactly three glass panes. Large elongated central pane follows the sloping crown and is visible from above, two narrow side panes. Preserve the low native brow, the solid raised neck behind it and short narrow projecting nose blade ahead. Do NOT copy the enlarged/stylized cabin from the fighter concept. Cabin stays small relative to the cargo body; no new horizontal bar across glass.\n2: Actual FREIGHTER grey six views. Authority for recognizable overall proportions, topology and placement of structural masses. It is a long horizontal ship with a narrow low front neck and cabin, tall chamfered cargo hump behind, short mid-aft sliding side wings, two compact low side engines, one large aft centerline engine, one solid central lower keel and a smaller chin fin under the forward neck. Overall native W:H:L approximately 13.85:11.66:28.73. Preserve that recognizable ship and footprint, not an enormous transport.\n3: Same native FREIGHTER with pirate material treatment and glazing.\n4: Selected B04 fighter family, STYLE ONLY: stepped root saddles, sharp cut-back shoulders, backed mechanical recesses, angled interlocking hull planes, pale worn alloy with local ochre donor panels. Do not import fighter-wide wings, the elite's tall thin connecting web, lower fighter gondola, twin vertical engine count, or vheavy open side enclosures.\n5: Accepted B04 rear sheet, STYLE ONLY for solid stepped nozzle housings, dark recessed exhaust throats and engineered rear connections.\n\nFUNCTIONAL DESIGN:\nRetain THREE engines: a large aft centerline engine on the main fuselage, plus TWO smaller engines low on either side, mounted forward of the central exhaust plane. In direct rear view they form a triangle. Keep their structural supports visibly integrated into the lower keel/hull, not floating.\nThe short side wings translate inward 2.5, up 0.1 and aft 1.0 to stow; these are enclosed sliding saddles, not rotating hinges. Show a clear seam and receiving recess. Keep the wing roots on their native mid-aft shoulders. Their small span is essential.\nThe upper cargo crown has TWO lengthwise door leaves hinged at outer edges, opening up/out 45 degrees. Main views show them CLOSED, with subtle functional seams and unobstructed opening sweep. Preserve genuine interior volume under the hump. Do not cover the hatch with a crossbar, external racks or towers. No invented rear loading ramp or giant exposed cargo.\nThe complete original cabin and immediately enclosing nose shell remain untouched even where the body behind is redesigned.\n\nSCAVENGER CHARACTER:\nA rebuilt, maintained working hull assembled from a few compatible donor sections. Pirate character must read through THREE-DIMENSIONAL FORM: stepped overlapping transitions between large hull sections, strong angled changes of depth, deep closed rectangular/trapezoidal service wells, inset slats and substantial enclosed engine saddles. Tightly fitted repairs, different panel proportions and occasional restrained ochre panels. Functional and purposeful, without skulls, horns, teeth, spikes, demonic styling or theatrical battle damage. Do not use hanging cables, exposed tubes, open trusses, separate decorative frames, cages or random stuck-on parts. No modeled rivet carpet. Medium structural detail, coherent large volumes, quieter broad panels. No shiny contemporary stealth fighter or rounded bulb covered in detail.\n\nPRESENTATION:\nOne coherent design in FIVE consistent views on a clean warm ivory LANDSCAPE 3:2 concept board. Large FRONT 3/4 at upper left and equally useful large REAR 3/4 at upper right; EACH shows the ENTIRE ship including nose, all engine mounts, full keel and wing tips. Lower row: smaller orthographic SIDE, TOP, REAR. Exact same structure, cabin scale, wing deployment and engine locations in all views. All in extended flight, cargo doors closed. Clean readable shaded concept rendering, sharp edges, restrained native texture, neutral studio light. No space scene, no perspective cropping, no guns or exhaust flames, no explanatory paragraphs, no decorative paper border. Clearly label concept ID and view names. The ship's recognizable long nose / high cargo hump / low engine triangle must be legible at thumbnail size.\n\nDESIGN BF01 — STEPPED CARGO SADDLE:\nRebuild the existing large hump as a three-level chamfered cargo shell: narrow flat two-leaf crown, broad angled shoulders with deep inset trapezoidal service bays, and lower continuous structural belt. Preserve the native hump's height, long narrow forward neck, compact side span and keel. At the front, terminate the cargo shoulders in a strong clipped diagonal step behind the neck; at the rear, narrow them through an angled notch into the main engine housing. Create an actual recessed shelf under each cargo shoulder, integrating the short sliding wing's B04-style stepped saddle. Short wings have a clipped outer end and ONE decisive step in their aft edge. Two lower engine pods sit on stout short angular mounts rising from the central keel, with visible dark separation gaps above each pod. Reshape their covers to faceted rectangular/octagonal transitions, harmonized with the large center nozzle, without changing three-engine topology. Keep solid ventral keel and original chin fin legible. Use a few large replaced shoulder plates, not an all-over panel grid. The new geometry should feel like a robust rebuild of the original with much more purposeful shoulders and engine mounts, not the unchanged native mesh.\nTitle: \"BW PIR FREIGHTER / BF01\".",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_shape.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B04_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_B_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet.png",
+      "generated_output_sha256": "9aea9c4c16cc8e502286a880eeac0dbf853ba89d324542b6d58082953625722f",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/cockpit_reference.jpg",
+          "sha256": "f19cd023e0f63c09ad519b4f4acb0898b1f4a3a6483bb4506260e4384d77b8fd"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_shape.jpg",
+          "sha256": "e6f4f6562251f94c830c72e0d53290a89e5086c4ae8248a7e89c59c44658dcd4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_flight.jpg",
+          "sha256": "f5f411011c46e1585eeae35a38d402186827adc9651b65d91ead7c978cb697dc"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_03/bw_family_B04_sheet.png",
+          "sha256": "67c3f1866d6091916842be5ed31fd4e5a615c369b8583a48438af79f8a1b6c9a"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_B_sheet.png",
+          "sha256": "f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet_corrected.png",
+      "correction_history": [
+        {
+          "id": "BF01_C1",
+          "prompt_file": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/correction_prompts.json",
+          "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF01_sheet_corrected.png"
+        }
+      ]
+    },
+    {
+      "id": "BF02",
+      "title_ru": "Скошенные грузовые щёки",
+      "prompt": "Create a carefully designed production concept sheet for ONE pirate/scavenger Border World FREIGHTER in the visual language of Freelancer (2003). A functional compact player cargo ship, based specifically on the attached native bw_pir_freighter, developed as a member of the selected B04 pirate family. This is a meaningful hull redesign, not merely a reskin and not a fighter with a box attached.\n\nREFERENCE AUTHORITY, ORDER:\n1: Actual FREIGHTER cockpit close-ups. Its entire existing cabin module is immutable: shape of shell, scale, placement, framing, exactly three glass panes. Large elongated central pane follows the sloping crown and is visible from above, two narrow side panes. Preserve the low native brow, the solid raised neck behind it and short narrow projecting nose blade ahead. Do NOT copy the enlarged/stylized cabin from the fighter concept. Cabin stays small relative to the cargo body; no new horizontal bar across glass.\n2: Actual FREIGHTER grey six views. Authority for recognizable overall proportions, topology and placement of structural masses. It is a long horizontal ship with a narrow low front neck and cabin, tall chamfered cargo hump behind, short mid-aft sliding side wings, two compact low side engines, one large aft centerline engine, one solid central lower keel and a smaller chin fin under the forward neck. Overall native W:H:L approximately 13.85:11.66:28.73. Preserve that recognizable ship and footprint, not an enormous transport.\n3: Same native FREIGHTER with pirate material treatment and glazing.\n4: Accepted B04 family rear sheet, STYLE ONLY for stepped root saddles, sharp cut-back shoulders, backed mechanical recesses, angular hull transitions, pale worn alloy with local ochre donor panels, solid stepped nozzle housings, dark exhausts and engineered rear connections. Do not import fighter noses, enlarged canopies, fighter-wide wings, the elite's tall thin web, lower fighter gondola, twin vertical engine count, or vheavy open side enclosures.\n\nFUNCTIONAL DESIGN:\nRetain THREE engines: a large aft centerline engine on the main fuselage, plus TWO smaller engines low on either side, mounted forward of the central exhaust plane. In direct rear view they form a triangle. Keep their structural supports visibly integrated into the lower keel/hull, not floating.\nThe short side wings translate inward 2.5, up 0.1 and aft 1.0 to stow; these are enclosed sliding saddles, not rotating hinges. Show a clear seam and receiving recess. Keep the wing roots on their native mid-aft shoulders. Their small span is essential.\nThe upper cargo crown has TWO lengthwise door leaves hinged at outer edges, opening up/out 45 degrees. Main views show them CLOSED, with subtle functional seams and unobstructed opening sweep. Preserve genuine interior volume under the hump. Do not cover the hatch with a crossbar, external racks or towers. No invented rear loading ramp or giant exposed cargo.\nThe complete original cabin and immediately enclosing nose shell remain untouched even where the body behind is redesigned.\n\nSCAVENGER CHARACTER:\nA rebuilt, maintained working hull assembled from a few compatible donor sections. Pirate character must read through THREE-DIMENSIONAL FORM: stepped overlapping transitions between large hull sections, strong angled changes of depth, deep closed rectangular/trapezoidal service wells, inset slats and substantial enclosed engine saddles. Tightly fitted repairs, different panel proportions and occasional restrained ochre panels. Functional and purposeful, without skulls, horns, teeth, spikes, demonic styling or theatrical battle damage. Do not use hanging cables, exposed tubes, open trusses, separate decorative frames, cages or random stuck-on parts. No modeled rivet carpet. Medium structural detail, coherent large volumes, quieter broad panels. No shiny contemporary stealth fighter or rounded bulb covered in detail.\n\nPRESENTATION:\nOne coherent design in FIVE consistent views on a clean warm ivory LANDSCAPE 3:2 concept board. Large FRONT 3/4 at upper left and equally useful large REAR 3/4 at upper right; EACH shows the ENTIRE ship including nose, all engine mounts, full keel and wing tips. Lower row: smaller orthographic SIDE, TOP, REAR. Exact same structure, cabin scale, wing deployment and engine locations in all views. All in extended flight, cargo doors closed. Clean readable shaded concept rendering, sharp edges, restrained native texture, neutral studio light. No space scene, no perspective cropping, no guns or exhaust flames, no explanatory paragraphs, no decorative paper border. Clearly label concept ID and view names. The ship's recognizable long nose / high cargo hump / low engine triangle must be legible at thumbnail size.\n\nDESIGN BF02 — CUT-BACK HAUNCHES:\nExplore a DIFFERENT structural distribution, while keeping the native cabin, long forward neck, overall volume, cargo hump and three-engine architecture. Make the cargo hump a pronounced angular forward shoulder transitioning into a lower aft service terrace: highest shoulder just behind the neck, long sloping/chamfered side cheeks that cut BACK and DOWN toward the center engine. Keep the narrow upper two-leaf hatch continuous and free. Under each cheek cut ONE large closed diagonal-sided mechanical recess, revealing a deep solid inset machinery wall with a few broad slats. Let its lower edge flow into a short broad engine saddle carrying the low side pod, making each flank read as an integrated heavy haunch instead of BF01's horizontal stacked terraces. Bring lower engine pods slightly farther aft, still ahead of the central exhaust plane, and integrate their top mount into these diagonal haunches. Preserve visible boundaries and air gaps so pods stay separate. Short sliding wings emerge just above those mounts, with a broad clipped wedge and swept leading edge, not full fighter wings. The solid lower keel becomes a strong tapered chisel with ONE backed triangular relief on each side; no open web. Preserve original under-nose chin fin. Broad shoulders terminate abruptly in a cut-back stern around the protruding main nozzle. Same approximate original envelope, not wider or taller. Deliberately contrast oblique recessed flanks with a few calm horizontal cargo planes. Several close-fit mismatched donor panels suggest scavenger rebuilding, without rust covering every surface. Geometry must clearly differ from BF01 and native freighter in the flanks, stern steps and engine attachment while remaining this same BW freighter.\nTitle: \"BW PIR FREIGHTER / BF02\".\nCRITICAL FREIGHTER COCKPIT SCALE: In the actual freighter the glass is only 2.19 units long in a 28.73-unit-long ship: approximately 7.6 percent of total length. The original glass is 2.38 wide, 0.887 tall. Do not enlarge it to fighter concept scale. The complete native cabin is LOW and located very far FORWARD on the narrow neck. A short solid nose blade extends about 3 units ahead of the glass; a long raised solid neck continues BEHIND the cabin toward the large cargo hump. Reproduce this original cabin/nose assembly directly from references 1-3. No long new fighter spear in front of an enormous canopy. Most of the front-to-hump distance belongs to the solid neck BEHIND the small cabin. Preserve the three unbroken native pane outlines, no added crossbars. Native cargo doors occupy only the middle part of the hump roof, about 4.82 units along the ship, not its entire length.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/cockpit_reference.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_shape.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_flight.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_B_sheet.png"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF02_sheet.png",
+      "generated_output_sha256": "a6d0034daa97e2848a65083d4f5ec8933cc7138e4521479c9c11ac61e92ee11f",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/cockpit_reference.jpg",
+          "sha256": "f19cd023e0f63c09ad519b4f4acb0898b1f4a3a6483bb4506260e4384d77b8fd"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_shape.jpg",
+          "sha256": "e6f4f6562251f94c830c72e0d53290a89e5086c4ae8248a7e89c59c44658dcd4"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/freighter/native_flight.jpg",
+          "sha256": "f5f411011c46e1585eeae35a38d402186827adc9651b65d91ead7c978cb697dc"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_04/bw_family_B04_VIEWS_B_sheet.png",
+          "sha256": "f94d8135ee8d930b375d8756732a080b19dca15c50bd98d6e05e39cf67aaa851"
+        }
+      ],
+      "review_output": "D:/work/Freelancer-Decomp/out/ship_design/bw_family/concepts/round_05/bw_freighter_BF02_sheet.png"
+    }
+  ]
+}

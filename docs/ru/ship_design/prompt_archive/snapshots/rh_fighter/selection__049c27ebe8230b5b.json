@@ -1,0 +1,56 @@
+{
+  "status": "accepted_for_modeling",
+  "status_ru": "БЕРЁМ В РАБОТУ",
+  "selected_by": "user",
+  "date": "2026-11-17",
+  "concept_id": "F14",
+  "title_ru": "Утопленное основание",
+  "ship_name": "Драугр",
+  "art": "concepts/round_05/rh_fighter_F14_sheet.png",
+  "art_sha256": "ef46c4874aa9fac3eeb0e396bea5164d1561d100926422908e38efdfd16381f2",
+  "handoff": "SELECTED_CONCEPT.md",
+  "user_evidence": "f14 берём в работу. пометь это. не забывай сохранять все успешные промпты даже если мы удалим этот опыт. и у freighter и у fighter",
+  "scope": "Concept selected; downstream modeling is separate. No model changes or installation.",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/rheinland/rh_pir_fighter/rh_pir_fighter.cmp",
+  "source_sha256": "039fc5177f5110ca51dc5b4ada40e8f1300c8e5bc0696cb374ee5fc757f7c5eb",
+  "persistent_prompt_recipe": "../../../docs/ru/ship_design/prompt_archive/selected/rh_fighter_F14.json",
+  "rear_view": {
+    "concept_id": "F14_R02",
+    "display_id": "R02",
+    "title_ru": "Парные глубокие ниши",
+    "status": "accepted_for_modeling",
+    "status_ru": "БЕРЁМ В РАБОТУ — ЗАДНИЙ ВИД F14",
+    "selected_by": "user",
+    "date": "2026-11-18",
+    "user_evidence": "запомни что берём R02",
+    "art": "concepts/round_06/rh_fighter_F14_R02_sheet.png",
+    "art_sha256": "cbb692dd79464b7891d2889a9af6fda4ed726754a33246d7d8e2fc04e4b73ed9",
+    "prompt_file": "concepts/round_06/prompts.json",
+    "prompt_variant": "F14_R02",
+    "scope": "Use F14_R02 REAR 3/4 as the primary rear-volume and attachment reference: paired closed recesses, flat central web, two engine seats and receiving pocket. Original F14 defines the forward hull/front drum/wings; native cockpit unchanged. The subsequent 40 percent immersion instruction overrides the illustrated drum and engine heights; see geometry_revision.",
+    "approved_model": false
+  },
+  "geometry_revision": {
+    "date": "2026-11-18",
+    "status": "user_direction_for_first_prototype",
+    "reference": "F14_R02",
+    "primary_view": "REAR 3/4",
+    "user_evidence": "зад взят F14_R02. ты можешь взять это из документации. хотя я лично считаю что нам лучше смотреть на этот F14/R02 на rear 3/4. В том плане, что я бы чуть опустил \"кружок из воздушной подушки\" ниже. чтобы он был утопле в корпусе на 40%. и только 60% вылезало. двигатели опустить соответственно",
+    "drum": {
+      "embedded_fraction_of_vertical_diameter": 0.4,
+      "exposed_fraction_of_vertical_diameter": 0.6,
+      "measurement_interpretation": "Vertical height, not projected circular area. Datum is the existing local hull roof at the drum station on the centerline, excluding raised trim.",
+      "target_center_formula": "Y_center = Y_local_roof + 0.10 * D",
+      "target_top_formula": "Y_top = Y_local_roof + 0.60 * D",
+      "target_bottom_formula": "Y_bottom = Y_local_roof - 0.40 * D",
+      "preserve_diameter_thickness_and_orientation": true,
+      "instruction": "Lower the drum into the existing hull; join its lower region with compact continuous shoulders. Preserve the native cockpit and selected forward hull. Determine the absolute lowering after establishing the actual drum envelope and local roof."
+    },
+    "engines": {
+      "instruction": "Start by lowering both engines and their seats by the same vertical offset as the drum, preserving their pair spacing, scale and fore-aft exhaust direction. Refit the supports to the lowered assembly.",
+      "count": 2
+    },
+    "mechanical_constraint": "Keep the native baydoor trajectory at its existing height. Its measured sweep reaches Y=1.33448 and Z=2.90127; reserve the receiving corridor through the revised lower drum/base between the engines. Clearance is not yet validated in new geometry.",
+    "approved_model": false
+  }
+}

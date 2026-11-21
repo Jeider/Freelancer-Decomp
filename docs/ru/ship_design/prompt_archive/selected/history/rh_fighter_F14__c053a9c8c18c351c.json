@@ -1,0 +1,64 @@
+{
+  "ship": "rh_fighter",
+  "concept_id": "F14",
+  "title_ru": "Утопленное основание",
+  "status": "accepted_for_modeling",
+  "selected_by": "user",
+  "user_evidence": "f14 берём в работу. пометь это. не забывай сохранять все успешные промпты даже если мы удалим этот опыт. и у freighter и у fighter",
+  "date": "2026-11-17",
+  "tool": "built-in image_gen",
+  "transparent_background": false,
+  "prompt": "Use case: precise-object-edit / spaceship design variant.\nCreate ONE NEW three-view concept variant of the RH pirate LIGHT FIGHTER based on image 1, the direction the user likes. Preserve its successful fore-aft-axis ROUND REAR DRUM and TWO compact engines. This is a controlled exploration of wing mounting, lean neck shape and CUT-IN drum-face design, not a new faction or class of ship.\n\nINPUT ROLES:\nImage 1 = accepted DESIGN DIRECTION F03 or F04; edit this three-view sheet into the specified new variant. Keep its perspective, layout, overall proportions, protected cabin and round-drum envelope.\nImage 2 = actual ORIGINAL FIGHTER COCKPIT closeups. Mandatory geometry/identity anchor. The entire cockpit is unchanged.\nImage 3 = actual original fighter flight reference, for original physical SIZE and wing proportions only. Its old sideways drum orientation and one-engine arrangement are intentionally superseded by image 1.\nImage 4 = native BAYDOOR closed/open, showing separate rectangular top lid moving AFT and slightly UP.\nImage 5 = native wing flight/mid/folded, motion constraint only; final sheet uses FLIGHT.\n\nHARD INVARIANTS:\n1. Keep the complete CABIN from image 1 untouched, matching actual module in image 2: identical size/position/outline, broad sloped blue front windshield, narrow black/yellow divider then continuous lower blue band, tall side panes and original broad metal frames, small original brow, opaque stepped chin with red side insert and lower blue corner slots, separate lower hazard bumper and short tapered bottom. Do not redraw it into a different cabin. No new glazing, changed nose curvature, wider jaw, truck windows, elite canopy or armour around cabin. New hull starts BEHIND this module.\n2. Exactly ONE round fixed drum, SAME or slightly smaller diameter and thickness than image 1; do NOT enlarge it, move its outer perimeter outward, add another rim or inflate the hull. Its CYLINDER AXIS IS ALONG THE FUSELAGE nose-to-tail. The round face looks FORWARD/BACKWARD, NOT sideways. It appears as a THIN VERTICAL SLAB in SIDE and a SHORT WIDE CROSSWISE BAND in TOP. Top band width is about 1.9 cabin widths, still comfortably inside the wing span. The top projection must show the full drum DIAMETER across the ship. No circular side view, no narrow longitudinal top spine. Only internal face recesses/panel fields may change.\n3. Exactly TWO small axial engines below/alongside drum, each about half cabin width, exhausts face aft. No central third exhaust. Keep engines stationary, compact and independent from wings.\n4. Keep a light fighter's narrow neck and modest overall mass/length, same baseline scale as image 1. No cargo-body bulk, tall shoulders, heavy armour tower or oversized wings. Do not fill all negative space under the neck with extra hull.\n\nMECHANICS / FORMS:\nCreate meaningful new neck and wing-mount silhouette per the variant brief. Distinct internal sliding wing carrier AND separate hinged outer section. Moving wings cannot be welded to fixed cover; a visible separation is essential. Fore-aft hinge axes allow outer tips to roll UP ~63 degrees; inner carrier retracts IN/UP/AFT. Hinge dimensions moderate, integral solid housings and closed-backed pockets, no long exposed supports. Keep room for sweep clear of engine/drum.\nWings fly DOWN/OUT in front, and sweep FORWARD in TOP: nose UP, wing tips UP-LEFT / UP-RIGHT from roots. Entire panels sweep toward the cockpit, not engine. SIDE nose RIGHT: wing projects down-RIGHT. Keep source-like compact span/chord, thin meaningful sections and clipped angular tips. No giant sharp blades, backward jet wings or upfolded flight wings.\nOriginal rectangular dorsal baydoor remains CLOSED immediately behind cabin, original scale. It slides AFT and slightly UP through a clear central corridor into a pocket UNDER the elevated drum base, BETWEEN engines. No fixed block across its moving plane. Preserve cargo floor and walls. No rotation of drum, no propeller blades, no new belly hatch. No motion arrows.\nDetail through subtractive geometry: deep inset service fields, cut-in grilles with a few broad vanes, diagonal plane changes, recessed guide cartridges and meaningful joints. Moderate detail density exactly like image 1, neither blank cubes nor greeble carpets. Piracy is pragmatic rough repair: two or three flush donor fields with nonmatching seams, muted red/olive replacement sections and restrained wear. Broad quiet metal surfaces between useful details.\nNO decorative raised plates/ribs, geometric rivets, exposed tubes/hoses/cables/piston rods, external frames/trusses/braces/cages or floating rings. No demonic motifs, horns/claws/skulls, national flags/crosses, Corsair forms, freighter masses or built-in guns. New necessary closed bearing housings only, all other sculpting mainly into the hull.\n\nVISUAL:\nSame clean technical concept rendering as image 1: crisp geometry, controlled dimensional shading, light warm-gray paper, worn pale warm metal with restrained muted red/olive fields. Preserve cabin colors. Three coherent views of ONE design on ONE landscape sheet: large front-side 3/4 LEFT, SIDE / FLIGHT upper RIGHT nose RIGHT, TOP / FLIGHT lower RIGHT nose UP. Complete uncropped silhouettes, adequate spacing. All views must describe the new geometry, especially wing mounts and drum orientation. No extra views, environment or effects. Title as specified plus three view labels only.\n\nSPECIFIC VARIANT F14:\nUse short TAPERED CLOSED SHROUDS that are mostly sunk into the lower neck around the wing sliders; only the sleeve mouths and small hinge bearings protrude. A practical aft shoulder transitions smoothly in connected angular planes into the fixed compact engine housings, keeping the center cargo-lid receiving pocket clear. Neck sides have one large rectangular recess with a clipped diagonal lower-front corner and a smaller three-vane vent aft; lower contour has two restrained steps. Wings have a squared inner segment and mildly tapered blunt outer section, forward sweep and original span. Drum face inside unchanged perimeter is divided into a deep central trapezoidal service recess and two unequal broad curved donor fields, one muted red and one pale, with subtle differing depth. No new front-facing hub, no additional armour shell.\nAll three views must reflect this structural variation, not just recoloring. Preserve the exact cabin and external drum envelope from image 1.\nTitle exactly: RH PIRATE FIGHTER / F14",
+  "prompt_sha256": "4cd713543e85a121ead3b0a945988394e9eb1f03405190434563b044d8a007fc",
+  "prompt_snapshot": "docs/ru/ship_design/prompt_archive/snapshots/rh_fighter/concepts/round_05/prompts__662daf70a87dc9fd.json",
+  "references": [
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_04/rh_fighter_F04_v2_sheet.png",
+      "archived_path": "out/ship_design/prompt_archive/assets/8dc77aab954611fe00861aa70f10dff795a698bd95636e9a867f377d7f07528f.png",
+      "sha256": "8dc77aab954611fe00861aa70f10dff795a698bd95636e9a867f377d7f07528f"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/pirate_art/ships/rh_fighter_pir/cockpit_reference.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/22bc6793a8285e15b0c5a2c035bf6ecd83e365d521ad9a89e5249a8386b478a4.jpg",
+      "sha256": "22bc6793a8285e15b0c5a2c035bf6ecd83e365d521ad9a89e5249a8386b478a4"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_flight.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/74d9b188f50ec6de1807a1b1a390df9b56034b4ae4c8f9ff8061185c4a51ead0.jpg",
+      "sha256": "74d9b188f50ec6de1807a1b1a390df9b56034b4ae4c8f9ff8061185c4a51ead0"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_baydoor_motion.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/628dd5782e6f89ff71ba74d6679a1de2a0bb3c0e4696a7c697b5cb09b6679748.jpg",
+      "sha256": "628dd5782e6f89ff71ba74d6679a1de2a0bb3c0e4696a7c697b5cb09b6679748"
+    },
+    {
+      "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/references/native_wing_motion.jpg",
+      "archived_path": "out/ship_design/prompt_archive/assets/5b032b8bca16f78a18d1c0c58608c52607f4e2b10cfa76f7fdf9f8c4ec175803.jpg",
+      "sha256": "5b032b8bca16f78a18d1c0c58608c52607f4e2b10cfa76f7fdf9f8c4ec175803"
+    }
+  ],
+  "selected_output": {
+    "original_path": "D:/work/Freelancer-Decomp/out/ship_design/rh_fighter/concepts/round_05/rh_fighter_F14_sheet.png",
+    "archived_path": "out/ship_design/prompt_archive/assets/ef46c4874aa9fac3eeb0e396bea5164d1561d100926422908e38efdfd16381f2.png",
+    "sha256": "ef46c4874aa9fac3eeb0e396bea5164d1561d100926422908e38efdfd16381f2"
+  },
+  "replay": "Use the prompt verbatim, resolve archived_path against the repository root, pass references in this exact order. Generation is not deterministic.",
+  "lineage": "All saved historical prompt and correction files for both ships are retained in manifest.json. Referenced intermediate art is retained as assets.",
+  "rear_view_selection": {
+    "concept_id": "F14_R02",
+    "display_id": "R02",
+    "title_ru": "Парные глубокие ниши",
+    "status": "accepted_for_modeling",
+    "status_ru": "БЕРЁМ В РАБОТУ — ЗАДНИЙ ВИД F14",
+    "selected_by": "user",
+    "date": "2026-11-18",
+    "user_evidence": "запомни что берём R02",
+    "art": "concepts/round_06/rh_fighter_F14_R02_sheet.png",
+    "art_sha256": "cbb692dd79464b7891d2889a9af6fda4ed726754a33246d7d8e2fc04e4b73ed9",
+    "prompt_file": "concepts/round_06/prompts.json",
+    "prompt_variant": "F14_R02",
+    "scope": "Rear drum shell, paired closed recesses, flat central web, two low engine seats and central receiving pocket. Original F14 remains authoritative for whole-ship form/front/wings; native cockpit unchanged.",
+    "approved_model": false
+  }
+}

@@ -5,7 +5,9 @@
 // Author: Giperion.
 
 #include "space_scene_obj_draw.h"
+#include "procedural_asteroid_client.h"
 #include "server_asteroid_fade.h"
+#include "common_server_asteroid.h"
 #include "runtime_hitch_log.h"
 #include "cockpit_effect_brightness.h"
 #ifdef FREELANCER_DBG_OPTIONS
@@ -1049,7 +1051,9 @@ namespace
             // Port-only: while the Direct3D 9 volumetric nebula draws this nebula's inside
             // (nebula_volume.cpp) it fogs the object by its depth; the D3D fog stays off (the
             // FUN_00421ed0(0xb60) above). The ambient lerp above is kept.
-            if (!NebulaVolume::UsesVolumeForObjectSurfaces(Nebula))
+            // The Omega-15 material trial needs the authored fog parameters even
+            // when the existing volume also composites over the object depth.
+            if (NebulaFogShapeScope() || !NebulaVolume::UsesVolumeForObjectSurfaces(Nebula))
 #endif
             {
                 float const FogEnd = Nebula->FogFactor(Pos3);
@@ -1151,6 +1155,20 @@ namespace
         Vector const& Pos = Self->get_position();
         StarSysApplyObjectLighting(&Pos.x, Radius, Camera, Self->DrawStateA, Self->DrawStateB,
                                    Flag);
+#ifdef FREELANCER_RP9
+        if ((IsServerAsteroidType(Type) || NebulaFogSolarHull(Self->ManagerKind,Type)) && NebulaFogShapeScope() &&
+            G_FieldController && G_FieldEnclosure != 0 &&
+            GetGameOption(kGameOptNebula) && GetGameOption(kGameOptLighting))
+        {
+            // Match the local mesh layer: entering a clear pocket at the OBJECT
+            // must not suddenly expand its fog range while the camera stays in
+            // gas. Keep the object's lighting, changing only the fog parameters.
+            float FogColour[3];
+            FogApplyColorAndRange(G_FieldController->CopyFogRgb(FogColour),
+                G_FieldController->GetFloat2AC(),
+                G_FieldController->FogFactor(static_cast<ICamera*>(Camera)->GetPosition()));
+        }
+#endif
     }
 
 
@@ -1216,6 +1234,7 @@ namespace
     // either pointer.
     void EnqueueObject(FClientGameobj* Go, FSpaceCamera* Cam)
     {
+        if (ProceduralAsteroidClientOwns(Go)) return;
         ICamera* const Camera = AsCamera(Cam);
         bool VolumeFog = false;
 #ifdef FREELANCER_RP9
@@ -1365,6 +1384,17 @@ namespace
                 Bucket += 3;
         }
 
+#ifdef FREELANCER_RP9
+        if (Bucket == 0 && G_FieldController && G_FieldEnclosure != 0 && NebulaFogShapeScope())
+        {
+            unsigned Type = 0;
+            Go->get_type(Type);
+            // A clear-zone solid object otherwise precedes DrawFogOverlay:
+            // the depthless cover erases its material, retaining a fog-coloured
+            // depth silhouette. Pixel-fog hulls belong after that cover.
+            if (IsServerAsteroidType(Type) || NebulaFogSolarHull(Go->ManagerKind,Type)) Bucket = 1;
+        }
+#endif
         PushNode(Bucket, Go, DistSq, Lod);
     }
 
@@ -2028,7 +2058,7 @@ namespace
     bool LocalShadowEligible(FClientGameobj* Go)
     {
         if(!Go || (Go->ManagerKind!=1 && Go->ManagerKind!=2)) return false;
-        if(ServerAsteroidFade::Opacity(Go)<1.0f) return false;
+        if(!ProceduralAsteroidClientPhysical(Go)&&ServerAsteroidFade::Opacity(Go)<1.0f) return false;
         unsigned Type=0; Go->get_type(Type);
         // NON_TARGETABLE includes decorative planet-circle helpers in mods.
         // They are not physical hulls and must not black out nearby ships.
@@ -2381,11 +2411,15 @@ namespace
 
     void FZItemGameObject::Draw(FSpaceCamera* Cam)
     {
-        // 0x0051f7a0..0x0051f7b9: the OutLod written by the slot lands in the caller's argument
-        // slot and is never read.
+        // Retail discarded OutLod. The procedural field needs the actual submit
+        // result: a culled native mesh must not hide its replacement decoration.
         unsigned OutLod = 0;
-        static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Object))
-            ->Slot188(&OutLod, Cam, LodWord, nullptr, nullptr);
+        auto* Go=static_cast<FClientGameobj*>(static_cast<IObjInspect*>(Object));
+        Go->Slot188(&OutLod, Cam, LodWord, nullptr, nullptr);
+#ifdef FREELANCER_RP9
+        if(static_cast<unsigned short>(OutLod)>=3 && static_cast<short>(OutLod>>16)<2)
+            ProceduralAsteroidClientDrawn(Go);
+#endif
     }
 
     int FZItemGameObject::Slot04()
@@ -2699,7 +2733,15 @@ namespace
                 if(NativeNebulaObject(Go,AsCamera(Cam)) ||
                     (G_SimplifyNebulaObjects && dynamic_cast<FZItemAsteroidField*>(Nodes[I])))
                     Receiver=256u;
-                SurfaceScope->SetLocalShadowReceiver(Receiver | FogShapeScope);
+                unsigned SolarFogScope=0;
+                if(Go && FogShapeScope) {
+                    unsigned Type=0;Go->get_type(Type);
+                    if(NebulaFogSolarHull(Go->ManagerKind,Type)) SolarFogScope=2048u;
+                }
+                // Procedural bodies replace an already visible rock. A fresh
+                // spawn dissolve would leave a hole after removing its proxy.
+                unsigned SpawnScope=ProceduralAsteroidClientPhysical(Go)?0:ServerAsteroidFade::SurfaceScope(Go);
+                SurfaceScope->SetLocalShadowReceiver(Receiver | FogShapeScope | SolarFogScope | SpawnScope);
             }
 #endif
 #ifdef FREELANCER_RP9
@@ -2887,6 +2929,14 @@ namespace
 #endif
         G_FieldController->DrawExclusionShell(Cam);
         CliAsteroidTickFields(Cam);
+#ifdef FREELANCER_RP9
+        // Local mesh asteroids are opaque scene objects. The earlier far-rock
+        // pass is covered by DrawFogOverlay's depthless fullscreen quad: drawing
+        // them there erased their material but retained depth, leaving flat fog
+        // silhouettes. Keep the native background cover, then draw this layer
+        // with the ordinary asteroids before the depth-aware volume composite.
+        FarRocksDrawAll(Camera, G_DrawCtxZFar, G_FieldEnclosure, FarRocksPass::LocalObjects);
+#endif
         DrainBucket(Cam, 4, false);
 #ifdef FREELANCER_RP9
         // Port-only: the volumetric nebula (nebula_volume.cpp) replaces the interior puffs.
@@ -3461,12 +3511,14 @@ unsigned* EquippedObjSubmitDrawRetail(FClientEquippedObj* Self, unsigned* OutLod
     // loaded with no test (0x005337aa) and compared with 0.0f (DAT_005c7474) by FCOM, TEST
     // AH,0x41 / JNZ: not above (NaN included) goes to 0x00533827.
     CEqObj* const EqObj = EquippedObjEqObj(Self);
-    // Compose visual spawn opacity without changing the shared CEqObj cloak
-    // (cloak affects targeting and is also seen by the server in single player).
+    // Gameplay cloak retains its own material. RP9 spawn coverage is scoped in
+    // DrainBucket and must not replace the asteroid's texture with cloak glass.
     float Fade = EqObj->CloakPercent;
+#ifndef FREELANCER_RP9
     float const SpawnOpacity = ServerAsteroidFade::Opacity(Self);
     if (SpawnOpacity < 1.0f)
         Fade = 1.0f - (1.0f - Fade) * SpawnOpacity;
+#endif
     if (Fade > 0.0f)
     {
         // 0x005337bd..0x005337db: FSUBR double 1.0 (DAT_005c89b8), +0xe0 = 1, FSTP float; then
@@ -3637,6 +3689,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     // 0x0051c328..0x0051c34d: FUN_0051ed20 empties the queue object DAT_00675360, which then
     // takes both arguments (+0 flags, +4 Param2); FUN_0051b730 picks the field controller.
     ClearBuckets();
+    ProceduralAsteroidClientBeginVisuals();
     G_SceneLayerFlags = LayerFlags;
     G_DrawCtxParam2 = Param2;
     SelectFieldControllers(Cam);

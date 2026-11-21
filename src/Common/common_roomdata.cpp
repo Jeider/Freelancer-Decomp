@@ -145,6 +145,19 @@ char const* __cdecl ThornGetUserString(IScriptEngine* Engine, int Index, char co
     return Out;
 }
 
+// Not exported: a new Common.dll export shifts ordinals and breaks the already
+// built Server.dll, which imports Common by ordinal.
+static bool ThornUserCastShadow(IScriptEngine* Engine, int Index)
+{
+    char const* const Value = ThornGetUserString(Engine, Index, "cast_shadow");
+    if (Value == nullptr)
+        return false;
+    if (Value[0] == '0' || Value[0] == 'N' || Value[0] == 'n' ||
+        CallDacomStricmp(Value, "false") == 0 || CallDacomStricmp(Value, "off") == 0 ||
+        CallDacomStricmp(Value, "no") == 0)
+        return false;
+    return true;
+}
 
 bool __cdecl ThornGetUserInt(IScriptEngine* Engine, int Index, char const* Key, int* Out)
 {
@@ -484,10 +497,11 @@ void RoomData::read_set_script(char const* RelPath)
             bool bRunningLights = false;
             if (ThornGetUserString(Engine, Index, "running_lights") != nullptr)
                 bRunningLights = true;
+            bool const bCastShadow = ThornUserCastShadow(Engine, Index);
             // 06274d44..06274dcb: add_set_script_Prop inlined.
             add_set_script_Prop(Template, Name, Category, Frame, bVisible, bLit, bFog, bRoomMain,
                                 LightGroup, Layer, RenderType, Loadout, PriorityId,
-                                bRunningLights);
+                                bRunningLights, bCastShadow);
         }
         else if (Type == kThornEntityCamera)
         {
@@ -1519,7 +1533,7 @@ void RoomData::add_set_script_Prop(char const* Template, char const* Name, int C
                                    Csys const& Frame, bool bVisible, bool bLit, bool bFog,
                                    bool bRoomMain, unsigned char LightGroup, signed char Layer,
                                    unsigned long RenderType, char const* Loadout,
-                                   unsigned long PriorityId, bool bRunningLights)
+                                   unsigned long PriorityId, bool bRunningLights, bool bCastShadow)
 {
     RoomPropInfo* const Prop = AppendRoomRecord(Props);
     malloc_strcpy(const_cast<char**>(&Prop->Template), Template);
@@ -1536,6 +1550,7 @@ void RoomData::add_set_script_Prop(char const* Template, char const* Name, int C
     malloc_strcpy(const_cast<char**>(&Prop->Loadout), Loadout);
     Prop->PriorityId = PriorityId;
     Prop->bRunningLights = bRunningLights;
+    Prop->bCastShadow = bCastShadow;
 }
 
 // 06275a50 ?add_set_script_Camera@RoomData@@AAEXKABVCsys@@PBDPBUThornCameraProperties@@@Z. A new

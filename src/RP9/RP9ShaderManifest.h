@@ -4,6 +4,7 @@
 #include "RP9BuiltinShaders.h"
 #include "ColorGradeShader.h"
 #include "RP9UserGraphics.h"
+#include "RP9SurfaceFade.h"
 #include <set>
 #include <cstdio>
 namespace Rp9Startup {
@@ -97,6 +98,12 @@ inline bool Build(const std::string& Directory, std::vector<FJob>& Out, std::str
         if(std::strcmp(Job.Profile,"ps_3_0")) {Selected.push_back(Job);continue;}
         FJob Space=Job;Space.Text=SurfaceQualityPrefix(relief,highlights)+Job.Text;
         Selected.push_back(std::move(Space));
+        // Birth/fog coverage variants, including rocks with optional shadows.
+        if(Rp9SurfaceFade::Variant(Job.Text.substr(0,Job.Text.size()-Source.size()))) {
+            FJob Fade=Job;
+            Fade.Text=Rp9SurfaceFade::Wrap(SurfaceQualityPrefix(relief,highlights)+Job.Text);
+            Selected.push_back(std::move(Fade));
+        }
         if(room>0 && (room!=relief || room!=highlights)) {
             FJob Interior=Job;Interior.Text=SurfaceQualityPrefix(room,room)+Job.Text;
             Selected.push_back(std::move(Interior));
@@ -137,7 +144,8 @@ inline bool Build(const std::string& Directory, std::vector<FJob>& Out, std::str
         {"debug_depth.hlsl","VSMain","PSMain"}, {"ship_warp.hlsl","VSMain","PSMain"},
         {"nebula_edge_fibre.hlsl","VSMain","PSRaymarch"}, {"nebula_alien.hlsl","VSMain","PSRaymarch"},
         {"engine_heat.hlsl","VSMain","PSMain"}, {"far_rocks.hlsl","VSMain","PSMain"},
-        {"far_rocks.hlsl","VSMesh","PSMesh"}, {"field_dust.hlsl","VSMain","PSMarch"},
+        {"far_rocks.hlsl","VSMesh","PSMesh"}, {"asteroid_simple.hlsl","VSLite","PSLite"},
+        {"field_dust.hlsl","VSMain","PSMarch"},
         {"field_dust.hlsl","VSMain","PSComposite"}, {"hyperspace_refraction.hlsl","VSMain","PSMain"},
         {"hyperspace_tunnel.hlsl","VSMain","PSMain"}, {"hyperspace_tunnel.hlsl","VSLaunch","PSLaunch"},
         {"jumpgate_aperture.hlsl","VSMain","PSMain"}, {"jumpgate_aperture.hlsl","VSMain","PSLens"},
@@ -171,9 +179,9 @@ inline bool Build(const std::string& Directory, std::vector<FJob>& Out, std::str
     return !Out.empty();
 }
 inline HRESULT Compile(const FJob& Job, const std::string& Directory,
-    std::vector<unsigned char>& Code, std::string& Messages, bool& Hit) {
+    std::vector<unsigned char>& Code, std::string& Messages, bool& Hit, bool CacheOnly=false) {
     DirectoryInclude Include(Directory);bool Stored=false;
     return Rp9ShaderCache::Compile(Job.Text,Job.UseInclude?&Include:nullptr,Job.Entry,Job.Profile,
-        Rp9ShaderCache::FlagsForSource(Job.Text)|Job.Flags,&Code,&Messages,&Hit,&Stored,true);
+        Rp9ShaderCache::FlagsForSource(Job.Text)|Job.Flags,&Code,&Messages,&Hit,&Stored,true,CacheOnly);
 }
 }

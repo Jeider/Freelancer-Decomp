@@ -22,6 +22,7 @@
 #include "RP9UserGraphics.h"
 #include "RP9DeviceCallCache.h"
 #include "RP9PlanetQuality.h"
+#include "RP9FogCapture.h"
 #include "readfile.h"
 
 #include <cstdarg>
@@ -698,6 +699,13 @@ bool FDirectX9::ExWantsIntzDepth(D3DFORMAT AdapterFormat, D3DFORMAT DepthFormat)
                                              D3DRTYPE_TEXTURE, kIntzFormat));
 }
 
+HRESULT FDirectX9::ExPrepareShaderCache()
+{
+    return Rp9Startup::Present([](const std::string& Line) {
+        ExLog(kExFdumpNotice,"NOTICE",__LINE__,Line.c_str());
+    });
+}
+
 HRESULT FDirectX9::ExCreateDeviceResources(bool bIntzDepth, D3DFORMAT DepthFormat)
 {
     // The progress window pumps messages. Activation handlers can release device
@@ -1268,6 +1276,8 @@ GENRESULT DACOM_API FDirectX9::EndExPass()
         ExLogf(kExFdumpWarning, "WARNING", __LINE__, "end_ex_pass() without begin_ex_pass()");
         return GR_GENERIC;
     }
+    if(Rp9FogCapture::Get().Active && Ex_->BoundProgram && Ex_->BoundProgram->Path.find("nebula_composite.hlsl")!=std::string::npos)
+        Rp9FogCapture::AfterVolume(Ex_->SavedColor);
     ExEndPassInternal(this);
     ExGpuMark(FRp9GpuTimers::ExEnd);
     return GR_OK;
@@ -1301,6 +1311,8 @@ GENRESULT DACOM_API FDirectX9::BindExProgram(FRPExProgram* Program)
     // A program that never compiled has no shaders; its compile errors are already logged.
     if (Program->Vs == nullptr || Program->Ps == nullptr)
         return GR_GENERIC;
+    if(Rp9FogCapture::Get().Enabled && Rp9FogCapture::Get().Count<2 && Program->Path.find("nebula_volume.hlsl")!=std::string::npos)
+        Rp9FogCapture::BeforeVolume(Ex_->SavedColor);
     Rp9SetVertexShader(Device_, Program->Vs);
     Rp9SetPixelShader(Device_, Program->Ps);
     Ex_->BoundProgram = Program;
@@ -1430,6 +1442,19 @@ GENRESULT DACOM_API FDirectX9::CreateExVertexBuffer(unsigned long Bytes, const v
     Ex_->Buffers.push_back(Buffer);
     *Out = Buffer;
     return GR_OK;
+}
+
+GENRESULT DACOM_API FDirectX9::UpdateExVertexBuffer(FRPExBuffer* Buffer,unsigned long Offset,
+    unsigned long Bytes,const void* Data)
+{
+    if(!Buffer || !Data || !Bytes || Ex_->bInPass ||
+       std::find(Ex_->Buffers.begin(),Ex_->Buffers.end(),Buffer)==Ex_->Buffers.end())return GR_INVALID_PARMS;
+    if(Offset>Buffer->Bytes || Bytes>Buffer->Bytes-Offset)return GR_INVALID_PARMS;
+    if(Buffer->Vb){void* target=nullptr;auto hr=Buffer->Vb->Lock(Offset,Bytes,&target,0);
+        if(FAILED(hr))return GENRESULT(hr);
+        memcpy(target,Data,Bytes);hr=Buffer->Vb->Unlock();if(FAILED(hr))return GENRESULT(hr);
+    }
+    memcpy(Buffer->Data.data()+Offset,Data,Bytes);return GR_OK;
 }
 
 GENRESULT DACOM_API FDirectX9::DestroyExVertexBuffer(FRPExBuffer* Buffer)
@@ -1674,6 +1699,18 @@ GENRESULT DACOM_API FDirectX9::WarmSceneCaches()
                 }
             }
             pairs.push_back({vs,selected,true});
+            if(Rp9SurfaceFade::Variant(prefix)) {
+                strcat_s(key,"/coverage");
+                auto*& fading=E->SurfaceQualityPs[key];
+                if(!fading) {
+                    std::vector<unsigned char> code;
+                    if(!CompileStage(Rp9SurfaceFade::Wrap(quality+prefix+source),path,nullptr,"PSMain","ps_3_0",&code) ||
+                       FAILED(Device_->CreatePixelShader(reinterpret_cast<DWORD const*>(code.data()),&fading))) {
+                        prepared=false;return;
+                    }
+                }
+                pairs.push_back({vs,fading,true});
+            }
         };
         IDirect3DPixelShader9** standard[]={&E->SurfacePs,&E->SurfaceCubePs,
             &E->SurfaceNoShadowPs,&E->SurfaceNoShadowCubePs,&E->SurfaceLowPs,&E->SurfaceLowCubePs};
@@ -2942,10 +2979,11 @@ bool FDirectX9::ExSurfaceBegin()
 bool FDirectX9::ExSurfaceBeginImpl()
 {
     FRp9ExState* Ex = Ex_;
+    const bool SpawnFade=Ex && Ex->SurfaceSpawnCoverage>=0;
     const bool FogShape=Ex && Ex->bNebulaFogShape && !Ex->bRoomFrame &&
         RenderStates_.GetPending(kRsFogEnable) && !RenderStates_.GetPending(kRsAlphaBlendEnable);
-    bool NativeFogShape=FogShape && (Ex->bNativeNebulaObject || Ex->SurfaceDistanceTier==2);
-    if (Ex && !Ex->bRoomFrame && Ex->bNativeNebulaObject && !FogShape) return false;
+    bool NativeFogShape=(FogShape || SpawnFade) && (Ex->bNativeNebulaObject || Ex->SurfaceDistanceTier==2);
+    if (Ex && !Ex->bRoomFrame && Ex->bNativeNebulaObject && !FogShape && !SpawnFade) return false;
     // Keep room scope even with enhancements off, so fallback cannot select
     // the shared space/ship surface shader instead of the native material.
     if (Ex && Ex->bRoomFrame && Rp9UserGraphics("room_quality",3)<=0) return false;
@@ -2978,6 +3016,9 @@ bool FDirectX9::ExSurfaceBeginImpl()
         Ex->bDysonShader=ReadShadowSetting("dyson_shader",1,0,1,false)>.5f;
         Ex->DysonRelief=ReadShadowSetting("dyson_relief",1.0f,0,2,false);
     }
+    // A disabled surface profile still gets the inexpensive native-lighting
+    // coverage variant while spawning, with the original fog mode and colour.
+    NativeFogShape |= SpawnFade && !Ex->bSurfaceEnabled;
     const bool Ice=!NativeFogShape && Ex->SurfaceShader==RPSurfaceIce && Ex->bIceShader;
     // Rock: an object in an IRPRockNormals scope (asteroids, debris, mining asteroids), or any material
     // whose texture is an asteroid texture (SurfaceShader == RPSurfaceRock / RockDebris): the rock parts
@@ -2992,14 +3033,14 @@ bool FDirectX9::ExSurfaceBeginImpl()
     const bool Dyson=Nomad && Ex->SurfaceShader==RPSurfaceDyson;
     const bool Beast=Nomad && Ex->SurfaceShader==RPSurfaceBeast;
     if(Nomad && Ex->bNomadScopeNative) return false;
-    if (!Ex->bSurfaceEnabled || Ex->SurfaceShader == RPSurfaceLegacy ||
+    if ((!Ex->bSurfaceEnabled && !SpawnFade) || Ex->SurfaceShader == RPSurfaceLegacy ||
         (Ex->SurfaceDistanceTier==2 && !NativeFogShape && !Ex->bSurfaceCockpit && !Ice && !Nomad && RockClassNow==0))
         return false;
     const bool Blended=RenderStates_.GetPending(kRsAlphaBlendEnable)!=0;
     const bool Greenhouse=Ex->SurfaceShader==RPSurfaceGreenhouse && Ex->bGlassShader && Blended;
     const bool Glass=(Ex->bSurfaceGlass && Ex->bGlassShader && Blended) || Greenhouse;
     const bool Cockpit=Ex->bSurfaceCockpit && Ex->bCockpitShader && !Blended;
-    const bool ShipNormals=!NativeFogShape && Ex->bShipNormalScope && Ex->ShipNormalCurrent && Ex->ShipNormalCurrent->Texture &&
+    bool ShipNormals=!NativeFogShape && Ex->bShipNormalScope && Ex->ShipNormalCurrent && Ex->ShipNormalCurrent->Texture &&
         !Ex->bRoomFrame && !Cockpit && !Glass && !Blended && !Ice && !Nomad;
     // Asteroids and debris (IRPRockNormals): opaque lit materials of the object in scope. Ice and
     // the nomad / lair / dyson profiles keep their own shaders.
@@ -3040,14 +3081,23 @@ bool FDirectX9::ExSurfaceBeginImpl()
     }
     const bool PlainSurfaceEffect = (Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u) ||
         (Ex->bWeaponGlintReceiver && Ex->WeaponGlintReceiverMask!=0) || Cockpit || Glass || Ice || Nomad || ShipNormals || Rock;
-    const bool PlainShadowReceiver = EnvStage < 0 && (PlainSurfaceEffect || FogShape);
+    const bool PlainShadowReceiver = EnvStage < 0 && (PlainSurfaceEffect || FogShape || SpawnFade);
     // A plain material entering the shader solely for this trial keeps native
     // lighting, even nearby. Existing enhanced surfaces retain their own finish.
-    NativeFogShape |= FogShape && EnvStage < 0 && !PlainSurfaceEffect;
+    NativeFogShape |= (FogShape || SpawnFade) && EnvStage < 0 && !PlainSurfaceEffect;
     // Preserve the author's second detail / illumination layer independently
     // of new relief. Unknown multistage layouts retain the native material.
     const unsigned DetailOp=Tss(1,kTssColorOp,D3DTOP_DISABLE);
-    const bool NomadDetail=(Nomad || Rock) && EnvStage<0 &&
+    // An authored solar detail layer takes priority over generated normal maps.
+    // Use the existing cheap native material route for this layout, at any LOD.
+    if(FogShape && Ex->bNebulaFogSolar && EnvStage<0 && DetailOp!=D3DTOP_DISABLE &&
+       !Rock && !Nomad && !Ice && !Glass && !Cockpit) {
+        NativeFogShape=true;ShipNormals=false;
+    }
+    // Native-distance rock materials may still have an authored second layer.
+    // Rejecting them here dropped the entire pixel-coverage route at the LOD
+    // boundary, leaving an invisible fog-coloured mesh with solid scene depth.
+    const bool NomadDetail=(Nomad || Rock || (NativeFogShape && (RockClassNow!=0 || Ex->bNebulaFogSolar))) && EnvStage<0 &&
         (DetailOp==D3DTOP_MODULATE || DetailOp==D3DTOP_MODULATE2X || DetailOp==D3DTOP_MODULATE4X || DetailOp==D3DTOP_ADDSIGNED || DetailOp==D3DTOP_ADD) &&
         Tss(1,D3DTSS_TEXCOORDINDEX,0)<3 && Tss(1,D3DTSS_TEXTURETRANSFORMFLAGS,0)<=D3DTTFF_COUNT2 &&
         Tss(1,kTssColorArg1,D3DTA_TEXTURE)==D3DTA_TEXTURE && Tss(1,kTssColorArg2,D3DTA_CURRENT)==D3DTA_CURRENT &&
@@ -3110,10 +3160,15 @@ bool FDirectX9::ExSurfaceBeginImpl()
     // Ice keeps one profile at every distance: mipmaps fade its interior detail
     // continuously instead of switching back to a brighter legacy material.
     const bool LowDetail=(NativeFogShape || Ex->SurfaceDistanceTier==1) && !Cockpit && !Glass && !Ice && !Nomad && !ShipNormals && !Rock;
+    // Keep the normal distance tiers: far solars use cheap native lighting.
+    // Near ordinary hulls retain their existing material under the same mask.
+    const bool SolarCoverage=Ex->bNebulaFogSolar && !Cockpit && !Glass && !Ice && !Nomad;
+    const bool FogCoverage=FogShape && (SolarCoverage || (RockClassNow!=0 && (LowDetail || Rock)));
+    const bool CoverageProgram=SpawnFade || FogCoverage;
     // rock_shadows = 0: asteroids and debris take no local shadows (no hard ship / hull shadow edge on a
     // rock seen close up); the sun still lights them and the planets' light is unchanged.
     // BEAST uses the inexpensive rock-style finish, without PCSS shadow sampling.
-    const bool ShadowReceiver=!Ex->bRoomFrame && !Dyson && !Beast && !LowDetail && Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u &&
+    const bool ShadowReceiver=!SpawnFade && !Ex->bRoomFrame && !Dyson && !Beast && !LowDetail && Ex->bShadowReceiver && (Ex->ShadowReadyMask&3u)==3u &&
         !(Rock && !Ex->bRockShadows);
     // Non-receivers use a variant without the shadow code: fewer registers for every pixel.
     const bool NomadDepth=Dyson && RenderStates_.GetPending(D3DRS_COLORWRITEENABLE)==0;
@@ -3125,7 +3180,8 @@ bool FDirectX9::ExSurfaceBeginImpl()
     const int ReliefQuality=Ex->bRoomFrame ? RoomQuality : (int)Rp9UserGraphics("space_relief_quality",3);
     const int HighlightQuality=Ex->bRoomFrame ? RoomQuality : (int)Rp9UserGraphics("space_highlight_quality",3);
     char QualityKey[80];sprintf_s(QualityKey,"%p/%d/%d",(void*)&FullSurfacePs,ReliefQuality,HighlightQuality);
-    IDirect3DPixelShader9*& SurfacePs=ReliefQuality==3 && HighlightQuality==3 ? FullSurfacePs : Ex->SurfaceQualityPs[QualityKey];
+    if(CoverageProgram) strcat_s(QualityKey,"/coverage");
+    IDirect3DPixelShader9*& SurfacePs=!CoverageProgram && ReliefQuality==3 && HighlightQuality==3 ? FullSurfacePs : Ex->SurfaceQualityPs[QualityKey];
     IDirect3DVertexShader9*& SurfaceVs=(Nomad || Rock)?Ex->NomadVs:Ex->SurfaceVs;
     if (SurfaceVs == nullptr || SurfacePs == nullptr)
     {
@@ -3153,10 +3209,11 @@ bool FDirectX9::ExSurfaceBeginImpl()
         const char* Variant = LowDetail ? "#define SURFACE_LOW_DETAIL 1\n" :
             (ShadowReceiver ? "" : "#define SURFACE_NO_SHADOW 1\n");
         const std::string QualityPrefix=Rp9Startup::SurfaceQualityPrefix(ReliefQuality,HighlightQuality);
-        const std::string PixelSource = QualityPrefix + std::string(ShipNormals ? "#define SURFACE_SHIP_NORMALS 1\n" : "") + std::string(Rock ? "#define SURFACE_ROCK 1\n" : "") + std::string(Nomad ? "#define SURFACE_NOMAD 1\n" : "") +
+        std::string PixelSource = QualityPrefix + std::string(ShipNormals ? "#define SURFACE_SHIP_NORMALS 1\n" : "") + std::string(Rock ? "#define SURFACE_ROCK 1\n" : "") + std::string(Nomad ? "#define SURFACE_NOMAD 1\n" : "") +
             (Dyson ? "#define SURFACE_NOMAD_LIGHT 1\n" : Beast ? "#define SURFACE_BEAST 1\n" : "") +
             std::string(Greenhouse ? "#define SURFACE_GREENHOUSE 1\n" : "") + std::string(Variant) +
             (IsCube ? "#define SURFACE_ENV_CUBE 1\n" : "") + Source;
+        if(CoverageProgram) PixelSource=Rp9SurfaceFade::Wrap(PixelSource);
         const std::string VertexSource=std::string((Nomad || Rock)?"#define SURFACE_NOMAD 1\n":"")+Source;
         bool Ok = !Source.empty() && CompileStage(VertexSource, Path, nullptr, "VSMain", "vs_3_0", &Vs) &&
             CompileStage(PixelSource, Path, nullptr, NomadDepth?"PSNomadDepth":"PSMain", "ps_3_0", &Ps);
@@ -3243,7 +3300,7 @@ bool FDirectX9::ExSurfaceBeginImpl()
             "organic nomad layers %s",Ex->NomadLayers?"loaded":"missing; native material retained");
     }
     if(Nomad && !Dyson && !Beast && !Ex->NomadLayers) return false;
-    float Ps[109 * 4] = {};
+    float Ps[110 * 4] = {};
     auto Set = [&](unsigned Reg, float X, float Y, float Z, float W) {
         float* D = Ps + Reg * 4; D[0] = X; D[1] = Y; D[2] = Z; D[3] = W;
     };
@@ -3550,6 +3607,7 @@ bool FDirectX9::ExSurfaceBeginImpl()
     Upload(12, 40);
     Upload(106, 1);
     Upload(107, 2);
+    if(CoverageProgram) {Set(109,SpawnFade?Ex->SurfaceSpawnCoverage:1.f,FogCoverage?.55f:0.f,0,0);Upload(109,1);}
     if (!LowDetail)
     {
         Upload(52, 25);
@@ -3560,6 +3618,7 @@ bool FDirectX9::ExSurfaceBeginImpl()
         else if(Rock) { Upload(97,5); Upload(102,4); }
         else if(ShipNormals) Upload(97,1);
     }
+    else Upload(97,NomadDetail?5:1); // also clear the detail flag for the next plain material
     Ex->SurfacePsWrites = Calls.PixelConstantWrites;
     Ex->bSurfaceActive = true;
     if (FAILED(Hr))
@@ -3602,7 +3661,7 @@ bool FDirectX9::ExQueueSurfaceInstance(unsigned long Prim,unsigned int Min,unsig
                                       unsigned int Start,unsigned int Count)
 {
     auto* E=Ex_;
-    if (E->bRoomFrame || E->bShipNormalScope || E->RockClass ||
+    if (E->SurfaceSpawnCoverage>=0 || E->bRoomFrame || E->bShipNormalScope || E->RockClass ||
         E->SurfaceShader==RPSurfaceRock || E->SurfaceShader==RPSurfaceRockDebris) return false;
     if(!E->bInstanceConfigRead)
     {
@@ -3630,7 +3689,7 @@ bool FDirectX9::ExQueueSurfaceInstance(unsigned long Prim,unsigned int Min,unsig
     auto Append=[&](const void* P,size_t S){Key.append(static_cast<const char*>(P),S);};
     unsigned long Draw[]={Prim,(unsigned long)DeviceBaseVertex_,Min,Vertices,Start,Count,Fvf};
     Append(Draw,sizeof(Draw));Append(&Vb->Gpu,sizeof(Vb->Gpu));Append(&Ib->Gpu,sizeof(Ib->Gpu));
-    Append(Calls.Pc,97*16);Append(Calls.Pc+107*4,2*16);Append(Calls.Vc+16,64);Append(Calls.Vc+48,80);
+    Append(Calls.Pc,102*16);Append(Calls.Pc+107*4,3*16);Append(Calls.Vc+16,64);Append(Calls.Vc+48,80);
     Append(Calls.Render,sizeof(Calls.Render));Append(Calls.RenderValid,sizeof(Calls.RenderValid));
     Append(Calls.Textures,4*sizeof(Calls.Textures[0]));Append(Calls.TextureValid,4);
     Append(Calls.Samplers,4*sizeof(Calls.Samplers[0]));Append(Calls.SamplerValid,4*sizeof(Calls.SamplerValid[0]));
@@ -3976,12 +4035,18 @@ GENRESULT DACOM_API FDirectX9::AddWeaponGlint(const float* Position,const float*
 // ---- local directional shadow maps -------------------------------------------------------
 GENRESULT DACOM_API FDirectX9::SetLocalShadowReceiver(unsigned long Enabled)
 {
+    Rp9FogCapture::Scope(Enabled);
     bool Scope=(Enabled&4u)!=0;
+    float const Coverage=(Enabled&1024u) ? float((Enabled>>16)&255u)/255.0f : -1.0f;
     if(!Scope || !Ex_->bInstanceScope || Ex_->bShadowReceiverIsShip!=((Enabled&2u)!=0) ||
-        Ex_->bNativeNebulaObject!=((Enabled&256u)!=0) || Ex_->bNebulaFogShape!=((Enabled&512u)!=0))
+        Ex_->bNativeNebulaObject!=((Enabled&256u)!=0) || Ex_->bNebulaFogShape!=((Enabled&512u)!=0) ||
+        Ex_->bNebulaFogSolar!=((Enabled&2048u)!=0) ||
+        Ex_->SurfaceSpawnCoverage!=Coverage)
         ExFlushSurfaceInstances();
     Ex_->bNativeNebulaObject=(Enabled&256u)!=0;
     Ex_->bNebulaFogShape=(Enabled&512u)!=0;
+    Ex_->bNebulaFogSolar=(Enabled&2048u)!=0;
+    Ex_->SurfaceSpawnCoverage=Coverage;
     Ex_->SurfaceDistanceTier=(Enabled&16u) ? 2u : ((Enabled&8u) ? 1u : 0u);
     Ex_->bInstanceScope=Scope;
     Ex_->bShadowReceiver = (Enabled&1u)!=0;

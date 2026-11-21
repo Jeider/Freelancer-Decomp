@@ -62,6 +62,7 @@ public:
     std::string Name;                              // +0x38 FPropData::Name
     unsigned char bDetached;                       // +0x48 0; gates the draws and the release
     unsigned char bRoomMain;                       // +0x49 RoomPropInfo+0x3f (FUN_0044a030)
+    unsigned char bCastShadow;                     // port-only: userprop cast_shadow, RP9 floor silhouette
     FAnimScriptSet Scripts;                        // +0x4c FUN_00555a40 / FUN_00555a70
     HardpointSummary* Hardpoints;                  // +0x64 FUN_004467e0, when a loadout loaded
     std::list<void*> Attached;                     // +0x68 loadout equipment instances

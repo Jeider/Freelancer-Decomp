@@ -1,0 +1,313 @@
+{
+  "completed": 10,
+  "artifacts": [
+    {
+      "id": "L66_E01",
+      "title_ru": "Стреловидные плечи",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-8d19eb22-564b-4bfc-b465-106e5aef414b.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E01_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E01",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8d19eb22-564b-4bfc-b465-106e5aef414b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный лист: передний и задний 3/4, профиль, сверху и сложенное состояние. Читаются клиновидные плечи, длинное углублённое боковое поле и компактные моторные посадки. Три лопасти крыла показаны; двухсекционный хвост направлен к кабине в основных ракурсах. Растровая точность неизменяемой кабины, координат корней и анимации не доказана.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "sha256": "b5e5be9714d4a69fe079fe80534a2554cb2f3dc7413a556958d4e249b543d84e",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66_E02",
+      "title_ru": "Гранёное веретено",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-8356a585-e246-4480-bca6-37ec405bff14.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E02_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E02",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-8356a585-e246-4480-bca6-37ec405bff14.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный согласованный лист. Гранёное расширение средней части и ромбовидное боковое поле заметно отличают силуэт от E01; моторные посадки отделены от суженной кормы. Три лопасти, нос и наклон хвоста вправо. Хвост вышел выше базового — это видимая особенность эксперимента, а не подтверждённый механический размер. Точность кабины и анимации требует переноса исходных узлов в модели.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "sha256": "811e4cf0fdec61df44693a9158b3325e748357a76ca06b4f2b110b2d74225b7e",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66_E03",
+      "title_ru": "Низкие моторные плечи",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-0bc262e2-799d-481a-8d23-4ce29c577b0d.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E03_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E03",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-0bc262e2-799d-481a-8d23-4ce29c577b0d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный лист. Низкая посадка двух моторов и широкие спускающиеся плечи заметно меняют общий профиль кормы; углублённое боковое поле поднято над моторными полками. Корпус выглядит массивнее R1. Три пера и передний наклон составного хвоста читаются. Вложение сложенных крыльев рядом с моторами необходимо проверить в модели, растровый вид этого не доказывает.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "sha256": "bc7e66a0a656170228919c33d8ece4db1d8ba00b0f82508fad3853184ca423ab",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66_E04",
+      "title_ru": "Суженная середина и открытые шейки",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-cc544d5f-8267-46aa-ade7-2b3575a2cb1a.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E04_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E04",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-cc544d5f-8267-46aa-ade7-2b3575a2cb1a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный лист. Заметно суженная середина и углублённые моторные гнёзда с короткими шейками дают более лёгкий силуэт; хвост вырастает из узкой центральной кормы. Крыша замкнута, но линия корпуса немного просажена в середине. Три пера крыла читаются, хвост направлен к кабине. Проверка точного исходного кокпита и кинематики остаётся модельной задачей.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "sha256": "8c9ded6843ea0de0169617d6a844c1181d4327c2b235dc1288a4e45e500e818f",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66_E05",
+      "title_ru": "Кормовая ступень",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-32b9ba46-f67f-4e12-a513-458e4fc8f008.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E05_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E05",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-32b9ba46-f67f-4e12-a513-458e4fc8f008.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный лист с наиболее вытянутыми назад моторными кожухами и низким общим уступом кормы. Хвост компактнее и смещён к центральной части кормы между длинными моторами. Три пера сохранены в основных перспективах; хвост вперёд. Малые SIDE-виды имеют перспективное расхождение моторов и не являются ортографическим чертежом. Точное положение корней/кабины/анимация не проверены.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "sha256": "1ffecacfaa18b7fa4d3cd68442969a244d5e87614207733c8dfaf323152abee4",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66_E06",
+      "title_ru": "Высокие плечи и собранная корма",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-ab6d51d6-c340-49fc-b863-adf3771e1c0b.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E06_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E06",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-ab6d51d6-c340-49fc-b863-adf3771e1c0b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный лист. Высокие моторные плечи и ступенчатый боковой пояс реализованы; хвост компактный, направлен вперёд. Нижний корпус вышел глубже и тяжелее заданного, это вариант более массивной компоновки для сравнения, не утверждённый объём. Три пера видны. Общая форма кабины узнаваема, точное соответствие исходному CMP не подтверждено.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "sha256": "addcc7d9c90d21275d56b7420db903468a449daccb75fc3e92d722f25192c0e0",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66_E07",
+      "title_ru": "Диагональный борт",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3f7c9360-f994-4a07-a33e-ba08ad86c784.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E07_sheet_corrected.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E07",
+      "correction_history": [
+        {
+          "id": "L66_E07_equipment_cleanup",
+          "variant_id": "L66_E07",
+          "kind": "remove_extra_wing_equipment_only",
+          "prompt": "Use case: precise-object-edit. Make ONE tiny cleanup to this finished full spacecraft design sheet, L66 / E07. Keep the ENTIRE image, all five views, the exact ship shapes, hull, tail, engines, cabin, three collar ribs, three fan-wing blades per side, colors and text unchanged. In the UPPER-LEFT FRONT 3/4 view only, there are two yellow equipment pads on the visible three-leaf wing fan. DELETE the extra small yellow equipment pad near the far LEFT tip of the TOPMOST visible wing leaf. Fill that small location with the same intact red wing surface and panel lines. KEEP the yellow equipment pad on the bottom/rightmost visible wing leaf near its pointed end. Keep the other four drawings exactly unchanged. This is just removal of that one duplicate yellow pad, not a redesign, not another view, not a change to wing shapes or count.",
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E07_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3f7c9360-f994-4a07-a33e-ba08ad86c784.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E07_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3f7c9360-f994-4a07-a33e-ba08ad86c784.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-cf39069d-7333-402e-8837-dcdfbbf8571d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный лист. Крупные диагонали корпуса и косое треугольно-трапециевидное боковое поле поддержаны угловыми моторными плечами. Три пера и направленный вперёд хвост читаются. Локальная коррекция убрала дублирующую площадку на верхнем пере FRONT 3/4; основной дизайн сохранился. Точные HP, кабина и механика должны переноситься из native CMP, по растру они не валидированы.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-cf39069d-7333-402e-8837-dcdfbbf8571d.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E07_sheet.png",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3f7c9360-f994-4a07-a33e-ba08ad86c784.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "sha256": "1fcd482e5e37391c0b938b28986844e5f4076f0a50aeb60b86feaf0ba6813a40",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66_E08",
+      "title_ru": "Короткий широкий корпус",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-6179793e-a1eb-4a41-9cc3-1603bcc84fa4.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E08_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E08",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-6179793e-a1eb-4a41-9cc3-1603bcc84fa4.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный лист. Короткий широкий корпус с двигателями, плотно посаженными в срезанные кормовые углы; боковое поле короче и глубже. Хвост более вертикальный, но верх всё ещё обращён к кабине. Три пера показаны. Точные проценты укорочения/расширения, неизменность кабины и привязки корней не измерены по растровому арту; исходные CMP обязательны для модели.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "sha256": "9adefe7516dfbc1a1e1a018c8dcb847564960b35c624156ff19a9f9a23e5b2dd",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66_E09",
+      "title_ru": "Продольный силовой пояс",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3be4ad32-028b-4e27-8dcb-b6cca43121d1.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E09_sheet_corrected.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E09",
+      "correction_history": [
+        {
+          "id": "L66_E09_equipment_cleanup",
+          "variant_id": "L66_E09",
+          "kind": "remove_motor_equipment_only",
+          "prompt": "Use case: precise-object-edit. Make ONE narrow cleanup throughout this completed L66 / E09 full spacecraft sheet. PRESERVE the entire spacecraft design, continuous sculpted hull belts, recessed side relief, engine housing shapes, two-section forward-pointing tail, cockpit, three collar ribs, ordinary three-leaf wings, their roots, all five views, composition, title and materials. REMOVE ONLY the yellow square equipment pads that have been placed on the OUTER SIDES/TOPS OF THE TWO LONG ENGINE HOUSINGS at the rear. These housings are the long red pods immediately in front of each exhaust nozzle. Replace each unwanted engine pad with intact matching red panel skin; keep the exact underlying housing shape. Apply this consistently in FRONT 3/4, REAR 3/4, SIDE FLIGHT, TOP and SIDE STOWED wherever an engine-housing pad is visible. KEEP ALL yellow equipment pads on the central raised TAIL, on the cabin/collar, and the single native equipment pad on each wing fan. Equipment should be carried by the tail, not the engine housings. Do not remove engine exhaust yellow rims. Do not redraw any ship geometry or change silhouettes. No other changes.",
+          "referenced_image_paths": [
+            "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E09_sheet.png"
+          ],
+          "parameters": {
+            "transparent_background": false
+          },
+          "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-3be4ad32-028b-4e27-8dcb-b6cca43121d1.png",
+          "output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E09_sheet_corrected.png",
+          "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3be4ad32-028b-4e27-8dcb-b6cca43121d1.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+        }
+      ],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-e46c34a6-004c-4289-b5e3-a6d931be8955.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный лист. Непрерывный продольный пояс связывает борт, длинные моторные кожухи и плавный кормовой переход; общая форма мягче и сильнее отклоняется от угловатой базы. Три пера и передний хвост читаются. Локальная коррекция убрала площадки оборудования с моторных кожухов во всех видах, сохранив оборудование хвоста/крыльев/кабины. Исходные HP, кабина и анимация не валидированы растровым артом.",
+      "initial_source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-e46c34a6-004c-4289-b5e3-a6d931be8955.png",
+      "initial_output": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E09_sheet.png",
+      "final_tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-3be4ad32-028b-4e27-8dcb-b6cca43121d1.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "sha256": "39872467e330de4246d07afa8bd498f42e59ce892893280e1f0e847de40b97e8",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    },
+    {
+      "id": "L66_E10",
+      "title_ru": "Развилка и гранёная корма",
+      "source": "C:/Users/Freel/.codex/generated_images/01a1e6a7-c264-7af2-b492-60ed1b9d3daf/exec-1b19a8d8-984e-4288-bb63-57e861112906.png",
+      "destination": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_22/li_elite_L66_E10_sheet.png",
+      "status": "candidate_for_user_review",
+      "approved_for_modeling": false,
+      "generation_mode": "built-in image_gen",
+      "prompt_file": "prompts.json",
+      "prompt_variant": "L66_E10",
+      "correction_history": [],
+      "tool_output_hint": "Generated images are saved to C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf as C:\\Users\\Freel\\.codex\\generated_images\\01a1e6a7-c264-7af2-b492-60ed1b9d3daf\\exec-1b19a8d8-984e-4288-bb63-57e861112906.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "parameters": {
+        "transparent_background": false
+      },
+      "visual_review": "Полный лист. Короткие низкие моторы и срезанные плечи связаны с Y-образным кормовым переходом в раздвоенную верхушку. Обе верхние ветви обращены к кабине; крыша корпуса замкнута. Три пера сохранены. Самый свободный эксперимент серии; развилка и её складной механизм ещё не спроектированы в геометрии, малые виды не являются точными проекциями.",
+      "source_checks": "source_checks.json",
+      "native_wing_leaf_count_required": 3,
+      "sha256": "9771a7ad88a042dbf2e3a09f45b66f3f854be6bc2874732655bb488266d6fd84",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "copy_matches_generated": true
+    }
+  ],
+  "approved_for_modeling": false,
+  "generation_mode": "built-in image_gen",
+  "source_model": "D:/Games/FL_MOD/DATA/ships/liberty/li_pir_elite/li_pir_elite.cmp",
+  "source_sha256": "008379cae8431b24a9b807054f58ef1b011796ef7ad763c9800444a66893d176",
+  "source_model_unchanged": true,
+  "references": [
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/concepts/round_21/li_elite_L66_R1_sheet_corrected.png",
+      "sha256": "24ac81196fdddac8d220997aeccd8dbee2d4055de3e751f1b03e2bef73eeb74c"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/references/native_cockpit_textured.jpg",
+      "sha256": "8ef57b0e96f66906c526df6efcaefbc9d86e76de6155d805879f29926e7c79af"
+    },
+    {
+      "path": "D:/work/Freelancer-Decomp/out/ship_design/li_elite/structure_review/native_components.jpg",
+      "sha256": "10f19223296c933957943c3ae329296e7f62e891ac96a8623ae57e51d464f95b"
+    }
+  ],
+  "limitations": "Raster concept studies. Native cabin and mechanisms remain authoritative; no new mesh validation."
+}

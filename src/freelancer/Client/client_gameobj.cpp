@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "client_gameobj.h"
+#include "procedural_asteroid_client.h"
 #include "solar_animation_client.h"
 #include "cockpit_effect_brightness.h"
 #include "jumphole_visual.h"
@@ -1905,6 +1906,7 @@ FClientSolarGameobj::FClientSolarGameobj()
 
 FClientSolarGameobj::~FClientSolarGameobj()
 {
+    ProceduralAsteroidClientForget(this);
     ClientSolarAnimationForget(this);
     TradeLaneRingAnimForget(this);
     ServerAsteroidFade::Forget(this);
@@ -1954,7 +1956,10 @@ void FClientSolarGameobj::Slot170()
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), nullptr);
     DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
     if (IsServerAsteroidType(static_cast<CSimple*>(Object)->TypeBits))
+    {
         ServerAsteroidFade::Begin(this);
+        ProceduralAsteroidClientObserve(this);
+    }
 }
 
 void FClientSolarGameobj::update(float Dt)

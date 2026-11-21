@@ -33,10 +33,14 @@ def main():
     selection_path = fighter / 'selection.json'
     selection = json.loads(selection_path.read_text(encoding='utf8')) if selection_path.is_file() else {}
     selected_id = None
-    if selection.get('status') == 'accepted_for_modeling':
-        selected_art = (fighter / selection['art']).resolve()
-        if selected_art.parent == folder:
-            selected_id = selection['concept_id']
+    selected_entry = None
+    for candidate in (selection, selection.get('rear_view', {})):
+        if candidate.get('status') == 'accepted_for_modeling':
+            candidate_art = (fighter / candidate['art']).resolve()
+            if candidate_art.parent == folder:
+                selected_entry = candidate
+                selected_art = candidate_art
+                selected_id = candidate['concept_id']
     expected = [v['id'] for v in pack['variants']]
     assert len(set(expected)) == len(expected) == pack['requested_count']
     artifacts, missing = [], []
@@ -57,7 +61,7 @@ def main():
         assert image_format == 'PNG' and min(dimensions) >= 1024
         assert digest == sha(Path(row['source']))
         if row['id'] == selected_id:
-            assert path == selected_art and digest == selection['art_sha256']
+            assert path == selected_art and digest == selected_entry['art_sha256']
             row['status'] = 'accepted_for_modeling'
         artifacts.append(dict(row, dimensions=dimensions, sha256=digest,
                               bytes=path.stat().st_size,
@@ -120,9 +124,15 @@ def main():
                   'увеличения; звёздочкой можно отметить понравившиеся варианты.',
         __COUNT__=str(len(items)), __PROMPTS__='prompts.json',
     )
+    for key in ('title', 'heading', 'intro'):
+        if key in pack.get('presentation', {}):
+            tokens['__' + key.upper() + '__'] = pack['presentation'][key]
     if selected_id:
         tokens['__HEADING__'] = f'Драугр — {selected_id} берём в работу'
         tokens['__INTRO__'] = f'Пользователь выбрал {selected_id} для моделирования. Остальные листы — архив поиска. Нажмите на арт для увеличения.'
+        if selected_entry is not selection:
+            tokens['__HEADING__'] = pack['presentation']['heading']
+            tokens['__INTRO__'] = pack['presentation']['intro']
     for token, value in tokens.items():
         content = content.replace(token, html.escape(value, quote=True))
     content = content.replace('__STORAGE_KEY__', json.dumps('rh-fighter-' + folder.name + '-favorites'))

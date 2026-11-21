@@ -282,7 +282,7 @@ of this cached preview.
 Health restores its saved visibility and top/left projection. New/legacy saves
 without an explicit visibility setting start closed. Its first button in
 HUD_Status opens/closes it using the same scale/slide sequence as Targeting.
-The detached Health and Targeting panels have no close crosses. New damage severity transitions or accepted NN damage warnings reopen
+The detached panels close from a cross on the frame corner: Targeting at the top-right, Health at the top-left. The cross uses HUD_Target's mesh, sits in the panel plane, and is visible only while the window is fully open. New damage severity transitions or accepted NN damage warnings reopen
 it when unlocked. Merely retaining the same damage, critical-colour pulsing, hover,
 repairs and loading an already damaged ship do not count as new damage. The monitor
 uses hull, collision-group and equipment health bands (75%, 50%, below 25%, destroyed),
@@ -462,7 +462,7 @@ loading handle persistence. Old saves default to Vanilla. Existing projection in
 retain their button positions under the new order. The HUD reads restored state
 even when it survives a load, and native HUD toggles preserve the projection bits.
 The window button on HUD_Target collapses/restores this panel with the same
-projection; the detached panel has no close cross. Both directions use HUD_Target's native
+projection; the detached panel also closes from its own cross. Both directions use HUD_Target's native
 ButtonScaler/ButtonMover sequence: 0.3-second cosine-eased scaling between
 1.0 and 0.1, followed by a 0.3-second icon slide (reversed when opening).
 Content and input are suppressed during the animation, as in HUD_Target.

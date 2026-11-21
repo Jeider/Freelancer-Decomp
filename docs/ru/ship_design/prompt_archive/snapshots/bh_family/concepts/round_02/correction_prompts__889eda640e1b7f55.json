@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-19",
+  "tool": "built-in image_gen",
+  "variants": [
+    {
+      "id": "BHF06_C01",
+      "base_variant": "BHF06",
+      "title_ru": "BHF06 — восстановление остекления",
+      "prompt": "Use case: precise-object-edit. Edit the FIRST input, the completed \"BHF06\" concept sheet. Change ONLY the small cockpit glass panes and their immediate thin frames, consistently in every view. Keep all hull volumes, prow, foredeck, wings, cargo body, fins, hatch, engines, palette, lighting, sheet layout and title unchanged. Do not rebuild the old BH nose pod, deep chin or whole fighter cabin.\n\nInputs 2 and 3 are exact renders of the ORIGINAL BH glass and immediate surrounding frame / glass alone. Reproduce this exact native glazing as a small insert in the same foredeck location as the current cockpit. EXACTLY THREE PANES TOTAL: one uninterrupted central shield-shaped pane, broad across its upper crown and narrowing to a rounded point at its LOWER front tip; plus ONE rounded oval side pane on the left and ONE on the right. The central pane wraps continuously from its front shield around the upper crown to the top, not separate top and front windows. Its boundaries with the side panes are two thin original slanting metal strips. Preserve the curved three-dimensional volume and original contours. No horizontal crossbar, no center split, no polygon mosaic, no rectangular windshield or little lower triangular windows. Do not turn the original into a flattened airplane canopy. The view from the side shows the rounded side pane; the top shows the broad continuous central pane wrapping onto the crown, with the side panes at the sides. Match input 2's pane layout, not any accidental pattern in input 1.\n\nThe component remains small in proportion to the newly designed freighter. Retain the new angular skin below/beside/in front of it, exposing all intended glass; no tall solid rounded torso below the glass. Outside the immediate glazing/frame area preserve the concept. Both perspectives remain complete front and rear views of the whole ship; SIDE/TOP/REAR stay on the sheet. These are final local glazing corrections, not a new ship design.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF06_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_only.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF06_C01_sheet.png",
+      "generated_output_sha256": "eba6939f2a2ac6f44c001168cdf0cae79eb81ce503f2815061c5259a002df060",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF06_sheet.png",
+          "sha256": "80bae8109f7b2fe8ff652accd723d03205195159ec6eecd934d0abd8656fcb33"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_frame.jpg",
+          "sha256": "845ebd407a9f878772d7f534a5cc39aa5c32a9ebf8c6381909e3da49180b6998"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_only.jpg",
+          "sha256": "9addf89e854e07481a241b22e8732eecfd188c0d75607dc6e7a2e030378ff9d9"
+        }
+      ]
+    },
+    {
+      "id": "BHF07_C01",
+      "base_variant": "BHF07",
+      "title_ru": "BHF07 — восстановление остекления",
+      "prompt": "Use case: precise-object-edit. Edit the FIRST input, the completed \"BHF07\" concept sheet. Change ONLY the small cockpit glass panes and their immediate thin frames, consistently in every view. Keep all hull volumes, prow, foredeck, wings, cargo body, fins, hatch, engines, palette, lighting, sheet layout and title unchanged. Do not rebuild the old BH nose pod, deep chin or whole fighter cabin.\n\nInputs 2 and 3 are exact renders of the ORIGINAL BH glass and immediate surrounding frame / glass alone. Reproduce this exact native glazing as a small insert in the same foredeck location as the current cockpit. EXACTLY THREE PANES TOTAL: one uninterrupted central shield-shaped pane, broad across its upper crown and narrowing to a rounded point at its LOWER front tip; plus ONE rounded oval side pane on the left and ONE on the right. The central pane wraps continuously from its front shield around the upper crown to the top, not separate top and front windows. Its boundaries with the side panes are two thin original slanting metal strips. Preserve the curved three-dimensional volume and original contours. No horizontal crossbar, no center split, no polygon mosaic, no rectangular windshield or little lower triangular windows. Do not turn the original into a flattened airplane canopy. The view from the side shows the rounded side pane; the top shows the broad continuous central pane wrapping onto the crown, with the side panes at the sides. Match input 2's pane layout, not any accidental pattern in input 1.\n\nThe component remains small in proportion to the newly designed freighter. Retain the new angular skin below/beside/in front of it, exposing all intended glass; no tall solid rounded torso below the glass. Outside the immediate glazing/frame area preserve the concept. Both perspectives remain complete front and rear views of the whole ship; SIDE/TOP/REAR stay on the sheet. These are final local glazing corrections, not a new ship design.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF07_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_only.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF07_C01_sheet.png",
+      "generated_output_sha256": "93ba0416e561a79c04acc406f8293b2ddfb0e50d4be2cf4e513113b91b7698ff",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF07_sheet.png",
+          "sha256": "af39b4a436aa15dc058537a1babe91c8ed933517b81f2f79791f02734ffeced7"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_frame.jpg",
+          "sha256": "845ebd407a9f878772d7f534a5cc39aa5c32a9ebf8c6381909e3da49180b6998"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_only.jpg",
+          "sha256": "9addf89e854e07481a241b22e8732eecfd188c0d75607dc6e7a2e030378ff9d9"
+        }
+      ]
+    },
+    {
+      "id": "BHF09_C01",
+      "base_variant": "BHF09",
+      "title_ru": "BHF09 — восстановление остекления",
+      "prompt": "Use case: precise-object-edit. Edit the FIRST input, the completed \"BHF09\" concept sheet. Change ONLY the small cockpit glass panes and their immediate thin frames, consistently in every view. Keep all hull volumes, prow, foredeck, wings, cargo body, fins, hatch, engines, palette, lighting, sheet layout and title unchanged. Do not rebuild the old BH nose pod, deep chin or whole fighter cabin.\n\nInputs 2 and 3 are exact renders of the ORIGINAL BH glass and immediate surrounding frame / glass alone. Reproduce this exact native glazing as a small insert in the same foredeck location as the current cockpit. EXACTLY THREE PANES TOTAL: one uninterrupted central shield-shaped pane, broad across its upper crown and narrowing to a rounded point at its LOWER front tip; plus ONE rounded oval side pane on the left and ONE on the right. The central pane wraps continuously from its front shield around the upper crown to the top, not separate top and front windows. Its boundaries with the side panes are two thin original slanting metal strips. Preserve the curved three-dimensional volume and original contours. No horizontal crossbar, no center split, no polygon mosaic, no rectangular windshield or little lower triangular windows. Do not turn the original into a flattened airplane canopy. The view from the side shows the rounded side pane; the top shows the broad continuous central pane wrapping onto the crown, with the side panes at the sides. Match input 2's pane layout, not any accidental pattern in input 1.\n\nThe component remains small in proportion to the newly designed freighter. Retain the new angular skin below/beside/in front of it, exposing all intended glass; no tall solid rounded torso below the glass. Outside the immediate glazing/frame area preserve the concept. Both perspectives remain complete front and rear views of the whole ship; SIDE/TOP/REAR stay on the sheet. These are final local glazing corrections, not a new ship design.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF09_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_only.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF09_C01_sheet.png",
+      "generated_output_sha256": "9f503fbd6a8666f699b27d6a3ef497f1e9a10bfa6ca4cf33a716b76b59a0677d",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF09_sheet.png",
+          "sha256": "fa579e2b3c391ce7a311af68e5a3f26c554b3b4d34e2866d999ed5da765b4821"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_frame.jpg",
+          "sha256": "845ebd407a9f878772d7f534a5cc39aa5c32a9ebf8c6381909e3da49180b6998"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_only.jpg",
+          "sha256": "9addf89e854e07481a241b22e8732eecfd188c0d75607dc6e7a2e030378ff9d9"
+        }
+      ]
+    },
+    {
+      "id": "BHF10_C01",
+      "base_variant": "BHF10",
+      "title_ru": "BHF10 — восстановление остекления",
+      "prompt": "Use case: precise-object-edit. Edit the FIRST input, the completed \"BHF10\" concept sheet. Change ONLY the small cockpit glass panes and their immediate thin frames, consistently in every view. Keep all hull volumes, prow, foredeck, wings, cargo body, fins, hatch, engines, palette, lighting, sheet layout and title unchanged. Do not rebuild the old BH nose pod, deep chin or whole fighter cabin.\n\nInputs 2 and 3 are exact renders of the ORIGINAL BH glass and immediate surrounding frame / glass alone. Reproduce this exact native glazing as a small insert in the same foredeck location as the current cockpit. EXACTLY THREE PANES TOTAL: one uninterrupted central shield-shaped pane, broad across its upper crown and narrowing to a rounded point at its LOWER front tip; plus ONE rounded oval side pane on the left and ONE on the right. The central pane wraps continuously from its front shield around the upper crown to the top, not separate top and front windows. Its boundaries with the side panes are two thin original slanting metal strips. Preserve the curved three-dimensional volume and original contours. No horizontal crossbar, no center split, no polygon mosaic, no rectangular windshield or little lower triangular windows. Do not turn the original into a flattened airplane canopy. The view from the side shows the rounded side pane; the top shows the broad continuous central pane wrapping onto the crown, with the side panes at the sides. Match input 2's pane layout, not any accidental pattern in input 1.\n\nThe component remains small in proportion to the newly designed freighter. Retain the new angular skin below/beside/in front of it, exposing all intended glass; no tall solid rounded torso below the glass. Outside the immediate glazing/frame area preserve the concept. Both perspectives remain complete front and rear views of the whole ship; SIDE/TOP/REAR stay on the sheet. These are final local glazing corrections, not a new ship design.",
+      "referenced_image_paths": [
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF10_sheet.png",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_frame.jpg",
+        "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_only.jpg"
+      ],
+      "parameters": {
+        "transparent_background": false
+      },
+      "generation_status": "generated_for_review",
+      "generated_output": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF10_C01_sheet.png",
+      "generated_output_sha256": "61582e3ec4820015dac87128815f188a3218527cf12ae87093b93690cd85fbbf",
+      "ordered_reference_hashes": [
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/concepts/round_02/bh_freighter_BHF10_sheet.png",
+          "sha256": "a1838ce39e42cf385c26bca74fbe7e0dc5184257d4237f55062c8138a86adbca"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_frame.jpg",
+          "sha256": "845ebd407a9f878772d7f534a5cc39aa5c32a9ebf8c6381909e3da49180b6998"
+        },
+        {
+          "path": "D:/work/Freelancer-Decomp/out/ship_design/bh_family/references/glazing_only/native_glazing_only.jpg",
+          "sha256": "9addf89e854e07481a241b22e8732eecfd188c0d75607dc6e7a2e030378ff9d9"
+        }
+      ]
+    }
+  ]
+}
